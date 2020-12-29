@@ -1,1 +1,1093 @@
-/home/davidpg/workspace/java/RaDiOS-MTT/radios.json
+{
+  "disease" : {
+    "name" : "#SCD_Disease_SickleCell",
+    "prevalenceAtBirth" : "0.01693#BETA(119;665.194)",
+    "developments" : [ {
+      "name" : "#SCD_Development_Natural",
+      "lifeExpectancy" : "82.065",
+      "kind" : "NATURAL",
+      "manifestations" : [ {
+        "name" : "#SCD_Manif_Anemia",
+        "probability" : "<rdt:table xmlns:rdt=\"http://www.ull.es/RaDiOS/datatypes\"\n\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n\txsi:schemaLocation=\"http://www.ull.es/RaDiOS/datatypes datatable.xsd \">\n\n\t<rdt:description>Tasas de complicaciones por 100 pacientes-año</rdt:description>\n\t<rdt:informationKind>RATE</rdt:informationKind>\n\t<rdt:population>100</rdt:population>\n\t<rdt:period value=\"1\" kind=\"YEAR\" />\n\n\t<rdt:headers>\n\t\t<rdt:headerDefinition text=\"Edad\" uid=\"001\" index=\"AGE\" />\n\t\t<rdt:headerDefinition text=\"Anemia\" uid=\"005\" />\n\t</rdt:headers>\n\n\t<rdt:colHeaders>\n\t\t<rdt:headerReference uidRef=\"001\" />\n\t\t<rdt:headerReference uidRef=\"005\" />\n\t</rdt:colHeaders>\n\n\t<rdt:content>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">0-1</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,95</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">1-2</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,7</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">2-3</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,3</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">3-4</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">5,9</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">4-5</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,9</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">5-6</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">6-7</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">8,3</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">7-8</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">8-9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,9</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">9-10</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1</rdt:column>\n\t\t</rdt:row>\n\t</rdt:content>\n</rdt:table>"
+      }, {
+        "name" : "#SCD_Manif_ChestSyndrome",
+        "probability" : "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rdt:table xmlns:rdt=\"http://www.ull.es/RaDiOS/datatypes\"\n\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n\txsi:schemaLocation=\"http://www.ull.es/RaDiOS/datatypes datatable.xsd \">\n\n\t<rdt:description>Tasas de complicaciones por 100 pacientes-año</rdt:description>\n\t<rdt:informationKind>RATE</rdt:informationKind>\n\t<rdt:population>100</rdt:population>\n\t<rdt:period value=\"1\" kind=\"YEAR\" />\n\n\t<rdt:headers>\n\t\t<rdt:headerDefinition text=\"Edad\" uid=\"001\" index=\"AGE\" />\n\t\t<rdt:headerDefinition text=\"Chest Syndrome\" uid=\"006\" />\n\t</rdt:headers>\n\n\t<rdt:colHeaders>\n\t\t<rdt:headerReference uidRef=\"001\" />\n\t\t<rdt:headerReference uidRef=\"006\" />\n\t</rdt:colHeaders>\n\n\t<rdt:content>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">0-1</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">11,6</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">1-2</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">26,8</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">2-3</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">26,3</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">3-4</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">34,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">4-5</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">25,5</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">5-6</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">22,5</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">6-7</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">28,9</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">7-8</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">20,8</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">8-9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">15,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">9-10</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">9,27</rdt:column>\n\t\t</rdt:row>\n\t</rdt:content>\n</rdt:table>"
+      }, {
+        "name" : "#SCD_Manif_HearingLoss",
+        "probability" : "0.138",
+        "utilities" : [ {
+          "name" : "#SCD_Disutility_Manif_HearingLoss",
+          "kind" : "DISUTILITY",
+          "value" : "0.14",
+          "calculateMethod" : "MIN"
+        } ],
+        "precedingManifestations" : [ "#SCD_Manif_Meningitis" ]
+      }, {
+        "name" : "#SCD_Manif_Meningitis",
+        "probability" : "0.1803",
+        "kind" : "ACUTE",
+        "mortalityFactor" : "0.31",
+        "precedingManifestations" : [ "#SCD_Manif_PneumococcalSepsis" ],
+        "treatmentStrategies" : [ {
+          "name" : "#SCD_TreatmentStrategy_Manif_Meningitis",
+          "treatments" : [ {
+            "name" : "#SCD_Treatment_DrugsForMeningitis",
+            "drugs" : [ {
+              "name" : "#SCD_Drug_CefotaximaIV",
+              "guidelines" : [ {
+                "name" : "#SCD_Guidelines_Drug_CefotaximaIV",
+                "range" : "15d",
+                "dose" : "300mg/KG",
+                "utilities" : [ {
+                  "name" : "#SCD_Utility_Disease_NoSevere",
+                  "kind" : "UTILITY",
+                  "value" : "0.9",
+                  "calculateMethod" : "MIN"
+                } ]
+              } ],
+              "costs" : [ {
+                "name" : "#SCD_Cost_Drug_CefotaximaIV",
+                "amount" : "0.0021075"
+              } ]
+            }, {
+              "name" : "#SCD_Drug_VancomicinaIV",
+              "guidelines" : [ {
+                "name" : "#SCD_Guidelines_Drug_VancomicinaIV",
+                "range" : "15d",
+                "dose" : "60mg/KG",
+                "utilities" : [ {
+                  "name" : "#SCD_Utility_Disease_NoSevere",
+                  "kind" : "UTILITY",
+                  "value" : "0.9",
+                  "calculateMethod" : "MIN"
+                } ]
+              } ],
+              "costs" : [ {
+                "name" : "#SCD_Cost_Drug_VancomicinaIV",
+                "amount" : "0.0069709"
+              } ]
+            } ]
+          } ]
+        } ]
+      }, {
+        "name" : "#SCD_Manif_MentalRetardation",
+        "probability" : "0.0345",
+        "utilities" : [ {
+          "name" : "#SCD_Disutility_Manif_MentalRetardation",
+          "kind" : "DISUTILITY",
+          "value" : "0.41",
+          "calculateMethod" : "MIN"
+        } ],
+        "precedingManifestations" : [ "#SCD_Manif_Meningitis" ]
+      }, {
+        "name" : "#SCD_Manif_PneumococcalSepsis",
+        "probability" : "<rdt:table xmlns:rdt=\"http://www.ull.es/RaDiOS/datatypes\"\n\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n\txsi:schemaLocation=\"http://www.ull.es/RaDiOS/datatypes datatable.xsd \">\n\n\t<rdt:description>Tasas de complicaciones por 100 pacientes-año</rdt:description>\n\t<rdt:informationKind>RATE</rdt:informationKind>\n\t<rdt:population>100</rdt:population>\n\t<rdt:period value=\"1\" kind=\"YEAR\" />\n\n\t<rdt:requiredVariables>\n\t\t<rdt:variable uid= \"v001\" name=\"PROPHYLAXIS\"/>\n\t</rdt:requiredVariables>\n\n\t<rdt:headers>\n\t\t<rdt:headerDefinition text=\"Edad\" uid=\"001\" index=\"AGE\"/>\n\t\t<rdt:headerDefinition text=\"Sepsis por neumococos\" uid=\"002\">\n\t\t\t<rdt:headerDefinition text=\"Sin profilaxis\" uid=\"012\" />\n\t\t\t<rdt:headerDefinition text=\"En profilaxis\" uid=\"022\" varRef=\"v001\" />\n\t\t</rdt:headerDefinition>\n\t</rdt:headers>\n\n\t<rdt:colHeaders>\n\t\t<rdt:headerReference uidRef=\"001\" />\n\t\t<rdt:headerReference uidRef=\"012\" />\n\t\t<rdt:headerReference uidRef=\"022\" />\n\t</rdt:colHeaders>\n\n\t<rdt:content>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">0-1</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">1-2</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">2-3</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">3-4</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">4-5</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">5-6</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">7,2</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,6</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">6-7</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">5,4</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">7-8</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,6</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0,8</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">8-9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,8</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0,4</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">9-10</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0</rdt:column>\n\t\t</rdt:row>\n\t</rdt:content>\n</rdt:table>",
+        "kind" : "ACUTE",
+        "mortalityFactor" : "0.1528",
+        "treatmentStrategies" : [ {
+          "name" : "#SCD_TreatmentStrategy_Manif_PneumococcalSepsis",
+          "treatments" : [ {
+            "name" : "#SCD_Treatment_UciStay_Manif_PneumococcalSepsis",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_UciStay_Manif_PneumococcalSepsis",
+              "range" : "3d",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_NoSevere",
+                "kind" : "UTILITY",
+                "value" : "0.9",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_UciStay",
+              "amount" : "3103.14"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_HospitalStay_Manif_PneumococcalSepsis",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_HospitalStay_Manif_PneumococcalSepsis",
+              "range" : "8d",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_NoSevere",
+                "kind" : "UTILITY",
+                "value" : "0.9",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_HospitalStay",
+              "amount" : "647.90"
+            } ]
+          } ]
+        } ]
+      }, {
+        "name" : "#SCD_Manif_Seizure",
+        "probability" : "0.0552",
+        "kind" : "CHRONIC",
+        "precedingManifestations" : [ "#SCD_Manif_Meningitis" ]
+      }, {
+        "name" : "#SCD_Manif_SplenicSequestration",
+        "probability" : "<rdt:table xmlns:rdt=\"http://www.ull.es/RaDiOS/datatypes\"\n\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n\txsi:schemaLocation=\"http://www.ull.es/RaDiOS/datatypes datatable.xsd \">\n\n\t<rdt:description>Tasas de complicaciones por 100 pacientes-año</rdt:description>\n\t<rdt:informationKind>RATE</rdt:informationKind>\n\t<rdt:population>100</rdt:population>\n\t<rdt:period value=\"1\" kind=\"YEAR\" />\n\n\t<rdt:requiredVariables>\n\t\t<rdt:variable uid= \"v001\" name=\"PARENTAL_EDUCATION\"/>\n\t</rdt:requiredVariables>\n\n\t<rdt:headers>\n\t\t<rdt:headerDefinition text=\"Edad\" uid=\"001\" index=\"AGE\" />\n\t\t<rdt:headerDefinition text=\"Secuestro esplénico\" uid=\"003\">\n\t\t\t<rdt:headerDefinition text=\"Sin educación parental\" uid=\"013\" />\n\t\t\t<rdt:headerDefinition text=\"Con educación parental\" uid=\"023\" varRef=\"v001\" />\n\t\t</rdt:headerDefinition>\n\t</rdt:headers>\n\n\t<rdt:colHeaders>\n\t\t<rdt:headerReference uidRef=\"001\" />\n\t\t<rdt:headerReference uidRef=\"013\" />\n\t\t<rdt:headerReference uidRef=\"023\" />\n\t</rdt:colHeaders>\n\n\t<rdt:content>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">0-1</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,25</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">6,3</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">1-2</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">6,2</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">6,3</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">2-3</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">5,3</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">6,3</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">3-4</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">2</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,9</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">4-5</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,5</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,9</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">5-6</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,4</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,4</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">6-7</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,4</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">7-8</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0,5</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0,6</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">8-9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0,6</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">9-10</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0,7</rdt:column>\n\t\t</rdt:row>\n\t</rdt:content>\n</rdt:table>",
+        "kind" : "ACUTE",
+        "mortalityFactor" : "0.06",
+        "treatmentStrategies" : [ {
+          "name" : "#SCD_TreatmentStrategy_Manif_SplenicSequestration",
+          "treatments" : [ {
+            "name" : "#SCD_Treatment_HospitalStay_Manif_SplenicSequestration",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_HospitalStay_Manif_SplenicSequestration",
+              "range" : "6d",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_NoSevere",
+                "kind" : "UTILITY",
+                "value" : "0.9",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_HospitalStay",
+              "amount" : "647.90"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_SimpleTransfusion",
+            "percentageTreated" : "0.8",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_SimpleTransfusion",
+              "range" : "1u",
+              "utilities" : [ {
+                "name" : "#SCD_Disutility_Treatment_Transfusion",
+                "kind" : "DISUTILITY",
+                "value" : "0.125",
+                "calculateMethod" : "MIN"
+              }, {
+                "name" : "#SCD_Utility_Disease_NoSevere",
+                "kind" : "UTILITY",
+                "value" : "0.9",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_SimpleTransfusion",
+              "amount" : "111.11"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_UciStay_Manif_SplenicSequestration",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_UciStay_Manif_SplenicSequestration",
+              "range" : "1d",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_NoSevere",
+                "kind" : "UTILITY",
+                "value" : "0.9",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_UciStay",
+              "amount" : "3103.14"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_Splenectomy_Manif_SplenicSequestration",
+            "percentageTreated" : "0.0105",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_Splenectomy_Manif_SplenicSequestration",
+              "range" : "1u",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_Severe",
+                "kind" : "UTILITY",
+                "value" : "0.7",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_Splenectomy",
+              "amount" : "9790.21"
+            } ]
+          } ]
+        } ]
+      }, {
+        "name" : "#SCD_Manif_SplenicSequestration_Recurrent",
+        "kind" : "CHRONIC",
+        "precedingManifestations" : [ "#SCD_Manif_SplenicSequestration" ],
+        "treatmentStrategies" : [ {
+          "name" : "#SCD_TreatmentStrategy_Manif_SplenicSequestration",
+          "treatments" : [ {
+            "name" : "#SCD_Treatment_HospitalStay_Manif_SplenicSequestration",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_HospitalStay_Manif_SplenicSequestration",
+              "range" : "6d",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_NoSevere",
+                "kind" : "UTILITY",
+                "value" : "0.9",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_HospitalStay",
+              "amount" : "647.90"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_SimpleTransfusion",
+            "percentageTreated" : "0.8",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_SimpleTransfusion",
+              "range" : "1u",
+              "utilities" : [ {
+                "name" : "#SCD_Disutility_Treatment_Transfusion",
+                "kind" : "DISUTILITY",
+                "value" : "0.125",
+                "calculateMethod" : "MIN"
+              }, {
+                "name" : "#SCD_Utility_Disease_NoSevere",
+                "kind" : "UTILITY",
+                "value" : "0.9",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_SimpleTransfusion",
+              "amount" : "111.11"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_UciStay_Manif_SplenicSequestration",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_UciStay_Manif_SplenicSequestration",
+              "range" : "1d",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_NoSevere",
+                "kind" : "UTILITY",
+                "value" : "0.9",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_UciStay",
+              "amount" : "3103.14"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_Splenectomy_Manif_SplenicSequestration",
+            "percentageTreated" : "0.0105",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_Splenectomy_Manif_SplenicSequestration",
+              "range" : "1u",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_Severe",
+                "kind" : "UTILITY",
+                "value" : "0.7",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_Splenectomy",
+              "amount" : "9790.21"
+            } ]
+          } ]
+        } ]
+      }, {
+        "name" : "#SCD_Manif_Stroke",
+        "probability" : "<rdt:table xmlns:rdt=\"http://www.ull.es/RaDiOS/datatypes\"\n\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n\txsi:schemaLocation=\"http://www.ull.es/RaDiOS/datatypes datatable.xsd \">\n\n\t<rdt:description>Tasas de complicaciones por 100 pacientes-año</rdt:description>\n\t<rdt:informationKind>RATE</rdt:informationKind>\n\t<rdt:population>100</rdt:population>\n\t<rdt:period value=\"1\" kind=\"YEAR\" />\n\n\t<rdt:headers>\n\t\t<rdt:headerDefinition text=\"Edad\" uid=\"001\" index=\"AGE\" />\n\t\t<rdt:headerDefinition text=\"Ictus\" uid=\"004\">\n\t\t\t<rdt:headerDefinition text=\"Primer ictus sin prevención\" uid=\"014\" />\n\t\t</rdt:headerDefinition>\n\t</rdt:headers>\n\n\t<rdt:colHeaders>\n\t\t<rdt:headerReference uidRef=\"001\" />\n\t\t<rdt:headerReference uidRef=\"014\" />\n\t</rdt:colHeaders>\n\n\t<rdt:content>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">0-1</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">1-2</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0,24</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">2-3</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,67</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">3-4</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,67</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">4-5</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,08</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">5-6</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,08</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">6-7</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,31</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">7-8</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">1,31</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">8-9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0,27</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">9-10</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0,27</rdt:column>\n\t\t</rdt:row>\n\t</rdt:content>\n</rdt:table>",
+        "kind" : "ACUTE",
+        "mortalityFactor" : "0.27",
+        "treatmentStrategies" : [ {
+          "name" : "#SCD_TreatmentStrategy_Manif_Stroke",
+          "treatments" : [ {
+            "name" : "#SCD_Treatment_UciStay_Manif_Stroke",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_UciStay_Manif_Stroke",
+              "range" : "2d",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_Severe",
+                "kind" : "UTILITY",
+                "value" : "0.7",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_UciStay",
+              "amount" : "3103.14"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_HospitalStay_Manif_Stroke",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_HospitalStay_Manif_Stroke",
+              "range" : "16d",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_Severe",
+                "kind" : "UTILITY",
+                "value" : "0.7",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_HospitalStay",
+              "amount" : "647.90"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_CTScanner",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_CTScanner_Manif_Stroke",
+              "range" : "1u",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_Severe",
+                "kind" : "UTILITY",
+                "value" : "0.7",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_CTScanner",
+              "amount" : "241.11"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_ExchangeTransfusion",
+            "percentageTreated" : "0.8",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_ExchangeTransfusion",
+              "range" : "1u",
+              "utilities" : [ {
+                "name" : "#SCD_Disutility_Treatment_Transfusion",
+                "kind" : "DISUTILITY",
+                "value" : "0.125",
+                "calculateMethod" : "MIN"
+              }, {
+                "name" : "#SCD_Utility_Disease_Severe",
+                "kind" : "UTILITY",
+                "value" : "0.7",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_ExchangeTransfusion",
+              "amount" : "1204.68"
+            } ]
+          } ]
+        } ]
+      }, {
+        "name" : "#SCD_Manif_StrokeDependence",
+        "probability" : "GAMMA(106,1)",
+        "precedingManifestations" : [ "#SCD_Manif_Stroke" ]
+      }, {
+        "name" : "#SCD_Manif_StrokeDependence_Recurrent",
+        "probability" : "0.37",
+        "mortalityFactor" : "GAMMA(39,1)",
+        "precedingManifestations" : [ "#SCD_Manif_Stroke_Recurrent" ]
+      }, {
+        "name" : "#SCD_Manif_Stroke_Recurrent",
+        "probability" : "<rdt:table xmlns:rdt=\"http://www.ull.es/RaDiOS/datatypes\"\n\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n\txsi:schemaLocation=\"http://www.ull.es/RaDiOS/datatypes datatable.xsd \">\n\n\t<rdt:description>Tasas de complicaciones por 100 pacientes-año</rdt:description>\n\t<rdt:informationKind>RATE</rdt:informationKind>\n\t<rdt:population>100</rdt:population>\n\t<rdt:period value=\"1\" kind=\"YEAR\" />\n\n\t<rdt:headers>\n\t\t<rdt:headerDefinition text=\"Edad\" uid=\"001\" index=\"AGE\" />\n\t\t<rdt:headerDefinition text=\"Ictus\" uid=\"004\">\n\t\t\t<rdt:headerDefinition text=\"Recurrencia en régimen transfusinal\" uid=\"024\" />\n\t\t</rdt:headerDefinition>\n\t</rdt:headers>\n\n\t<rdt:colHeaders>\n\t\t<rdt:headerReference uidRef=\"001\" />\n\t\t<rdt:headerReference uidRef=\"024\" />\n\t</rdt:colHeaders>\n\n\t<rdt:content>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">0-1</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">0</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">1-2</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">2-3</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">3-4</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">4-5</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">5-6</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">6-7</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">7-8</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">8-9</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,2</rdt:column>\n\t\t</rdt:row>\n\t\t<rdt:row>\n\t\t\t<rdt:column type=\"RANGE\">9-10</rdt:column>\n\t\t\t<rdt:column type=\"NUMBER\">3,2</rdt:column>\n\t\t</rdt:row>\n\t</rdt:content>\n</rdt:table>",
+        "kind" : "CHRONIC",
+        "mortalityFactor" : "0.29",
+        "precedingManifestations" : [ "#SCD_Manif_Stroke" ],
+        "treatmentStrategies" : [ {
+          "name" : "#SCD_TreatmentStrategy_Manif_Stroke",
+          "treatments" : [ {
+            "name" : "#SCD_Treatment_UciStay_Manif_Stroke",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_UciStay_Manif_Stroke",
+              "range" : "2d",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_Severe",
+                "kind" : "UTILITY",
+                "value" : "0.7",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_UciStay",
+              "amount" : "3103.14"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_HospitalStay_Manif_Stroke",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_HospitalStay_Manif_Stroke",
+              "range" : "16d",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_Severe",
+                "kind" : "UTILITY",
+                "value" : "0.7",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_HospitalStay",
+              "amount" : "647.90"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_CTScanner",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_CTScanner_Manif_Stroke",
+              "range" : "1u",
+              "utilities" : [ {
+                "name" : "#SCD_Utility_Disease_Severe",
+                "kind" : "UTILITY",
+                "value" : "0.7",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_CTScanner",
+              "amount" : "241.11"
+            } ]
+          }, {
+            "name" : "#SCD_Treatment_ExchangeTransfusion",
+            "percentageTreated" : "0.8",
+            "guidelines" : [ {
+              "name" : "#SCD_Guidelines_Treatment_ExchangeTransfusion",
+              "range" : "1u",
+              "utilities" : [ {
+                "name" : "#SCD_Disutility_Treatment_Transfusion",
+                "kind" : "DISUTILITY",
+                "value" : "0.125",
+                "calculateMethod" : "MIN"
+              }, {
+                "name" : "#SCD_Utility_Disease_Severe",
+                "kind" : "UTILITY",
+                "value" : "0.7",
+                "calculateMethod" : "MIN"
+              } ]
+            } ],
+            "costs" : [ {
+              "name" : "#SCD_Cost_Treatment_ExchangeTransfusion",
+              "amount" : "1204.68"
+            } ]
+          } ]
+        } ]
+      } ]
+    } ],
+    "followUpStrategies" : [ {
+      "name" : "#SCD_Strategy_FollowUp",
+      "followUps" : [ {
+        "name" : "#SCD_FollowUp_AbdominalEcho",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_AbdominalEcho",
+          "range" : "6y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_AbdominalEcho",
+          "amount" : "93.98"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_Audiometry",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_Audiometry",
+          "range" : "4y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_Audiometry",
+          "amount" : "197.32"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_BasicUrineProfile",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_BasicUrineProfile",
+          "range" : "0y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_BasicUrineProfile",
+          "amount" : "7.71"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_CardiologicalEvaluation",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_CardiologicalEvaluation",
+          "range" : "8y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_CardiologicalEvaluation",
+          "amount" : "154.85"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_CreatinineClearance",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_CreatinineClearance",
+          "range" : "12y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_CreatinineClearance"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_Ferritin",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_Ferritin",
+          "range" : "2y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_Ferritin",
+          "amount" : "8.39"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_FollowUpInNeurology",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_FollowUpInNeurology",
+          "range" : "2y-*"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_FollowUpInOphthalmology",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_FollowUpInOphthalmology_A",
+          "range" : "8y,10y"
+        }, {
+          "name" : "#SCD_Guidelines_FwUp_FollowUpInOphthalmology_B"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_FollowUpInOphthalmology",
+          "amount" : "193.08"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_Hb_S",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_Hb_S",
+          "range" : "5y"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_Hb_S",
+          "amount" : "25.48"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_HealthEducationByNursing",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_HealthEducationByNursing",
+          "range" : "3m,6m,1y"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_HealthEducationByNursing",
+          "amount" : "107.56"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_HemoglobinF",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_HemoglobinF",
+          "range" : "0y-2y"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_HemoglobinF",
+          "amount" : "30.80"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_Hemogram_Biochemistry",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_Hemogram_Biochemistry",
+          "range" : "0y-1y,1y-5y,6y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_Hemogram_Biochemistry",
+          "amount" : "12.29+2.99"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_MagneticResonance",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_MagneticResonance",
+          "range" : "4y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_MagneticResonance",
+          "amount" : "389.03"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_MicroAlbuminInUrine",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_MicroAlbuminInUrine",
+          "range" : "6y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_MicroAlbuminInUrine",
+          "amount" : "4.83"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_PediatricConsultation",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_PediatricConsultation",
+          "range" : "0y-1y,1y-5y,6y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_PediatricConsultation",
+          "amount" : "79.65"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_PediatricDentistryReview",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_PediatricDentistryReview",
+          "range" : "5y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_PediatricDentistryReview",
+          "amount" : "45.07"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_PulseOximetry",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_PulseOximetry",
+          "range" : "4y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_PulseOximetry",
+          "amount" : "179.24"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_RXChest",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_RXChest",
+          "range" : "2y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_RXChest",
+          "amount" : "149.27"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_ReticulocyteCount",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_ReticulocyteCount",
+          "range" : "0y-1y,1y-5y,6y-*"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_ReticulocyteCount",
+          "amount" : "7.94"
+        } ]
+      }, {
+        "name" : "#SCD_FollowUp_TranscranialEchoDoppler",
+        "guidelines" : [ {
+          "name" : "#SCD_Guidelines_FwUp_TranscranialEchoDoppler",
+          "range" : "2y-16y"
+        } ],
+        "costs" : [ {
+          "name" : "#SCD_Cost_FollowUp_TranscranialEchoDoppler",
+          "amount" : "188.70"
+        } ]
+      } ]
+    } ],
+    "interventions" : [ {
+      "name" : "#SCD_Intervention_NoScreening",
+      "kind" : "NO_SCREENING",
+      "clinicalDiagnosisStrategies" : [ {
+        "name" : "#SCD_Strategy_ClinicalDiagnosis"
+      } ],
+      "followUpStrategies" : [ {
+        "name" : "#SCD_Strategy_FollowUp",
+        "followUps" : [ {
+          "name" : "#SCD_FollowUp_AbdominalEcho",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_AbdominalEcho",
+            "range" : "6y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_AbdominalEcho",
+            "amount" : "93.98"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_Audiometry",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_Audiometry",
+            "range" : "4y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_Audiometry",
+            "amount" : "197.32"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_BasicUrineProfile",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_BasicUrineProfile",
+            "range" : "0y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_BasicUrineProfile",
+            "amount" : "7.71"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_CardiologicalEvaluation",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_CardiologicalEvaluation",
+            "range" : "8y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_CardiologicalEvaluation",
+            "amount" : "154.85"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_CreatinineClearance",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_CreatinineClearance",
+            "range" : "12y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_CreatinineClearance"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_Ferritin",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_Ferritin",
+            "range" : "2y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_Ferritin",
+            "amount" : "8.39"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_FollowUpInNeurology",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_FollowUpInNeurology",
+            "range" : "2y-*"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_FollowUpInOphthalmology",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_FollowUpInOphthalmology_A",
+            "range" : "8y,10y"
+          }, {
+            "name" : "#SCD_Guidelines_FwUp_FollowUpInOphthalmology_B"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_FollowUpInOphthalmology",
+            "amount" : "193.08"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_Hb_S",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_Hb_S",
+            "range" : "5y"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_Hb_S",
+            "amount" : "25.48"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_HealthEducationByNursing",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_HealthEducationByNursing",
+            "range" : "3m,6m,1y"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_HealthEducationByNursing",
+            "amount" : "107.56"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_HemoglobinF",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_HemoglobinF",
+            "range" : "0y-2y"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_HemoglobinF",
+            "amount" : "30.80"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_Hemogram_Biochemistry",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_Hemogram_Biochemistry",
+            "range" : "0y-1y,1y-5y,6y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_Hemogram_Biochemistry",
+            "amount" : "12.29+2.99"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_MagneticResonance",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_MagneticResonance",
+            "range" : "4y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_MagneticResonance",
+            "amount" : "389.03"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_MicroAlbuminInUrine",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_MicroAlbuminInUrine",
+            "range" : "6y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_MicroAlbuminInUrine",
+            "amount" : "4.83"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_PediatricConsultation",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_PediatricConsultation",
+            "range" : "0y-1y,1y-5y,6y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_PediatricConsultation",
+            "amount" : "79.65"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_PediatricDentistryReview",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_PediatricDentistryReview",
+            "range" : "5y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_PediatricDentistryReview",
+            "amount" : "45.07"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_PulseOximetry",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_PulseOximetry",
+            "range" : "4y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_PulseOximetry",
+            "amount" : "179.24"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_RXChest",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_RXChest",
+            "range" : "2y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_RXChest",
+            "amount" : "149.27"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_ReticulocyteCount",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_ReticulocyteCount",
+            "range" : "0y-1y,1y-5y,6y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_ReticulocyteCount",
+            "amount" : "7.94"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_TranscranialEchoDoppler",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_TranscranialEchoDoppler",
+            "range" : "2y-16y"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_TranscranialEchoDoppler",
+            "amount" : "188.70"
+          } ]
+        } ]
+      } ]
+    }, {
+      "name" : "#SCD_Intervention_Screening",
+      "kind" : "SCREENING",
+      "screeningStrategies" : [ {
+        "name" : "#SCD_Strategy_Screening",
+        "screeningTechniques" : [ {
+          "name" : "#SCD_Screening_Technique",
+          "sensitivity" : "1.0",
+          "especificity" : "1.0",
+          "percentForTheNext" : "0.27#BETA(0.0027;0.0024)"
+        }, {
+          "name" : "#SCD_Screening_Technique",
+          "sensitivity" : "1.0",
+          "especificity" : "1.0",
+          "percentForTheNext" : "0.0"
+        } ]
+      } ],
+      "clinicalDiagnosisStrategies" : [ {
+        "name" : "#SCD_Strategy_ClinicalDiagnosis"
+      } ],
+      "followUpStrategies" : [ {
+        "name" : "#SCD_Strategy_FollowUp",
+        "followUps" : [ {
+          "name" : "#SCD_FollowUp_AbdominalEcho",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_AbdominalEcho",
+            "range" : "6y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_AbdominalEcho",
+            "amount" : "93.98"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_Audiometry",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_Audiometry",
+            "range" : "4y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_Audiometry",
+            "amount" : "197.32"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_BasicUrineProfile",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_BasicUrineProfile",
+            "range" : "0y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_BasicUrineProfile",
+            "amount" : "7.71"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_CardiologicalEvaluation",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_CardiologicalEvaluation",
+            "range" : "8y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_CardiologicalEvaluation",
+            "amount" : "154.85"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_CreatinineClearance",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_CreatinineClearance",
+            "range" : "12y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_CreatinineClearance"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_Ferritin",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_Ferritin",
+            "range" : "2y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_Ferritin",
+            "amount" : "8.39"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_FollowUpInNeurology",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_FollowUpInNeurology",
+            "range" : "2y-*"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_FollowUpInOphthalmology",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_FollowUpInOphthalmology_A",
+            "range" : "8y,10y"
+          }, {
+            "name" : "#SCD_Guidelines_FwUp_FollowUpInOphthalmology_B"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_FollowUpInOphthalmology",
+            "amount" : "193.08"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_Hb_S",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_Hb_S",
+            "range" : "5y"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_Hb_S",
+            "amount" : "25.48"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_HealthEducationByNursing",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_HealthEducationByNursing",
+            "range" : "3m,6m,1y"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_HealthEducationByNursing",
+            "amount" : "107.56"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_HemoglobinF",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_HemoglobinF",
+            "range" : "0y-2y"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_HemoglobinF",
+            "amount" : "30.80"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_Hemogram_Biochemistry",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_Hemogram_Biochemistry",
+            "range" : "0y-1y,1y-5y,6y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_Hemogram_Biochemistry",
+            "amount" : "12.29+2.99"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_MagneticResonance",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_MagneticResonance",
+            "range" : "4y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_MagneticResonance",
+            "amount" : "389.03"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_MicroAlbuminInUrine",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_MicroAlbuminInUrine",
+            "range" : "6y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_MicroAlbuminInUrine",
+            "amount" : "4.83"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_PediatricConsultation",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_PediatricConsultation",
+            "range" : "0y-1y,1y-5y,6y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_PediatricConsultation",
+            "amount" : "79.65"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_PediatricDentistryReview",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_PediatricDentistryReview",
+            "range" : "5y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_PediatricDentistryReview",
+            "amount" : "45.07"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_PulseOximetry",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_PulseOximetry",
+            "range" : "4y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_PulseOximetry",
+            "amount" : "179.24"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_RXChest",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_RXChest",
+            "range" : "2y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_RXChest",
+            "amount" : "149.27"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_ReticulocyteCount",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_ReticulocyteCount",
+            "range" : "0y-1y,1y-5y,6y-*"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_ReticulocyteCount",
+            "amount" : "7.94"
+          } ]
+        }, {
+          "name" : "#SCD_FollowUp_TranscranialEchoDoppler",
+          "guidelines" : [ {
+            "name" : "#SCD_Guidelines_FwUp_TranscranialEchoDoppler",
+            "range" : "2y-16y"
+          } ],
+          "costs" : [ {
+            "name" : "#SCD_Cost_FollowUp_TranscranialEchoDoppler",
+            "amount" : "188.70"
+          } ]
+        } ]
+      } ],
+      "manifestationModifications" : [ {
+        "name" : "#SCD_ManMod_IntScr_SplenicSequestration",
+        "mortalityFactorModification" : "0.053",
+        "manifestations" : [ "#SCD_Manif_SplenicSequestration" ]
+      } ]
+    } ]
+  }
+}

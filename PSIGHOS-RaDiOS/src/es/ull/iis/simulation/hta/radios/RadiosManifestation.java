@@ -37,7 +37,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 
 		setManifestation(manifestation);
 		if (getManifestation() != null) {
-			addParamProbability(disease);
+			addParamProbabilities(disease);
 			addParamAnnualCosts();
 			addParamAnnualDisutility();
 			addParamAnnualIncreaseMortalityRate();
@@ -56,15 +56,33 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		return secParams;
 	}
 
-	private void addParamProbability(Disease disease) throws JAXBException {
-		String manifestationProbability = getManifestation().getProbability();
+	private es.ull.iis.simulation.hta.progression.Manifestation searchManifestationFromDisease (Disease disease, String manifestationName) {
+		for (es.ull.iis.simulation.hta.progression.Manifestation manifestation : disease.getManifestations()) {
+			if (manifestationName.equals(manifestation.name())) {
+				return manifestation;
+			}
+		}
+		return null;
+	}
+	
+	private void addParamProbabilities(Disease disease) throws JAXBException {
+		String manifestationProbability = (getManifestation().getProbability() != null) ? getManifestation().getProbability() : "0.0";
 		ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifestationProbability);
 		if (probabilityDistribution != null) {
 			if (CollectionUtils.isEmpty(getManifestation().getPrecedingManifestations())) {
 				getRepository().addProbParam(disease.getNullManifestation(), this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(),
-						probabilityDistribution.getProbabilisticValue());
+				probabilityDistribution.getProbabilisticValue());
+			} else {
+				for (String precedingManifesationName : getManifestation().getPrecedingManifestations()) {
+					getRepository().addProbParam(searchManifestationFromDisease(disease, precedingManifesationName), this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(),
+							probabilityDistribution.getProbabilisticValue());
+				}
 			}
 		} else {
+			if (manifestationProbability == null) {
+				System.out.println();
+			}
+			System.out.println(manifestationProbability);
 			Datatable datatable = XmlTransform.getDataTable(manifestationProbability);
 			// FIXME: tratar de adaptar con lo nuevo
 			// AgeBasedTimeToEventParam ageBasedTimeToEventParam =

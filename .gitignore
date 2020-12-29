@@ -1,3 +1,11 @@
+# Eclipse
+
+.classpath
+.settings/
+
+# Java class
 bin/
 *.class
+
+# Windows files
 desktop.ini

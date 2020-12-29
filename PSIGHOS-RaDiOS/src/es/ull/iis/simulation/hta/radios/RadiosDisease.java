@@ -1,8 +1,12 @@
 package es.ull.iis.simulation.hta.radios;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
@@ -71,13 +75,34 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	 * @throws JAXBException 
 	 */
 	private Map<String, RadiosManifestation> firstPassManifestationsAnalysis(SecondOrderParamsRepository repository, List<Manifestation> manifestations) throws JAXBException {
+		Queue<Manifestation> queueManifestations = new LinkedList<>();
+		Set<String> processedManifestations = new HashSet<>();
 		Map<String, RadiosManifestation> radiosManifestations = new HashMap<>();
 		for (Manifestation manifestation : manifestations) {
-			RadiosManifestation radiosManifestation = new RadiosManifestation(repository, this, manifestation);
-			addManifestation(radiosManifestation);
-			radiosManifestations.put(manifestation.getName(), radiosManifestation);
+			if (CollectionUtils.isEmpty(manifestation.getPrecedingManifestations())) {
+				registerManifestation(repository, processedManifestations, radiosManifestations, manifestation);
+			} else {
+				queueManifestations.add(manifestation);
+			}
+		}
+		
+		while (!queueManifestations.isEmpty()) {
+			Manifestation manifestation = queueManifestations.remove();
+			if (processedManifestations.containsAll(manifestation.getPrecedingManifestations())) {
+				registerManifestation(repository, processedManifestations, radiosManifestations, manifestation);
+			} else {
+				queueManifestations.add(manifestation);
+			}
 		}
 		return radiosManifestations;		
+	}
+
+	private void registerManifestation(SecondOrderParamsRepository repository, Set<String> processedManifestations, Map<String, RadiosManifestation> radiosManifestations, Manifestation manifestation)
+			throws JAXBException {
+		RadiosManifestation radiosManifestation = new RadiosManifestation(repository, this, manifestation);
+		addManifestation(radiosManifestation);
+		radiosManifestations.put(manifestation.getName(), radiosManifestation);
+		processedManifestations.add(manifestation.getName());
 	}
 
 	public RadiosDisease setDisease(Disease disease) {

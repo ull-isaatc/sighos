@@ -18,7 +18,7 @@ import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 public class ValueTransform {
-	private static int DETERMINISTIC_VALUE_POS = 2;
+	private static int DETERMINISTIC_VALUE_POS = 1;
 	private static int DISTRIBUTION_NAME_POS = 3;
 	private static int FIRST_PARAM_4_DISTRIBUTION_POS = 4;
 	private static int SECOND_PARAM_4_DISTRIBUTION_POS = 6;
@@ -33,6 +33,9 @@ public class ValueTransform {
     * @return
     */
    private static RandomVariate buildDistributionVariate(String distributionName, String firstParameter, String secondParameter) {
+   	if (distributionName == null) {
+   		return null;
+   	}
    	if (distributionName.toUpperCase().contains("EXP")) {
    		distributionName = "Exponential";
    	}

@@ -35,7 +35,7 @@ public class Tests {
 	}
 	
 	private Schema4Simulation loadDiseaseFromJson (Boolean fromUrl) throws JsonParseException, JsonMappingException, MalformedURLException, IOException {
-		File radiosJson = new File("resources/radios.json");
+		File radiosJson = new File("/home/davidpg/workspace/java/RaDiOS-MTT/radios.json");
 		if (fromUrl) {
 			return getMapperInstance().readValue(new URL("http://some-domains/api/Schema4Simulation.json"), Schema4Simulation.class);
 		} else {
@@ -140,7 +140,7 @@ public class Tests {
 		System.out.println("Test finished ...");
 	}
 	
-	// @Test	
+	@Test	
 	public void simulateDisease () {
 		System.out.println("Starting test ...");
 
