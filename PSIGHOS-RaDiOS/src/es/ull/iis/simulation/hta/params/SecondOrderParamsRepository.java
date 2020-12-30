@@ -434,9 +434,13 @@ public abstract class SecondOrderParamsRepository {
 	 * @param name String identifier of the miscellaneous parameter
 	 * @return A value for the specified miscellaneous parameter; {@link Double#NaN} in case the parameter is not defined
 	 */
-	public double getOtherParam(String name, int id) {
+	public double getOtherParam(String name, double defaultValue, DiseaseProgressionSimulation simul) {
+		final int id = simul.getIdentifier();
 		final SecondOrderParam param = otherParams.get(name);
-		return (param == null) ? Double.NaN : param.getValue(id); 
+		if (param == null)
+			return defaultValue;
+		final Modification modif = modificationParams.get(getModificationString(simul.getIntervention(), name));
+		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
 	}
 	
 	/**
@@ -475,11 +479,10 @@ public abstract class SecondOrderParamsRepository {
 	 */	
 	public double getProbParam(String name, DiseaseProgressionSimulation simul) {
 		final int id = simul.getIdentifier();
-		final Intervention interv = simul.getIntervention();
 		final SecondOrderParam param = probabilityParams.get(name);
 		if (param == null)
 			return 0.0;
-		final Modification modif = modificationParams.get(getModificationString(interv, name));
+		final Modification modif = modificationParams.get(getModificationString(simul.getIntervention(), name));
 		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
 	}
 
@@ -489,10 +492,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
 	 */	
 	public double getInitProbParam(Named stage, DiseaseProgressionSimulation simul) {
-		final int id = simul.getIdentifier();
-		// TODO: Añadir Modification
-		final SecondOrderParam param = probabilityParams.get(getInitProbString(stage));
-		return (param == null) ? 0.0 : param.getValue(id); 
+		return getProbParam(getInitProbString(stage), simul);
 	}
 
 	/**
@@ -501,10 +501,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
 	 */	
 	public double getDeathProbParam(Named stage, DiseaseProgressionSimulation simul) {
-		final int id = simul.getIdentifier();
-		// TODO: Añadir Modification
-		final SecondOrderParam param = probabilityParams.get(getDeathProbString(stage));
-		return (param == null) ? 0.0 : param.getValue(id); 
+		return getProbParam(getDeathProbString(stage), simul);
 	}
 
 	/**
@@ -513,10 +510,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
 	 */	
 	public double getDiagnosisProbParam(Named stage, DiseaseProgressionSimulation simul) {
-		final int id = simul.getIdentifier();
-		// TODO: Añadir Modification
-		final SecondOrderParam param = probabilityParams.get(getDiagnosisProbString(stage));
-		return (param == null) ? 0.0 : param.getValue(id); 
+		return getProbParam(getDiagnosisProbString(stage), simul);
 	}
 
 	/**
@@ -525,10 +519,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return the increase mortality rate associated to a complication or complication stage; 1.0 if no additional risk is associated
 	 */
 	public double getIMR(Named stage, DiseaseProgressionSimulation simul) {
-		final int id = simul.getIdentifier();
-		// TODO: Añadir Modification
-		final SecondOrderParam param = otherParams.get(STR_IMR_PREFIX + stage.name());
-		return (param == null) ? 1.0 : Math.max(1.0, param.getValue(id));		
+		return getOtherParam(STR_IMR_PREFIX + stage.name(), 1.0, simul);
 	}
 	
 	/**
@@ -721,6 +712,8 @@ public abstract class SecondOrderParamsRepository {
 			str.append(param.getName()).append("\t");
 		for (SecondOrderParam param : otherParams.values())
 			str.append(param.getName()).append("\t");
+		for (SecondOrderParam param : modificationParams.values())
+			str.append(param.getName()).append("\t");
 		return str.toString();
 	}
 	
@@ -733,6 +726,8 @@ public abstract class SecondOrderParamsRepository {
 		for (SecondOrderParam param : utilParams.values())
 			str.append(param.getValue(id)).append("\t");
 		for (SecondOrderParam param : otherParams.values())
+			str.append(param.getValue(id)).append("\t");
+		for (SecondOrderParam param : modificationParams.values())
 			str.append(param.getValue(id)).append("\t");
 		return str.toString();
 	}
