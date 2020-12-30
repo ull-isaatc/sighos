@@ -188,6 +188,13 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	public abstract double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge);
 	
 	/**
+	 * Returns the diagnosis cost for this disease
+	 * @param pat A patient
+	 * @return the diagnosis cost for this disease
+	 */
+	public abstract double getDiagnosisCost(Patient pat);
+	
+	/**
 	 * Returns the disutility value associated to the current stage of this chronic complication
 	 * @param pat A patient
 	 * @param method Method used to compute the disutility of this chronic complication in case the 

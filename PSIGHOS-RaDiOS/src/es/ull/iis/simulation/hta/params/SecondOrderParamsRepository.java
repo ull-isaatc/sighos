@@ -147,6 +147,11 @@ public abstract class SecondOrderParamsRepository {
 			@Override
 			public void registerSecondOrderParameters() {
 			}
+
+			@Override
+			public double getDiagnosisCost(Patient pat) {
+				return 0;
+			}
 		};
 		this.NO_MODIF = new Modification(this, Modification.Type.DIFF, "NOMOD", "Null modification", "", 0.0);
 	}

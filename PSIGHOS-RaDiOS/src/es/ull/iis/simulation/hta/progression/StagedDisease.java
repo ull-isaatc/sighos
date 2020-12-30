@@ -87,6 +87,11 @@ public abstract class StagedDisease extends Disease {
 		return cost;
 	}
 
+	@Override
+	public double getDiagnosisCost(Patient pat) {
+		return 0;
+	}
+	
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.hta.progression.Disease#getDisutility(es.ull.iis.simulation.hta.Patient, es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod)
 	 */

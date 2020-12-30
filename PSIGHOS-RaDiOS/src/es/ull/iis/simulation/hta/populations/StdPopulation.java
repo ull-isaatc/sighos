@@ -43,12 +43,8 @@ public abstract class StdPopulation implements Population {
 	public PatientProfile getPatientProfile() {
 		final int sex = (rng.draw() < pMan) ? BasicConfigParams.MAN : BasicConfigParams.WOMAN;
 		final double initAge = Math.min(Math.max(baselineAge.generate(), getMinAge()), getMaxAge());
-		// If the patient has the disease
-		if (rng.draw() < getPDisease()) {
-			return new PatientProfile(initAge, sex, disease, rng.draw() < pDiagnosed);
-		}
-		// Healthy patients are assumed to be "diagnosed"
-		return new PatientProfile(initAge, sex, secParams.HEALTHY, true);
+		final Disease dis = (rng.draw() < getPDisease()) ? disease : secParams.HEALTHY;
+		return new PatientProfile(initAge, sex, dis, rng.draw() < pDiagnosed);
 	}
 
 	@Override

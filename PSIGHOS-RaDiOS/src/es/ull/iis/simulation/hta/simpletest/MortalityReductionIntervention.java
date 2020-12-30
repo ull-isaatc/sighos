@@ -50,4 +50,9 @@ public class MortalityReductionIntervention extends Intervention {
 		return ANNUAL_COST;
 	}
 
+	@Override
+	public double getStartingCost(Patient pat) {
+		return 0;
+	}
+
 }

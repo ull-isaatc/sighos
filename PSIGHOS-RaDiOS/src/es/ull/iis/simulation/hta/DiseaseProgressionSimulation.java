@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta;
 
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.Simulation;
@@ -30,7 +29,6 @@ public class DiseaseProgressionSimulation extends Simulation {
 	protected final boolean cloned;
 	/** The list of generated patients */
 	protected final Patient[] generatedPatients; 
-	private ScreeningStrategy screenStrategy = null;
 
 	/**
 	 * Creates a new simulation for patients
@@ -99,21 +97,6 @@ public class DiseaseProgressionSimulation extends Simulation {
 		return intervention;
 	}
 
-	/**
-	 * @return the screenStrategy
-	 */
-	public ScreeningStrategy getScreenStrategy() {
-		return screenStrategy;
-	}
-
-	/**
-	 * @param screenStrategy the screenStrategy to set
-	 */
-	public DiseaseProgressionSimulation setScreenStrategy(ScreeningStrategy screenStrategy) {
-		this.screenStrategy = screenStrategy;
-		return this;
-	}
-	
 	/**
 	 * Adds a new patient
 	 * @param pat A patient

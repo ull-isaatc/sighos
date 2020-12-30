@@ -128,20 +128,27 @@ public class BudgetImpactView implements ExperimentListener {
 						final Patient pat = pInfo.getPatient();
 						final double initAge = lastAge[pat.getIdentifier()]; 
 						switch(pInfo.getType()) {
+						case DIAGNOSIS:
+							update(pat.getDisease().getDiagnosisCost(pat), endAge);
+							break;
+						case SCREEN:
+							update(calc.getCostForIntervention(pat), endAge);
+							break;
 						case MANIFESTATION:
 							update(calc.getCostOfManifestation(pat, pInfo.getManifestation()), endAge);
 						case DEATH:
-							// Update outcomes
-							if (endAge > initAge) {
-								final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
-								update(pat, periodCost, initAge, endAge);
-							}
-							break;
 						case START:
 							break;
 						default:
 							break;
 						
+						}
+						if (!PatientInfo.Type.START.equals(pInfo.getType())) {
+							// Update outcomes
+							if (endAge > initAge) {
+								final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
+								update(pat, periodCost, initAge, endAge);
+							}
 						}
 						// Update lastTs
 						lastAge[pat.getIdentifier()] = endAge;

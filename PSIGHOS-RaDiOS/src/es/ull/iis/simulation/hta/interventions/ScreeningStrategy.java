@@ -3,53 +3,42 @@
  */
 package es.ull.iis.simulation.hta.interventions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
+import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.model.Describable;
+import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class ScreeningStrategy implements Named, Describable {
+public abstract class ScreeningStrategy extends Intervention {
 	public enum ScreeningResult implements Named {
 		TP,
 		FP,
 		TN,
 		FN
 	}
-	private final String description;
-	private final String name;
 	private final double sensitivity;
 	private final double specificity;
-	private final SecondOrderParamsRepository secParams;
 	private final RandomSeedForPatients[] randomSeeds;
 	
 	/**
 	 * 
 	 */
 	public ScreeningStrategy(SecondOrderParamsRepository secParams, String name, String description, double sensitivity, double specificity) {
-		this.secParams = secParams;
-		this.name = name;
-		this.description = description;
+		super(secParams, name, description);
 		this.sensitivity = sensitivity;
 		this.specificity = specificity;
 		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
 		Arrays.fill(randomSeeds, null);
-	}
-	
-	@Override
-	public String getDescription() {
-		return description;
-	}
-	
-	@Override
-	public String name() {
-		return name;
 	}
 	
 	public void reset(int id) {
@@ -77,4 +66,51 @@ public class ScreeningStrategy implements Named, Describable {
 		return specificity;
 	}
 	
+	@Override
+	public ArrayList<DiscreteEvent> getEvents(Patient pat) {
+		final ArrayList<DiscreteEvent> eventList = new ArrayList<>();
+		eventList.add(new ScreeningEvent(pat.getTs(), pat));
+		return eventList;
+	}
+
+	
+	public class ScreeningEvent extends DiscreteEvent {
+		final Patient pat;
+		
+		public ScreeningEvent(long ts, Patient pat) {
+			super(ts);
+			this.pat = pat;
+		}
+
+		@Override
+		public void event() {
+			final DiseaseProgressionSimulation simul = pat.getSimulation();
+			// If the patient is already diagnosed, no sense in performing screening
+			if (!pat.isDiagnosed()) {
+				final int id = simul.getIdentifier();
+				ScreeningResult result;
+				// Healthy patients can be wrongly identified as false positives 
+				if (pat.isHealthy()) {
+					result = (getRandomSeedForPatients(id).draw(pat) >= getSpecificity()) ? ScreeningResult.FP : ScreeningResult.TN;
+				}
+				else {
+					result = (getRandomSeedForPatients(id).draw(pat) >= getSensitivity()) ? ScreeningResult.FN : ScreeningResult.TP;					
+				}
+				simul.notifyInfo(new PatientInfo(simul, pat, PatientInfo.Type.SCREEN, result, this.getTs()));
+				switch(result) {
+				case TP:
+					pat.setDiagnosed(true);
+				case FP:
+					simul.notifyInfo(new PatientInfo(simul, pat, PatientInfo.Type.DIAGNOSIS, ScreeningStrategy.this, this.getTs()));
+					break;
+				case FN:
+				case TN:
+				default:
+					break;
+				
+				}
+			}
+		}
+		
+	}
 }

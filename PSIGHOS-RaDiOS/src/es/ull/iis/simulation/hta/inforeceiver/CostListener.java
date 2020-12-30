@@ -77,20 +77,27 @@ public class CostListener extends Listener implements StructuredOutputListener {
 			// Update lastTs
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {
+			case DIAGNOSIS:
+				update(pat, pat.getDisease().getDiagnosisCost(pat), endAge);
+				break;
+			case SCREEN:
+				update(pat, calc.getCostForIntervention(pat), endAge);
+				break;
 			case MANIFESTATION:
 				update(pat, calc.getCostOfManifestation(pat, pInfo.getManifestation()), endAge);
 			case DEATH:
+			case START:
+				break;
+			default:
+				break;			
+			}
+			
+			if (!PatientInfo.Type.START.equals(pInfo.getType())) {
 				// Update outcomes
 				if (endAge > initAge) {
 					final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
 					update(pat, periodCost, initAge, endAge);
 				}
-				break;
-			case START:
-				break;
-			default:
-				break;
-			
 			}
 		}
 	}

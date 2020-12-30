@@ -3,12 +3,15 @@
  */
 package es.ull.iis.simulation.hta.interventions;
 
+import java.util.ArrayList;
+
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Modification;
 import es.ull.iis.simulation.model.Describable;
+import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
  * The second order characterization of an intervention. The {@link #registerSecondOrderParameters()} method 
@@ -64,6 +67,13 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 	 */
 	public abstract double getAnnualCost(Patient pat);
 
+	/**
+	 * Returns the initial cost of this intervention
+	 * @param pat A patient
+	 * @return the initial cost of this intervention
+	 */
+	public abstract double getStartingCost(Patient pat);
+	
 	/**
 	 * Returns a disutility value inherent to the intervention. A negative value represents an intervention that improves the utility
 	 * @param pat A patient
@@ -134,5 +144,13 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 		this.allParameterModification = allParameterModification;
 		return this;
 	}
-	
+
+	/**
+	 * Returns a collection of events that happens to patients that are treated with this intervention
+	 * @param pat A patient
+	 * @return A collection of events that happens to patients that are treated with this intervention
+	 */
+	public ArrayList<DiscreteEvent> getEvents(Patient pat) {
+		return new ArrayList<>();
+	}
 }

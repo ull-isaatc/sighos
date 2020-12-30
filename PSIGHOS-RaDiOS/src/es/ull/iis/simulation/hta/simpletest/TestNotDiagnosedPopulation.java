@@ -14,6 +14,7 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class TestNotDiagnosedPopulation extends StdPopulation {
+	private static final double BIRTH_PREVALENCE = 0.1;
 
 	/**
 	 * @param disease
@@ -34,7 +35,7 @@ public class TestNotDiagnosedPopulation extends StdPopulation {
 
 	@Override
 	public double getPDisease() {
-		return 1.0;
+		return BIRTH_PREVALENCE;
 	}
 
 	@Override

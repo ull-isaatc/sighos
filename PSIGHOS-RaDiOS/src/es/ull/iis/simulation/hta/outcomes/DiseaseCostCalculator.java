@@ -47,6 +47,11 @@ public class DiseaseCostCalculator implements CostCalculator {
 	}
 
 	@Override
+	public double getCostForIntervention(Patient pat) {
+		return pat.getIntervention().getStartingCost(pat);
+	}
+	
+	@Override
 	public TreeMap<Manifestation, Double> getAnnualManifestationCostWithinPeriod(Patient pat, double initAge,
 			double endAge) {
 		final TreeMap<Manifestation, Double> results = new TreeMap<>(); 

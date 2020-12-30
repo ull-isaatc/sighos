@@ -18,5 +18,10 @@ public class NullIntervention extends Intervention {
 	public double getAnnualCost(Patient pat) {
 		return 0;
 	}
+
+	@Override
+	public double getStartingCost(Patient pat) {
+		return 0;
+	}
 	
 }

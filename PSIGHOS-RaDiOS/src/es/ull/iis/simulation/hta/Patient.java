@@ -9,8 +9,6 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
-import es.ull.iis.simulation.hta.interventions.ScreeningStrategy.ScreeningResult;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -86,9 +84,9 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.intervention = intervention;
 		this.clonedFrom = original;		
 		this.dead = false;
-		this.diagnosed = original.diagnosed;
 		this.detailedState = new TreeSet<>();
 		this.profile = original.profile;
+		this.diagnosed = profile.isDiagnosedFromStart();
 		this.initAge = original.initAge;
 		manifestationEvents = new TreeMap<>();
 	}
@@ -308,7 +306,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		simul.notifyInfo(new PatientInfo(simul, this, PatientInfo.Type.START, getTs()));
 
 		// Assign death event
-		// TODO: Pensar si incorporar aquí la reducción de la esperanza de vida (se haría dentro de SecnodOrderParamRepository) 
 		final long timeToDeath = ((DiseaseProgressionSimulation) simul).getCommonParams().getTimeToDeath(this);
 		deathEvent = new DeathEvent(timeToDeath);
 		simul.addEvent(deathEvent);
@@ -334,8 +331,10 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		if (progs.getCancelEvents().size() > 0)
 			error("Cancel complications at start?");
 		applyProgression(progs);
-		if (getSimulation().getScreenStrategy() != null)
-			simul.addEvent(new ScreeningEvent(getTs(), getSimulation().getScreenStrategy()));
+		// Schedules events related to the intervention
+		for (DiscreteEvent ev : intervention.getEvents(this)) {
+			simul.addEvent(ev);
+		}
 	}
 	
 	/**
@@ -476,44 +475,5 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			}
 			return false;
 		}
-	}
-	
-	public class ScreeningEvent extends DiscreteEvent {
-		private final ScreeningStrategy screenStrategy;
-		
-		public ScreeningEvent(long ts, ScreeningStrategy screenStrategy) {
-			super(ts);
-			this.screenStrategy = screenStrategy;
-		}
-
-		@Override
-		public void event() {
-			// If the patient is already diagnosed, no sense in performing screening
-			if (!isDiagnosed()) {
-				final int id = simul.getIdentifier();
-				ScreeningResult result;
-				// Healthy patients can be wrongly identified as false positives 
-				if (isHealthy()) {
-					result = (screenStrategy.getRandomSeedForPatients(id).draw(Patient.this) >= screenStrategy.getSpecificity()) ? ScreeningResult.FP : ScreeningResult.TN;
-				}
-				else {
-					result = (screenStrategy.getRandomSeedForPatients(id).draw(Patient.this) >= screenStrategy.getSensitivity()) ? ScreeningResult.FN : ScreeningResult.TP;					
-				}
-				simul.notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.SCREEN, result, this.getTs()));
-				switch(result) {
-				case TP:
-					setDiagnosed(true);
-				case FP:
-					simul.notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIAGNOSIS, screenStrategy, this.getTs()));
-					break;
-				case FN:
-				case TN:
-				default:
-					break;
-				
-				}
-			}
-		}
-		
 	}
 }

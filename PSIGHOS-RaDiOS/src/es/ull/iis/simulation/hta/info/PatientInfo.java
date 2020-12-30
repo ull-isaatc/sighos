@@ -120,6 +120,7 @@ public class PatientInfo extends AsynchronousInfo {
 		switch (type) {
 		case MANIFESTATION:
 		case DIAGNOSIS:
+		case SCREEN:
 			description = description + "\t" + cause.name();
 			break;
 		case DEATH:

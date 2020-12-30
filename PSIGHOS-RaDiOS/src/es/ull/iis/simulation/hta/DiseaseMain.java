@@ -27,8 +27,10 @@ import es.ull.iis.simulation.hta.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.inforeceiver.PatientInfoView;
 import es.ull.iis.simulation.hta.inforeceiver.QALYListener;
+import es.ull.iis.simulation.hta.inforeceiver.ScreeningTestPerformanceView;
 import es.ull.iis.simulation.hta.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -195,19 +197,23 @@ public class DiseaseMain {
 			str.append(CostListener.getStrHeader(shortName));
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
+			if (interventions[i] instanceof ScreeningStrategy)
+				str.append(ScreeningTestPerformanceView.getStrHeader(shortName));
 		}
 		str.append(TimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredManifestations(Manifestation.Type.CHRONIC)));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
 	
-	private String print(DiseaseProgressionSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, TimeFreeOfComplicationsView timeFreeListener) {
+	private String print(DiseaseProgressionSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, TimeFreeOfComplicationsView timeFreeListener, ScreeningTestPerformanceView[] screenListeners) {
 		final StringBuilder str = new StringBuilder();
 		str.append("" +  simul.getIdentifier() + "\t");
 		for (int i = 0; i < interventions.length; i++) {
 			str.append(costListeners[i]);
 			str.append(lyListeners[i]);
 			str.append(qalyListeners[i]);
+			if (interventions[i] instanceof ScreeningStrategy)
+				str.append(screenListeners[i]);
 		}
 		str.append(timeFreeListener).append(secParams.print(simul.getIdentifier()));
 		return str.toString();
@@ -224,17 +230,21 @@ public class DiseaseMain {
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
+		final ScreeningTestPerformanceView[] screenListeners = new ScreeningTestPerformanceView[nInterventions];
 
 		for (int i = 0; i < nInterventions; i++) {
 			costListeners[i] = new CostListener(secParams.getCostCalculator(), discountCost, nPatients);
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), discountEffect, nPatients);
+			screenListeners[i] = (interventions[i] instanceof ScreeningStrategy) ? new ScreeningTestPerformanceView(secParams) : null;
 		}
 		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], secParams, timeHorizon);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
 		simul.addInfoReceiver(timeFreeListener);
+		if (interventions[0] instanceof ScreeningStrategy)
+			simul.addInfoReceiver(screenListeners[0]);
 		if (patientListener != null)
 			simul.addInfoReceiver(patientListener);
 		if (baseCase) {
@@ -254,6 +264,8 @@ public class DiseaseMain {
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
 			simul.addInfoReceiver(timeFreeListener);
+			if (interventions[i] instanceof ScreeningStrategy)
+				simul.addInfoReceiver(screenListeners[i]);
 			if (patientListener != null)
 				simul.addInfoReceiver(patientListener);
 			if (baseCase) {
@@ -278,12 +290,12 @@ public class DiseaseMain {
 			for (int i = 0; i < nPatients; i++) {
 				System.out.print(i);
 				for (int j = 0; j < nInterventions; j++) {
-					System.out.print("\t" + costListeners[j].getValues()[i] + "\t" + lyListeners[j].getValues()[i] + "\t" + qalyListeners[j].getValues()[i]);					
+					System.out.print("\t" + costListeners[j].getValues()[i] + "\t" + lyListeners[j].getValues()[i] + "\t" + qalyListeners[j].getValues()[i]);
 				}
 				System.out.println();
 			}
 		}
-		out.println(print(simul, costListeners, lyListeners, qalyListeners, timeFreeListener));	
+		out.println(print(simul, costListeners, lyListeners, qalyListeners, timeFreeListener, screenListeners));	
 	}
 	
 	/**

@@ -32,5 +32,10 @@ public class EffectiveIntervention extends Intervention {
 	public double getAnnualCost(Patient pat) {
 		return ANNUAL_COST;
 	}
+
+	@Override
+	public double getStartingCost(Patient pat) {
+		return 0;
+	}
 	
 }

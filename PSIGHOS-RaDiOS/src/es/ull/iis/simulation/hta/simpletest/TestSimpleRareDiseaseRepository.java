@@ -20,8 +20,8 @@ import es.ull.iis.simulation.hta.progression.Modification;
  */
 public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 	private final static int TEST_DISEASE = 1;
-	private final static int TEST_POPULATION = 1;
-	private final static int TEST_INTERVENTIONS = 1;
+	private final static int TEST_POPULATION = 2;
+	private final static int TEST_INTERVENTIONS = 5;
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
 	
@@ -76,6 +76,10 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 		case 4:
 			registerIntervention(new NullIntervention(this));
 			registerIntervention(new MortalityReductionIntervention(this, Modification.Type.SET));
+			break;
+		case 5:
+			registerIntervention(new NullIntervention(this));
+			registerIntervention(new BasicNewbornScreening(this));
 			break;
 		case 1:
 		default:

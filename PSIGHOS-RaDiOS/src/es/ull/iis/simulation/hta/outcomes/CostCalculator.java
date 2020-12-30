@@ -50,6 +50,13 @@ public interface CostCalculator {
 	public double getAnnualInterventionCostWithinPeriod(Patient pat, double initAge, double endAge);
 	
 	/**
+	 * Returns the punctual cost upon starting a new intervention 
+	 * @param pat A patient
+	 * @return the punctual cost upon starting a new intervention
+	 */
+	public double getCostForIntervention(Patient pat);
+	
+	/**
 	 * Returns annual cost for the specified patient during a period of time for each manifestation 
 	 * @param pat A patient
 	 * @param initAge The age of the patient at the beginning of the period
@@ -66,7 +73,7 @@ public interface CostCalculator {
 	 * @return The annual cost for the specified patient during a period of time
 	 */
 	public double getAnnualDiseaseCostWithinPeriod(Patient pat, double initAge, double endAge);
-	
+
 	/**
 	 * Returns the annual management cost applied independently of the complications
 	 * @param pat A patient
@@ -75,6 +82,4 @@ public interface CostCalculator {
 	 * @return The annual management cost for the patient 
 	 */
 	public double getStdManagementCostWithinPeriod(Patient pat, double initAge, double endAge);
-	
-	// TODO: Añadir getter para coste de diagnóstico y de cribado
 }
