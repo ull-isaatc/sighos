@@ -79,10 +79,6 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 				}
 			}
 		} else {
-			if (manifestationProbability == null) {
-				System.out.println();
-			}
-			System.out.println(manifestationProbability);
 			Datatable datatable = XmlTransform.getDataTable(manifestationProbability);
 			// FIXME: tratar de adaptar con lo nuevo
 			// AgeBasedTimeToEventParam ageBasedTimeToEventParam =

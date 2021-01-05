@@ -15,11 +15,21 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import es.ull.iis.ontology.radios.Constants;
+import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
 import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
+import es.ull.iis.ontology.radios.utils.CollectionUtils;
+import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.populations.Population;
+import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.radios.RadiosDisease;
+import es.ull.iis.simulation.hta.radios.RadiosIntervention;
 import es.ull.iis.simulation.hta.radios.RadiosRepository;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
+import es.ull.iis.simulation.hta.radios.utils.CostUtils;
+import es.ull.iis.simulation.hta.simpletest.TestPopulation;
 
 public class Tests {
 	private static ObjectMapper mapper = null; 
@@ -140,7 +150,7 @@ public class Tests {
 		System.out.println("Test finished ...");
 	}
 	
-	@Test	
+	// @Test	
 	public void simulateDisease () {
 		System.out.println("Starting test ...");
 
@@ -152,9 +162,23 @@ public class Tests {
 		try {
 			Schema4Simulation radiosDiseaseInstance = loadDiseaseFromJson(false);
 			RadiosRepository repository = new RadiosRepository(nRuns, nPatients);
-			repository.registerDisease(new RadiosDisease(repository, radiosDiseaseInstance.getDisease()));		
-			// registerIntervention(...)
-			// registerPopulation(...)
+			Disease disease = new RadiosDisease(repository, radiosDiseaseInstance.getDisease());
+			repository.registerDisease(disease);
+			Population population = new TestPopulation(repository, disease);
+			repository.registerPopulation(population);
+			if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
+				System.out.println("La enfermedad seleccionada SI dispone de intervenciones.");
+				for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
+					RadiosIntervention radiosIntervention = new RadiosIntervention(repository, intervention); 
+					repository.registerIntervention(radiosIntervention);
+					
+					double a = radiosIntervention.getStartingCost(null);
+					double b = radiosIntervention.getAnnualCost(null);
+					System.out.println("Intervention: " + intervention.getName() + " ==> Starting cost: " + a + " - Annual cost: " + b);
+				}
+			} else {
+				System.out.println("La enfermedad seleccionada NO dispone de intervenciones.");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;
@@ -163,4 +187,28 @@ public class Tests {
 		assertEquals(expectedResult, result);
 		System.out.println("Test finished ...");
 	}
+	
+	@Test
+	public void calculateCost () {
+		System.out.println("Starting test ...");
+
+		boolean expectedResult = true;
+		boolean result = true;
+		
+		try {
+			Schema4Simulation radiosDiseaseInstance = loadDiseaseFromJson(false);
+			if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
+				for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
+					CostUtils.calculateCostOfFollowStrategies(intervention, Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE, 0.1, true);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			result = false;
+		}
+
+		assertEquals(expectedResult, result);
+		System.out.println("Test finished ...");
+	}
+	
 }
