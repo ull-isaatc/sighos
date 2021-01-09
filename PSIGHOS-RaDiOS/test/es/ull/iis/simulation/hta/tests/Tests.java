@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -19,8 +21,6 @@ import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
 import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.radios.RadiosDisease;
@@ -150,7 +150,7 @@ public class Tests {
 		System.out.println("Test finished ...");
 	}
 	
-	// @Test	
+	@Test	
 	public void simulateDisease () {
 		System.out.println("Starting test ...");
 
@@ -158,6 +158,7 @@ public class Tests {
 		boolean result = true;
 		int nRuns = 10;
 		int nPatients = 1;
+		double timeHorizonts = 10.0;
 		
 		try {
 			Schema4Simulation radiosDiseaseInstance = loadDiseaseFromJson(false);
@@ -169,12 +170,12 @@ public class Tests {
 			if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
 				System.out.println("La enfermedad seleccionada SI dispone de intervenciones.");
 				for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
-					RadiosIntervention radiosIntervention = new RadiosIntervention(repository, intervention); 
+					RadiosIntervention radiosIntervention = new RadiosIntervention(repository, intervention, timeHorizonts); 
 					repository.registerIntervention(radiosIntervention);
 					
 					double a = radiosIntervention.getStartingCost(null);
 					double b = radiosIntervention.getAnnualCost(null);
-					System.out.println("Intervention: " + intervention.getName() + " ==> Starting cost: " + a + " - Annual cost: " + b);
+					System.out.println("Intervention: " + intervention.getName() + " ==> Starting cost: " + a + " - Annual cost: " + b + "\n\n");
 				}
 			} else {
 				System.out.println("La enfermedad seleccionada NO dispone de intervenciones.");
@@ -188,7 +189,7 @@ public class Tests {
 		System.out.println("Test finished ...");
 	}
 	
-	@Test
+	// @Test
 	public void calculateCost () {
 		System.out.println("Starting test ...");
 
@@ -199,7 +200,8 @@ public class Tests {
 			Schema4Simulation radiosDiseaseInstance = loadDiseaseFromJson(false);
 			if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
 				for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
-					CostUtils.calculateCostOfFollowStrategies(intervention, Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE, 0.1, true);
+					Map<String, Double[][]> costs = new HashMap<>(); 
+					CostUtils.calculateCostOfFollowStrategies(intervention, Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE, 0.1, costs, 10.0, true);
 				}
 			}
 		} catch (Exception e) {

@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.hta.radios.utils;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +13,10 @@ import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.RangeWrapper;
 
+/**
+ * @author davidpg
+ *
+ */
 public class CostUtils {
 	private static String REGEXP_RANGE = "^([0-9]+)([my])(-([0-9]+)([my]))?$|^([0-9]+)([my])(-(\\*))?$";
 	private static String REGEXP_FRECUENCY = "^([0-9]+)([my])$";
@@ -64,23 +69,24 @@ public class CostUtils {
 	}
 	
 	/**
-	 * @param cost
-	 * @param patientAge
 	 * @param range
 	 * @param frequency
 	 * @return
 	 */
-	private Double calculateAnnualCostByFrequncy (Double cost, Double patientAge, RangeWrapper range, String frequency) {
+	public static Double calculateAnnualTimes (RangeWrapper range, String frequency) {		
 		Double result = 0.0;
 
 		Pattern pattern = Pattern.compile(REGEXP_FRECUENCY);
 		Matcher matcher = pattern.matcher(frequency.trim());
 		if (matcher.find()) {
-			
+			Double frequencyValue = Double.valueOf(matcher.group(1));
+			if ("m".equalsIgnoreCase(matcher.group(2))) {
+				frequencyValue /= 12.0; 
+			}
+			result = (range.getCeilLimit() - range.getFloorLimit()) / frequencyValue;  
 		}
 		
-		// result += cost * 
-		return result;		
+		return Math.floor(result);		
 	}
 	
 	/**
@@ -90,7 +96,7 @@ public class CostUtils {
 	 * @param patientAge
 	 * @return
 	 */
-	public static Double calculateCostOfFollowStrategies (Intervention intervention, String temporalBehavior, Double patientAge, Boolean showResult) {
+	public static Double calculateCostOfFollowStrategies (Intervention intervention, String temporalBehavior, Double patientAge, Map<String, Double[][]> costs, Double timeHorizonts, Boolean showResult) {
 		double result = 0.0;
 		if (CollectionUtils.notIsEmpty(intervention.getFollowUpStrategies())) {
 			for (FollowUpStrategy followUpStrategy : intervention.getFollowUpStrategies()) {
@@ -110,10 +116,11 @@ public class CostUtils {
 											for (Guideline guideline : followUp.getGuidelines()) {
 												RangeWrapper rangeWrapper = isAgeIntoRange(guideline.getRange(), patientAge, false);
 												if (rangeWrapper != null) {
-													String range = guideline.getRange().split(",")[rangeWrapper.getIndex()];
 													String frecuency = guideline.getFrequency().split(",")[rangeWrapper.getIndex()];
+													Double annualTimes = calculateAnnualTimes(rangeWrapper, frecuency);
 													if (showResult) {
-														System.err.println(String.format("\tFollowUp [%s] - Range [%s] - Frecuency [%s]", followUp.getName(), range, frecuency));
+														String range = guideline.getRange().split(",")[rangeWrapper.getIndex()];
+														System.err.println(String.format("\t\tFollowUp [%s] - Range [%s] - Frecuency [%s] - AnnualTimes [%s]", followUp.getName(), range, frecuency, annualTimes));
 													}
 												}																								
 											}
@@ -128,19 +135,18 @@ public class CostUtils {
 				}
 			}
 		}		
-		return result;				
+		return result;
 	}
 	
 	public static void main(String[] args) {
-		System.out.println("\tFinded position: " + isAgeIntoRange("6y-*", 7.0, false));
-		System.out.println("\tFinded position: " + isAgeIntoRange("8m,10y", 8.0/12.0, false));
-		System.out.println("\tFinded position: " + isAgeIntoRange("5y", 5.0, false));
-		System.out.println("\tFinded position: " + isAgeIntoRange("0y-1y,1y-5y,6y-*", 2.0, false));
+		boolean showResults = false;
 		
-		Double coste = 10.0;
-		Double edad = 3.0;
-		Double rango = 7.0 - 0.0;
-		Double frecuencia = 4.0;
-		System.out.println(rango/frecuencia);
+		System.out.println("\tFinded position: " + isAgeIntoRange("6y-*", 7.0, showResults));
+		System.out.println("\tFinded position: " + isAgeIntoRange("8m,10y", 8.0/12.0, showResults));
+		System.out.println("\tFinded position: " + isAgeIntoRange("5y", 5.0, showResults));
+		System.out.println("\tFinded position: " + isAgeIntoRange("0y-1y,1y-5y,6y-*", 2.0, showResults));
+
+		RangeWrapper range = new RangeWrapper(0, 0.0, 5.0);
+		System.out.println(calculateAnnualTimes(range, "7m"));
 	}
 }
