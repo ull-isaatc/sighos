@@ -13,23 +13,32 @@ import javax.xml.bind.JAXBException;
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Development;
 import es.ull.iis.ontology.radios.json.schema4simulation.Disease;
+import es.ull.iis.ontology.radios.json.schema4simulation.FollowUp;
+import es.ull.iis.ontology.radios.json.schema4simulation.FollowUpStrategy;
 import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
+import es.ull.iis.ontology.radios.json.schema4simulation.Treatment;
+import es.ull.iis.ontology.radios.json.schema4simulation.TreatmentStrategy;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
+import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 
 public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedDisease {
 	private Disease disease;
+	private Map<String, Double[][]> costs;
+	private Double timeHorizont;
 	
-	public RadiosDisease(SecondOrderParamsRepository repository, String name, String description) {
-		super(repository, name, description);
-	}
-
-	public RadiosDisease(SecondOrderParamsRepository repository, Disease disease) throws TransformException, JAXBException {
+	private boolean debug = true; 
+	
+	public RadiosDisease(SecondOrderParamsRepository repository, Disease disease, Double timeHorizont) throws TransformException, JAXBException {
 		super(repository, disease.getName(), Constants.CONSTANT_EMPTY_STRING);
+		
+		this.timeHorizont = timeHorizont;
+		this.costs = new HashMap<>();
+
 		setDisease(disease);
 		if (getDisease() == null) {
 			throw new TransformException ("ERROR => You must specify a disease for the simulation.");
@@ -41,11 +50,45 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 					.findFirst()
 					.orElse(null);
 			if (naturalDevelopment != null && CollectionUtils.notIsEmpty(naturalDevelopment.getManifestations())) {
+				initializeCostMatrix(naturalDevelopment);
+
 				List<Manifestation> manifestations = naturalDevelopment.getManifestations();
 				secondPassManifestationsAnalysis(repository, firstPassManifestationsAnalysis(repository, manifestations), manifestations);
 			} else {
 				throw new TransformException("ERROR => The selected disease has no associated natural development. The specification of this development is mandatory.");
 			}
+		}
+	}
+
+	/**
+	 * Initializes the cost matrix for the follow-up tests associated with the intervention
+	 * @param intervention Intervention
+	 */
+	private void initializeCostMatrix(Development development) {
+		List<Manifestation> manifestations = development.getManifestations();
+		for (Manifestation manifestation : manifestations) {
+			// TODO: actualizar la matriz de costos directos asociados a cada manifestación. Para el caso de estudio todos los costos vienen asociados por tratamiento. 
+			
+			// Treatments Strategies
+			if (CollectionUtils.notIsEmpty(manifestation.getTreatmentStrategies())) {
+				for (TreatmentStrategy strategy : manifestation.getTreatmentStrategies()) {
+					for (Treatment item : strategy.getTreatments()) {
+						CostUtils.updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
+					}
+				}
+			}
+			// Follow-Ups Strategies
+			if (CollectionUtils.notIsEmpty(manifestation.getFollowUpStrategies())) {
+				for (FollowUpStrategy strategy : manifestation.getFollowUpStrategies()) {
+					for (FollowUp item : strategy.getFollowUps()) {
+						CostUtils.updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
+					}
+				}
+			}
+		}
+
+		if (debug) {
+			CostUtils.showCostMatrix(costs);
 		}
 	}
 
