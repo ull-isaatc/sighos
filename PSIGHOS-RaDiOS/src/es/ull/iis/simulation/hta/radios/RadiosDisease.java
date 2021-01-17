@@ -13,11 +13,7 @@ import javax.xml.bind.JAXBException;
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Development;
 import es.ull.iis.ontology.radios.json.schema4simulation.Disease;
-import es.ull.iis.ontology.radios.json.schema4simulation.FollowUp;
-import es.ull.iis.ontology.radios.json.schema4simulation.FollowUpStrategy;
 import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
-import es.ull.iis.ontology.radios.json.schema4simulation.Treatment;
-import es.ull.iis.ontology.radios.json.schema4simulation.TreatmentStrategy;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
@@ -25,10 +21,11 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
+import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
 
 public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedDisease {
 	private Disease disease;
-	private Map<String, Double[][]> costs;
+	private Map<String, CostMatrixElement> costs;
 	private Double timeHorizont;
 	
 	private boolean debug = true; 
@@ -61,30 +58,19 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	}
 
 	/**
-	 * Initializes the cost matrix for the follow-up tests associated with the intervention
-	 * @param intervention Intervention
+	 * Initializes the cost matrix for the follow-up tests associated with the disease
 	 */
-	private void initializeCostMatrix(Development development) {
-		List<Manifestation> manifestations = development.getManifestations();
+	private void initializeCostMatrix(Development naturalDevelopment) {
+		CostUtils.loadCostFromScreeningStrategies(costs, disease.getScreeningStrategies(), timeHorizont);
+		CostUtils.loadCostFromClinicalDiagnosisStrategies(costs, disease.getClinicalDiagnosisStrategies(), timeHorizont);
+		CostUtils.loadCostFromTreatmentStrategies(costs, disease.getTreatmentStrategies(), timeHorizont);
+		CostUtils.loadCostFromFollowUpStrategies(costs, disease.getFollowUpStrategies(), timeHorizont);
+		
+		List<Manifestation> manifestations = naturalDevelopment.getManifestations();
 		for (Manifestation manifestation : manifestations) {
 			// TODO: actualizar la matriz de costos directos asociados a cada manifestación. Para el caso de estudio todos los costos vienen asociados por tratamiento. 
-			
-			// Treatments Strategies
-			if (CollectionUtils.notIsEmpty(manifestation.getTreatmentStrategies())) {
-				for (TreatmentStrategy strategy : manifestation.getTreatmentStrategies()) {
-					for (Treatment item : strategy.getTreatments()) {
-						CostUtils.updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
-					}
-				}
-			}
-			// Follow-Ups Strategies
-			if (CollectionUtils.notIsEmpty(manifestation.getFollowUpStrategies())) {
-				for (FollowUpStrategy strategy : manifestation.getFollowUpStrategies()) {
-					for (FollowUp item : strategy.getFollowUps()) {
-						CostUtils.updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
-					}
-				}
-			}
+			CostUtils.loadCostFromTreatmentStrategies(costs, manifestation.getTreatmentStrategies(), timeHorizont);
+			CostUtils.loadCostFromFollowUpStrategies(costs, manifestation.getFollowUpStrategies(), timeHorizont);
 		}
 
 		if (debug) {
@@ -159,6 +145,14 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	
 	public SecondOrderParamsRepository getRepository () {
 		return secParams;
+	}
+	
+	public Map<String, CostMatrixElement> getCosts() {
+		return costs;
+	}
+	
+	public void setCosts(Map<String, CostMatrixElement> costs) {
+		this.costs = costs;
 	}
 	
 	@Override

@@ -7,97 +7,129 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import es.ull.iis.ontology.radios.Constants;
+import es.ull.iis.ontology.radios.json.schema4simulation.ClinicalDiagnosisStrategy;
+import es.ull.iis.ontology.radios.json.schema4simulation.ClinicalDiagnosisTechnique;
 import es.ull.iis.ontology.radios.json.schema4simulation.Cost;
+import es.ull.iis.ontology.radios.json.schema4simulation.Drug;
 import es.ull.iis.ontology.radios.json.schema4simulation.FollowUp;
 import es.ull.iis.ontology.radios.json.schema4simulation.FollowUpStrategy;
 import es.ull.iis.ontology.radios.json.schema4simulation.Guideline;
-import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
+import es.ull.iis.ontology.radios.json.schema4simulation.ScreeningStrategy;
+import es.ull.iis.ontology.radios.json.schema4simulation.ScreeningTechnique;
+import es.ull.iis.ontology.radios.json.schema4simulation.Treatment;
+import es.ull.iis.ontology.radios.json.schema4simulation.TreatmentStrategy;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
-import es.ull.iis.simulation.hta.radios.wrappers.RangeWrapper;
+import es.ull.iis.simulation.hta.radios.NewbornGuideline;
+import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
 
 /**
  * @author David Prieto González
  *
  */
 public class CostUtils {
-	private static final String REGEXP_RANGE = "^([0-9]+)([udmy])(-([0-9]+)([dmy]))?$|^([0-9]+)([udmy])(-(\\*))?$";
+	private static final String REGEXP_RANGE = "^([0-9]+)([udmy])(-([0-9]+)([dmy]))$|^([0-9]+)([udmy])(-(\\*))$|^([&@])([0-9]+)([udmy])";
 	private static final String REGEXP_FRECUENCY = "^([0-9]+)([dmy])$";
-	
-	private static final boolean debug = true;
+	private static final String REGEXP_DOSE = "^(([0-9]+)(\\.[0-9]+)?)[a-zA-Z]*(/kg)?$";
+
+	private static Pattern rangePattern = Pattern.compile(REGEXP_RANGE);
+	private static Pattern frequencyPattern = Pattern.compile(REGEXP_FRECUENCY);
+	private static Pattern dosePattern = Pattern.compile(REGEXP_DOSE);
 	
 	/**
 	 * @param range
 	 * @param splitIntoAnnualRanges
 	 * @return
 	 */
-	private static Double[] normalizeRange (String range, boolean splitIntoAnnualRanges, Double timeHorizont) {
-		List<Double> result = new ArrayList<>();
-		Pattern pattern = Pattern.compile(REGEXP_RANGE);
-		Matcher matcher = pattern.matcher(range.trim());
+	private static Boolean normalizeRange(CostMatrixElement value, String range, String frequency, Double timeHorizont) {
+		Matcher matcher = rangePattern.matcher(range.trim());
 		if (matcher.find()) {
-			Double floorLimit = Double.valueOf(matcher.group(1) != null ? matcher.group(1) : matcher.group(6));
-			String floorLimitUnit = matcher.group(2) != null ? matcher.group(2) : matcher.group(7); 
-			if ("m".equalsIgnoreCase(floorLimitUnit)) {
-				floorLimit = floorLimit/12.0;
-			} else if ("d".equalsIgnoreCase(floorLimitUnit)) {
-				floorLimit = floorLimit/365.0;
-			} else if ("u".equalsIgnoreCase(floorLimitUnit)) {
-				floorLimit = 0.0;
+			List<String> floorLimitUnitAndPreffix = getFloorLimitRangeUnitAndPreffix(matcher);
+			String preffixRange = floorLimitUnitAndPreffix.get(0);
+			String floorLimitUnit = floorLimitUnitAndPreffix.get(1);
+			Double floorLimit = getFloorLimitRange(matcher);
+			Double floorLimitInYears = toYears(getFloorLimitRange(matcher), floorLimitUnit.toLowerCase());
+			if (floorLimitInYears > timeHorizont) {
+				return false;
 			}
-			Double ceilLimit = timeHorizont;
-			if (!"u".equalsIgnoreCase(floorLimitUnit)) {
-				if (matcher.group(4) != null) {				
-					ceilLimit = Double.valueOf(matcher.group(4)) > timeHorizont ? timeHorizont : Double.valueOf(matcher.group(4));
-					String ceilLimitUnit = matcher.group(5); 
-					if ("m".equalsIgnoreCase(ceilLimitUnit)) {
-						ceilLimit = ceilLimit/12.0; 
-					} else if ("d".equalsIgnoreCase(ceilLimitUnit)) {
-						ceilLimit = floorLimit/365.0;
-					} else if ("u".equalsIgnoreCase(ceilLimitUnit)) {
-						ceilLimit = timeHorizont;
+			
+			if (preffixRange != null) {
+				if ("&".equals(preffixRange)) {
+					value.getTimesEvent().add(floorLimitInYears);
+				} else if ("@".equals(preffixRange)) {
+					if (value.getCostExpression() == null) {
+						value.setCost(value.getCost() * floorLimit);
+					} else {
+						Double f = normalizeFrequency(frequency, false);
+						value.setCostExpression(String.format("(%s * %s) / %s", value.getCostExpression(), floorLimit, f));
 					}
-				} else if (matcher.group(9) == null) {
-					ceilLimit = null;
 				}
-			}
-			
-			if (splitIntoAnnualRanges) {
-				splitFullRangeIntoAnnualRanges(result, floorLimit, ceilLimit);	
 			} else {
-				result.add(floorLimit);
-				if (ceilLimit == null) {
-					result.add(floorLimit);	
-				} else {
-					result.add(ceilLimit);	
+				Double ceilLimit = timeHorizont;
+				if (matcher.group(4) != null) {
+					String ceilLimitUnit = matcher.group(5);
+					ceilLimit = toYears(Double.valueOf(matcher.group(4)) > timeHorizont ? timeHorizont : Double.valueOf(matcher.group(4)), ceilLimitUnit);
+				}
+
+				value.getTimesEvent().add(floorLimitInYears);
+				if (ceilLimit != null) {
+					Double f = normalizeFrequency(frequency, true);
+					Double newLimit = floorLimitInYears + f;
+					while (newLimit <= ceilLimit) {
+						if (!value.getTimesEvent().contains(newLimit)) {
+							value.getTimesEvent().add(newLimit);
+						}
+						newLimit = newLimit + f;
+					}
 				}
 			}
-			
-			return result.toArray(new Double [0]);
 		}
-		return null;
+		
+		return true;
+	}
+
+	private static List<String> getFloorLimitRangeUnitAndPreffix(Matcher matcher) {
+		List<String> result = new ArrayList<>();
+		result.add(matcher.group(10));
+		if (matcher.group(2) != null) {
+			result.add(matcher.group(2));
+		} else if (matcher.group(7) != null) {
+			result.add(matcher.group(7));
+		} else {
+			result.add(matcher.group(12));
+		}
+		return result;
 	}
 
 	/**
-	 * @param result
-	 * @param floorLimit
-	 * @param ceilLimit
+	 * @param matcher
+	 * @return
 	 */
-	private static List<Double> splitFullRangeIntoAnnualRanges(List<Double> result, Double floorLimit, Double ceilLimit) {
-		result.add(floorLimit);
-		if (ceilLimit != null) {
-			if (ceilLimit - Math.floor(floorLimit) < 1.0) {
-				result.add(ceilLimit);
-			} else {
-				result.add(Math.ceil(floorLimit));
-				Double tmp = ceilLimit - Math.ceil(floorLimit);
-				while (tmp > 0.0) {
-					if (tmp > 1.0) {
-						result.add(result.get(result.size()-1) + 1.0);
-						tmp -= 1.0;
-					} else {
-						result.add(result.get(result.size()-1) + tmp);
-					}						
-				}
+	private static Double getFloorLimitRange(Matcher matcher) {
+		Double floorLimit = 0.0;
+		if (matcher.group(1) != null) {
+			floorLimit = Double.valueOf(matcher.group(1));
+		} else if (matcher.group(6) != null) {
+			floorLimit = Double.valueOf(matcher.group(6));
+		} else {
+			floorLimit = Double.valueOf(matcher.group(11));
+		}
+		return floorLimit;
+	}
+
+	/**
+	 * @param dose
+	 * @return
+	 */
+	private static String normalizeDose(String dose) {
+		if (dose == null) {
+			return null;
+		}
+		String result = null;
+		Matcher matcher = dosePattern.matcher(dose.toLowerCase().replace(" ", ""));
+		if (matcher.find()) {
+			result = matcher.group(1);
+			if (matcher.group(4) != null) {
+				result += " * weight"; 
 			}
 		}
 		return result;
@@ -106,265 +138,212 @@ public class CostUtils {
 	/**
 	 * @return Returns the normalized frequency and the number of times that, according to that frequency, an event will occur.
 	 */
-	private static Double[] normalizeFrequencyAndCalculateAnnualTimes (Double[] range, String frequency) {		
-		List<Double> result = new ArrayList<>();
-
-		Pattern pattern = Pattern.compile(REGEXP_FRECUENCY);
-		Matcher matcher = pattern.matcher(frequency.trim());
-		if (matcher.find()) {
-			Double frequencyValue = Double.valueOf(matcher.group(1));
-			if ("m".equalsIgnoreCase(matcher.group(2))) {
-				frequencyValue /= 12.0; 
-			} else if ("d".equalsIgnoreCase(matcher.group(2))) {
-				frequencyValue /= 365.0; 
-			}
-			
-			for (int i = 0; i < range.length-1; i++) {
-				if (range[i].equals(range[i+1])) {
-					result.add(1.0);
-					result.add(1.0);
-				} else {
-					result.add(frequencyValue);
-					result.add(Math.floor((range[i+1] - range[i]) / frequencyValue));
-				}			  
-			}
-			return result.toArray(new Double [0]);
+	private static Double normalizeFrequency(String frequency, Boolean toYear) {
+		if (frequency == null) {
+			return 1.0;
 		}
-		
-		return null;
+		Double result = 1.0;
+		Matcher matcher = frequencyPattern.matcher(frequency.trim());
+		if (matcher.find()) {
+			if (toYear) {
+				result = toYears(Double.valueOf(matcher.group(1)), matcher.group(2));
+			} else {
+				result = Double.valueOf(matcher.group(1));
+			}
+		}
+		return result;
 	}
-	
+
+	/**
+	 * @param value
+	 * @param step
+	 * @return
+	 */
+	private static Double toYears(Double value, String step) {
+		Double result = value;
+		switch (step.toLowerCase()) {
+		case "m":
+			result /= 12.0;
+			break;
+		case "d":
+			result /= 365.0;
+			break;
+		default:
+			break;
+		}
+		return result;
+	}
+
 	/**
 	 * @param numFrequencies
 	 * @return
 	 */
-	private static String[] initializeFrequencies(Integer numFrequencies) {
+	private static String[] initializeFrequencies(Integer numFrequencies, Double timeHorizont) {
 		String[] frequencies = new String[numFrequencies];
 		for (int i = 0; i < numFrequencies; i++) {
-			frequencies[i] = "1y";
+			frequencies[i] = Math.round(timeHorizont) + "y";
 		}
 		return frequencies;
 	}
-	
+
 	/**
-	 * @param costsMatrix
-	 * @param itemName
 	 * @param costs
+	 * @param itemName
+	 * @param costsItem
 	 * @param guidelines
 	 * @return
 	 */
-	public static Map<String, Double[][]> updateMatrixWithCostAndGuidelines(Map<String, Double[][]> costsMatrix, String itemName, List<Cost> costs, List<Guideline> guidelines, Double timeHorizont) {
-		if (CollectionUtils.notIsEmpty(costs)) {
-			for (Cost cost : costs) {
+	public static Map<String, CostMatrixElement> updateMatrixWithCostAndGuidelines(Map<String, CostMatrixElement> costs, String itemName, List<Cost> costsItem, List<Guideline> guidelines,
+			Double timeHorizont) {
+		if (CollectionUtils.notIsEmpty(costsItem)) {
+			for (Cost cost : costsItem) {
 				if (CollectionUtils.notIsEmpty(guidelines)) {
 					for (Guideline guideline : guidelines) {
-						updateCostMatrix(costsMatrix, itemName, cost.getAmount(), guideline, timeHorizont);
+						updateCostMatrix(costs, itemName, cost.getAmount(), guideline, timeHorizont);
 					}
 				} else {
 					if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equalsIgnoreCase(cost.getTemporalBehavior())) {
-					// TODO	
+						// TODO
 					}
 				}
 			}
 		}
-		
-		return costsMatrix;
+
+		return costs;
 	}
 
 	/**
-	 * @param costsMatrix
-	 * @param eventName
-	 * @param cost
+	 * @param costs
+	 * @param itemName
+	 * @param costItem
+	 * @param guideline
+	 * @param timeHorizont
+	 * @return
+	 */
+	public static Map<String, CostMatrixElement> updateCostMatrix(Map<String, CostMatrixElement> costs, String itemName, String costItem, Guideline guideline, Double timeHorizont) {
+		Boolean parseRange = true;
+		CostMatrixElement value = new CostMatrixElement();
+
+		value.setCost(Double.valueOf(costItem));		
+		String[] ranges = getRangesSplitted(guideline);
+		String[] frequencies = getFrequenciesSplitted(guideline, timeHorizont, ranges);
+		Double nTimesToDay = getNumberOfDaysForDose(guideline);
+
+		value.setCostExpression(normalizeDose(guideline.getDose()));
+		if (value.getCostExpression() != null) {
+			value.setCostExpression(value.getCostExpression() + " * " + nTimesToDay);		
+		}
+		value.setCondition(guideline.getConditions());
+
+		if (parseRange) {
+			for (int i = 0; i < ranges.length; i++) {
+				normalizeRange(value, ranges[i], frequencies[i], timeHorizont);
+			}
+		}
+
+		costs.put(itemName, value);	
+		return costs;
+	}
+
+	/**
 	 * @param guideline
 	 * @return
 	 */
-	private static Map<String, Double[][]> updateCostMatrix(Map<String, Double[][]> costsMatrix, String eventName, String cost, Guideline guideline, Double timeHorizont) {
-		if (debug) {
-			System.out.println(String.format("Calculando costes para %s", eventName));
-		}				
-		if (costsMatrix.keySet().contains(eventName)) {
-			if (costsMatrix.get(eventName) != null) {
-				for (int i = 0; i < costsMatrix.get(eventName).length; i++) {
-					costsMatrix.get(eventName)[i][2] *= 2.0;
-					costsMatrix.get(eventName)[i][3] *= 2.0;
-					costsMatrix.get(eventName)[i][5] *= 2.0;
-				}
-			}
-		} else {
-			String[] ranges = guideline.getRange().split(",");				
-			// FIXME: ver la bondad de inicializar las frecuencias. Para el caso de rango=1u y sin frecuencia especificada no va bien.
-			String[] frequencies = initializeFrequencies(ranges.length);
-			if (guideline.getFrequency() != null) {
-				frequencies = guideline.getFrequency().split(",");
-			}
-			if (ranges == null || frequencies == null || (ranges != null && frequencies != null && ranges.length != frequencies.length)) {
-				throw new RuntimeException(String.format("Error en la correlacion de rango y frecuencia para %s", eventName));
-			}
-			Double[][] costValues = new Double[ranges.length][6];
-			for (int i = 0; i < ranges.length; i++) {
-				Double[] normalizedRange = normalizeRange(ranges[i], false, timeHorizont);
-				Double[] frequencyAndAnnualTimes = normalizeFrequencyAndCalculateAnnualTimes(normalizedRange, frequencies[i]);
-				Double costValue = Double.valueOf(cost);
-				costValues[i][0] = normalizedRange[0];
-				costValues[i][1] = normalizedRange[1];
-				costValues[i][2] = frequencyAndAnnualTimes[0];
-				costValues[i][3] = frequencyAndAnnualTimes[1];
-				costValues[i][4] = costValue; // TODO: caso de la prueba de cribado que se ejecuta dos veces, no se está teniendo en cuenta porque se sobreescribe el hashmap
-				if (normalizedRange[1].equals(normalizedRange[0])) {
-					costValues[i][5] = frequencyAndAnnualTimes[1] * costValue;
-				} else {
-					costValues[i][5] = (frequencyAndAnnualTimes[1] * costValue) / (normalizedRange[1] - normalizedRange[0]);
-				}
-			}
-			costsMatrix.put(eventName, costValues);
-		}
-		return costsMatrix;
+	private static Double getNumberOfDaysForDose(Guideline guideline) {
+		Double nTimesToDay = guideline.getHoursIntervals() != null ? 24.0 / Double.valueOf(guideline.getHoursIntervals()) : 1.0;
+		return nTimesToDay;
 	}
 
 	/**
-	 * Show intervention cost matrix 
-	 */
-	public static void showCostMatrix(Map<String, Double[][]> costs) {
-		for (String key: costs.keySet()) {
-			System.out.println(String.format("%s", key));
-			for (int i = 0; i < costs.get(key).length ; i++) {
-				System.out.println(String.format("\trange.floor=%s, range.ceil=%s, frequency=%s, rangeTimes=%s, cost=%S, annualCost=%s", 
-						costs.get(key)[i][0], costs.get(key)[i][1], costs.get(key)[i][2], costs.get(key)[i][3], costs.get(key)[i][4], costs.get(key)[i][5]));
-			}
-		}
-	}
-
-	/**
-	 * @param range
-	 * @param patientAge
-	 * @param showResult
+	 * @param guideline
+	 * @param timeHorizont
+	 * @param ranges
 	 * @return
 	 */
-	private static RangeWrapper isAgeIntoRange (String range, Double patientAge, Boolean showResult) {
-		RangeWrapper result = new RangeWrapper(-1, -1.0, -1.0);
-		Boolean finded = false;
-		Pattern pattern = Pattern.compile(REGEXP_RANGE);
-		String[] rangeSplitted = range.split(",");
-		for (int i = 0; i < rangeSplitted.length; i++) {
-			Matcher matcher = pattern.matcher(rangeSplitted[i].trim());
-			if (matcher.find()) {
-				Double floorLimit = Double.valueOf(matcher.group(1) != null ? matcher.group(1) : matcher.group(6));
-				String floorLimitStep = matcher.group(2) != null ? matcher.group(2) : matcher.group(7); 
-				if ("m".equalsIgnoreCase(floorLimitStep)) {
-					floorLimit = floorLimit/12.0;
+	private static String[] getFrequenciesSplitted(Guideline guideline, Double timeHorizont, String[] ranges) {
+		String[] frequencies = (guideline.getFrequency() != null) ? frequencies = guideline.getFrequency().split(",") : initializeFrequencies(ranges.length, timeHorizont);
+		return frequencies;
+	}
+
+	/**
+	 * @param guideline
+	 * @return
+	 */
+	private static String[] getRangesSplitted(Guideline guideline) {
+		String[] ranges = (guideline.getRange() != null) ? guideline.getRange().split(",") : null;
+		return ranges;
+	}
+
+	/**
+	 * @param costs
+	 * @param screeningStrategies
+	 * @param timeHorizont
+	 */
+	public static void loadCostFromScreeningStrategies(Map<String, CostMatrixElement> costs, List<ScreeningStrategy> screeningStrategies, Double timeHorizont) {
+		if (CollectionUtils.notIsEmpty(screeningStrategies)) {
+			for (ScreeningStrategy strategy : screeningStrategies) {
+				for (ScreeningTechnique item : strategy.getScreeningTechniques()) {
+					updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), NewbornGuideline.getInstance(), timeHorizont);
 				}
-				Double ceilLimit = 500.0; 
-				if (matcher.group(4) != null) {
-					ceilLimit = Double.valueOf(matcher.group(4));
-					String ceilLimitStep = matcher.group(5); 
-					if ("m".equalsIgnoreCase(ceilLimitStep)) {
-						ceilLimit = ceilLimit/12.0; 
-					}
-				} else if (matcher.group(9) == null) {
-					ceilLimit = null;
+			}
+		}
+	}
+
+	/**
+	 * @param costs
+	 * @param clinicalDiagnosisStrategies
+	 * @param timeHorizont
+	 */
+	public static void loadCostFromClinicalDiagnosisStrategies(Map<String, CostMatrixElement> costs, List<ClinicalDiagnosisStrategy> clinicalDiagnosisStrategies, Double timeHorizont) {
+		if (CollectionUtils.notIsEmpty(clinicalDiagnosisStrategies)) {
+			for (ClinicalDiagnosisStrategy strategy : clinicalDiagnosisStrategies) {
+				for (ClinicalDiagnosisTechnique item : strategy.getClinicalDiagnosisTechniques()) {
+					updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), NewbornGuideline.getInstance(), timeHorizont);
 				}
-				if (ceilLimit != null) {
-					if (floorLimit <= patientAge && patientAge <= ceilLimit) {
-						result.setIndex(i).setFloorLimit(floorLimit).setCeilLimit(ceilLimit);
-						if (showResult) {
-							System.out.println(String.format("\tLimits: %.4f - %.4f [Patient Age = %.4f] ==> Result = %s", floorLimit, ceilLimit, patientAge, finded));
-						}
-						break;
-					}
-					
-				} else {
-					if (floorLimit.equals(patientAge)) {
-						result.setIndex(i).setFloorLimit(floorLimit).setCeilLimit(ceilLimit);
-						if (showResult) {
-							System.out.println(String.format("\tLimits: %.4f [Patient Age = %.4f] ==> Result = %s", floorLimit, patientAge, finded));
-						}
-						break;
+			}
+		}
+	}
+
+	/**
+	 * @param costs
+	 * @param treatmentStrategies
+	 * @param timeHorizont
+	 */
+	public static void loadCostFromTreatmentStrategies(Map<String, CostMatrixElement> costs, List<TreatmentStrategy> treatmentStrategies, Double timeHorizont) {
+		if (CollectionUtils.notIsEmpty(treatmentStrategies)) {
+			for (TreatmentStrategy strategy : treatmentStrategies) {
+				for (Treatment item : strategy.getTreatments()) {
+					updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
+					for (Drug drug : item.getDrugs()) {
+						updateMatrixWithCostAndGuidelines(costs, drug.getName(), drug.getCosts(), drug.getGuidelines(), timeHorizont);
 					}
 				}
 			}
 		}
-		return result.getIndex() >= 0 ? result : null;
 	}
-	
-	/**
-	 * @param range
-	 * @param frequency
-	 * @return
-	 */
-	public static Double calculateAnnualTimes (RangeWrapper range, String frequency) {		
-		Double result = 0.0;
 
-		Pattern pattern = Pattern.compile(REGEXP_FRECUENCY);
-		Matcher matcher = pattern.matcher(frequency.trim());
-		if (matcher.find()) {
-			Double frequencyValue = Double.valueOf(matcher.group(1));
-			if ("m".equalsIgnoreCase(matcher.group(2))) {
-				frequencyValue /= 12.0; 
-			}
-			result = (range.getCeilLimit() - range.getFloorLimit()) / frequencyValue;  
-		}
-		
-		return Math.floor(result);		
-	}
-	
 	/**
-	 * Calculate the annual cost of a follow-up strategy
-	 * @param intervention
-	 * @param temporalBehavior
-	 * @param patientAge
-	 * @return
+	 * @param costs
+	 * @param followUpStrategies
+	 * @param timeHorizont
 	 */
-	public static Double calculateCostOfFollowStrategies (Intervention intervention, String temporalBehavior, Double patientAge, Map<String, Double[][]> costs, Double timeHorizonts, Boolean showResult) {
-		double result = 0.0;
-		if (CollectionUtils.notIsEmpty(intervention.getFollowUpStrategies())) {
-			for (FollowUpStrategy followUpStrategy : intervention.getFollowUpStrategies()) {
-				if (CollectionUtils.notIsEmpty(followUpStrategy.getCosts())) {
-					for (Cost cost : followUpStrategy.getCosts()) {
-						if (temporalBehavior.equalsIgnoreCase(cost.getTemporalBehavior())) {
-							result += Double.parseDouble(cost.getAmount());
-						}
-					}
-				} else {
-					for (FollowUp followUp : followUpStrategy.getFollowUps()) {
-						if (CollectionUtils.notIsEmpty(followUp.getCosts())) {
-							for (Cost cost : followUp.getCosts()) {
-								if (temporalBehavior.equalsIgnoreCase(cost.getTemporalBehavior())) {
-									if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equalsIgnoreCase(temporalBehavior)) {
-										if (CollectionUtils.notIsEmpty(followUp.getGuidelines())) {
-											for (Guideline guideline : followUp.getGuidelines()) {
-												RangeWrapper rangeWrapper = isAgeIntoRange(guideline.getRange(), patientAge, false);
-												if (rangeWrapper != null) {
-													String frecuency = guideline.getFrequency().split(",")[rangeWrapper.getIndex()];
-													Double annualTimes = calculateAnnualTimes(rangeWrapper, frecuency);
-													if (showResult) {
-														String range = guideline.getRange().split(",")[rangeWrapper.getIndex()];
-														System.err.println(String.format("\t\tFollowUp [%s] - Range [%s] - Frecuency [%s] - AnnualTimes [%s]", followUp.getName(), range, frecuency, annualTimes));
-													}
-												}																								
-											}
-										}
-									} else {
-										result += Double.parseDouble(cost.getAmount());	
-									}									
-								}
-							}
-						}
-					}
+	public static void loadCostFromFollowUpStrategies(Map<String, CostMatrixElement> costs, List<FollowUpStrategy> followUpStrategies, Double timeHorizont) {
+		if (CollectionUtils.notIsEmpty(followUpStrategies)) {
+			for (FollowUpStrategy strategy : followUpStrategies) {
+				for (FollowUp item : strategy.getFollowUps()) {
+					updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
 				}
 			}
-		}		
-		return result;
+		}
 	}
-	
-	public static void main(String[] args) {
-		boolean showResults = false;
-		
-		System.out.println("\tFinded position: " + isAgeIntoRange("6y-*", 7.0, showResults));
-		System.out.println("\tFinded position: " + isAgeIntoRange("8m,10y", 8.0/12.0, showResults));
-		System.out.println("\tFinded position: " + isAgeIntoRange("5y", 5.0, showResults));
-		System.out.println("\tFinded position: " + isAgeIntoRange("0y-1y,1y-5y,6y-*", 2.0, showResults));
 
-		RangeWrapper range = new RangeWrapper(0, 0.0, 5.0);
-		System.out.println(calculateAnnualTimes(range, "7m"));
+	/**
+	 * Show intervention cost matrix
+	 */
+	public static void showCostMatrix(Map<String, CostMatrixElement> costs) {
+		for (String key : costs.keySet()) {
+			System.out.println(String.format("%s => condition = [%s] - costExpression = [%s] - cost = [%.4f], costB = %s", 
+					key, costs.get(key).getCondition(), costs.get(key).getCostExpression(), costs.get(key).getCost(), costs.get(key).getTimesEvent()));
+		}
 	}
 }

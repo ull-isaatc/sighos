@@ -3,19 +3,12 @@ package es.ull.iis.simulation.hta.radios;
 import java.util.Map;
 
 import es.ull.iis.ontology.radios.Constants;
-import es.ull.iis.ontology.radios.json.schema4simulation.ClinicalDiagnosisStrategy;
-import es.ull.iis.ontology.radios.json.schema4simulation.ClinicalDiagnosisTechnique;
-import es.ull.iis.ontology.radios.json.schema4simulation.FollowUp;
-import es.ull.iis.ontology.radios.json.schema4simulation.FollowUpStrategy;
 import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
-import es.ull.iis.ontology.radios.json.schema4simulation.ScreeningStrategy;
-import es.ull.iis.ontology.radios.json.schema4simulation.ScreeningTechnique;
-import es.ull.iis.ontology.radios.json.schema4simulation.Treatment;
-import es.ull.iis.ontology.radios.json.schema4simulation.TreatmentStrategy;
-import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
+import es.ull.iis.simulation.hta.radios.utils.MapUtils;
+import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
 
 /**
  * @author David Prieto González
@@ -24,59 +17,30 @@ import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.Intervention {
 	private Intervention intervention;
 	private Double timeHorizont;
-	private Map<String, Double[][]> costs;
+	private Map<String, CostMatrixElement> costs;
 
 	private boolean debug = true;
 	
-	public RadiosIntervention(SecondOrderParamsRepository secParams, Intervention intervention, Double timeHorizont, Map<String, Double[][]> baseCosts) {
+	public RadiosIntervention(SecondOrderParamsRepository secParams, Intervention intervention, Double timeHorizont, Map<String, CostMatrixElement> baseCosts) {
 		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING);
 		this.intervention = intervention; 
-		this.costs = baseCosts;
+		this.costs = MapUtils.cloneCostMapList(baseCosts);
 		this.timeHorizont = timeHorizont;
 		
 		// TODO: las intervenciones al definirlas en Radios, puede llevar vinculadas modificaciones de las manifestaciones. Es aquí donde las daremos de alta.
 		
-		initializeCostMatrix(intervention);
+		initializeCostMatrix();
 	}
 
 	/**
 	 * Initializes the cost matrix for the follow-up tests associated with the intervention
-	 * @param intervention Intervention
 	 */
-	private void initializeCostMatrix(Intervention intervention) {
-		// Screening Strategies
-		if (CollectionUtils.notIsEmpty(intervention.getScreeningStrategies())) {
-			for (ScreeningStrategy strategy : intervention.getScreeningStrategies()) {
-				for (ScreeningTechnique item : strategy.getScreeningTechniques()) {
-					CostUtils.updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), NewbornGuideline.getInstance(), timeHorizont);
-				}
-			}
-		}
-		// ClinicalDiagnosis Strategies 
-		if (CollectionUtils.notIsEmpty(intervention.getClinicalDiagnosisStrategies())) {
-			for (ClinicalDiagnosisStrategy strategy : intervention.getClinicalDiagnosisStrategies()) {
-				for (ClinicalDiagnosisTechnique item : strategy.getClinicalDiagnosisTechniques()) {
-					CostUtils.updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), NewbornGuideline.getInstance(), timeHorizont);
-				}
-			}
-		}
-		// Treatments Strategies
-		if (CollectionUtils.notIsEmpty(intervention.getTreatmentStrategies())) {
-			for (TreatmentStrategy strategy : intervention.getTreatmentStrategies()) {
-				for (Treatment item : strategy.getTreatments()) {
-					CostUtils.updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
-				}
-			}
-		}
-		// Follow-Ups Strategies
-		if (CollectionUtils.notIsEmpty(intervention.getFollowUpStrategies())) {
-			for (FollowUpStrategy strategy : intervention.getFollowUpStrategies()) {
-				for (FollowUp item : strategy.getFollowUps()) {
-					CostUtils.updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
-				}
-			}
-		}
-
+	private void initializeCostMatrix() {
+		CostUtils.loadCostFromScreeningStrategies(costs, intervention.getScreeningStrategies(), timeHorizont);
+		CostUtils.loadCostFromClinicalDiagnosisStrategies(costs, intervention.getClinicalDiagnosisStrategies(), timeHorizont);
+		CostUtils.loadCostFromTreatmentStrategies(costs, intervention.getTreatmentStrategies(), timeHorizont);
+		CostUtils.loadCostFromFollowUpStrategies(costs, intervention.getFollowUpStrategies(), timeHorizont);
+		
 		if (debug) {
 			CostUtils.showCostMatrix(costs);
 		}
@@ -90,11 +54,11 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 		this.intervention = intervention;
 	}
 
-	public void setCosts(Map<String, Double[][]> costs) {
+	public void setCosts(Map<String, CostMatrixElement> costs) {
 		this.costs = costs;
 	}
 	
-	public Map<String, Double[][]> getCosts() {
+	public Map<String, CostMatrixElement> getCosts() {
 		return costs;
 	}
 	
