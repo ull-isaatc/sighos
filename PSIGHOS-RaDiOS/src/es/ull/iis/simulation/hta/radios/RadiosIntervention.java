@@ -1,14 +1,11 @@
 package es.ull.iis.simulation.hta.radios;
 
-import java.util.Map;
-
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
-import es.ull.iis.simulation.hta.radios.utils.MapUtils;
-import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
+import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
 
 /**
  * @author David Prieto González
@@ -17,14 +14,14 @@ import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
 public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.Intervention {
 	private Intervention intervention;
 	private Double timeHorizont;
-	private Map<String, CostMatrixElement> costs;
+	private Matrix costs;
 
 	private boolean debug = true;
 	
-	public RadiosIntervention(SecondOrderParamsRepository secParams, Intervention intervention, Double timeHorizont, Map<String, CostMatrixElement> baseCosts) {
+	public RadiosIntervention(SecondOrderParamsRepository secParams, Intervention intervention, Double timeHorizont, Matrix baseCosts) {
 		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING);
 		this.intervention = intervention; 
-		this.costs = MapUtils.cloneCostMapList(baseCosts);
+		this.costs = baseCosts.clone();
 		this.timeHorizont = timeHorizont;
 		
 		// TODO: las intervenciones al definirlas en Radios, puede llevar vinculadas modificaciones de las manifestaciones. Es aquí donde las daremos de alta.
@@ -38,8 +35,8 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 	private void initializeCostMatrix() {
 		CostUtils.loadCostFromScreeningStrategies(costs, intervention.getScreeningStrategies(), timeHorizont);
 		CostUtils.loadCostFromClinicalDiagnosisStrategies(costs, intervention.getClinicalDiagnosisStrategies(), timeHorizont);
-		CostUtils.loadCostFromTreatmentStrategies(costs, intervention.getTreatmentStrategies(), timeHorizont);
-		CostUtils.loadCostFromFollowUpStrategies(costs, intervention.getFollowUpStrategies(), timeHorizont);
+		CostUtils.loadCostFromTreatmentStrategies(costs, intervention.getName(), intervention.getTreatmentStrategies(), timeHorizont);
+		CostUtils.loadCostFromFollowUpStrategies(costs, intervention.getName(), intervention.getFollowUpStrategies(), timeHorizont);
 		
 		if (debug) {
 			CostUtils.showCostMatrix(costs);
@@ -54,12 +51,12 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 		this.intervention = intervention;
 	}
 
-	public void setCosts(Map<String, CostMatrixElement> costs) {
-		this.costs = costs;
+	public Matrix getCosts() {
+		return costs;
 	}
 	
-	public Map<String, CostMatrixElement> getCosts() {
-		return costs;
+	public void setCosts(Matrix costs) {
+		this.costs = costs;
 	}
 	
 	public void setTimeHorizont(Double timeHorizont) {

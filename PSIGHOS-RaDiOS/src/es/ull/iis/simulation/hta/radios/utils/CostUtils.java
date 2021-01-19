@@ -2,7 +2,6 @@ package es.ull.iis.simulation.hta.radios.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +20,7 @@ import es.ull.iis.ontology.radios.json.schema4simulation.TreatmentStrategy;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.radios.NewbornGuideline;
 import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
+import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
 
 /**
  * @author David Prieto González
@@ -193,13 +193,13 @@ public class CostUtils {
 	 * @param guidelines
 	 * @return
 	 */
-	public static Map<String, CostMatrixElement> updateMatrixWithCostAndGuidelines(Map<String, CostMatrixElement> costs, String itemName, List<Cost> costsItem, List<Guideline> guidelines,
+	public static Matrix updateMatrixWithCostAndGuidelines(Matrix costs, String strategyName, String itemName, List<Cost> costsItem, List<Guideline> guidelines,
 			Double timeHorizont) {
 		if (CollectionUtils.notIsEmpty(costsItem)) {
 			for (Cost cost : costsItem) {
 				if (CollectionUtils.notIsEmpty(guidelines)) {
 					for (Guideline guideline : guidelines) {
-						updateCostMatrix(costs, itemName, cost.getAmount(), guideline, timeHorizont);
+						updateCostMatrix(costs, strategyName, itemName, cost.getAmount(), guideline, timeHorizont);
 					}
 				} else {
 					if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equalsIgnoreCase(cost.getTemporalBehavior())) {
@@ -220,7 +220,7 @@ public class CostUtils {
 	 * @param timeHorizont
 	 * @return
 	 */
-	public static Map<String, CostMatrixElement> updateCostMatrix(Map<String, CostMatrixElement> costs, String itemName, String costItem, Guideline guideline, Double timeHorizont) {
+	public static Matrix updateCostMatrix(Matrix costs, String strategyName, String itemName, String costItem, Guideline guideline, Double timeHorizont) {
 		Boolean parseRange = true;
 		CostMatrixElement value = new CostMatrixElement();
 
@@ -241,7 +241,11 @@ public class CostUtils {
 			}
 		}
 
-		costs.put(itemName, value);	
+		if (value.getCostExpression() != null) {
+			value.setCostExpression("(" + value.getCostExpression() + ") * cost");
+		}
+		
+		costs.put(strategyName, itemName, value);	
 		return costs;
 	}
 
@@ -279,11 +283,14 @@ public class CostUtils {
 	 * @param screeningStrategies
 	 * @param timeHorizont
 	 */
-	public static void loadCostFromScreeningStrategies(Map<String, CostMatrixElement> costs, List<ScreeningStrategy> screeningStrategies, Double timeHorizont) {
+	public static void loadCostFromScreeningStrategies(Matrix costs, List<ScreeningStrategy> screeningStrategies, Double timeHorizont) {
 		if (CollectionUtils.notIsEmpty(screeningStrategies)) {
 			for (ScreeningStrategy strategy : screeningStrategies) {
 				for (ScreeningTechnique item : strategy.getScreeningTechniques()) {
-					updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), NewbornGuideline.getInstance(), timeHorizont);
+					if (!item.getPercentForTheNext().equals("0.0")) {
+						
+					}
+					updateMatrixWithCostAndGuidelines(costs, strategy.getName(), item.getName(), item.getCosts(), NewbornGuideline.getInstance(), timeHorizont);
 				}
 			}
 		}
@@ -294,11 +301,11 @@ public class CostUtils {
 	 * @param clinicalDiagnosisStrategies
 	 * @param timeHorizont
 	 */
-	public static void loadCostFromClinicalDiagnosisStrategies(Map<String, CostMatrixElement> costs, List<ClinicalDiagnosisStrategy> clinicalDiagnosisStrategies, Double timeHorizont) {
+	public static void loadCostFromClinicalDiagnosisStrategies(Matrix costs, List<ClinicalDiagnosisStrategy> clinicalDiagnosisStrategies, Double timeHorizont) {
 		if (CollectionUtils.notIsEmpty(clinicalDiagnosisStrategies)) {
 			for (ClinicalDiagnosisStrategy strategy : clinicalDiagnosisStrategies) {
 				for (ClinicalDiagnosisTechnique item : strategy.getClinicalDiagnosisTechniques()) {
-					updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), NewbornGuideline.getInstance(), timeHorizont);
+					updateMatrixWithCostAndGuidelines(costs, strategy.getName(), item.getName(), item.getCosts(), NewbornGuideline.getInstance(), timeHorizont);
 				}
 			}
 		}
@@ -309,13 +316,13 @@ public class CostUtils {
 	 * @param treatmentStrategies
 	 * @param timeHorizont
 	 */
-	public static void loadCostFromTreatmentStrategies(Map<String, CostMatrixElement> costs, List<TreatmentStrategy> treatmentStrategies, Double timeHorizont) {
+	public static void loadCostFromTreatmentStrategies(Matrix costs, String manifestationName, List<TreatmentStrategy> treatmentStrategies, Double timeHorizont) {
 		if (CollectionUtils.notIsEmpty(treatmentStrategies)) {
 			for (TreatmentStrategy strategy : treatmentStrategies) {
 				for (Treatment item : strategy.getTreatments()) {
-					updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
+					updateMatrixWithCostAndGuidelines(costs, manifestationName, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
 					for (Drug drug : item.getDrugs()) {
-						updateMatrixWithCostAndGuidelines(costs, drug.getName(), drug.getCosts(), drug.getGuidelines(), timeHorizont);
+						updateMatrixWithCostAndGuidelines(costs, manifestationName, drug.getName(), drug.getCosts(), drug.getGuidelines(), timeHorizont);
 					}
 				}
 			}
@@ -327,11 +334,11 @@ public class CostUtils {
 	 * @param followUpStrategies
 	 * @param timeHorizont
 	 */
-	public static void loadCostFromFollowUpStrategies(Map<String, CostMatrixElement> costs, List<FollowUpStrategy> followUpStrategies, Double timeHorizont) {
+	public static void loadCostFromFollowUpStrategies(Matrix costs, String manifestationName, List<FollowUpStrategy> followUpStrategies, Double timeHorizont) {
 		if (CollectionUtils.notIsEmpty(followUpStrategies)) {
 			for (FollowUpStrategy strategy : followUpStrategies) {
 				for (FollowUp item : strategy.getFollowUps()) {
-					updateMatrixWithCostAndGuidelines(costs, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
+					updateMatrixWithCostAndGuidelines(costs, manifestationName, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
 				}
 			}
 		}
@@ -340,10 +347,12 @@ public class CostUtils {
 	/**
 	 * Show intervention cost matrix
 	 */
-	public static void showCostMatrix(Map<String, CostMatrixElement> costs) {
-		for (String key : costs.keySet()) {
-			System.out.println(String.format("%s => condition = [%s] - costExpression = [%s] - cost = [%.4f], costB = %s", 
-					key, costs.get(key).getCondition(), costs.get(key).getCostExpression(), costs.get(key).getCost(), costs.get(key).getTimesEvent()));
+	public static void showCostMatrix(Matrix costs) {
+		for (String keyR : costs.keySetR()) {
+			for (String keyC : costs.keySetC(keyR)) {
+				System.out.println(String.format("%s @ %s => condition = [%s] - costExpression = [%s] - cost = [%.4f], costB = %s", 
+						keyR, keyC, costs.get(keyR, keyC).getCondition(), costs.get(keyR, keyC).getCostExpression(), costs.get(keyR, keyC).getCost(), costs.get(keyR, keyC).getTimesEvent()));
+			}
 		}
 	}
 }

@@ -159,22 +159,23 @@ public class Tests {
 			Schema4Simulation radiosDiseaseInstance = loadDiseaseFromJson(false);
 			RadiosRepository repository = new RadiosRepository(nRuns, nPatients);
 			RadiosDisease disease = new RadiosDisease(repository, radiosDiseaseInstance.getDisease(), timeHorizont);
-//			repository.registerDisease(disease);
-//			Population population = new TestPopulation(repository, disease);
-//			repository.registerPopulation(population);
-//			if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
-//				System.out.println("La enfermedad seleccionada SI dispone de intervenciones.");
-//				for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
-//					RadiosIntervention radiosIntervention = new RadiosIntervention(repository, intervention, timeHorizont, disease.getCosts()); 
-//					repository.registerIntervention(radiosIntervention);
-//					
-//					double a = radiosIntervention.getStartingCost(null);
-//					double b = radiosIntervention.getAnnualCost(null);
-//					System.out.println("Intervention: " + intervention.getName() + " ==> Starting cost: " + a + " - Annual cost: " + b + "\n\n");
-//				}
-//			} else {
-//				System.out.println("La enfermedad seleccionada NO dispone de intervenciones.");
-//			}
+			repository.registerDisease(disease);
+			Population population = new TestPopulation(repository, disease);
+			repository.registerPopulation(population);
+			
+			if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
+				System.out.println("\nLa enfermedad seleccionada SI dispone de intervenciones.\n");
+				for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
+					RadiosIntervention radiosIntervention = new RadiosIntervention(repository, intervention, timeHorizont, disease.getCosts()); 
+					repository.registerIntervention(radiosIntervention);
+					
+					double a = radiosIntervention.getStartingCost(null);
+					double b = radiosIntervention.getAnnualCost(null);
+					System.out.println("Intervention: " + intervention.getName() + " ==> Starting cost: " + a + " - Annual cost: " + b + "\n\n");
+				}
+			} else {
+				System.out.println("La enfermedad seleccionada NO dispone de intervenciones.");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;
