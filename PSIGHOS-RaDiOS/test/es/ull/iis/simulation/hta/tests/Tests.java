@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
 import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
+import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.radios.RadiosDisease;
 import es.ull.iis.simulation.hta.radios.RadiosIntervention;
@@ -164,17 +166,18 @@ public class Tests {
 			repository.registerPopulation(population);
 			
 			if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
-				System.out.println("\nLa enfermedad seleccionada SI dispone de intervenciones.\n");
 				for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
-					RadiosIntervention radiosIntervention = new RadiosIntervention(repository, intervention, timeHorizont, disease.getCosts()); 
+					RadiosIntervention radiosIntervention = new RadiosIntervention(repository, intervention, timeHorizont, 
+							disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis()); 
 					repository.registerIntervention(radiosIntervention);
+
+					DiseaseProgressionSimulation dps = new DiseaseProgressionSimulation(0, radiosIntervention, repository, 10);
+					Patient patient = new Patient(dps, radiosIntervention, population);
 					
-					double a = radiosIntervention.getStartingCost(null);
+					double a = radiosIntervention.getStartingCost(patient);
 					double b = radiosIntervention.getAnnualCost(null);
-					System.out.println("Intervention: " + intervention.getName() + " ==> Starting cost: " + a + " - Annual cost: " + b + "\n\n");
+					System.err.println("Intervention: " + intervention.getName() + " ==> Starting cost: " + a + " - Annual cost: " + b + "\n\n");
 				}
-			} else {
-				System.out.println("La enfermedad seleccionada NO dispone de intervenciones.");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -182,6 +185,7 @@ public class Tests {
 		}
 
 		assertEquals(expectedResult, result);
-		System.out.println("Test finished ...");
+		System.out.println("\nTest finished ...");
 	}
+
 }
