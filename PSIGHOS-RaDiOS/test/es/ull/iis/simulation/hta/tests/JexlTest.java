@@ -2,8 +2,6 @@ package es.ull.iis.simulation.hta.tests;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Date;
-
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
@@ -13,7 +11,7 @@ import org.junit.Test;
 
 public class JexlTest {
 
-	@Test
+	// @Test
 	public void objectTest() {
 		System.out.println("Starting test objectTest ...");
 
@@ -52,22 +50,28 @@ public class JexlTest {
 		boolean result = true;
 
 		try {
-			int n = 1;
+			int n = 10000000;
+			JexlEngine jexl = new JexlBuilder().create();
+			String jexlExp = "weight > 25 || esplenectomia";
+			jexlExp = "1234 * 56789 / 9876";
+			JexlExpression e = jexl.createExpression(jexlExp);
+
+			JexlContext jc = new MapContext();
+			jc.set("weight", 12.9);
+			jc.set("esplenectomia", false);
+
 			Long timeA = System.currentTimeMillis();
 			for (int i = 0; i < n; i++) {
-				JexlEngine jexl = new JexlBuilder().create();
-				String jexlExp = "weight > 25 || esplenectomia";
-				jexlExp = "300 * weight";
-				JexlExpression e = jexl.createExpression(jexlExp);
-				
-				JexlContext jc = new MapContext();
-				jc.set("weight", 12.9);
-				jc.set("esplenectomia", false);
-	
 				Object o = e.evaluate(jc);
-				System.out.println("\t" + o);
+				// System.out.println("\t" + o);
 			}
 			System.out.println("Tiempo invertido (ms) = " + (System.currentTimeMillis() - timeA));
+
+			Long timeB = System.currentTimeMillis();
+			for (int i = 0; i < n; i++) {
+				Double tmp = 1234.0 * 56789.0 / 9876.0;
+			}
+			System.out.println("Tiempo invertido (ms) = " + (System.currentTimeMillis() - timeB));
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;

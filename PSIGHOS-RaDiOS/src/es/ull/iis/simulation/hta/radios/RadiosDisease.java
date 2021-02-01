@@ -25,16 +25,18 @@ import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
 
 public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedDisease {
 	private Disease disease;
-	private Matrix costs;
+	private Matrix costTreatments;
+	private Matrix costFollowUps;
+	private Matrix costScreenings;
+	private Matrix costClinicalDiagnosis;
 	private Double timeHorizont;
 	
-	private boolean debug = true; 
+	private boolean debug = false; 
 	
 	public RadiosDisease(SecondOrderParamsRepository repository, Disease disease, Double timeHorizont) throws TransformException, JAXBException {
 		super(repository, disease.getName(), Constants.CONSTANT_EMPTY_STRING);
 		
 		this.timeHorizont = timeHorizont;
-		this.costs = new Matrix();
 
 		setDisease(disease);
 		if (getDisease() == null) {
@@ -61,20 +63,32 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	 * Initializes the cost matrix for the follow-up tests associated with the disease
 	 */
 	private void initializeCostMatrix(Development naturalDevelopment) {
-		CostUtils.loadCostFromScreeningStrategies(costs, disease.getScreeningStrategies(), timeHorizont);
-		CostUtils.loadCostFromClinicalDiagnosisStrategies(costs, disease.getClinicalDiagnosisStrategies(), timeHorizont);
-		CostUtils.loadCostFromTreatmentStrategies(costs, naturalDevelopment.getName(), disease.getTreatmentStrategies(), timeHorizont);
-		CostUtils.loadCostFromFollowUpStrategies(costs, naturalDevelopment.getName(), disease.getFollowUpStrategies(), timeHorizont);
+		this.costTreatments = new Matrix();
+		this.costFollowUps = new Matrix();
+		this.costScreenings = new Matrix();
+		this.costClinicalDiagnosis = new Matrix();
+
+		CostUtils.loadCostFromTreatmentStrategies(this.costTreatments, naturalDevelopment.getName(), disease.getTreatmentStrategies(), timeHorizont);
+		CostUtils.loadCostFromFollowUpStrategies(this.costFollowUps, naturalDevelopment.getName(), disease.getFollowUpStrategies(), timeHorizont);
+		CostUtils.loadCostFromScreeningStrategies(this.costScreenings, disease.getScreeningStrategies(), timeHorizont);
+		CostUtils.loadCostFromClinicalDiagnosisStrategies(this.costClinicalDiagnosis, disease.getClinicalDiagnosisStrategies(), timeHorizont);
 		
 		List<Manifestation> manifestations = naturalDevelopment.getManifestations();
 		for (Manifestation manifestation : manifestations) {
 			// TODO: actualizar la matriz de costos directos asociados a cada manifestación. Para el caso de estudio todos los costos vienen asociados por tratamiento. 
-			CostUtils.loadCostFromTreatmentStrategies(costs, manifestation.getName(), manifestation.getTreatmentStrategies(), timeHorizont);
-			CostUtils.loadCostFromFollowUpStrategies(costs, manifestation.getName(), manifestation.getFollowUpStrategies(), timeHorizont);
+			CostUtils.loadCostFromTreatmentStrategies(this.costTreatments, manifestation.getName(), manifestation.getTreatmentStrategies(), timeHorizont);
+			CostUtils.loadCostFromFollowUpStrategies(this.costFollowUps, manifestation.getName(), manifestation.getFollowUpStrategies(), timeHorizont);
 		}
 
 		if (debug) {
-			CostUtils.showCostMatrix(costs);
+			System.out.println("\nDisease - Cost matrix for Treatments:\n");
+			CostUtils.showCostMatrix(this.costTreatments, "\t");
+			System.out.println("\nDisease - Cost matrix for FollowUps:\n");
+			CostUtils.showCostMatrix(this.costFollowUps, "\t");
+			System.out.println("\nDisease - Cost matrix for Screenings:\n");
+			CostUtils.showCostMatrix(this.costScreenings, "\t");
+			System.out.println("\nDisease - Cost matrix for Clinical Diagnosis:\n");
+			CostUtils.showCostMatrix(this.costClinicalDiagnosis, "\t");
 		}
 	}
 
@@ -146,15 +160,39 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	public SecondOrderParamsRepository getRepository () {
 		return secParams;
 	}
-
-	public Matrix getCosts() {
-		return costs;
-	}
-
-	public void setCosts(Matrix costs) {
-		this.costs = costs;
-	}
 	
+	public Matrix getCostTreatments() {
+		return costTreatments;
+	}
+
+	public void setCostTreatments(Matrix costTreatments) {
+		this.costTreatments = costTreatments;
+	}
+
+	public Matrix getCostFollowUps() {
+		return costFollowUps;
+	}
+
+	public void setCostFollowUps(Matrix costFollowUps) {
+		this.costFollowUps = costFollowUps;
+	}
+
+	public Matrix getCostScreenings() {
+		return costScreenings;
+	}
+
+	public void setCostScreenings(Matrix costScreenings) {
+		this.costScreenings = costScreenings;
+	}
+
+	public Matrix getCostClinicalDiagnosis() {
+		return costClinicalDiagnosis;
+	}
+
+	public void setCostClinicalDiagnosis(Matrix costClinicalDiagnosis) {
+		this.costClinicalDiagnosis = costClinicalDiagnosis;
+	}
+
 	@Override
 	public void registerSecondOrderParameters() {
 		// FIXME: en el caso de RaDiOS este método no tiene sentido

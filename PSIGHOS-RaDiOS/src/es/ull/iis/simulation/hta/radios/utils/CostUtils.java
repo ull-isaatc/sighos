@@ -1,6 +1,7 @@
 package es.ull.iis.simulation.hta.radios.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,6 +49,7 @@ public class CostUtils {
 			String floorLimitUnit = floorLimitUnitAndPreffix.get(1);
 			Double floorLimit = getFloorLimitRange(matcher);
 			Double floorLimitInYears = toYears(getFloorLimitRange(matcher), floorLimitUnit.toLowerCase());
+			value.setFloorLimitRange(floorLimitInYears);
 			if (floorLimitInYears > timeHorizont) {
 				return false;
 			}
@@ -64,22 +66,22 @@ public class CostUtils {
 					}
 				}
 			} else {
-				Double ceilLimit = timeHorizont;
+				Double ceilLimitInYears = timeHorizont;
 				if (matcher.group(4) != null) {
 					String ceilLimitUnit = matcher.group(5);
-					ceilLimit = toYears(Double.valueOf(matcher.group(4)) > timeHorizont ? timeHorizont : Double.valueOf(matcher.group(4)), ceilLimitUnit);
+					ceilLimitInYears = toYears(Double.valueOf(matcher.group(4)) > timeHorizont ? timeHorizont : Double.valueOf(matcher.group(4)), ceilLimitUnit);
 				}
+				value.setCeilLimitRange(ceilLimitInYears);
 
 				value.getTimesEvent().add(floorLimitInYears);
-				if (ceilLimit != null) {
-					Double f = normalizeFrequency(frequency, true);
-					Double newLimit = floorLimitInYears + f;
-					while (newLimit <= ceilLimit) {
-						if (!value.getTimesEvent().contains(newLimit)) {
-							value.getTimesEvent().add(newLimit);
-						}
-						newLimit = newLimit + f;
+				Double f = normalizeFrequency(frequency, true);
+				value.setFrequency(f);
+				Double newLimit = floorLimitInYears + f;
+				while (newLimit <= ceilLimitInYears) {
+					if (!value.getTimesEvent().contains(newLimit)) {
+						value.getTimesEvent().add(newLimit);
 					}
+					newLimit = newLimit + f;
 				}
 			}
 		}
@@ -87,6 +89,10 @@ public class CostUtils {
 		return true;
 	}
 
+	/**
+	 * @param matcher
+	 * @return
+	 */
 	private static List<String> getFloorLimitRangeUnitAndPreffix(Matcher matcher) {
 		List<String> result = new ArrayList<>();
 		result.add(matcher.group(10));
@@ -127,7 +133,7 @@ public class CostUtils {
 		String result = null;
 		Matcher matcher = dosePattern.matcher(dose.toLowerCase().replace(" ", ""));
 		if (matcher.find()) {
-			result = matcher.group(1);
+			result = Double.valueOf(matcher.group(1)).toString();
 			if (matcher.group(4) != null) {
 				result += " * weight"; 
 			}
@@ -233,7 +239,7 @@ public class CostUtils {
 		if (value.getCostExpression() != null) {
 			value.setCostExpression(value.getCostExpression() + " * " + nTimesToDay);		
 		}
-		value.setCondition(guideline.getConditions());
+		value.setCondition(guideline.getConditions() != null ? guideline.getConditions().toLowerCase() : null);
 
 		if (parseRange) {
 			for (int i = 0; i < ranges.length; i++) {
@@ -245,7 +251,15 @@ public class CostUtils {
 			value.setCostExpression("(" + value.getCostExpression() + ") * cost");
 		}
 		
-		costs.put(strategyName, itemName, value);	
+		if (costs.get(strategyName, itemName) != null) {
+			List<CostMatrixElement> tmp = new ArrayList<>();
+			tmp.addAll(costs.get(strategyName, itemName));
+			tmp.add(value);
+			costs.put(strategyName, itemName, tmp);
+		} else {
+			costs.put(strategyName, itemName, Arrays.asList(value));
+		}
+			
 		return costs;
 	}
 
@@ -287,9 +301,6 @@ public class CostUtils {
 		if (CollectionUtils.notIsEmpty(screeningStrategies)) {
 			for (ScreeningStrategy strategy : screeningStrategies) {
 				for (ScreeningTechnique item : strategy.getScreeningTechniques()) {
-					if (!item.getPercentForTheNext().equals("0.0")) {
-						
-					}
 					updateMatrixWithCostAndGuidelines(costs, strategy.getName(), item.getName(), item.getCosts(), NewbornGuideline.getInstance(), timeHorizont);
 				}
 			}
@@ -347,11 +358,13 @@ public class CostUtils {
 	/**
 	 * Show intervention cost matrix
 	 */
-	public static void showCostMatrix(Matrix costs) {
+	public static void showCostMatrix(Matrix costs, String prefix) {
 		for (String keyR : costs.keySetR()) {
 			for (String keyC : costs.keySetC(keyR)) {
-				System.out.println(String.format("%s @ %s => condition = [%s] - costExpression = [%s] - cost = [%.4f], costB = %s", 
-						keyR, keyC, costs.get(keyR, keyC).getCondition(), costs.get(keyR, keyC).getCostExpression(), costs.get(keyR, keyC).getCost(), costs.get(keyR, keyC).getTimesEvent()));
+				System.out.println(String.format("%s%s @ %s:", prefix, keyR, keyC));
+				for (CostMatrixElement e : costs.get(keyR, keyC)) {
+					System.out.println(e.toString(prefix + "\t"));
+				}
 			}
 		}
 	}

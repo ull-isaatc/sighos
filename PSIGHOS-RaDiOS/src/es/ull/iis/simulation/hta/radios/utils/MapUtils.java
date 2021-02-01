@@ -35,7 +35,7 @@ public class MapUtils {
 
 		Map<String, CostMatrixElement> result = new HashMap<>();
 		for (String key : source.keySet()) {
-			result.put(new String(key), CostMatrixElement.clone(source.get(key)));
+			result.put(new String(key), source.get(key).clone());
 		}
 		return result;
 	}
