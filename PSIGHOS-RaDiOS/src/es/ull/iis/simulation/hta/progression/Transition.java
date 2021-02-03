@@ -83,7 +83,9 @@ public class Transition {
 	}
 
 	public void reset(int id) {
-		randomSeeds[id].reset();
+		if (randomSeeds[id] != null) {
+			randomSeeds[id].reset();
+		}
 	}
 	
 	public RandomSeedForPatients getRandomSeedForPatients(int id) {
