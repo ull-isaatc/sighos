@@ -30,6 +30,7 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
 	private Double timeHorizont;
+	private String naturalDevelopmentName;
 	
 	private boolean debug = false; 
 	
@@ -48,6 +49,7 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 					.filter(development -> Constants.DATAPROPERTYVALUE_KIND_DEVELOPMENT_NATURAL_VALUE.equals(development.getKind()))
 					.findFirst()
 					.orElse(null);
+			this.naturalDevelopmentName = naturalDevelopment.getName();
 			if (naturalDevelopment != null && CollectionUtils.notIsEmpty(naturalDevelopment.getManifestations())) {
 				initializeCostMatrix(naturalDevelopment);
 
@@ -191,6 +193,14 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 
 	public void setCostClinicalDiagnosis(Matrix costClinicalDiagnosis) {
 		this.costClinicalDiagnosis = costClinicalDiagnosis;
+	}
+	
+	public String getNaturalDevelopmentName() {
+		return naturalDevelopmentName;
+	}
+	
+	public void setNaturalDevelopmentName(String naturalDevelopmentName) {
+		this.naturalDevelopmentName = naturalDevelopmentName;
 	}
 
 	@Override

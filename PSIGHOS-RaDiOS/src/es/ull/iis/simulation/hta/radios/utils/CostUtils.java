@@ -57,6 +57,7 @@ public class CostUtils {
 			if (preffixRange != null) {
 				if ("&".equals(preffixRange)) {
 					value.getTimesEvent().add(floorLimitInYears);
+					value.setCeilLimitRange(floorLimitInYears);
 				} else if ("@".equals(preffixRange)) {
 					if (value.getCostExpression() == null) {
 						value.setCost(value.getCost() * floorLimit);
@@ -360,10 +361,11 @@ public class CostUtils {
 	 */
 	public static void showCostMatrix(Matrix costs, String prefix) {
 		for (String keyR : costs.keySetR()) {
+			System.out.println(String.format("%s%s:", prefix, keyR));
 			for (String keyC : costs.keySetC(keyR)) {
-				System.out.println(String.format("%s%s @ %s:", prefix, keyR, keyC));
+				System.out.println(String.format("%s%s:", prefix + "\t", keyC));
 				for (CostMatrixElement e : costs.get(keyR, keyC)) {
-					System.out.println(e.toString(prefix + "\t"));
+					System.out.println(e.toString(prefix + "\t\t"));
 				}
 			}
 		}

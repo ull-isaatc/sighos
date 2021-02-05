@@ -12,27 +12,34 @@ import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * @author David Prieto González
  *
  */
 public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.Intervention {
+	private boolean debug = true;
+	
+	private static final JexlEngine jexl = new JexlBuilder().create();		
+
 	private Intervention intervention;
+	private String naturalDevelopmentName;
 	private Double timeHorizont;
 	private Matrix costTreatments;
 	private Matrix costFollowUps;
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
 
-	private boolean debug = true;
-	
-	public RadiosIntervention(SecondOrderParamsRepository secParams, Intervention intervention, Double timeHorizont, Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis) {
+
+	public RadiosIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Double timeHorizont, Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis) {
 		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING);
 		this.intervention = intervention; 
+		this.naturalDevelopmentName = naturalDevelopmentName;
 		this.costTreatments = baseCostTreatments.clone();
 		this.costFollowUps = baseCostFollowUps.clone();
 		this.costScreenings = baseCostScreenings.clone();
@@ -106,6 +113,14 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 		this.costClinicalDiagnosis = costClinicalDiagnosis;
 	}
 
+	public String getNaturalDevelopmentName() {
+		return naturalDevelopmentName;
+	}
+	
+	public void setNaturalDevelopmentName(String naturalDevelopmentName) {
+		this.naturalDevelopmentName = naturalDevelopmentName;
+	}
+	
 	public void setTimeHorizont(Double timeHorizont) {
 		this.timeHorizont = timeHorizont;
 	}
@@ -118,10 +133,23 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 	public void registerSecondOrderParameters() {
 	}
 
+	public double getFullLifeCost (Patient pat) {
+		/* 
+		 * TODO: para calcular el coste total para la intervención, es necesario calcular los costes parciales de:
+		 * 	- Estrategias de cribado
+		 * 	- Estrategias de diagnóstico
+		 * 	- Estrategias de tratamiento
+		 * 	- Estrategias de seguimiento
+		 * 	- Modificaciones de las manifestaciones
+		*/
+		
+		Double cummulativeCost = 0.0;
+		cummulativeCost += calculateCostsFromTreatments(pat, cummulativeCost);
+		return cummulativeCost;
+	}
+	
 	@Override
 	public double getAnnualCost(Patient pat) {
-		// String annualBehavior = Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE;
-		// String lifetimeBehavior = Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_LIFETIME_VALUE;
 		/* 
 		 * TODO: para calcular el coste anual para la intervención, es necesario calcular los costes parciales de:
 		 * 	- Estrategias de cribado
@@ -131,39 +159,107 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 		 * 	- Modificaciones de las manifestaciones
 		*/
 		
-		double annualCost = 0.0; 
-		double lifetimeCost = 0.0; 		
-		return annualCost + (lifetimeCost / (pat != null ? pat.getAgeAtDeath() : Double.MAX_VALUE));
+		Double cummulativeCost = 0.0;
+		return cummulativeCost;
 	}
 
 	@Override
 	public double getStartingCost(Patient pat) {
 		Double cummulativeCost = 0.0;
-		
-		JexlEngine jexl = new JexlBuilder().create();		
+		return cummulativeCost;
+	}
 
-		JexlContext jc = new MapContext();
-		jc.set("weight", 12.9);
-		jc.set("splenectomy", false);
-
+	private Double calculateCostsFromTreatments(Patient pat, Double cummulativeCost) {
+		JexlContext jc = generatePatientContext(pat);
 		Matrix costs = this.costTreatments;
+
 		for (String manifestacion : costs.keySetR()) {
-			// TODO: en este punto habría que comprobar que el paciente en su historia ha sufrido esta manifestación: keyR
-			for (String treatment : costs.keySetC(manifestacion)) {
-				for (CostMatrixElement e : costs.get(manifestacion, treatment)) {
-					Boolean applyCost = true; 
-					if (e.getCondition() != null) {
-						JexlExpression exprToEvaluate = jexl.createExpression(e.getCondition());
-						applyCost = (Boolean) exprToEvaluate.evaluate(jc);
-					}
-					
-					if (applyCost) {
-						cummulativeCost += e.getCost() * e.calculateNTimesInRange(pat.getInitAge(), pat.getInitAge()); 
+			Integer nTimesManifestations = calculateNTimesManifestationPatientLife(pat, manifestacion);
+			//if (getNaturalDevelopmentName().equalsIgnoreCase(manifestacion)) {
+			if (nTimesManifestations > 0) {
+				for (String treatment : costs.keySetC(manifestacion)) {
+					for (CostMatrixElement e : costs.get(manifestacion, treatment)) {
+						Boolean applyCost = true; 
+						if (e.getCondition() != null) {
+							JexlExpression exprToEvaluate = jexl.createExpression(e.getCondition());
+							applyCost = (Boolean) exprToEvaluate.evaluate(jc);
+						}
+						
+						if (applyCost) {
+							Double partialCummulativeCost = 0.0;
+							if (e.getCostExpression() != null) {
+								jc.set("cost", e.getCost());
+								JexlExpression exprToEvaluate = jexl.createExpression(e.getCostExpression());
+								partialCummulativeCost = (((Double) exprToEvaluate.evaluate(jc)) * e.calculateNTimesInRange(null, null) * nTimesManifestations);
+							} else {
+								partialCummulativeCost = (e.getCost() * e.calculateNTimesInRange(null, null) * nTimesManifestations); 
+							}
+							cummulativeCost += partialCummulativeCost;
+							if (debug) {
+								System.out.println(format("\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", 
+										treatment, e.getCondition(), partialCummulativeCost));
+							}
+						}
 					}
 				}
 			}
 		}
-		
 		return cummulativeCost;
+	}
+
+	/**
+	 * @param pat
+	 * @return
+	 */
+	@SuppressWarnings("unused")
+	private Double calculateAgeToYears(Double age, TimeUnit defaultTimeUnit) {
+		Double result = 0.0;
+		if (defaultTimeUnit == TimeUnit.MINUTE) {
+			result = age / (365.0 * 24.0 * 60.0);
+		} else if (defaultTimeUnit == TimeUnit.HOUR) {			
+			result = age / (365.0 * 24.0);
+		} else if (defaultTimeUnit == TimeUnit.DAY) {
+			result = age / 365.0;
+		} else if (defaultTimeUnit == TimeUnit.MONTH) {
+			result = age / 12.0;
+		} else if (defaultTimeUnit == TimeUnit.YEAR) {
+			result = age;
+		}		
+		return result;
+	}
+
+	/**
+	 * @param pat
+	 * @return
+	 */
+	private JexlContext generatePatientContext(Patient pat) {
+		JexlContext jcPatient = new MapContext();
+		jcPatient.set("disease", true);
+		jcPatient.set("weight", 26);
+		jcPatient.set("splenectomy", false);
+		return jcPatient;
+	}
+
+	/**
+	 * @param pat
+	 * @param manifestacion
+	 * @return
+	 */
+	private Integer calculateNTimesManifestationPatientLife(Patient pat, String manifestacion) {
+		Integer nTimesManifestations = 0;
+		if (manifestacion.equalsIgnoreCase(getNaturalDevelopmentName())) {
+			nTimesManifestations = 1;
+		} else {
+			for (Manifestation manif : pat.getDetailedState()) {
+				if (manif.name().equalsIgnoreCase(manifestacion)) {
+					nTimesManifestations++;
+				}
+			}
+		}
+
+		if (debug) {
+			System.out.println(format("Número de veces que el paciente ha padecido la manifestación [%s] = %s ", manifestacion, nTimesManifestations));
+		}
+		return nTimesManifestations;
 	}
 }

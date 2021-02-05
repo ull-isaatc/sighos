@@ -20,12 +20,14 @@ import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.radios.RadiosDisease;
 import es.ull.iis.simulation.hta.radios.RadiosIntervention;
 import es.ull.iis.simulation.hta.radios.RadiosRepository;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
+import es.ull.iis.simulation.hta.simpletest.TestAcuteManifestation1;
 import es.ull.iis.simulation.hta.simpletest.TestPopulation;
 
 public class Tests {
@@ -167,16 +169,14 @@ public class Tests {
 			
 			if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
 				for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
-					RadiosIntervention radiosIntervention = new RadiosIntervention(repository, intervention, timeHorizont, 
+					RadiosIntervention radiosIntervention = new RadiosIntervention(repository, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
 							disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis()); 
 					repository.registerIntervention(radiosIntervention);
-
-					DiseaseProgressionSimulation dps = new DiseaseProgressionSimulation(0, radiosIntervention, repository, 10);
-					Patient patient = new Patient(dps, radiosIntervention, population);
 					
-					double a = radiosIntervention.getStartingCost(patient);
-					double b = radiosIntervention.getAnnualCost(null);
-					System.err.println("Intervention: " + intervention.getName() + " ==> Starting cost: " + a + " - Annual cost: " + b + "\n\n");
+					Patient patient = generatePatient(disease, radiosIntervention, population, repository);
+					
+					double a = radiosIntervention.getFullLifeCost(patient);
+					System.err.println("Intervention: " + intervention.getName() + " ==> Full life cost: " + a + "\n\n");
 				}
 			}
 		} catch (Exception e) {
@@ -188,4 +188,17 @@ public class Tests {
 		System.out.println("\nTest finished ...");
 	}
 
+	private Patient generatePatient (RadiosDisease disease, RadiosIntervention intervention, Population population, SecondOrderParamsRepository repository) {
+		DiseaseProgressionSimulation dps = new DiseaseProgressionSimulation(0, intervention, repository, 10);
+		Patient pat = new Patient(dps, intervention, population);
+//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_SplenicSequestration", repository, disease));
+//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_SplenicSequestration_Recurrent", repository, disease));
+//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Meningitis", repository, disease));
+//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_PneumococcalSepsis", repository, disease));
+		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Stroke", repository, disease));
+//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Stroke_Recurrent", repository, disease));
+		
+		return pat;
+	}
+	
 }
