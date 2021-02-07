@@ -23,6 +23,14 @@ public class TestAcuteManifestation1 extends Manifestation {
 	 * @param secParams
 	 * @param disease
 	 */
+	public TestAcuteManifestation1(String name, SecondOrderParamsRepository secParams, Disease disease) {
+		super(secParams, name, "Acute manifestation of test disease", disease, Type.ACUTE);
+	}
+
+	/**
+	 * @param secParams
+	 * @param disease
+	 */
 	public TestAcuteManifestation1(SecondOrderParamsRepository secParams, Disease disease) {
 		super(secParams, "ACUTE1", "Acute manifestation of test disease", disease, Type.ACUTE);
 	}

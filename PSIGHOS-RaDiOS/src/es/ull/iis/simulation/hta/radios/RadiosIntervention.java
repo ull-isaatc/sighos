@@ -2,6 +2,8 @@ package es.ull.iis.simulation.hta.radios;
 
 import static java.lang.String.format;
 
+import java.util.Random;
+
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
@@ -144,7 +146,14 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 		*/
 		
 		Double cummulativeCost = 0.0;
+		if (debug) {
+			System.out.println("\nCalculando costes derivados de los tratamientos para las manifestaciones sufridas o genéricos para la enfermedad...");
+		}
 		cummulativeCost += calculateCostsFromTreatments(pat, cummulativeCost);
+		if (debug) {
+			System.out.println("\nCalculando costes derivados de las pruebas de seguimiento asociadas a las manifestaciones sufridas o de la propia enfermedad...");
+		}
+		cummulativeCost += calculateCostsFromFollowUps(pat, cummulativeCost);
 		return cummulativeCost;
 	}
 	
@@ -175,7 +184,6 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 
 		for (String manifestacion : costs.keySetR()) {
 			Integer nTimesManifestations = calculateNTimesManifestationPatientLife(pat, manifestacion);
-			//if (getNaturalDevelopmentName().equalsIgnoreCase(manifestacion)) {
 			if (nTimesManifestations > 0) {
 				for (String treatment : costs.keySetC(manifestacion)) {
 					for (CostMatrixElement e : costs.get(manifestacion, treatment)) {
@@ -196,8 +204,51 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 							}
 							cummulativeCost += partialCummulativeCost;
 							if (debug) {
-								System.out.println(format("\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", 
-										treatment, e.getCondition(), partialCummulativeCost));
+								if (e.getCondition() != null) {
+									System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", treatment, e.getCondition(), partialCummulativeCost));
+								} else {
+								}
+								System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente. Coste parcial añadido [%s].", treatment, partialCummulativeCost));
+							}
+						}
+					}
+				}
+			}
+		}
+		return cummulativeCost;
+	}
+
+	private Double calculateCostsFromFollowUps(Patient pat, Double cummulativeCost) {
+		JexlContext jc = generatePatientContext(pat);
+		Matrix costs = this.costFollowUps;
+
+		for (String manifestacion : costs.keySetR()) {
+			Integer nTimesManifestations = calculateNTimesManifestationPatientLife(pat, manifestacion);
+			if (nTimesManifestations > 0) {
+				for (String followUp : costs.keySetC(manifestacion)) {
+					for (CostMatrixElement e : costs.get(manifestacion, followUp)) {
+						Boolean applyCost = true; 
+						if (e.getCondition() != null) {
+							JexlExpression exprToEvaluate = jexl.createExpression(e.getCondition());
+							applyCost = (Boolean) exprToEvaluate.evaluate(jc);
+						}
+						
+						if (applyCost) {
+							Double partialCummulativeCost = 0.0;
+							if (e.getCostExpression() != null) {
+								jc.set("cost", e.getCost());
+								JexlExpression exprToEvaluate = jexl.createExpression(e.getCostExpression());
+								partialCummulativeCost = (((Double) exprToEvaluate.evaluate(jc)) * e.calculateNTimesInRange(null, null) * nTimesManifestations);
+							} else {
+								partialCummulativeCost = (e.getCost() * e.calculateNTimesInRange(null, null) * nTimesManifestations); 
+							}
+							cummulativeCost += partialCummulativeCost;
+							if (debug) {
+								if (e.getCondition() != null) {
+									System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", followUp, e.getCondition(), partialCummulativeCost));
+								} else {
+								}
+								System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente. Coste parcial añadido [%s].", followUp, partialCummulativeCost));
 							}
 						}
 					}
@@ -233,10 +284,12 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 	 * @return
 	 */
 	private JexlContext generatePatientContext(Patient pat) {
+		// FIXME: asignar correctamente los parámetros del context del paciente, extrayendo la información de parámetro "pat".
+		Random r = new Random();
 		JexlContext jcPatient = new MapContext();
 		jcPatient.set("disease", true);
-		jcPatient.set("weight", 26);
-		jcPatient.set("splenectomy", false);
+		jcPatient.set("weight", r.nextInt(40) + 1);
+		jcPatient.set("splenectomy", r.nextBoolean());
 		return jcPatient;
 	}
 
@@ -258,7 +311,7 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 		}
 
 		if (debug) {
-			System.out.println(format("Número de veces que el paciente ha padecido la manifestación [%s] = %s ", manifestacion, nTimesManifestations));
+			System.out.println(format("\tNúmero de veces que el paciente ha padecido la manifestación [%s] = %s ", manifestacion, nTimesManifestations));
 		}
 		return nTimesManifestations;
 	}

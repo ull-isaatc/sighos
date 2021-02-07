@@ -193,9 +193,9 @@ public class Tests {
 		Patient pat = new Patient(dps, intervention, population);
 //		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_SplenicSequestration", repository, disease));
 //		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_SplenicSequestration_Recurrent", repository, disease));
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Meningitis", repository, disease));
+		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Meningitis", repository, disease));
 //		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_PneumococcalSepsis", repository, disease));
-		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Stroke", repository, disease));
+//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Stroke", repository, disease));
 //		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Stroke_Recurrent", repository, disease));
 		
 		return pat;
