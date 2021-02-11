@@ -211,6 +211,20 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 
 	/**
+	 * @return the profile
+	 */
+	public PatientProfile getProfile() {
+		return profile;
+	}
+
+	/**
+	 * @return the manifestationEvents
+	 */
+	public TreeMap<Manifestation, ArrayDeque<ManifestationEvent>> getManifestationEvents() {
+		return manifestationEvents;
+	}
+
+	/**
 	 * Returns the initial age assigned to the patient
 	 * @return The initial age assigned to the patient
 	 */

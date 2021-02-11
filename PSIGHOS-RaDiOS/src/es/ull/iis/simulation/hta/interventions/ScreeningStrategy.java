@@ -20,6 +20,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  *
  */
 public abstract class ScreeningStrategy extends Intervention {
+	public final static String STR_SCREENING = "tScreening";
 	public enum ScreeningResult implements Named {
 		TP,
 		FP,
@@ -85,6 +86,7 @@ public abstract class ScreeningStrategy extends Intervention {
 		@Override
 		public void event() {
 			final DiseaseProgressionSimulation simul = pat.getSimulation();
+			pat.getProfile().setDoubleListProperty(STR_SCREENING, ts);
 			// If the patient is already diagnosed, no sense in performing screening
 			if (!pat.isDiagnosed()) {
 				final int id = simul.getIdentifier();

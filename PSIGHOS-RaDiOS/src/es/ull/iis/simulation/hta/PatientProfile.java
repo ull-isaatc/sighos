@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.hta;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.populations.Population;
@@ -22,6 +24,8 @@ public class PatientProfile {
 	private final TreeMap<String, Double> doubleProperties;
 	/** A collection of boolean properties */
 	private final TreeMap<String, Boolean> boolProperties;
+	/** A collection of double properties */
+	private final TreeMap<String, List<Double>> doubleListProperties;
 	/** Initial age of the patient (stored as years) */
 	private final double initAge;
 	/** Sex of the patient: 0 for men, 1 for women */
@@ -42,6 +46,7 @@ public class PatientProfile {
 		intProperties = new TreeMap<>();
 		doubleProperties = new TreeMap<>();
 		boolProperties = new TreeMap<>();
+		doubleListProperties = new TreeMap<>();
 		this.initAge = initAge;
 		this.sex = sex;
 		this.disease = disease;
@@ -96,6 +101,28 @@ public class PatientProfile {
 	 */
 	public void setDoubleProperty(String property, double value) {
 		doubleProperties.put(property, value);
+	}
+
+	/**
+	 * Returns the value associated to the specified property
+	 * @param property The name of the property
+	 * @return the value associated to the specified property
+	 */
+	public List<Double> getDoubleListProperty(String property) {
+		return doubleListProperties.get(property);
+	}
+
+	/**
+	 * Sets the value of the specified property
+	 * @param property The name of the property
+	 * @param value The new value of the property
+	 */
+	public void setDoubleListProperty(String property, double value) {
+		List<Double> list = doubleListProperties.get(property);
+		if (list == null)
+			list = new ArrayList<Double>();
+		list.add(value);
+		doubleListProperties.put(property, list);
 	}
 	
 	/**
