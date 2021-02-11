@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.junit.Test;
 
@@ -15,20 +14,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
 import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
-import es.ull.iis.ontology.radios.utils.CollectionUtils;
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
-import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.populations.Population;
-import es.ull.iis.simulation.hta.radios.RadiosDisease;
-import es.ull.iis.simulation.hta.radios.RadiosIntervention;
 import es.ull.iis.simulation.hta.radios.RadiosRepository;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
-import es.ull.iis.simulation.hta.simpletest.TestAcuteManifestation1;
-import es.ull.iis.simulation.hta.simpletest.TestPopulation;
 
 public class Tests {
 	private static ObjectMapper mapper = null; 
@@ -43,13 +32,8 @@ public class Tests {
 		return mapper;
 	}
 	
-	private Schema4Simulation loadDiseaseFromJson (Boolean fromUrl) throws JsonParseException, JsonMappingException, MalformedURLException, IOException {
-		File radiosJson = new File("/home/davidpg/workspace/java/RaDiOS-MTT/radios.json");
-		if (fromUrl) {
-			return getMapperInstance().readValue(new URL("http://some-domains/api/Schema4Simulation.json"), Schema4Simulation.class);
-		} else {
-			return getMapperInstance().readValue(radiosJson, Schema4Simulation.class);
-		}
+	private Schema4Simulation loadDiseaseFromJson (String pathToRaDiOSJson) throws JsonParseException, JsonMappingException, MalformedURLException, IOException {
+		return getMapperInstance().readValue(new File(pathToRaDiOSJson), Schema4Simulation.class);
 	}
 	
 	// @Test	
@@ -60,7 +44,7 @@ public class Tests {
 		boolean result = true;
 		
 		try {
-			Schema4Simulation schema4Simulation = loadDiseaseFromJson(false);
+			Schema4Simulation schema4Simulation = loadDiseaseFromJson("/home/davidpg/workspace/java/RaDiOS-MTT/radios.json");
 			getMapperInstance().writeValueAsString(schema4Simulation);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -157,28 +141,10 @@ public class Tests {
 		boolean result = true;
 		int nRuns = 10;
 		int nPatients = 1;
-		double timeHorizont = 10.0;
+		int timeHorizont = 10;
 		
 		try {
-			Schema4Simulation radiosDiseaseInstance = loadDiseaseFromJson(false);
-			RadiosRepository repository = new RadiosRepository(nRuns, nPatients);
-			RadiosDisease disease = new RadiosDisease(repository, radiosDiseaseInstance.getDisease(), timeHorizont);
-			repository.registerDisease(disease);
-			Population population = new TestPopulation(repository, disease);
-			repository.registerPopulation(population);
-			
-			if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
-				for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
-					RadiosIntervention radiosIntervention = new RadiosIntervention(repository, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
-							disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis()); 
-					repository.registerIntervention(radiosIntervention);
-					
-					Patient patient = generatePatient(disease, radiosIntervention, population, repository);
-					
-					double a = radiosIntervention.getFullLifeCost(patient);
-					System.err.println("Intervention: " + intervention.getName() + " ==> Full life cost: " + a + "\n\n");
-				}
-			}
+			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/RaDiOS-MTT/radios.json", timeHorizont);
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;
@@ -187,18 +153,4 @@ public class Tests {
 		assertEquals(expectedResult, result);
 		System.out.println("\nTest finished ...");
 	}
-
-	private Patient generatePatient (RadiosDisease disease, RadiosIntervention intervention, Population population, SecondOrderParamsRepository repository) {
-		DiseaseProgressionSimulation dps = new DiseaseProgressionSimulation(0, intervention, repository, 10);
-		Patient pat = new Patient(dps, intervention, population);
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_SplenicSequestration", repository, disease));
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_SplenicSequestration_Recurrent", repository, disease));
-		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Meningitis", repository, disease));
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_PneumococcalSepsis", repository, disease));
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Stroke", repository, disease));
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Stroke_Recurrent", repository, disease));
-		
-		return pat;
-	}
-	
 }

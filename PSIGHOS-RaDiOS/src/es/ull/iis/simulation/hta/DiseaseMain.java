@@ -369,14 +369,13 @@ public class DiseaseMain {
 	        SecondOrderParamsRepository secParams = null;
 	        switch (args1.population) {
 	        case 1: 
-	        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients); 
+	        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, "/home/davidpg/workspace/java/RaDiOS-MTT/radios.json", args1.timeHorizon); 
 	        	break;
 	        case 0: 
 	        default:
 	        	secParams = new TestSimpleRareDiseaseRepository(args1.nRuns, args1.nPatients); 
 	        	break;
-	        }
-	        	
+	        }	        	
 	        
 	    	final String validity = secParams.checkValidity();
 	    	if (validity == null) {
@@ -455,9 +454,10 @@ public class DiseaseMain {
 		} catch (NumberFormatException ex) {
 			System.out.println(ex.getMessage());
 			System.exit(-1);
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+			System.exit(-1);
 		}
-		
-
 	}
 	
 	private static class Arguments {

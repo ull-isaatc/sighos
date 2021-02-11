@@ -376,7 +376,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	private class ManifestationEvent extends DiscreteEvent {
+	public class ManifestationEvent extends DiscreteEvent {
 		private final DiseaseProgressionPair progress;
 
 		public ManifestationEvent(DiseaseProgressionPair progress) {

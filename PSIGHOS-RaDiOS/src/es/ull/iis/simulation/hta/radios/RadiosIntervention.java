@@ -31,14 +31,14 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 
 	private Intervention intervention;
 	private String naturalDevelopmentName;
-	private Double timeHorizont;
+	private Integer timeHorizont;
 	private Matrix costTreatments;
 	private Matrix costFollowUps;
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
 
 
-	public RadiosIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Double timeHorizont, Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis) {
+	public RadiosIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Integer timeHorizont, Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis) {
 		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING);
 		this.intervention = intervention; 
 		this.naturalDevelopmentName = naturalDevelopmentName;
@@ -123,11 +123,11 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 		this.naturalDevelopmentName = naturalDevelopmentName;
 	}
 	
-	public void setTimeHorizont(Double timeHorizont) {
+	public void setTimeHorizont(Integer timeHorizont) {
 		this.timeHorizont = timeHorizont;
 	}
 	
-	public Double getTimeHorizont() {
+	public Integer getTimeHorizont() {
 		return timeHorizont;
 	}
 	
@@ -138,11 +138,11 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 	public double getFullLifeCost (Patient pat) {
 		/* 
 		 * TODO: para calcular el coste total para la intervención, es necesario calcular los costes parciales de:
-		 * 	- Estrategias de cribado
-		 * 	- Estrategias de diagnóstico
-		 * 	- Estrategias de tratamiento
-		 * 	- Estrategias de seguimiento
-		 * 	- Modificaciones de las manifestaciones
+		 * 	- [ ] Estrategias de cribado
+		 * 	- [ ] Estrategias de diagnóstico
+		 * 	- [V] Estrategias de tratamiento
+		 * 	- [V] Estrategias de seguimiento
+		 * 	- [ ] Modificaciones de las manifestaciones
 		*/
 		
 		Double cummulativeCost = 0.0;
@@ -160,12 +160,12 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 	@Override
 	public double getAnnualCost(Patient pat) {
 		/* 
-		 * TODO: para calcular el coste anual para la intervención, es necesario calcular los costes parciales de:
-		 * 	- Estrategias de cribado
-		 * 	- Estrategias de diagnóstico
-		 * 	- Estrategias de tratamiento
-		 * 	- Estrategias de seguimiento
-		 * 	- Modificaciones de las manifestaciones
+		 * TODO: para calcular el coste total para la intervención, es necesario calcular los costes parciales de:
+		 * 	- [ ] Estrategias de cribado
+		 * 	- [ ] Estrategias de diagnóstico
+		 * 	- [V] Estrategias de tratamiento
+		 * 	- [V] Estrategias de seguimiento
+		 * 	- [ ] Modificaciones de las manifestaciones
 		*/
 		
 		Double cummulativeCost = 0.0;
@@ -179,54 +179,20 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 	}
 
 	private Double calculateCostsFromTreatments(Patient pat, Double cummulativeCost) {
-		JexlContext jc = generatePatientContext(pat);
-		Matrix costs = this.costTreatments;
-
-		for (String manifestacion : costs.keySetR()) {
-			Integer nTimesManifestations = calculateNTimesManifestationPatientLife(pat, manifestacion);
-			if (nTimesManifestations > 0) {
-				for (String treatment : costs.keySetC(manifestacion)) {
-					for (CostMatrixElement e : costs.get(manifestacion, treatment)) {
-						Boolean applyCost = true; 
-						if (e.getCondition() != null) {
-							JexlExpression exprToEvaluate = jexl.createExpression(e.getCondition());
-							applyCost = (Boolean) exprToEvaluate.evaluate(jc);
-						}
-						
-						if (applyCost) {
-							Double partialCummulativeCost = 0.0;
-							if (e.getCostExpression() != null) {
-								jc.set("cost", e.getCost());
-								JexlExpression exprToEvaluate = jexl.createExpression(e.getCostExpression());
-								partialCummulativeCost = (((Double) exprToEvaluate.evaluate(jc)) * e.calculateNTimesInRange(null, null) * nTimesManifestations);
-							} else {
-								partialCummulativeCost = (e.getCost() * e.calculateNTimesInRange(null, null) * nTimesManifestations); 
-							}
-							cummulativeCost += partialCummulativeCost;
-							if (debug) {
-								if (e.getCondition() != null) {
-									System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", treatment, e.getCondition(), partialCummulativeCost));
-								} else {
-								}
-								System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente. Coste parcial añadido [%s].", treatment, partialCummulativeCost));
-							}
-						}
-					}
-				}
-			}
-		}
-		return cummulativeCost;
+		return evaluateRanges(pat, cummulativeCost, this.costTreatments);
 	}
 
 	private Double calculateCostsFromFollowUps(Patient pat, Double cummulativeCost) {
-		JexlContext jc = generatePatientContext(pat);
-		Matrix costs = this.costFollowUps;
+		return evaluateRanges(pat, cummulativeCost, this.costFollowUps);
+	}
 
+	private Double evaluateRanges(Patient pat, Double cummulativeCost, Matrix costs) {
+		JexlContext jc = generatePatientContext(pat);
 		for (String manifestacion : costs.keySetR()) {
 			Integer nTimesManifestations = calculateNTimesManifestationPatientLife(pat, manifestacion);
 			if (nTimesManifestations > 0) {
-				for (String followUp : costs.keySetC(manifestacion)) {
-					for (CostMatrixElement e : costs.get(manifestacion, followUp)) {
+				for (String item : costs.keySetC(manifestacion)) {
+					for (CostMatrixElement e : costs.get(manifestacion, item)) {
 						Boolean applyCost = true; 
 						if (e.getCondition() != null) {
 							JexlExpression exprToEvaluate = jexl.createExpression(e.getCondition());
@@ -245,10 +211,10 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 							cummulativeCost += partialCummulativeCost;
 							if (debug) {
 								if (e.getCondition() != null) {
-									System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", followUp, e.getCondition(), partialCummulativeCost));
+									System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", item, e.getCondition(), partialCummulativeCost));
 								} else {
 								}
-								System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente. Coste parcial añadido [%s].", followUp, partialCummulativeCost));
+								System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente. Coste parcial añadido [%s].", item, partialCummulativeCost));
 							}
 						}
 					}

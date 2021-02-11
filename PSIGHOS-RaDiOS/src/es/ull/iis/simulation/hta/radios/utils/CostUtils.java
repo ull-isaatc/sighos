@@ -41,7 +41,7 @@ public class CostUtils {
 	 * @param splitIntoAnnualRanges
 	 * @return
 	 */
-	private static Boolean normalizeRange(CostMatrixElement value, String range, String frequency, Double timeHorizont) {
+	private static Boolean normalizeRange(CostMatrixElement value, String range, String frequency, Integer timeHorizont) {
 		Matcher matcher = rangePattern.matcher(range.trim());
 		if (matcher.find()) {
 			List<String> floorLimitUnitAndPreffix = getFloorLimitRangeUnitAndPreffix(matcher);
@@ -67,7 +67,7 @@ public class CostUtils {
 					}
 				}
 			} else {
-				Double ceilLimitInYears = timeHorizont;
+				Double ceilLimitInYears = (timeHorizont != null) ? timeHorizont.doubleValue() : null;
 				if (matcher.group(4) != null) {
 					String ceilLimitUnit = matcher.group(5);
 					ceilLimitInYears = toYears(Double.valueOf(matcher.group(4)) > timeHorizont ? timeHorizont : Double.valueOf(matcher.group(4)), ceilLimitUnit);
@@ -185,7 +185,7 @@ public class CostUtils {
 	 * @param numFrequencies
 	 * @return
 	 */
-	private static String[] initializeFrequencies(Integer numFrequencies, Double timeHorizont) {
+	private static String[] initializeFrequencies(Integer numFrequencies, Integer timeHorizont) {
 		String[] frequencies = new String[numFrequencies];
 		for (int i = 0; i < numFrequencies; i++) {
 			frequencies[i] = Math.round(timeHorizont) + "y";
@@ -201,7 +201,7 @@ public class CostUtils {
 	 * @return
 	 */
 	public static Matrix updateMatrixWithCostAndGuidelines(Matrix costs, String strategyName, String itemName, List<Cost> costsItem, List<Guideline> guidelines,
-			Double timeHorizont) {
+			Integer timeHorizont) {
 		if (CollectionUtils.notIsEmpty(costsItem)) {
 			for (Cost cost : costsItem) {
 				if (CollectionUtils.notIsEmpty(guidelines)) {
@@ -227,7 +227,7 @@ public class CostUtils {
 	 * @param timeHorizont
 	 * @return
 	 */
-	public static Matrix updateCostMatrix(Matrix costs, String strategyName, String itemName, String costItem, Guideline guideline, Double timeHorizont) {
+	public static Matrix updateCostMatrix(Matrix costs, String strategyName, String itemName, String costItem, Guideline guideline, Integer timeHorizont) {
 		Boolean parseRange = true;
 		CostMatrixElement value = new CostMatrixElement();
 
@@ -279,7 +279,7 @@ public class CostUtils {
 	 * @param ranges
 	 * @return
 	 */
-	private static String[] getFrequenciesSplitted(Guideline guideline, Double timeHorizont, String[] ranges) {
+	private static String[] getFrequenciesSplitted(Guideline guideline, Integer timeHorizont, String[] ranges) {
 		String[] frequencies = (guideline.getFrequency() != null) ? frequencies = guideline.getFrequency().split(",") : initializeFrequencies(ranges.length, timeHorizont);
 		return frequencies;
 	}
@@ -298,7 +298,7 @@ public class CostUtils {
 	 * @param screeningStrategies
 	 * @param timeHorizont
 	 */
-	public static void loadCostFromScreeningStrategies(Matrix costs, List<ScreeningStrategy> screeningStrategies, Double timeHorizont) {
+	public static void loadCostFromScreeningStrategies(Matrix costs, List<ScreeningStrategy> screeningStrategies, Integer timeHorizont) {
 		if (CollectionUtils.notIsEmpty(screeningStrategies)) {
 			for (ScreeningStrategy strategy : screeningStrategies) {
 				for (ScreeningTechnique item : strategy.getScreeningTechniques()) {
@@ -313,7 +313,7 @@ public class CostUtils {
 	 * @param clinicalDiagnosisStrategies
 	 * @param timeHorizont
 	 */
-	public static void loadCostFromClinicalDiagnosisStrategies(Matrix costs, List<ClinicalDiagnosisStrategy> clinicalDiagnosisStrategies, Double timeHorizont) {
+	public static void loadCostFromClinicalDiagnosisStrategies(Matrix costs, List<ClinicalDiagnosisStrategy> clinicalDiagnosisStrategies, Integer timeHorizont) {
 		if (CollectionUtils.notIsEmpty(clinicalDiagnosisStrategies)) {
 			for (ClinicalDiagnosisStrategy strategy : clinicalDiagnosisStrategies) {
 				for (ClinicalDiagnosisTechnique item : strategy.getClinicalDiagnosisTechniques()) {
@@ -328,7 +328,7 @@ public class CostUtils {
 	 * @param treatmentStrategies
 	 * @param timeHorizont
 	 */
-	public static void loadCostFromTreatmentStrategies(Matrix costs, String manifestationName, List<TreatmentStrategy> treatmentStrategies, Double timeHorizont) {
+	public static void loadCostFromTreatmentStrategies(Matrix costs, String manifestationName, List<TreatmentStrategy> treatmentStrategies, Integer timeHorizont) {
 		if (CollectionUtils.notIsEmpty(treatmentStrategies)) {
 			for (TreatmentStrategy strategy : treatmentStrategies) {
 				for (Treatment item : strategy.getTreatments()) {
@@ -346,7 +346,7 @@ public class CostUtils {
 	 * @param followUpStrategies
 	 * @param timeHorizont
 	 */
-	public static void loadCostFromFollowUpStrategies(Matrix costs, String manifestationName, List<FollowUpStrategy> followUpStrategies, Double timeHorizont) {
+	public static void loadCostFromFollowUpStrategies(Matrix costs, String manifestationName, List<FollowUpStrategy> followUpStrategies, Integer timeHorizont) {
 		if (CollectionUtils.notIsEmpty(followUpStrategies)) {
 			for (FollowUpStrategy strategy : followUpStrategies) {
 				for (FollowUp item : strategy.getFollowUps()) {

@@ -29,12 +29,12 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	private Matrix costFollowUps;
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
-	private Double timeHorizont;
+	private Integer timeHorizont;
 	private String naturalDevelopmentName;
 	
 	private boolean debug = false; 
 	
-	public RadiosDisease(SecondOrderParamsRepository repository, Disease disease, Double timeHorizont) throws TransformException, JAXBException {
+	public RadiosDisease(SecondOrderParamsRepository repository, Disease disease, Integer timeHorizont) throws TransformException, JAXBException {
 		super(repository, disease.getName(), Constants.CONSTANT_EMPTY_STRING);
 		
 		this.timeHorizont = timeHorizont;
