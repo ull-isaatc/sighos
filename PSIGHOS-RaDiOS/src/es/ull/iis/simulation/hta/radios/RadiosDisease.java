@@ -15,14 +15,14 @@ import es.ull.iis.ontology.radios.json.schema4simulation.Development;
 import es.ull.iis.ontology.radios.json.schema4simulation.Disease;
 import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
-import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
 
+/**
+ * @author David Prieto González
+ */
 public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedDisease {
 	private Disease disease;
 	private Matrix costTreatments;
@@ -205,24 +205,6 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 
 	@Override
 	public void registerSecondOrderParameters() {
-		// FIXME: en el caso de RaDiOS este método no tiene sentido
-	}
-
-	@Override
-	public DiseaseProgression getProgression(Patient pat) {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 }

@@ -78,8 +78,13 @@ public class SecondOrderParam {
 	 * @return if id = 0, returns the expected value (base case); otherwise returns a random-generated value
 	 */
 	public double getValue(int id) {
-		if (Double.isNaN(generatedValues[id]))
-			generatedValues[id] = rnd.generate();
+		if (Double.isNaN(generatedValues[id])) {
+			if (rnd != null) {
+				generatedValues[id] = rnd.generate();
+			} else {
+				generatedValues[id] = generatedValues[0];
+			}
+		}
 		return generatedValues[id];
 	}
 

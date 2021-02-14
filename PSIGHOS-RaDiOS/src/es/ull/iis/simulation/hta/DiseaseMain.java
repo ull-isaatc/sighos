@@ -456,6 +456,7 @@ public class DiseaseMain {
 			System.exit(-1);
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
+			ex.printStackTrace();
 			System.exit(-1);
 		}
 	}

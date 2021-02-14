@@ -30,10 +30,9 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
-import es.ull.iis.simulation.hta.simpletest.TestPopulation;
+import es.ull.iis.simulation.hta.simpletest.TestNotDiagnosedPopulation;
 
 /**
- * @author Iván Castilla
  * @author David Prieto González
  */
 public class RadiosRepository extends SecondOrderParamsRepository {
@@ -66,7 +65,7 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 		RadiosDisease disease = new RadiosDisease(this, radiosDiseaseInstance.getDisease(), timeHorizont);		
 		registerDisease(disease);
 
-		Population population = new TestPopulation(this, disease);
+		Population population = new TestNotDiagnosedPopulation(this, disease);
 		registerPopulation(population);
 		
 		if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {

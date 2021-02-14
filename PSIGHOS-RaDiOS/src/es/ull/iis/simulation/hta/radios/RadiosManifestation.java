@@ -56,7 +56,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		return secParams;
 	}
 
-	private es.ull.iis.simulation.hta.progression.Manifestation searchManifestationFromDisease (Disease disease, String manifestationName) {
+	private es.ull.iis.simulation.hta.progression.Manifestation searchManifestationFromDisease(Disease disease, String manifestationName) {
 		for (es.ull.iis.simulation.hta.progression.Manifestation manifestation : disease.getManifestations()) {
 			if (manifestationName.equals(manifestation.name())) {
 				return manifestation;
@@ -64,14 +64,15 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		}
 		return null;
 	}
-	
+
+	@SuppressWarnings("unused")
 	private void addParamProbabilities(Disease disease) throws JAXBException {
 		String manifestationProbability = (getManifestation().getProbability() != null) ? getManifestation().getProbability() : "0.0";
 		ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifestationProbability);
 		if (probabilityDistribution != null) {
 			if (CollectionUtils.isEmpty(getManifestation().getPrecedingManifestations())) {
 				getRepository().addProbParam(disease.getNullManifestation(), this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(),
-				probabilityDistribution.getProbabilisticValue());
+						probabilityDistribution.getProbabilisticValue());
 			} else {
 				for (String precedingManifesationName : getManifestation().getPrecedingManifestations()) {
 					getRepository().addProbParam(searchManifestationFromDisease(disease, precedingManifesationName), this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(),

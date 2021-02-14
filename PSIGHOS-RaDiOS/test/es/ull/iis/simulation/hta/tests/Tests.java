@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
 import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
 import es.ull.iis.simulation.hta.radios.RadiosRepository;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
@@ -55,10 +56,36 @@ public class Tests {
 		System.out.println("Test finished ...");
 	}
 	
-	// @Test 
-	public void parseDatatable () {
+	 @Test 
+	public void parseDatatable () throws JsonParseException, JsonMappingException, MalformedURLException, IOException {
 		boolean expectedResult = true;
 		boolean result = true;
+		
+		try {			
+			Schema4Simulation schema4Simulation = loadDiseaseFromJson("/home/davidpg/workspace/java/RaDiOS-MTT/radios.json");
+			for (Manifestation m : schema4Simulation.getDisease().getDevelopments().get(0).getManifestations()) {
+				if (m.getProbability() != null && m.getProbability().length() > 50) {
+					System.out.println(String.format("Parseando la probabilidad de %s: %s...", m.getName(), m.getProbability().substring(0, 50)));
+					double[][] datatable = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(m.getProbability()));
+					for (int i = 0; i < datatable.length; i++) {
+						for (int j = 0; j < datatable[i].length; j++) {
+							System.out.print(String.format("\t %s", datatable[i][j]));							
+						}						
+					}
+					System.out.println("");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			result = false;
+		}
+		
+		assertEquals(expectedResult, result);
+		System.out.println("Test finished ...");
+	}
+
+	@SuppressWarnings("unused")
+	private String getSampleDatatable() {
 		String datatable = "<rdt:table xmlns:rdt=\"http://www.ull.es/RaDiOS/datatypes\"\n" + 
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + 
 				"	xsi:schemaLocation=\"http://www.ull.es/RaDiOS/datatypes datatable.xsd \">\n" + 
@@ -121,19 +148,10 @@ public class Tests {
 				"		</rdt:row>\n" + 
 				"	</rdt:content>\n" + 
 				"</rdt:table>";
-		
-		try {			
-			ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(datatable));
-		} catch (Exception e) {
-			e.printStackTrace();
-			result = false;
-		}
-
-		assertEquals(expectedResult, result);
-		System.out.println("Test finished ...");
+		return datatable;
 	}
 	
-	@Test	
+//	@Test	
 	public void simulateDisease () {
 		System.out.println("Starting test ...");
 
