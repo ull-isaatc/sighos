@@ -81,11 +81,12 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 			}
 		} else {
 			Datatable datatable = XmlTransform.getDataTable(manifestationProbability);
+			double[][] datatableMatrix = ValueTransform.rangeDatatableToMatrix(datatable);
 			// FIXME: tratar de adaptar con lo nuevo
-			// AgeBasedTimeToEventParam ageBasedTimeToEventParam =
-			// new AgeBasedTimeToEventParam(RandomNumberFactory.getInstance(), datatable.getPopulation().intValue(), ValueTransform.rangeDatatableToMatrix(datatable),
-			// new RadiosRangeAgeMatrixRRCalculator(ValueTransform.rangeDatatableToMatrix(datatable)));
-			// getRepository().addProbParam(ageBasedTimeToEventParam);
+//			AgeBasedTimeToEventParam ageBasedTimeToEventParam =
+//					new AgeBasedTimeToEventParam(RandomNumberFactory.getInstance(), datatable.getPopulation().intValue(), ValueTransform.rangeDatatableToMatrix(datatable),
+//					new RadiosRangeAgeMatrixRRCalculator(ValueTransform.rangeDatatableToMatrix(datatable)));
+//			getRepository().addProbParam(ageBasedTimeToEventParam);
 		}
 	}
 
@@ -93,9 +94,9 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		if (getManifestation().getMortalityFactor() != null) {
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(getManifestation().getMortalityFactor());
 			if (Type.CHRONIC == getType()) {
-				// Se debe interpretar el valor como que aumenta tu riesgo de muerte * mortalityFactor
+				// TODO: Se debe interpretar el valor como que aumenta tu riesgo de muerte * mortalityFactor
 			} else if (Type.ACUTE == getType()) {
-				// Se debe interpretar el valor de mortalityFactor como la probabilidad de muerte
+				// TODO: Se debe interpretar el valor de mortalityFactor como la probabilidad de muerte
 			}
 			if (probabilityDistribution != null) {
 				getRepository().addIMRParam(this, "Mortality factor for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(),
