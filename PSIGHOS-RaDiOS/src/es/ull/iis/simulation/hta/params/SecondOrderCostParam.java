@@ -44,8 +44,13 @@ public class SecondOrderCostParam extends SecondOrderParam {
 
 	@Override
 	public double getValue(int id) {
-		if (Double.isNaN(generatedValues[id]))
-			generatedValues[id] = SpanishIPCUpdate.updateCost(rnd.generate(), year, BasicConfigParams.STUDY_YEAR);
+		if (Double.isNaN(generatedValues[id])) {
+			if (rnd != null) {
+				generatedValues[id] = SpanishIPCUpdate.updateCost(rnd.generate(), year, BasicConfigParams.STUDY_YEAR);
+			} else {
+				generatedValues[id] = SpanishIPCUpdate.updateCost(generatedValues[0], year, BasicConfigParams.STUDY_YEAR);
+			}
+		}
 		return generatedValues[id];
 	}
 	

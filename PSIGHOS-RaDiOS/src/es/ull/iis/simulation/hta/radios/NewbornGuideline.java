@@ -12,7 +12,7 @@ public class NewbornGuideline extends Guideline {
 		List<Guideline> result = new ArrayList<>();
 		Guideline newbornGuideline = new Guideline();
 		newbornGuideline.setName("NewbornGuideline");
-		newbornGuideline.setRange("0m-0m");
+		newbornGuideline.setRange("0m-1y");
 		newbornGuideline.setFrequency("1y");
 		result.add(newbornGuideline);
 		return result;

@@ -369,7 +369,7 @@ public class DiseaseMain {
 	        SecondOrderParamsRepository secParams = null;
 	        switch (args1.population) {
 	        case 1: 
-	        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, "/home/davidpg/workspace/java/RaDiOS-MTT/radios.json", args1.timeHorizon); 
+	        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease1.json", args1.timeHorizon); 
 	        	break;
 	        case 0: 
 	        default:

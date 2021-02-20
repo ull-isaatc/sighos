@@ -56,7 +56,7 @@ public class Tests {
 		System.out.println("Test finished ...");
 	}
 	
-	 @Test 
+	// @Test 
 	public void parseDatatable () throws JsonParseException, JsonMappingException, MalformedURLException, IOException {
 		boolean expectedResult = true;
 		boolean result = true;
@@ -85,7 +85,7 @@ public class Tests {
 	}
 
 //	@Test	
-	public void simulateDisease () {
+	public void simulateDiseaseSCD () {
 		System.out.println("Starting test ...");
 
 		boolean expectedResult = true;
@@ -95,7 +95,7 @@ public class Tests {
 		int timeHorizont = 10;
 		
 		try {
-			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/RaDiOS-MTT/radios.json", timeHorizont);
+			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios.json", timeHorizont);
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;
@@ -104,4 +104,26 @@ public class Tests {
 		assertEquals(expectedResult, result);
 		System.out.println("\nTest finished ...");
 	}
+	
+	@Test
+	public void simulateTest1Disease () {
+		System.out.println("Starting test ...");
+
+		boolean expectedResult = true;
+		boolean result = true;
+		int nRuns = 10;
+		int nPatients = 1;
+		int timeHorizont = 10;
+		
+		try {
+			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease1.json", timeHorizont);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result = false;
+		}
+
+		assertEquals(expectedResult, result);
+		System.out.println("\nTest finished ...");
+	}
+	
 }

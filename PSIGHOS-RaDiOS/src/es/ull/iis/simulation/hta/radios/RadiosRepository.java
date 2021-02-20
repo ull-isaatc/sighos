@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
 import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
@@ -30,6 +28,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
+import es.ull.iis.simulation.hta.simpletest.NullIntervention;
 import es.ull.iis.simulation.hta.simpletest.TestNotDiagnosedPopulation;
 
 /**
@@ -73,34 +72,15 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 				RadiosIntervention radiosIntervention = new RadiosIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
 						disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis()); 
 				this.registerIntervention(radiosIntervention);
-//				
-//				Patient patient = generatePatient(disease, radiosIntervention, population, this);
-//				
-//				double a = radiosIntervention.getFullLifeCost(patient);
-//				System.err.println("Intervention: " + intervention.getName() + " ==> Full life cost: " + a + "\n\n");
 			}
+		} 
+		if (CollectionUtils.isEmpty(radiosDiseaseInstance.getDisease().getInterventions()) || radiosDiseaseInstance.getDisease().getInterventions().size() < 2) {
+			this.registerIntervention(new NullIntervention(this));
 		}
 		
 		// El submodelo de mortalidad (por defecto podemos usar el que te pongo)
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 		
-	}
-	
-	@SuppressWarnings("unused")
-	private Patient generatePatient (RadiosDisease disease, RadiosIntervention intervention, Population population, SecondOrderParamsRepository repository) {
-		DiseaseProgressionSimulation dps = new DiseaseProgressionSimulation(0, intervention, repository, 10);
-		Patient pat = new Patient(dps, intervention, population);
-//		for (Manifestation manifestation : pat.getManifestationEvents().keySet()) {
-//			pat.getManifestationEvents().get(manifestation).getFirst().getTs(); // Tiempo en el cual sucede la manifestación;
-//		}
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_SplenicSequestration", repository, disease));
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_SplenicSequestration_Recurrent", repository, disease));
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Meningitis", repository, disease));
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_PneumococcalSepsis", repository, disease));
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Stroke", repository, disease));
-//		pat.getDetailedState().add(new TestAcuteManifestation1("#SCD_Manif_Stroke_Recurrent", repository, disease));
-		
-		return pat;
 	}
 	
 	@Override
