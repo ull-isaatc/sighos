@@ -32,7 +32,10 @@
           "year" : "2020",
           "temporalBehavior" : "ANNUAL"
         } ],
-        "precedingManifestations" : [ "#RD1_MANIF1" ]
+        "precedingManifestations" : [ {
+          "name" : "#RD1_MANIF1",
+          "probability" : "0.3"
+        } ]
       } ]
     } ],
     "interventions" : [ {

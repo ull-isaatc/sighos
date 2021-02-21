@@ -9,9 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Cost;
 import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
+import es.ull.iis.ontology.radios.json.schema4simulation.PrecedingManifestation;
 import es.ull.iis.ontology.radios.json.schema4simulation.Utility;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
-import es.ull.iis.ontology.radios.xml.datatables.Datatable;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
@@ -34,26 +34,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	 */
 	public RadiosManifestation(SecondOrderParamsRepository repository, Disease disease, Manifestation manifestation) throws JAXBException {
 		super(repository, manifestation.getName(), Constants.CONSTANT_EMPTY_STRING, disease, manifestation.getKind() != null ? Type.valueOf(manifestation.getKind()) : Type.ACUTE);
-
 		setManifestation(manifestation);
-		if (getManifestation() != null) {
-			addParamProbabilities(disease);
-			addParamAnnualCosts();
-			addParamAnnualDisutility();
-			addParamAnnualIncreaseMortalityRate();
-		}
-	}
-
-	public void setManifestation(es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifestation) {
-		this.manifestation = manifestation;
-	}
-
-	public es.ull.iis.ontology.radios.json.schema4simulation.Manifestation getManifestation() {
-		return manifestation;
-	}
-
-	private SecondOrderParamsRepository getRepository() {
-		return secParams;
 	}
 
 	private es.ull.iis.simulation.hta.progression.Manifestation searchManifestationFromDisease(Disease disease, String manifestationName) {
@@ -65,28 +46,29 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		return null;
 	}
 
-	@SuppressWarnings("unused")
-	private void addParamProbabilities(Disease disease) throws JAXBException {
-		String manifestationProbability = (getManifestation().getProbability() != null) ? getManifestation().getProbability() : "0.0";
-		ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifestationProbability);
-		if (probabilityDistribution != null) {
-			if (CollectionUtils.isEmpty(getManifestation().getPrecedingManifestations())) {
-				getRepository().addProbParam(disease.getNullManifestation(), this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(),
-						probabilityDistribution.getProbabilisticValue());
+	private void addParamProbabilities(SecondOrderParamsRepository repository, Disease disease) throws JAXBException {
+		String manifestationProbability = getManifestation().getProbability();
+		if (manifestationProbability != null) {
+			RadiosTransition transition = new RadiosTransition(repository, disease.getNullManifestation(), this, Boolean.FALSE); 
+			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifestationProbability);
+			if (probabilityDistribution != null) {
+				getRepository().addProbParam(disease.getNullManifestation(), this, Constants.CONSTANT_EMPTY_STRING, 
+						probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
 			} else {
-				for (String precedingManifesationName : getManifestation().getPrecedingManifestations()) {
-					getRepository().addProbParam(searchManifestationFromDisease(disease, precedingManifesationName), this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(),
-							probabilityDistribution.getProbabilisticValue());
+				double[][] datatableMatrix = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(manifestationProbability));
+				transition.setCalculator(transition.new AgeBasedTimeToEventCalculator(datatableMatrix, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix)));
+			}
+			disease.addTransition(transition);
+		} else if (CollectionUtils.notIsEmpty(getManifestation().getPrecedingManifestations())) {
+			for (PrecedingManifestation precedingManifestation : getManifestation().getPrecedingManifestations()) {
+				es.ull.iis.simulation.hta.progression.Manifestation precManif = searchManifestationFromDisease(disease, precedingManifestation.getName());				
+				disease.addTransition(new RadiosTransition(repository, precManif, this, Boolean.FALSE));
+				String transitionProbability = precedingManifestation.getProbability();
+				if (transitionProbability != null) {
+					ProbabilityDistribution probabilityDistributionForTransition = ValueTransform.splitProbabilityDistribution(transitionProbability);
+					repository.addProbParam(precManif, this,	Constants.CONSTANT_EMPTY_STRING, probabilityDistributionForTransition.getDeterministicValue(), probabilityDistributionForTransition.getProbabilisticValue());
 				}
 			}
-		} else {
-			Datatable datatable = XmlTransform.getDataTable(manifestationProbability);
-			double[][] datatableMatrix = ValueTransform.rangeDatatableToMatrix(datatable);
-			// FIXME: tratar de adaptar con lo nuevo
-//			AgeBasedTimeToEventParam ageBasedTimeToEventParam =
-//					new AgeBasedTimeToEventParam(RandomNumberFactory.getInstance(), datatable.getPopulation().intValue(), ValueTransform.rangeDatatableToMatrix(datatable),
-//					new RadiosRangeAgeMatrixRRCalculator(ValueTransform.rangeDatatableToMatrix(datatable)));
-//			getRepository().addProbParam(ageBasedTimeToEventParam);
 		}
 	}
 
@@ -149,6 +131,27 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 
 	@Override
 	public void registerSecondOrderParameters() {
-		// FIXME: en el caso de RaDiOS este método no tiene sentido
+		if (getManifestation() != null) {
+			try {
+				addParamProbabilities(this.getRepository(), this.getDisease());
+			} catch (JAXBException e) {
+				e.printStackTrace();
+			}
+			addParamAnnualCosts();
+			addParamAnnualDisutility();
+			addParamAnnualIncreaseMortalityRate();
+		}
+	}
+	
+	public void setManifestation(es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifestation) {
+		this.manifestation = manifestation;
+	}
+
+	public es.ull.iis.ontology.radios.json.schema4simulation.Manifestation getManifestation() {
+		return manifestation;
+	}
+
+	private SecondOrderParamsRepository getRepository() {
+		return secParams;
 	}
 }

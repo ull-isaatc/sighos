@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.hta.radios;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -14,6 +15,7 @@ import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Development;
 import es.ull.iis.ontology.radios.json.schema4simulation.Disease;
 import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
+import es.ull.iis.ontology.radios.json.schema4simulation.PrecedingManifestation;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
@@ -101,15 +103,31 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	 * @param manifestations
 	 */
 	private void secondPassManifestationsAnalysis(SecondOrderParamsRepository repository, Map<String, RadiosManifestation> radiosManifestations, List<Manifestation> manifestations) {
+		for (String manifestationName : radiosManifestations.keySet()) {
+			radiosManifestations.get(manifestationName).registerSecondOrderParameters();
+		}
+
+		// TODO: no borrar el código fuente hasta saber si debe de ir aquí o en @RadiosManifestation#addParamProbabilities
+		/*
 		for (Manifestation manifestation : manifestations) {
 			if (CollectionUtils.isEmpty(manifestation.getPrecedingManifestations())) {
 				addTransition(new RadiosTransition(repository, getNullManifestation(), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
 			} else {
-				for (String precedingManifestation : manifestation.getPrecedingManifestations()) {
-					addTransition(new RadiosTransition(repository, radiosManifestations.get(precedingManifestation), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
+				for (PrecedingManifestation precedingManifestation : manifestation.getPrecedingManifestations()) {
+					addTransition(new RadiosTransition(repository, radiosManifestations.get(precedingManifestation.getName()), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
+					boolean anyadirProb = false;
+					if (anyadirProb) {
+						String transitionProbability = precedingManifestation.getProbability();
+						if (transitionProbability != null) {
+							ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(transitionProbability);
+							repository.addProbParam(radiosManifestations.get(precedingManifestation.getName()), radiosManifestations.get(manifestation.getName()), 
+									Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+						}
+					}
 				}
 			}
 		}
+		*/
 	}
 
 	/**
@@ -133,7 +151,13 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 		
 		while (!queueManifestations.isEmpty()) {
 			Manifestation manifestation = queueManifestations.remove();
-			if (processedManifestations.containsAll(manifestation.getPrecedingManifestations())) {
+			List<String> precedingManifesationToListString = new ArrayList<>();
+			if (manifestation.getPrecedingManifestations() != null) {
+				for (PrecedingManifestation precedingManifestation : manifestation.getPrecedingManifestations()) {
+					precedingManifesationToListString.add(precedingManifestation.getName());
+				}
+			}
+			if (processedManifestations.containsAll(precedingManifesationToListString)) {
 				registerManifestation(repository, processedManifestations, radiosManifestations, manifestation);
 			} else {
 				queueManifestations.add(manifestation);
