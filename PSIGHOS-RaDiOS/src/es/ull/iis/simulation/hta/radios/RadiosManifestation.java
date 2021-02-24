@@ -19,7 +19,7 @@ import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
 import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
 
 /**
- * @author David Prieto González
+ * @author David Prieto Gonzï¿½lez
  */
 public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.Manifestation {
 	private Manifestation manifestation;
@@ -49,7 +49,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	private void addParamProbabilities(SecondOrderParamsRepository repository, Disease disease) throws JAXBException {
 		String manifestationProbability = getManifestation().getProbability();
 		if (manifestationProbability != null) {
-			RadiosTransition transition = new RadiosTransition(repository, disease.getNullManifestation(), this, Boolean.FALSE); 
+			RadiosTransition transition = new RadiosTransition(repository, disease.getNullManifestation(), this, Boolean.TRUE); 
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifestationProbability);
 			if (probabilityDistribution != null) {
 				getRepository().addProbParam(disease.getNullManifestation(), this, Constants.CONSTANT_EMPTY_STRING, 
@@ -62,7 +62,8 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		} else if (CollectionUtils.notIsEmpty(getManifestation().getPrecedingManifestations())) {
 			for (PrecedingManifestation precedingManifestation : getManifestation().getPrecedingManifestations()) {
 				es.ull.iis.simulation.hta.progression.Manifestation precManif = searchManifestationFromDisease(disease, precedingManifestation.getName());				
-				disease.addTransition(new RadiosTransition(repository, precManif, this, Boolean.FALSE));
+				disease.addTransition(new RadiosTransition(repository, precManif, this, 
+						(precedingManifestation.getReplacePrevious() != null && !precedingManifestation.getReplacePrevious().isEmpty()) ? Boolean.valueOf(precedingManifestation.getReplacePrevious()) : Boolean.FALSE));
 				String transitionProbability = precedingManifestation.getProbability();
 				if (transitionProbability != null) {
 					ProbabilityDistribution probabilityDistributionForTransition = ValueTransform.splitProbabilityDistribution(transitionProbability);

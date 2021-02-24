@@ -23,7 +23,7 @@ import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
 
 /**
- * @author David Prieto González
+ * @author David Prieto Gonzï¿½lez
  */
 public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedDisease {
 	private Disease disease;
@@ -79,7 +79,7 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 		
 		List<Manifestation> manifestations = naturalDevelopment.getManifestations();
 		for (Manifestation manifestation : manifestations) {
-			// TODO: actualizar la matriz de costos directos asociados a cada manifestación. Para el caso de estudio todos los costos vienen asociados por tratamiento. 
+			// TODO: actualizar la matriz de costos directos asociados a cada manifestaciï¿½n. Para el caso de estudio todos los costos vienen asociados por tratamiento. 
 			CostUtils.loadCostFromTreatmentStrategies(this.costTreatments, manifestation.getName(), manifestation.getTreatmentStrategies(), timeHorizont);
 			CostUtils.loadCostFromFollowUpStrategies(this.costFollowUps, manifestation.getName(), manifestation.getFollowUpStrategies(), timeHorizont);
 		}
@@ -107,7 +107,7 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 			radiosManifestations.get(manifestationName).addParametersToRepository();
 		}
 
-		// TODO: no borrar el código fuente hasta saber si debe de ir aquí o en @RadiosManifestation#addParamProbabilities
+		// TODO: no borrar el cï¿½digo fuente hasta saber si debe de ir aquï¿½ o en @RadiosManifestation#addParamProbabilities
 		/*
 		for (Manifestation manifestation : manifestations) {
 			if (CollectionUtils.isEmpty(manifestation.getPrecedingManifestations())) {

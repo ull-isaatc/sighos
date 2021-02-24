@@ -34,7 +34,8 @@
         } ],
         "precedingManifestations" : [ {
           "name" : "#RD1_MANIF1",
-          "probability" : "0.3"
+          "probability" : "0.3",
+          "replacePrevious" : "TRUE"
         } ]
       } ]
     } ],
