@@ -19,7 +19,7 @@ import es.ull.iis.simulation.hta.progression.Modification;
  *
  */
 public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository {
-	private final static int TEST_DISEASE = 1;
+	private final static int TEST_DISEASE = 2;
 	private final static int TEST_POPULATION = 2;
 	private final static int TEST_INTERVENTIONS = 5;
 	private final CostCalculator costCalc;

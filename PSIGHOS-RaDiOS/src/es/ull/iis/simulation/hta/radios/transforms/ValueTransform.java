@@ -41,11 +41,10 @@ public class ValueTransform {
    	}
    	
    	if (secondParameter != null) {
-   		RandomVariateFactory.getInstance(WordUtils.capitalizeFully(distributionName) + DISTRIBUTION_NAME_SUFFIX, new Double(firstParameter), new Double(secondParameter));
+   		return RandomVariateFactory.getInstance(WordUtils.capitalizeFully(distributionName) + DISTRIBUTION_NAME_SUFFIX, new Double(firstParameter), new Double(secondParameter));
    	} else {
-   		RandomVariateFactory.getInstance(WordUtils.capitalizeFully(distributionName) + DISTRIBUTION_NAME_SUFFIX, new Double(firstParameter));
+   		return RandomVariateFactory.getInstance(WordUtils.capitalizeFully(distributionName) + DISTRIBUTION_NAME_SUFFIX, new Double(firstParameter));
    	}
-		return null;   	
    }
 	
 	/**
