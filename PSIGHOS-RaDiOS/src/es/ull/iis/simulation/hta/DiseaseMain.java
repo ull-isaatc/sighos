@@ -369,11 +369,17 @@ public class DiseaseMain {
 	        SecondOrderParamsRepository secParams = null;
 	        switch (args1.population) {
 	        case 1: 
+	     		System.out.println(String.format("\n\nEjecutanto test de RADIOS para la enfermedad [1] \n\n"));
 	        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease1.json", args1.timeHorizon); 
 	        	break;
 	        case 2: 
-	        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease2.json", args1.timeHorizon); 
-	        	break;
+		     		System.out.println(String.format("\n\nEjecutanto test de RADIOS para la enfermedad [2] \n\n"));
+		        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease2.json", args1.timeHorizon); 
+		        	break;
+	        case 3: 
+		     		System.out.println(String.format("\n\nEjecutanto test de RADIOS para la enfermedad [3] \n\n"));
+		        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease3.json", args1.timeHorizon); 
+		        	break;
 	        case 0: 
 	        default:
 	        	secParams = new TestSimpleRareDiseaseRepository(args1.nRuns, args1.nPatients); 

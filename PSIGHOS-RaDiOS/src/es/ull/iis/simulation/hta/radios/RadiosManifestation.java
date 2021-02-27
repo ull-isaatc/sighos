@@ -54,13 +54,14 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifestationProbability);
 			if (probabilityDistribution != null) {
 				getRepository().addProbParam(disease.getNullManifestation(), this, Constants.CONSTANT_EMPTY_STRING, 
-						probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+						probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 			} else {
 				double[][] datatableMatrix = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(manifestationProbability));
 				transition.setCalculator(transition.new AgeBasedTimeToEventCalculator(datatableMatrix, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix)));
 			}
 			disease.addTransition(transition);
-		} else if (CollectionUtils.notIsEmpty(getManifestation().getPrecedingManifestations())) {
+		}
+		if (CollectionUtils.notIsEmpty(getManifestation().getPrecedingManifestations())) {
 			for (PrecedingManifestation precedingManifestation : getManifestation().getPrecedingManifestations()) {
 				es.ull.iis.simulation.hta.progression.Manifestation precManif = searchManifestationFromDisease(disease, precedingManifestation.getName());				
 				disease.addTransition(new RadiosTransition(repository, precManif, this, 
@@ -68,7 +69,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 				String transitionProbability = precedingManifestation.getProbability();
 				if (transitionProbability != null) {
 					ProbabilityDistribution probabilityDistributionForTransition = ValueTransform.splitProbabilityDistribution(transitionProbability);
-					repository.addProbParam(precManif, this,	Constants.CONSTANT_EMPTY_STRING, probabilityDistributionForTransition.getDeterministicValue(), probabilityDistributionForTransition.getProbabilisticValue());
+					repository.addProbParam(precManif, this,	Constants.CONSTANT_EMPTY_STRING, probabilityDistributionForTransition.getDeterministicValue(), probabilityDistributionForTransition.getProbabilisticValueInitializedForProbability());
 				}
 			}
 		}
@@ -79,9 +80,9 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(getManifestation().getMortalityFactor());
 			if (probabilityDistribution != null) {
 				if (Type.CHRONIC == getType()) { // Se debe interpretar el valor como que aumenta tu riesgo de muerte * mortalityFactor				
-					getRepository().addIMRParam(this, "Mortality factor for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitialized());
+					getRepository().addIMRParam(this, "Mortality factor for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 				} else if (Type.ACUTE == getType()) { // Se debe interpretar el valor de mortalityFactor como la probabilidad de muerte				
-					getRepository().addDeathProbParam(this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitialized());
+					getRepository().addDeathProbParam(this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 				}
 			}
 		}
@@ -96,7 +97,6 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 			for (Utility utility : getManifestation().getUtilities()) {
 				if (Constants.DATAPROPERTYVALUE_KIND_UTILITY_DISUTILITY.equals(utility.getKind()) && Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE.equals(utility.getTemporalBehavior())) {
 					disutility = utility.getValue();
-					System.out.println();
 					break;
 				}
 			}
@@ -112,7 +112,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		if (getManifestation().getProbabilityOfLeadingToDiagnosis() != null) {
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(getManifestation().getProbabilityOfLeadingToDiagnosis());
 			if (probabilityDistribution != null) {
-				getRepository().addDiagnosisProbParam(this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitialized());
+				getRepository().addDiagnosisProbParam(this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 			}
 		}
 	}
@@ -140,7 +140,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 				ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(annualCost);
 				if (probabilityDistribution != null) {
 					getRepository().addCostParam(this, "Cost for " + this, Constants.CONSTANT_EMPTY_STRING, yearAnnualCost, 
-							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitialized());
+							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForCost());
 				}
 			}
 			
@@ -148,7 +148,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 				ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(onetimeCost);
 				if (probabilityDistribution != null) {
 					getRepository().addTransitionCostParam(this, "Punctual cost for " + this, Constants.CONSTANT_EMPTY_STRING, yearOnetimeCost, probabilityDistribution.getDeterministicValue(),
-							probabilityDistribution.getProbabilisticValueInitialized());
+							probabilityDistribution.getProbabilisticValueInitializedForProbability());
 				}
 			}
 		}

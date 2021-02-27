@@ -25,9 +25,16 @@ public class ProbabilityDistribution {
 		return probabilisticValue;
 	}
 
-	public RandomVariate getProbabilisticValueInitialized() {
+	public RandomVariate getProbabilisticValueInitializedForProbability() {
 		if (probabilisticValue == null && deterministicValue != null) {
 			return SecondOrderParamsRepository.getRandomVariateForProbability(getDeterministicValue());
+		}
+		return probabilisticValue;
+	}
+
+	public RandomVariate getProbabilisticValueInitializedForCost() {
+		if (probabilisticValue == null && deterministicValue != null) {
+			return SecondOrderParamsRepository.getRandomVariateForCost(getDeterministicValue());
 		}
 		return probabilisticValue;
 	}

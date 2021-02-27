@@ -56,7 +56,8 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 				initializeCostMatrix(naturalDevelopment);
 
 				List<Manifestation> manifestations = naturalDevelopment.getManifestations();
-				secondPassManifestationsAnalysis(repository, firstPassManifestationsAnalysis(repository, manifestations), manifestations);
+				Map<String, RadiosManifestation> resultFirstPassManifestationsAnalysis = firstPassManifestationsAnalysis(repository, manifestations);
+				secondPassManifestationsAnalysis(repository, resultFirstPassManifestationsAnalysis, manifestations);
 			} else {
 				throw new TransformException("ERROR => The selected disease has no associated natural development. The specification of this development is mandatory.");
 			}
@@ -106,28 +107,6 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 		for (String manifestationName : radiosManifestations.keySet()) {
 			radiosManifestations.get(manifestationName).addParametersToRepository();
 		}
-
-		// TODO: no borrar el c�digo fuente hasta saber si debe de ir aqu� o en @RadiosManifestation#addParamProbabilities
-		/*
-		for (Manifestation manifestation : manifestations) {
-			if (CollectionUtils.isEmpty(manifestation.getPrecedingManifestations())) {
-				addTransition(new RadiosTransition(repository, getNullManifestation(), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
-			} else {
-				for (PrecedingManifestation precedingManifestation : manifestation.getPrecedingManifestations()) {
-					addTransition(new RadiosTransition(repository, radiosManifestations.get(precedingManifestation.getName()), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
-					boolean anyadirProb = false;
-					if (anyadirProb) {
-						String transitionProbability = precedingManifestation.getProbability();
-						if (transitionProbability != null) {
-							ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(transitionProbability);
-							repository.addProbParam(radiosManifestations.get(precedingManifestation.getName()), radiosManifestations.get(manifestation.getName()), 
-									Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
-						}
-					}
-				}
-			}
-		}
-		*/
 	}
 
 	/**

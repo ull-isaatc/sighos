@@ -131,6 +131,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 * @param trans New transition between manifestations of this disease 
 	 */
 	public void addTransition(Transition trans) {
+		System.out.println(String.format("Adding transition from [%s] to [%s]", trans.getSrcManifestation().getName(), trans.getDestManifestation().getName()));
 		transitions.get(trans.getSrcManifestation()).add(trans);
 		reverseTransitions.get(trans.getDestManifestation()).add(trans);
 	}

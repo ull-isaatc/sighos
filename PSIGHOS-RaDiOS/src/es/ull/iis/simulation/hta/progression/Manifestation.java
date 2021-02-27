@@ -67,6 +67,13 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	}
 	
 	/**
+	 * @return
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	/**
 	 * Returns the description of the complication
 	 * @return the description of the complication
 	 */
