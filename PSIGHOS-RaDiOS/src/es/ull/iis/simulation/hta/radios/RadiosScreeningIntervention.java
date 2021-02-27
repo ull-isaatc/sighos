@@ -11,8 +11,11 @@ import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
 
 import es.ull.iis.ontology.radios.Constants;
+import es.ull.iis.ontology.radios.json.schema4simulation.Cost;
 import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
+import es.ull.iis.ontology.radios.json.schema4simulation.ScreeningTechnique;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
@@ -23,7 +26,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 /**
  * @author David Prieto González
  */
-public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.Intervention {
+public class RadiosScreeningIntervention extends ScreeningStrategy {
 	private boolean debug = false;
 	
 	private static final JexlEngine jexl = new JexlBuilder().create();		
@@ -36,9 +39,8 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
 
-
-	public RadiosIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Integer timeHorizont, Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis) {
-		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING);
+	public RadiosScreeningIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Integer timeHorizont, Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis) {
+		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING, calculateSpecificityScreeningTechnique(intervention), calculateSensitivityScreeningTechnique(intervention));
 		this.intervention = intervention; 
 		this.naturalDevelopmentName = naturalDevelopmentName;
 		this.costTreatments = baseCostTreatments.clone();
@@ -52,6 +54,51 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 		initializeCostMatrix();
 	}
 
+	/**
+	 * @param intervention
+	 * @return
+	 */
+	private static Double calculateDataPropertyValueFromScreeningTechnique(Intervention intervention, String propertyName) {
+		if (intervention.getScreeningStrategies() != null && !intervention.getScreeningStrategies().isEmpty()) {
+			for (es.ull.iis.ontology.radios.json.schema4simulation.ScreeningStrategy screeningStrategy : intervention.getScreeningStrategies()) {
+				if (screeningStrategy.getScreeningTechniques() != null && !screeningStrategy.getScreeningTechniques().isEmpty()) {
+					for (ScreeningTechnique screeningTechnique : screeningStrategy.getScreeningTechniques()) {
+						if ("SPECIFICITY".equals(propertyName)) {
+							return Double.valueOf(screeningTechnique.getEspecificity());
+						} else if ("SENSITIVITY".equals(propertyName)) {
+							return Double.valueOf(screeningTechnique.getEspecificity());
+						} else if ("COSTS".equals(propertyName)) {
+							Double cost = 0.0;
+							if (screeningTechnique.getCosts() != null && !screeningTechnique.getCosts().isEmpty()) {
+								for (Cost costTechnique : screeningTechnique.getCosts()) {
+									cost += Double.valueOf(costTechnique.getAmount());
+								}
+							}
+							return cost;
+						}
+					}
+				}
+			}
+		}
+		return null;		
+	}
+	
+	/**
+	 * @param intervention
+	 * @return
+	 */
+	private static Double calculateSpecificityScreeningTechnique(Intervention intervention) {
+		return calculateDataPropertyValueFromScreeningTechnique(intervention, "SPECIFICITY");		
+	}
+	
+	/**
+	 * @param intervention
+	 * @return
+	 */
+	private static Double calculateSensitivityScreeningTechnique(Intervention intervention) {
+		return calculateDataPropertyValueFromScreeningTechnique(intervention, "SENSITIVITY");		
+	}
+	
 	/**
 	 * Initializes the cost matrix for the follow-up tests associated with the intervention
 	 */
@@ -173,8 +220,8 @@ public class RadiosIntervention extends es.ull.iis.simulation.hta.interventions.
 
 	@Override
 	public double getStartingCost(Patient pat) {
-		Double cummulativeCost = 0.0;
-		return cummulativeCost;
+		Double result = calculateDataPropertyValueFromScreeningTechnique(intervention, "COSTS"); 
+		return result;
 	}
 
 	private Double calculateCostsFromTreatments(Patient pat, Double cummulativeCost) {
