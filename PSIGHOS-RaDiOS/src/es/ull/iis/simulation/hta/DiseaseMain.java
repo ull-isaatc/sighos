@@ -366,23 +366,17 @@ public class DiseaseMain {
 	        	BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
 	        }
 	        
+	        
 	        SecondOrderParamsRepository secParams = null;
 	        switch (args1.population) {
-	        case 1: 
-	     		System.out.println(String.format("\n\nEjecutanto test de RADIOS para la enfermedad [1] \n\n"));
-	        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease1.json", args1.timeHorizon); 
+	        case 1:
+	    		System.out.println(String.format("\n\nEjecutanto test de RADIOS para la enfermedad [%d] \n\n", args1.disease));
+	        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, System.getProperty("user.dir") + "/resources/radios-test_disease" + args1.disease + ".json", args1.timeHorizon); 
 	        	break;
-	        case 2: 
-		     		System.out.println(String.format("\n\nEjecutanto test de RADIOS para la enfermedad [2] \n\n"));
-		        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease2.json", args1.timeHorizon); 
-		        	break;
-	        case 3: 
-		     		System.out.println(String.format("\n\nEjecutanto test de RADIOS para la enfermedad [3] \n\n"));
-		        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease3.json", args1.timeHorizon); 
-		        	break;
 	        case 0: 
 	        default:
-	        	secParams = new TestSimpleRareDiseaseRepository(args1.nRuns, args1.nPatients); 
+	    		System.out.println(String.format("\n\nEjecutanto test de IVAN para la enfermedad [%d] \n\n", args1.disease));
+	        	secParams = new TestSimpleRareDiseaseRepository(args1.nRuns, args1.nPatients, args1.disease); 
 	        	break;
 	        }	        	
 	        
@@ -484,6 +478,8 @@ public class DiseaseMain {
 		@Parameter(names = {"--discount", "-dr"}, variableArity = true, 
 				description = "The discount rate to be applied. If more than one value is provided, the first one is used for costs, and the second for effects. Default value is " + BasicConfigParams.DEF_DISCOUNT_RATE, order = 7)
 		public List<Double> discount = new ArrayList<>();
+		@Parameter(names = {"--disease", "-dis"}, description = "Disease to test with (1-3)", order = 3)
+		private int disease = 1;
 		@Parameter(names ={"--single_patient_output", "-ps"}, description = "Enables printing the specified patient's output", order = 4)
 		private int singlePatientOutput = -1;
 		@Parameter(names ={"--epidem", "-ep"}, variableArity = true, description = "Enables printing epidemiologic results. Can receive several \"orders\". Each order consists of\r\n" +

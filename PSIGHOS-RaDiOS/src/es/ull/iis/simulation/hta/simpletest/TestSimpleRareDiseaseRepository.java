@@ -19,7 +19,6 @@ import es.ull.iis.simulation.hta.progression.Modification;
  *
  */
 public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository {
-	private final static int TEST_DISEASE = 3;
 	private final static int TEST_POPULATION = 2;
 	private final static int TEST_INTERVENTIONS = 5;
 	private final CostCalculator costCalc;
@@ -30,15 +29,14 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 	 * @param nPatients
 	 * @param population
 	 */
-	public TestSimpleRareDiseaseRepository(int nRuns, int nPatients) {
+	public TestSimpleRareDiseaseRepository(int nRuns, int nPatients, int disease) {
 		super(nRuns, nPatients);
 
-		System.out.println(String.format("\n\nEjecutanto test de IVAN para la enfermedad [%s] \n\n", TEST_DISEASE));
 
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
 		Disease testDisease = null;
-		switch (TEST_DISEASE) {
+		switch (disease) {
 		case 1: 
 			testDisease = new TestRareDisease1(this);
 			break;
