@@ -667,7 +667,8 @@ public abstract class SecondOrderParamsRepository {
 		if (detProb == 0.0) {
 			return RandomVariateFactory.getInstance("ConstantVariate", detProb);
 		}
-		return RandomVariateFactory.getInstance("UniformVariate", detProb * (1-BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY), detProb * (1+BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY));
+		final double instRate = -Math.log(1 - detProb);
+		return RandomVariateFactory.getInstance("UniformVariate", 1 - Math.exp(-instRate * (1 - BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY)), 1 - Math.exp(-instRate * (1 + BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY)));
 	}
 
 	/**

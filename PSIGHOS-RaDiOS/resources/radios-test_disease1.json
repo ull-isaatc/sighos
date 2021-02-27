@@ -6,7 +6,7 @@
       "kind" : "NATURAL",
       "manifestations" : [ {
         "name" : "#RD1_MANIF1",
-        "probability" : "0.1#UNIFORM(0.0,1.5)",
+        "probability" : "0.1#UNIFORM(0.05,0.15)",
         "kind" : "CHRONIC",
         "mortalityFactor" : "1.5#UNIFORM(1.3,1.7)",
         "utilities" : [ {
@@ -30,7 +30,7 @@
         "utilities" : [ {
           "name" : "#RD1_Utility_MANIF2",
           "kind" : "DISUTILITY",
-          "value" : "0.5#UNIFORM(4.9,5.1)",
+          "value" : "0.5#UNIFORM(0.4,0.6)",
           "calculateMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
