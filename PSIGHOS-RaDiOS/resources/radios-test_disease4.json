@@ -1,66 +1,86 @@
 {
   "disease" : {
-    "name" : "#RD1_Disease",
+    "name" : "#RD4_Disease",
     "developments" : [ {
-      "name" : "#RD1_Natural_Development",
+      "name" : "#RD4_Natural_Development",
       "kind" : "NATURAL",
       "manifestations" : [ {
-        "name" : "#RD1_MANIF1",
+        "name" : "#RD4_MANIF1",
         "probability" : "0.1",
         "kind" : "CHRONIC",
         "mortalityFactor" : "1.5#UNIFORM(1.3,1.7)",
         "utilities" : [ {
-          "name" : "#RD1_Utility_MANIF1",
+          "name" : "#RD4_Utility_MANIF1",
           "kind" : "DISUTILITY",
           "value" : "0.2#UNIFORM(0.195,0.25)",
           "calculateMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
-          "name" : "#RD1_Cost_MANIF1",
+          "name" : "#RD4_Cost_MANIF1",
           "amount" : "100.0",
           "year" : "2020",
           "temporalBehavior" : "ANNUAL"
         } ]
       }, {
-        "name" : "#RD1_MANIF2",
+        "name" : "#RD4_MANIF2",
+        "probability" : "0.02",
         "kind" : "CHRONIC",
         "mortalityFactor" : "5.0#UNIFORM(4.0,6.0)",
         "probabilityOfLeadingToDiagnosis" : "0.8",
         "utilities" : [ {
-          "name" : "#RD1_Utility_MANIF2",
+          "name" : "#RD4_Utility_MANIF2",
           "kind" : "DISUTILITY",
           "value" : "0.5#UNIFORM(0.4,0.6)",
           "calculateMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
-          "name" : "#RD1_Cost_MANIF2",
+          "name" : "#RD4_Cost_MANIF2",
           "amount" : "1000.0",
           "year" : "2020",
           "temporalBehavior" : "ANNUAL"
         } ],
         "precedingManifestations" : [ {
-          "name" : "#RD1_MANIF1",
-          "probability" : "0.3",
-          "replacePrevious" : "TRUE"
+          "name" : "#RD4_MANIF1",
+          "probability" : "0.05",
+          "replacePrevious" : "FALSE"
+        } ]
+      }, {
+        "name" : "#RD4_MANIF_ACUTE1",
+        "probability" : "0.15",
+        "kind" : "ACUTE",
+        "mortalityFactor" : "0.1",
+        "probabilityOfLeadingToDiagnosis" : "0.25",
+        "utilities" : [ {
+          "name" : "#RD4_Utility_MANIF_ACUTE1",
+          "kind" : "DISUTILITY",
+          "value" : "0.2#UNIFORM(0.195,0.25)",
+          "calculateMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
+        } ],
+        "costs" : [ {
+          "name" : "#RD4_Cost_MANIF_ACUTE1",
+          "amount" : "1000.0",
+          "year" : "2020",
+          "temporalBehavior" : "ONETIME"
         } ]
       } ]
     } ],
     "interventions" : [ {
-      "name" : "#RD1_Intervention_NoScreening",
+      "name" : "#RD4_Intervention_NoScreening",
       "kind" : "NO_SCREENING"
     }, {
-      "name" : "#RD1_Intervention_Screening",
+      "name" : "#RD4_Intervention_Screening",
       "kind" : "SCREENING",
       "screeningStrategies" : [ {
-        "name" : "#RD1_Strategy_Screening",
+        "name" : "#RD4_Strategy_Screening",
         "screeningTechniques" : [ {
-          "name" : "#RD1_Technique_Screening",
+          "name" : "#RD4_Technique_Screening",
           "sensitivity" : "0.9",
           "especificity" : "0.9",
           "costs" : [ {
-            "name" : "#RD1_Cost_ScreeningTechnique",
+            "name" : "#RD4_Cost_ScreeningTechnique",
             "amount" : "5.0",
             "year" : "2020",
             "temporalBehavior" : "ONETIME"
