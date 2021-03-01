@@ -78,16 +78,22 @@ public class SecondOrderParam {
 	 * @return if id = 0, returns the expected value (base case); otherwise returns a random-generated value
 	 */
 	public double getValue(int id) {
-		if (Double.isNaN(generatedValues[id])) {
-			if (rnd != null) {
-				generatedValues[id] = rnd.generate();
-			} else {
-				generatedValues[id] = generatedValues[0];
-			}
-		}
+		if (Double.isNaN(generatedValues[id]))
+			generatedValues[id] = rnd.generate(); // FIXME: if the rnd function is null it gives a NullPointerException
 		return generatedValues[id];
 	}
 
+	public String getValuesAsString () {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < generatedValues.length; i++) {
+			if (!Double.isNaN(generatedValues[i])) {
+				sb.append(generatedValues[i]).append(" ");	
+			}			
+		}			
+		sb.append(" - Distribution => ").append(rnd.toString()).append(" ");	
+		return sb.toString();		
+	}
+	
 	/**
 	 * Returns a value for the parameter, modified according to a {@link Modification}
 	 * Always returns the same value for the same id.

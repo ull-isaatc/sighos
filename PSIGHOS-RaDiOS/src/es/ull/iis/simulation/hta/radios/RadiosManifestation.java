@@ -148,7 +148,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 				ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(onetimeCost);
 				if (probabilityDistribution != null) {
 					getRepository().addTransitionCostParam(this, "Punctual cost for " + this, Constants.CONSTANT_EMPTY_STRING, yearOnetimeCost, probabilityDistribution.getDeterministicValue(),
-							probabilityDistribution.getProbabilisticValueInitializedForProbability());
+							probabilityDistribution.getProbabilisticValueInitializedForCost());
 				}
 			}
 		}

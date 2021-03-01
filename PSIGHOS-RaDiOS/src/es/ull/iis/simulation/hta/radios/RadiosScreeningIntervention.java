@@ -66,7 +66,7 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 						if ("SPECIFICITY".equals(propertyName)) {
 							return Double.valueOf(screeningTechnique.getEspecificity());
 						} else if ("SENSITIVITY".equals(propertyName)) {
-							return Double.valueOf(screeningTechnique.getEspecificity());
+							return Double.valueOf(screeningTechnique.getSensitivity());
 						} else if ("COSTS".equals(propertyName)) {
 							Double cost = 0.0;
 							if (screeningTechnique.getCosts() != null && !screeningTechnique.getCosts().isEmpty()) {

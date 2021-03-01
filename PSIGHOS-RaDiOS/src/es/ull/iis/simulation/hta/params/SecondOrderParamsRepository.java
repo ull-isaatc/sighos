@@ -3,7 +3,12 @@
  */
 package es.ull.iis.simulation.hta.params;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
@@ -716,6 +721,36 @@ public abstract class SecondOrderParamsRepository {
 		for (SecondOrderParam param : modificationParams.values())
 			str.append(param.getName()).append("\t");
 		return str.toString();
+	}
+	
+	public void showSavedParams() {
+		StringBuilder str = new StringBuilder();
+		for (SecondOrderParam param : probabilityParams.values()) {
+			str.append(param.getName()).append(": ").append(param.getValuesAsString()).append("\n");
+		}			
+		for (SecondOrderParam param : costParams.values()) {
+			str.append(param.getName()).append(": ").append(param.getValuesAsString()).append("\n");
+		}
+		for (SecondOrderParam param : utilParams.values()) {
+			str.append(param.getName()).append(": ").append(param.getValuesAsString()).append("\n");
+		}
+		for (SecondOrderParam param : otherParams.values()) {
+			str.append(param.getName()).append(": ").append(param.getValuesAsString()).append("\n");
+		}
+		for (SecondOrderParam param : modificationParams.values()) {
+			str.append(param.getName()).append(": ").append(param.getValuesAsString()).append("\n");
+		}
+
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+			FileOutputStream fos = new FileOutputStream(sdf.format(new Date()) + ".txt");
+			fos.write(str.toString().getBytes());
+			fos.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
 	}
 	
 	public String print(int id) {

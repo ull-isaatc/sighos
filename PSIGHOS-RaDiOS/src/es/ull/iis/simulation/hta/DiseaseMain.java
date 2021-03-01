@@ -364,21 +364,24 @@ public class DiseaseMain {
 
 	        for (final Map.Entry<String, String> pInit : args1.initProportions.entrySet()) {
 	        	BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
-	        }
-	        
+	        }	        
 	        
 	        SecondOrderParamsRepository secParams = null;
 	        switch (args1.population) {
 	        case 1:
-	    		System.out.println(String.format("\n\nEjecutanto test de RADIOS para la enfermedad [%d] \n\n", args1.disease));
+	      	  // -n 100 -r 5 -dr 0 -q -pop 1 -ps 3 -po -dis 1 
+	    		System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", args1.disease));
 	        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients, System.getProperty("user.dir") + "/resources/radios-test_disease" + args1.disease + ".json", args1.timeHorizon); 
 	        	break;
 	        case 0: 
 	        default:
-	    		System.out.println(String.format("\n\nEjecutanto test de IVAN para la enfermedad [%d] \n\n", args1.disease));
+		    		System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for the rare disease [%d] \n\n", args1.disease));
 	        	secParams = new TestSimpleRareDiseaseRepository(args1.nRuns, args1.nPatients, args1.disease); 
 	        	break;
 	        }	        	
+
+	        // BORRAR  
+	        secParams.showSavedParams();
 	        
 	    	final String validity = secParams.checkValidity();
 	    	if (validity == null) {
@@ -445,6 +448,9 @@ public class DiseaseMain {
 
 	    		final DiseaseMain experiment = new DiseaseMain(out, outListeners, secParams, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs, formats);
 		        experiment.run();
+		      
+		      // BORRAR  
+		      secParams.showSavedParams();
 	    	}
 	    	else {
 	    		System.err.println("Could not validate model");
@@ -465,6 +471,12 @@ public class DiseaseMain {
 	}
 	
 	private static class Arguments {
+ 	   /* 
+ 	    * -n 100 -r 5 -dr 0 -q -pop 1 -ps 3 -po -dis 1:
+ 	    * 100 pacientes, 5 ejecuciones probabilisticas, sin descuento, sin mostrar el progreso de ejecución, para RaDiOS,
+ 	    * con el progreso para el tercer paciente, habilitada la salida individual por paciente y para la enfermedad test1
+		 */
+		
 		@Parameter(names ={"--output", "-o"}, description = "Name of the output file name", order = 1)
 		private String outputFileName = null;
 		@Parameter(names ={"--patients", "-n"}, description = "Number of patients to test", order = 2)

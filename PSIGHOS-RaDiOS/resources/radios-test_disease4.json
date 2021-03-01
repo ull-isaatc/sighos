@@ -12,7 +12,7 @@
         "utilities" : [ {
           "name" : "#RD4_Utility_MANIF1",
           "kind" : "DISUTILITY",
-          "value" : "0.2#UNIFORM(0.195,0.25)",
+          "value" : "0.2#UNIFORM(0.15,0.25)",
           "calculateMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
@@ -55,7 +55,7 @@
         "utilities" : [ {
           "name" : "#RD4_Utility_MANIF_ACUTE1",
           "kind" : "DISUTILITY",
-          "value" : "0.2#UNIFORM(0.195,0.25)",
+          "value" : "0.2#UNIFORM(0.15,0.25)",
           "calculateMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
