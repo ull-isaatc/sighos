@@ -19,7 +19,7 @@ import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
 import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
 
 /**
- * @author David Prieto Gonz�lez
+ * @author David Prieto Gonzalez
  */
 public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.Manifestation {
 	private Manifestation manifestation;
@@ -37,6 +37,11 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		setManifestation(manifestation);
 	}
 
+	/**
+	 * @param disease
+	 * @param manifestationName
+	 * @return
+	 */
 	private es.ull.iis.simulation.hta.progression.Manifestation searchManifestationFromDisease(Disease disease, String manifestationName) {
 		for (es.ull.iis.simulation.hta.progression.Manifestation manifestation : disease.getManifestations()) {
 			if (manifestationName.equals(manifestation.name())) {
@@ -46,6 +51,11 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		return null;
 	}
 
+	/**
+	 * @param repository
+	 * @param disease
+	 * @throws JAXBException
+	 */
 	private void addParamProbabilities(SecondOrderParamsRepository repository, Disease disease) throws JAXBException {
 		String manifestationProbability = getManifestation().getProbability();
 		if (manifestationProbability != null) {
@@ -75,6 +85,9 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		}
 	}
 
+	/**
+	 * 
+	 */
 	private void addParamMortalityFactorOrProbability() {
 		if (getManifestation().getMortalityFactor() != null) {
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(getManifestation().getMortalityFactor());
@@ -108,6 +121,9 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		}
 	}
 
+	/**
+	 * 
+	 */
 	private void addParamProbabilityDiagnosis() {
 		if (getManifestation().getProbabilityOfLeadingToDiagnosis() != null) {
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(getManifestation().getProbabilityOfLeadingToDiagnosis());
@@ -178,14 +194,14 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	/**
 	 * @param manifestation
 	 */
-	public void setManifestation(es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifestation) {
+	private void setManifestation(es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifestation) {
 		this.manifestation = manifestation;
 	}
 
 	/**
 	 * @return
 	 */
-	public es.ull.iis.ontology.radios.json.schema4simulation.Manifestation getManifestation() {
+	private es.ull.iis.ontology.radios.json.schema4simulation.Manifestation getManifestation() {
 		return manifestation;
 	}
 

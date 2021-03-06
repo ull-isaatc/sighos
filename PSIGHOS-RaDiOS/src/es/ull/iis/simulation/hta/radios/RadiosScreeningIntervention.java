@@ -27,7 +27,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author David Prieto González
  */
 public class RadiosScreeningIntervention extends ScreeningStrategy {
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	private static final JexlEngine jexl = new JexlBuilder().create();		
 
@@ -189,7 +189,7 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		 * 	- [V] Estrategias de tratamiento
 		 * 	- [V] Estrategias de seguimiento
 		 * 	- [ ] Modificaciones de las manifestaciones
-		*/
+		 */
 		
 		Double cummulativeCost = 0.0;
 		if (debug) {
@@ -212,7 +212,7 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		 * 	- [V] Estrategias de tratamiento
 		 * 	- [V] Estrategias de seguimiento
 		 * 	- [ ] Modificaciones de las manifestaciones
-		*/
+		 */
 		
 		Double cummulativeCost = 0.0;
 		return cummulativeCost;
@@ -220,18 +220,33 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 
 	@Override
 	public double getStartingCost(Patient pat) {
-		Double result = calculateDataPropertyValueFromScreeningTechnique(intervention, "COSTS"); 
-		return result;
+		return calculateDataPropertyValueFromScreeningTechnique(intervention, "COSTS");
 	}
 
+	/**
+	 * @param pat
+	 * @param cummulativeCost
+	 * @return
+	 */
 	private Double calculateCostsFromTreatments(Patient pat, Double cummulativeCost) {
 		return evaluateRanges(pat, cummulativeCost, this.costTreatments);
 	}
 
+	/**
+	 * @param pat
+	 * @param cummulativeCost
+	 * @return
+	 */
 	private Double calculateCostsFromFollowUps(Patient pat, Double cummulativeCost) {
 		return evaluateRanges(pat, cummulativeCost, this.costFollowUps);
 	}
 
+	/**
+	 * @param pat
+	 * @param cummulativeCost
+	 * @param costs
+	 * @return
+	 */
 	private Double evaluateRanges(Patient pat, Double cummulativeCost, Matrix costs) {
 		JexlContext jc = generatePatientContext(pat);
 		for (String manifestacion : costs.keySetR()) {
