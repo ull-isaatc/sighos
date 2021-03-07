@@ -27,7 +27,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author David Prieto González
  */
 public class RadiosScreeningIntervention extends ScreeningStrategy {
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	private static final JexlEngine jexl = new JexlBuilder().create();		
 
@@ -220,7 +220,12 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 
 	@Override
 	public double getStartingCost(Patient pat) {
-		return calculateDataPropertyValueFromScreeningTechnique(intervention, "COSTS");
+		Boolean useCalculatedCostMatrix = true;
+		if (useCalculatedCostMatrix) {
+			return calculateInitialCosts(pat, 0.0);
+		} else {
+			return calculateDataPropertyValueFromScreeningTechnique(intervention, "COSTS");
+		}
 	}
 
 	/**
@@ -239,6 +244,64 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 	 */
 	private Double calculateCostsFromFollowUps(Patient pat, Double cummulativeCost) {
 		return evaluateRanges(pat, cummulativeCost, this.costFollowUps);
+	}
+
+	/**
+	 * @param pat
+	 * @param cummulativeCost
+	 * @return
+	 */
+	private Double calculateInitialCosts(Patient pat, Double cummulativeCost) {
+		double result = evaluateRangesFromSpecificLimits(0.0, 1.0/12.0, 0.0, this.costScreenings, new MapContext());
+		result += evaluateRangesFromSpecificLimits(0.0, 1.0/12.0, 0.0, this.costClinicalDiagnosis, new MapContext());
+		result += evaluateRangesFromSpecificLimits(0.0, 1.0/12.0, 0.0, this.costTreatments, new MapContext());
+		result += evaluateRangesFromSpecificLimits(0.0, 1.0/12.0, 0.0, this.costFollowUps, new MapContext());
+		return result;
+	}
+
+	/**
+	 * @param initTimeRange
+	 * @param finalTimeRange
+	 * @param cummulativeCost
+	 * @param costs
+	 * @param jc
+	 * @return
+	 */
+	private Double evaluateRangesFromSpecificLimits(Double initTimeRange, Double finalTimeRange, Double cummulativeCost, Matrix costs, JexlContext jc) {
+		for (String manifestacion : costs.keySetR()) {
+			for (String item : costs.keySetC(manifestacion)) {
+				for (CostMatrixElement e : costs.get(manifestacion, item)) {
+					if (initTimeRange <= e.getFloorLimitRange() && (e.getCeilLimitRange() == null || e.getCeilLimitRange() <= finalTimeRange)) {
+						Integer nTimesManifestations = 1;
+						Boolean applyCost = true; 
+						if (e.getCondition() != null) {
+							JexlExpression exprToEvaluate = jexl.createExpression(e.getCondition());
+							applyCost = (Boolean) exprToEvaluate.evaluate(jc);
+						}
+						
+						if (applyCost) {
+							Double partialCummulativeCost = 0.0;
+							if (e.getCostExpression() != null) {
+								jc.set("cost", e.getCost());
+								JexlExpression exprToEvaluate = jexl.createExpression(e.getCostExpression());
+								partialCummulativeCost = (((Double) exprToEvaluate.evaluate(jc)) * e.calculateNTimesInRange(null, null) * nTimesManifestations);
+							} else {
+								partialCummulativeCost = (e.getCost() * e.calculateNTimesInRange(null, null) * nTimesManifestations); 
+							}
+							cummulativeCost += partialCummulativeCost;
+							if (debug) {
+								if (e.getCondition() != null) {
+									System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", item, e.getCondition(), partialCummulativeCost));
+								} else {
+								}
+								System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente. Coste parcial añadido [%s].", item, partialCummulativeCost));
+							}
+						}
+					}
+				}
+			}
+		}
+		return cummulativeCost;
 	}
 
 	/**
@@ -315,7 +378,7 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		Random r = new Random();
 		JexlContext jcPatient = new MapContext();
 		jcPatient.set("disease", true);
-		jcPatient.set("weight", r.nextInt(40) + 1);
+		jcPatient.set("weight", pat.getVar("weight"));
 		jcPatient.set("splenectomy", r.nextBoolean());
 		return jcPatient;
 	}

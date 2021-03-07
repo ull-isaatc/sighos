@@ -380,31 +380,6 @@ public class DiseaseMain {
 		outListeners.close();
 	}
 
-	public static void main(String[] args) {
-		final Arguments arguments = new Arguments();
-		try {
-			// -n 100 -r 5 -dr 0 -q -pop 1 -ps 3 -po -dis 1
-			JCommander jc = JCommander.newBuilder().addObject(arguments).build();
-			Boolean useProgramaticArguments = true;
-			if (useProgramaticArguments) {
-				String params = "-n 100 -r 0 -dr 0 -q -pop 1 -dis 2";
-				jc.parse(params.split(" "));
-			} else {
-				jc.parse(args);
-			}
-			BasicConfigParams.STUDY_YEAR = arguments.year;
-
-			for (final Map.Entry<String, String> pInit : arguments.initProportions.entrySet()) {
-				BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
-			}
-
-			runExperiment(arguments);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(-1);
-		}
-	}
-
 	/**
 	 * @param arguments
 	 * @throws JsonParseException
@@ -416,6 +391,7 @@ public class DiseaseMain {
 	 */
 	private static void runExperiment(final Arguments arguments) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		SecondOrderParamsRepository secParams = loadRepositoryToSimulation(arguments.nRuns, arguments.nPatients, arguments.timeHorizon, arguments.disease, arguments.population, true);
+		System.out.println("\n");
 		final String validity = secParams.checkValidity();
 		if (validity == null) {
 			final EnumSet<Outputs> printOutputs = configurePrintOutputs(arguments.bi, arguments.individualOutcomes, arguments.breakdownCost);				
@@ -548,7 +524,13 @@ public class DiseaseMain {
 		switch (population) {
 		case 1:
 			System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", disease));
-			secParams = new RadiosRepository(nRuns, nPatients, System.getProperty("user.dir") + "/resources/radios-test_disease" + disease + ".json", timeHorizon);
+			String path = "";
+			if (disease == 0) {
+				path = "resources/radios.json";
+			} else {
+				path = "resources/radios-test_disease" + disease + ".json";
+			}
+			secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon);
 			break;
 		case 0:
 		default:
@@ -658,6 +640,31 @@ public class DiseaseMain {
 				if (counter.incrementAndGet() % gap == 0)
 					System.out.println("" + (counter.get() * 100 / totalSim) + "% finished");
 			}
+		}
+	}
+
+	public static void main(String[] args) {
+		final Arguments arguments = new Arguments();
+		try {
+			// -n 100 -r 5 -dr 0 -q -pop 1 -ps 3 -po -dis 1
+			JCommander jc = JCommander.newBuilder().addObject(arguments).build();
+			Boolean useProgramaticArguments = true;
+			if (useProgramaticArguments) {
+				String params = "-n 100 -r 0 -dr 0 -q -pop 0 -dis 1";
+				jc.parse(params.split(" "));
+			} else {
+				jc.parse(args);
+			}
+			BasicConfigParams.STUDY_YEAR = arguments.year;
+
+			for (final Map.Entry<String, String> pInit : arguments.initProportions.entrySet()) {
+				BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
+			}
+
+			runExperiment(arguments);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
 		}
 	}
 
