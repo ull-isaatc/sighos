@@ -171,18 +171,21 @@ public class Transition {
 			final int id = pat.getSimulation().getIdentifier();
 			final double age = pat.getAge();
 			final double lifetime = pat.getAgeAtDeath() - age;
+			
 			// Searches the corresponding age interval
+			int j = (ageRisks[0].length == 3) ? 1 : 0;
 			int interval = 0;
-			while (age > ageRisks[interval][0])
+			while (age > ageRisks[interval][j]) {
 				interval++;
+			}			
 			// Computes time to event within such interval
-			double time = Statistics.getAnnualBasedTimeToEvent(ageRisks[interval][1], getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
+			double time = Statistics.getAnnualBasedTimeToEvent(ageRisks[interval][j+1], getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
 			
 			// Checks if further intervals compute lower time to event
 			for (; interval < ageRisks.length; interval++) {
-				final double newTime = Statistics.getAnnualBasedTimeToEvent(ageRisks[interval][1], getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
-				if ((newTime != Double.MAX_VALUE) && (ageRisks[interval][0] - age + newTime < time))
-					time = ageRisks[interval][0] - age + newTime;
+				final double newTime = Statistics.getAnnualBasedTimeToEvent(ageRisks[interval][j+1], getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
+				if ((newTime != Double.MAX_VALUE) && (ageRisks[interval][j] - age + newTime < time))
+					time = ageRisks[interval][j] - age + newTime;
 			}
 			return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 		}

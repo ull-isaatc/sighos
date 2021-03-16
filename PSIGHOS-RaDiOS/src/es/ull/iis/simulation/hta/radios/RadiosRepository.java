@@ -28,6 +28,7 @@ import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.progression.Transition;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.simpletest.NullIntervention;
 import es.ull.iis.simulation.hta.simpletest.TestNotDiagnosedPopulation;
@@ -36,10 +37,29 @@ import es.ull.iis.simulation.hta.simpletest.TestNotDiagnosedPopulation;
  * @author David Prieto González
  */
 public class RadiosRepository extends SecondOrderParamsRepository {
-	private final ObjectMapper mapper; 
-	private final CostCalculator costCalc;
-	private final UtilityCalculator utilCalc;
+	private ObjectMapper mapper; 
+	private CostCalculator costCalc;
+	private UtilityCalculator utilCalc;
 
+	/**
+	 * For a repository, it is necessary to register the population {registerPopulation(...)}, the disease {registerDisease(...)}, the 
+	 * interventions {registerIntervention(...)} and the submodel of death {registerDeathSubmodel(...)}, as the most relevant things.
+	 * 
+	 * @param nRuns
+	 * @param nPatients
+	 * @throws IOException 
+	 * @throws MalformedURLException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
+	 * @throws JAXBException 
+	 * @throws TransformException 
+	 */
+	public RadiosRepository(int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
+		super(nRuns, nPatients);
+
+		initialize(nRuns, nPatients, radiosDiseaseInstance, timeHorizont);
+	}
+	
 	/**
 	 * For a repository, it is necessary to register the population {registerPopulation(...)}, the disease {registerDisease(...)}, the 
 	 * interventions {registerIntervention(...)} and the submodel of death {registerDeathSubmodel(...)}, as the most relevant things.
@@ -56,11 +76,23 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	public RadiosRepository(int nRuns, int nPatients, String pathToRaDiOSJson, Integer timeHorizont) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		super(nRuns, nPatients);
 
-		costCalc = new DiseaseCostCalculator(this);
-		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
-		
 		mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).setSerializationInclusion(Include.NON_NULL).setSerializationInclusion(Include.NON_EMPTY);
 		Schema4Simulation radiosDiseaseInstance = mapper.readValue(new File(pathToRaDiOSJson), Schema4Simulation.class);
+
+		initialize(nRuns, nPatients, radiosDiseaseInstance, timeHorizont);
+	}
+	
+	/**
+	 * @param nRuns
+	 * @param nPatients
+	 * @param radiosDiseaseInstance
+	 * @param timeHorizont
+	 * @throws TransformException
+	 * @throws JAXBException
+	 */
+	private void initialize (int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont) throws TransformException, JAXBException {
+		costCalc = new DiseaseCostCalculator(this);
+		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
 
 		RadiosDisease disease = new RadiosDisease(this, radiosDiseaseInstance.getDisease(), timeHorizont);		
 		registerDisease(disease);
@@ -87,7 +119,6 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 		
 		// El submodelo de mortalidad (por defecto podemos usar el que te pongo)
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
-		
 	}
 	
 	@Override

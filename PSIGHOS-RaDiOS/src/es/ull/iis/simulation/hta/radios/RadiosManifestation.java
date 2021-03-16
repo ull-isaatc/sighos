@@ -71,15 +71,22 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 			}
 			disease.addTransition(transition);
 		}
+
 		if (CollectionUtils.notIsEmpty(getManifestation().getPrecedingManifestations())) {
 			for (PrecedingManifestation precedingManifestation : getManifestation().getPrecedingManifestations()) {
 				es.ull.iis.simulation.hta.progression.Manifestation precManif = searchManifestationFromDisease(disease, precedingManifestation.getName());				
-				disease.addTransition(new RadiosTransition(repository, precManif, this, 
-						(precedingManifestation.getReplacePrevious() != null && !precedingManifestation.getReplacePrevious().isEmpty()) ? Boolean.valueOf(precedingManifestation.getReplacePrevious()) : Boolean.FALSE));
 				String transitionProbability = precedingManifestation.getProbability();
 				if (transitionProbability != null) {
+					Boolean replacePrevious = (precedingManifestation.getReplacePrevious() != null && !precedingManifestation.getReplacePrevious().isEmpty()) ? Boolean.valueOf(precedingManifestation.getReplacePrevious()) : Boolean.FALSE;					
+					RadiosTransition transition = new RadiosTransition(repository, precManif, this, replacePrevious);
 					ProbabilityDistribution probabilityDistributionForTransition = ValueTransform.splitProbabilityDistribution(transitionProbability);
-					repository.addProbParam(precManif, this,	Constants.CONSTANT_EMPTY_STRING, probabilityDistributionForTransition.getDeterministicValue(), probabilityDistributionForTransition.getProbabilisticValueInitializedForProbability());
+					if (probabilityDistributionForTransition != null) {
+						repository.addProbParam(precManif, this,	Constants.CONSTANT_EMPTY_STRING, probabilityDistributionForTransition.getDeterministicValue(), probabilityDistributionForTransition.getProbabilisticValueInitializedForProbability());
+					} else {
+						double[][] datatableMatrix = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(transitionProbability));
+						transition.setCalculator(transition.new AgeBasedTimeToEventCalculator(datatableMatrix, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix)));
+					}
+					disease.addTransition(transition);
 				}
 			}
 		}

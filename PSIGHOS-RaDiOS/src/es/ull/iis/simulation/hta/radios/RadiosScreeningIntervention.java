@@ -7,6 +7,7 @@ import java.util.Random;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
 
@@ -276,7 +277,12 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 						Boolean applyCost = true; 
 						if (e.getCondition() != null) {
 							JexlExpression exprToEvaluate = jexl.createExpression(e.getCondition());
-							applyCost = (Boolean) exprToEvaluate.evaluate(jc);
+							try {
+								applyCost = (Boolean) exprToEvaluate.evaluate(jc);
+							} catch (JexlException ex) {
+								System.err.println(ex.getMessage());
+								applyCost = false;
+							}
 						}
 						
 						if (applyCost) {
@@ -284,7 +290,12 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 							if (e.getCostExpression() != null) {
 								jc.set("cost", e.getCost());
 								JexlExpression exprToEvaluate = jexl.createExpression(e.getCostExpression());
-								partialCummulativeCost = (((Double) exprToEvaluate.evaluate(jc)) * e.calculateNTimesInRange(null, null) * nTimesManifestations);
+								try {
+									partialCummulativeCost = (((Double) exprToEvaluate.evaluate(jc)) * e.calculateNTimesInRange(null, null) * nTimesManifestations);
+								} catch (JexlException ex) {
+									System.err.println(ex.getMessage());
+									partialCummulativeCost = 0.0;
+								}
 							} else {
 								partialCummulativeCost = (e.getCost() * e.calculateNTimesInRange(null, null) * nTimesManifestations); 
 							}
