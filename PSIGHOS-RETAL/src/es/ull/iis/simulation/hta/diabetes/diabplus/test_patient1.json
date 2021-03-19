@@ -1,0 +1,11 @@
+{
+	"patient" : {
+		"man" : "false",
+		"age" : "40",
+		"durationOfDiabetes" : "5",
+		"hypoRate" : "2",
+		"baseHbA1cLevel" : "10",
+		"objHbA1cLevel" : "8",
+		"annualCost" : "3000"
+	}
+}

@@ -11,6 +11,23 @@ package es.ull.iis.simulation.hta.diabetes.params;
  *
  */
 public interface Discount {
+	public final static Discount zeroDiscount = new Discount() {
+		
+		@Override
+		public double getDiscountRate() {
+			return 0.0;
+		}
+
+		@Override
+		public double applyDiscount(double value, double initAge, double endAge) {
+			return value * (endAge - initAge);
+		}
+		
+		@Override
+		public double applyPunctualDiscount(double value, double time) {
+			return value;
+		}
+	};
 
 	/**
 	 * @return the discount rate: a value between 0 and 1

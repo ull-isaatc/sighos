@@ -93,7 +93,8 @@ public class UncontrolledMonitoSecondOrderParams extends SecondOrderParamsReposi
 		SENSOR_USE_EXTENDED, // Applies 10 days to the use of the G5 sensor, instead of 7
 		EFFECT_LOW,	// Lowest effectiveness 
 		EFFECT_HIGH,	// Highest effectiveness
-		NO_MORTALITY_HYPO, // Discharge mortality by severe hypoglycemia		
+		NO_MORTALITY_HYPO, // Discharge mortality by severe hypoglycemia	
+		DISUTILITY_STRIPS,	// Adds 0,03 disutility to SMBG 
 	}
 	
 	public static Scenario SCENARIO = Scenario.BASE_CASE;
@@ -413,6 +414,12 @@ public class UncontrolledMonitoSecondOrderParams extends SecondOrderParamsReposi
 				return annualCost;
 			}
 			
+			@Override
+			public double getDisutility(DiabetesPatient pat) {
+				if (Scenario.DISUTILITY_STRIPS.equals(SCENARIO))
+					return 0.03;
+				return 0.0;
+			}
 		}
 	}
 	
