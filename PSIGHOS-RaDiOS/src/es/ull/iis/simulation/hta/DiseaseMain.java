@@ -4,8 +4,11 @@
 package es.ull.iis.simulation.hta;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -20,9 +23,13 @@ import javax.xml.bind.JAXBException;
 import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
+import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
 import es.ull.iis.simulation.hta.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.inforeceiver.BudgetImpactView;
 import es.ull.iis.simulation.hta.inforeceiver.CostListener;
@@ -41,6 +48,8 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StdDiscount;
 import es.ull.iis.simulation.hta.params.ZeroDiscount;
 import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.Transition;
+import es.ull.iis.simulation.hta.radios.RadiosExperimentResult;
 import es.ull.iis.simulation.hta.radios.RadiosRepository;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
@@ -381,42 +390,20 @@ public class DiseaseMain {
 	}
 
 	/**
-	 * @param arguments
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws MalformedURLException
-	 * @throws IOException
-	 * @throws TransformException
-	 * @throws JAXBException
-	 */
-	private static void runExperiment(final Arguments arguments) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
-		SecondOrderParamsRepository secParams = loadRepositoryToSimulation(arguments.nRuns, arguments.nPatients, arguments.timeHorizon, arguments.disease, arguments.population, true);
-		System.out.println("\n");
-		final String validity = secParams.checkValidity();
-		if (validity == null) {
-			final EnumSet<Outputs> printOutputs = configurePrintOutputs(arguments.bi, arguments.individualOutcomes, arguments.breakdownCost);				
-			final ArrayList<EpidemiologicOutputFormat> formats = configureOutputFormats(arguments.epidem);
-			final PrintWriter[] outputPrintWriters = configureOutputPrintWriters(arguments.outputFileName, printOutputs.size(), formats.size());
-			final Discount[] discounts = configureDiscounts (arguments.discount);
-			final int timeHorizon = configureTimeHorizon(arguments, secParams);
-			(new DiseaseMain(outputPrintWriters[0], outputPrintWriters[1], secParams, timeHorizon, discounts[0], discounts[1], arguments.parallel, arguments.quiet, arguments.singlePatientOutput, printOutputs, formats)).run();
-		} else {
-			System.err.println("Could not validate model. Result = " + validity);
-		}
-	}
-
-	/**
 	 * @param filename
 	 * @param printOutputsSize
 	 * @param formatsSize
 	 * @return
 	 */
-	private static PrintWriter[] configureOutputPrintWriters (String filename, Integer printOutputsSize, Integer formatsSize) {
+	private static PrintWriter[] configureOutputPrintWriters (String filename, OutputStream os, Integer printOutputsSize, Integer formatsSize) {
 		// Set outputs: different files for simulation outputs and for other outputs. If no file name is specified or an error arises, standard output is used
 		PrintWriter[] result = new PrintWriter[2];
-		if (filename == null) {
+		if (filename == null && os == null) {
 			result[0] = new PrintWriter(System.out);
 			result[1] = new PrintWriter(System.out);
+		} else if (os != null) {
+			result[0] = new PrintWriter(os);
+			result[1] = new PrintWriter(os);
 		} else {
 			try {
 				result[0] = new PrintWriter(new BufferedWriter(new FileWriter(filename)));
@@ -518,78 +505,80 @@ public class DiseaseMain {
 	 * @throws TransformException
 	 * @throws JAXBException
 	 */
-	private static SecondOrderParamsRepository loadRepositoryToSimulation(int nRuns, int nPatients, int timeHorizon, int disease, int population, Boolean showSavedParams)
+	private static SecondOrderParamsRepository loadRepositoryToSimulation(
+			int nRuns, int nPatients, int timeHorizon, int disease, int population, Schema4Simulation radiosDiseaseInstance)
 			throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		SecondOrderParamsRepository secParams = null;
-		switch (population) {
-		case 1:
-			System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", disease));
-			String path = "";
-			if (disease == 0) {
-				path = "resources/radios.json";
-			} else {
-				path = "resources/radios-test_disease" + disease + ".json";
+		if (radiosDiseaseInstance != null) {
+			secParams = new RadiosRepository(nRuns, nPatients, radiosDiseaseInstance, timeHorizon);
+		} else {
+			switch (population) {
+			case 1:
+				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", disease));
+				String path = "";
+				if (disease == 0) {
+					path = "resources/radios.json";
+				} else {
+					path = "resources/radios-test_disease" + disease + ".json";
+				}
+				secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon);
+				break;
+			case 0:
+			default:
+				System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for the rare disease [%d] \n\n", disease));
+				secParams = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
+				break;
 			}
-			secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon);
-			break;
-		case 0:
-		default:
-			System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for the rare disease [%d] \n\n", disease));
-			secParams = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
-			break;
 		}
-		
-		if (showSavedParams) {
-			secParams.showSavedParams();		
-		}
+
 		return secParams;
 	}
 
-	private static class Arguments {
+	public static class Arguments {
 		/*
 		 * -n 100 -r 5 -dr 0 -q -pop 1 -ps 3 -po -dis 1: 100 pacientes, 5 ejecuciones probabilisticas, sin descuento, sin mostrar el progreso de ejecución, para RaDiOS, con el progreso para el tercer
 		 * paciente, habilitada la salida individual por paciente y para la enfermedad test1
 		 */
 
 		@Parameter(names = { "--output", "-o" }, description = "Name of the output file name", order = 1)
-		private String outputFileName = null;
+		public String outputFileName = null;
 		@Parameter(names = { "--patients", "-n" }, description = "Number of patients to test", order = 2)
-		private int nPatients = BasicConfigParams.DEF_N_PATIENTS;
+		public int nPatients = BasicConfigParams.DEF_N_PATIENTS;
 		@Parameter(names = { "--runs", "-r" }, description = "Number of probabilistic runs", order = 3)
-		private int nRuns = BasicConfigParams.N_RUNS;
+		public int nRuns = BasicConfigParams.N_RUNS;
 		@Parameter(names = { "--horizon", "-h" }, description = "Time horizon for the simulation (years)", order = 3)
-		private int timeHorizon = -1;
+		public int timeHorizon = -1;
 		@Parameter(names = { "--population", "-pop" }, description = "Selects an alternative scenario (0: Test; 1: RaDiOS)", order = 8)
-		private int population = 0;
+		public int population = 0;
 		@Parameter(names = { "--discount",
 				"-dr" }, variableArity = true, description = "The discount rate to be applied. If more than one value is provided, the first one is used for costs, and the second for effects. Default value is "
 						+ BasicConfigParams.DEF_DISCOUNT_RATE, order = 7)
 		public List<Double> discount = new ArrayList<>();
 		@Parameter(names = { "--disease", "-dis" }, description = "Disease to test with (1-3)", order = 3)
-		private int disease = 1;
+		public int disease = 1;
 		@Parameter(names = { "--single_patient_output", "-ps" }, description = "Enables printing the specified patient's output", order = 4)
-		private int singlePatientOutput = -1;
+		public int singlePatientOutput = -1;
 		@Parameter(names = { "--epidem", "-ep" }, variableArity = true, description = "Enables printing epidemiologic results. Can receive several \"orders\". Each order consists of\r\n"
 				+ "\t- The type of info to print {i: incidence, p:prevalence, c:cumulative incidence}\r"
 				+ "\t- An optional argument of whether to print absolute ('a') or relative ('r') results (Default: relative)\r"
 				+ "\t- An optional argument of whether to print information by age ('a') or by time from start ('t') results (Default: time from start)\r"
 				+ "\t- An optional number that indicates interval size (in years) (Default: 1)", order = 9)
-		private List<String> epidem = new ArrayList<>();
+		public List<String> epidem = new ArrayList<>();
 
 		@Parameter(names = { "--outcomes", "-po" }, description = "Enables printing individual outcomes", order = 9)
-		private boolean individualOutcomes = false;
+		public boolean individualOutcomes = false;
 		@Parameter(names = { "--costs", "-pbc" }, description = "Enables printing breakdown of costs", order = 9)
-		private boolean breakdownCost = false;
+		public boolean breakdownCost = false;
 		@Parameter(names = { "--budget", "-pbi" }, description = "Enables printing budget impact", order = 9)
-		private boolean bi = false;
+		public boolean bi = false;
 		@Parameter(names = { "--parallel", "-p" }, description = "Enables parallel execution", order = 5)
-		private boolean parallel = false;
+		public boolean parallel = false;
 		@Parameter(names = { "--quiet", "-q" }, description = "Quiet execution (does not print progress info)", order = 6)
-		private boolean quiet = false;
+		public boolean quiet = false;
 		@Parameter(names = { "--year", "-y" }, description = "Modifies the year of the study (for cost updating))", order = 8)
-		private int year = BasicConfigParams.STUDY_YEAR;
+		public int year = BasicConfigParams.STUDY_YEAR;
 		@DynamicParameter(names = { "--iniprop", "-I" }, description = "Initial proportion for complication stages")
-		private Map<String, String> initProportions = new TreeMap<String, String>();
+		public Map<String, String> initProportions = new TreeMap<String, String>();
 	}
 
 	/**
@@ -643,6 +632,33 @@ public class DiseaseMain {
 		}
 	}
 
+	/**
+	 * @param arguments
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws TransformException
+	 * @throws JAXBException
+	 */
+	public static RadiosExperimentResult runExperiment(final Arguments arguments, Schema4Simulation radiosDiseaseInstance) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
+		SecondOrderParamsRepository secParams = loadRepositoryToSimulation(
+				arguments.nRuns, arguments.nPatients, arguments.timeHorizon, arguments.disease, arguments.population, radiosDiseaseInstance);
+		final String validity = secParams.checkValidity();
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
+		if (validity == null) {
+			final EnumSet<Outputs> printOutputs = configurePrintOutputs(arguments.bi, arguments.individualOutcomes, arguments.breakdownCost);				
+			final ArrayList<EpidemiologicOutputFormat> formats = configureOutputFormats(arguments.epidem);
+			final PrintWriter[] outputPrintWriters = configureOutputPrintWriters(arguments.outputFileName, baos, printOutputs.size(), formats.size());
+			final Discount[] discounts = configureDiscounts (arguments.discount);
+			final int timeHorizon = configureTimeHorizon(arguments, secParams);
+			(new DiseaseMain(outputPrintWriters[0], outputPrintWriters[1], secParams, timeHorizon, discounts[0], discounts[1], arguments.parallel, arguments.quiet, arguments.singlePatientOutput, printOutputs, formats)).run();
+		} else {
+			System.err.println("Could not validate model. Result = " + validity);
+		}
+		return new RadiosExperimentResult(secParams.getRegisteredDiseases()[0].getTransitions(), baos, secParams.prettySavedParams());		
+	}
+
 	public static void main(String[] args) {
 		final Arguments arguments = new Arguments();
 		try {
@@ -650,7 +666,7 @@ public class DiseaseMain {
 			JCommander jc = JCommander.newBuilder().addObject(arguments).build();
 			Boolean useProgramaticArguments = true;
 			if (useProgramaticArguments) {
-				String params = "-n 100 -r 0 -dr 0 -q -pop 0 -dis 1";
+				String params = "-n 100 -r 0 -dr 0 -q -pop 1 -dis 4";
 				jc.parse(params.split(" "));
 			} else {
 				jc.parse(args);
@@ -661,7 +677,19 @@ public class DiseaseMain {
 				BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
 			}
 
-			runExperiment(arguments);
+			ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).setSerializationInclusion(Include.NON_NULL).setSerializationInclusion(Include.NON_EMPTY);
+			Schema4Simulation radiosDiseaseInstance = mapper.readValue(new File("resources/radios-test_disease4.json"), Schema4Simulation.class);			
+			
+			RadiosExperimentResult result = runExperiment(arguments, radiosDiseaseInstance);
+
+			for (Transition transition : result.getTransitions()) {
+				System.out.println(transition.getSrcManifestation().getName() + " --> " + transition.getDestManifestation().getName());
+			}
+			System.out.println();
+			System.out.println(result.getPrettySavedParams());
+			System.out.println();
+			System.out.println(new String(result.getSimResult().toByteArray()));
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
