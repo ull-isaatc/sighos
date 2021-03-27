@@ -666,7 +666,7 @@ public class DiseaseMain {
 			JCommander jc = JCommander.newBuilder().addObject(arguments).build();
 			Boolean useProgramaticArguments = true;
 			if (useProgramaticArguments) {
-				String params = "-n 100 -r 0 -dr 0 -q -pop 1 -dis 4";
+				String params = "-n 1 -r 1 -h 10 -dr 0 -q -pop 1 -dis 0";
 				jc.parse(params.split(" "));
 			} else {
 				jc.parse(args);
@@ -678,7 +678,7 @@ public class DiseaseMain {
 			}
 
 			ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).setSerializationInclusion(Include.NON_NULL).setSerializationInclusion(Include.NON_EMPTY);
-			Schema4Simulation radiosDiseaseInstance = mapper.readValue(new File("resources/radios-test_disease4.json"), Schema4Simulation.class);			
+			Schema4Simulation radiosDiseaseInstance = mapper.readValue(new File("resources/radios_PBD.json"), Schema4Simulation.class);			
 			
 			RadiosExperimentResult result = runExperiment(arguments, radiosDiseaseInstance);
 

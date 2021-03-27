@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import org.junit.Test;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -95,7 +93,7 @@ public class Tests {
 		int timeHorizont = 10;
 		
 		try {
-			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios.json", timeHorizont);
+			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios.json", timeHorizont);			
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;
@@ -105,7 +103,7 @@ public class Tests {
 		System.out.println("\nTest finished ...");
 	}
 	
-	@Test
+//	@Test
 	public void simulateTest1Disease () {
 		System.out.println("Starting test ...");
 
@@ -124,6 +122,11 @@ public class Tests {
 
 		assertEquals(expectedResult, result);
 		System.out.println("\nTest finished ...");
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(Math.floor(12.435));
+		System.out.println(Math.ceil(12.435));
 	}
 	
 }

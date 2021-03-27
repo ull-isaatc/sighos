@@ -7,6 +7,7 @@ import java.util.Random;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
 
@@ -155,6 +156,77 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 		return cummulativeCost;
 	}
 	
+	/**
+	 * @param initTimeRange
+	 * @param finalTimeRange
+	 * @param cummulativeCost
+	 * @param costs
+	 * @param jc
+	 * @return
+	 */
+	private Double evaluateRangesFromSpecificLimits(Double initTimeRange, Double finalTimeRange, Double cummulativeCost, Matrix costs, JexlContext jc) {
+		for (String manifestacion : costs.keySetR()) {
+			for (String item : costs.keySetC(manifestacion)) {
+				for (CostMatrixElement e : costs.get(manifestacion, item)) {
+					if (initTimeRange <= e.getFloorLimitRange() && (e.getCeilLimitRange() == null || e.getCeilLimitRange() <= finalTimeRange)) {
+						Integer nTimesManifestations = 1;
+						Boolean applyCost = true; 
+						if (e.getCondition() != null) {
+							JexlExpression exprToEvaluate = jexl.createExpression(e.getCondition());
+							try {
+								applyCost = (Boolean) exprToEvaluate.evaluate(jc);
+							} catch (JexlException ex) {
+								System.err.println(ex.getMessage());
+								applyCost = false;
+							}
+						}
+						
+						if (applyCost) {
+							Double partialCummulativeCost = 0.0;
+							if (e.getCostExpression() != null) {
+								jc.set("cost", e.getCost());
+								JexlExpression exprToEvaluate = jexl.createExpression(e.getCostExpression());
+								try {
+									partialCummulativeCost = (((Double) exprToEvaluate.evaluate(jc)) * e.calculateNTimesInRange(null, null) * nTimesManifestations);
+								} catch (JexlException ex) {
+									System.err.println(ex.getMessage());
+									partialCummulativeCost = 0.0;
+								}
+							} else {
+								partialCummulativeCost = (e.getCost() * e.calculateNTimesInRange(null, null) * nTimesManifestations); 
+							}
+							cummulativeCost += partialCummulativeCost;
+							if (debug) {
+								if (e.getCondition() != null) {
+									System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", item, e.getCondition(), partialCummulativeCost));
+								} else {
+								}
+								System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente. Coste parcial añadido [%s].", item, partialCummulativeCost));
+							}
+						}
+					}
+				}
+			}
+		}
+		return cummulativeCost;
+	}
+
+	/**
+	 * @param pat
+	 * @param cummulativeCost
+	 * @return
+	 */
+	public Double calculateCostsByRange(Patient pat, Double cummulativeCost, Double initTimeRange, Double finalTimeRange) {
+		MapContext jc = new MapContext();
+		jc.set("weight", 50);
+		
+		double result = evaluateRangesFromSpecificLimits(initTimeRange, finalTimeRange, 0.0, this.costScreenings, jc);
+		result += evaluateRangesFromSpecificLimits(initTimeRange, finalTimeRange, 0.0, this.costClinicalDiagnosis, jc);
+		result += evaluateRangesFromSpecificLimits(initTimeRange, finalTimeRange, 0.0, this.costTreatments, jc);
+		result += evaluateRangesFromSpecificLimits(initTimeRange, finalTimeRange, 0.0, this.costFollowUps, jc);
+		return result;
+	}
+
 	@Override
 	public double getAnnualCost(Patient pat) {
 		/* 
@@ -166,8 +238,15 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 		 * 	- [ ] Modificaciones de las manifestaciones
 		*/
 		
+		Boolean calculateCummulativeCost = false;
 		Double cummulativeCost = 0.0;
-		return cummulativeCost;
+		if (calculateCummulativeCost) {
+			Double floorLimit = Math.floor(pat.getAge());
+			Double ceilLimit = (Math.ceil(pat.getAge()) == Math.floor(pat.getAge())) ? Math.ceil(pat.getAge()) + 1.0 : Math.ceil(pat.getAge());
+			return calculateCostsByRange(pat, cummulativeCost, floorLimit, ceilLimit);
+		} else {
+			return cummulativeCost;
+		}
 	}
 
 	@Override

@@ -37,6 +37,9 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	private int ord = -1;
 	private final Type type;
 	
+	private double onSetAge;
+	private double onEndAge;
+	
 	/** Probability that a patient starts in this stage */
 	private final BernoulliParam[] pInit;
 	/** Death associated to the acute events */
@@ -64,6 +67,32 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		Arrays.fill(associatedDeath, null);
 		pDiagnose = new MultipleBernoulliParam[secParams.getnRuns() + 1];
 		Arrays.fill(pDiagnose, null);
+		this.onSetAge = 0;
+		this.onEndAge = Double.MAX_VALUE;
+	}
+	
+	/**
+	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
+	 * @param secParams Common parameters repository
+	 * @param name Name of the stage
+	 * @param description Full description of the stage
+	 * @param disease Main chronic complication
+	 * @param type The {@link Type} of the manifestation
+	 */
+	public Manifestation(SecondOrderParamsRepository secParams, String name, String description, Disease disease, Type type, Double onSetAge, Double onEndAge) {
+		this.secParams = secParams;
+		this.name = name;
+		this.description = description;
+		this.disease = disease;
+		this.type = type;
+		pInit = new BernoulliParam[secParams.getnRuns() + 1];
+		Arrays.fill(pInit, null);
+		associatedDeath = new MultipleBernoulliParam[secParams.getnRuns() + 1];
+		Arrays.fill(associatedDeath, null);
+		pDiagnose = new MultipleBernoulliParam[secParams.getnRuns() + 1];
+		Arrays.fill(pDiagnose, null);
+		this.onSetAge = (onSetAge != null) ? onSetAge : 0.0;
+		this.onEndAge = (onEndAge != null) ? onEndAge : Double.MAX_VALUE;
 	}
 	
 	/**
@@ -99,6 +128,20 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	@Override
 	public String name() {
 		return name;
+	}
+	
+	/**
+	 * @return the onEndAge
+	 */
+	public double getOnEndAge() {
+		return onEndAge;
+	}
+	
+	/**
+	 * @return the onSetAge
+	 */
+	public double getOnSetAge() {
+		return onSetAge;
 	}
 	
 	/**

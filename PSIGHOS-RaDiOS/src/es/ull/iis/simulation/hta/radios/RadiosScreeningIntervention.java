@@ -214,9 +214,16 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		 * 	- [V] Estrategias de seguimiento
 		 * 	- [ ] Modificaciones de las manifestaciones
 		 */
-		
+				
+		Boolean calculateCummulativeCost = false;
 		Double cummulativeCost = 0.0;
-		return cummulativeCost;
+		if (calculateCummulativeCost) {
+			Double floorLimit = Math.floor(pat.getAge());
+			Double ceilLimit = (Math.ceil(pat.getAge()) == Math.floor(pat.getAge())) ? Math.ceil(pat.getAge()) + 1.0 : Math.ceil(pat.getAge());
+			return calculateCostsByRange(pat, cummulativeCost, floorLimit, ceilLimit);
+		} else {
+			return cummulativeCost;
+		}
 	}
 
 	@Override
@@ -252,11 +259,27 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 	 * @param cummulativeCost
 	 * @return
 	 */
-	private Double calculateInitialCosts(Patient pat, Double cummulativeCost) {
+	public Double calculateInitialCosts(Patient pat, Double cummulativeCost) {
 		double result = evaluateRangesFromSpecificLimits(0.0, 1.0/12.0, 0.0, this.costScreenings, new MapContext());
 		result += evaluateRangesFromSpecificLimits(0.0, 1.0/12.0, 0.0, this.costClinicalDiagnosis, new MapContext());
 		result += evaluateRangesFromSpecificLimits(0.0, 1.0/12.0, 0.0, this.costTreatments, new MapContext());
 		result += evaluateRangesFromSpecificLimits(0.0, 1.0/12.0, 0.0, this.costFollowUps, new MapContext());
+		return result;
+	}
+
+	/**
+	 * @param pat
+	 * @param cummulativeCost
+	 * @return
+	 */
+	public Double calculateCostsByRange(Patient pat, Double cummulativeCost, Double initTimeRange, Double finalTimeRange) {
+		MapContext jc = new MapContext();
+		jc.set("weight", 50);
+		
+		double result = evaluateRangesFromSpecificLimits(initTimeRange, finalTimeRange, 0.0, this.costScreenings, jc);
+		result += evaluateRangesFromSpecificLimits(initTimeRange, finalTimeRange, 0.0, this.costClinicalDiagnosis, jc);
+		result += evaluateRangesFromSpecificLimits(initTimeRange, finalTimeRange, 0.0, this.costTreatments, jc);
+		result += evaluateRangesFromSpecificLimits(initTimeRange, finalTimeRange, 0.0, this.costFollowUps, jc);
 		return result;
 	}
 

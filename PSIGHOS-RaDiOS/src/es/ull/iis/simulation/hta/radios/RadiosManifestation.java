@@ -33,10 +33,12 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	 * @throws JAXBException
 	 */
 	public RadiosManifestation(SecondOrderParamsRepository repository, Disease disease, Manifestation manifestation) throws JAXBException {
-		super(repository, manifestation.getName(), Constants.CONSTANT_EMPTY_STRING, disease, manifestation.getKind() != null ? Type.valueOf(manifestation.getKind()) : Type.ACUTE);
+		super(repository, manifestation.getName(), Constants.CONSTANT_EMPTY_STRING, disease, 
+				manifestation.getKind() != null ? Type.valueOf(manifestation.getKind()) : Type.ACUTE, 
+						ValueTransform.toDoubleValue(manifestation.getOnSetAge()), ValueTransform.toDoubleValue(manifestation.getEndAge()));
 		setManifestation(manifestation);
 	}
-
+	
 	/**
 	 * @param disease
 	 * @param manifestationName
@@ -66,7 +68,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 				getRepository().addProbParam(disease.getNullManifestation(), this, Constants.CONSTANT_EMPTY_STRING, 
 						probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 			} else {
-				double[][] datatableMatrix = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(manifestationProbability));
+				Object[][] datatableMatrix = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(manifestationProbability), repository);
 				transition.setCalculator(transition.new AgeBasedTimeToEventCalculator(datatableMatrix, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix)));
 			}
 			disease.addTransition(transition);
@@ -83,7 +85,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 					if (probabilityDistributionForTransition != null) {
 						repository.addProbParam(precManif, this,	Constants.CONSTANT_EMPTY_STRING, probabilityDistributionForTransition.getDeterministicValue(), probabilityDistributionForTransition.getProbabilisticValueInitializedForProbability());
 					} else {
-						double[][] datatableMatrix = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(transitionProbability));
+						Object[][] datatableMatrix = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(transitionProbability), repository);
 						transition.setCalculator(transition.new AgeBasedTimeToEventCalculator(datatableMatrix, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix)));
 					}
 					disease.addTransition(transition);
@@ -113,17 +115,28 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	 */
 	private void addParamDisutility() {
 		if (CollectionUtils.notIsEmpty(getManifestation().getUtilities())) {
-			String disutility = null;
+			String value = null;
+			Boolean isDisutility = false;
 			for (Utility utility : getManifestation().getUtilities()) {
-				if (Constants.DATAPROPERTYVALUE_KIND_UTILITY_DISUTILITY.equals(utility.getKind()) && Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE.equals(utility.getTemporalBehavior())) {
-					disutility = utility.getValue();
-					break;
+				if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE.equals(utility.getTemporalBehavior())) {
+					if (Constants.DATAPROPERTYVALUE_KIND_UTILITY_DISUTILITY.equals(utility.getKind())) {
+						value = utility.getValue();
+						isDisutility = true;
+						break;
+					} else if (Constants.DATAPROPERTYVALUE_KIND_UTILITY_UTILITY.equals(utility.getKind())) {
+						value = utility.getValue();
+						isDisutility = false;
+						break;
+					}
 				}
 			}
-			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(disutility);
-			if (probabilityDistribution != null) { 
-				getRepository().addDisutilityParam(this, "Utility for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(),
-						probabilityDistribution.getProbabilisticValue());
+			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(value);
+			if (probabilityDistribution != null) {
+				if (isDisutility) {
+					getRepository().addDisutilityParam(this, "Disutility for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+				} else {
+					getRepository().addUtilityParam(this, "Utility for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+				}
 			}
 		}
 	}

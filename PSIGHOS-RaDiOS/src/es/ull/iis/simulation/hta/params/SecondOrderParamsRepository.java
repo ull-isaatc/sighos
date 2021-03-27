@@ -721,19 +721,19 @@ public abstract class SecondOrderParamsRepository {
 	public String prettySavedParams() {
 		StringBuilder str = new StringBuilder();
 		for (SecondOrderParam param : probabilityParams.values()) {
-			str.append(param.getName()).append(": ").append(param.getValuesAsString()).append("\n");
+			str.append(param.getName()).append(" ::: ").append(param.getValuesAsString()).append("\n");
 		}			
 		for (SecondOrderParam param : costParams.values()) {
-			str.append(param.getName()).append(": ").append(param.getValuesAsString()).append("\n");
+			str.append(param.getName()).append(" ::: ").append(param.getValuesAsString()).append("\n");
 		}
 		for (SecondOrderParam param : utilParams.values()) {
-			str.append(param.getName()).append(": ").append(param.getValuesAsString()).append("\n");
+			str.append(param.getName()).append(" ::: ").append(param.getValuesAsString()).append("\n");
 		}
 		for (SecondOrderParam param : otherParams.values()) {
-			str.append(param.getName()).append(": ").append(param.getValuesAsString()).append("\n");
+			str.append(param.getName()).append(" ::: ").append(param.getValuesAsString()).append("\n");
 		}
 		for (SecondOrderParam param : modificationParams.values()) {
-			str.append(param.getName()).append(": ").append(param.getValuesAsString()).append("\n");
+			str.append(param.getName()).append(" ::: ").append(param.getValuesAsString()).append("\n");
 		}
 		return str.toString();
 	}

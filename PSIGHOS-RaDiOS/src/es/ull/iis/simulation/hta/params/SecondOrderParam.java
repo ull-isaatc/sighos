@@ -85,12 +85,10 @@ public class SecondOrderParam {
 
 	public String getValuesAsString () {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < generatedValues.length; i++) {
-			if (!Double.isNaN(generatedValues[i])) {
-				sb.append(generatedValues[i]).append(" ");	
-			}			
+		if (!Double.isNaN(generatedValues[0])) {
+			sb.append(generatedValues[0]).append(" :::");	
 		}			
-		sb.append(" - Distribution => ").append(rnd.toString()).append(" ");	
+		sb.append(" ").append(rnd.toString()).append(" ");	
 		return sb.toString();		
 	}
 	

@@ -18,7 +18,8 @@
           "name" : "#SCD_Disutility_Manif_HearingLoss",
           "kind" : "DISUTILITY",
           "value" : "0.14#NORMAL(0.14,0.19)",
-          "calculateMethod" : "MIN"
+          "calculateMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
         } ],
         "precedingManifestations" : [ {
           "name" : "#SCD_Manif_Meningitis",
@@ -48,7 +49,8 @@
                   "name" : "#SCD_Utility_Disease_NoSevere",
                   "kind" : "UTILITY",
                   "value" : "0.9",
-                  "calculateMethod" : "MIN"
+                  "calculateMethod" : "MIN",
+                  "temporalBehavior" : "ANNUAL"
                 } ]
               } ],
               "costs" : [ {
@@ -68,7 +70,8 @@
                   "name" : "#SCD_Utility_Disease_NoSevere",
                   "kind" : "UTILITY",
                   "value" : "0.9",
-                  "calculateMethod" : "MIN"
+                  "calculateMethod" : "MIN",
+                  "temporalBehavior" : "ANNUAL"
                 } ]
               } ],
               "costs" : [ {
@@ -85,7 +88,8 @@
           "name" : "#SCD_Disutility_Manif_MentalRetardation",
           "kind" : "DISUTILITY",
           "value" : "0.41#NORMAL(0.41,0.27)",
-          "calculateMethod" : "MIN"
+          "calculateMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
         } ],
         "precedingManifestations" : [ {
           "name" : "#SCD_Manif_Meningitis",
@@ -107,7 +111,8 @@
                 "name" : "#SCD_Utility_Disease_NoSevere",
                 "kind" : "UTILITY",
                 "value" : "0.9",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -124,7 +129,8 @@
                 "name" : "#SCD_Utility_Disease_NoSevere",
                 "kind" : "UTILITY",
                 "value" : "0.9",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -157,7 +163,8 @@
                 "name" : "#SCD_Utility_Disease_NoSevere",
                 "kind" : "UTILITY",
                 "value" : "0.9",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -175,12 +182,14 @@
                 "name" : "#SCD_Disutility_Treatment_Transfusion",
                 "kind" : "DISUTILITY",
                 "value" : "0.125",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               }, {
                 "name" : "#SCD_Utility_Disease_NoSevere",
                 "kind" : "UTILITY",
                 "value" : "0.9",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -197,7 +206,8 @@
                 "name" : "#SCD_Utility_Disease_NoSevere",
                 "kind" : "UTILITY",
                 "value" : "0.9",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -215,7 +225,8 @@
                 "name" : "#SCD_Utility_Disease_Severe",
                 "kind" : "UTILITY",
                 "value" : "0.7",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -242,7 +253,8 @@
                 "name" : "#SCD_Utility_Disease_NoSevere",
                 "kind" : "UTILITY",
                 "value" : "0.9",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -260,12 +272,14 @@
                 "name" : "#SCD_Disutility_Treatment_Transfusion",
                 "kind" : "DISUTILITY",
                 "value" : "0.125",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               }, {
                 "name" : "#SCD_Utility_Disease_NoSevere",
                 "kind" : "UTILITY",
                 "value" : "0.9",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -282,7 +296,8 @@
                 "name" : "#SCD_Utility_Disease_NoSevere",
                 "kind" : "UTILITY",
                 "value" : "0.9",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -300,7 +315,8 @@
                 "name" : "#SCD_Utility_Disease_Severe",
                 "kind" : "UTILITY",
                 "value" : "0.7",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -326,7 +342,8 @@
                 "name" : "#SCD_Utility_Disease_Severe",
                 "kind" : "UTILITY",
                 "value" : "0.7",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -343,7 +360,8 @@
                 "name" : "#SCD_Utility_Disease_Severe",
                 "kind" : "UTILITY",
                 "value" : "0.7",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -360,7 +378,8 @@
                 "name" : "#SCD_Utility_Disease_Severe",
                 "kind" : "UTILITY",
                 "value" : "0.7",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -378,12 +397,14 @@
                 "name" : "#SCD_Disutility_Treatment_Transfusion",
                 "kind" : "DISUTILITY",
                 "value" : "0.125",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               }, {
                 "name" : "#SCD_Utility_Disease_Severe",
                 "kind" : "UTILITY",
                 "value" : "0.7",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -401,6 +422,7 @@
         } ]
       }, {
         "name" : "#SCD_Manif_Stroke_Dependence_Recurrent",
+        "kind" : "CHRONIC",
         "mortalityFactor" : "GAMMA(39,1)",
         "precedingManifestations" : [ {
           "name" : "#SCD_Manif_Stroke_Recurrent",
@@ -425,7 +447,8 @@
                 "name" : "#SCD_Utility_Disease_Severe",
                 "kind" : "UTILITY",
                 "value" : "0.7",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -442,7 +465,8 @@
                 "name" : "#SCD_Utility_Disease_Severe",
                 "kind" : "UTILITY",
                 "value" : "0.7",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -459,7 +483,8 @@
                 "name" : "#SCD_Utility_Disease_Severe",
                 "kind" : "UTILITY",
                 "value" : "0.7",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {
@@ -477,12 +502,14 @@
                 "name" : "#SCD_Disutility_Treatment_Transfusion",
                 "kind" : "DISUTILITY",
                 "value" : "0.125",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               }, {
                 "name" : "#SCD_Utility_Disease_Severe",
                 "kind" : "UTILITY",
                 "value" : "0.7",
-                "calculateMethod" : "MIN"
+                "calculateMethod" : "MIN",
+                "temporalBehavior" : "ANNUAL"
               } ]
             } ],
             "costs" : [ {

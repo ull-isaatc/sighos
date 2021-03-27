@@ -104,7 +104,9 @@ public class Transition {
 	 */
 	public long getTimeToEvent(Patient pat, long limit) {
 		final long time = calc.getTimeToEvent(pat);
-		return (time >= limit) ? Long.MAX_VALUE : time;		
+		final double destFloorLimit = pat.getSimulation().getTimeUnit().convert(this.getDestManifestation().getOnSetAge(), TimeUnit.YEAR);		
+		final double destCeilLimit = pat.getSimulation().getTimeUnit().convert(this.getDestManifestation().getOnEndAge(), TimeUnit.YEAR);
+		return (time >= limit || (time < destFloorLimit || time > destCeilLimit)) ? Long.MAX_VALUE : time;		
 	}
 	
 	/**
@@ -157,11 +159,11 @@ public class Transition {
 	
 	public class AgeBasedTimeToEventCalculator implements TimeToEventCalculator {
 		/** Annual risks of the events */
-		private final double[][] ageRisks;
+		private final Object[][] ageRisks;
 		/** Relative risk calculator */
 		private final RRCalculator rr;
 		
-		public AgeBasedTimeToEventCalculator(final double[][] ageRisks, RRCalculator rr) {
+		public AgeBasedTimeToEventCalculator(final Object[][] ageRisks, RRCalculator rr) {
 			this.ageRisks = ageRisks;
 			this.rr = rr;			
 		}
@@ -175,17 +177,17 @@ public class Transition {
 			// Searches the corresponding age interval
 			int j = (ageRisks[0].length == 3) ? 1 : 0;
 			int interval = 0;
-			while (age > ageRisks[interval][j]) {
+			while (age > (Double) ageRisks[interval][j]) {
 				interval++;
 			}			
 			// Computes time to event within such interval
-			double time = Statistics.getAnnualBasedTimeToEvent(ageRisks[interval][j+1], getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
+			double time = Statistics.getAnnualBasedTimeToEvent((Double)ageRisks[interval][j+1], getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
 			
 			// Checks if further intervals compute lower time to event
 			for (; interval < ageRisks.length; interval++) {
-				final double newTime = Statistics.getAnnualBasedTimeToEvent(ageRisks[interval][j+1], getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
-				if ((newTime != Double.MAX_VALUE) && (ageRisks[interval][j] - age + newTime < time))
-					time = ageRisks[interval][j] - age + newTime;
+				final double newTime = Statistics.getAnnualBasedTimeToEvent((Double) ageRisks[interval][j+1], getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
+				if ((newTime != Double.MAX_VALUE) && ((Double) ageRisks[interval][j] - age + newTime < time))
+					time = (Double) ageRisks[interval][j] - age + newTime;
 			}
 			return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 		}

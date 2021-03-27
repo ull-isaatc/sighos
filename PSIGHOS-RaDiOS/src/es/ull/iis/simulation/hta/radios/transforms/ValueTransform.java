@@ -13,6 +13,8 @@ import es.ull.iis.ontology.radios.xml.datatables.ColumnType;
 import es.ull.iis.ontology.radios.xml.datatables.ContentKind;
 import es.ull.iis.ontology.radios.xml.datatables.Datatable;
 import es.ull.iis.ontology.radios.xml.datatables.RowType;
+import es.ull.iis.simulation.hta.params.SecondOrderParam;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -73,28 +75,54 @@ public class ValueTransform {
 	 * @param datatable Radios datatable transformed.
 	 * @return Matrix of values.
 	 */
-	public static double[][] rangeDatatableToMatrix (Datatable datatable) {
-		double[][] result = null; 
+	public static Object[][] rangeDatatableToMatrix (Datatable datatable, SecondOrderParamsRepository repository) {
+		Object[][] result = null; 
 		if (datatable != null) {
 			List<RowType> rows = datatable.getContent().getRow();
 			if (CollectionUtils.notIsEmpty(rows)) {
-				result = new double[rows.size()][3];
+				result = new Object[rows.size()][3];
 				for (int i = 0; i < rows.size(); i++) {
 					for (ColumnType column : rows.get(i).getColumn()) {						
 						if (ContentKind.RANGE.equals(column.getType())) {
 							Pattern pattern = Pattern.compile(REGEX_RANGE);
 							Matcher matcher = pattern.matcher(column.getValue());
 							if (matcher.find()) {
-								result[i][0] = new Double(matcher.group(1).replace(",", ".")); 
+								result[i][0] = new Double(matcher.group(1).replace(",", "."));
 								result[i][1] = new Double(matcher.group(3).replace(",", "."));
 							}
 						} else if (ContentKind.NUMBER.equals(column.getType())) {
-							result[i][2] = (!StringUtils.isEmpty(column.getValue()) ? new Double(column.getValue().replace(",", ".")) : 0.0);
+							String str = Constants.CONSTANT_EMPTY_STRING;
+							result[i][2] = (!StringUtils.isEmpty(column.getValue()) ? new SecondOrderParam(repository, str, str, str, new Double(column.getValue().replace(",", "."))) : 0.0);
+						} else if (ContentKind.NUMBER_DISTRO.equals(column.getType())) {
+							ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(column.getValue());
+							if (probabilityDistribution != null) {
+								String str = Constants.CONSTANT_EMPTY_STRING;
+								result[i][2] = (!StringUtils.isEmpty(column.getValue()) ?
+										new SecondOrderParam(repository, str, str, str, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue()) : 0.0);
+							}
 						}
 					}
 				}
 			}
 		}		
+		return result;
+	}
+	
+	/**
+	 * @param strValue
+	 * @return
+	 */
+	public static Double toDoubleValue (String strValue) {
+		if (strValue == null) {
+			return null;
+		}
+		
+		Double result = null;
+		try {
+			result = Double.parseDouble(strValue);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return result;
 	}
 }

@@ -28,7 +28,6 @@ import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
-import es.ull.iis.simulation.hta.progression.Transition;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.simpletest.NullIntervention;
 import es.ull.iis.simulation.hta.simpletest.TestNotDiagnosedPopulation;
