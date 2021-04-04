@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.populations;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
+import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.PatientProfile;
 import es.ull.iis.simulation.hta.progression.Disease;
 
@@ -17,7 +18,7 @@ public interface Population extends CreatesSecondOrderParameters {
 	 * Returns a patient profile with characteristics generated according to the population
 	 * @return a patient profile with characteristics generated according to the population
 	 */
-	public PatientProfile getPatientProfile();
+	public PatientProfile getPatientProfile(DiseaseProgressionSimulation simul);
 	/**
 	 * Returns the minimum age for the patients
 	 * @return the minimum age for the patients
@@ -32,6 +33,6 @@ public interface Population extends CreatesSecondOrderParameters {
 	 * Creates and returns the probability of having a disease according to the population characteristics.
 	 * @return the probability of having a disease according to the population characteristics
 	 */
-	public double getPDisease();
+	public double getPDisease(DiseaseProgressionSimulation simul);
 	public Disease getDisease();
 }

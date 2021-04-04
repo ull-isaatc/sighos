@@ -56,6 +56,8 @@ public abstract class SecondOrderParamsRepository {
 	public static final String STR_RR_PREFIX = "RR_";
 	/** String prefix for Increased Mortality Rate parameters */
 	public static final String STR_IMR_PREFIX = "IMR_";
+	/** String prefix for Life expectancy reduction parameters */
+	public static final String STR_LER_PREFIX = "LER_";
 	/** String prefix for cost parameters */
 	public static final String STR_COST_PREFIX = "C_";
 	/** String prefix for transition (one-time) cost parameters */
@@ -421,6 +423,20 @@ public abstract class SecondOrderParamsRepository {
 		final String paramName = STR_IMR_PREFIX + stage.name();
 		otherParams.put(paramName, new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
+
+	/**
+	 * Adds a parameter that represents the life expectancy reduction (LER) associated to a complication or complication stage 
+	 * @param stage A complication or complication stage
+	 * @param description Full description of the parameter
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param detValue Deterministic/expected value
+	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 */
+	public void addLERParam(Named stage, String description, String source, double detValue, RandomVariate rnd) {
+		final String paramName = STR_LER_PREFIX + stage.name();
+		otherParams.put(paramName, new SecondOrderParam(this, paramName, description, source, detValue, rnd));
+	}
+
 	/**
 	 * Adds a miscellaneous parameter
 	 * @param param Miscellanous parameter
@@ -448,7 +464,8 @@ public abstract class SecondOrderParamsRepository {
 	 * @param name String identifier of the cost parameter
 	 * @return A value for the specified cost parameter; {@link Double#NaN} in case the parameter is not defined
 	 */
-	public double getCostParam(String name, int id) {
+	public double getCostParam(String name, DiseaseProgressionSimulation simul) {
+		final int id = simul.getIdentifier();
 		final SecondOrderParam param = costParams.get(name);
 		return (param == null) ? Double.NaN : param.getValue(id); 
 	}
@@ -520,6 +537,15 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public double getIMR(Named stage, DiseaseProgressionSimulation simul) {
 		return getOtherParam(STR_IMR_PREFIX + stage.name(), 1.0, simul);
+	}
+	
+	/**
+	 * Returns the life expectancy reduction associated to a complication or complication stage
+	 * @param stage Complication or complication stage
+	 * @return the life expectancy reduction associated to a complication or complication stage
+	 */
+	public double getLER(Named stage, DiseaseProgressionSimulation simul) {
+		return getOtherParam(STR_LER_PREFIX + stage.name(), 0.0, simul);
 	}
 	
 	/**

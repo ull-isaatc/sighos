@@ -8,6 +8,7 @@ import java.util.Arrays;
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.BernoulliParam;
 import es.ull.iis.simulation.hta.params.MultipleBernoulliParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -37,8 +38,8 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	private int ord = -1;
 	private final Type type;
 	
-	private double onSetAge;
-	private double onEndAge;
+	private double onsetAge;
+	private double endAge;
 	
 	/** Probability that a patient starts in this stage */
 	private final BernoulliParam[] pInit;
@@ -56,19 +57,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	 * @param type The {@link Type} of the manifestation
 	 */
 	public Manifestation(SecondOrderParamsRepository secParams, String name, String description, Disease disease, Type type) {
-		this.secParams = secParams;
-		this.name = name;
-		this.description = description;
-		this.disease = disease;
-		this.type = type;
-		pInit = new BernoulliParam[secParams.getnRuns() + 1];
-		Arrays.fill(pInit, null);
-		associatedDeath = new MultipleBernoulliParam[secParams.getnRuns() + 1];
-		Arrays.fill(associatedDeath, null);
-		pDiagnose = new MultipleBernoulliParam[secParams.getnRuns() + 1];
-		Arrays.fill(pDiagnose, null);
-		this.onSetAge = 0;
-		this.onEndAge = Double.MAX_VALUE;
+		this(secParams, name, description, disease, type, 0.0, (double)BasicConfigParams.DEF_MAX_AGE);
 	}
 	
 	/**
@@ -79,7 +68,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	 * @param disease Main chronic complication
 	 * @param type The {@link Type} of the manifestation
 	 */
-	public Manifestation(SecondOrderParamsRepository secParams, String name, String description, Disease disease, Type type, Double onSetAge, Double onEndAge) {
+	public Manifestation(SecondOrderParamsRepository secParams, String name, String description, Disease disease, Type type, Double onsetAge, Double endAge) {
 		this.secParams = secParams;
 		this.name = name;
 		this.description = description;
@@ -91,8 +80,8 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		Arrays.fill(associatedDeath, null);
 		pDiagnose = new MultipleBernoulliParam[secParams.getnRuns() + 1];
 		Arrays.fill(pDiagnose, null);
-		this.onSetAge = (onSetAge != null) ? onSetAge : 0.0;
-		this.onEndAge = (onEndAge != null) ? onEndAge : Double.MAX_VALUE;
+		this.onsetAge = (onsetAge != null) ? onsetAge : 0.0;
+		this.endAge = (endAge != null) ? endAge : BasicConfigParams.DEF_MAX_AGE;
 	}
 	
 	/**
@@ -131,17 +120,17 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	}
 	
 	/**
-	 * @return the onEndAge
+	 * @return the endAge
 	 */
-	public double getOnEndAge() {
-		return onEndAge;
+	public double getEndAge() {
+		return endAge;
 	}
 	
 	/**
-	 * @return the onSetAge
+	 * @return the onsetAge
 	 */
-	public double getOnSetAge() {
-		return onSetAge;
+	public double getOnsetAge() {
+		return onsetAge;
 	}
 	
 	/**

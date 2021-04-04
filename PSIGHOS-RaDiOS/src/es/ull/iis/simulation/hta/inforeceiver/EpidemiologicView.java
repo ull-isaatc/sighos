@@ -200,6 +200,10 @@ public class EpidemiologicView implements ExperimentListener {
 				switch(pInfo.getType()) {
 					case START:
 						nAlivePatients[interval]++;
+						if (!patientDisease[pInfo.getPatient().getDisease().ordinal()][pInfo.getPatient().getIdentifier()]) {
+							patientDisease[pInfo.getPatient().getDisease().ordinal()][pInfo.getPatient().getIdentifier()] = true;
+							nDisease[pInfo.getPatient().getDisease().ordinal()][interval]++;
+						}
 						break;
 					case MANIFESTATION:
 						nManifestation[pInfo.getManifestation().ordinal()][interval]++;

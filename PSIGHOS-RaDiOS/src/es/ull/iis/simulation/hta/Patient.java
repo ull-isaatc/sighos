@@ -66,7 +66,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.intervention = intervention;
 		this.clonedFrom = null;
 		this.dead = false;
-		this.profile = population.getPatientProfile();
+		this.profile = population.getPatientProfile(simul);
 		this.diagnosed = profile.isDiagnosedFromStart();
 		this.detailedState = new TreeSet<>();
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);

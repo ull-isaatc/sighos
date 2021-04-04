@@ -26,7 +26,7 @@ public class Transition {
 	private final Manifestation destManifestation;
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
-	/** Indicates whether the destination manifestation of this transition replaces the source destination in the state of the patient */
+	/** Indicates whether the destination manifestation of this transition replaces the source manifestation in the state of the patient */
 	private final boolean replacesPrevious;
 	private final RandomSeedForPatients[] randomSeeds;
 	private TimeToEventCalculator calc;
@@ -88,11 +88,15 @@ public class Transition {
 		}
 	}
 	
-	public RandomSeedForPatients getRandomSeedForPatients(int id) {
+	public RandomSeedForPatients getRandomSeedForPatients(int id, boolean logRandom) {		
 		if (randomSeeds[id] == null) {
-			randomSeeds[id] = new MultipleRandomSeedPerPatient(secParams.getnPatients(), true);
+			randomSeeds[id] = new MultipleRandomSeedPerPatient(secParams.getnPatients(), logRandom);
 		}
 		return randomSeeds[id];
+	}
+	
+	public RandomSeedForPatients getRandomSeedForPatients(int id) {
+		return getRandomSeedForPatients(id, true);
 	}
 	
 	/**
@@ -104,9 +108,7 @@ public class Transition {
 	 */
 	public long getTimeToEvent(Patient pat, long limit) {
 		final long time = calc.getTimeToEvent(pat);
-		final double destFloorLimit = pat.getSimulation().getTimeUnit().convert(this.getDestManifestation().getOnSetAge(), TimeUnit.YEAR);		
-		final double destCeilLimit = pat.getSimulation().getTimeUnit().convert(this.getDestManifestation().getOnEndAge(), TimeUnit.YEAR);
-		return (time >= limit || (time < destFloorLimit || time > destCeilLimit)) ? Long.MAX_VALUE : time;		
+		return (time >= limit) ? Long.MAX_VALUE : time;		
 	}
 	
 	/**
@@ -190,6 +192,36 @@ public class Transition {
 					time = (Double) ageRisks[interval][j] - age + newTime;
 			}
 			return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+		}
+	}
+	
+	public class ProportionBasedTimeToEventCalculator implements TimeToEventCalculator {
+		public ProportionBasedTimeToEventCalculator() {
+			
+		}
+
+		@Override
+		public long getTimeToEvent(Patient pat) {
+			final int id = pat.getSimulation().getIdentifier();
+			final double proportion = secParams.getProbability(srcManifestation, destManifestation, pat.getSimulation());
+			// The patient will suffer the problem
+			double rnd1 = getRandomSeedForPatients(id, false).draw(pat);
+//			System.out.println(rnd1);
+			if (proportion > rnd1) {
+				final double age = pat.getAge();
+				final double deathAge = pat.getAgeAtDeath();
+				// Gets another random number
+				final double rnd = getRandomSeedForPatients(id, false).draw(pat);
+				// Only if lifetime of the patient is compatible with the manifestation
+				if (destManifestation.getEndAge() > age && destManifestation.getOnsetAge() < deathAge) {
+					final double minRef = Math.max(age, destManifestation.getOnsetAge());
+					final double maxRef = Math.min(deathAge, destManifestation.getEndAge());
+					final double time = rnd * (maxRef - minRef);
+//					System.out.println(pat + "\t" + time + "\t" + age + "\t" + deathAge + "\t" + rnd + "\t" + minRef + "\t" + maxRef);
+					return pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+				}
+			}				
+			return Long.MAX_VALUE;
 		}
 	}
 }

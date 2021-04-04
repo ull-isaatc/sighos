@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
+import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -51,18 +52,24 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	 */
 	@Override
 	public long getTimeToDeath(Patient pat) {
-		final int simulId = pat.getSimulation().getIdentifier();
+		final DiseaseProgressionSimulation simul = pat.getSimulation();
+		final int simulId = simul.getIdentifier();
 		final double age = pat.getAge();
 		// Taking into account modification of death due to the intervention
 		final Modification modif = pat.getIntervention().getLifeExpectancyModification();
 		if (Modification.Type.SET.equals(modif.getType()))
-			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(modif.getValue(simulId) - age, TimeUnit.YEAR);
+			return pat.getTs() + simul.getTimeUnit().convert(modif.getValue(simulId) - age, TimeUnit.YEAR);
 		
 		double imr = 1.0;
+		double ler = 0.0;
 		for (final Manifestation state : pat.getDetailedState()) {
-			final double newIMR = secParams.getIMR(state, pat.getSimulation());
+			final double newIMR = secParams.getIMR(state, simul);
 			if (newIMR > imr) {
 				imr = newIMR;
+			}
+			final double newLER = secParams.getLER(state, simul);
+			if (newLER > ler) {
+				ler = newLER;
 			}
 		}
 		// TODO: Check that this works properly
@@ -72,8 +79,8 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 		final double time = Math.min(GompertzVariate.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), rnd[simulId][pat.getIdentifier()] / imr), BasicConfigParams.DEF_MAX_AGE - age);
 		// TODO: Check that this works properly
 		if (Modification.Type.DIFF.equals(modif.getType())) {
-			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(Math.max(0.0,  Math.min(time - modif.getValue(simulId), BasicConfigParams.DEF_MAX_AGE - age)), TimeUnit.YEAR);			
+			return pat.getTs() + simul.getTimeUnit().convert(Math.max(0.0,  Math.min(time - modif.getValue(simulId) - ler, BasicConfigParams.DEF_MAX_AGE - age)), TimeUnit.YEAR);			
 		}
-		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
+		return pat.getTs() + simul.getTimeUnit().convert(Math.max(0.0, time - ler), TimeUnit.YEAR);
 	}
 }

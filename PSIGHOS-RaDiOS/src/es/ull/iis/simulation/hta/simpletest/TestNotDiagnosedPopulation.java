@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
+import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -24,17 +25,17 @@ public class TestNotDiagnosedPopulation extends StdPopulation {
 	}
 
 	@Override
-	protected double getPMan() {
+	protected double getPMan(DiseaseProgressionSimulation simul) {
 		return 0.5;
 	}
 
 	@Override
-	protected RandomVariate getBaselineAge() {
+	protected RandomVariate getBaselineAge(DiseaseProgressionSimulation simul) {
 		return RandomVariateFactory.getInstance("ConstantVariate", 0.0);
 	}
 
 	@Override
-	public double getPDisease() {
+	public double getPDisease(DiseaseProgressionSimulation simul) {
 		return BIRTH_PREVALENCE;
 	}
 
@@ -43,7 +44,7 @@ public class TestNotDiagnosedPopulation extends StdPopulation {
 	}
 
 	@Override
-	protected double getPDiagnosed() {
+	protected double getPDiagnosed(DiseaseProgressionSimulation simul) {
 		return 0.0;
 	}
 
