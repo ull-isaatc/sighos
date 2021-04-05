@@ -30,6 +30,7 @@ public class MentalDelayManifestation extends Manifestation {
 		secParams.addTransitionCostParam(this, "Punctual cost for " + this, "Test", COST_YEAR, DIAGNOSTIC_COST, SecondOrderParamsRepository.getRandomVariateForCost(DIAGNOSTIC_COST));		
 		secParams.addCostParam(this, "Annual cost for " + this, "Test", COST_YEAR, ANNUAL_COST, SecondOrderParamsRepository.getRandomVariateForCost(ANNUAL_COST));
 		secParams.addLERParam(this, "Life expectancy reduction for mental delay", "", 9.6, RandomVariateFactory.getInstance("GammaVariate", 25, 0.38));
+		secParams.addDiagnosisProbParam(this, "Assumption", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));
 	}
 
 }

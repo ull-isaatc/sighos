@@ -154,6 +154,11 @@ public abstract class SecondOrderParamsRepository {
 			public double getDiagnosisCost(Patient pat) {
 				return 0;
 			}
+
+			@Override
+			public double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge) {
+				return 0;
+			}
 		};
 		this.NO_MODIF = new Modification(this, Modification.Type.DIFF, "NOMOD", "Null modification", "", 0.0);
 	}

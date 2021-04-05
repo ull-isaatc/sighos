@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.StagedDisease;
@@ -34,5 +35,15 @@ public class TestRareDisease2 extends StagedDisease {
 	@Override
 	public void registerSecondOrderParameters() {
 		secParams.addProbParam(getNullManifestation(), acuteManif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+	}
+
+	@Override
+	public double getDiagnosisCost(Patient pat) {
+		return 0;
+	}
+
+	@Override
+	public double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge) {
+		return 0;
 	}
 }

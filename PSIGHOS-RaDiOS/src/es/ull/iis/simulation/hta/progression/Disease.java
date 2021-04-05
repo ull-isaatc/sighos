@@ -195,6 +195,15 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	public abstract double getDiagnosisCost(Patient pat);
 	
 	/**
+	 * Returns the treatment and follow up costs for this disease during the defined period (adjusted for a full year). These costs should only be applied to diagnosed patients 
+	 * @param pat A patient
+	 * @param initAge Starting time of the period (in years)
+	 * @param endAge Ending time of the period
+	 * @return the treatment and follow up costs for this disease
+	 */
+	public abstract double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge);
+	
+	/**
 	 * Returns the disutility value associated to the current stage of this chronic complication
 	 * @param pat A patient
 	 * @param method Method used to compute the disutility of this chronic complication in case the 

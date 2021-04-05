@@ -84,14 +84,11 @@ public abstract class StagedDisease extends Disease {
 		for (final Manifestation manif : pat.getDetailedState()) {
 			cost += secParams.getCostsForManifestation(manif, pat.getSimulation().getIdentifier())[0];
 		}
+		if (pat.isDiagnosed())
+			cost += getAnnualTreatmentAndFollowUpCosts(pat, initAge, endAge);
 		return cost;
 	}
 
-	@Override
-	public double getDiagnosisCost(Patient pat) {
-		return 0;
-	}
-	
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.hta.progression.Disease#getDisutility(es.ull.iis.simulation.hta.Patient, es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod)
 	 */

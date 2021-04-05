@@ -17,7 +17,11 @@ import simkit.random.RandomVariateFactory;
  */
 public class PBDDisease extends StagedDisease {
 	final private static double DIAGNOSIS_COST = 509.65;
-	final private static String STR_DIAGNOSIS = SecondOrderParamsRepository.STR_COST_PREFIX + "DiagnosticPBD";
+	final private static double TREATMENT_COST = 66.2475;
+	final private static double FOLLOW_UP_COST = 616.75672;
+	final private static String STR_C_DIAGNOSIS = SecondOrderParamsRepository.STR_COST_PREFIX + "DiagnosticPBD";
+	final private static String STR_C_TREATMENT = SecondOrderParamsRepository.STR_COST_PREFIX + "TreatmentPBD";
+	final private static String STR_C_FOLLOW_UP = SecondOrderParamsRepository.STR_COST_PREFIX + "FollowUpPBD";
 	final private Manifestation skinProblems;
 	final private Manifestation hypotonia;
 	final private Manifestation seizures;
@@ -60,11 +64,18 @@ public class PBDDisease extends StagedDisease {
 		secParams.addProbParam(getNullManifestation(), visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
 		secParams.addProbParam(getNullManifestation(), hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
 		secParams.addProbParam(getNullManifestation(), mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
-		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_DIAGNOSIS, "Cost of diagnosing PBD", "", 2013, DIAGNOSIS_COST));
+		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_DIAGNOSIS, "Cost of diagnosing PBD", "", 2013, DIAGNOSIS_COST));
+		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_TREATMENT, "Cost of treating PBD", "", 2013, TREATMENT_COST));
+		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_FOLLOW_UP, "Cost of following up PBD", "", 2013, FOLLOW_UP_COST));
 	}
 
 	@Override
 	public double getDiagnosisCost(Patient pat) {
-		return secParams.getCostParam(STR_DIAGNOSIS, pat.getSimulation());
+		return secParams.getCostParam(STR_C_DIAGNOSIS, pat.getSimulation());
+	}
+
+	@Override
+	public double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge) {
+		return secParams.getCostParam(STR_C_TREATMENT, pat.getSimulation()) + secParams.getCostParam(STR_C_FOLLOW_UP, pat.getSimulation());
 	}
 }
