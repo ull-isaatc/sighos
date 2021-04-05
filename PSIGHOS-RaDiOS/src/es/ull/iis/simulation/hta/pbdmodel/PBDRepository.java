@@ -25,7 +25,7 @@ public class PBDRepository extends SecondOrderParamsRepository {
 	 * @param nRuns
 	 * @param nPatients
 	 */
-	public PBDRepository(int nRuns, int nPatients) {
+	public PBDRepository(int nRuns, int nPatients, boolean allAffected) {
 		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, 0.8861);
@@ -33,7 +33,7 @@ public class PBDRepository extends SecondOrderParamsRepository {
 		// FIXME: ¿Deberíamos hacer esto siempre?
 		registerDisease(HEALTHY);
 		registerDisease(dis);
-		registerPopulation(new PBDPopulation(this, dis));
+		registerPopulation(new PBDPopulation(this, dis, allAffected));
 		registerIntervention(new NullIntervention(this));
 		registerIntervention(new PBDNewbornScreening(this, dis));
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));

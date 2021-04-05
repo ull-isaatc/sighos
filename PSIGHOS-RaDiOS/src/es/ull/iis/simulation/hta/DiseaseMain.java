@@ -371,7 +371,10 @@ public class DiseaseMain {
 	        SecondOrderParamsRepository secParams = null;
 	        switch (args1.population) {
 	        case 2:
-	        	secParams = new PBDRepository(args1.nRuns, args1.nPatients);
+	        	secParams = new PBDRepository(args1.nRuns, args1.nPatients, false);
+	        	break;
+	        case 3:
+	        	secParams = new PBDRepository(args1.nRuns, args1.nPatients, true);
 	        	break;
 	        case 1:
 	    		System.out.println(String.format("\n\nEjecutanto test de RADIOS para la enfermedad [%d] \n\n", args1.disease));
@@ -477,7 +480,7 @@ public class DiseaseMain {
 		private int nRuns = BasicConfigParams.N_RUNS;
 		@Parameter(names ={"--horizon", "-h"}, description = "Time horizon for the simulation (years)", order = 3)
 		private int timeHorizon = -1;
-		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (0: Test; 1: RaDiOS)", order = 8)
+		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (0: Test; 1: RaDiOS; 2: Programatic PBD; 3: Programatic PBD - all affected - )", order = 8)
 		private int population = 0;
 		@Parameter(names = {"--discount", "-dr"}, variableArity = true, 
 				description = "The discount rate to be applied. If more than one value is provided, the first one is used for costs, and the second for effects. Default value is " + BasicConfigParams.DEF_DISCOUNT_RATE, order = 7)

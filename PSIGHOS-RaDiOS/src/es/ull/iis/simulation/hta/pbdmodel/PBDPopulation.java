@@ -18,12 +18,13 @@ import simkit.random.RandomVariateFactory;
 public class PBDPopulation extends StdPopulation {
 	private static final double BIRTH_PREVALENCE = 1.47884E-05;
 	private static final String STR_BIRTH_PREV = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "BIRTH_PREVALENCE";
-
+	private final boolean allAffected;
 	/**
 	 * @param disease
 	 */
-	public PBDPopulation(SecondOrderParamsRepository secParams, Disease disease) {
+	public PBDPopulation(SecondOrderParamsRepository secParams, Disease disease, boolean allAffected) {
 		super(secParams, disease);
+		this.allAffected = allAffected;
 	}
 
 	@Override
@@ -38,12 +39,13 @@ public class PBDPopulation extends StdPopulation {
 
 	@Override
 	public double getPDisease(DiseaseProgressionSimulation simul) {
-		return secParams.getProbParam(STR_BIRTH_PREV, simul);
+		return (allAffected ? 1.0 : secParams.getProbParam(STR_BIRTH_PREV, simul));
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(
+		if (!allAffected)
+			secParams.addProbParam(
 				new SecondOrderParam(secParams, STR_BIRTH_PREV, "Birth prevalence", "", 
 				BIRTH_PREVALENCE, RandomVariateFactory.getInstance("BetaVariate", 8, 540955)));
 	}
