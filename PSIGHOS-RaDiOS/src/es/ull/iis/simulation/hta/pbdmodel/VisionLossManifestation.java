@@ -22,7 +22,7 @@ public class VisionLossManifestation extends Manifestation {
 	 * @param disease
 	 */
 	public VisionLossManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "V_LOSS", "Vision loss", disease, Type.CHRONIC, 1.0, 2.0);
+		super(secParams, "#PBD_ManifestationVisionLoss", "Vision loss", disease, Type.CHRONIC, 1.0, 2.0);
 	}
 
 	@Override

@@ -20,8 +20,11 @@ import es.ull.iis.ontology.radios.json.schema4simulation.Treatment;
 import es.ull.iis.ontology.radios.json.schema4simulation.TreatmentStrategy;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.radios.NewbornGuideline;
+import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
+import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
+import simkit.random.RandomVariate;
 
 /**
  * @author David Prieto González
@@ -50,9 +53,6 @@ public class CostUtils {
 			Double floorLimit = getFloorLimitRange(matcher);
 			Double floorLimitInYears = toYears(getFloorLimitRange(matcher), floorLimitUnit.toLowerCase());
 			value.setFloorLimitRange(floorLimitInYears);
-			if (floorLimitInYears > timeHorizont) {
-				return false;
-			}
 			
 			if (preffixRange != null) {
 				if ("&".equals(preffixRange)) {
@@ -67,10 +67,10 @@ public class CostUtils {
 					}
 				}
 			} else {
-				Double ceilLimitInYears = (timeHorizont != null) ? timeHorizont.doubleValue() : null;
+				Double ceilLimitInYears = 1000.0;
 				if (matcher.group(4) != null) {
 					String ceilLimitUnit = matcher.group(5);
-					ceilLimitInYears = toYears(Double.valueOf(matcher.group(4)) > timeHorizont ? timeHorizont : Double.valueOf(matcher.group(4)), ceilLimitUnit);
+					ceilLimitInYears = toYears(Double.valueOf(matcher.group(4)), ceilLimitUnit);
 				}
 				value.setCeilLimitRange(ceilLimitInYears);
 
@@ -206,7 +206,7 @@ public class CostUtils {
 			for (Cost cost : costsItem) {
 				if (CollectionUtils.notIsEmpty(guidelines)) {
 					for (Guideline guideline : guidelines) {
-						updateCostMatrix(costs, strategyName, itemName, cost.getAmount(), guideline, timeHorizont);
+						updateCostMatrix(costs, strategyName, itemName, cost.getAmount(), guideline, timeHorizont, Integer.parseInt(cost.getYear()));
 					}
 				} else {
 					if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equalsIgnoreCase(cost.getTemporalBehavior())) {
@@ -227,11 +227,15 @@ public class CostUtils {
 	 * @param timeHorizont
 	 * @return
 	 */
-	public static Matrix updateCostMatrix(Matrix costs, String strategyName, String itemName, String costItem, Guideline guideline, Integer timeHorizont) {
+	public static Matrix updateCostMatrix(Matrix costs, String strategyName, String itemName, String costItem, Guideline guideline, Integer timeHorizont, Integer costYear) {
 		Boolean parseRange = true;
 		CostMatrixElement value = new CostMatrixElement();
 
-		value.setCost(Double.valueOf(costItem));		
+		value.setYear(costYear);		
+		
+		ProbabilityDistribution probabilityDistributionForCost = ValueTransform.splitProbabilityDistribution(costItem);
+		value.setCost(probabilityDistributionForCost.getDeterministicValue());		
+		value.setDistribution(probabilityDistributionForCost.getProbabilisticValue());
 		String[] ranges = getRangesSplitted(guideline);
 		String[] frequencies = getFrequenciesSplitted(guideline, timeHorizont, ranges);
 		Double nTimesToDay = getNumberOfDaysForDose(guideline);
@@ -260,7 +264,7 @@ public class CostUtils {
 		} else {
 			costs.put(strategyName, itemName, Arrays.asList(value));
 		}
-			
+		
 		return costs;
 	}
 
@@ -337,6 +341,9 @@ public class CostUtils {
 						updateMatrixWithCostAndGuidelines(costs, manifestationName, drug.getName(), drug.getCosts(), drug.getGuidelines(), timeHorizont);
 					}
 				}
+				if (strategy.getCosts() != null) {
+					updateMatrixWithCostAndGuidelines(costs, manifestationName, strategy.getName(), strategy.getCosts(), strategy.getGuidelines(), timeHorizont);
+				}
 			}
 		}
 	}
@@ -352,6 +359,9 @@ public class CostUtils {
 				for (FollowUp item : strategy.getFollowUps()) {
 					updateMatrixWithCostAndGuidelines(costs, manifestationName, item.getName(), item.getCosts(), item.getGuidelines(), timeHorizont);
 				}
+				if (strategy.getCosts() != null) {
+					updateMatrixWithCostAndGuidelines(costs, manifestationName, strategy.getName(), strategy.getCosts(), strategy.getGuidelines(), timeHorizont);
+				}
 			}
 		}
 	}
@@ -359,15 +369,86 @@ public class CostUtils {
 	/**
 	 * Show intervention cost matrix
 	 */
-	public static void showCostMatrix(Matrix costs, String prefix) {
+	public static String showCostMatrix(Matrix costs, String prefix) {
+		StringBuffer sb = new StringBuffer();
 		for (String keyR : costs.keySetR()) {
-			System.out.println(String.format("%s%s:", prefix, keyR));
+			sb.append(String.format("%s%s:\n", prefix, keyR));
 			for (String keyC : costs.keySetC(keyR)) {
-				System.out.println(String.format("%s%s:", prefix + "\t", keyC));
+				sb.append(String.format("%s%s:\n", prefix + "\t", keyC));
 				for (CostMatrixElement e : costs.get(keyR, keyC)) {
-					System.out.println(e.toString(prefix + "\t\t"));
+					sb.append(e.toString(prefix + "\t\t"));
 				}
 			}
 		}
+		String result = sb.toString();
+		System.out.println(result);
+		return result;
 	}
+	
+	/**
+	 * For the biotidinase example, the estrada data are normalized to the same year. This method should discount the costs to pass 
+	 * them all to the same year if there are discrepancies.
+	 * 
+	 * @param costs
+	 * @return
+	 */
+	public static Object[] calculateAnnualCostFromMatrix (Matrix costs) {		
+		Integer year = 1900;
+		Double amount = 0.0;
+		List<RandomVariate> distributions = new ArrayList<>();
+		
+		for (String keyR : costs.keySetR()) {
+			for (String keyC : costs.keySetC(keyR)) {
+				for (CostMatrixElement e : costs.get(keyR, keyC)) {
+					// FIXME: for the example of biotidinase it would be valid but both things should be taken into account
+					if (e.getCondition() == null && e.getCostExpression() == null) { 
+						if (e.getFrequency() == 1.0) {
+							amount += e.getCost();
+							if (year == 1900) {
+								year = e.getYear();
+							}
+							distributions.add(e.getDistribution());
+						} else {
+							// TODO: the calculation would have to be made for when the frequency is not once a year.
+						}
+					}
+				}
+			}
+		}
+		
+		Object [] result = {year, amount, (distributions.size() == 1) ? distributions.get(0) : null};
+		return result;
+	}		
+
+	/**
+	 * @param costs
+	 * @return
+	 */
+	public static Object[] calculateOnetimeCostFromMatrix (Matrix costs) {		
+		Integer year = 1900;
+		Double amount = 0.0;
+		List<RandomVariate> distributions = new ArrayList<>();
+		
+		for (String keyR : costs.keySetR()) {
+			for (String keyC : costs.keySetC(keyR)) {
+				for (CostMatrixElement e : costs.get(keyR, keyC)) {
+					// FIXME: for the example of biotidinase it would be valid but both things should be taken into account
+					if (e.getCondition() == null && e.getCostExpression() == null) {
+						Double tmp = e.calculateNTimesInRange(0.0, 1000.0); 
+						if (tmp == 1.0) {							
+							amount += e.getCost();
+							if (year == 1900) {
+								year = e.getYear();
+							}
+							distributions.add(e.getDistribution());
+						}
+					}
+				}
+			}
+		}
+		
+		Object [] result = {year, amount, (distributions.size() == 1) ? distributions.get(0) : null};
+		return result;
+	}		
+
 }

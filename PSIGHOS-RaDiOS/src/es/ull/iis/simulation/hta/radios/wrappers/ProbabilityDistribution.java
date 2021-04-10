@@ -3,6 +3,7 @@ package es.ull.iis.simulation.hta.radios.wrappers;
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import simkit.random.RandomVariate;
+import simkit.random.RandomVariateFactory;
 
 public class ProbabilityDistribution {
 	private Double deterministicValue;
@@ -27,7 +28,11 @@ public class ProbabilityDistribution {
 
 	public RandomVariate getProbabilisticValueInitializedForProbability() {
 		if (probabilisticValue == null && deterministicValue != null) {
-			return SecondOrderParamsRepository.getRandomVariateForProbability(getDeterministicValue());
+			if (deterministicValue == 0.0 || deterministicValue == 1.0) {
+				return RandomVariateFactory.getInstance("ConstantVariate", getDeterministicValue());
+			} else {
+				return SecondOrderParamsRepository.getRandomVariateForProbability(getDeterministicValue());
+			}
 		}
 		return probabilisticValue;
 	}

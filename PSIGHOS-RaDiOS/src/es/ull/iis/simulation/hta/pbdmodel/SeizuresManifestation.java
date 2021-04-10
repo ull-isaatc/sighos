@@ -21,7 +21,7 @@ public class SeizuresManifestation extends Manifestation {
 	 * @param disease
 	 */
 	public SeizuresManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "SEIZ", "Seizures", disease, Type.CHRONIC, 0.0, 1.0);
+		super(secParams, "#PBD_ManifestationSeizure", "Seizures", disease, Type.CHRONIC, 0.0, 1.0);
 	}
 
 	@Override

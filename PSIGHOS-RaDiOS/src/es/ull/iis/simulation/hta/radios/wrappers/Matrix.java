@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import es.ull.iis.ontology.radios.Constants;
+import es.ull.iis.simulation.hta.radios.utils.CostUtils;
+
 public class Matrix {
 	private final Map<String, Map<String, List<CostMatrixElement>>> backingMap;
 
@@ -48,5 +51,10 @@ public class Matrix {
 			}
 		}
 		return cloned;		
+	}
+	
+	@Override
+	public String toString() {
+		return CostUtils.showCostMatrix(this, Constants.CONSTANT_EMPTY_STRING);
 	}
 }

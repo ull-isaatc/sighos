@@ -24,13 +24,12 @@ import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
+import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.simpletest.NullIntervention;
-import es.ull.iis.simulation.hta.simpletest.TestNotDiagnosedPopulation;
 
 /**
  * @author David Prieto González
@@ -53,10 +52,10 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	 * @throws JAXBException 
 	 * @throws TransformException 
 	 */
-	public RadiosRepository(int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
+	public RadiosRepository(int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont, boolean allAffected) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		super(nRuns, nPatients);
 
-		initialize(nRuns, nPatients, radiosDiseaseInstance, timeHorizont);
+		initialize(nRuns, nPatients, radiosDiseaseInstance, timeHorizont, allAffected);
 	}
 	
 	/**
@@ -72,13 +71,13 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	 * @throws JAXBException 
 	 * @throws TransformException 
 	 */
-	public RadiosRepository(int nRuns, int nPatients, String pathToRaDiOSJson, Integer timeHorizont) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
+	public RadiosRepository(int nRuns, int nPatients, String pathToRaDiOSJson, Integer timeHorizont, boolean allAffected) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		super(nRuns, nPatients);
 
 		mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).setSerializationInclusion(Include.NON_NULL).setSerializationInclusion(Include.NON_EMPTY);
 		Schema4Simulation radiosDiseaseInstance = mapper.readValue(new File(pathToRaDiOSJson), Schema4Simulation.class);
 
-		initialize(nRuns, nPatients, radiosDiseaseInstance, timeHorizont);
+		initialize(nRuns, nPatients, radiosDiseaseInstance, timeHorizont, allAffected);
 	}
 	
 	/**
@@ -89,21 +88,22 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	 * @throws TransformException
 	 * @throws JAXBException
 	 */
-	private void initialize (int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont) throws TransformException, JAXBException {
+	private void initialize (int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont, boolean allAffected) throws TransformException, JAXBException {
 		costCalc = new DiseaseCostCalculator(this);
-		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
+		// utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
+		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, 0.8861);
 
 		RadiosDisease disease = new RadiosDisease(this, radiosDiseaseInstance.getDisease(), timeHorizont);		
 		registerDisease(disease);
 
-		Population population = new TestNotDiagnosedPopulation(this, disease);
+		Population population = new RadiosPopulation(this, disease, ValueTransform.splitProbabilityDistribution(radiosDiseaseInstance.getDisease().getPrevalenceAtBirth()), allAffected);
 		registerPopulation(population);
 		
 		if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
 			for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
 				if (Constants.DATAPROPERTYVALUE_KIND_INTERVENTION_SCREENING_VALUE.equalsIgnoreCase(intervention.getKind())) {
 					RadiosScreeningIntervention radiosIntervention = new RadiosScreeningIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
-							disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis()); 
+							disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis(), disease); 
 					this.registerIntervention(radiosIntervention);
 				} else {
 					RadiosBasicIntervention radiosIntervention = new RadiosBasicIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 

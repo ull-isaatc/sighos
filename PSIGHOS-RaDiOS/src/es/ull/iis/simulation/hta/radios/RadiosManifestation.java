@@ -101,8 +101,12 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		if (getManifestation().getMortalityFactor() != null) {
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(getManifestation().getMortalityFactor());
 			if (probabilityDistribution != null) {
-				if (Type.CHRONIC == getType()) { // Se debe interpretar el valor como que aumenta tu riesgo de muerte * mortalityFactor				
-					getRepository().addIMRParam(this, "Mortality factor for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+				if (Type.CHRONIC == getType()) { // Se debe interpretar el valor como que aumenta tu riesgo de muerte * mortalityFactor
+					if (probabilityDistribution.getDeterministicValue() > 0) {
+						getRepository().addIMRParam(this, "Mortality factor for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+					} else {
+						getRepository().addLERParam(this, "Life expectancy reduction for " + this, Constants.CONSTANT_EMPTY_STRING, Math.abs(probabilityDistribution.getDeterministicValue()), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+					}
 				} else if (Type.ACUTE == getType()) { // Se debe interpretar el valor de mortalityFactor como la probabilidad de muerte				
 					getRepository().addDeathProbParam(this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 				}

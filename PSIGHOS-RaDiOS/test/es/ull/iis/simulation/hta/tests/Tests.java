@@ -61,10 +61,11 @@ public class Tests {
 		
 		try {			
 			Schema4Simulation schema4Simulation = loadDiseaseFromJson("/home/davidpg/workspace/java/RaDiOS-MTT/radios.json");
+			RadiosRepository repository = new RadiosRepository(1, 1, schema4Simulation, 10, true);
 			for (Manifestation m : schema4Simulation.getDisease().getDevelopments().get(0).getManifestations()) {
 				if (m.getProbability() != null && m.getProbability().length() > 50) {
 					System.out.println(String.format("Parseando la probabilidad de %s: %s...", m.getName(), m.getProbability().substring(0, 50)));
-					double[][] datatable = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(m.getProbability()));
+					Object[][] datatable = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(m.getProbability()), repository);
 					for (int i = 0; i < datatable.length; i++) {
 						for (int j = 0; j < datatable[i].length; j++) {
 							System.out.print(String.format("\t %s", datatable[i][j]));							
@@ -93,7 +94,7 @@ public class Tests {
 		int timeHorizont = 10;
 		
 		try {
-			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios.json", timeHorizont);			
+			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios.json", timeHorizont, true);			
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;
@@ -114,7 +115,7 @@ public class Tests {
 		int timeHorizont = 10;
 		
 		try {
-			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease1.json", timeHorizont);
+			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease1.json", timeHorizont, true);
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;

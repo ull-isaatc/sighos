@@ -3,6 +3,8 @@ package es.ull.iis.simulation.hta.radios;
 import static java.lang.String.format;
 
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
@@ -10,28 +12,42 @@ import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.lang3.StringUtils;
 
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Cost;
 import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
+import es.ull.iis.ontology.radios.json.schema4simulation.ManifestationModification;
 import es.ull.iis.ontology.radios.json.schema4simulation.ScreeningTechnique;
+import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.Modification;
+import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
+import es.ull.iis.simulation.hta.radios.utils.NumberUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
+import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.model.TimeUnit;
+import simkit.random.RandomVariate;
+import simkit.random.RandomVariateFactory;
 
 /**
  * @author David Prieto González
  */
 public class RadiosScreeningIntervention extends ScreeningStrategy {
-	private boolean debug = false;
+	private boolean debug = true;
+	private boolean fine = false;
 	
 	private static final JexlEngine jexl = new JexlBuilder().create();		
 
+	private static final String REGEXP = "^([*+-/])([0-9]+(\\.[0-9]+)?)$";
+	private static Pattern pattern = Pattern.compile(REGEXP);	
+	
 	private Intervention intervention;
 	private String naturalDevelopmentName;
 	private Integer timeHorizont;
@@ -39,8 +55,10 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 	private Matrix costFollowUps;
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
+	private Disease disease;
 
-	public RadiosScreeningIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Integer timeHorizont, Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis) {
+	public RadiosScreeningIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, 
+			Integer timeHorizont, Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis, Disease disease) {
 		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING, calculateSpecificityScreeningTechnique(intervention), calculateSensitivityScreeningTechnique(intervention));
 		this.intervention = intervention; 
 		this.naturalDevelopmentName = naturalDevelopmentName;
@@ -49,6 +67,7 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		this.costScreenings = baseCostScreenings.clone();
 		this.costClinicalDiagnosis = baseCostClinicalDiagnosis.clone();
 		this.timeHorizont = timeHorizont;
+		this.disease = disease;
 		
 		// TODO: las intervenciones al definirlas en Radios, puede llevar vinculadas modificaciones de las manifestaciones. Es aquí donde las daremos de alta.
 		
@@ -72,7 +91,8 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 							Double cost = 0.0;
 							if (screeningTechnique.getCosts() != null && !screeningTechnique.getCosts().isEmpty()) {
 								for (Cost costTechnique : screeningTechnique.getCosts()) {
-									cost += Double.valueOf(costTechnique.getAmount());
+									ProbabilityDistribution costProbabilityDistribution = ValueTransform.splitProbabilityDistribution(costTechnique.getAmount());
+									cost += costProbabilityDistribution.getDeterministicValue();
 								}
 							}
 							return cost;
@@ -178,64 +198,19 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		return timeHorizont;
 	}
 	
-	@Override
-	public void registerSecondOrderParameters() {
-	}
-
 	public double getFullLifeCost (Patient pat) {
-		/* 
-		 * TODO: para calcular el coste total para la intervención, es necesario calcular los costes parciales de:
-		 * 	- [ ] Estrategias de cribado
-		 * 	- [ ] Estrategias de diagnóstico
-		 * 	- [V] Estrategias de tratamiento
-		 * 	- [V] Estrategias de seguimiento
-		 * 	- [ ] Modificaciones de las manifestaciones
-		 */
-		
 		Double cummulativeCost = 0.0;
-		if (debug) {
+		if (fine) {
 			System.out.println("\nCalculando costes derivados de los tratamientos para las manifestaciones sufridas o genéricos para la enfermedad...");
 		}
 		cummulativeCost += calculateCostsFromTreatments(pat, cummulativeCost);
-		if (debug) {
+		if (fine) {
 			System.out.println("\nCalculando costes derivados de las pruebas de seguimiento asociadas a las manifestaciones sufridas o de la propia enfermedad...");
 		}
 		cummulativeCost += calculateCostsFromFollowUps(pat, cummulativeCost);
 		return cummulativeCost;
 	}
 	
-	@Override
-	public double getAnnualCost(Patient pat) {
-		/* 
-		 * TODO: para calcular el coste total para la intervención, es necesario calcular los costes parciales de:
-		 * 	- [ ] Estrategias de cribado
-		 * 	- [ ] Estrategias de diagnóstico
-		 * 	- [V] Estrategias de tratamiento
-		 * 	- [V] Estrategias de seguimiento
-		 * 	- [ ] Modificaciones de las manifestaciones
-		 */
-				
-		Boolean calculateCummulativeCost = false;
-		Double cummulativeCost = 0.0;
-		if (calculateCummulativeCost) {
-			Double floorLimit = Math.floor(pat.getAge());
-			Double ceilLimit = (Math.ceil(pat.getAge()) == Math.floor(pat.getAge())) ? Math.ceil(pat.getAge()) + 1.0 : Math.ceil(pat.getAge());
-			return calculateCostsByRange(pat, cummulativeCost, floorLimit, ceilLimit);
-		} else {
-			return cummulativeCost;
-		}
-	}
-
-	@Override
-	public double getStartingCost(Patient pat) {
-		Boolean useCalculatedCostMatrix = true;
-		if (useCalculatedCostMatrix) {
-			return calculateInitialCosts(pat, 0.0);
-		} else {
-			return calculateDataPropertyValueFromScreeningTechnique(intervention, "COSTS");
-		}
-	}
-
 	/**
 	 * @param pat
 	 * @param cummulativeCost
@@ -323,10 +298,9 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 								partialCummulativeCost = (e.getCost() * e.calculateNTimesInRange(null, null) * nTimesManifestations); 
 							}
 							cummulativeCost += partialCummulativeCost;
-							if (debug) {
+							if (fine) {
 								if (e.getCondition() != null) {
 									System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", item, e.getCondition(), partialCummulativeCost));
-								} else {
 								}
 								System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente. Coste parcial añadido [%s].", item, partialCummulativeCost));
 							}
@@ -439,4 +413,75 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		}
 		return nTimesManifestations;
 	}
+	
+	@Override
+	public void registerSecondOrderParameters() {
+		if (CollectionUtils.notIsEmptyAndOnlyOneElement(this.intervention.getScreeningStrategies())) {
+			Object[] calculatedCost = CostUtils.calculateOnetimeCostFromMatrix(this.costScreenings);
+			RandomVariate distribution = RandomVariateFactory.getInstance("ConstantVariate", (Double) calculatedCost[1]);
+			if (calculatedCost[2] != null) {
+				distribution = (RandomVariate)calculatedCost[2];
+			}
+			secParams.addCostParam(this, "Cost of screening", "", (Integer)calculatedCost[0], (Double)calculatedCost[1], distribution);
+		}
+		
+		// Register the modifications of the manifestations caused by the intervention		
+		if (getIntervention().getManifestationModifications() != null) {
+			for (ManifestationModification manifestationModification : getIntervention().getManifestationModifications()) {
+				if (manifestationModification.getManifestations() != null) {
+					for (Manifestation registerManifestation : secParams.getRegisteredManifestations()) {
+						for (String manifestation : manifestationModification.getManifestations()) {
+							if (registerManifestation.getName().equals(manifestation)) {
+								addInterventionParamModification(registerManifestation, manifestationModification.getProbabilityModification());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param registerManifestation
+	 * @param paramModification
+	 */
+	private void addInterventionParamModification(Manifestation registerManifestation, String paramModification) {
+		if (!StringUtils.isEmpty(paramModification)) {
+			Matcher matcher = pattern.matcher(paramModification.trim());
+			if (matcher.find()) {
+				Double modificatorValue = NumberUtils.asDouble(matcher.group(2));
+				if (modificatorValue != null && modificatorValue == 0.0) {
+					// This is the only case implemented at the moment and it is in which the modification is to set the parameter to zero.
+					if ("*".equals(matcher.group(1))) {
+						secParams.addModificationParam(this, Modification.Type.SET, disease.getNullManifestation(), registerManifestation,  
+								Constants.CONSTANT_EMPTY_STRING, modificatorValue, RandomVariateFactory.getInstance("ConstantVariate", modificatorValue));
+					}
+				}
+			}
+		}
+	}
+	
+	@Override
+	public double getStartingCost(Patient pat) {
+		Boolean useCalculatedCostMatrix = false;
+		if (useCalculatedCostMatrix) {
+			return calculateInitialCosts(pat, 0.0);
+		} else {
+			return calculateDataPropertyValueFromScreeningTechnique(intervention, "COSTS");
+		}
+	}
+
+	@Override
+	public double getAnnualCost(Patient pat) {
+		Boolean calculateCummulativeCost = false;
+		Double cummulativeCost = 0.0;
+		if (calculateCummulativeCost) {
+			Double floorLimit = Math.floor(pat.getAge());
+			Double ceilLimit = (Math.ceil(pat.getAge()) == Math.floor(pat.getAge())) ? Math.ceil(pat.getAge()) + 1.0 : Math.ceil(pat.getAge());
+			return calculateCostsByRange(pat, cummulativeCost, floorLimit, ceilLimit);
+		} else {
+			return cummulativeCost;
+		}
+	}
+
 }

@@ -21,7 +21,7 @@ public class HypotoniaManifestation extends Manifestation {
 	 * @param disease
 	 */
 	public HypotoniaManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "HYPOT", "Hypotonia", disease, Type.CHRONIC, 0.0, 1.0);
+		super(secParams, "#PBD_ManifestationHypotonia", "Hypotonia", disease, Type.CHRONIC, 0.0, 1.0);
 	}
 
 	@Override

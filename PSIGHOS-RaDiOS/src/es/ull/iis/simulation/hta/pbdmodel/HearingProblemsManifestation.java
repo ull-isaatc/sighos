@@ -16,13 +16,13 @@ public class HearingProblemsManifestation extends Manifestation {
 	private final static int COST_YEAR = 2013;
 	private final static double DIAGNOSTIC_COST = 31169.95;
 	private final static double ANNUAL_COST = 155.14;
-
+	
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public HearingProblemsManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "HEAR", "Hearing problems", disease, Type.CHRONIC, 1.0, 2.0);
+		super(secParams, "#PBD_ManifestationHearingProblems", "Hearing problems", disease, Type.CHRONIC, 1.0, 2.0);
 	}
 
 	@Override

@@ -12,18 +12,25 @@ import java.util.Set;
 import javax.xml.bind.JAXBException;
 
 import es.ull.iis.ontology.radios.Constants;
+import es.ull.iis.ontology.radios.json.schema4simulation.ClinicalDiagnosisStrategy;
 import es.ull.iis.ontology.radios.json.schema4simulation.Development;
 import es.ull.iis.ontology.radios.json.schema4simulation.Disease;
+import es.ull.iis.ontology.radios.json.schema4simulation.FollowUpStrategy;
 import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
 import es.ull.iis.ontology.radios.json.schema4simulation.PrecedingManifestation;
+import es.ull.iis.ontology.radios.json.schema4simulation.TreatmentStrategy;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
+import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
+import simkit.random.RandomVariate;
+import simkit.random.RandomVariateFactory;
 
 /**
- * @author David Prieto Gonzï¿½lez
+ * @author David Prieto González
  */
 public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedDisease {
 	private Disease disease;
@@ -34,7 +41,7 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	private Integer timeHorizont;
 	private String naturalDevelopmentName;
 	
-	private boolean debug = false; 
+	private boolean debug = true; 
 	
 	public RadiosDisease(SecondOrderParamsRepository repository, Disease disease, Integer timeHorizont) throws TransformException, JAXBException {
 		super(repository, disease.getName(), Constants.CONSTANT_EMPTY_STRING);
@@ -73,14 +80,14 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 		this.costScreenings = new Matrix();
 		this.costClinicalDiagnosis = new Matrix();
 
-		CostUtils.loadCostFromTreatmentStrategies(this.costTreatments, naturalDevelopment.getName(), disease.getTreatmentStrategies(), timeHorizont);
-		CostUtils.loadCostFromFollowUpStrategies(this.costFollowUps, naturalDevelopment.getName(), disease.getFollowUpStrategies(), timeHorizont);
 		CostUtils.loadCostFromScreeningStrategies(this.costScreenings, disease.getScreeningStrategies(), timeHorizont);
 		CostUtils.loadCostFromClinicalDiagnosisStrategies(this.costClinicalDiagnosis, disease.getClinicalDiagnosisStrategies(), timeHorizont);
+		CostUtils.loadCostFromTreatmentStrategies(this.costTreatments, naturalDevelopment.getName(), disease.getTreatmentStrategies(), timeHorizont);
+		CostUtils.loadCostFromFollowUpStrategies(this.costFollowUps, naturalDevelopment.getName(), disease.getFollowUpStrategies(), timeHorizont);
 		
 		List<Manifestation> manifestations = naturalDevelopment.getManifestations();
 		for (Manifestation manifestation : manifestations) {
-			// TODO: actualizar la matriz de costos directos asociados a cada manifestaciï¿½n. Para el caso de estudio todos los costos vienen asociados por tratamiento. 
+			// TODO: actualizar la matriz de costos directos asociados a cada manifestación. Para el caso de estudio todos los costos vienen asociados por tratamiento. 
 			CostUtils.loadCostFromTreatmentStrategies(this.costTreatments, manifestation.getName(), manifestation.getTreatmentStrategies(), timeHorizont);
 			CostUtils.loadCostFromFollowUpStrategies(this.costFollowUps, manifestation.getName(), manifestation.getFollowUpStrategies(), timeHorizont);
 		}
@@ -142,7 +149,7 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 				queueManifestations.add(manifestation);
 			}
 		}
-		return radiosManifestations;		
+		return radiosManifestations;
 	}
 
 	private void registerManifestation(SecondOrderParamsRepository repository, Set<String> processedManifestations, Map<String, RadiosManifestation> radiosManifestations, Manifestation manifestation)
@@ -206,8 +213,58 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 		this.naturalDevelopmentName = naturalDevelopmentName;
 	}
 
+	private void calculateDiseaseStrategyCost(String paramName, String paramDescription, Matrix costs, String costType) {
+		Object[] calculatedCost = null;
+		if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equalsIgnoreCase(costType)) {
+			calculatedCost = CostUtils.calculateOnetimeCostFromMatrix(costs);
+		} else if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE.equalsIgnoreCase(costType)) {
+			calculatedCost = CostUtils.calculateAnnualCostFromMatrix(costs);
+		}
+		RandomVariate distribution = RandomVariateFactory.getInstance("ConstantVariate", (Double) calculatedCost[1]);
+		if (calculatedCost[2] != null) {
+			distribution = (RandomVariate) calculatedCost[2];
+		}
+		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, paramDescription, "", (Integer) calculatedCost[0], (Double) calculatedCost[1], distribution));
+	}
+	
 	@Override
 	public void registerSecondOrderParameters() {
-		// TODO Auto-generated method stub
+		String diseaseName = this.disease.getName();
+		if (CollectionUtils.notIsEmptyAndOnlyOneElement(this.disease.getClinicalDiagnosisStrategies())) {
+			String paramName = SecondOrderParamsRepository.STR_COST_PREFIX + this.disease.getClinicalDiagnosisStrategies().get(0).getName();
+			calculateDiseaseStrategyCost(paramName, "Cost of diagnosing for " + diseaseName, this.costClinicalDiagnosis, Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE);
+		}
+		
+		if (CollectionUtils.notIsEmptyAndOnlyOneElement(this.disease.getTreatmentStrategies())) {
+			String paramName = SecondOrderParamsRepository.STR_COST_PREFIX + this.disease.getTreatmentStrategies().get(0).getName();
+			calculateDiseaseStrategyCost(paramName, "Cost of treatment for " + diseaseName, this.costTreatments, Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE);
+		}
+		
+		if (CollectionUtils.notIsEmptyAndOnlyOneElement(this.disease.getFollowUpStrategies())) {
+			String paramName = SecondOrderParamsRepository.STR_COST_PREFIX + this.disease.getFollowUpStrategies().get(0).getName();
+			calculateDiseaseStrategyCost(paramName, "Cost of following up for " + diseaseName, this.costFollowUps, Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE);
+		}
+	}
+
+	@Override
+	public double getDiagnosisCost(Patient pat) {		
+		if (CollectionUtils.notIsEmptyAndOnlyOneElement(this.disease.getClinicalDiagnosisStrategies())) {
+			ClinicalDiagnosisStrategy strategy = this.disease.getClinicalDiagnosisStrategies().get(0);
+			String paramName = SecondOrderParamsRepository.STR_COST_PREFIX + strategy.getName();
+			return secParams.getCostParam(paramName, pat.getSimulation());
+		}
+		return 0;
+	}
+
+	@Override
+	public double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge) {
+		if (CollectionUtils.notIsEmptyAndOnlyOneElement(this.disease.getTreatmentStrategies()) && CollectionUtils.notIsEmptyAndOnlyOneElement(this.disease.getFollowUpStrategies())) {
+			TreatmentStrategy treatmentStrategy = this.disease.getTreatmentStrategies().get(0);
+			String treatmentStrategyCostParamName = SecondOrderParamsRepository.STR_COST_PREFIX + treatmentStrategy.getName();
+			FollowUpStrategy followUpStrategy = this.disease.getFollowUpStrategies().get(0);
+			String followUpStrategyCostParamName = SecondOrderParamsRepository.STR_COST_PREFIX + followUpStrategy.getName();
+			return secParams.getCostParam(treatmentStrategyCostParamName, pat.getSimulation()) + secParams.getCostParam(followUpStrategyCostParamName, pat.getSimulation());
+		}
+		return 0;
 	}
 }

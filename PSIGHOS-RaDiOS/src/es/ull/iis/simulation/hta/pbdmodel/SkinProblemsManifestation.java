@@ -21,8 +21,8 @@ public class SkinProblemsManifestation extends Manifestation {
 	 * @param disease
 	 */
 	public SkinProblemsManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "SKIN", "Skin problems", disease, Type.CHRONIC, 0.0, 1.0);
-	}
+		super(secParams, "#PBD_ManifestationSkinProblems", "Skin problems", disease, Type.CHRONIC, 0.0, 1.0);
+	}	 
 
 	@Override
 	public void registerSecondOrderParameters() {

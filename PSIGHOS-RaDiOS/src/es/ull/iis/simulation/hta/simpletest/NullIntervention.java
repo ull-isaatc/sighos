@@ -6,6 +6,10 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 public class NullIntervention extends Intervention {
 
+	public NullIntervention(SecondOrderParamsRepository secParams, String name) {
+		super(secParams, name, "Null intervention");
+	}
+
 	public NullIntervention(SecondOrderParamsRepository secParams) {
 		super(secParams, "NONE", "Null intervention");
 	}

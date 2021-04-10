@@ -23,7 +23,7 @@ public class PBDNewbornScreening extends ScreeningStrategy {
 	 * @param secParams
 	 */
 	public PBDNewbornScreening(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "SCREENING", "Basic screening", 1.0, 0.999935);
+		super(secParams, "#PBD_InterventionScreening", "Basic screening", 1.0, 0.999935);
 		this.disease = disease;
 	}
 

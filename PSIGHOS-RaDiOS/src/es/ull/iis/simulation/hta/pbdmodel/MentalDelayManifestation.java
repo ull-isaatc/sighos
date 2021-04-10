@@ -22,9 +22,9 @@ public class MentalDelayManifestation extends Manifestation {
 	 * @param disease
 	 */
 	public MentalDelayManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "MENTAL", "Mental delay", disease, Type.CHRONIC, 1.0, 2.0);
+		super(secParams, "#PBD_ManifestationMentalDelay", "Mental delay", disease, Type.CHRONIC, 1.0, 2.0);
 	}
-
+	
 	@Override
 	public void registerSecondOrderParameters() {
 		secParams.addTransitionCostParam(this, "Punctual cost for " + this, "Test", COST_YEAR, DIAGNOSTIC_COST, SecondOrderParamsRepository.getRandomVariateForCost(DIAGNOSTIC_COST));		

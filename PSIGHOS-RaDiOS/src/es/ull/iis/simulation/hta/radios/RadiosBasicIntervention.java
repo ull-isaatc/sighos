@@ -25,7 +25,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author David Prieto González
  */
 public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.interventions.Intervention {
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	private static final JexlEngine jexl = new JexlBuilder().create();		
 
@@ -130,20 +130,7 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 		return timeHorizont;
 	}
 	
-	@Override
-	public void registerSecondOrderParameters() {
-	}
-
 	public double getFullLifeCost (Patient pat) {
-		/* 
-		 * TODO: para calcular el coste total para la intervención, es necesario calcular los costes parciales de:
-		 * 	- [ ] Estrategias de cribado
-		 * 	- [ ] Estrategias de diagnóstico
-		 * 	- [V] Estrategias de tratamiento
-		 * 	- [V] Estrategias de seguimiento
-		 * 	- [ ] Modificaciones de las manifestaciones
-		*/
-		
 		Double cummulativeCost = 0.0;
 		if (debug) {
 			System.out.println("\nCalculando costes derivados de los tratamientos para las manifestaciones sufridas o genéricos para la enfermedad...");
@@ -225,34 +212,6 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 		result += evaluateRangesFromSpecificLimits(initTimeRange, finalTimeRange, 0.0, this.costTreatments, jc);
 		result += evaluateRangesFromSpecificLimits(initTimeRange, finalTimeRange, 0.0, this.costFollowUps, jc);
 		return result;
-	}
-
-	@Override
-	public double getAnnualCost(Patient pat) {
-		/* 
-		 * TODO: para calcular el coste total para la intervención, es necesario calcular los costes parciales de:
-		 * 	- [ ] Estrategias de cribado
-		 * 	- [ ] Estrategias de diagnóstico
-		 * 	- [V] Estrategias de tratamiento
-		 * 	- [V] Estrategias de seguimiento
-		 * 	- [ ] Modificaciones de las manifestaciones
-		*/
-		
-		Boolean calculateCummulativeCost = false;
-		Double cummulativeCost = 0.0;
-		if (calculateCummulativeCost) {
-			Double floorLimit = Math.floor(pat.getAge());
-			Double ceilLimit = (Math.ceil(pat.getAge()) == Math.floor(pat.getAge())) ? Math.ceil(pat.getAge()) + 1.0 : Math.ceil(pat.getAge());
-			return calculateCostsByRange(pat, cummulativeCost, floorLimit, ceilLimit);
-		} else {
-			return cummulativeCost;
-		}
-	}
-
-	@Override
-	public double getStartingCost(Patient pat) {
-		Double cummulativeCost = 0.0;
-		return cummulativeCost;
 	}
 
 	private Double calculateCostsFromTreatments(Patient pat, Double cummulativeCost) {
@@ -357,5 +316,28 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 			System.out.println(format("\tNúmero de veces que el paciente ha padecido la manifestación [%s] = %s ", manifestacion, nTimesManifestations));
 		}
 		return nTimesManifestations;
+	}
+
+	@Override
+	public void registerSecondOrderParameters() {
+	}
+
+	@Override
+	public double getAnnualCost(Patient pat) {
+		Boolean calculateCummulativeCost = false;
+		Double cummulativeCost = 0.0;
+		if (calculateCummulativeCost) {
+			Double floorLimit = Math.floor(pat.getAge());
+			Double ceilLimit = (Math.ceil(pat.getAge()) == Math.floor(pat.getAge())) ? Math.ceil(pat.getAge()) + 1.0 : Math.ceil(pat.getAge());
+			return calculateCostsByRange(pat, cummulativeCost, floorLimit, ceilLimit);
+		} else {
+			return cummulativeCost;
+		}
+	}
+
+	@Override
+	public double getStartingCost(Patient pat) {
+		Double cummulativeCost = 0.0;
+		return cummulativeCost;
 	}
 }
