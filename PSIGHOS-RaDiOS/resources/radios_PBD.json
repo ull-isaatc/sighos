@@ -24,6 +24,7 @@
       "manifestations" : [ {
         "name" : "#PBD_ManifestationHearingProblems",
         "onSetAge" : "1.0",
+        "endAge" : "2.0",
         "probability" : "0.515#BETA(65.0,61.0)",
         "kind" : "CHRONIC",
         "probabilityOfLeadingToDiagnosis" : "1.0",
@@ -54,6 +55,7 @@
       }, {
         "name" : "#PBD_ManifestationMentalDelay",
         "onSetAge" : "1.0",
+        "endAge" : "2.0",
         "probability" : "0.557#BETA(14,6)",
         "kind" : "CHRONIC",
         "mortalityFactor" : "-9.6#GAMMA(25,0.38)",
@@ -98,6 +100,7 @@
       }, {
         "name" : "#PBD_ManifestationVisionLoss",
         "onSetAge" : "1.0",
+        "endAge" : "2.0",
         "probability" : "0.175#BETA(19,91)",
         "kind" : "CHRONIC",
         "probabilityOfLeadingToDiagnosis" : "1.0",

@@ -524,7 +524,7 @@ public class DiseaseMain {
 				} else if (disease == 11) {
 					path = "resources/radios_PBD.json";
 				}
-				secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon, false);
+				secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon, true);
 				break;
 			case 2:
 				secParams = new PBDRepository(nRuns, nPatients, false);
@@ -665,16 +665,17 @@ public class DiseaseMain {
 		} else {
 			System.err.println("Could not validate model. Result = " + validity);
 		}
-		return new RadiosExperimentResult(secParams.getRegisteredDiseases()[0].getTransitions(), baos, secParams.prettySavedParams());		
+		
+		return new RadiosExperimentResult(secParams.getRegisteredDiseases()[secParams.getRegisteredDiseases().length - 1].getTransitions(), baos, secParams.prettySavedParams());		
 	}
 
 	public static void main(String[] args) {
 		final Arguments arguments = new Arguments();
 		try {
 			JCommander jc = JCommander.newBuilder().addObject(arguments).build();
-			Boolean useProgramaticArguments = true;
+			boolean useProgramaticArguments = true;
 			if (useProgramaticArguments) {
-				String params = "-n 450000 -r 0 -dr 0 -pop 1 -dis 11 -q"; // -ep ia -o /tmp/result_david.txt
+				String params = "-n 1000 -r 0 -dr 0 -pop 1 -dis 11 -q"; // -ep ia -o /tmp/result_david.txt
 				jc.parse(params.split(" "));
 			} else {
 				jc.parse(args);
@@ -700,7 +701,7 @@ public class DiseaseMain {
 			System.out.println();
 			System.out.println(result.getPrettySavedParams());
 			System.out.println();
-			System.out.println(new String(result.getSimResult().toByteArray()));
+			System.out.println((new String(result.getSimResult().toByteArray())).replace(".", ","));
 			
 		} catch (Exception e) {
 			e.printStackTrace();
