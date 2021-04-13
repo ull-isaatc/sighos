@@ -518,9 +518,11 @@ public class DiseaseMain {
 				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", disease));
 				String path = "";
 				if (disease == 0) {
-					path = "resources/radios.json";
-				} else {
+					path = "resources/radios_SCD.json";
+				} else if (disease < 10) {
 					path = "resources/radios-test_disease" + disease + ".json";
+				} else if (disease == 11) {
+					path = "resources/radios_PBD.json";
 				}
 				secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon, false);
 				break;
@@ -672,7 +674,7 @@ public class DiseaseMain {
 			JCommander jc = JCommander.newBuilder().addObject(arguments).build();
 			Boolean useProgramaticArguments = true;
 			if (useProgramaticArguments) {
-				String params = "-n 1000000 -r 0 -dr 0 -pop 2"; // -ep ia -o /tmp/result_david.txt
+				String params = "-n 450000 -r 0 -dr 0 -pop 1 -dis 11 -q"; // -ep ia -o /tmp/result_david.txt
 				jc.parse(params.split(" "));
 			} else {
 				jc.parse(args);
@@ -683,7 +685,7 @@ public class DiseaseMain {
 				BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
 			}
 
-			boolean usePreviousLoadedJsonDiseaseDefinition = true;
+			boolean usePreviousLoadedJsonDiseaseDefinition = false;
 			Schema4Simulation radiosDiseaseInstance = null;
 			if (usePreviousLoadedJsonDiseaseDefinition) {
 				ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).setSerializationInclusion(Include.NON_NULL).setSerializationInclusion(Include.NON_EMPTY);
@@ -691,6 +693,7 @@ public class DiseaseMain {
 			}
 			RadiosExperimentResult result = runExperiment(arguments, radiosDiseaseInstance);
 
+			System.out.println("=====================================================================================================");
 			for (Transition transition : result.getTransitions()) {
 				System.out.println(transition.getSrcManifestation().getName() + " --> " + transition.getDestManifestation().getName());
 			}

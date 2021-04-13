@@ -25,7 +25,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author David Prieto González
  */
 public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.interventions.Intervention {
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	private static final JexlEngine jexl = new JexlBuilder().create();		
 
