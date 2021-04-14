@@ -28,7 +28,7 @@ public class PBDRepository extends SecondOrderParamsRepository {
 	public PBDRepository(int nRuns, int nPatients, boolean allAffected) {
 		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
-		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, 0.8861);
+		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.MAX, 0.8861);
 		Disease dis = new PBDDisease(this);
 		// FIXME: ¿Deberíamos hacer esto siempre?
 		registerDisease(HEALTHY);

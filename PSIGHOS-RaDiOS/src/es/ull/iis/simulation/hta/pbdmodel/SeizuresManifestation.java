@@ -15,6 +15,7 @@ import simkit.random.RandomVariateFactory;
 public class SeizuresManifestation extends Manifestation {
 	private final static int COST_YEAR = 2013;
 	private final static double COST = 3665.56;
+	private final static double DU = 0.04;
 
 	/**
 	 * @param secParams
@@ -28,6 +29,7 @@ public class SeizuresManifestation extends Manifestation {
 	public void registerSecondOrderParameters() {
 		secParams.addTransitionCostParam(this, "Punctual cost for " + this, "Test", COST_YEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));		
 		secParams.addDiagnosisProbParam(this, "Assumption", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));
+		secParams.addDisutilityParam(this, "Disutility for " + this, "Test", DU, RandomVariateFactory.getInstance("UniformVariate", DU*0.8, DU*1.2));
 	}
 
 }

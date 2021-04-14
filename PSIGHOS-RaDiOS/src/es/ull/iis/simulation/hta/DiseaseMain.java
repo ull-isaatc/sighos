@@ -675,7 +675,7 @@ public class DiseaseMain {
 			JCommander jc = JCommander.newBuilder().addObject(arguments).build();
 			boolean useProgramaticArguments = true;
 			if (useProgramaticArguments) {
-				String params = "-n 1000 -r 0 -dr 0 -pop 1 -dis 11 -q"; // -ep ia -o /tmp/result_david.txt
+				String params = "-n 5000 -r 0 -dr 0 -pop 3 -dis 11 -q -ep ia"; // -ep ia -o /tmp/result_david.txt
 				jc.parse(params.split(" "));
 			} else {
 				jc.parse(args);
@@ -701,7 +701,7 @@ public class DiseaseMain {
 			System.out.println();
 			System.out.println(result.getPrettySavedParams());
 			System.out.println();
-			System.out.println((new String(result.getSimResult().toByteArray())).replace(".", ","));
+			System.out.println((new String(result.getSimResult().toByteArray())));
 			
 		} catch (Exception e) {
 			e.printStackTrace();
