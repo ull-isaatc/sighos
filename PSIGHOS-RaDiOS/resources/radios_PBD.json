@@ -28,6 +28,12 @@
         "probability" : "0.515#BETA(65.0,61.0)",
         "kind" : "CHRONIC",
         "probabilityOfLeadingToDiagnosis" : "1.0",
+        "utilities" : [ {
+          "name" : "#PBD_UtilityManifestationHearingProblems",
+          "kind" : "UTILITY",
+          "value" : "0.8761#BETA(5.6,0.79)",
+          "calculateMethod" : "MIN"
+        } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationHearingProblems",
           "amount" : "155.14",
@@ -46,6 +52,12 @@
         "probability" : "0.457#BETA(17,20)",
         "kind" : "CHRONIC",
         "probabilityOfLeadingToDiagnosis" : "1.0",
+        "utilities" : [ {
+          "name" : "#PBD_UtilityManifestationHypotonia",
+          "kind" : "UTILITY",
+          "value" : "0.8861#BETA(5.2,0.67)",
+          "calculateMethod" : "MIN"
+        } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationHypotonia",
           "amount" : "3665.56",
@@ -60,6 +72,12 @@
         "kind" : "CHRONIC",
         "mortalityFactor" : "-9.6#GAMMA(25,0.38)",
         "probabilityOfLeadingToDiagnosis" : "1.0",
+        "utilities" : [ {
+          "name" : "#PBD_UtilityManifestationMentalDelay",
+          "kind" : "UTILITY",
+          "value" : "0.8161#BETA(1.71,0.39)",
+          "calculateMethod" : "MIN"
+        } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationMentalDelay",
           "amount" : "217.74",
@@ -78,6 +96,12 @@
         "probability" : "0.564#BETA(65,50)",
         "kind" : "CHRONIC",
         "probabilityOfLeadingToDiagnosis" : "1.0",
+        "utilities" : [ {
+          "name" : "#PBD_UtilityManifestationSeizure",
+          "kind" : "UTILITY",
+          "value" : "0.8461#BETA(1.65, 0.30)",
+          "calculateMethod" : "EQ-5D??"
+        } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationSeizure",
           "amount" : "3665.56",
@@ -91,6 +115,12 @@
         "probability" : "0.41#BETA(24,34)",
         "kind" : "CHRONIC",
         "probabilityOfLeadingToDiagnosis" : "1.0",
+        "utilities" : [ {
+          "name" : "#PBD_UtilityManifestationSkinProblems",
+          "kind" : "UTILITY",
+          "value" : "0.8861#BETA(5.2,0.67)",
+          "calculateMethod" : "MIN"
+        } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationSkinProblems",
           "amount" : "3665.56",
@@ -104,6 +134,12 @@
         "probability" : "0.175#BETA(19,91)",
         "kind" : "CHRONIC",
         "probabilityOfLeadingToDiagnosis" : "1.0",
+        "utilities" : [ {
+          "name" : "#PBD_UtilityManifestationVisionLoss",
+          "kind" : "UTILITY",
+          "value" : "0.8861#BETA(5.2,0.67)",
+          "calculateMethod" : "MIN"
+        } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationVisionLoss",
           "amount" : "121.86",
