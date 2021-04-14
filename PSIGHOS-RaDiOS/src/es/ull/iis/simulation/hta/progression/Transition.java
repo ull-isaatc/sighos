@@ -216,7 +216,7 @@ public class Transition {
 				if (destManifestation.getEndAge() > age && destManifestation.getOnsetAge() < deathAge) {
 					final double minRef = Math.max(age, destManifestation.getOnsetAge());
 					final double maxRef = Math.min(deathAge, destManifestation.getEndAge());
-					final double time = rnd * (maxRef - minRef);
+					final double time = rnd * (maxRef - minRef) + (minRef - age);
 //					System.out.println(pat + "\t" + time + "\t" + age + "\t" + deathAge + "\t" + rnd + "\t" + minRef + "\t" + maxRef);
 					return pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 				}
