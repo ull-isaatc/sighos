@@ -40,7 +40,7 @@ import simkit.random.RandomVariateFactory;
  * @author David Prieto González
  */
 public class RadiosScreeningIntervention extends ScreeningStrategy {
-	private boolean debug = false;
+	private boolean debug = true;
 	private boolean fine = false;
 	
 	private static final JexlEngine jexl = new JexlBuilder().create();		
@@ -130,11 +130,11 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		CostUtils.loadCostFromClinicalDiagnosisStrategies(this.costClinicalDiagnosis, intervention.getClinicalDiagnosisStrategies(), timeHorizont);
 		
 		if (debug) {
-			StringBuilder sb = new StringBuilder(format("\tIntervention [%s]\n", this.intervention.getName()));
-			sb.append("\t\tCost matrix for Treatments:\n").append(CostUtils.showCostMatrix(this.costTreatments, "\t\t\t"));
-			sb.append("\t\tCost matrix for FollowUps:\n").append(CostUtils.showCostMatrix(this.costFollowUps, "\t\t\t"));
-			sb.append("\t\tCost matrix for Screenings:\n").append(CostUtils.showCostMatrix(this.costScreenings, "\t\t\t"));
-			sb.append("\t\tCost matrix for Clinical Diagnosis:\n").append(CostUtils.showCostMatrix(this.costClinicalDiagnosis, "\t\t\t"));
+			StringBuilder sb = new StringBuilder(format("\tIntervention [%s]", this.intervention.getName())).append("\n")
+			.append("\t\tCost matrix for Treatments:\n").append(CostUtils.showCostMatrix(this.costTreatments, "\t\t\t")).append("\n")
+			.append("\t\tCost matrix for FollowUps:\n").append(CostUtils.showCostMatrix(this.costFollowUps, "\t\t\t")).append("\n")
+			.append("\t\tCost matrix for Screenings:\n").append(CostUtils.showCostMatrix(this.costScreenings, "\t\t\t")).append("\n")
+			.append("\t\tCost matrix for Clinical Diagnosis:\n").append(CostUtils.showCostMatrix(this.costClinicalDiagnosis, "\t\t\t")).append("\n");
 			System.out.println(sb.toString());
 		}
 	}

@@ -1,5 +1,7 @@
 package es.ull.iis.simulation.hta.radios;
 
+import static java.lang.String.format;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +35,8 @@ import simkit.random.RandomVariateFactory;
  * @author David Prieto González
  */
 public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedDisease {
+	private final boolean debug = true; 
+
 	private Disease disease;
 	private Matrix costTreatments;
 	private Matrix costFollowUps;
@@ -40,8 +44,6 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	private Matrix costClinicalDiagnosis;
 	private Integer timeHorizont;
 	private String naturalDevelopmentName;
-	
-	private boolean debug = false; 
 	
 	public RadiosDisease(SecondOrderParamsRepository repository, Disease disease, Integer timeHorizont) throws TransformException, JAXBException {
 		super(repository, disease.getName(), Constants.CONSTANT_EMPTY_STRING);
@@ -93,14 +95,12 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 		}
 
 		if (debug) {
-			System.out.println("\nDisease - Cost matrix for Treatments:\n");
-			CostUtils.showCostMatrix(this.costTreatments, "\t");
-			System.out.println("\nDisease - Cost matrix for FollowUps:\n");
-			CostUtils.showCostMatrix(this.costFollowUps, "\t");
-			System.out.println("\nDisease - Cost matrix for Screenings:\n");
-			CostUtils.showCostMatrix(this.costScreenings, "\t");
-			System.out.println("\nDisease - Cost matrix for Clinical Diagnosis:\n");
-			CostUtils.showCostMatrix(this.costClinicalDiagnosis, "\t");
+			StringBuilder sb = new StringBuilder(format("Disease [%s]", this.disease.getName())).append("\n")
+			.append("\tCost matrix for Treatments:\n").append(CostUtils.showCostMatrix(this.costTreatments, "\t\t")).append("\n")
+			.append("\tCost matrix for FollowUps:\n").append(CostUtils.showCostMatrix(this.costFollowUps, "\t\t")).append("\n")
+			.append("\tCost matrix for Screenings:\n").append(CostUtils.showCostMatrix(this.costScreenings, "\t\t")).append("\n")
+			.append("\tCost matrix for Clinical Diagnosis:\n").append(CostUtils.showCostMatrix(this.costClinicalDiagnosis, "\t\t")).append("\n");
+			System.out.println(sb.toString());
 		}
 	}
 

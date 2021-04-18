@@ -675,7 +675,7 @@ public class DiseaseMain {
 			JCommander jc = JCommander.newBuilder().addObject(arguments).build();
 			boolean useProgramaticArguments = true;
 			if (useProgramaticArguments) {
-				String params = "-n 500 -r 0 -dr 0 -pop 1 -dis 11 -q -ep ia"; // -ep ia -o /tmp/result_david.txt
+				String params = "-n 500 -r 0 -dr 0 -pop 1 -dis 11 -q -ep ia"; // -o /tmp/result_david.txt
 				jc.parse(params.split(" "));
 			} else {
 				jc.parse(args);
