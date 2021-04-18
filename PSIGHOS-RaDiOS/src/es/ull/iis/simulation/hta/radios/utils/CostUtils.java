@@ -3,6 +3,7 @@ package es.ull.iis.simulation.hta.radios.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +25,7 @@ import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
 import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.radios.wrappers.TimeCostEvent;
 import simkit.random.RandomVariate;
 
 /**
@@ -38,6 +40,12 @@ public class CostUtils {
 	private static Pattern rangePattern = Pattern.compile(REGEXP_RANGE);
 	private static Pattern frequencyPattern = Pattern.compile(REGEXP_FRECUENCY);
 	private static Pattern dosePattern = Pattern.compile(REGEXP_DOSE);
+	
+	public static Predicate<TimeCostEvent> searchTimeEventPredicate(Double timeEvent) {
+		return (TimeCostEvent tce) -> {
+			return tce.getTimeEvent() == timeEvent;
+		};
+	}
 	
 	/**
 	 * @param range
@@ -56,7 +64,7 @@ public class CostUtils {
 			
 			if (preffixRange != null) {
 				if ("&".equals(preffixRange)) {
-					value.getTimesEvent().add(floorLimitInYears);
+					value.getTimesCostsEvents().add(TimeCostEvent.fromTimeEvent(floorLimitInYears));
 					value.setCeilLimitRange(floorLimitInYears);
 				} else if ("@".equals(preffixRange)) {
 					if (value.getCostExpression() == null) {
@@ -74,19 +82,26 @@ public class CostUtils {
 				}
 				value.setCeilLimitRange(ceilLimitInYears);
 
-				value.getTimesEvent().add(floorLimitInYears);
+				value.getTimesCostsEvents().add(TimeCostEvent.fromTimeEvent(floorLimitInYears));
 				Double f = normalizeFrequency(frequency, true);
 				value.setFrequency(f);
 				Double newLimit = floorLimitInYears + f;
 				while (newLimit <= ceilLimitInYears) {
-					if (!value.getTimesEvent().contains(newLimit)) {
-						value.getTimesEvent().add(newLimit);
+					boolean existEvent = false;
+					for (TimeCostEvent tce : value.getTimesCostsEvents()) {
+						if (tce.getTimeEvent() == newLimit) {
+							existEvent = true;
+							break;
+						}
+					}
+					if (!existEvent) {
+						value.getTimesCostsEvents().add(TimeCostEvent.fromTimeEvent(newLimit));
 					}
 					newLimit = newLimit + f;
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -380,9 +395,7 @@ public class CostUtils {
 				}
 			}
 		}
-		String result = sb.toString();
-		System.out.println(result);
-		return result;
+		return sb.toString();
 	}
 	
 	/**

@@ -130,74 +130,15 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		CostUtils.loadCostFromClinicalDiagnosisStrategies(this.costClinicalDiagnosis, intervention.getClinicalDiagnosisStrategies(), timeHorizont);
 		
 		if (debug) {
-			System.out.println(format("\nIntervention [%s]", this.intervention.getName()));
-			System.out.println("\n\tCost matrix for Treatments:\n");
-			CostUtils.showCostMatrix(this.costTreatments, "\t\t");
-			System.out.println("\n\tCost matrix for FollowUps:\n");
-			CostUtils.showCostMatrix(this.costFollowUps, "\t\t");
-			System.out.println("\n\tCost matrix for Screenings:\n");
-			CostUtils.showCostMatrix(this.costScreenings, "\t\t");
-			System.out.println("\n\tCost matrix for Clinical Diagnosis:\n");
-			CostUtils.showCostMatrix(this.costClinicalDiagnosis, "\t\t");
+			StringBuilder sb = new StringBuilder(format("\tIntervention [%s]\n", this.intervention.getName()));
+			sb.append("\t\tCost matrix for Treatments:\n").append(CostUtils.showCostMatrix(this.costTreatments, "\t\t\t"));
+			sb.append("\t\tCost matrix for FollowUps:\n").append(CostUtils.showCostMatrix(this.costFollowUps, "\t\t\t"));
+			sb.append("\t\tCost matrix for Screenings:\n").append(CostUtils.showCostMatrix(this.costScreenings, "\t\t\t"));
+			sb.append("\t\tCost matrix for Clinical Diagnosis:\n").append(CostUtils.showCostMatrix(this.costClinicalDiagnosis, "\t\t\t"));
+			System.out.println(sb.toString());
 		}
 	}
 
-	public Intervention getIntervention() {
-		return intervention;
-	}
-	
-	public void setIntervention(Intervention intervention) {
-		this.intervention = intervention;
-	}
-	
-	public Matrix getCostTreatments() {
-		return costTreatments;
-	}
-
-	public void setCostTreatments(Matrix costTreatments) {
-		this.costTreatments = costTreatments;
-	}
-
-	public Matrix getCostFollowUps() {
-		return costFollowUps;
-	}
-
-	public void setCostFollowUps(Matrix costFollowUps) {
-		this.costFollowUps = costFollowUps;
-	}
-
-	public Matrix getCostScreenings() {
-		return costScreenings;
-	}
-
-	public void setCostScreenings(Matrix costScreenings) {
-		this.costScreenings = costScreenings;
-	}
-
-	public Matrix getCostClinicalDiagnosis() {
-		return costClinicalDiagnosis;
-	}
-
-	public void setCostClinicalDiagnosis(Matrix costClinicalDiagnosis) {
-		this.costClinicalDiagnosis = costClinicalDiagnosis;
-	}
-
-	public String getNaturalDevelopmentName() {
-		return naturalDevelopmentName;
-	}
-	
-	public void setNaturalDevelopmentName(String naturalDevelopmentName) {
-		this.naturalDevelopmentName = naturalDevelopmentName;
-	}
-	
-	public void setTimeHorizont(Integer timeHorizont) {
-		this.timeHorizont = timeHorizont;
-	}
-	
-	public Integer getTimeHorizont() {
-		return timeHorizont;
-	}
-	
 	public double getFullLifeCost (Patient pat) {
 		Double cummulativeCost = 0.0;
 		if (fine) {
@@ -398,7 +339,7 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 	 */
 	private Integer calculateNTimesManifestationPatientLife(Patient pat, String manifestacion) {
 		Integer nTimesManifestations = 0;
-		if (manifestacion.equalsIgnoreCase(getNaturalDevelopmentName())) {
+		if (manifestacion.equalsIgnoreCase(this.naturalDevelopmentName)) {
 			nTimesManifestations = 1;
 		} else {
 			for (Manifestation manif : pat.getDetailedState()) {
@@ -414,33 +355,6 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		return nTimesManifestations;
 	}
 	
-	@Override
-	public void registerSecondOrderParameters() {
-		if (CollectionUtils.notIsEmptyAndOnlyOneElement(this.intervention.getScreeningStrategies())) {
-			Object[] calculatedCost = CostUtils.calculateOnetimeCostFromMatrix(this.costScreenings);
-			RandomVariate distribution = RandomVariateFactory.getInstance("ConstantVariate", (Double) calculatedCost[1]);
-			if (calculatedCost[2] != null) {
-				distribution = (RandomVariate)calculatedCost[2];
-			}
-			secParams.addCostParam(this, "Cost of screening", "", (Integer)calculatedCost[0], (Double)calculatedCost[1], distribution);
-		}
-		
-		// Register the modifications of the manifestations caused by the intervention		
-		if (getIntervention().getManifestationModifications() != null) {
-			for (ManifestationModification manifestationModification : getIntervention().getManifestationModifications()) {
-				if (manifestationModification.getManifestations() != null) {
-					for (Manifestation registerManifestation : secParams.getRegisteredManifestations()) {
-						for (String manifestation : manifestationModification.getManifestations()) {
-							if (registerManifestation.getName().equals(manifestation)) {
-								addInterventionParamModification(registerManifestation, manifestationModification.getProbabilityModification());
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
 	/**
 	 * @param registerManifestation
 	 * @param paramModification
@@ -460,6 +374,12 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 			}
 		}
 	}
+
+	/*******************************************************************************************************************************************************************************************
+	 *******************************************************************************************************************************************************************************************
+	 * Override methods
+	 *******************************************************************************************************************************************************************************************
+	*******************************************************************************************************************************************************************************************/	
 	
 	@Override
 	public double getStartingCost(Patient pat) {
@@ -481,6 +401,33 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 			return calculateCostsByRange(pat, cummulativeCost, floorLimit, ceilLimit);
 		} else {
 			return cummulativeCost;
+		}
+	}
+
+	@Override
+	public void registerSecondOrderParameters() {
+		if (CollectionUtils.notIsEmptyAndOnlyOneElement(this.intervention.getScreeningStrategies())) {
+			Object[] calculatedCost = CostUtils.calculateOnetimeCostFromMatrix(this.costScreenings);
+			RandomVariate distribution = RandomVariateFactory.getInstance("ConstantVariate", (Double) calculatedCost[1]);
+			if (calculatedCost[2] != null) {
+				distribution = (RandomVariate)calculatedCost[2];
+			}
+			secParams.addCostParam(this, "Cost of screening", "", (Integer)calculatedCost[0], (Double)calculatedCost[1], distribution);
+		}
+		
+		// Register the modifications of the manifestations caused by the intervention		
+		if (this.intervention.getManifestationModifications() != null) {
+			for (ManifestationModification manifestationModification : this.intervention.getManifestationModifications()) {
+				if (manifestationModification.getManifestations() != null) {
+					for (Manifestation registerManifestation : secParams.getRegisteredManifestations()) {
+						for (String manifestation : manifestationModification.getManifestations()) {
+							if (registerManifestation.getName().equals(manifestation)) {
+								addInterventionParamModification(registerManifestation, manifestationModification.getProbabilityModification());
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 

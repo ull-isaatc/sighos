@@ -22,22 +22,22 @@ public class CostMatrixElement {
 	// Stores the distribution function for cost
 	private RandomVariate distribution;
 	// If the cost is applied in discrete instants of time, those discrete instants are stored in this array
-	private List<Double> timesEvent;
+	private List<TimeCostEvent> timesCostsEvents;
 	// Stores the year in which the cost evidence is collected
 	private Integer year;
 	
 	public CostMatrixElement() {
-		this.timesEvent = new ArrayList<>();
+		this.timesCostsEvents = new ArrayList<>();
 	}
 
-	public CostMatrixElement(Double floorLimitRange, Double ceilLimitRange, Double frequency, String condition, String costExpression, Double cost, List<Double> timesEvent, Integer year, RandomVariate distribution) {
+	public CostMatrixElement(Double floorLimitRange, Double ceilLimitRange, Double frequency, String condition, String costExpression, Double cost, List<TimeCostEvent> timesCostsEvents, Integer year, RandomVariate distribution) {
 		this.floorLimitRange = floorLimitRange;
 		this.ceilLimitRange = ceilLimitRange;
 		this.frequency = frequency;
 		this.condition = condition;
 		this.costExpression = costExpression;
 		this.cost = cost;
-		this.timesEvent = timesEvent;
+		this.timesCostsEvents = timesCostsEvents;
 		this.year = year;
 		this.distribution = distribution;
 	}
@@ -66,12 +66,12 @@ public class CostMatrixElement {
 		this.cost = cost;
 	}
 
-	public List<Double> getTimesEvent() {
-		return timesEvent;
+	public List<TimeCostEvent> getTimesCostsEvents() {
+		return timesCostsEvents;
 	}
 
-	public void setTimesEvent(List<Double> timesEvent) {
-		this.timesEvent = timesEvent;
+	public void setTimesCostsEvents(List<TimeCostEvent> timesCostsEvents) {
+		this.timesCostsEvents = timesCostsEvents;
 	}
 
 	public Double getFloorLimitRange() {
@@ -141,7 +141,7 @@ public class CostMatrixElement {
 		obj.setCondition(this.getCondition() != null ? new String(this.getCondition()) : null);
 		obj.setCostExpression(this.getCostExpression() != null ? new String(this.getCostExpression()) : null);
 		obj.setCost(this.getCost() != null ? new Double(this.getCost()) : null);
-		obj.setTimesEvent(new ArrayList<>(this.getTimesEvent()));
+		obj.setTimesCostsEvents(new ArrayList<>(this.getTimesCostsEvents()));
 		obj.setYear(new Integer(this.getYear()));
 		obj.setDistribution(this.getDistribution() != null ? RandomVariateFactory.getInstance(this.getDistribution()) : null);
 		return obj;

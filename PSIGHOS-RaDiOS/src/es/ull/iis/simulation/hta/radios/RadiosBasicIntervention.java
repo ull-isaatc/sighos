@@ -25,9 +25,8 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author David Prieto González
  */
 public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.interventions.Intervention {
-	private boolean debug = false;
-	
-	private static final JexlEngine jexl = new JexlBuilder().create();		
+	private final boolean debug = true;	
+	private static final JexlEngine jexl = new JexlBuilder().create();
 
 	private Intervention intervention;
 	private String naturalDevelopmentName;
@@ -62,74 +61,15 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 		CostUtils.loadCostFromClinicalDiagnosisStrategies(this.costClinicalDiagnosis, intervention.getClinicalDiagnosisStrategies(), timeHorizont);
 		
 		if (debug) {
-			System.out.println(format("\nIntervention [%s]", this.intervention.getName()));
-			System.out.println("\n\tCost matrix for Treatments:\n");
-			CostUtils.showCostMatrix(this.costTreatments, "\t\t");
-			System.out.println("\n\tCost matrix for FollowUps:\n");
-			CostUtils.showCostMatrix(this.costFollowUps, "\t\t");
-			System.out.println("\n\tCost matrix for Screenings:\n");
-			CostUtils.showCostMatrix(this.costScreenings, "\t\t");
-			System.out.println("\n\tCost matrix for Clinical Diagnosis:\n");
-			CostUtils.showCostMatrix(this.costClinicalDiagnosis, "\t\t");
+			StringBuilder sb = new StringBuilder(format("\tIntervention [%s]\n", this.intervention.getName()));
+			sb.append("\t\tCost matrix for Treatments:\n").append(CostUtils.showCostMatrix(this.costTreatments, "\t\t\t"));
+			sb.append("\t\tCost matrix for FollowUps:\n").append(CostUtils.showCostMatrix(this.costFollowUps, "\t\t\t"));
+			sb.append("\t\tCost matrix for Screenings:\n").append(CostUtils.showCostMatrix(this.costScreenings, "\t\t\t"));
+			sb.append("\t\tCost matrix for Clinical Diagnosis:\n").append(CostUtils.showCostMatrix(this.costClinicalDiagnosis, "\t\t\t"));
+			System.out.println(sb.toString());
 		}
 	}
 
-	public Intervention getIntervention() {
-		return intervention;
-	}
-	
-	public void setIntervention(Intervention intervention) {
-		this.intervention = intervention;
-	}
-	
-	public Matrix getCostTreatments() {
-		return costTreatments;
-	}
-
-	public void setCostTreatments(Matrix costTreatments) {
-		this.costTreatments = costTreatments;
-	}
-
-	public Matrix getCostFollowUps() {
-		return costFollowUps;
-	}
-
-	public void setCostFollowUps(Matrix costFollowUps) {
-		this.costFollowUps = costFollowUps;
-	}
-
-	public Matrix getCostScreenings() {
-		return costScreenings;
-	}
-
-	public void setCostScreenings(Matrix costScreenings) {
-		this.costScreenings = costScreenings;
-	}
-
-	public Matrix getCostClinicalDiagnosis() {
-		return costClinicalDiagnosis;
-	}
-
-	public void setCostClinicalDiagnosis(Matrix costClinicalDiagnosis) {
-		this.costClinicalDiagnosis = costClinicalDiagnosis;
-	}
-
-	public String getNaturalDevelopmentName() {
-		return naturalDevelopmentName;
-	}
-	
-	public void setNaturalDevelopmentName(String naturalDevelopmentName) {
-		this.naturalDevelopmentName = naturalDevelopmentName;
-	}
-	
-	public void setTimeHorizont(Integer timeHorizont) {
-		this.timeHorizont = timeHorizont;
-	}
-	
-	public Integer getTimeHorizont() {
-		return timeHorizont;
-	}
-	
 	public double getFullLifeCost (Patient pat) {
 		Double cummulativeCost = 0.0;
 		if (debug) {
@@ -302,7 +242,7 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 	 */
 	private Integer calculateNTimesManifestationPatientLife(Patient pat, String manifestacion) {
 		Integer nTimesManifestations = 0;
-		if (manifestacion.equalsIgnoreCase(getNaturalDevelopmentName())) {
+		if (manifestacion.equalsIgnoreCase(this.naturalDevelopmentName)) {
 			nTimesManifestations = 1;
 		} else {
 			for (Manifestation manif : pat.getDetailedState()) {
@@ -318,6 +258,11 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 		return nTimesManifestations;
 	}
 
+	/*******************************************************************************************************************************************************************************************
+	 *******************************************************************************************************************************************************************************************
+	 * Override methods
+	 *******************************************************************************************************************************************************************************************
+	*******************************************************************************************************************************************************************************************/	
 	@Override
 	public void registerSecondOrderParameters() {
 	}
