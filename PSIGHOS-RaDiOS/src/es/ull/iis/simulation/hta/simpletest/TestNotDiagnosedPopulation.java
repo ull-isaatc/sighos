@@ -48,4 +48,8 @@ public class TestNotDiagnosedPopulation extends StdPopulation {
 		return 0.0;
 	}
 
+	@Override
+	public int getMinAge() {
+		return 0;
+	}
 }

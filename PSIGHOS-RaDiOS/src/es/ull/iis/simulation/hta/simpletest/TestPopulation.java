@@ -47,4 +47,8 @@ public class TestPopulation extends StdPopulation {
 		return 1.0;
 	}
 
+	@Override
+	public int getMinAge() {
+		return 0;
+	}
 }
