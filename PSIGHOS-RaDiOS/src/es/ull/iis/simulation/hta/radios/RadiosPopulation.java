@@ -13,7 +13,7 @@ import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author David Prieto González
+ * @author David Prieto Gonzï¿½lez
  *
  */
 public class RadiosPopulation extends StdPopulation {	
@@ -47,7 +47,7 @@ public class RadiosPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters() {
-		if (!allAffected) {
+		if (!allAffected && birthPrevalence != null) {
 			secParams.addProbParam(new SecondOrderParam(secParams, STR_BIRTH_PREV, "Birth prevalence", "", birthPrevalence.getDeterministicValue(), birthPrevalence.getProbabilisticValue()));
 		}
 	}
