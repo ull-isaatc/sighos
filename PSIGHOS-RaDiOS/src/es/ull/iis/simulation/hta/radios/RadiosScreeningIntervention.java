@@ -40,7 +40,7 @@ import simkit.random.RandomVariateFactory;
  * @author David Prieto González
  */
 public class RadiosScreeningIntervention extends ScreeningStrategy {
-	private boolean debug = true;
+	private boolean debug = false;
 	private boolean fine = false;
 	
 	private static final JexlEngine jexl = new JexlBuilder().create();		

@@ -507,11 +507,12 @@ public class DiseaseMain {
 	 * @throws JAXBException
 	 */
 	private static SecondOrderParamsRepository loadRepositoryToSimulation(
-			int nRuns, int nPatients, int timeHorizon, int disease, int population, Schema4Simulation radiosDiseaseInstance)
+			int nRuns, int nPatients, int timeHorizon, int disease, int population, Schema4Simulation radiosDiseaseInstance, 
+			List<String> interventionsToCompare, boolean allAffected)
 			throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		SecondOrderParamsRepository secParams = null;
 		if (radiosDiseaseInstance != null) {
-			secParams = new RadiosRepository(nRuns, nPatients, radiosDiseaseInstance, timeHorizon, false);
+			secParams = new RadiosRepository(nRuns, nPatients, radiosDiseaseInstance, timeHorizon, allAffected, interventionsToCompare);
 		} else {
 			switch (population) {			
 			case 1:
@@ -524,7 +525,7 @@ public class DiseaseMain {
 				} else if (disease == 11) {
 					path = "resources/radios_PBD.json";
 				}
-				secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon, true);
+				secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon, true, interventionsToCompare);
 				break;
 			case 2:
 				secParams = new PBDRepository(nRuns, nPatients, false);
@@ -650,9 +651,11 @@ public class DiseaseMain {
 	 * @throws TransformException
 	 * @throws JAXBException
 	 */
-	public static RadiosExperimentResult runExperiment(final Arguments arguments, Schema4Simulation radiosDiseaseInstance) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
+	public static RadiosExperimentResult runExperiment(final Arguments arguments, Schema4Simulation radiosDiseaseInstance, List<String> interventionsToCompare, boolean allAffected) 
+			throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		SecondOrderParamsRepository secParams = loadRepositoryToSimulation(
-				arguments.nRuns, arguments.nPatients, arguments.timeHorizon, arguments.disease, arguments.population, radiosDiseaseInstance);
+				arguments.nRuns, arguments.nPatients, arguments.timeHorizon, arguments.disease, arguments.population, 
+				radiosDiseaseInstance, interventionsToCompare, allAffected);
 		final String validity = secParams.checkValidity();
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
 		if (validity == null) {
@@ -675,7 +678,7 @@ public class DiseaseMain {
 			JCommander jc = JCommander.newBuilder().addObject(arguments).build();
 			boolean useProgramaticArguments = true;
 			if (useProgramaticArguments) {
-				String params = "-n 1000 -r 100 -dr 0 -pop 1 -dis 1 -q -ep ia"; // -o /tmp/result_david.txt
+				String params = "-n 100 -r 0 -dr 0 -pop 1 -dis 1 -q"; // -ep ia -o /tmp/result_david.txt
 				jc.parse(params.split(" "));
 			} else {
 				jc.parse(args);
@@ -692,7 +695,18 @@ public class DiseaseMain {
 				ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).setSerializationInclusion(Include.NON_NULL).setSerializationInclusion(Include.NON_EMPTY);
 				radiosDiseaseInstance = mapper.readValue(new File("resources/radios_PBD.json"), Schema4Simulation.class);			
 			}
-			RadiosExperimentResult result = runExperiment(arguments, radiosDiseaseInstance);
+			
+			boolean allAffected = false;
+			List<String> interventionsToCompare = new ArrayList<>();
+			if (arguments.disease == 1) {
+				interventionsToCompare.add("#RD1_Intervention_Null");
+				interventionsToCompare.add("#RD1_Intervention_Effective");
+				allAffected = true;
+			} else if (arguments.disease == 11) {
+				interventionsToCompare.add("#PBD_InterventionScreening");
+				interventionsToCompare.add("#PBD_InterventionNull");
+			}
+			RadiosExperimentResult result = runExperiment(arguments, radiosDiseaseInstance, interventionsToCompare, allAffected);
 
 			System.out.println("=====================================================================================================");
 			for (Transition transition : result.getTransitions()) {
@@ -702,7 +716,6 @@ public class DiseaseMain {
 			System.out.println(result.getPrettySavedParams());
 			System.out.println();
 			System.out.println((new String(result.getSimResult().toByteArray())));
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);

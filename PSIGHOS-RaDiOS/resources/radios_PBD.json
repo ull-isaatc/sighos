@@ -30,9 +30,10 @@
         "probabilityOfLeadingToDiagnosis" : "1.0",
         "utilities" : [ {
           "name" : "#PBD_UtilityManifestationHearingProblems",
-          "kind" : "UTILITY",
-          "value" : "0.8761#BETA(5.6,0.79)",
-          "calculateMethod" : "MIN"
+          "kind" : "DISUTILITY",
+          "value" : "0.01#UNIFORM(0.008,0.012)",
+          "calculateMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationHearingProblems",
@@ -52,12 +53,6 @@
         "probability" : "0.457#BETA(17,20)",
         "kind" : "CHRONIC",
         "probabilityOfLeadingToDiagnosis" : "1.0",
-        "utilities" : [ {
-          "name" : "#PBD_UtilityManifestationHypotonia",
-          "kind" : "UTILITY",
-          "value" : "0.8861#BETA(5.2,0.67)",
-          "calculateMethod" : "MIN"
-        } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationHypotonia",
           "amount" : "3665.56",
@@ -74,9 +69,10 @@
         "probabilityOfLeadingToDiagnosis" : "1.0",
         "utilities" : [ {
           "name" : "#PBD_UtilityManifestationMentalDelay",
-          "kind" : "UTILITY",
-          "value" : "0.8161#BETA(1.71,0.39)",
-          "calculateMethod" : "MIN"
+          "kind" : "DISUTILITY",
+          "value" : "0.07#UNIFORM(0.056,0.084)",
+          "calculateMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationMentalDelay",
@@ -98,9 +94,10 @@
         "probabilityOfLeadingToDiagnosis" : "1.0",
         "utilities" : [ {
           "name" : "#PBD_UtilityManifestationSeizure",
-          "kind" : "UTILITY",
-          "value" : "0.8461#BETA(1.65, 0.30)",
-          "calculateMethod" : "EQ-5D??"
+          "kind" : "DISUTILITY",
+          "value" : "0.04#UNIFORM(0.032,0.048)",
+          "calculateMethod" : "EQ-5D??",
+          "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationSeizure",
@@ -115,12 +112,6 @@
         "probability" : "0.41#BETA(24,34)",
         "kind" : "CHRONIC",
         "probabilityOfLeadingToDiagnosis" : "1.0",
-        "utilities" : [ {
-          "name" : "#PBD_UtilityManifestationSkinProblems",
-          "kind" : "UTILITY",
-          "value" : "0.8861#BETA(5.2,0.67)",
-          "calculateMethod" : "MIN"
-        } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationSkinProblems",
           "amount" : "3665.56",
@@ -134,12 +125,6 @@
         "probability" : "0.175#BETA(19,91)",
         "kind" : "CHRONIC",
         "probabilityOfLeadingToDiagnosis" : "1.0",
-        "utilities" : [ {
-          "name" : "#PBD_UtilityManifestationVisionLoss",
-          "kind" : "UTILITY",
-          "value" : "0.8861#BETA(5.2,0.67)",
-          "calculateMethod" : "MIN"
-        } ],
         "costs" : [ {
           "name" : "#PBD_CostManifestationVisionLoss",
           "amount" : "121.86",
@@ -185,6 +170,9 @@
       "name" : "#PBD_InterventionNoScreening",
       "kind" : "NO_SCREENING"
     }, {
+      "name" : "#PBD_InterventionNull",
+      "kind" : "NULL"
+    }, {
       "name" : "#PBD_InterventionScreening",
       "kind" : "SCREENING",
       "screeningStrategies" : [ {
@@ -202,7 +190,7 @@
         } ]
       } ],
       "manifestationModifications" : [ {
-        "name" : "#PBD_ManistationsModificationScreening",
+        "name" : "#PBD_ManifestationsModificationScreening",
         "probabilityModification" : "*0.0",
         "manifestations" : [ "#PBD_ManifestationHearingProblems", "#PBD_ManifestationHypotonia", "#PBD_ManifestationMentalDelay", "#PBD_ManifestationSeizure", "#PBD_ManifestationSkinProblems", "#PBD_ManifestationVisionLoss" ]
       } ]

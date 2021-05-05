@@ -12,7 +12,7 @@
         "utilities" : [ {
           "name" : "#RD1_Utility_MANIF1",
           "kind" : "DISUTILITY",
-          "value" : "0.2#UNIFORM(0.195,0.25)",
+          "value" : "0.2#UNIFORM(0.15,0.25)",
           "calculateMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
@@ -48,6 +48,29 @@
       } ]
     } ],
     "interventions" : [ {
+      "name" : "#RD1_InterventionNull",
+      "kind" : "NULL"
+    }, {
+      "name" : "#RD1_Intervention_Effective",
+      "kind" : "NO_SCREENING",
+      "treatmentStrategies" : [ {
+        "name" : "#RD1_TreatmentStrategy_Effective",
+        "treatments" : [ {
+          "name" : "#RD1_Treatment_Effective",
+          "costs" : [ {
+            "name" : "#RD1_Cost_Treatment_Effective",
+            "amount" : "200.0",
+            "year" : "2021",
+            "temporalBehavior" : "ANNUAL"
+          } ]
+        } ]
+      } ],
+      "manifestationModifications" : [ {
+        "name" : "#RD1_ManifestationsModification_Effective",
+        "probabilityModification" : "*0.5#UNIFORM(0.4,0.6)",
+        "manifestations" : [ "#RD1_MANIF1", "#RD1_MANIF2" ]
+      } ]
+    }, {
       "name" : "#RD1_Intervention_NoScreening",
       "kind" : "NO_SCREENING"
     }, {

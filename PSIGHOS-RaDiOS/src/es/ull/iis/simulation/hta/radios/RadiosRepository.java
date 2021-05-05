@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.radios;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
@@ -24,6 +25,7 @@ import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
@@ -52,10 +54,11 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	 * @throws JAXBException 
 	 * @throws TransformException 
 	 */
-	public RadiosRepository(int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont, boolean allAffected) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
+	public RadiosRepository(int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont, boolean allAffected, List<String> intenvetionsToCompare) 
+			throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		super(nRuns, nPatients);
 
-		initialize(nRuns, nPatients, radiosDiseaseInstance, timeHorizont, allAffected);
+		initialize(nRuns, nPatients, radiosDiseaseInstance, timeHorizont, allAffected, intenvetionsToCompare);
 	}
 	
 	/**
@@ -71,13 +74,14 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	 * @throws JAXBException 
 	 * @throws TransformException 
 	 */
-	public RadiosRepository(int nRuns, int nPatients, String pathToRaDiOSJson, Integer timeHorizont, boolean allAffected) throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
+	public RadiosRepository(int nRuns, int nPatients, String pathToRaDiOSJson, Integer timeHorizont, boolean allAffected, List<String> intenventionsToCompare) 
+			throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		super(nRuns, nPatients);
 
 		mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).setSerializationInclusion(Include.NON_NULL).setSerializationInclusion(Include.NON_EMPTY);
 		Schema4Simulation radiosDiseaseInstance = mapper.readValue(new File(pathToRaDiOSJson), Schema4Simulation.class);
 
-		initialize(nRuns, nPatients, radiosDiseaseInstance, timeHorizont, allAffected);
+		initialize(nRuns, nPatients, radiosDiseaseInstance, timeHorizont, allAffected, intenventionsToCompare);
 	}
 	
 	/**
@@ -88,10 +92,11 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	 * @throws TransformException
 	 * @throws JAXBException
 	 */
-	private void initialize (int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont, boolean allAffected) throws TransformException, JAXBException {
+	private void initialize (int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont, boolean allAffected, List<String> intenventionsToCompare) 
+		throws TransformException, JAXBException {
 		costCalc = new DiseaseCostCalculator(this);
-		// utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
-		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, 0.8861);
+		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
+//		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, 0.8861);
 
 		RadiosDisease disease = new RadiosDisease(this, radiosDiseaseInstance.getDisease(), timeHorizont);		
 		registerDisease(disease);
@@ -101,14 +106,19 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 		
 		if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
 			for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
-				if (Constants.DATAPROPERTYVALUE_KIND_INTERVENTION_SCREENING_VALUE.equalsIgnoreCase(intervention.getKind())) {
-					RadiosScreeningIntervention radiosIntervention = new RadiosScreeningIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
-							disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis(), disease); 
-					this.registerIntervention(radiosIntervention);
-				} else {
-					RadiosBasicIntervention radiosIntervention = new RadiosBasicIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
-							disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis()); 
-					this.registerIntervention(radiosIntervention);
+				System.out.println();
+				if (intenventionsToCompare == null || intenventionsToCompare.contains(intervention.getName())) {
+					if (Constants.DATAPROPERTYVALUE_KIND_INTERVENTION_SCREENING_VALUE.equalsIgnoreCase(intervention.getKind())) {
+						RadiosScreeningIntervention radiosIntervention = new RadiosScreeningIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
+								disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis(), disease); 
+						this.registerIntervention(radiosIntervention);
+					} else if (Constants.DATAPROPERTYVALUE_KIND_INTERVENTION_NULL_VALUE.equalsIgnoreCase(intervention.getKind())) {
+						this.registerIntervention(new NullIntervention(this));
+					} else {
+						RadiosBasicIntervention radiosIntervention = new RadiosBasicIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
+								disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis(), disease); 
+						this.registerIntervention(radiosIntervention);
+					}
 				}
 			}
 		} 

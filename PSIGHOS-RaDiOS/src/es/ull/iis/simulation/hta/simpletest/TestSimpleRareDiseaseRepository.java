@@ -32,9 +32,9 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 	public TestSimpleRareDiseaseRepository(int nRuns, int nPatients, int disease) {
 		super(nRuns, nPatients);
 
-
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
+
 		Disease testDisease = null;
 		switch (disease) {
 		case 1: 
@@ -84,8 +84,8 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 			break;
 		case 1:
 		default:
-			registerIntervention(new NullIntervention(this));
 			registerIntervention(new EffectiveIntervention(this));
+			registerIntervention(new NullIntervention(this));
 			break;
 		}
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));

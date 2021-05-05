@@ -17,7 +17,7 @@ public class EffectiveIntervention extends Intervention {
 	private final static double RR = 0.5;
 
 	public EffectiveIntervention(SecondOrderParamsRepository secParams) {
-		super(secParams, "INTERV", "Effective intervention");
+		super(secParams, "InterventionEffective", "Effective intervention");
 	}
 
 	@Override

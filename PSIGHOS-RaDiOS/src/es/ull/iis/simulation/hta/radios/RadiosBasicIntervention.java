@@ -3,6 +3,8 @@ package es.ull.iis.simulation.hta.radios;
 import static java.lang.String.format;
 
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
@@ -10,15 +12,22 @@ import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.lang3.StringUtils;
 
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
+import es.ull.iis.ontology.radios.json.schema4simulation.ManifestationModification;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.Modification;
+import es.ull.iis.simulation.hta.progression.Transition;
+import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
+import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
@@ -26,8 +35,12 @@ import es.ull.iis.simulation.model.TimeUnit;
  */
 public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.interventions.Intervention {
 	private final boolean debug = true;	
+	private final boolean fine = false;	
 	private static final JexlEngine jexl = new JexlBuilder().create();
 
+	private static final String REGEXP = "^([*+-/])?(.+)$";
+	private static Pattern pattern = Pattern.compile(REGEXP);	
+	
 	private Intervention intervention;
 	private String naturalDevelopmentName;
 	private Integer timeHorizont;
@@ -35,8 +48,10 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 	private Matrix costFollowUps;
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
+	private Disease disease;
 
-	public RadiosBasicIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Integer timeHorizont, Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis) {
+	public RadiosBasicIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Integer timeHorizont, 
+			Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis, Disease disease) {
 		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING);
 		this.intervention = intervention; 
 		this.naturalDevelopmentName = naturalDevelopmentName;
@@ -45,6 +60,7 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 		this.costScreenings = baseCostScreenings.clone();
 		this.costClinicalDiagnosis = baseCostClinicalDiagnosis.clone();
 		this.timeHorizont = timeHorizont;
+		this.disease = disease;
 		
 		// TODO: las intervenciones al definirlas en Radios, puede llevar vinculadas modificaciones de las manifestaciones. Es aquí donde las daremos de alta.
 		
@@ -95,44 +111,47 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 		for (String manifestacion : costs.keySetR()) {
 			for (String item : costs.keySetC(manifestacion)) {
 				for (CostMatrixElement e : costs.get(manifestacion, item)) {
-					if (initTimeRange <= e.getFloorLimitRange() && (e.getCeilLimitRange() == null || e.getCeilLimitRange() <= finalTimeRange)) {
-						Integer nTimesManifestations = 1;
-						Boolean applyCost = true; 
-						if (e.getCondition() != null) {
-							JexlExpression exprToEvaluate = jexl.createExpression(e.getCondition());
-							try {
-								applyCost = (Boolean) exprToEvaluate.evaluate(jc);
-							} catch (JexlException ex) {
-								System.err.println(ex.getMessage());
-								applyCost = false;
-							}
-						}
-						
-						if (applyCost) {
-							Double partialCummulativeCost = 0.0;
-							if (e.getCostExpression() != null) {
-								jc.set("cost", e.getCost());
-								JexlExpression exprToEvaluate = jexl.createExpression(e.getCostExpression());
-								try {
-									partialCummulativeCost = (((Double) exprToEvaluate.evaluate(jc)) * e.calculateNTimesInRange(null, null) * nTimesManifestations);
-								} catch (JexlException ex) {
-									System.err.println(ex.getMessage());
-									partialCummulativeCost = 0.0;
-								}
-							} else {
-								partialCummulativeCost = (e.getCost() * e.calculateNTimesInRange(null, null) * nTimesManifestations); 
-							}
-							cummulativeCost += partialCummulativeCost;
-							if (debug) {
-								if (e.getCondition() != null) {
-									System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", item, e.getCondition(), partialCummulativeCost));
-								} else {
-								}
-								System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente. Coste parcial añadido [%s].", item, partialCummulativeCost));
-							}
-						}
-					}
+					cummulativeCost = calculateCostForSpecificRange(initTimeRange, finalTimeRange, cummulativeCost, jc, item, e);
 				}
+			}
+		}
+		return cummulativeCost;
+	}
+
+	private Double calculateCostForSpecificRange(Double initTimeRange, Double finalTimeRange, Double cummulativeCost, JexlContext jc, String item, CostMatrixElement e) {
+		Integer nTimesManifestations = 1;
+		Boolean applyCost = true; 
+		if (e.getCondition() != null) {
+			JexlExpression exprToEvaluate = jexl.createExpression(e.getCondition());
+			try {
+				applyCost = (Boolean) exprToEvaluate.evaluate(jc);
+			} catch (JexlException ex) {
+				System.err.println(ex.getMessage());
+				applyCost = false;
+			}
+		}
+		
+		if (applyCost) {
+			Double partialCummulativeCost = 0.0;
+			if (e.getCostExpression() != null) {
+				jc.set("cost", e.getCost());
+				JexlExpression exprToEvaluate = jexl.createExpression(e.getCostExpression());
+				try {
+					partialCummulativeCost = (((Double) exprToEvaluate.evaluate(jc)) * e.calculateNTimesInRange(initTimeRange, finalTimeRange) * nTimesManifestations);
+				} catch (JexlException ex) {
+					System.err.println(ex.getMessage());
+					partialCummulativeCost = 0.0;
+				}
+			} else {
+				partialCummulativeCost = (e.getCost() * e.calculateNTimesInRange(initTimeRange, finalTimeRange) * nTimesManifestations); 
+			}
+			cummulativeCost += partialCummulativeCost;
+			if (fine) {
+				if (e.getCondition() != null) {
+					System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente por cumplir la condición [%s]. Coste parcial añadido [%s].", item, e.getCondition(), partialCummulativeCost));
+				} else {
+				}
+				System.out.println(format("\t\tSe aplicará el coste de [%s] al paciente. Coste parcial añadido [%s].", item, partialCummulativeCost));
 			}
 		}
 		return cummulativeCost;
@@ -258,31 +277,69 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 		return nTimesManifestations;
 	}
 
+	/**
+	 * @param registerManifestation
+	 * @param paramModification
+	 */
+	private void addInterventionParamModification(String registerManifestation, String paramModification) {
+		if (!StringUtils.isEmpty(paramModification)) {
+			Matcher matcher = pattern.matcher(paramModification.trim());
+			if (matcher.find()) {
+				ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(matcher.group(2));
+				if (probabilityDistribution != null) {
+					if ("*".equals(matcher.group(1))) {
+						for (Transition transition : disease.getTransitions()) {
+							if (transition.getDestManifestation().getName().equals(registerManifestation)) {
+								secParams.addModificationParam(this, Modification.Type.RR, transition.getSrcManifestation(), transition.getDestManifestation(),  
+										Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	/*******************************************************************************************************************************************************************************************
 	 *******************************************************************************************************************************************************************************************
 	 * Override methods
 	 *******************************************************************************************************************************************************************************************
 	*******************************************************************************************************************************************************************************************/	
 	@Override
-	public void registerSecondOrderParameters() {
-	}
-
-	@Override
 	public double getAnnualCost(Patient pat) {
-		Boolean calculateCummulativeCost = false;
+		Boolean calculateCummulativeCost = true;
 		Double cummulativeCost = 0.0;
 		if (calculateCummulativeCost) {
-			Double floorLimit = Math.floor(pat.getAge());
-			Double ceilLimit = (Math.ceil(pat.getAge()) == Math.floor(pat.getAge())) ? Math.ceil(pat.getAge()) + 1.0 : Math.ceil(pat.getAge());
-			return calculateCostsByRange(pat, cummulativeCost, floorLimit, ceilLimit);
-		} else {
-			return cummulativeCost;
+			double floorLimit = pat.getAge();
+			double ceilLimit = Math.ceil(pat.getAge());
+			if (ceilLimit == floorLimit) {
+				ceilLimit = ceilLimit + 1.0;
+			}
+			cummulativeCost = calculateCostsByRange(pat, cummulativeCost, floorLimit, ceilLimit);
+			if (debug) {
+				System.out.println(String.format("Patient {%s} ==> Range[%s - %s] ==> Cost = %s", pat.getIdentifier(), floorLimit, ceilLimit, cummulativeCost));
+			}				
 		}
+		return cummulativeCost;
 	}
 
 	@Override
 	public double getStartingCost(Patient pat) {
 		Double cummulativeCost = 0.0;
 		return cummulativeCost;
+	}
+
+	@Override
+	public void registerSecondOrderParameters() {
+		// Register the modifications of the manifestations caused by the intervention		
+		if (this.intervention.getManifestationModifications() != null) {
+			for (ManifestationModification manifestationModification : this.intervention.getManifestationModifications()) {
+				if (manifestationModification.getManifestations() != null) {
+					for (String manifestation : manifestationModification.getManifestations()) {
+						addInterventionParamModification(manifestation, manifestationModification.getProbabilityModification());
+					}
+				}
+			}
+		}
 	}
 }

@@ -115,22 +115,17 @@ public class CostMatrixElement {
 	}
 
 	public Double calculateNTimesInRange(Double initTimeRange, Double finalTimeRange) {
-		if (this.ceilLimitRange != null &&  this.floorLimitRange != null && this.frequency != null) {
-			Double from = this.floorLimitRange;		
-			Double to = this.ceilLimitRange;		
-			if (initTimeRange != null && finalTimeRange != null) {
-				if (initTimeRange >= from && initTimeRange <= to) {
-					from = initTimeRange;
-				} else {
-					from = 0.0;
-				}
-				if (finalTimeRange <= to) {
-					to = finalTimeRange;
-				}
-			}		
-			return Math.floor((to - from) / this.frequency);			
-		}
-		return 1.0;
+		double from = this.floorLimitRange;		
+		double to = (this.ceilLimitRange != null ? this.ceilLimitRange : Double.MAX_VALUE);		
+		if (initTimeRange != null && finalTimeRange != null) {
+			if (initTimeRange >= from && initTimeRange <= to) {
+				from = initTimeRange;
+			}
+			if (finalTimeRange <= to) {
+				to = finalTimeRange;
+			}
+		}		
+		return Math.ceil(to - from);			
 	}
 	
 	public CostMatrixElement clone() {

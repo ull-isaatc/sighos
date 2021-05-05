@@ -215,18 +215,22 @@ public class CostUtils {
 	 * @param guidelines
 	 * @return
 	 */
-	public static Matrix updateMatrixWithCostAndGuidelines(Matrix costs, String strategyName, String itemName, List<Cost> costsItem, List<Guideline> guidelines,
-			Integer timeHorizont) {
+	public static Matrix updateMatrixWithCostAndGuidelines(Matrix costs, String strategyName, String itemName, List<Cost> costsItem, List<Guideline> guidelines, Integer timeHorizont) {
 		if (CollectionUtils.notIsEmpty(costsItem)) {
 			for (Cost cost : costsItem) {
 				if (CollectionUtils.notIsEmpty(guidelines)) {
 					for (Guideline guideline : guidelines) {
 						updateCostMatrix(costs, strategyName, itemName, cost.getAmount(), guideline, timeHorizont, Integer.parseInt(cost.getYear()));
 					}
-				} else {
-					if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equalsIgnoreCase(cost.getTemporalBehavior())) {
-						// TODO
+				} else if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equalsIgnoreCase(cost.getTemporalBehavior())) {
+					// TODO
+				} else if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE.equalsIgnoreCase(cost.getTemporalBehavior())) {
+					List<CostMatrixElement> costList = costs.get(strategyName, itemName);
+					if (costList == null) {
+						costList = new ArrayList<>();
 					}
+					costList.add(new CostMatrixElement(0.0, null, 1.0, null, null, Double.valueOf(cost.getAmount()), null, Integer.parseInt(cost.getYear()), null));
+					costs.put(strategyName, itemName, costList);
 				}
 			}
 		}

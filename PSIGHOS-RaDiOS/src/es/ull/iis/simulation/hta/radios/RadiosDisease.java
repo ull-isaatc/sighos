@@ -35,7 +35,7 @@ import simkit.random.RandomVariateFactory;
  * @author David Prieto González
  */
 public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedDisease {
-	private final boolean debug = true; 
+	private final boolean debug = false; 
 
 	private Disease disease;
 	private Matrix costTreatments;
