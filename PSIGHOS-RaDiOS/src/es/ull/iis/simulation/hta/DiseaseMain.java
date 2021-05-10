@@ -60,7 +60,7 @@ import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
 /**
  * Main class to launch simulation experiments
  * 
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  *
  */
 public class DiseaseMain {
@@ -349,7 +349,7 @@ public class DiseaseMain {
 		out.println(getStrHeader());
 		simulateInterventions(0, true);
 		if (baseCaseExpListeners.size() > 0) {
-			// No quitar la línea de #'s: necesario para poder analizar el outputstream de salida desde RaDiOS-MTT
+			// No quitar la lï¿½nea de #'s: necesario para poder analizar el outputstream de salida desde RaDiOS-MTT
 			outListeners.println("################################################################################################################");
 			outListeners.println(BasicConfigParams.STR_SEP);
 			outListeners.println("Base case");
@@ -379,7 +379,7 @@ public class DiseaseMain {
 				new ProblemExecutor(out, 1, 1).run();
 			}
 			if (expListeners.size() > 0) {
-				// No quitar la línea de #'s: necesario para poder analizar el outputstream de salida desde RaDiOS-MTT
+				// No quitar la lï¿½nea de #'s: necesario para poder analizar el outputstream de salida desde RaDiOS-MTT
 				outListeners.println("################################################################################################################");
 				outListeners.println(BasicConfigParams.STR_SEP);
 				outListeners.println("PSA");
@@ -500,7 +500,7 @@ public class DiseaseMain {
 	
 	public static class Arguments {
 		/*
-		 * -n 100 -r 5 -dr 0 -q -pop 1 -ps 3 -po -dis 1: 100 pacientes, 5 ejecuciones probabilisticas, sin descuento, sin mostrar el progreso de ejecución, para RaDiOS, con el progreso para el tercer
+		 * -n 100 -r 5 -dr 0 -q -pop 1 -ps 3 -po -dis 1: 100 pacientes, 5 ejecuciones probabilisticas, sin descuento, sin mostrar el progreso de ejecuciï¿½n, para RaDiOS, con el progreso para el tercer
 		 * paciente, habilitada la salida individual por paciente y para la enfermedad test1
 		 */
 
@@ -548,7 +548,7 @@ public class DiseaseMain {
 	/**
 	 * The executor of simulations. Each problem executor launches a set of simulation experiments
 	 * 
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 */
 	private class ProblemExecutor implements Runnable {
 		final private PrintWriter out;
@@ -574,7 +574,7 @@ public class DiseaseMain {
 	/**
 	 * A class to print the progression of the simulations
 	 * 
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 *
 	 */
 	private class PrintProgress {

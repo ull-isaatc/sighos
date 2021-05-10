@@ -34,7 +34,7 @@ import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.simpletest.NullIntervention;
 
 /**
- * @author David Prieto González
+ * @author David Prieto Gonzï¿½lez
  */
 public class RadiosRepository extends SecondOrderParamsRepository {
 	private ObjectMapper mapper; 
