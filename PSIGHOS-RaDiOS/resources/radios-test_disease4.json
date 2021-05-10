@@ -3,17 +3,14 @@
     "name" : "#RD4_Disease",
     "developments" : [ {
       "name" : "#RD4_Natural_Development",
-      "kind" : "NATURAL",
       "manifestations" : [ {
         "name" : "#RD4_MANIF1",
         "probability" : "0.1",
-        "kind" : "CHRONIC",
         "mortalityFactor" : "1.5#UNIFORM(1.3,1.7)",
         "utilities" : [ {
           "name" : "#RD4_Utility_MANIF1",
-          "kind" : "DISUTILITY",
           "value" : "0.2#UNIFORM(0.15,0.25)",
-          "calculateMethod" : "MIN",
+          "calculationMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
@@ -25,14 +22,11 @@
       }, {
         "name" : "#RD4_MANIF2",
         "probability" : "0.02",
-        "kind" : "CHRONIC",
         "mortalityFactor" : "5.0#UNIFORM(4.0,6.0)",
-        "probabilityOfLeadingToDiagnosis" : "0.8",
         "utilities" : [ {
           "name" : "#RD4_Utility_MANIF2",
-          "kind" : "DISUTILITY",
           "value" : "0.5#UNIFORM(0.4,0.6)",
-          "calculateMethod" : "MIN",
+          "calculationMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
@@ -40,23 +34,15 @@
           "amount" : "1000.0",
           "year" : "2020",
           "temporalBehavior" : "ANNUAL"
-        } ],
-        "precedingManifestations" : [ {
-          "name" : "#RD4_MANIF1",
-          "probability" : "0.05",
-          "replacePrevious" : "FALSE"
         } ]
       }, {
         "name" : "#RD4_MANIF_ACUTE1",
         "probability" : "0.15",
-        "kind" : "ACUTE",
         "mortalityFactor" : "0.1",
-        "probabilityOfLeadingToDiagnosis" : "0.25",
         "utilities" : [ {
           "name" : "#RD4_Utility_MANIF_ACUTE1",
-          "kind" : "DISUTILITY",
           "value" : "0.2#UNIFORM(0.15,0.25)",
-          "calculateMethod" : "MIN",
+          "calculationMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
@@ -68,11 +54,9 @@
       } ]
     } ],
     "interventions" : [ {
-      "name" : "#RD4_Intervention_NoScreening",
-      "kind" : "NO_SCREENING"
+      "name" : "#RD4_Intervention_NoScreening"
     }, {
       "name" : "#RD4_Intervention_Screening",
-      "kind" : "SCREENING",
       "screeningStrategies" : [ {
         "name" : "#RD4_Strategy_Screening",
         "screeningTechniques" : [ {

@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
 import es.ull.iis.simulation.hta.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.inforeceiver.BudgetImpactView;
@@ -42,6 +43,7 @@ import es.ull.iis.simulation.hta.inforeceiver.ScreeningTestPerformanceView;
 import es.ull.iis.simulation.hta.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
+import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -347,6 +349,8 @@ public class DiseaseMain {
 		out.println(getStrHeader());
 		simulateInterventions(0, true);
 		if (baseCaseExpListeners.size() > 0) {
+			// No quitar la línea de #'s: necesario para poder analizar el outputstream de salida desde RaDiOS-MTT
+			outListeners.println("################################################################################################################");
 			outListeners.println(BasicConfigParams.STR_SEP);
 			outListeners.println("Base case");
 			outListeners.println(BasicConfigParams.STR_SEP);
@@ -375,6 +379,8 @@ public class DiseaseMain {
 				new ProblemExecutor(out, 1, 1).run();
 			}
 			if (expListeners.size() > 0) {
+				// No quitar la línea de #'s: necesario para poder analizar el outputstream de salida desde RaDiOS-MTT
+				outListeners.println("################################################################################################################");
 				outListeners.println(BasicConfigParams.STR_SEP);
 				outListeners.println("PSA");
 				outListeners.println(BasicConfigParams.STR_SEP);
@@ -492,58 +498,6 @@ public class DiseaseMain {
 		return result;
 	}
 	
-	/**
-	 * @param nRuns
-	 * @param nPatients
-	 * @param timeHorizon
-	 * @param disease
-	 * @param population
-	 * @return
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws MalformedURLException
-	 * @throws IOException
-	 * @throws TransformException
-	 * @throws JAXBException
-	 */
-	private static SecondOrderParamsRepository loadRepositoryToSimulation(
-			int nRuns, int nPatients, int timeHorizon, int disease, int population, Schema4Simulation radiosDiseaseInstance, 
-			List<String> interventionsToCompare, boolean allAffected)
-			throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
-		SecondOrderParamsRepository secParams = null;
-		if (radiosDiseaseInstance != null) {
-			secParams = new RadiosRepository(nRuns, nPatients, radiosDiseaseInstance, timeHorizon, allAffected, interventionsToCompare);
-		} else {
-			switch (population) {			
-			case 1:
-				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", disease));
-				String path = "";
-				if (disease == 0) {
-					path = "resources/radios_SCD.json";
-				} else if (disease < 10) {
-					path = "resources/radios-test_disease" + disease + ".json";
-				} else if (disease == 11) {
-					path = "resources/radios_PBD.json";
-				}
-				secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon, true, interventionsToCompare);
-				break;
-			case 2:
-				secParams = new PBDRepository(nRuns, nPatients, false);
-	        	break;
-			case 3:
-	        	secParams = new PBDRepository(nRuns, nPatients, true);
-	        	break;				
-			case 0:
-			default:
-				System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for the rare disease [%d] \n\n", disease));
-				secParams = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
-				break;
-			}
-		}
-
-		return secParams;
-	}
-
 	public static class Arguments {
 		/*
 		 * -n 100 -r 5 -dr 0 -q -pop 1 -ps 3 -po -dis 1: 100 pacientes, 5 ejecuciones probabilisticas, sin descuento, sin mostrar el progreso de ejecución, para RaDiOS, con el progreso para el tercer
@@ -651,11 +605,11 @@ public class DiseaseMain {
 	 * @throws TransformException
 	 * @throws JAXBException
 	 */
-	public static RadiosExperimentResult runExperiment(final Arguments arguments, Schema4Simulation radiosDiseaseInstance, List<String> interventionsToCompare, boolean allAffected) 
+	public static RadiosExperimentResult runExperiment(final Arguments arguments, Schema4Simulation radiosDiseaseInstance, List<String> interventionsToCompare, boolean allAffected, double utilityGeneralPopulation) 
 			throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		SecondOrderParamsRepository secParams = loadRepositoryToSimulation(
 				arguments.nRuns, arguments.nPatients, arguments.timeHorizon, arguments.disease, arguments.population, 
-				radiosDiseaseInstance, interventionsToCompare, allAffected);
+				radiosDiseaseInstance, interventionsToCompare, allAffected, utilityGeneralPopulation);
 		final String validity = secParams.checkValidity();
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
 		if (validity == null) {
@@ -669,44 +623,111 @@ public class DiseaseMain {
 			System.err.println("Could not validate model. Result = " + validity);
 		}
 		
-		return new RadiosExperimentResult(secParams.getRegisteredDiseases()[secParams.getRegisteredDiseases().length - 1].getTransitions(), baos, secParams.prettySavedParams());		
+		return new RadiosExperimentResult(secParams.getRegisteredDiseases()[secParams.getRegisteredDiseases().length - 1].getTransitions(), baos, secParams.prettySavedParams(), arguments.nRuns);		
+	}
+
+	private static void parseParameters(String[] args, final Arguments arguments, boolean useProgramaticArguments, String params) {
+		JCommander jc = JCommander.newBuilder().addObject(arguments).build();
+		if (useProgramaticArguments) {
+			jc.parse(params.split(" "));
+		} else {
+			jc.parse(args);
+		}
+	}
+
+	/**
+	 * @param nRuns
+	 * @param nPatients
+	 * @param timeHorizon
+	 * @param disease
+	 * @param population
+	 * @return
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws TransformException
+	 * @throws JAXBException
+	 */
+	private static SecondOrderParamsRepository loadRepositoryToSimulation(
+			int nRuns, int nPatients, int timeHorizon, int disease, int population, Schema4Simulation radiosDiseaseInstance, 
+			List<String> interventionsToCompare, boolean allAffected, double utilityGeneralPopulation)
+			throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
+		SecondOrderParamsRepository secParams = null;
+		if (radiosDiseaseInstance != null) {
+			secParams = new RadiosRepository(nRuns, nPatients, radiosDiseaseInstance, timeHorizon, allAffected, interventionsToCompare)
+					.configDiseaseUtilityCalculator(DisutilityCombinationMethod.MAX, utilityGeneralPopulation);
+		} else {
+			switch (population) {			
+			case 1:
+				String path = "";
+				if (disease == 0) {
+					path = "resources/radios_SCD.json";
+				} else if (disease < 10) {
+					System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", disease));
+					path = "resources/radios-test_disease" + disease + ".json";
+				} else if (disease == 11) {
+					System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease PBD \n\n", disease));
+					path = "resources/radios_PBD.json";
+				}
+				secParams = (new RadiosRepository(nRuns, nPatients, path, timeHorizon, allAffected, interventionsToCompare))
+						.configDiseaseUtilityCalculator(DisutilityCombinationMethod.MAX, utilityGeneralPopulation);
+				break;
+			case 2:
+				System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for the rare disease PBD \n\n", disease));
+				secParams = new PBDRepository(nRuns, nPatients, allAffected);
+	        	break;
+			case 0:
+			default:
+				System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for the rare disease [%d] \n\n", disease));
+				secParams = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
+				break;
+			}
+		}
+
+		return secParams;
 	}
 
 	public static void main(String[] args) {
 		final Arguments arguments = new Arguments();
 		try {
-			JCommander jc = JCommander.newBuilder().addObject(arguments).build();
+			// ##############################################################################################################
+			// Parameters definition
+			// ##############################################################################################################
+			boolean usePreviousLoadedJsonDiseaseDefinition = true;
+			boolean replaceDotWithColon = false;
 			boolean useProgramaticArguments = true;
-			if (useProgramaticArguments) {
-				String params = "-n 100 -r 0 -dr 0 -pop 1 -dis 1 -q"; // -ep ia -o /tmp/result_david.txt
-				jc.parse(params.split(" "));
-			} else {
-				jc.parse(args);
+			boolean allAffected = true;
+			double utilityGeneralPopulation = 0.8861;
+			String params = "-n 100 -r 10 -dr 0.0 0.0 -pop 1 -dis 11 -q -ep ia"; // -o /tmp/result_david.txt
+			parseParameters(args, arguments, useProgramaticArguments, params);
+
+			int TEST_RARE_DISEASE1 = 1; int TEST_RARE_DISEASE2 = 1; int TEST_RARE_DISEASE3 = 1; int TEST_RARE_DISEASE4 = 1; int PBD = 11; 
+			List<String> interventionsToCompare = new ArrayList<>();
+			if (arguments.disease == TEST_RARE_DISEASE1 || arguments.disease == TEST_RARE_DISEASE2 || arguments.disease == TEST_RARE_DISEASE3 || arguments.disease == TEST_RARE_DISEASE4) {
+				interventionsToCompare.add(Constants.CONSTANT_DO_NOTHING);
+				interventionsToCompare.add("#RD1_Intervention_Effective");
+				allAffected = true;
+			} else if (arguments.disease == PBD || usePreviousLoadedJsonDiseaseDefinition) {
+				interventionsToCompare.add(Constants.CONSTANT_DO_NOTHING);
+				interventionsToCompare.add("#PBD_InterventionScreening");
 			}
+
 			BasicConfigParams.STUDY_YEAR = arguments.year;
 
 			for (final Map.Entry<String, String> pInit : arguments.initProportions.entrySet()) {
 				BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
 			}
+			// ##############################################################################################################
 
-			boolean usePreviousLoadedJsonDiseaseDefinition = false;
 			Schema4Simulation radiosDiseaseInstance = null;
 			if (usePreviousLoadedJsonDiseaseDefinition) {
 				ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).setSerializationInclusion(Include.NON_NULL).setSerializationInclusion(Include.NON_EMPTY);
 				radiosDiseaseInstance = mapper.readValue(new File("resources/radios_PBD.json"), Schema4Simulation.class);			
 			}
 			
-			boolean allAffected = false;
-			List<String> interventionsToCompare = new ArrayList<>();
-			if (arguments.disease == 1) {
-				interventionsToCompare.add("#RD1_Intervention_Null");
-				interventionsToCompare.add("#RD1_Intervention_Effective");
-				allAffected = true;
-			} else if (arguments.disease == 11) {
-				interventionsToCompare.add("#PBD_InterventionScreening");
-				interventionsToCompare.add("#PBD_InterventionNull");
-			}
-			RadiosExperimentResult result = runExperiment(arguments, radiosDiseaseInstance, interventionsToCompare, allAffected);
+			System.out.println(arguments);
+			RadiosExperimentResult result = runExperiment(arguments, radiosDiseaseInstance, interventionsToCompare, allAffected, utilityGeneralPopulation);
 
 			System.out.println("=====================================================================================================");
 			for (Transition transition : result.getTransitions()) {
@@ -715,11 +736,14 @@ public class DiseaseMain {
 			System.out.println();
 			System.out.println(result.getPrettySavedParams());
 			System.out.println();
-			System.out.println((new String(result.getSimResult().toByteArray())));
+			if (replaceDotWithColon) {
+				System.out.println((new String (result.getSimResult().toByteArray())).replace(".", ","));
+			} else {
+				System.out.println((new String (result.getSimResult().toByteArray())));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
 	}
-
 }

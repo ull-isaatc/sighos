@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -61,7 +62,7 @@ public class Tests {
 		
 		try {			
 			Schema4Simulation schema4Simulation = loadDiseaseFromJson("/home/davidpg/workspace/java/RaDiOS-MTT/radios.json");
-			RadiosRepository repository = new RadiosRepository(1, 1, schema4Simulation, 10, true);
+			RadiosRepository repository = new RadiosRepository(1, 1, schema4Simulation, 10, true, Arrays.asList(""));
 			for (Manifestation m : schema4Simulation.getDisease().getDevelopments().get(0).getManifestations()) {
 				if (m.getProbability() != null && m.getProbability().length() > 50) {
 					System.out.println(String.format("Parseando la probabilidad de %s: %s...", m.getName(), m.getProbability().substring(0, 50)));
@@ -94,7 +95,7 @@ public class Tests {
 		int timeHorizont = 10;
 		
 		try {
-			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios.json", timeHorizont, true);			
+			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios.json", timeHorizont, true, Arrays.asList(""));			
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;
@@ -115,7 +116,7 @@ public class Tests {
 		int timeHorizont = 10;
 		
 		try {
-			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease1.json", timeHorizont, true);
+			new RadiosRepository(nRuns, nPatients, "/home/davidpg/workspace/java/sighos-radios/PSIGHOS-RaDiOS/resources/radios-test_disease1.json", timeHorizont, true, Arrays.asList(""));
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;
