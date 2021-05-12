@@ -143,6 +143,7 @@ public class DiabPlusMain {
 	private static final String OUTPUTS_SUFIX = "_outputs"; 
 	private final PrintWriter out;
 	private final PrintWriter outListeners;
+	private final PrintWriter outJSON;	
 	private final ArrayList<SecondOrderDiabetesIntervention> interventions;
 	/** Number of simulations to run */
 	private final int nRuns;
@@ -161,14 +162,15 @@ public class DiabPlusMain {
 	private final int timeHorizon;
 	private final ArrayList<ExperimentListener> expListeners;
 	private final ArrayList<ExperimentListener> baseCaseExpListeners;
+	private final DiabPlusJSONWriter jsonWriter;
 	
-	
-	public DiabPlusMain(PrintWriter out, PrintWriter outListeners, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs, final ArrayList<EpidemiologicOutputFormat> toPrint) {
+	public DiabPlusMain(PrintWriter out, PrintWriter outListeners, PrintWriter outJSON, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs, final ArrayList<EpidemiologicOutputFormat> toPrint) {
 		super();
 		this.printOutputs = printOutputs;
 		this.timeHorizon = timeHorizon;
 		this.out = out;
 		this.outListeners = outListeners;
+		this.outJSON = outJSON;
 		this.discountCost = discountCost;
 		this.discountEffect = discountEffect;
 		this.interventions = secParams.getRegisteredInterventions();
@@ -195,6 +197,7 @@ public class DiabPlusMain {
 			expListeners.add(new EpidemiologicView(nRuns, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 			baseCaseExpListeners.add(new EpidemiologicView(1, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 		}
+		this.jsonWriter = new DiabPlusJSONWriter(nRuns, interventions);
 	}
 	
 	private String getStrHeader() {
@@ -308,7 +311,10 @@ public class DiabPlusMain {
 					listener.addListener(simul);
 				}
 			}
-			simul.run();				
+			simul.run();
+			if (baseCase) {
+				jsonWriter.notifyEndBaseCase(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener);
+			}
 		}
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 			System.out.print("Patient");
@@ -325,7 +331,7 @@ public class DiabPlusMain {
 				System.out.println();
 			}
 		}
-		out.println(print(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener));	
+		out.println(print(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener));
 	}
 	
 	/**
@@ -379,11 +385,32 @@ public class DiabPlusMain {
 		
 		
         if (!quiet)
-        	System.out.println("Execution time: " + ((System.currentTimeMillis() - t) / 1000) + " sec");       
+        	System.out.println("Execution time: " + ((System.currentTimeMillis() - t) / 1000) + " sec");
+        outJSON.println(jsonWriter.getJSON());
         out.close();
         outListeners.close();
+        outJSON.close();
 	}
 
+	private static SecondOrderParamsRepository loadJSON(int nPatients, String jsonFile) {
+		JSONObject json = null;
+		try {
+			String str = new String(Files.readAllBytes(Paths.get(jsonFile)));
+			json = new JSONObject(str).getJSONObject("patient");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		final double hypoRate = json.getDouble("hypoRate");
+		final double baseHbA1cLevel = json.getDouble("baseHbA1cLevel");
+		final double objHbA1cLevel = json.getDouble("objHbA1cLevel");
+		final double annualCost = json.getDouble("annualCost");
+		final double age = json.getDouble("age");
+		final double durationOfDiabetes = json.getDouble("durationOfDiabetes");
+		final boolean man = json.getBoolean("man");
+		final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man, baseHbA1cLevel, age, durationOfDiabetes);
+        return new DiabPlusSecondOrderRepository(nPatients, population, hypoRate, baseHbA1cLevel, objHbA1cLevel, annualCost);		
+	}
+	
 	public static void main(String[] args) {
 		final Arguments args1 = new Arguments();
 		try {
@@ -399,24 +426,7 @@ public class DiabPlusMain {
 	        	BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
 	        }
 
-			JSONObject json = null;
-			try {
-				String str = new String(Files.readAllBytes(Paths.get("C:\\Users\\Iván Castilla\\git\\sighos\\PSIGHOS-RETAL\\src\\es\\ull\\iis\\simulation\\hta\\diabetes\\diabplus\\test_patient1.json")));
-//				String str = new String(Files.readAllBytes(Paths.get(jsonSource)));
-				json = new JSONObject(str).getJSONObject("patient");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			final double hypoRate = json.getDouble("hypoRate");
-			final double baseHbA1cLevel = json.getDouble("baseHbA1cLevel");
-			final double objHbA1cLevel = json.getDouble("objHbA1cLevel");
-			final double annualCost = json.getDouble("annualCost");
-			final double age = json.getDouble("age");
-			final double durationOfDiabetes = json.getDouble("durationOfDiabetes");
-			final boolean man = json.getBoolean("man");
-			final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man, baseHbA1cLevel, age, durationOfDiabetes);
-	        final SecondOrderParamsRepository secParams = new DiabPlusSecondOrderRepository(args1.nPatients, population, hypoRate, baseHbA1cLevel, objHbA1cLevel, annualCost);
-	        
+	        final SecondOrderParamsRepository secParams = loadJSON(args1.nPatients, args1.inputJSONFileName);
 	    	final String validity = secParams.checkValidity();
 	    	final SecondOrderChronicComplicationSubmodel[] chronicSubmodels = secParams.getRegisteredChronicComplications();
 	    	final SecondOrderAcuteComplicationSubmodel[] acuteSubmodels = secParams.getRegisteredAcuteComplications();
@@ -476,9 +486,17 @@ public class DiabPlusMain {
 	    		// Set outputs: different files for simulation outputs and for other outputs. If no file name is specified or an error arises, standard output is used
 				PrintWriter out;
 				PrintWriter outListeners;
+				PrintWriter outJSON;
+		        final String outputJSONFileName = (args1.outputFileName == null) ? "out.json" : args1.outputJSONFileName;
+				try {
+					outJSON = new PrintWriter(new BufferedWriter(new FileWriter(outputJSONFileName)));
+				} catch (IOException e1) {
+					outJSON = new PrintWriter(System.out);
+					e1.printStackTrace();
+				}
 		        if (args1.outputFileName == null) {
 		        	out = new PrintWriter(System.out);
-		        	outListeners = new PrintWriter(System.out);
+		        	outListeners = out;
 		        }
 		        else  {
 		        	try {
@@ -501,7 +519,7 @@ public class DiabPlusMain {
 
 		        }
 
-	    		final DiabPlusMain experiment = new DiabPlusMain(out, outListeners, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs, formats);
+	    		final DiabPlusMain experiment = new DiabPlusMain(out, outListeners, outJSON, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs, formats);
 		        experiment.run();
 	    	}
 	    	else {
@@ -521,6 +539,10 @@ public class DiabPlusMain {
 	}
 	
 	private static class Arguments {
+		@Parameter(description = "Name of the input JSON file name", order = 1)
+		private String inputJSONFileName = System.getProperty("user.dir") + "\\src\\es\\ull\\iis\\simulation\\hta\\diabetes\\diabplus\\test_patient1.json";
+		@Parameter(names ={"--outputjson", "-jout"}, description = "Name of the output JSON file name", order = 1)
+		private String outputJSONFileName = null;
 		@Parameter(names ={"--output", "-o"}, description = "Name of the output file name", order = 1)
 		private String outputFileName = null;
 		@Parameter(names ={"--patients", "-n"}, description = "Number of patients to test", order = 2)
