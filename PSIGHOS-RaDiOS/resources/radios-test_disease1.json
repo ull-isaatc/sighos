@@ -3,17 +3,14 @@
     "name" : "#RD1_Disease",
     "developments" : [ {
       "name" : "#RD1_Natural_Development",
-      "kind" : "NATURAL",
       "manifestations" : [ {
         "name" : "#RD1_MANIF1",
         "probability" : "0.1",
-        "kind" : "CHRONIC",
         "mortalityFactor" : "1.5#UNIFORM(1.3,1.7)",
         "utilities" : [ {
           "name" : "#RD1_Utility_MANIF1",
-          "kind" : "DISUTILITY",
           "value" : "0.2#UNIFORM(0.15,0.25)",
-          "calculateMethod" : "MIN",
+          "calculationMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
@@ -24,14 +21,11 @@
         } ]
       }, {
         "name" : "#RD1_MANIF2",
-        "kind" : "CHRONIC",
         "mortalityFactor" : "5.0#UNIFORM(4.0,6.0)",
-        "probabilityOfLeadingToDiagnosis" : "0.8",
         "utilities" : [ {
           "name" : "#RD1_Utility_MANIF2",
-          "kind" : "DISUTILITY",
           "value" : "0.5#UNIFORM(0.4,0.6)",
-          "calculateMethod" : "MIN",
+          "calculationMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
@@ -39,20 +33,13 @@
           "amount" : "1000.0",
           "year" : "2020",
           "temporalBehavior" : "ANNUAL"
-        } ],
-        "precedingManifestations" : [ {
-          "name" : "#RD1_MANIF1",
-          "probability" : "0.3",
-          "replacePrevious" : "TRUE"
         } ]
       } ]
     } ],
     "interventions" : [ {
-      "name" : "#RD1_InterventionNull",
-      "kind" : "NULL"
+      "name" : "#RD1_InterventionNull"
     }, {
       "name" : "#RD1_Intervention_Effective",
-      "kind" : "NO_SCREENING",
       "treatmentStrategies" : [ {
         "name" : "#RD1_TreatmentStrategy_Effective",
         "treatments" : [ {
@@ -67,15 +54,12 @@
       } ],
       "manifestationModifications" : [ {
         "name" : "#RD1_ManifestationsModification_Effective",
-        "probabilityModification" : "*0.5#UNIFORM(0.4,0.6)",
-        "manifestations" : [ "#RD1_MANIF1", "#RD1_MANIF2" ]
+        "probabilityModification" : "*0.5#UNIFORM(0.4,0.6)"
       } ]
     }, {
-      "name" : "#RD1_Intervention_NoScreening",
-      "kind" : "NO_SCREENING"
+      "name" : "#RD1_Intervention_NoScreening"
     }, {
       "name" : "#RD1_Intervention_Screening",
-      "kind" : "SCREENING",
       "screeningStrategies" : [ {
         "name" : "#RD1_Strategy_Screening",
         "screeningTechniques" : [ {

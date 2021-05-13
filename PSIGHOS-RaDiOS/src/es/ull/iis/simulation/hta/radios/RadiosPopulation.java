@@ -13,7 +13,7 @@ import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author David Prieto Gonzï¿½lez
+ * @author David Prieto González
  *
  */
 public class RadiosPopulation extends StdPopulation {	

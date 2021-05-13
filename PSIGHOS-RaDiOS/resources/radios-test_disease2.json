@@ -3,18 +3,14 @@
     "name" : "#RD2_Disease",
     "developments" : [ {
       "name" : "#RD2_Natural_Development",
-      "kind" : "NATURAL",
       "manifestations" : [ {
         "name" : "#RD2_MANIF1",
         "probability" : "0.1",
-        "kind" : "ACUTE",
         "mortalityFactor" : "0.1",
-        "probabilityOfLeadingToDiagnosis" : "0.25",
         "utilities" : [ {
           "name" : "#RD2_Utility_MANIF1",
-          "kind" : "DISUTILITY",
           "value" : "0.2#UNIFORM(0.195,0.25)",
-          "calculateMethod" : "MIN",
+          "calculationMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
@@ -26,11 +22,9 @@
       } ]
     } ],
     "interventions" : [ {
-      "name" : "#RD2_Intervention_NoScreening",
-      "kind" : "NO_SCREENING"
+      "name" : "#RD2_Intervention_NoScreening"
     }, {
       "name" : "#RD2_Intervention_Screening",
-      "kind" : "SCREENING",
       "screeningStrategies" : [ {
         "name" : "#RD2_Strategy_Screening",
         "screeningTechniques" : [ {

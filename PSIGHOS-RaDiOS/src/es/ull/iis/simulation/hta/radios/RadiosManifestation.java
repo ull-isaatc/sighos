@@ -79,7 +79,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 				es.ull.iis.simulation.hta.progression.Manifestation precManif = searchManifestationFromDisease(disease, precedingManifestation.getName());				
 				String transitionProbability = precedingManifestation.getProbability();
 				if (transitionProbability != null) {
-					Boolean replacePrevious = (precedingManifestation.getReplacePrevious() != null && !precedingManifestation.getReplacePrevious().isEmpty()) ? Boolean.valueOf(precedingManifestation.getReplacePrevious()) : Boolean.FALSE;					
+					Boolean replacePrevious = (precedingManifestation.getReplacingPrevious() != null && !precedingManifestation.getReplacingPrevious().isEmpty()) ? Boolean.valueOf(precedingManifestation.getReplacingPrevious()) : Boolean.FALSE;					
 					RadiosTransition transition = new RadiosTransition(repository, precManif, this, replacePrevious);
 					ProbabilityDistribution probabilityDistributionForTransition = ValueTransform.splitProbabilityDistribution(transitionProbability);
 					if (probabilityDistributionForTransition != null) {
@@ -149,8 +149,8 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	 * 
 	 */
 	private void addParamProbabilityDiagnosis() {
-		if (getManifestation().getProbabilityOfLeadingToDiagnosis() != null) {
-			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(getManifestation().getProbabilityOfLeadingToDiagnosis());
+		if (getManifestation().getProbabilityOfDiagnosis() != null) {
+			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(getManifestation().getProbabilityOfDiagnosis());
 			if (probabilityDistribution != null) {
 				getRepository().addDiagnosisProbParam(this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 			}

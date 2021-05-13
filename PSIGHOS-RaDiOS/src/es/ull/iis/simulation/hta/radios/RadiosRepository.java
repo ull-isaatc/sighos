@@ -34,7 +34,7 @@ import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.simpletest.NullIntervention;
 
 /**
- * @author David Prieto González
+ * @author David Prieto Gonzï¿½lez
  */
 public class RadiosRepository extends SecondOrderParamsRepository {
 	private ObjectMapper mapper; 
@@ -95,25 +95,22 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	private void initialize (int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont, boolean allAffected, List<String> intenventionsToCompare) 
 		throws TransformException, JAXBException {
 		costCalc = new DiseaseCostCalculator(this);
-//		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
-		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, 0.8861);
+		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
 
-		RadiosDisease disease = new RadiosDisease(this, radiosDiseaseInstance.getDisease(), timeHorizont);		
+		RadiosDisease disease = new RadiosDisease(this, radiosDiseaseInstance.getDisease(), timeHorizont);
+		registerDisease(HEALTHY);
 		registerDisease(disease);
 
-		Population population = new RadiosPopulation(this, disease, ValueTransform.splitProbabilityDistribution(radiosDiseaseInstance.getDisease().getPrevalenceAtBirth()), allAffected);
+		Population population = new RadiosPopulation(this, disease, ValueTransform.splitProbabilityDistribution(radiosDiseaseInstance.getDisease().getBirthPrevalence()), allAffected);
 		registerPopulation(population);
 		
 		if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
 			for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
-				System.out.println();
-				if (intenventionsToCompare == null || intenventionsToCompare.contains(intervention.getName())) {
+				if (intenventionsToCompare.contains(intervention.getName())) {
 					if (Constants.DATAPROPERTYVALUE_KIND_INTERVENTION_SCREENING_VALUE.equalsIgnoreCase(intervention.getKind())) {
 						RadiosScreeningIntervention radiosIntervention = new RadiosScreeningIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
 								disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis(), disease); 
 						this.registerIntervention(radiosIntervention);
-					} else if (Constants.DATAPROPERTYVALUE_KIND_INTERVENTION_NULL_VALUE.equalsIgnoreCase(intervention.getKind())) {
-						this.registerIntervention(new NullIntervention(this));
 					} else {
 						RadiosBasicIntervention radiosIntervention = new RadiosBasicIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
 								disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis(), disease); 
@@ -121,11 +118,11 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 					}
 				}
 			}
-		} 
-		if (CollectionUtils.isEmpty(radiosDiseaseInstance.getDisease().getInterventions()) || radiosDiseaseInstance.getDisease().getInterventions().size() < 2) {
-			this.registerIntervention(new NullIntervention(this));
+			if (intenventionsToCompare == null || intenventionsToCompare.contains(Constants.CONSTANT_DO_NOTHING)) {
+				this.registerIntervention(new NullIntervention(this));
+			}
 		}
-		
+
 		// El submodelo de mortalidad (por defecto podemos usar el que te pongo)
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
@@ -140,5 +137,8 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 		return utilCalc;
 	}
 
-
+	public SecondOrderParamsRepository configDiseaseUtilityCalculator (DisutilityCombinationMethod disutilityCombinationMethod, double value) {
+		utilCalc = new DiseaseUtilityCalculator(this, disutilityCombinationMethod, value);
+		return this;
+	}
 }

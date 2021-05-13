@@ -64,7 +64,7 @@ public class PBDDisease extends StagedDisease {
 		secParams.addProbParam(getNullManifestation(), visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
 		secParams.addProbParam(getNullManifestation(), hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
 		secParams.addProbParam(getNullManifestation(), mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
-		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_DIAGNOSIS, "Cost of diagnosing PBD", "", 2013, DIAGNOSIS_COST));
+		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_DIAGNOSIS, "Cost of diagnosing PBD", "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65)));
 		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_TREATMENT, "Cost of treating PBD", "", 2013, TREATMENT_COST));
 		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_FOLLOW_UP, "Cost of following up PBD", "", 2013, FOLLOW_UP_COST));
 	}

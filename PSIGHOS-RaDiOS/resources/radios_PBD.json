@@ -1,7 +1,7 @@
 {
   "disease" : {
     "name" : "#PBD_ProfoundBiotinidaseDeficiency",
-    "prevalenceAtBirth" : "1.47884E-05#BETA(8, 540955)",
+    "birthPrevalence" : "1.47884E-05#BETA(8, 540955)",
     "clinicalDiagnosisStrategies" : [ {
       "name" : "#PBD_ClinicalDiagnosisStrategy",
       "clinicalDiagnosisTechniques" : [ {
@@ -10,7 +10,7 @@
         "especificity" : "1.0",
         "costs" : [ {
           "name" : "#PBD_CostDiagnosis",
-          "amount" : "509.65",
+          "amount" : "509.65#UNIFORM(409.65, 609.65)",
           "year" : "2013",
           "temporalBehavior" : "ONETIME"
         } ]
@@ -27,12 +27,12 @@
         "endAge" : "2.0",
         "probability" : "0.515#BETA(65.0,61.0)",
         "kind" : "CHRONIC",
-        "probabilityOfLeadingToDiagnosis" : "1.0",
+        "probabilityOfDiagnosis" : "1.0",
         "utilities" : [ {
           "name" : "#PBD_UtilityManifestationHearingProblems",
           "kind" : "DISUTILITY",
           "value" : "0.01#UNIFORM(0.008,0.012)",
-          "calculateMethod" : "MIN",
+          "calculationMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
@@ -52,7 +52,7 @@
         "endAge" : "1.0",
         "probability" : "0.457#BETA(17,20)",
         "kind" : "CHRONIC",
-        "probabilityOfLeadingToDiagnosis" : "1.0",
+        "probabilityOfDiagnosis" : "1.0",
         "costs" : [ {
           "name" : "#PBD_CostManifestationHypotonia",
           "amount" : "3665.56",
@@ -66,12 +66,12 @@
         "probability" : "0.557#BETA(14,6)",
         "kind" : "CHRONIC",
         "mortalityFactor" : "-9.6#GAMMA(25,0.38)",
-        "probabilityOfLeadingToDiagnosis" : "1.0",
+        "probabilityOfDiagnosis" : "1.0",
         "utilities" : [ {
           "name" : "#PBD_UtilityManifestationMentalDelay",
           "kind" : "DISUTILITY",
           "value" : "0.07#UNIFORM(0.056,0.084)",
-          "calculateMethod" : "MIN",
+          "calculationMethod" : "MIN",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
@@ -91,12 +91,12 @@
         "endAge" : "1.0",
         "probability" : "0.564#BETA(65,50)",
         "kind" : "CHRONIC",
-        "probabilityOfLeadingToDiagnosis" : "1.0",
+        "probabilityOfDiagnosis" : "1.0",
         "utilities" : [ {
           "name" : "#PBD_UtilityManifestationSeizure",
           "kind" : "DISUTILITY",
           "value" : "0.04#UNIFORM(0.032,0.048)",
-          "calculateMethod" : "EQ-5D??",
+          "calculationMethod" : "EQ-5D??",
           "temporalBehavior" : "ANNUAL"
         } ],
         "costs" : [ {
@@ -111,7 +111,7 @@
         "endAge" : "1.0",
         "probability" : "0.41#BETA(24,34)",
         "kind" : "CHRONIC",
-        "probabilityOfLeadingToDiagnosis" : "1.0",
+        "probabilityOfDiagnosis" : "1.0",
         "costs" : [ {
           "name" : "#PBD_CostManifestationSkinProblems",
           "amount" : "3665.56",
@@ -124,7 +124,7 @@
         "endAge" : "2.0",
         "probability" : "0.175#BETA(19,91)",
         "kind" : "CHRONIC",
-        "probabilityOfLeadingToDiagnosis" : "1.0",
+        "probabilityOfDiagnosis" : "1.0",
         "costs" : [ {
           "name" : "#PBD_CostManifestationVisionLoss",
           "amount" : "121.86",
@@ -169,9 +169,6 @@
     "interventions" : [ {
       "name" : "#PBD_InterventionNoScreening",
       "kind" : "NO_SCREENING"
-    }, {
-      "name" : "#PBD_InterventionNull",
-      "kind" : "NULL"
     }, {
       "name" : "#PBD_InterventionScreening",
       "kind" : "SCREENING",
