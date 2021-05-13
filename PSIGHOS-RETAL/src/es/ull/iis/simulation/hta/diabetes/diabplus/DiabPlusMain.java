@@ -197,7 +197,7 @@ public class DiabPlusMain {
 			expListeners.add(new EpidemiologicView(nRuns, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 			baseCaseExpListeners.add(new EpidemiologicView(1, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 		}
-		this.jsonWriter = new DiabPlusJSONWriter(nRuns, interventions);
+		this.jsonWriter = new DiabPlusJSONWriter(nRuns, interventions, secParams.getRegisteredComplicationStages());
 	}
 	
 	private String getStrHeader() {
@@ -312,9 +312,12 @@ public class DiabPlusMain {
 				}
 			}
 			simul.run();
-			if (baseCase) {
-				jsonWriter.notifyEndBaseCase(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener);
-			}
+		}
+		if (baseCase) {
+			jsonWriter.notifyEndBaseCase(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener);
+		}
+		else {
+			jsonWriter.notifyEndProbabilisticRun(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener);
 		}
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 			System.out.print("Patient");
@@ -381,6 +384,8 @@ public class DiabPlusMain {
 					outListeners.println(listener);
 				}		
 			}
+			// Update JSON with results from probabilistic experiments
+	        jsonWriter.notifyEndProbabilisticExperiments();
 		}
 		
 		

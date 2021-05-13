@@ -38,6 +38,21 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		addEntrance(DiabetesPatientInfo.class);
 	}
 	
+	/**
+	 * @return the timeToComplications
+	 */
+	public double[][] getAvgTimeToComplications() {
+		final double[][] results = new double[nInterventions][timeToComplications[0].length];
+		for (int i = 0; i < nInterventions; i++) {
+			int j = 0;
+			for (double[] values : timeToComplications[i]) {
+				final double avg = Statistics.average(values);
+				results[i][j++] = avg /BasicConfigParams.YEAR_CONVERSION;
+			}
+		}
+		return results;
+	}
+
 	public static String getStrHeader(boolean printFirstOrderVariance, ArrayList<SecondOrderDiabetesIntervention> interventions, ArrayList<DiabetesComplicationStage> availableHealthStates) {
 		final StringBuilder str = new StringBuilder();
 		if (printFirstOrderVariance) {

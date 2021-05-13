@@ -199,10 +199,23 @@ public class Statistics {
 		return new double[] {mean - ci, mean + ci};
 	}
 	
+	public static double percentile(double[] sortedValues, double percent) {
+		if (percent <= 0.0 || percent > 1.0)
+			return Double.NaN;
+		if (sortedValues.length == 1)
+			return sortedValues[0];
+		int pos = (int)(sortedValues.length * percent);
+		double dif = sortedValues.length * percent - pos;
+		if (pos < 1) 
+			return sortedValues[0];
+		if (pos >= sortedValues.length - 1)
+			return sortedValues[sortedValues.length - 1];
+		return sortedValues[pos] + dif * (sortedValues[pos + 1] - sortedValues[pos]);
+	}
 	/**
 	 * Generates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event.  
 	 * @param p Annual risk of the event
-	 * @param rnd The natural log of a random number (0, 1)
+	 * @param logRnd The natural log of a random number (0, 1)
 	 * @param rr Relative risk for the patient
 	 * @return a time to event based on annual risk
 	 */
@@ -217,7 +230,7 @@ public class Statistics {
 	/**
 	 * Generates a time to event based on annual rate. The time to event is absolute, i.e., can be used directly to schedule a new event.  
 	 * @param rate Annual rate of the event
-	 * @param rnd The natural log of a random number (0, 1)
+	 * @param logRnd The natural log of a random number (0, 1)
 	 * @param irr Incidence rate ratio for the patient
 	 * @return a time to event based on annual rate
 	 */
