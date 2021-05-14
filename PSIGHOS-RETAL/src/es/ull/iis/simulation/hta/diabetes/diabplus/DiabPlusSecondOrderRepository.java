@@ -5,6 +5,10 @@ package es.ull.iis.simulation.hta.diabetes.diabplus;
 
 import java.util.EnumSet;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.outcomes.SubmodelCostCalculator;
@@ -18,6 +22,7 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.EmpiricalSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleCHDSubmodel;
@@ -57,6 +62,7 @@ public class DiabPlusSecondOrderRepository extends SecondOrderParamsRepository {
 				BasicConfigParams.DEF_DU_DNC[0], "BetaVariate", paramsDuDNC[0], paramsDuDNC[1]));
 		
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+//        System.out.println(getComplicationsJSON());
 	}
 
 
@@ -70,4 +76,24 @@ public class DiabPlusSecondOrderRepository extends SecondOrderParamsRepository {
 		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, duDNC, BasicConfigParams.DEF_U_GENERAL_POP, submodels, acuteSubmodels);
 	}
 
+	public JSONObject getComplicationsJSON() {
+		final JSONObject json = new JSONObject();
+		final JSONArray jcomps = new JSONArray();
+		
+		for (SecondOrderChronicComplicationSubmodel comp : getRegisteredChronicComplications()) {
+			final JSONObject jcomp = new JSONObject();
+			final JSONArray jstages = new JSONArray();
+			for (DiabetesComplicationStage stage : comp.getStages()) {
+				final JSONObject jstage = new JSONObject();
+				jstage.put("name", stage.name());
+				jstage.put("description", stage.getDescription());
+				jstages.put(jstage);
+			}
+			jcomp.put("manifestations", jstages);
+			jcomp.put("name", comp.getComplicationType().getDescription());
+			jcomps.put(jcomp);
+		}
+		json.put("complications", jcomps);
+		return json;
+	}
 }

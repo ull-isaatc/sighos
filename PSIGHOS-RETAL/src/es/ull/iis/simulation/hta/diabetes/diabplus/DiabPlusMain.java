@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.beust.jcommander.DynamicParameter;
@@ -395,6 +396,7 @@ public class DiabPlusMain {
         out.close();
         outListeners.close();
         outJSON.close();
+//        System.out.println(((DiabPlusSecondOrderRepository)secParams).getComplicationsJSON());
 	}
 
 	private static SecondOrderParamsRepository loadJSON(int nPatients, String jsonFile) {
@@ -412,6 +414,11 @@ public class DiabPlusMain {
 		final double age = json.getDouble("age");
 		final double durationOfDiabetes = json.getDouble("durationOfDiabetes");
 		final boolean man = json.getBoolean("man");
+		final JSONArray jmanif = json.getJSONArray("manifestations");
+		for (int i = 0; i < jmanif.length(); i++) {
+			final String manif = jmanif.getString(i);
+			BasicConfigParams.INIT_PROP.put(manif, 1.0);
+		}
 		final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man, baseHbA1cLevel, age, durationOfDiabetes);
         return new DiabPlusSecondOrderRepository(nPatients, population, hypoRate, baseHbA1cLevel, objHbA1cLevel, annualCost);		
 	}
