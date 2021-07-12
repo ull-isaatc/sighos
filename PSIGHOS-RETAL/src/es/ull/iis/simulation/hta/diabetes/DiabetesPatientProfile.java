@@ -175,4 +175,20 @@ public class DiabetesPatientProfile {
 	public void setBooleanProperty(String property, boolean value) {
 		boolProperties.put(property, value);
 	}
+
+	
+	public static String getStrHeader() {
+		return "AGE\tSEX\tHBA1c\tDURATION\tSMOKER\tFIB\tSBP\tLIPID";
+	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder str = new StringBuilder();
+		str.append(this.getInitAge()).append("\t").append(this.getSex());
+		str.append("\t").append(this.getInitHBA1c()).append("\t").append(this.getInitDurationOfDiabetes());
+		str.append("\t").append(this.isSmoker()? 1:0).append("\t").append(this.hasAtrialFibrillation() ? 1:0);
+		str.append("\t").append(this.getSbp()).append("\t").append(this.getLipidRatio());
+		
+		return str.toString();
+	}
 }

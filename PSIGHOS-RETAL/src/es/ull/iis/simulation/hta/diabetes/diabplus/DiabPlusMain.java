@@ -27,6 +27,8 @@ import com.beust.jcommander.ParameterException;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
+import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AcuteComplicationCounterListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AnnualCostView;
@@ -201,6 +203,10 @@ public class DiabPlusMain {
 		this.jsonWriter = new DiabPlusJSONWriter(nRuns, interventions, secParams.getRegisteredComplicationStages());
 	}
 	
+	/**
+	 * Creates a string with the header required to interpret the output of the {@link #print(DiabetesSimulation, HbA1cListener[], CostListener[], LYListener[], QALYListener[], CostListener[], LYListener[], QALYListener[], AcuteComplicationCounterListener[], TimeFreeOfComplicationsView) print} method.
+	 * @return A string with tab-separated headers for the outputs of the simulations
+	 */
 	private String getStrHeader() {
 		final StringBuilder str = new StringBuilder();
 		str.append("SIM\t");
@@ -220,6 +226,20 @@ public class DiabPlusMain {
 		return str.toString();
 	}
 	
+	/**
+	 * Prints a detailed output for each simulation, aggregating the results for all the individuals
+	 * @param simul Current simulation
+	 * @param hba1cListeners Results in terms of HbA1c
+	 * @param costListeners Results in terms of costs
+	 * @param lyListeners Results in terms of life expectancy
+	 * @param qalyListeners Results in terms of quality-adjusted life expectancy
+	 * @param costListeners0 Results in terms of undiscounted costs
+	 * @param lyListeners0 Results in terms of undiscounted life expectancy
+	 * @param qalyListeners0 Results in terms of undiscounted quality-adjusted life expectancy
+	 * @param acuteListeners Results in terms of acute complications
+	 * @param timeFreeListener Results in terms of time until a chronic manifestation appears
+	 * @return
+	 */
 	private String print(DiabetesSimulation simul, HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, CostListener[] costListeners0, LYListener[] lyListeners0, QALYListener[] qalyListeners0, AcuteComplicationCounterListener[] acuteListeners, TimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		str.append("" +  simul.getIdentifier() + "\t");
@@ -237,6 +257,60 @@ public class DiabPlusMain {
 		return str.toString();
 	}
 
+	/**
+	 * Prints the header required to interpret the output produced by the method {@link #printIndividualOutcomes(DiabetesSimulation, int, HbA1cListener[], CostListener[], LYListener[], QALYListener[], TimeFreeOfComplicationsView) printIndividualOutcomes}.
+	 * @param nInterventions Total number of interventions being simulated
+	 * @return A string with tab separated headers for each piece of information of the individual patients.
+	 */
+	private String printInvidualOutcomesHeader(int nInterventions) {
+		final StringBuilder str = new StringBuilder("SIM\t");
+		str.append(DiabetesPatient.getStrHeader(secParams));
+		for (int i = 0; i < nInterventions; i++) {
+			final String shortName = interventions.get(i).getShortName();
+			str.append("\tTIME_TO_DEATH_" + shortName);
+			for (DiabetesComplicationStage stage : secParams.getRegisteredComplicationStages()) {
+				str.append("\tTIME_TO_" + stage + "_" + shortName);
+			}
+			for (SecondOrderAcuteComplicationSubmodel acute : secParams.getRegisteredAcuteComplications()) {
+				str.append("\tN_" + acute.getComplicationType().name() + "_" + shortName);
+			}
+			str.append("\tHBA1c_" + shortName + "\tCOST_" + shortName + "\tLE_" + shortName + "\tQALE_" + shortName);
+		}
+		return str.toString();
+	}
+	
+	/**
+	 * Prints the outcomes of each individual simulated for every simulation replica. Each line of the resulting string corresponds to a patient
+	 * @param simul Current simulation
+	 * @param nInterventions Identifier of the intervention being simulated
+	 * @param hba1cListeners Results in terms of HbA1c
+	 * @param costListeners Results in terms of costs
+	 * @param lyListeners Results in terms of life expectancy
+	 * @param qalyListeners Results in terms of quality-adjusted life expectancy
+	 * @param timeFreeListener Results in terms of time until a chronic manifestation appears
+	 * @return A string with the outcomes of each individual 
+	 */
+	private String printIndividualOutcomes(DiabetesSimulation simul, int nInterventions,  HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, AcuteComplicationCounterListener[] acuteListeners, TimeFreeOfComplicationsView timeFreeListener) {
+		final StringBuilder str = new StringBuilder();
+		for (int i = 0; i < nPatients; i++) {
+			final DiabetesPatient pat = simul.getGeneratedPatient(i);
+			str.append("" + simul.getIdentifier()).append("\t").append(pat);			
+			for (int j = 0; j < nInterventions; j++) {
+				str.append("\t").append(pat.getAgeAtDeath() - pat.getInitAge());
+				double[][] time_to = timeFreeListener.getTimeToComplications(i);
+				for (int k = 0; k < time_to[j].length; k++) {
+					str.append("\t").append(time_to[j][k]);
+				}
+				int [][]nComps = acuteListeners[j].getNComplications();
+				for (int k = 0; k < nComps.length; k++) {
+					str.append("\t").append(nComps[k][i]);
+				}
+				str.append("\t").append(hba1cListeners[j].getValues()[i]).append("\t").append(costListeners[j].getValues()[i]).append("\t").append(lyListeners[j].getValues()[i]).append("\t").append(qalyListeners[j].getValues()[i]);					
+			}
+			str.append(System.lineSeparator());
+		}	
+		return str.toString();
+	}
 	/**
 	 * Runs the simulations for each intervention
 	 * @param id Simulation identifier
@@ -321,21 +395,11 @@ public class DiabPlusMain {
 			jsonWriter.notifyEndProbabilisticRun(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener);
 		}
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
-			System.out.print("Patient");
-			for (int i = 0; i < nInterventions; i++) {
-				final String shortName = interventions.get(i).getShortName();
-				System.out.print("\tCost_" + shortName + "\tLE_" + shortName + "\tQALE_" + shortName);
-			}
-			System.out.println();
-			for (int i = 0; i < nPatients; i++) {
-				System.out.print(i);
-				for (int j = 0; j < nInterventions; j++) {
-					System.out.print("\t" + costListeners[j].getValues()[i] + "\t" + lyListeners[j].getValues()[i] + "\t" + qalyListeners[j].getValues()[i]);					
-				}
-				System.out.println();
-			}
+			out.print(printIndividualOutcomes(simul, nInterventions, hba1cListeners, costListeners, lyListeners, qalyListeners, acuteListeners, timeFreeListener));
 		}
-		out.println(print(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener));
+		else {
+			out.println(print(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener));
+		}
 	}
 	
 	/**
@@ -343,9 +407,16 @@ public class DiabPlusMain {
 	 */
 	public void run() {
 		long t = System.currentTimeMillis(); 
+		final int nInterventions = interventions.size();
 		if (!quiet)
 			out.println(BasicConfigParams.printOptions());
-		out.println(getStrHeader());
+		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
+			out.println(printInvidualOutcomesHeader(nInterventions));
+		}
+		else {
+			out.println(getStrHeader());
+		}
+		
 		simulateInterventions(0, true);
 		if (baseCaseExpListeners.size() > 0) {
 			outListeners.println(BasicConfigParams.STR_SEP);
@@ -358,7 +429,6 @@ public class DiabPlusMain {
 		progress.print();
 		secParams.setBaseCase(false);
 		if (nRuns > 0) {
-			out.println(getStrHeader());
 			if (parallel) {
 				final int maxThreads = Runtime.getRuntime().availableProcessors();
 				try {
@@ -399,6 +469,12 @@ public class DiabPlusMain {
 //        System.out.println(((DiabPlusSecondOrderRepository)secParams).getComplicationsJSON());
 	}
 
+	/**
+	 * Loads the Json file that defines the patient profile to simulate
+	 * @param nPatients Number of replicas of the patient to simulate
+	 * @param jsonFile Source Json file 
+	 * @return A repository configured to mimic the defined patient 
+	 */
 	private static SecondOrderParamsRepository loadJSON(int nPatients, String jsonFile) {
 		JSONObject json = null;
 		try {
@@ -414,6 +490,7 @@ public class DiabPlusMain {
 		final double age = json.getDouble("age");
 		final double durationOfDiabetes = json.getDouble("durationOfDiabetes");
 		final boolean man = json.getBoolean("man");
+		
 		final JSONArray jmanif = json.getJSONArray("manifestations");
 		for (int i = 0; i < jmanif.length(); i++) {
 			final String manif = jmanif.getString(i);
@@ -575,6 +652,8 @@ public class DiabPlusMain {
 		 "\t- An optional number that indicates interval size (in years) (Default: 1)", order = 9)
 		private List<String> epidem = new ArrayList<>();
 		
+		@Parameter(names ={"--explore", "-ex"}, description = "Enables exploration of populations. Overdrives any other option and ignores the JSON file", order = 9)
+		private boolean explore = false;
 		@Parameter(names ={"--outcomes", "-po"}, description = "Enables printing individual outcomes", order = 9)
 		private boolean individualOutcomes = false;
 		@Parameter(names ={"--costs", "-pbc"}, description = "Enables printing breakdown of costs", order = 9)

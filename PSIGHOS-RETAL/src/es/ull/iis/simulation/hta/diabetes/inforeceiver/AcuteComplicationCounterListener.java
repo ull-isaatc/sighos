@@ -72,5 +72,12 @@ public class AcuteComplicationCounterListener extends Listener implements Struct
 		final int index = (int)Math.ceil(nPatients * 0.025);
 		return new int[] {ordered[index - 1], ordered[nPatients - index]}; 
 	}
+
+	/**
+	 * @return the nComplications
+	 */
+	public int[][] getNComplications() {
+		return nComplications;
+	}
 	
 }

@@ -59,8 +59,9 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 	@Override
 	public DiabetesPatientProfile getPatientProfile() {
 		final int sex = (rng.draw() < pMan) ? BasicConfigParams.MAN : BasicConfigParams.WOMAN;
-		final double initAge = Math.min(Math.max(baselineAge.generate(), getMinAge()), getMaxAge());		
-		return new DiabetesPatientProfile(initAge, sex, baselineDurationOfDiabetes.generate(), baselineHBA1c.generate(), 
+		final double initAge = Math.min(Math.max(baselineAge.generate(), getMinAge()), getMaxAge());	
+		final double duration = Math.min(initAge, baselineDurationOfDiabetes.generate());
+		return new DiabetesPatientProfile(initAge, sex, duration, baselineHBA1c.generate(), 
 				rng.draw() < pSmoker, rng.draw() < pAtrialFib, baselineSBP.generate(), baselineLipidRatio.generate());
 	}
 

@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 import es.ull.iis.simulation.model.DiscreteEvent;
@@ -64,6 +65,8 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	private double lipidRatio;
 	/** Common parameters to characterize progression, time to events... */
 	private final RepositoryInstance commonParams;
+	/** Initial complications */
+	private final TreeSet<DiabetesComplicationStage> initComplications;
 	
 	// Events
 	/** Events related to each chronic complication */
@@ -103,6 +106,8 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 		for (int i = 0; i < DiabetesAcuteComplications.values().length; i++)
 			acuteEvents.add(new ArrayList<>());
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
+		// Only initialize the structure, the complications are added in a subsequent step
+		this.initComplications = new TreeSet<>();
 	}
 
 	/**
@@ -128,6 +133,8 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 		for (int i = 0; i < DiabetesAcuteComplications.values().length; i++)
 			acuteEvents.add(new ArrayList<>());
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
+		// Only initialize the structure, the complications are added in a subsequent step
+		this.initComplications = new TreeSet<>();
 	}
 
 	/**
@@ -349,6 +356,7 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 			error("Health state already assigned!! " + complication.name());
 		}
 		else {
+			DiabetesPatient.this.initComplications.add(complication);
 			simul.notifyInfo(new DiabetesPatientInfo(simul, DiabetesPatient.this, complication, this.getTs()));
 			DiabetesPatient.this.detailedState.add(complication);
 			DiabetesPatient.this.state.add(complication.getComplication());
@@ -363,6 +371,26 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 		}
 	}
 	
+	public static String getStrHeader(SecondOrderParamsRepository secParams) {
+		final StringBuilder str = new StringBuilder("ID\t");
+		str.append(DiabetesPatientProfile.getStrHeader());
+		
+		for (DiabetesComplicationStage stage : secParams.getRegisteredComplicationStages()) {
+			str.append("\tBASE_").append(stage);
+		}			
+		return str.toString();
+	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder str = new StringBuilder("" + id);
+		str.append("\t").append(profile);
+		for (DiabetesComplicationStage stage : commonParams.getRegisteredComplicationStages()) {
+			str.append("\t" + (initComplications.contains(stage) ? 1:0));
+		}		
+		return str.toString();
+	}
+
 	/**
 	 * The first event of the patient that initializes everything and computes initial time to events.
 	 * @author Iván Castilla Rodríguez

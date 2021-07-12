@@ -3,23 +3,23 @@
  */
 package es.ull.iis.simulation.hta.diabetes.diabplus;
 
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatientProfile;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
-import es.ull.iis.simulation.hta.diabetes.populations.DiabetesStdPopulation;
-import simkit.random.RandomVariate;
-import simkit.random.RandomVariateFactory;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 
 /**
- * @author icasrod
+ * TODO: Currently, we are not using smoker, attrial fibrilation, SBP or lipid ratio. If T2DM is implemented, this functionality should be added
+ * @author Iván Castilla Rodríguez
  *
  */
-public class DiabPlusStdPopulation extends DiabetesStdPopulation {
+public class DiabPlusStdPopulation implements DiabetesPopulation {
 	final private boolean man;
 	final private double hba1c;
 	final private double age;
 	final private double durationOfDiabetes;
 	
 	public DiabPlusStdPopulation(boolean man, double hba1c, double age, double durationOfDiabetes) {
-		super(DiabetesType.T1);
 		this.age = age;
 		this.durationOfDiabetes = durationOfDiabetes;
 		this.hba1c = hba1c;
@@ -27,23 +27,24 @@ public class DiabPlusStdPopulation extends DiabetesStdPopulation {
 	}
 
 	@Override
-	protected double getPMan() {
-		return man ? 1.0 : 0.0;
+	public DiabetesPatientProfile getPatientProfile() {
+		return new DiabetesPatientProfile(age, man ? 1 : 0, durationOfDiabetes, hba1c, 
+				false, false, BasicConfigParams.DEFAULT_SBP, BasicConfigParams.DEFAULT_LIPID_RATIO);
 	}
 
 	@Override
-	protected RandomVariate getBaselineHBA1c() {
-		return RandomVariateFactory.getInstance("ConstantVariate", hba1c);
+	public DiabetesType getType() {
+		return DiabetesType.T1;
 	}
 
 	@Override
-	protected RandomVariate getBaselineAge() {
-		return RandomVariateFactory.getInstance("ConstantVariate", age);
+	public int getMinAge() {
+		return BasicConfigParams.DEF_MIN_AGE;
 	}
-
+	
 	@Override
-	protected RandomVariate getBaselineDurationOfDiabetes() {
-		return RandomVariateFactory.getInstance("ConstantVariate", durationOfDiabetes);
+	public int getMaxAge() {
+		return BasicConfigParams.DEF_MAX_AGE;
 	}
 
 }

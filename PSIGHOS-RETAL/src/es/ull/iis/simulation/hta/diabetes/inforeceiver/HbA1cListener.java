@@ -76,5 +76,12 @@ public class HbA1cListener extends Listener implements StructuredOutputListener 
 		final int index = (int)Math.ceil(nPatients * 0.025);
 		return new double[] {ordered[index - 1], ordered[nPatients - index]}; 
 	}
+
+	/**
+	 * @return the values
+	 */
+	public double[] getValues() {
+		return values;
+	}
 	
 }

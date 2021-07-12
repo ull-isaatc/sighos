@@ -20,13 +20,20 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class TimeFreeOfComplicationsView extends Listener implements StructuredOutputListener {
+	/** Inner structure to store the time to each complication. Contains a value for each <intervention, complication, patient> */
 	private final double [][][] timeToComplications;
+	/** Enables printing the confidence intervals for first order simulations */
 	private final boolean printFirstOrderVariance;
+	/** Number of interventions assessed */
 	private final int nInterventions;
 	private final ArrayList<DiabetesComplicationStage> availableHealthStates;
 
 	/**
-	 * @param simUnit The time unit used within the simulation
+	 * 
+	 * @param nPatients
+	 * @param nInterventions
+	 * @param printFirstOrderVariance
+	 * @param availableHealthStates
 	 */
 	public TimeFreeOfComplicationsView(int nPatients, int nInterventions, boolean printFirstOrderVariance, ArrayList<DiabetesComplicationStage> availableHealthStates) {
 		super("Standard patient viewer");
@@ -53,6 +60,16 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		return results;
 	}
 
+	public double[][] getTimeToComplications(int patient) {
+		final double[][] results = new double[nInterventions][timeToComplications[0].length];
+		for (int i = 0; i < nInterventions; i++) {
+			for (int j = 0; j < results[i].length; j++) {
+				results[i][j] = timeToComplications[i][j][patient] /BasicConfigParams.YEAR_CONVERSION;
+			}
+		}
+		return results;
+	}
+	
 	public static String getStrHeader(boolean printFirstOrderVariance, ArrayList<SecondOrderDiabetesIntervention> interventions, ArrayList<DiabetesComplicationStage> availableHealthStates) {
 		final StringBuilder str = new StringBuilder();
 		if (printFirstOrderVariance) {
