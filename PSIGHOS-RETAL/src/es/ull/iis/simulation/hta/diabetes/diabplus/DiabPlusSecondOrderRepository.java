@@ -36,7 +36,7 @@ import es.ull.iis.util.Statistics;
  */
 public class DiabPlusSecondOrderRepository extends SecondOrderParamsRepository {
 
-	protected DiabPlusSecondOrderRepository(int nPatients, DiabPlusStdPopulation population, double hypoRate, double baseHbA1cLevel, double objHbA1cLevel, double annualCost) {
+	protected DiabPlusSecondOrderRepository(int nPatients, DiabPlusStdPopulation population, double objHbA1cLevel, double annualCost) {
 		super(nPatients, population);
 
 		registerComplication(new SheffieldRETSubmodel());
@@ -45,12 +45,12 @@ public class DiabPlusSecondOrderRepository extends SecondOrderParamsRepository {
 		registerComplication(new SimpleNEUSubmodel());
 		
 		final StandardSevereHypoglycemiaEvent hypoEvent = new StandardSevereHypoglycemiaEvent(
-				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_P_HYPO, "Annual rate of severe hypoglycemia events", "Assumption", hypoRate), 
+				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_P_HYPO, "Annual rate of severe hypoglycemia events", "Assumption", population.getHypoRate()), 
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_RR_HYPO, "No RR", "Assumption", 1.0), 
 				EnumSet.of(DiabetesType.T1), true);
 		registerComplication(hypoEvent);
 		
-		registerIntervention(new DiabPlusStdIntervention(baseHbA1cLevel, 0.0, true));
+		registerIntervention(new DiabPlusStdIntervention(population.getPatientProfile().getInitHBA1c(), 0.0, true));
 		registerIntervention(new DiabPlusStdIntervention(objHbA1cLevel, annualCost, false));
 
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of Diabetes with no complications", 

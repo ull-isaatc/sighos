@@ -296,7 +296,7 @@ public class DiabPlusMain {
 			final DiabetesPatient pat = simul.getGeneratedPatient(i);
 			str.append("" + simul.getIdentifier()).append("\t").append(pat);			
 			for (int j = 0; j < nInterventions; j++) {
-				str.append("\t").append(pat.getAgeAtDeath() - pat.getInitAge());
+				str.append("\t").append(((double)pat.getTimeToDeath()) / BasicConfigParams.YEAR_CONVERSION);
 				double[][] time_to = timeFreeListener.getTimeToComplications(i);
 				for (int k = 0; k < time_to[j].length; k++) {
 					str.append("\t").append(time_to[j][k]);
@@ -496,8 +496,8 @@ public class DiabPlusMain {
 			final String manif = jmanif.getString(i);
 			BasicConfigParams.INIT_PROP.put(manif, 1.0);
 		}
-		final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man, baseHbA1cLevel, age, durationOfDiabetes);
-        return new DiabPlusSecondOrderRepository(nPatients, population, hypoRate, baseHbA1cLevel, objHbA1cLevel, annualCost);		
+		final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man, baseHbA1cLevel, age, durationOfDiabetes, hypoRate);
+        return new DiabPlusSecondOrderRepository(nPatients, population, objHbA1cLevel, annualCost);		
 	}
 	
 	public static void main(String[] args) {
@@ -515,7 +515,7 @@ public class DiabPlusMain {
 	        	BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
 	        }
 
-	        final SecondOrderParamsRepository secParams = loadJSON(args1.nPatients, args1.inputJSONFileName);
+	        final SecondOrderParamsRepository secParams = args1.explore? new DiabPlusExplorationSecondOrderRepository(args1.nPatients) : loadJSON(args1.nPatients, args1.inputJSONFileName);
 	    	final String validity = secParams.checkValidity();
 	    	final SecondOrderChronicComplicationSubmodel[] chronicSubmodels = secParams.getRegisteredChronicComplications();
 	    	final SecondOrderAcuteComplicationSubmodel[] acuteSubmodels = secParams.getRegisteredAcuteComplications();

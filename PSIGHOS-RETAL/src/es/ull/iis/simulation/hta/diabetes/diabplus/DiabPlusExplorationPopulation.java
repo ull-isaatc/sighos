@@ -13,9 +13,9 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class DiabPlusExplorationPopulation extends DiabetesStdPopulation {
-	private final double[] HBA1C_LIMITS = new double[] {6.0, 14.0};
-	private final double[] AGE_LIMITS = new double[] {20.0, 40.0};
-	private final double[] DURATION_LIMITS = new double[] {2.0, 35.0};
+	private static final double[] HBA1C_LIMITS = new double[] {6.0, 14.0};
+	private static final double[] AGE_LIMITS = new double[] {20.0, 40.0};
+	private static final double[] DURATION_LIMITS = new double[] {2.0, 35.0};
 	
 	public DiabPlusExplorationPopulation() {
 		super(DiabetesType.T1);
@@ -28,17 +28,17 @@ public class DiabPlusExplorationPopulation extends DiabetesStdPopulation {
 
 	@Override
 	protected RandomVariate getBaselineHBA1c() {
-		return RandomVariateFactory.getInstance("UniformVariate", HBA1C_LIMITS);
+		return RandomVariateFactory.getInstance("UniformVariate", HBA1C_LIMITS[0], HBA1C_LIMITS[1]);
 	}
 
 	@Override
 	protected RandomVariate getBaselineAge() {
-		return RandomVariateFactory.getInstance("UniformVariate", AGE_LIMITS);
+		return RandomVariateFactory.getInstance("UniformVariate", AGE_LIMITS[0], AGE_LIMITS[1]);
 	}
 
 	@Override
 	protected RandomVariate getBaselineDurationOfDiabetes() {
-		return RandomVariateFactory.getInstance("UniformVariate", DURATION_LIMITS);
+		return RandomVariateFactory.getInstance("UniformVariate", DURATION_LIMITS[0], DURATION_LIMITS[1]);
 	}
 
 }

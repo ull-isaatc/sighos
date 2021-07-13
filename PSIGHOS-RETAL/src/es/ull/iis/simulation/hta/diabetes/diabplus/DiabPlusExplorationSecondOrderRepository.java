@@ -30,8 +30,10 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsRepository {
+	/** Lower and upper limits for severe hypoglycemia event rates. Source: Frier BM. The incidence and impact of hypoglycemia in type 1 and type 2 diabetes. International Diabetes Monitor 2009;21:210–218 */
+	private static final double[] SHE_LIMITS = new double[] {1.0, 1.7};  
 
-	protected DiabPlusExplorationSecondOrderRepository(int nPatients, double hypoRate) {
+	protected DiabPlusExplorationSecondOrderRepository(int nPatients) {
 		super(nPatients, new DiabPlusExplorationPopulation());
 
 		registerComplication(new SheffieldRETSubmodel());
@@ -40,7 +42,9 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 		registerComplication(new SimpleNEUSubmodel());
 		
 		final StandardSevereHypoglycemiaEvent hypoEvent = new StandardSevereHypoglycemiaEvent(
-				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_P_HYPO, "Annual rate of severe hypoglycemia events", "Assumption", hypoRate), 
+				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_P_HYPO, "Annual rate of severe hypoglycemia events", 
+						"Frier BM. The incidence and impact of hypoglycemia in type 1 and type 2 diabetes. International Diabetes Monitor 2009;21:210–218", 
+						(SHE_LIMITS[0] + SHE_LIMITS[1]) / 2, "UniformVariate", SHE_LIMITS[0], SHE_LIMITS[1]), 
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_RR_HYPO, "No RR", "Assumption", 1.0), 
 				EnumSet.of(DiabetesType.T1), true);
 		registerComplication(hypoEvent);

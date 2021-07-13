@@ -18,18 +18,27 @@ public class DiabPlusStdPopulation implements DiabetesPopulation {
 	final private double hba1c;
 	final private double age;
 	final private double durationOfDiabetes;
+	final private double hypoRate;
 	
-	public DiabPlusStdPopulation(boolean man, double hba1c, double age, double durationOfDiabetes) {
+	public DiabPlusStdPopulation(boolean man, double hba1c, double age, double durationOfDiabetes, double hypoRate) {
 		this.age = age;
 		this.durationOfDiabetes = durationOfDiabetes;
 		this.hba1c = hba1c;
 		this.man = man;
+		this.hypoRate = hypoRate;
 	}
 
 	@Override
 	public DiabetesPatientProfile getPatientProfile() {
 		return new DiabetesPatientProfile(age, man ? 1 : 0, durationOfDiabetes, hba1c, 
 				false, false, BasicConfigParams.DEFAULT_SBP, BasicConfigParams.DEFAULT_LIPID_RATIO);
+	}
+
+	/**
+	 * @return the hypoRate
+	 */
+	public double getHypoRate() {
+		return hypoRate;
 	}
 
 	@Override
