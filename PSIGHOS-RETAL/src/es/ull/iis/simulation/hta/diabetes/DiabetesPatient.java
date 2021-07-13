@@ -351,6 +351,15 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 		return (!comorbidityEvents.containsKey(comp)) ? Long.MAX_VALUE : comorbidityEvents.get(comp).getTs(); 
 	}
 
+	/** 
+	 * Return whether if the patient started with the specified complication
+	 * @param comp A chronic complication
+	 * @return whether if the patient started with the specified complication
+	 */
+	public boolean hasComplicationFromStart(DiabetesComplicationStage comp) {
+		return initComplications.contains(comp);
+	}
+	
 	private void assignInitialComplication(final DiabetesComplicationStage complication) {
 		if (DiabetesPatient.this.detailedState.contains(complication)) {
 			error("Health state already assigned!! " + complication.name());
