@@ -118,21 +118,25 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	/**
 	 * Adds a manifestation to this disease
 	 * @param manif New manifestation associated to this disease
+	 * @return The manifestation added
 	 */
-	public void addManifestation(Manifestation manif) {
+	public Manifestation addManifestation(Manifestation manif) {
 		manifestations.add(manif);
 		secParams.registerManifestation(manif);
 		transitions.put(manif, new ArrayList<>());
 		reverseTransitions.put(manif, new ArrayList<>());
+		return manif;
 	}
 	
 	/**
 	 * Adds a new transition between two manifestations of this disease (or from "no manifestations" to any other manifestation)
-	 * @param trans New transition between manifestations of this disease 
+	 * @param trans New transition between manifestations of this disease
+	 * @return The transition added 
 	 */
-	public void addTransition(Transition trans) {
+	public Transition addTransition(Transition trans) {
 		transitions.get(trans.getSrcManifestation()).add(trans);
 		reverseTransitions.get(trans.getDestManifestation()).add(trans);
+		return trans;
 	}
 	
 	/**

@@ -322,6 +322,18 @@ public abstract class SecondOrderParamsRepository {
 		addProbParam(new SecondOrderParam(this, getProbString(fromManifestation, toManifestation), "Probability of going from " + fromManifestation + " to " + toManifestation, source, detValue, rnd));
 	}
 	
+	public void addProbParam(Named fromManifestation, Named toManifestation, String source, double detValue) {
+		addProbParam(new SecondOrderParam(this, getProbString(fromManifestation, toManifestation), "Probability of going from " + fromManifestation + " to " + toManifestation, source, detValue));
+	}
+	
+	public void addRRParam(Named fromManifestation, Named toManifestation, String source, double detValue, RandomVariate rnd) {
+		addOtherParam(new SecondOrderParam(this, getRRString(fromManifestation, toManifestation), "RR associated to going from " + fromManifestation + " to " + toManifestation, source, detValue, rnd));
+	}
+	
+	public void addRRParam(Named fromManifestation, Named toManifestation, String source, double detValue) {
+		addOtherParam(new SecondOrderParam(this, getRRString(fromManifestation, toManifestation), "RR associated to going from " + fromManifestation + " to " + toManifestation, source, detValue));
+	}
+	
 	public void addModificationParam(Modification param) {
 		modificationParams.put(param.getName(), param);		
 	}
@@ -474,15 +486,6 @@ public abstract class SecondOrderParamsRepository {
 		final SecondOrderParam param = costParams.get(name);
 		return (param == null) ? Double.NaN : param.getValue(id); 
 	}
-	
-	/**
-	 * Returns the probability from healthy to the specified complication or complication stage; 0.0 if not defined
-	 * @param stage The destination complication or complication stage
-	 * @return the probability from healthy to the specified complication or complication stage; 0.0 if not defined
-	 */
-	public double getProbability(Named stage, DiseaseProgressionSimulation simul) {
-		return getProbability(null, stage, simul); 
-	}
 
 	/**
 	 * Returns the probability from a complication to another; 0.0 if not defined
@@ -492,6 +495,22 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public double getProbability(Named fromStage, Named toStage, DiseaseProgressionSimulation simul) {
 		return getProbParam(getProbString(fromStage, toStage), simul);
+	}
+
+	/**
+	 * Returns the RR used to progress from a complication to another; 1.0 if not defined
+	 * @param fromStage The source complication or complication stage
+	 * @param toStage The destination complication or complication stage
+	 * @return the RR used to progress from a complication to another; 1.0 if not defined
+	 */
+	public double getRR(Named fromStage, Named toStage, DiseaseProgressionSimulation simul) {
+		final int id = simul.getIdentifier();
+		final String name = getRRString(fromStage, toStage);
+		final SecondOrderParam param = otherParams.get(name);
+		if (param == null)
+			return 1.0;
+		final Modification modif = modificationParams.get(getModificationString(simul.getIntervention(), name));
+		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
 	}
 
 	/**
@@ -633,9 +652,19 @@ public abstract class SecondOrderParamsRepository {
 	 * @return a string that represents a probability of developing a complication from another
 	 */
 	public static String getProbString(Named from, Named to) {
+		return STR_PROBABILITY_PREFIX + from.name() + "_" + to.name();
+	}
+	
+	/**
+	 * Builds a string that represents a RR of developing a complication from another
+	 * @param from Initial complication
+	 * @param to Final complication
+	 * @return a string that represents a probability of developing a complication from another
+	 */
+	public static String getRRString(Named from, Named to) {
 		final String fromName = (from == null) ? STR_HEALTHY : from.name();
 		final String toName = "_" + to.name();
-		return STR_PROBABILITY_PREFIX + fromName + toName;
+		return STR_RR_PREFIX + fromName + toName;
 	}
 	
 	public static String getModificationString(Intervention interv, Named from, Named to) {
