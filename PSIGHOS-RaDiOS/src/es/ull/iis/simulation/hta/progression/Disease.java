@@ -208,11 +208,11 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	public abstract double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge);
 	
 	/**
-	 * Returns the disutility value associated to the current stage of this chronic complication
+	 * Returns the disutility value associated to the current stage of this disease
 	 * @param pat A patient
-	 * @param method Method used to compute the disutility of this chronic complication in case the 
-	 * complication allows for several stages to be concurrently active
-	 * @return The disutility value associated to the current stage of this chronic complication
+	 * @param method Method used to compute the disutility of this disease in case there are more 
+	 * than one commorbility
+	 * @return The disutility value associated to the current stage of this disease
 	 */
 	public abstract double getDisutility(Patient pat, DisutilityCombinationMethod method);
 	
