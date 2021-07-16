@@ -609,6 +609,16 @@ public abstract class SecondOrderParamsRepository {
 	}
 	
 	/**
+	 * Returns the base disutility for a disease; 0.0 if not defined
+	 * @param disease Disease
+	 * @return the base disutility for a disease; 0.0 if not defined 
+	 */
+	public double getDisutilityForDisease(Disease disease, int id) {
+		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + disease.name());
+		return (param == null) ? 0.0 : param.getValue(id);		
+	}
+	
+	/**
 	 * Returns the time to death of the specified patient
 	 * @param pat A patient
 	 * @return the time to death of the specified patient

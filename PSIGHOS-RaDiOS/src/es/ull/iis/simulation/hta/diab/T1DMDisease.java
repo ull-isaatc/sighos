@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.diab;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.T1DMRepository;
 import es.ull.iis.simulation.hta.diab.manifestations.EndStageRenalDisease;
 import es.ull.iis.simulation.hta.diab.manifestations.Macroalbuminuria;
 import es.ull.iis.simulation.hta.diab.manifestations.Microalbuminuria;
@@ -79,7 +78,6 @@ public class T1DMDisease extends StagedDisease {
 				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, 
 				DEF_C_DNC.VALUE, SecondOrderParamsRepository.getRandomVariateForCost(DEF_C_DNC.VALUE)));
 
-		// FIXME: Todavía no usando esto. Hay que chequear cómo integrarlo y también qué pintan los calculator en el paquete outcome frente a lo que se hace en StagedDisease
 		final double[] paramsduDNC = Statistics.betaParametersFromNormal(DEF_DU_DNC[0], DEF_DU_DNC[1]);
 		secParams.addDisutilityParam(this, "Disutility of DNC", "", DEF_DU_DNC[0], RandomVariateFactory.getInstance("BetaVariate", paramsduDNC[0], paramsduDNC[1]));
 		

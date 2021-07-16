@@ -94,10 +94,12 @@ public abstract class StagedDisease extends Disease {
 	 */
 	@Override
 	public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
+		final int simulId = pat.getSimulation().getIdentifier();
 		final Collection<Manifestation> state = pat.getDetailedState();
-		double du = 0.0;
+		// Uses the base disutility for the disease if available 
+		double du = secParams.getDisutilityForDisease(this, simulId);
 		for (final Manifestation manif : state) {
-			du = method.combine(du, secParams.getDisutilityForManifestation(manif, pat.getSimulation().getIdentifier()));
+			du = method.combine(du, secParams.getDisutilityForManifestation(manif, simulId));
 		}
 		return du;
 	}
