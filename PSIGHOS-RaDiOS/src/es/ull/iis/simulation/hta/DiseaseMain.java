@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
+import es.ull.iis.simulation.hta.diab.T1DMRepository;
 import es.ull.iis.simulation.hta.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.inforeceiver.BudgetImpactView;
 import es.ull.iis.simulation.hta.inforeceiver.CostListener;
@@ -677,6 +678,10 @@ public class DiseaseMain {
 				System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for the rare disease PBD \n\n", disease));
 				secParams = new PBDRepository(nRuns, nPatients, allAffected);
 	        	break;
+			case 3:
+				System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for T1DM \n\n"));
+				secParams = new T1DMRepository(nRuns, nPatients);
+				break;
 			case 0:
 			default:
 				System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for the rare disease [%d] \n\n", disease));
@@ -694,12 +699,12 @@ public class DiseaseMain {
 			// ##############################################################################################################
 			// Parameters definition
 			// ##############################################################################################################
-			boolean usePreviousLoadedJsonDiseaseDefinition = true;
+			boolean usePreviousLoadedJsonDiseaseDefinition = false;
 			boolean replaceDotWithColon = false;
 			boolean useProgramaticArguments = true;
 			boolean allAffected = true;
 			double utilityGeneralPopulation = 0.8861;
-			String params = "-n 100 -r 10 -dr 0.0 0.0 -pop 1 -dis 11 -q -ep ia"; // -o /tmp/result_david.txt
+			String params = "-n 1000 -r 0 -pop 3 -q"; // -o /tmp/result_david.txt
 			parseParameters(args, arguments, useProgramaticArguments, params);
 
 			int TEST_RARE_DISEASE1 = 1; int TEST_RARE_DISEASE2 = 1; int TEST_RARE_DISEASE3 = 1; int TEST_RARE_DISEASE4 = 1; int PBD = 11; 
