@@ -31,7 +31,6 @@ public class T1DMDisease extends StagedDisease {
 	}
 	public final static double[] DEF_DU_DNC = {T1DMRepository.DEF_U_GENERAL_POP - 0.785, ((0.889 - 0.681) / 3.92)};
 	
-	private static final String STR_HBA1C = "HbA1c";
 	private static final double P_DNC_ALB1 = 0.0436;
 	private static final double[] CI_DNC_ALB1 = {0.0136, 0.0736}; // Assumption
 	private static final double BETA_ALB1 = 3.25;
@@ -141,7 +140,7 @@ public class T1DMDisease extends StagedDisease {
 		@Override
 		public double getRR(Patient pat) {
 			final double beta = secParams.getRR(srcManifestation, destManifestation, pat.getSimulation());
-			return Math.pow(pat.getProfile().getDoubleProperty(STR_HBA1C)/10.0, beta);
+			return Math.pow(pat.getProfile().getDoubleProperty(T1DMRepository.STR_HBA1C)/10.0, beta);
 		}
 	}
 	

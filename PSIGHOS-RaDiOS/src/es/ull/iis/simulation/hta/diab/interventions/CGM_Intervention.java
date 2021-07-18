@@ -4,10 +4,13 @@
 package es.ull.iis.simulation.hta.diab.interventions;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.diab.T1DMRepository;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.Modification;
+import es.ull.iis.simulation.hta.progression.Modification.Type;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -30,6 +33,8 @@ public class CGM_Intervention extends Intervention {
 	private static final int YEAR_C_STRIPS = 2019;
 	private static final double []C_STRIPS = {0.281378955, 0.098554232};
 	private static final double []MIN_MAX_C_STRIPS = {0.1, 0.5};
+	private static final double HBA1C_REDUCTION = 0.49;
+	private static final double []HBA1C_REDUCTION_IC95 = {0.375, 0.605};
 	
 	/**
 	 * @param secParams
@@ -55,6 +60,10 @@ public class CGM_Intervention extends Intervention {
 		// I assume a daily use with +-25% uncertainty
 		secParams.addOtherParam(new SecondOrderParam(secParams, STR_USE_SENSOR_G5, "Use of sensor", 
 				"Technical data sheets", USE_SENSOR_G5, RandomVariateFactory.getInstance("UniformVariate", 0.75 * USE_SENSOR_G5, 1.25 * USE_SENSOR_G5)));
+		
+		final double sd = Statistics.sdFrom95CI(HBA1C_REDUCTION_IC95);
+		addClinicalParameterModification(T1DMRepository.STR_HBA1C, new Modification(secParams, Type.DIFF, SecondOrderParamsRepository.getModificationString(this, T1DMRepository.STR_HBA1C + "_REDUX"), T1DMRepository.STR_HBA1C + " reduction",
+				"GOLD+DIAMOND", HBA1C_REDUCTION, RandomVariateFactory.getInstance("NormalVariate", HBA1C_REDUCTION, sd)));
 	}
 
 	@Override

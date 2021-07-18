@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.interventions;
 
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
@@ -32,6 +33,7 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 
 	private Modification lifeExpectancyModification;
 	private Modification allParameterModification;
+	private final TreeMap<String, Modification> clinicalParameterModifications;
 	
 	/**
 	 * Creates a second order characterization of an intervention
@@ -44,6 +46,7 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 		this.description = description;
 		lifeExpectancyModification = secParams.NO_MODIF;
 		allParameterModification = secParams.NO_MODIF;
+		clinicalParameterModifications = new TreeMap<>();
 	}
 
 	@Override
@@ -124,6 +127,7 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 
 	/**
 	 * @param lifeExpectancyModification the lifeExpectancyModification to set
+	 * @return This intervention
 	 */
 	public Intervention setLifeExpectancyModification(Modification lifeExpectancyModification) {
 		this.lifeExpectancyModification = lifeExpectancyModification;
@@ -139,12 +143,34 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 
 	/**
 	 * @param allParameterModification the allParameterModification to set
+	 * @return This intervention
 	 */
 	public Intervention setAllParameterModification(Modification allParameterModification) {
 		this.allParameterModification = allParameterModification;
 		return this;
 	}
 
+	/**
+	 * Adds a modification that affects a clinical parameter of the patient 
+	 * @param clinicalParameterName Name of the clinical parameter
+	 * @param modif Modification that affects the value of the clinical parameter
+	 * @return This intervention
+	 */
+	public Intervention addClinicalParameterModification(String clinicalParameterName, Modification modif) {
+		clinicalParameterModifications.put(clinicalParameterName, modif);
+		return this;
+	}
+	
+	/**
+	 * Return a modification that affects the value of a clinical parameter
+	 * @param clinicalParameterName Name of the clinical parameter
+	 * @return a modification that affects the value of a clinical parameter
+	 */
+	public Modification getClinicalParameterModification(String clinicalParameterName) {
+		if (clinicalParameterModifications.containsKey(clinicalParameterName))
+			return clinicalParameterModifications.get(clinicalParameterName);
+		return secParams.NO_MODIF;
+	}
 	/**
 	 * Returns a collection of events that happens to patients that are treated with this intervention
 	 * @param pat A patient
