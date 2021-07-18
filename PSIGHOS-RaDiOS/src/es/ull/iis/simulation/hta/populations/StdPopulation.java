@@ -3,6 +3,9 @@
  */
 package es.ull.iis.simulation.hta.populations;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.PatientProfile;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
@@ -12,7 +15,7 @@ import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
 
 /**
- * A basic class to generate non-correlated information about patients.
+ * A basic class to generate non-correlated information about patients who can either suffer or not a specific disease.
  * @author Iván Castilla Rodríguez
  *
  */
@@ -22,12 +25,15 @@ public abstract class StdPopulation implements Population {
 
 	private final Disease disease;
 	protected final SecondOrderParamsRepository secParams;
+	private final List<ClinicalParameter> parameters;
+	
 	/**
 	 * Creates a standard population
 	 */
 	public StdPopulation(SecondOrderParamsRepository secParams, Disease disease) {
 		this.disease = disease;
 		this.secParams = secParams;
+		this.parameters = getPatientParameterList();
 		rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 	}
 
@@ -36,8 +42,17 @@ public abstract class StdPopulation implements Population {
 		final int sex = (rng.draw() < getPMan(simul)) ? BasicConfigParams.MAN : BasicConfigParams.WOMAN;
 		final double initAge = Math.min(Math.max(getBaselineAge(simul).generate(), getMinAge()), getMaxAge());
 		final Disease dis = (rng.draw() < getPDisease(simul)) ? disease : secParams.HEALTHY;
-		return new PatientProfile(initAge, sex, dis, rng.draw() < getPDiagnosed(simul));
+		final PatientProfile prof = new PatientProfile(initAge, sex, dis, rng.draw() < getPDiagnosed(simul));
+		for (ClinicalParameter param : parameters)
+			prof.setDoubleProperty(param.getName(), param.getValue(prof, simul));
+		return prof;
 	}
+
+	/**
+	 * Creates and returns the probability of having a disease according to the population characteristics.
+	 * @return the probability of having a disease according to the population characteristics
+	 */
+	public abstract double getPDisease(DiseaseProgressionSimulation simul);
 
 	@Override
 	public int getMinAge() {
@@ -48,11 +63,7 @@ public abstract class StdPopulation implements Population {
 	public int getMaxAge() {
 		return BasicConfigParams.DEF_MAX_AGE;
 	}
-	
-	@Override
-	public Disease getDisease() {
-		return disease;
-	}
+
 	/**
 	 * Creates and returns the probability of being a man according to the population characteristics.
 	 * @return the probability of being a man according to the population characteristics
@@ -69,4 +80,7 @@ public abstract class StdPopulation implements Population {
 	 */
 	protected abstract RandomVariate getBaselineAge(DiseaseProgressionSimulation simul);
 	
+	protected List<ClinicalParameter> getPatientParameterList() {
+		return new ArrayList<>();
+	}
 }

@@ -19,6 +19,8 @@ import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
  *
  */
 public class T1DMRepository extends SecondOrderParamsRepository {
+	public static final String STR_HBA1C = "HbA1c";
+	public static final String STR_DURATION = "Duration";
 	/** Default utility for general population: From adult Spanish population but those with DM */ 
 	public static double DEF_U_GENERAL_POP = 0.911400915;
 	private final CostCalculator costCalc;
