@@ -28,6 +28,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	private final boolean printFirstOrderVariance;
 	/** Number of interventions assessed */
 	private final int nInterventions;
+	private final int nPatients;
 	private final ArrayList<DiabetesComplicationStage> availableHealthStates;
 
 	/**
@@ -45,6 +46,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		incidence = new int[nInterventions][availableHealthStates.size()];
 		this.printFirstOrderVariance = printFirstOrderVariance;
 		this.nInterventions = nInterventions;
+		this.nPatients = nPatients;
 		addGenerated(DiabetesPatientInfo.class);
 		addEntrance(DiabetesPatientInfo.class);
 	}
@@ -124,6 +126,16 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 			}
 		}
 		return checked;
+	}
+	
+	public double[][] getIncidence() {
+		final double[][] percIncidence = new double[nInterventions][availableHealthStates.size()];
+		for (int i = 0; i < nInterventions; i++) {
+			for (int j = 0; j < availableHealthStates.size(); j++) {
+				percIncidence[i][j] = (double) incidence[i][j] / (double)nPatients;
+			}
+		}
+		return percIncidence;
 	}
 	
 	@Override

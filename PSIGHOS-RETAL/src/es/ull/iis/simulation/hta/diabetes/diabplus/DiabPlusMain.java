@@ -53,6 +53,9 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicati
 
 /**
  * Main class to launch simulation experiments
+ * For example:
+ * - to create raw data for ML postprocessing: -q -n 5000 -r 0  -ex -po
+ * - to create data based on a JSON-defined patient: -q -n 100 -r 1000 -p
  * @author Iván Castilla Rodríguez
  *
  */
@@ -200,7 +203,7 @@ public class DiabPlusMain {
 			expListeners.add(new EpidemiologicView(nRuns, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 			baseCaseExpListeners.add(new EpidemiologicView(1, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 		}
-		this.jsonWriter = new DiabPlusJSONWriter(nRuns, interventions, secParams.getRegisteredComplicationStages());
+		this.jsonWriter = new DiabPlusJSONWriter(nRuns, interventions, secParams);
 	}
 	
 	/**
