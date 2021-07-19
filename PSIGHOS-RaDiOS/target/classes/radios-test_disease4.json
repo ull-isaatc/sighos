@@ -1,0 +1,76 @@
+{
+  "disease" : {
+    "name" : "#RD4_Disease",
+    "developments" : [ {
+      "name" : "#RD4_Natural_Development",
+      "manifestations" : [ {
+        "name" : "#RD4_MANIF1",
+        "probability" : "0.1",
+        "mortalityFactor" : "1.5#UNIFORM(1.3,1.7)",
+        "utilities" : [ {
+          "name" : "#RD4_Utility_MANIF1",
+          "value" : "0.2#UNIFORM(0.15,0.25)",
+          "calculationMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
+        } ],
+        "costs" : [ {
+          "name" : "#RD4_Cost_MANIF1",
+          "amount" : "100.0",
+          "year" : "2020",
+          "temporalBehavior" : "ANNUAL"
+        } ]
+      }, {
+        "name" : "#RD4_MANIF2",
+        "probability" : "0.02",
+        "mortalityFactor" : "5.0#UNIFORM(4.0,6.0)",
+        "utilities" : [ {
+          "name" : "#RD4_Utility_MANIF2",
+          "value" : "0.5#UNIFORM(0.4,0.6)",
+          "calculationMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
+        } ],
+        "costs" : [ {
+          "name" : "#RD4_Cost_MANIF2",
+          "amount" : "1000.0",
+          "year" : "2020",
+          "temporalBehavior" : "ANNUAL"
+        } ]
+      }, {
+        "name" : "#RD4_MANIF_ACUTE1",
+        "probability" : "0.15",
+        "mortalityFactor" : "0.1",
+        "utilities" : [ {
+          "name" : "#RD4_Utility_MANIF_ACUTE1",
+          "value" : "0.2#UNIFORM(0.15,0.25)",
+          "calculationMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
+        } ],
+        "costs" : [ {
+          "name" : "#RD4_Cost_MANIF_ACUTE1",
+          "amount" : "1000.0",
+          "year" : "2020",
+          "temporalBehavior" : "ONETIME"
+        } ]
+      } ]
+    } ],
+    "interventions" : [ {
+      "name" : "#RD4_Intervention_NoScreening"
+    }, {
+      "name" : "#RD4_Intervention_Screening",
+      "screeningStrategies" : [ {
+        "name" : "#RD4_Strategy_Screening",
+        "screeningTechniques" : [ {
+          "name" : "#RD4_Technique_Screening",
+          "sensitivity" : "0.9",
+          "especificity" : "0.9",
+          "costs" : [ {
+            "name" : "#RD4_Cost_ScreeningTechnique",
+            "amount" : "5.0",
+            "year" : "2020",
+            "temporalBehavior" : "ONETIME"
+          } ]
+        } ]
+      } ]
+    } ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "disease" : {
+    "name" : "#RD2_Disease",
+    "developments" : [ {
+      "name" : "#RD2_Natural_Development",
+      "manifestations" : [ {
+        "name" : "#RD2_MANIF1",
+        "probability" : "0.1",
+        "mortalityFactor" : "0.1",
+        "utilities" : [ {
+          "name" : "#RD2_Utility_MANIF1",
+          "value" : "0.2#UNIFORM(0.195,0.25)",
+          "calculationMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
+        } ],
+        "costs" : [ {
+          "name" : "#RD2_Cost_MANIF1",
+          "amount" : "1000.0",
+          "year" : "2020",
+          "temporalBehavior" : "ONETIME"
+        } ]
+      } ]
+    } ],
+    "interventions" : [ {
+      "name" : "#RD2_Intervention_NoScreening"
+    }, {
+      "name" : "#RD2_Intervention_Screening",
+      "screeningStrategies" : [ {
+        "name" : "#RD2_Strategy_Screening",
+        "screeningTechniques" : [ {
+          "name" : "#RD2_Technique_Screening",
+          "sensitivity" : "0.9",
+          "especificity" : "0.9",
+          "costs" : [ {
+            "name" : "#RD2_Cost_ScreeningTechnique",
+            "amount" : "5.0",
+            "year" : "2020",
+            "temporalBehavior" : "ONETIME"
+          } ]
+        } ]
+      } ]
+    } ]
+  }
+}

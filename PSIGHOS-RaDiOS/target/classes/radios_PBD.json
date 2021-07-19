@@ -1,0 +1,196 @@
+{
+  "disease" : {
+    "name" : "#PBD_ProfoundBiotinidaseDeficiency",
+    "birthPrevalence" : "1.47884E-05#BETA(8, 540955)",
+    "clinicalDiagnosisStrategies" : [ {
+      "name" : "#PBD_ClinicalDiagnosisStrategy",
+      "clinicalDiagnosisTechniques" : [ {
+        "name" : "#PBD_ClinicalDiagnosis",
+        "sensitivity" : "1.0",
+        "especificity" : "1.0",
+        "costs" : [ {
+          "name" : "#PBD_CostDiagnosis",
+          "amount" : "509.65#UNIFORM(409.65, 609.65)",
+          "year" : "2013",
+          "temporalBehavior" : "ONETIME"
+        } ]
+      } ]
+    } ],
+    "developments" : [ {
+      "name" : "#PBD_NaturalDevelopment",
+      "lifeExpectancy" : "82.272854#GAMMA(25, 3.29)",
+      "stage" : "0",
+      "kind" : "NATURAL",
+      "manifestations" : [ {
+        "name" : "#PBD_ManifestationHearingProblems",
+        "onSetAge" : "1.0",
+        "endAge" : "2.0",
+        "probability" : "0.515#BETA(65.0,61.0)",
+        "kind" : "CHRONIC",
+        "probabilityOfDiagnosis" : "1.0",
+        "utilities" : [ {
+          "name" : "#PBD_UtilityManifestationHearingProblems",
+          "kind" : "DISUTILITY",
+          "value" : "0.01#UNIFORM(0.008,0.012)",
+          "calculationMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
+        } ],
+        "costs" : [ {
+          "name" : "#PBD_CostManifestationHearingProblems",
+          "amount" : "155.14",
+          "year" : "2013",
+          "temporalBehavior" : "ANNUAL"
+        }, {
+          "name" : "#PBD_CostManifestationHearingProblemsInitial",
+          "amount" : "31169.95",
+          "year" : "2013",
+          "temporalBehavior" : "ONETIME"
+        } ]
+      }, {
+        "name" : "#PBD_ManifestationHypotonia",
+        "onSetAge" : "0.0",
+        "endAge" : "1.0",
+        "probability" : "0.457#BETA(17,20)",
+        "kind" : "CHRONIC",
+        "probabilityOfDiagnosis" : "1.0",
+        "costs" : [ {
+          "name" : "#PBD_CostManifestationHypotonia",
+          "amount" : "3665.56",
+          "year" : "2013",
+          "temporalBehavior" : "ONETIME"
+        } ]
+      }, {
+        "name" : "#PBD_ManifestationMentalDelay",
+        "onSetAge" : "1.0",
+        "endAge" : "2.0",
+        "probability" : "0.557#BETA(14,6)",
+        "kind" : "CHRONIC",
+        "mortalityFactor" : "-9.6#GAMMA(25,0.38)",
+        "probabilityOfDiagnosis" : "1.0",
+        "utilities" : [ {
+          "name" : "#PBD_UtilityManifestationMentalDelay",
+          "kind" : "DISUTILITY",
+          "value" : "0.07#UNIFORM(0.056,0.084)",
+          "calculationMethod" : "MIN",
+          "temporalBehavior" : "ANNUAL"
+        } ],
+        "costs" : [ {
+          "name" : "#PBD_CostManifestationMentalDelay",
+          "amount" : "217.74",
+          "year" : "2013",
+          "temporalBehavior" : "ANNUAL"
+        }, {
+          "name" : "#PBD_CostManifestationMentalDelayInitial",
+          "amount" : "1218.02",
+          "year" : "2013",
+          "temporalBehavior" : "ONETIME"
+        } ]
+      }, {
+        "name" : "#PBD_ManifestationSeizure",
+        "onSetAge" : "0.0",
+        "endAge" : "1.0",
+        "probability" : "0.564#BETA(65,50)",
+        "kind" : "CHRONIC",
+        "probabilityOfDiagnosis" : "1.0",
+        "utilities" : [ {
+          "name" : "#PBD_UtilityManifestationSeizure",
+          "kind" : "DISUTILITY",
+          "value" : "0.04#UNIFORM(0.032,0.048)",
+          "calculationMethod" : "EQ-5D??",
+          "temporalBehavior" : "ANNUAL"
+        } ],
+        "costs" : [ {
+          "name" : "#PBD_CostManifestationSeizure",
+          "amount" : "3665.56",
+          "year" : "2013",
+          "temporalBehavior" : "ONETIME"
+        } ]
+      }, {
+        "name" : "#PBD_ManifestationSkinProblems",
+        "onSetAge" : "0.0",
+        "endAge" : "1.0",
+        "probability" : "0.41#BETA(24,34)",
+        "kind" : "CHRONIC",
+        "probabilityOfDiagnosis" : "1.0",
+        "costs" : [ {
+          "name" : "#PBD_CostManifestationSkinProblems",
+          "amount" : "3665.56",
+          "year" : "2013",
+          "temporalBehavior" : "ONETIME"
+        } ]
+      }, {
+        "name" : "#PBD_ManifestationVisionLoss",
+        "onSetAge" : "1.0",
+        "endAge" : "2.0",
+        "probability" : "0.175#BETA(19,91)",
+        "kind" : "CHRONIC",
+        "probabilityOfDiagnosis" : "1.0",
+        "costs" : [ {
+          "name" : "#PBD_CostManifestationVisionLoss",
+          "amount" : "121.86",
+          "year" : "2013",
+          "temporalBehavior" : "ANNUAL"
+        }, {
+          "name" : "#PBD_CostManifestationVisionLossInitial",
+          "amount" : "251.8",
+          "year" : "2013",
+          "temporalBehavior" : "ONETIME"
+        } ]
+      } ]
+    } ],
+    "treatmentStrategies" : [ {
+      "name" : "#PBD_TreatmentStrategy",
+      "costs" : [ {
+        "name" : "#PBD_CostTreatmentStrategy",
+        "amount" : "66.2475",
+        "year" : "2013",
+        "temporalBehavior" : "ANNUAL"
+      } ],
+      "guidelines" : [ {
+        "name" : "#GuidelineLifetimeAnual",
+        "range" : "0y-*",
+        "frequency" : "1y"
+      } ]
+    } ],
+    "followUpStrategies" : [ {
+      "name" : "#PBD_FollowUpStrategy",
+      "costs" : [ {
+        "name" : "#PBD_CostFollowUpStrategy",
+        "amount" : "616.75672",
+        "year" : "2013",
+        "temporalBehavior" : "ANNUAL"
+      } ],
+      "guidelines" : [ {
+        "name" : "#GuidelineLifetimeAnual",
+        "range" : "0y-*",
+        "frequency" : "1y"
+      } ]
+    } ],
+    "interventions" : [ {
+      "name" : "#PBD_InterventionNoScreening",
+      "kind" : "NO_SCREENING"
+    }, {
+      "name" : "#PBD_InterventionScreening",
+      "kind" : "SCREENING",
+      "screeningStrategies" : [ {
+        "name" : "#PBD_ScreeningStrategy",
+        "screeningTechniques" : [ {
+          "name" : "#PBD_ScreeningTechnique",
+          "sensitivity" : "1.0",
+          "especificity" : "0.999935",
+          "costs" : [ {
+            "name" : "#PBD_CostScreening",
+            "amount" : "0.89#UNIFORM(0.5, 2.5)",
+            "year" : "2013",
+            "temporalBehavior" : "ONETIME"
+          } ]
+        } ]
+      } ],
+      "manifestationModifications" : [ {
+        "name" : "#PBD_ManifestationsModificationScreening",
+        "probabilityModification" : "*0.0",
+        "manifestations" : [ "#PBD_ManifestationHearingProblems", "#PBD_ManifestationHypotonia", "#PBD_ManifestationMentalDelay", "#PBD_ManifestationSeizure", "#PBD_ManifestationSkinProblems", "#PBD_ManifestationVisionLoss" ]
+      } ]
+    } ]
+  }
+}

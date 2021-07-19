@@ -38,7 +38,10 @@ public class DiabPlusJSONWriter {
 	final private static String STR_TIME_TO = "time to event";
 	final private static String STR_N_EVENTS = "number of events";
 	final private static String STR_INCIDENCE = "incidence";	
+<<<<<<< Upstream, based on origin/master
 	final private static String STR_ANNUAL_RISK = "annual risk";		
+=======
+>>>>>>> dd194fd Synchronized changes in HTA with master (changed JSON output of diab+)
 	final private static String STR_NAME = "name";
 	final private static String STR_BASE = "base";
 	final private static String STR_AVG = "avg";
@@ -84,8 +87,11 @@ public class DiabPlusJSONWriter {
 		
 		final double[][] timeTo = timeFreeListener.getAvgTimeToComplications();
 		final double[][] incidence = timeFreeListener.getIncidence();
+<<<<<<< Upstream, based on origin/master
 		final double[][][] nChronic = epListener.getnChronic();
 		final double[][][] nACute = epListener.getnAcute();
+=======
+>>>>>>> dd194fd Synchronized changes in HTA with master (changed JSON output of diab+)
 		for (int i = 0; i < interventions.size(); i++) {
 			final JSONObject jinterv = new JSONObject();
 			jinterv.put(STR_NAME, interventions.get(i).getShortName());
@@ -111,11 +117,14 @@ public class DiabPlusJSONWriter {
 				jincidence.put(STR_BASE, incidence[i][j]);
 				jmanif.put(STR_TIME_TO, jtimeto);
 				jmanif.put(STR_INCIDENCE, jincidence);
+<<<<<<< Upstream, based on origin/master
 				final JSONArray jannualRisk = new JSONArray();
 				for (int year = 0; year < epListener.getnIntervals(); year++) {
 					jannualRisk.put(nChronic[i][j][year]);
 				}
 				jmanif.put(STR_ANNUAL_RISK, jannualRisk);
+=======
+>>>>>>> dd194fd Synchronized changes in HTA with master (changed JSON output of diab+)
 				jmanifestations.put(j, jmanif);
 			}
 			jinterv.put(STR_CHRONIC_MANIFESTATIONS, jmanifestations);
@@ -165,6 +174,28 @@ public class DiabPlusJSONWriter {
 		cis[1] = Statistics.percentile(sortedCopy, percentiles[1]);		
 		dest.put(STR_LCI, Double.isNaN(cis[0]) ? null : cis[0]);
 		dest.put(STR_UCI, Double.isNaN(cis[1]) ? null : cis[1]);
+<<<<<<< Upstream, based on origin/master
+=======
+	}
+	
+	private void setWeightedProbValues(JSONObject dest, double[] values, double[] weights) {
+		double totalWeight = 0.0;
+		double avg = 0.0;
+		for (int i = 0; i < values.length; i++) {
+			avg += values[i] * weights[i];
+			totalWeight += weights[i];
+		}
+		avg = avg / totalWeight;
+		dest.put(STR_AVG, Double.isNaN(avg) ? null : avg);
+		// TODO: Compute CIs more precisely
+		double[] sortedCopy = Arrays.copyOf(values, values.length);
+		Arrays.sort(sortedCopy);
+		double[] cis = new double[2];
+		cis[0] = Statistics.percentile(sortedCopy, percentiles[0]);
+		cis[1] = Statistics.percentile(sortedCopy, percentiles[1]);		
+		dest.put(STR_LCI, Double.isNaN(cis[0]) ? null : cis[0]);
+		dest.put(STR_UCI, Double.isNaN(cis[1]) ? null : cis[1]);
+>>>>>>> dd194fd Synchronized changes in HTA with master (changed JSON output of diab+)
 	}
 	
 	private void setWeightedProbValues(JSONObject dest, double[] values, double[] weights) {
