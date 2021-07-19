@@ -11,20 +11,19 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
+ * A listener to compute the number of acute complications suffered by a patient during his/her lifetime
  * @author Iván Castilla
  *
  */
 public class AcuteComplicationCounterListener extends Listener implements StructuredOutputListener {
+	/** Number of complications of each type suffered by each patient. The last element of the array stores the total acummulated number of events for all the patients (useful to compute average) */
 	private final int[][] nComplications;
+	/** Number of patients */
 	private final int nPatients;
 
 	/**
 	 * 
-	 * @param simul
-	 * @param minAge
-	 * @param maxAge
-	 * @param length
-	 * @param detailDeaths
+	 * @param nPatients Number of patients
 	 */
 	public AcuteComplicationCounterListener(int nPatients) {
 		super("Counter of acute complications");
@@ -71,6 +70,16 @@ public class AcuteComplicationCounterListener extends Listener implements Struct
 		Arrays.sort(ordered);
 		final int index = (int)Math.ceil(nPatients * 0.025);
 		return new int[] {ordered[index - 1], ordered[nPatients - index]}; 
+	}
+
+	/**
+	 * @return the average number of complications suffered by all the patients during their lifetime
+	 */
+	public double[] getAvgNComplications() {
+		final double[] avg = new double[nComplications.length];
+		for (int i = 0; i < nComplications.length; i++)
+			avg[i] = (double)nComplications[i][nPatients] / nPatients;
+		return avg;
 	}
 
 	/**
