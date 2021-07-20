@@ -57,7 +57,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	protected DeathEvent deathEvent = null;
 
 	/**
-	 * Creates a new patient with Type 1 diabetes mellitus.
+	 * Creates a new patient
 	 * @param simul Simulation this patient belongs to
 	 * @param intervention Intervention assigned to this patient
 	 */
@@ -74,7 +74,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 
 	/**
-	 * Creates a patient with Type 1 diabetes mellitus which replicates another patient.
+	 * Creates a patient who replicates another patient.
 	 * @param simul Simulation this patient belongs to
 	 * @param original Original patient
 	 * @param intervention Intervention assigned to this patient

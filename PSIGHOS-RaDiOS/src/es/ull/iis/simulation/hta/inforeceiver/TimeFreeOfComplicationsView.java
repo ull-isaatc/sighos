@@ -127,11 +127,17 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		final Patient pat = pInfo.getPatient();
 		final int nIntervention = pat.getnIntervention(); 
 		if (pInfo.getType() == PatientInfo.Type.DEATH) {
-			final long deathTs = pInfo.getTs();
 			// Check all the complications
 			for (Manifestation comp : availableChronicManifestations) {
 				final long time = pat.getTimeToManifestation(comp);
-				timeToEvents.get(comp)[nIntervention][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? deathTs : time;
+				timeToEvents.get(comp)[nIntervention][pat.getIdentifier()] = time;
+				if (time == 0) {
+					prevalence[nIntervention][comp.ordinal()]++;
+				}
+				else if (Long.MAX_VALUE != time){
+					prevalence[nIntervention][comp.ordinal()]++;
+					incidence[nIntervention][comp.ordinal()]++;
+				}
 			}
 		}
 	}

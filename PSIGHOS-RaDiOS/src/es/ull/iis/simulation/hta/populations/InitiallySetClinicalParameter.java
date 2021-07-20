@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.populations;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.PatientProfile;
-import es.ull.iis.simulation.hta.progression.Modification;
 import simkit.random.RandomVariate;
 
 /**
@@ -25,23 +24,7 @@ public class InitiallySetClinicalParameter extends ClinicalParameter {
 		this.firstOrderValue = firstOrderValue;
 	}
 	
-	public double getValue(PatientProfile profile, DiseaseProgressionSimulation simul) {
-		final int id = simul.getIdentifier();
-		final Modification modif = simul.getIntervention().getClinicalParameterModification(getName());
-		double value = firstOrderValue.generate(); 
-		switch(modif.getType()) {
-		case DIFF:
-			value -= modif.getValue(id);
-			break;
-		case RR:
-			value *= modif.getValue(id);
-			break;
-		case SET:
-			value = modif.getValue(id);
-			break;
-		default:
-			break;
-		}
-		return value;
+	public double getInitialValue(PatientProfile profile, DiseaseProgressionSimulation simul) {
+		return firstOrderValue.generate();
 	}
 }

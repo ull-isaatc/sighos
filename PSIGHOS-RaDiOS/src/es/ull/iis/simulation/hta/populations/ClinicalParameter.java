@@ -22,5 +22,5 @@ public abstract class ClinicalParameter {
 		return name;
 	}
 	
-	public abstract double getValue(PatientProfile profile, DiseaseProgressionSimulation simul);	
+	public abstract double getInitialValue(PatientProfile profile, DiseaseProgressionSimulation simul);	
 }

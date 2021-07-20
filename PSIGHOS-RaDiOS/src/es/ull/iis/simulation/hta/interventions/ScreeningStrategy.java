@@ -86,7 +86,7 @@ public abstract class ScreeningStrategy extends Intervention {
 		@Override
 		public void event() {
 			final DiseaseProgressionSimulation simul = pat.getSimulation();
-			pat.getProfile().setDoubleListProperty(STR_SCREENING, ts);
+			pat.getProfile().addElementToListProperty(STR_SCREENING, ts);
 			// If the patient is already diagnosed, no sense in performing screening
 			if (!pat.isDiagnosed()) {
 				final int id = simul.getIdentifier();

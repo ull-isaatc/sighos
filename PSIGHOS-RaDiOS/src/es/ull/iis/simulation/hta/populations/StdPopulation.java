@@ -44,7 +44,7 @@ public abstract class StdPopulation implements Population {
 		final Disease dis = (rng.draw() < getPDisease(simul)) ? disease : secParams.HEALTHY;
 		final PatientProfile prof = new PatientProfile(initAge, sex, dis, rng.draw() < getPDiagnosed(simul));
 		for (ClinicalParameter param : parameters)
-			prof.setDoubleProperty(param.getName(), param.getValue(prof, simul));
+			prof.addProperty(param.getName(), param.getInitialValue(prof, simul));
 		return prof;
 	}
 
