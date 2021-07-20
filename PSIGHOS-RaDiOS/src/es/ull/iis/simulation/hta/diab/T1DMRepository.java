@@ -35,8 +35,8 @@ public class T1DMRepository extends SecondOrderParamsRepository {
 		//registerDisease(HEALTHY);
 		registerDisease(dis);
 		registerPopulation(new T1DMGoldDiamondPopulation(this, dis));
-		registerIntervention(new CGM_Intervention(this));
 		registerIntervention(new SMBG_Intervention(this));
+		registerIntervention(new CGM_Intervention(this));
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
 

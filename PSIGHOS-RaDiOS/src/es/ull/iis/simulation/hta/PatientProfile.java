@@ -9,23 +9,20 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.Modification;
 
 /**
  * The baseline information required to generate a patient from a {@link Population}. It contains also generic 
  * fields to add properties to the patient without modifying the {@link Patient} class itself, that may be 
- * used in new complication submodels.
- * @author icasrod
+ * used in new manifestations or diseases.
+ * @author Iván Castilla Rodríguez
  *
  */
 public class PatientProfile {
-	/** A collection of integer properties */
-	private final TreeMap<String, Integer> intProperties;
-	/** A collection of double properties */
-	private final TreeMap<String, Double> doubleProperties;
-	/** A collection of boolean properties */
-	private final TreeMap<String, Boolean> boolProperties;
-	/** A collection of double properties */
-	private final TreeMap<String, List<Double>> doubleListProperties;
+	/** A collection of properties */
+	private final TreeMap<String, Number> properties;
+	/** A collection of lists of numeric properties */
+	private final TreeMap<String, List<Number>> listProperties;
 	/** Initial age of the patient (stored as years) */
 	private final double initAge;
 	/** Sex of the patient: 0 for men, 1 for women */
@@ -43,10 +40,8 @@ public class PatientProfile {
 	 * @param initHbA1c HbA1c level at the creation of the patient
 	 */
 	public PatientProfile(final double initAge, final int sex, final Disease disease, final boolean diagnosed) {
-		intProperties = new TreeMap<>();
-		doubleProperties = new TreeMap<>();
-		boolProperties = new TreeMap<>();
-		doubleListProperties = new TreeMap<>();
+		properties = new TreeMap<>();
+		listProperties = new TreeMap<>();
 		this.initAge = initAge;
 		this.sex = sex;
 		this.disease = disease;
@@ -90,74 +85,70 @@ public class PatientProfile {
 	 * @param property The name of the property
 	 * @return the value associated to the specified property
 	 */
-	public Double getDoubleProperty(String property) {
-		return doubleProperties.get(property);
+	public List<Number> getListProperty(String property) {
+		return listProperties.get(property);
 	}
 
 	/**
-	 * Sets the value of the specified property
+	 * Adds an element to a listed property
 	 * @param property The name of the property
-	 * @param value The new value of the property
+	 * @param value The new element of the list
+	 * @return This profile, so you can concatenate calls to this method 
 	 */
-	public void setDoubleProperty(String property, double value) {
-		doubleProperties.put(property, value);
-	}
-
-	/**
-	 * Returns the value associated to the specified property
-	 * @param property The name of the property
-	 * @return the value associated to the specified property
-	 */
-	public List<Double> getDoubleListProperty(String property) {
-		return doubleListProperties.get(property);
-	}
-
-	/**
-	 * Sets the value of the specified property
-	 * @param property The name of the property
-	 * @param value The new value of the property
-	 */
-	public void setDoubleListProperty(String property, double value) {
-		List<Double> list = doubleListProperties.get(property);
+	public PatientProfile addElementToListProperty(String property, Number value) {
+		List<Number> list = listProperties.get(property);
 		if (list == null)
-			list = new ArrayList<Double>();
+			list = new ArrayList<Number>();
 		list.add(value);
-		doubleListProperties.put(property, list);
+		listProperties.put(property, list);
+		return this;
 	}
-	
+
 	/**
-	 * Returns the value associated to the specified property
+	 * Adds an element to a listed property. Replaces any existing list with the same name 
+	 * @param property The name of the property
+	 * @param value The new element of the list
+	 * @return This profile, so you can concatenate calls to this method 
+	 */
+	public PatientProfile addListProperty(String property, List<Number> list) {
+		listProperties.put(property, list);
+		return this;
+	}
+
+	/**
+	 * Returns the value associated to the specified property modified depending on the patient
 	 * @param property The name of the property
 	 * @return the value associated to the specified property
 	 */
-	public Integer getIntegerProperty(String property) {
-		return intProperties.get(property);
+	public Number getPropertyValue(String property, Patient pat) {
+		final int id = pat.getSimulation().getIdentifier();
+		final Modification modif = pat.getSimulation().getIntervention().getClinicalParameterModification(property);
+		double value = properties.get(property).doubleValue(); 
+		switch(modif.getType()) {
+		case DIFF:
+			value -= modif.getValue(id);
+			break;
+		case RR:
+			value *= modif.getValue(id);
+			break;
+		case SET:
+			value = modif.getValue(id);
+			break;
+		default:
+			break;
+		}
+		return value;
 	}
-	
+
 	/**
-	 * Sets the value of the specified property
+	 * Sets the value of the specified property. Replaces the property if already exists.
 	 * @param property The name of the property
 	 * @param value The new value of the property
+	 * @return This profile, so you can concatenate calls to this method 
 	 */
-	public void setIntegerProperty(String property, int value) {
-		intProperties.put(property, value);
+	public PatientProfile addProperty(String property, Number value) {
+		properties.put(property, value);
+		return this;
 	}
-	
-	/**
-	 * Returns the value associated to the specified property
-	 * @param property The name of the property
-	 * @return the value associated to the specified property
-	 */
-	public Boolean getBooleanProperty(String property) {
-		return boolProperties.get(property);
-	}
-	
-	/**
-	 * Sets the value of the specified property
-	 * @param property The name of the property
-	 * @param value The new value of the property
-	 */
-	public void setBooleanProperty(String property, boolean value) {
-		boolProperties.put(property, value);
-	}
+
 }

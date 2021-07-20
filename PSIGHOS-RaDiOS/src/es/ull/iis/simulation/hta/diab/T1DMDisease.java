@@ -140,7 +140,7 @@ public class T1DMDisease extends StagedDisease {
 		@Override
 		public double getRR(Patient pat) {
 			final double beta = secParams.getRR(srcManifestation, destManifestation, pat.getSimulation());
-			return Math.pow(pat.getProfile().getDoubleProperty(T1DMRepository.STR_HBA1C)/10.0, beta);
+			return Math.pow(pat.getProfile().getPropertyValue(T1DMRepository.STR_HBA1C, pat).doubleValue()/10.0, beta);
 		}
 	}
 	

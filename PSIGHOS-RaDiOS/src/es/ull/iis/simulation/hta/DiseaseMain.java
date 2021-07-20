@@ -61,7 +61,7 @@ import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
 /**
  * Main class to launch simulation experiments
  * 
- * @author Ivï¿½n Castilla Rodrï¿½guez
+ * @author Iván Castilla Rodríguez
  *
  */
 public class DiseaseMain {
@@ -549,7 +549,7 @@ public class DiseaseMain {
 	/**
 	 * The executor of simulations. Each problem executor launches a set of simulation experiments
 	 * 
-	 * @author Ivï¿½n Castilla Rodrï¿½guez
+	 * @author Iván Castilla Rodríguez
 	 */
 	private class ProblemExecutor implements Runnable {
 		final private PrintWriter out;
@@ -704,7 +704,7 @@ public class DiseaseMain {
 			boolean useProgramaticArguments = true;
 			boolean allAffected = true;
 			double utilityGeneralPopulation = 0.8861;
-			String params = "-n 1000 -r 0 -pop 3 -q"; // -o /tmp/result_david.txt
+			String params = "-n 5000 -r 0 -pop 3 -y 2019 -q"; // -o /tmp/result_david.txt
 			parseParameters(args, arguments, useProgramaticArguments, params);
 
 			int TEST_RARE_DISEASE1 = 1; int TEST_RARE_DISEASE2 = 1; int TEST_RARE_DISEASE3 = 1; int TEST_RARE_DISEASE4 = 1; int PBD = 11; 
