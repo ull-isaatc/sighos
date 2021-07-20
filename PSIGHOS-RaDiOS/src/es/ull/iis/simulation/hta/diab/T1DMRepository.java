@@ -34,7 +34,7 @@ public class T1DMRepository extends SecondOrderParamsRepository {
 		// FIXME: ¿Deberíamos hacer esto siempre?
 		//registerDisease(HEALTHY);
 		registerDisease(dis);
-		registerPopulation(new T1DMGoldDiamondPopulation(this, dis));
+		registerPopulation(new T1DMSimpleTestPopulation(this, dis));
 		registerIntervention(new SMBG_Intervention(this));
 		registerIntervention(new CGM_Intervention(this));
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
