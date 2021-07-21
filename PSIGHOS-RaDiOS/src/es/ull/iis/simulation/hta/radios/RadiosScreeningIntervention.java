@@ -367,7 +367,7 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 				if (modificatorValue != null && modificatorValue == 0.0) {
 					// This is the only case implemented at the moment and it is in which the modification is to set the parameter to zero.
 					if ("*".equals(matcher.group(1))) {
-						secParams.addModificationParam(this, Modification.Type.SET, disease.getNullManifestation(), registerManifestation,  
+						secParams.addModificationParam(this, Modification.Type.SET, disease.getAsymptomaticManifestation(), registerManifestation,  
 								Constants.CONSTANT_EMPTY_STRING, modificatorValue, RandomVariateFactory.getInstance("ConstantVariate", modificatorValue));
 					}
 				}

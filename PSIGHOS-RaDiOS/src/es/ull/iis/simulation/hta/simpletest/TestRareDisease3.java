@@ -39,18 +39,18 @@ public class TestRareDisease3 extends StagedDisease {
 		manif2 = new TestManifestationStage2(secParams, this);
 		addManifestation(manif1);
 		addManifestation(manif2);
-		healthy_manif1 = new Transition(secParams, getNullManifestation(), manif1, true); 
+		healthy_manif1 = new Transition(secParams, getAsymptomaticManifestation(), manif1); 
 		addTransition(healthy_manif1);
-		healthy_manif2 = new Transition(secParams, getNullManifestation(), manif2, true); 
+		healthy_manif2 = new Transition(secParams, getAsymptomaticManifestation(), manif2); 
 		addTransition(healthy_manif2);
-		manif1_manif2 = new Transition(secParams, manif1, manif2, false); 
+		manif1_manif2 = new Transition(secParams, manif1, manif2); 
 		addTransition(manif1_manif2);
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(getNullManifestation(), manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
-		secParams.addProbParam(getNullManifestation(), manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
+		secParams.addProbParam(getAsymptomaticManifestation(), manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		secParams.addProbParam(getAsymptomaticManifestation(), manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
 		secParams.addProbParam(manif1, manif2, "Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
 	}
 

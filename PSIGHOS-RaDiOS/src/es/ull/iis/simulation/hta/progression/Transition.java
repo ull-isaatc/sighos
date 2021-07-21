@@ -26,19 +26,16 @@ public class Transition {
 	private final Manifestation destManifestation;
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
-	/** Indicates whether the destination manifestation of this transition replaces the source manifestation in the state of the patient */
-	private final boolean replacesPrevious;
 	private final RandomSeedForPatients[] randomSeeds;
 	private TimeToEventCalculator calc;
 	
 	/**
 	 * 
 	 */
-	public Transition(final SecondOrderParamsRepository secParams, Manifestation srcManifestation, Manifestation destManifestation, boolean replacesPrevious) {
+	public Transition(final SecondOrderParamsRepository secParams, Manifestation srcManifestation, Manifestation destManifestation) {
 		this.secParams = secParams;
 		this.srcManifestation = srcManifestation;
 		this.destManifestation = destManifestation;
-		this.replacesPrevious = replacesPrevious;
 		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
 		Arrays.fill(randomSeeds, null);
 		this.calc = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.NO_RR);
@@ -73,13 +70,6 @@ public class Transition {
 	 */
 	public Manifestation getDestManifestation() {
 		return destManifestation;
-	}
-
-	/**
-	 * @return the replacesPrevious
-	 */
-	public boolean replacesPrevious() {
-		return replacesPrevious;
 	}
 
 	public void reset(int id) {

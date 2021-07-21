@@ -62,10 +62,10 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		String manifestationProbability = getManifestation().getProbability();
 		if (manifestationProbability != null) {
 			Boolean replacePrevious = Type.CHRONIC == getType() ? true : false;
-			RadiosTransition transition = new RadiosTransition(repository, disease.getNullManifestation(), this, replacePrevious); 
+			RadiosTransition transition = new RadiosTransition(repository, disease.getAsymptomaticManifestation(), this, replacePrevious); 
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifestationProbability);
 			if (probabilityDistribution != null) {
-				getRepository().addProbParam(disease.getNullManifestation(), this, Constants.CONSTANT_EMPTY_STRING, 
+				getRepository().addProbParam(disease.getAsymptomaticManifestation(), this, Constants.CONSTANT_EMPTY_STRING, 
 						probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 			} else {
 				Object[][] datatableMatrix = ValueTransform.rangeDatatableToMatrix(XmlTransform.getDataTable(manifestationProbability), repository);

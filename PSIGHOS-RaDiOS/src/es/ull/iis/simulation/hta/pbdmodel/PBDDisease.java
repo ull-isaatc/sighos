@@ -51,19 +51,19 @@ public class PBDDisease extends StagedDisease {
 
 	private void registerBasicManifestation(Manifestation manif) {
 		addManifestation(manif);
-		final Transition trans = new Transition(secParams, getNullManifestation(), manif, true);
+		final Transition trans = new Transition(secParams, getAsymptomaticManifestation(), manif);
 		trans.setCalculator(trans.new ProportionBasedTimeToEventCalculator());
 		addTransition(trans);
 	}
 	
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(getNullManifestation(), skinProblems, "Test", 0.41, RandomVariateFactory.getInstance("BetaVariate", 24, 34));
-		secParams.addProbParam(getNullManifestation(), hypotonia, "Test", 0.457, RandomVariateFactory.getInstance("BetaVariate", 17, 20));
-		secParams.addProbParam(getNullManifestation(), seizures, "Test", 0.564, RandomVariateFactory.getInstance("BetaVariate", 65, 50));
-		secParams.addProbParam(getNullManifestation(), visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
-		secParams.addProbParam(getNullManifestation(), hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
-		secParams.addProbParam(getNullManifestation(), mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
+		secParams.addProbParam(getAsymptomaticManifestation(), skinProblems, "Test", 0.41, RandomVariateFactory.getInstance("BetaVariate", 24, 34));
+		secParams.addProbParam(getAsymptomaticManifestation(), hypotonia, "Test", 0.457, RandomVariateFactory.getInstance("BetaVariate", 17, 20));
+		secParams.addProbParam(getAsymptomaticManifestation(), seizures, "Test", 0.564, RandomVariateFactory.getInstance("BetaVariate", 65, 50));
+		secParams.addProbParam(getAsymptomaticManifestation(), visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
+		secParams.addProbParam(getAsymptomaticManifestation(), hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
+		secParams.addProbParam(getAsymptomaticManifestation(), mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
 		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_DIAGNOSIS, "Cost of diagnosing PBD", "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65)));
 		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_TREATMENT, "Cost of treating PBD", "", 2013, TREATMENT_COST));
 		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_FOLLOW_UP, "Cost of following up PBD", "", 2013, FOLLOW_UP_COST));

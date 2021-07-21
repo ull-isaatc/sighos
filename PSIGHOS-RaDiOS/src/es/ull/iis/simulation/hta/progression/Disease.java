@@ -18,7 +18,9 @@ import es.ull.iis.simulation.hta.progression.Manifestation.Type;
 import es.ull.iis.simulation.model.Describable;
 
 /**
- * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other. 
+ * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other.
+ * The disease also defines whether the onset of a chronic manifestation excludes other manifestations. By default, any chronic manifestation
+ * excludes the "asymptomatic" chronic manifestation. 
  * @author Iván Castilla Rodríguez
  */
 public abstract class Disease implements Named, Describable, CreatesSecondOrderParameters, Comparable<Disease> {
@@ -34,26 +36,30 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	private final TreeMap<Manifestation, ArrayList<Transition>> transitions;
 	/** Manifestations and their associated REVERSE transitions for this disease */
 	private final TreeMap<Manifestation, ArrayList<Transition>> reverseTransitions;
+	/** Manifestations that exclude another manifestation (generally, because they are more advance stages of the same condition */
+	private final TreeMap<Manifestation, TreeSet<Manifestation>> exclusions;	
 	/** Short name of the disease */
 	private final String name;
 	/** Full description of the disease */
 	private final String description;
-	private final Manifestation nullManifestation;
+	/** Default none manifestation, i.e., the patient would have the disease but he/she would be asymptomatic */
+	private final Manifestation asymptomatic;
 	
 	/**
 	 * Creates a submodel for a disease.
 	 */
 	public Disease(final SecondOrderParamsRepository secParams, String name, String description) {
 		this.secParams = secParams;
-		this.nullManifestation = new Manifestation(secParams, "NONE", "No manifestations", this, Type.CHRONIC) {
+		this.asymptomatic = new Manifestation(secParams, "NONE", "No manifestations", this, Type.CHRONIC) {
 			@Override
 			public void registerSecondOrderParameters() {			
 			}
 		};
 		this.manifestations = new ArrayList<>();
 		this.transitions = new TreeMap<>();
-		this.transitions.put(nullManifestation, new ArrayList<>());
+		this.transitions.put(asymptomatic, new ArrayList<>());
 		this.reverseTransitions = new TreeMap<>();
+		this.exclusions = new TreeMap<>();
 		this.name = name;
 		this.description = description;
 	}
@@ -99,7 +105,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	}
 	
 	public void reset(int id) {
-		for (final Transition trans : transitions.get(nullManifestation))
+		for (final Transition trans : transitions.get(asymptomatic))
 			trans.reset(id);
 		for (final Manifestation manif : manifestations) {
 			manif.reset(id);
@@ -109,14 +115,17 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	}
 	
 	/**
-	 * @return the nullManifestation
+	 * Returns a "manifestation" that represents the absence of chronic manifestations of the disease (not necessarily excludes
+	 * acute manifestations)
+	 * @return An asymptomatic manifestation, i.e., absence of chronic manifestations
 	 */
-	public Manifestation getNullManifestation() {
-		return nullManifestation;
+	public Manifestation getAsymptomaticManifestation() {
+		return asymptomatic;
 	}
 
 	/**
-	 * Adds a manifestation to this disease
+	 * Adds a manifestation to this disease. If the manifestation is chronic, by default excludes the "asymptomatic" chronic
+	 * manifestation
 	 * @param manif New manifestation associated to this disease
 	 * @return The manifestation added
 	 */
@@ -125,6 +134,11 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 		secParams.registerManifestation(manif);
 		transitions.put(manif, new ArrayList<>());
 		reverseTransitions.put(manif, new ArrayList<>());
+		TreeSet<Manifestation> excManif = new TreeSet<>();
+		if (Manifestation.Type.CHRONIC.equals(manif.getType())) {
+			excManif.add(asymptomatic);
+		}
+		exclusions.put(manif, excManif);
 		return manif;
 	}
 	
@@ -137,6 +151,17 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 		transitions.get(trans.getSrcManifestation()).add(trans);
 		reverseTransitions.get(trans.getDestManifestation()).add(trans);
 		return trans;
+	}
+	
+	/**
+	 * Adds a new rule of exclusion for a manifestation, that precludes a patient from experiencing the "excluded" manifestation at the same time.
+	 * @param manif The "exclusive" manifestation
+	 * @param excluded The "excluded" manifestation
+	 * @return This disease
+	 */
+	public Disease addExclusion(Manifestation manif, Manifestation excluded) {
+		exclusions.get(manif).add(excluded);
+		return this;
 	}
 	
 	/**
@@ -178,6 +203,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 			if (manif.hasManifestationAtStart(pat))
 				init.add(manif);
 		}
+		// FIXME: Eliminar de alguna manera los excluyentes
 		return init;
 		
 	}
@@ -270,6 +296,15 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 */
 	public int getNTransitions() {
 		return transitions.size();
+	}
+	
+	/**
+	 * Returns the manifestations that are excluded by the specified manifestation, i.e. can not happen at the same time    
+	 * @param manif A manifestaion that may exclude others
+	 * @return the manifestations excluded by the specified manifestation
+	 */
+	public TreeSet<Manifestation> getExcluded(Manifestation manif) {
+		return exclusions.get(manif);
 	}
 	
 	/**
