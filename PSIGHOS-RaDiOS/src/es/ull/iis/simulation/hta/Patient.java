@@ -316,7 +316,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	protected void startAction() {
 		startTs = this.getTs();
 		// Assigns the "absence of manifestations" as a starting state
-		detailedState.add(getDisease().getNullManifestation());
+		detailedState.add(getDisease().getAsymptomaticManifestation());
 		simul.notifyInfo(new PatientInfo(simul, this, PatientInfo.Type.START, getTs()));
 
 		// Assign death event
@@ -329,6 +329,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			events.add(new ManifestationEvent(new DiseaseProgressionPair(manif, 0)));				
 			// I was scheduling these events in the usual way, but they were not executed before the next loop and progression fails
 			manifestationEvents.put(manif, events);
+			// This should never happen
 			if (Patient.this.detailedState.contains(manif)) {
 				error("Health state already assigned!! " + manif.name());
 			}
@@ -395,9 +396,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 				if (Manifestation.Type.CHRONIC.equals(manifestation.getType())) {
 					Patient.this.detailedState.add(manifestation);
 					// Removes chronic manifestations excluded by the new one
-					for (Transition trans : getDisease().getReverseTransitions(manifestation)) {
-						if (trans.replacesPrevious())
-							Patient.this.detailedState.remove(trans.getSrcManifestation());
+					for (Manifestation excluded : getDisease().getExcluded(manifestation)) {
+						Patient.this.detailedState.remove(excluded);						
 					}
 				}
 

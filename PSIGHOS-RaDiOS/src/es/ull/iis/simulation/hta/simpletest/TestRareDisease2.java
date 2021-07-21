@@ -28,13 +28,13 @@ public class TestRareDisease2 extends StagedDisease {
 		super(secParams, "RD2", "Test rare disease 2");
 		acuteManif1 = new TestAcuteManifestation1(secParams, this);
 		addManifestation(acuteManif1);
-		healthy_manif1 = new Transition(secParams, getNullManifestation(), acuteManif1, false); 
+		healthy_manif1 = new Transition(secParams, getAsymptomaticManifestation(), acuteManif1); 
 		addTransition(healthy_manif1);
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(getNullManifestation(), acuteManif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		secParams.addProbParam(getAsymptomaticManifestation(), acuteManif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
 	}
 
 	@Override

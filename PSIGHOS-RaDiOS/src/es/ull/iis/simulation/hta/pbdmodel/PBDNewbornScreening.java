@@ -31,7 +31,7 @@ public class PBDNewbornScreening extends ScreeningStrategy {
 	public void registerSecondOrderParameters() {
 		secParams.addCostParam(this, "Cost of screening", "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
 		for (Manifestation manif : secParams.getRegisteredManifestations())
-			secParams.addModificationParam(this, Modification.Type.SET, disease.getNullManifestation(), manif, "", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
+			secParams.addModificationParam(this, Modification.Type.SET, disease.getAsymptomaticManifestation(), manif, "", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 	}
 
 	@Override

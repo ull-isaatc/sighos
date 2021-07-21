@@ -60,7 +60,6 @@ public abstract class StagedDisease extends Disease {
 				}
 			}
 		}
-		// TODO: Chequear bien si esto funciona con manifestaciones agudas
 		// Now schedules and/or cancels events for each manifestation
 		for (final Manifestation destManif : times2events.keySet()) {
 			// If there is a new time for the event
@@ -70,6 +69,15 @@ public abstract class StagedDisease extends Disease {
 				if (previousTimes2events.get(destManif) != Long.MAX_VALUE)
 					prog.addCancelEvent(destManif);
 				prog.addNewEvent(destManif, times2events.get(destManif));
+				// FIXME: Esto habría que sacarlo fuera y recorrer la lista de nuevos eventos para 1) No planificar eventos de manifestaciones
+				// excluyentes y 2) cancelar los eventos todavía no ocurridos de manifestaciones excluyentes
+				// Removes the events for excluded manifestations that are scheduled to happen later on than the new manifestation 
+				for (Manifestation excluded : getExcluded(destManif)) {
+					final long timeToExcluded = pat.getTimeToManifestation(excluded);
+					if ((timeToExcluded != Long.MAX_VALUE) && (times2events.get(destManif) <= timeToExcluded)) {
+						prog.addCancelEvent(excluded);
+					}
+				}
 			}
 		}
 		return prog;
