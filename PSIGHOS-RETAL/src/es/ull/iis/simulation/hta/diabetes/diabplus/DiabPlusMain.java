@@ -55,9 +55,12 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicati
  * Main class to launch simulation experiments
  * For example:
 <<<<<<< Upstream, based on origin/master
+<<<<<<< Upstream, based on origin/master
 =======
  * - to create raw data for ML postprocessing: -q -n 5000 -r 0  -ex -po
 >>>>>>> dd194fd Synchronized changes in HTA with master (changed JSON output of diab+)
+=======
+>>>>>>> c063eda Added exploratory classes to diabplus to generate data for ML
  * - to create data based on a JSON-defined patient: -q -n 100 -r 1000 -p
  * @author Iván Castilla Rodríguez
  *
