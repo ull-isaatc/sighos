@@ -14,14 +14,15 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
  */
 public class DiabPlusExplorationStdIntervention extends SecondOrderDiabetesIntervention {
 	final private double annualCost;
-
+	final private double hba1cLevel;
 	/**
 	 * @param shortName
 	 * @param description
 	 */
-	public DiabPlusExplorationStdIntervention(double annualCost, boolean base) {
-		super("DIAB+EXPLORE", "No intervention");
+	public DiabPlusExplorationStdIntervention(double annualCost, double hba1cLevel, boolean base) {
+		super("DIAB+EXPLORE_" + hba1cLevel, "No intervention with level of HbA1c = " + hba1cLevel);
 		this.annualCost = annualCost;
+		this.hba1cLevel = hba1cLevel;
 	}
 
 	@Override
@@ -42,7 +43,7 @@ public class DiabPlusExplorationStdIntervention extends SecondOrderDiabetesInter
 
 		@Override
 		public double getHBA1cLevel(DiabetesPatient pat) {
-			return pat.getBaselineHBA1c();
+			return hba1cLevel;
 		}
 
 		@Override

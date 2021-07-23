@@ -106,6 +106,14 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 				"Canada", P_DEATH, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1]));
 	}
 	
+	private static double[] getRRs(SecondOrderParamsRepository secParams) {
+		final double []rrs = new double[secParams.getNInterventions()];
+		rrs[0] = 1.0;
+		for (int i = 1; i < rrs.length; i++)
+			rrs[i] = secParams.getOtherParam(STR_RR_HYPO);
+		return rrs;
+	}
+	
 	public class Instance extends AcuteComplicationSubmodel {
 		private final double cost;
 		private final double du;
@@ -118,12 +126,12 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 					SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
 					secParams.getnPatients(), 
 					secParams.getProbParam(STR_P_HYPO), 
-					new InterventionSpecificComplicationRR(new double[]{1.0, secParams.getOtherParam(STR_RR_HYPO)}))
+					new InterventionSpecificComplicationRR(getRRs(secParams)))
 					: new AnnualRiskBasedTimeToMultipleEventParam(
 					SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
 					secParams.getnPatients(), 
 					secParams.getProbParam(STR_P_HYPO), 
-					new InterventionSpecificComplicationRR(new double[]{1.0, secParams.getOtherParam(STR_RR_HYPO)})), 
+					new InterventionSpecificComplicationRR(getRRs(secParams))), 
 				new DeathWithEventParam(
 					SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
 					secParams.getnPatients(), 
