@@ -60,6 +60,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 		this.transitions.put(asymptomatic, new ArrayList<>());
 		this.reverseTransitions = new TreeMap<>();
 		this.exclusions = new TreeMap<>();
+		this.exclusions.put(asymptomatic, new TreeSet<>());
 		this.name = name;
 		this.description = description;
 	}
@@ -199,11 +200,17 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 */
 	public TreeSet<Manifestation> getInitialStage(Patient pat) {
 		final TreeSet<Manifestation> init = new TreeSet<>();
+		final TreeSet<Manifestation> excluded = new TreeSet<>();
 		for (final Manifestation manif : manifestations) {
-			if (manif.hasManifestationAtStart(pat))
+			if (manif.hasManifestationAtStart(pat)) {
 				init.add(manif);
+				excluded.addAll(getExcluded(manif));
+			}
 		}
-		// FIXME: Eliminar de alguna manera los excluyentes
+		// Check and remove exclusive manifestations
+		for (final Manifestation manifExcluded : excluded) {
+			init.remove(manifExcluded);
+		}		
 		return init;
 		
 	}
