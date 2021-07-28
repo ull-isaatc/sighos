@@ -64,6 +64,15 @@ public class IndividualTime2ManifestationView extends Listener implements Struct
 		return str.toString();
 	}
 	
+	/**
+	 * Returns the time to events (in years) for each patient, intervention and manifestation. NaN in case the patient never develops a manifestation. 
+	 * Both manifestations and interventions are ordered as in the repository
+	 * @return the time to events (in years) for each patient, intervention and manifestation. NaN in case the patient never develops a manifestation
+	 */
+	public double[][][]getTimes() {
+		return innerTimeTo;
+	}
+	
 	@Override
 	public void infoEmited(SimulationInfo info) {
 		final PatientInfo pInfo = (PatientInfo) info;

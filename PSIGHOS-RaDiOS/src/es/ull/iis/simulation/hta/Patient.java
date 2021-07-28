@@ -15,7 +15,6 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPair;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.Transition;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -313,6 +312,20 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		}
 	}
 	
+	/**
+	 * Returns true if progression to the specified manifestation is hindered by the current state of the patient  
+	 * @param newManif New manifestation to which the patient may progress
+	 * @return True if progression to the specified manifestation is hindered by the current state of the patient
+	 */
+	private boolean mustBeExcluded(Manifestation newManif) {
+		for (Manifestation manif : detailedState) {
+			final TreeSet<Manifestation> excluded = getDisease().getExcluded(manif);
+			if (excluded.contains(newManif))
+				return true;
+		}
+		return false;
+	}
+	
 	protected void startAction() {
 		startTs = this.getTs();
 		// Assigns the "absence of manifestations" as a starting state
@@ -390,6 +403,9 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			final Manifestation manifestation = progress.getManifestation();
 			if (Patient.this.detailedState.contains(manifestation)) {
 				error("Health state already assigned!! " + manifestation.name());
+			}
+			else if (mustBeExcluded(manifestation)) {
+				this.cancel();
 			}
 			else {
 				simul.notifyInfo(new PatientInfo(simul, Patient.this, manifestation, this.getTs()));

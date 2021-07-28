@@ -271,12 +271,13 @@ public class DiseaseMain {
 	 */
 	private void simulateInterventions(int id, boolean baseCase) {
 		final int nInterventions = interventions.length;
+		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], secParams, timeHorizon);
+		
 		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(secParams, false);
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
 		final ScreeningTestPerformanceView[] screenListeners = new ScreeningTestPerformanceView[nInterventions];
-		final IndividualTime2ManifestationView indTimeToEventListener = new IndividualTime2ManifestationView(secParams);
 
 		for (int i = 0; i < nInterventions; i++) {
 			costListeners[i] = new CostListener(secParams.getCostCalculator(), discountCost, nPatients);
@@ -284,12 +285,15 @@ public class DiseaseMain {
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), discountEffect, nPatients);
 			screenListeners[i] = (interventions[i] instanceof ScreeningStrategy) ? new ScreeningTestPerformanceView(secParams) : null;
 		}
-		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], secParams, timeHorizon);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
 		simul.addInfoReceiver(timeFreeListener);
-		simul.addInfoReceiver(indTimeToEventListener);
+		IndividualTime2ManifestationView indTimeToEventListener = null;
+		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
+			indTimeToEventListener = new IndividualTime2ManifestationView(secParams);
+			simul.addInfoReceiver(indTimeToEventListener);
+		}
 		if (interventions[0] instanceof ScreeningStrategy)
 			simul.addInfoReceiver(screenListeners[0]);
 		if (patientListener != null)
@@ -310,7 +314,9 @@ public class DiseaseMain {
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
 			simul.addInfoReceiver(timeFreeListener);
-			simul.addInfoReceiver(indTimeToEventListener);			
+			if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
+				simul.addInfoReceiver(indTimeToEventListener);
+			}
 			if (interventions[i] instanceof ScreeningStrategy)
 				simul.addInfoReceiver(screenListeners[i]);
 			if (patientListener != null)
@@ -326,18 +332,25 @@ public class DiseaseMain {
 			}
 			simul.run();
 		}
-		System.out.println(indTimeToEventListener);
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
-			System.out.print("Patient");
+			final Manifestation[] availableChronicManifestations = secParams.getRegisteredManifestations(Manifestation.Type.CHRONIC);
+			System.out.print("PAT");
 			for (int i = 0; i < nInterventions; i++) {
-				final String shortName = interventions[i].name();
-				System.out.print("\tCost_" + shortName + "\tLE_" + shortName + "\tQALE_" + shortName);
+				final String shortName = "_" + interventions[i].name();
+				System.out.print("\tCOST" + shortName + "\tLE" + shortName + "\tQALE" + shortName);
+				for (Manifestation comp : availableChronicManifestations) {
+					System.out.print("\t" + comp.name() + shortName);
+				}			
 			}
 			System.out.println();
+			final double[][][] timesTo = indTimeToEventListener.getTimes(); 
 			for (int i = 0; i < nPatients; i++) {
 				System.out.print(i);
 				for (int j = 0; j < nInterventions; j++) {
 					System.out.print("\t" + costListeners[j].getValues()[i] + "\t" + lyListeners[j].getValues()[i] + "\t" + qalyListeners[j].getValues()[i]);
+					for (int k = 0; k < availableChronicManifestations.length; k++) {
+						System.out.print("\t" + timesTo[i][j][k]);
+					}
 				}
 				System.out.println();
 			}
@@ -709,7 +722,7 @@ public class DiseaseMain {
 			boolean useProgramaticArguments = true;
 			boolean allAffected = true;
 			double utilityGeneralPopulation = 0.8861;
-			String params = "-n 5000 -r 0 -pop 3 -y 2019 -q"; // -o /tmp/result_david.txt
+			String params = "-n 5000 -r 0 -pop 3 -y 2019 -q -po"; // -o /tmp/result_david.txt
 			parseParameters(args, arguments, useProgramaticArguments, params);
 
 			int TEST_RARE_DISEASE1 = 1; int TEST_RARE_DISEASE2 = 1; int TEST_RARE_DISEASE3 = 1; int TEST_RARE_DISEASE4 = 1; int PBD = 11; 
