@@ -41,6 +41,10 @@ public class Transition {
 		this.calc = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.NO_RR);
 	}
 
+	@Override
+	public String toString() {
+		return "Transition {" + srcManifestation + " --> " + destManifestation + "}";
+	}
 	/**
 	 * @return the calc
 	 */

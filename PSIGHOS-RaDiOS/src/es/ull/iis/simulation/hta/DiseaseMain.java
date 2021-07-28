@@ -37,6 +37,7 @@ import es.ull.iis.simulation.hta.inforeceiver.BudgetImpactView;
 import es.ull.iis.simulation.hta.inforeceiver.CostListener;
 import es.ull.iis.simulation.hta.inforeceiver.EpidemiologicView;
 import es.ull.iis.simulation.hta.inforeceiver.ExperimentListener;
+import es.ull.iis.simulation.hta.inforeceiver.IndividualTime2ManifestationView;
 import es.ull.iis.simulation.hta.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.inforeceiver.PatientInfoView;
 import es.ull.iis.simulation.hta.inforeceiver.QALYListener;
@@ -275,6 +276,7 @@ public class DiseaseMain {
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
 		final ScreeningTestPerformanceView[] screenListeners = new ScreeningTestPerformanceView[nInterventions];
+		final IndividualTime2ManifestationView indTimeToEventListener = new IndividualTime2ManifestationView(secParams);
 
 		for (int i = 0; i < nInterventions; i++) {
 			costListeners[i] = new CostListener(secParams.getCostCalculator(), discountCost, nPatients);
@@ -287,6 +289,7 @@ public class DiseaseMain {
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
 		simul.addInfoReceiver(timeFreeListener);
+		simul.addInfoReceiver(indTimeToEventListener);
 		if (interventions[0] instanceof ScreeningStrategy)
 			simul.addInfoReceiver(screenListeners[0]);
 		if (patientListener != null)
@@ -307,6 +310,7 @@ public class DiseaseMain {
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
 			simul.addInfoReceiver(timeFreeListener);
+			simul.addInfoReceiver(indTimeToEventListener);			
 			if (interventions[i] instanceof ScreeningStrategy)
 				simul.addInfoReceiver(screenListeners[i]);
 			if (patientListener != null)
@@ -322,6 +326,7 @@ public class DiseaseMain {
 			}
 			simul.run();
 		}
+		System.out.println(indTimeToEventListener);
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 			System.out.print("Patient");
 			for (int i = 0; i < nInterventions; i++) {
