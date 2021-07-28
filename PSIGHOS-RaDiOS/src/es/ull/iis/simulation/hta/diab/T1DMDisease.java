@@ -5,8 +5,10 @@ package es.ull.iis.simulation.hta.diab;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.EndStageRenalDisease;
+import es.ull.iis.simulation.hta.diab.manifestations.LowExtremityAmputation;
 import es.ull.iis.simulation.hta.diab.manifestations.Macroalbuminuria;
 import es.ull.iis.simulation.hta.diab.manifestations.Microalbuminuria;
+import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -42,10 +44,20 @@ public class T1DMDisease extends StagedDisease {
 	private static final double P_ALB1_ALB2 = 0.1565;
 	private static final double P_DNC_ESRD = 0.0002;
 
+	private static final double P_DNC_NEU = 0.0354;
+	private static final double P_NEU_LEA = 0.0154; // Klein et al. 2004. También usado en Sheffield (DCCT, Moss et al)
+	private static final double P_DNC_LEA = 0.0003;
+	private static final double[] CI_DNC_NEU = {0.020, 0.055}; // McQueen
+	private static final double[] LIMITS_DNC_LEA = {0.0, 0.0006}; // Assumption
+	private static final double[] CI_NEU_LEA = {0.01232, 0.01848};
+	private static final double BETA_NEU = 5.3;
+
 //	final private Manifestation she;
 	final private Manifestation alb1;
 	final private Manifestation alb2;
 	final private Manifestation esrd;
+	final private Manifestation neu;
+	final private Manifestation lea;
 
 	/**
 	 * @param secParams
@@ -73,10 +85,17 @@ public class T1DMDisease extends StagedDisease {
 		addExclusion(alb2, alb1);
 		addExclusion(esrd, alb1);
 		addExclusion(esrd, alb2);
+		
+		// Register and configure Nephropathy-related manifestations
+		neu = addManifestation(new Neuropathy(secParams, this));
+		lea = addManifestation(new LowExtremityAmputation(secParams, this));
+		final Transition toNeu = addTransition(new Transition(secParams, getAsymptomaticManifestation(), neu));
+		
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
+		// Set asymptomatic cost and disutility 
 		secParams.addCostParam(new SecondOrderCostParam(secParams, SecondOrderParamsRepository.STR_COST_PREFIX + "DNC", "Cost of Diabetes with no complications", 
 				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, 
 				DEF_C_DNC.VALUE, SecondOrderParamsRepository.getRandomVariateForCost(DEF_C_DNC.VALUE)));
@@ -84,11 +103,13 @@ public class T1DMDisease extends StagedDisease {
 		final double[] paramsduDNC = Statistics.betaParametersFromNormal(DEF_DU_DNC[0], DEF_DU_DNC[1]);
 		secParams.addDisutilityParam(this, "Disutility of DNC", "", DEF_DU_DNC[0], RandomVariateFactory.getInstance("BetaVariate", paramsduDNC[0], paramsduDNC[1]));
 		
+		// Adds parameters to compute HbA1c-dependent progressions for nephropathy-related complications 
 		secParams.addRRParam(getAsymptomaticManifestation(), alb1, 
 				"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", BETA_ALB1); 
 		secParams.addRRParam(getAsymptomaticManifestation(), alb2, 
 				"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", BETA_ALB2); 
 
+		// Add transition probabilities for nephropathy-related complications
 		final double[] paramsALB1_ESRD = Statistics.betaParametersFromNormal(P_ALB1_ESRD, Statistics.sdFrom95CI(CI_ALB1_ESRD));
 		final double[] paramsDNC_ALB1 = Statistics.betaParametersFromNormal(P_DNC_ALB1, Statistics.sdFrom95CI(CI_DNC_ALB1));
 		secParams.addProbParam(getAsymptomaticManifestation(), alb1, 
@@ -109,6 +130,12 @@ public class T1DMDisease extends StagedDisease {
 		secParams.addProbParam(getAsymptomaticManifestation(), esrd, 
 				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
 				P_DNC_ESRD, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_ESRD));
+
+		// Adds parameters to compute HbA1c-dependent progressions for neuropathy-related complications 
+		secParams.addRRParam(getAsymptomaticManifestation(), neu, 
+				"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", BETA_NEU);
+		
+		// Add transition probabilities for neuropathy-related complications
 	}
 
 	@Override
