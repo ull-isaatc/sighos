@@ -31,8 +31,6 @@ public class T1DMRepository extends SecondOrderParamsRepository {
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, 0.911400915);
 		final Disease dis = new T1DMDisease(this);
-		// FIXME: ¿Deberíamos hacer esto siempre?
-		//registerDisease(HEALTHY);
 		registerDisease(dis);
 		registerPopulation(new T1DMSimpleTestPopulation(this, dis));
 		registerIntervention(new SMBG_Intervention(this));

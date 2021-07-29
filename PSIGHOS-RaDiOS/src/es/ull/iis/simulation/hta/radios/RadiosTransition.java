@@ -6,8 +6,8 @@ import es.ull.iis.simulation.hta.progression.Transition;
 
 public class RadiosTransition extends Transition {
 
-	public RadiosTransition(SecondOrderParamsRepository repository, Manifestation srcManifestation, Manifestation destManifestation, boolean replacesPrevious) {
-		super(repository, srcManifestation, destManifestation, replacesPrevious);
+	public RadiosTransition(SecondOrderParamsRepository repository, Manifestation srcManifestation, Manifestation destManifestation) {
+		super(repository, srcManifestation, destManifestation);
 		
 		setCalculator(new ProportionBasedTimeToEventCalculator());
 	}
