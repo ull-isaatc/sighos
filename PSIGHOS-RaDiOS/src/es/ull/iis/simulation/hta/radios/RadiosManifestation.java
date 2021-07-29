@@ -61,8 +61,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	private void addParamProbabilities(SecondOrderParamsRepository repository, Disease disease) throws JAXBException {
 		String manifestationProbability = getManifestation().getProbability();
 		if (manifestationProbability != null) {
-			Boolean replacePrevious = Type.CHRONIC == getType() ? true : false;
-			RadiosTransition transition = new RadiosTransition(repository, disease.getAsymptomaticManifestation(), this, replacePrevious); 
+			RadiosTransition transition = new RadiosTransition(repository, disease.getAsymptomaticManifestation(), this); 
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifestationProbability);
 			if (probabilityDistribution != null) {
 				getRepository().addProbParam(disease.getAsymptomaticManifestation(), this, Constants.CONSTANT_EMPTY_STRING, 
@@ -79,8 +78,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 				es.ull.iis.simulation.hta.progression.Manifestation precManif = searchManifestationFromDisease(disease, precedingManifestation.getName());				
 				String transitionProbability = precedingManifestation.getProbability();
 				if (transitionProbability != null) {
-					Boolean replacePrevious = (precedingManifestation.getReplacingPrevious() != null && !precedingManifestation.getReplacingPrevious().isEmpty()) ? Boolean.valueOf(precedingManifestation.getReplacingPrevious()) : Boolean.FALSE;					
-					RadiosTransition transition = new RadiosTransition(repository, precManif, this, replacePrevious);
+					RadiosTransition transition = new RadiosTransition(repository, precManif, this);
 					ProbabilityDistribution probabilityDistributionForTransition = ValueTransform.splitProbabilityDistribution(transitionProbability);
 					if (probabilityDistributionForTransition != null) {
 						repository.addProbParam(precManif, this,	Constants.CONSTANT_EMPTY_STRING, probabilityDistributionForTransition.getDeterministicValue(), probabilityDistributionForTransition.getProbabilisticValueInitializedForProbability());
