@@ -317,7 +317,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @param newManif New manifestation to which the patient may progress
 	 * @return True if progression to the specified manifestation is hindered by the current state of the patient
 	 */
-	private boolean mustBeExcluded(Manifestation newManif) {
+	public boolean mustBeExcluded(Manifestation newManif) {
 		for (Manifestation manif : detailedState) {
 			final TreeSet<Manifestation> excluded = getDisease().getExcluded(manif);
 			if (excluded.contains(newManif))

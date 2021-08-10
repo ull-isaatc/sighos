@@ -52,9 +52,15 @@ public class T1DMDisease extends StagedDisease {
 	private static final double[] LIMITS_DNC_LEA = {0.0, 0.0006}; // Assumption
 	private static final double[] CI_NEU_LEA = {0.01232, 0.01848};
 	private static final double BETA_NEU = 5.3;
+	/** Beta parameters (cases, no cases) for the initial proportion of lower amputation, according to the GOLD study */
+	private static final double []P_INI_LEA_BETA = {1, 300-1}; 
 
 	private static final double P_NEU_ALB1 = 0.097;
 	private static final double[] CI_NEU_ALB1 = {0.055, 0.149};
+
+	/** Mean probability of hypoglycemic events in GOLD study (adjusted from annual rate */
+	private static final double P_HYPO = 0.0706690;
+	private static final double []P_HYPO_BETA = {9.9643, 131.0357};
 
 	final private Manifestation she;
 	final private Manifestation alb1;
@@ -76,8 +82,11 @@ public class T1DMDisease extends StagedDisease {
 		super(secParams, "T1DM", "Type I Diabetes Mellitus");
 		if (DISABLE_SHE)
 			she = null;
-		else
+		else {
 			she = addManifestation(new SevereHypoglycemiaEvent(secParams, this));
+			addTransition(new Transition(secParams, getAsymptomaticManifestation(), she));
+			// FIXME: Terminar y comprobar qué ocurre cuando ya se tiene una manifestación crónica. ¿Seguiría lanzándose este evento agudo?
+		}
 		
 		if (DISABLE_NPH) {
 			alb1 = null;
@@ -181,6 +190,8 @@ public class T1DMDisease extends StagedDisease {
 			secParams.addProbParam(neu, lea, 
 					"Klein et al. 2004 (also Sheffield)", 
 					P_NEU_LEA, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_LEA[0], paramsNEU_LEA[1]));
+			
+			secParams.addInitProbParam(lea, "GOLD", P_INI_LEA_BETA[0] / (P_INI_LEA_BETA[0] + P_INI_LEA_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_LEA_BETA[0], P_INI_LEA_BETA[1]));
 			
 			if (!DISABLE_NPH) {
 				final double[] paramsNEU_ALB1 = Statistics.betaParametersFromNormal(P_NEU_ALB1, Statistics.sdFrom95CI(CI_NEU_ALB1));
