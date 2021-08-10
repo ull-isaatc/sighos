@@ -243,7 +243,7 @@ public class DiseaseMain {
 			if (interventions[i] instanceof ScreeningStrategy)
 				str.append(ScreeningTestPerformanceView.getStrHeader(shortName));
 		}
-		str.append(TimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredManifestations(Manifestation.Type.CHRONIC)));
+		str.append(TimeFreeOfComplicationsView.getStrHeader(false, secParams));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}

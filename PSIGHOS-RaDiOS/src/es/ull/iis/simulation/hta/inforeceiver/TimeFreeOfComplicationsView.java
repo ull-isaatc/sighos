@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.inforeceiver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.Patient;
@@ -24,14 +25,19 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class TimeFreeOfComplicationsView extends Listener implements StructuredOutputListener {
-	private final static String STR_AVG = "AVG_TIME_TO_";
-	private final static String STR_LCI = "L95CI_TIME_TO_";
-	private final static String STR_UCI = "U95CI_TIME_TO_";
+	private final static String STR_AVG = "AVG_";
+	private final static String STR_LCI = "L95CI_";
+	private final static String STR_UCI = "U95CI_";
+	private final static String STR_AVG_TIME = STR_AVG + "TIME_TO_";
+	private final static String STR_LCI_TIME = STR_LCI + "TIME_TO_";
+	private final static String STR_UCI_TIME = STR_UCI + "TIME_TO_";
 	private final static String STR_INC = "INC_";
 	private final static String STR_PREV = "PREV_";
 	
-	/** Inner structure to store time to event. For each mapped manifestation contains an array with t-uples <intervention, patient> */
+	/** Inner structure to store time to chronic manifestations. For each mapped manifestation contains an array with t-uples <intervention, patient> */
 	private final TreeMap<Manifestation, long[][]> timeToEvents;
+	/** Inner structure to store number of acute events per patient. For each mapped manifestation contains an array with t-uples <intervention, patient> */
+	private final TreeMap<Manifestation, int[][]> nEvents;
 	/** For each intervention, number of patients that develop each chronic manifestation, including
 	 * those who started the simulated with such manifestation */  
 	private final int [][] prevalence;
@@ -45,7 +51,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	/** Number of patients simulated */
 	private final int nPatients;
 	/** Available chronic manifestations in the simulation */
-	private final Manifestation[] availableChronicManifestations;
+	private final Manifestation[] availableManifestations;
 
 	/**
 	 * 
@@ -56,12 +62,16 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		super("Standard patient viewer");
 		this.nInterventions = secParams.getNInterventions();
 		this.nPatients = secParams.getnPatients();
-		this.availableChronicManifestations = secParams.getRegisteredManifestations(Manifestation.Type.CHRONIC);
-		prevalence = new int[nInterventions][availableChronicManifestations.length];
-		incidence = new int[nInterventions][availableChronicManifestations.length];
+		this.availableManifestations = secParams.getRegisteredManifestations();
+		prevalence = new int[nInterventions][availableManifestations.length];
+		incidence = new int[nInterventions][availableManifestations.length];
 		timeToEvents = new TreeMap<>();
-		for (Manifestation manif : availableChronicManifestations) {
-			timeToEvents.put(manif, new long[nInterventions][nPatients]);
+		nEvents = new TreeMap<>();
+		for (Manifestation manif : availableManifestations) {
+			if (Manifestation.Type.CHRONIC.equals(manif.getType()))
+				timeToEvents.put(manif, new long[nInterventions][nPatients]);
+			else
+				nEvents.put(manif, new int[nInterventions][nPatients]);
 		}
 		this.printFirstOrderVariance = printFirstOrderVariance;
 		addGenerated(PatientInfo.class);
@@ -72,24 +82,34 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	 * Generates a string with the header required to print the information collected by this listener in a line 
 	 * @param printFirstOrderVariance Enables printing the confidence intervals for first order simulations
 	 * @param interventions The interventions analyzed
-	 * @param availableChronicManifestations Chronic manifestations included
+	 * @param availableManifestations Chronic manifestations included
 	 * @return
 	 */
-	public static String getStrHeader(boolean printFirstOrderVariance, Intervention[] interventions, Manifestation[] availableChronicManifestations) {
+	public static String getStrHeader(boolean printFirstOrderVariance, SecondOrderParamsRepository secParams) {
 		final StringBuilder str = new StringBuilder();
 		if (printFirstOrderVariance) {
-			for (Intervention inter : interventions) {
-				for (Manifestation comp : availableChronicManifestations) {
-					final String suf = comp.name() + "_" + inter.name() + "\t";
-					str.append(STR_PREV).append(suf).append(STR_INC).append(suf).append(STR_AVG).append(suf).append(STR_LCI).append(suf).append(STR_UCI).append(suf);
+			for (Intervention inter : secParams.getRegisteredInterventions()) {
+				for (Manifestation manif : secParams.getRegisteredManifestations()) {
+					final String suf = manif.name() + "_" + inter.name() + "\t";
+					if (Manifestation.Type.CHRONIC.equals(manif.getType())) {
+						str.append(STR_INC).append(suf).append(STR_PREV).append(suf).append(STR_AVG_TIME).append(suf).append(STR_LCI_TIME).append(suf).append(STR_UCI_TIME).append(suf);
+					}
+					else {
+						str.append(STR_AVG).append(suf).append(STR_LCI).append(suf).append(STR_UCI).append(suf);
+					}
 				}			
 			}
 		}
 		else {
-			for (Intervention inter : interventions) {
-				for (Manifestation comp : availableChronicManifestations) {
-					final String suf = comp.name() + "_" + inter.name() + "\t";
-					str.append(STR_PREV).append(suf).append(STR_INC).append(suf).append(STR_AVG).append(suf);
+			for (Intervention inter : secParams.getRegisteredInterventions()) {
+				for (Manifestation manif : secParams.getRegisteredManifestations()) {
+					final String suf = manif.name() + "_" + inter.name() + "\t";
+					if (Manifestation.Type.CHRONIC.equals(manif.getType())) {
+						str.append(STR_INC).append(suf).append(STR_PREV).append(suf).append(STR_AVG_TIME).append(suf);
+					}
+					else {
+						str.append(STR_AVG).append(suf);
+					}
 				}
 			}
 		}
@@ -100,20 +120,31 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	public String toString() {
 		final StringBuilder str = new StringBuilder();
 		for (int i = 0; i < nInterventions; i++) {
-			for (int j = 0; j < availableChronicManifestations.length; j++) {				
-				final ArrayList<Long> validValues = getValidValues(timeToEvents.get(availableChronicManifestations[j])[i]);
-				str.append(prevalence[i][j]).append("\t").append(incidence[i][j]).append("\t");
-				if (validValues.size() == 0) {
-					str.append(Double.NaN).append("\t");						
-					if (printFirstOrderVariance)
-						str.append(Double.NaN).append("\t").append(Double.NaN).append("\t");						
+			for (int j = 0; j < availableManifestations.length; j++) {
+				if (Manifestation.Type.CHRONIC.equals(availableManifestations[j].getType())) {
+					str.append(incidence[i][j]).append("\t").append(prevalence[i][j]).append("\t");
+					final ArrayList<Long> validValues = getValidValues(timeToEvents.get(availableManifestations[j])[i]);
+					if (validValues.size() == 0) {
+						str.append(Double.NaN).append("\t");						
+						if (printFirstOrderVariance)
+							str.append(Double.NaN).append("\t").append(Double.NaN).append("\t");						
+					}
+					else {
+						final double avg = Statistics.average(validValues);
+						str.append(avg / BasicConfigParams.YEAR_CONVERSION).append("\t");
+						if (printFirstOrderVariance) {
+							final double[] ci = Statistics.normal95CI(avg, Statistics.stdDev(validValues, avg), validValues.size());
+							str.append(ci[0] /BasicConfigParams.YEAR_CONVERSION).append("\t").append(ci[1]/BasicConfigParams.YEAR_CONVERSION).append("\t");
+						}
+					}
 				}
 				else {
-					final double avg = Statistics.average(validValues);
-					str.append(avg / BasicConfigParams.YEAR_CONVERSION).append("\t");
+					str.append((double)incidence[i][j] / nPatients).append("\t");
 					if (printFirstOrderVariance) {
-						final double[] ci = Statistics.normal95CI(avg, Statistics.stdDev(validValues, avg), validValues.size());
-						str.append(ci[0] /BasicConfigParams.YEAR_CONVERSION).append("\t").append(ci[1]/BasicConfigParams.YEAR_CONVERSION).append("\t");
+						final int[] ordered = Arrays.copyOf(nEvents.get(availableManifestations[j])[i], nPatients);
+						Arrays.sort(ordered);
+						final int index = (int)Math.ceil(nPatients * 0.025);
+						str.append(ordered[index - 1]).append("\t").append(ordered[nPatients - index]).append("\t");
 					}
 				}
 			}
@@ -128,24 +159,34 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		final int nIntervention = pat.getnIntervention(); 
 		if (pInfo.getType() == PatientInfo.Type.DEATH) {
 			// Check all the complications
-			for (Manifestation comp : availableChronicManifestations) {
-				final long time = pat.getTimeToManifestation(comp);
-				timeToEvents.get(comp)[nIntervention][pat.getIdentifier()] = time;
-				if (time == 0) {
-					prevalence[nIntervention][comp.ordinal()]++;
+			for (int i = 0; i < availableManifestations.length; i++) {
+				final Manifestation manif = availableManifestations[i];
+				final long time = pat.getTimeToManifestation(manif);
+				if (Manifestation.Type.CHRONIC.equals(manif.getType())) {
+					timeToEvents.get(manif)[nIntervention][pat.getIdentifier()] = time;
+					if (time == 0) {
+						prevalence[nIntervention][i]++;
+					}
+					else if (Long.MAX_VALUE != time){
+						prevalence[nIntervention][i]++;
+						incidence[nIntervention][i]++;
+					}
 				}
-				else if (Long.MAX_VALUE != time){
-					prevalence[nIntervention][comp.ordinal()]++;
-					incidence[nIntervention][comp.ordinal()]++;
+				else {
+					nEvents.get(manif)[nIntervention][pat.getIdentifier()] = pat.getNManifestations(manif);
+					if (time > 0 && Long.MAX_VALUE != time) {
+						incidence[nIntervention][i]++;
+					}
+					
 				}
 			}
 		}
 	}
 	
 	public double[][] getIncidence() {
-		final double[][] percIncidence = new double[nInterventions][availableChronicManifestations.length];
+		final double[][] percIncidence = new double[nInterventions][availableManifestations.length];
 		for (int i = 0; i < nInterventions; i++) {
-			for (int j = 0; j < availableChronicManifestations.length; j++) {
+			for (int j = 0; j < availableManifestations.length; j++) {
 				percIncidence[i][j] = (double) incidence[i][j] / (double)nPatients;
 			}
 		}
@@ -153,9 +194,9 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	}
 	
 	public double[][] getPrevalence() {
-		final double[][] percPrevalence = new double[nInterventions][availableChronicManifestations.length];
+		final double[][] percPrevalence = new double[nInterventions][availableManifestations.length];
 		for (int i = 0; i < nInterventions; i++) {
-			for (int j = 0; j < availableChronicManifestations.length; j++) {
+			for (int j = 0; j < availableManifestations.length; j++) {
 				percPrevalence[i][j] = (double) prevalence[i][j] / (double)nPatients;
 			}
 		}
@@ -182,10 +223,10 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	 * @return the average time to develop each chronic manifestation for each intervention
 	 */
 	public double[][] getAvgTimeToComplications() {
-		final double[][] results = new double[nInterventions][availableChronicManifestations.length];
+		final double[][] results = new double[nInterventions][availableManifestations.length];
 		for (int i = 0; i < nInterventions; i++) {
-			for (int j = 0; j < availableChronicManifestations.length; j++) {				
-				final ArrayList<Long> validValues = getValidValues(timeToEvents.get(availableChronicManifestations[j])[i]);
+			for (int j = 0; j < availableManifestations.length; j++) {				
+				final ArrayList<Long> validValues = getValidValues(timeToEvents.get(availableManifestations[j])[i]);
 				if (validValues.size() == 0) {
 					results[i][j] = Double.NaN;
 				}
@@ -204,10 +245,10 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	 * @return the time until a specified patient has developed each complication
 	 */
 	public double[][] getTimeToComplications(int patient) {
-		final double[][] results = new double[nInterventions][availableChronicManifestations.length];
+		final double[][] results = new double[nInterventions][availableManifestations.length];
 		for (int i = 0; i < nInterventions; i++) {
 			for (int j = 0; j < results[i].length; j++) {
-				final long val = timeToEvents.get(availableChronicManifestations[j])[i][patient];
+				final long val = timeToEvents.get(availableManifestations[j])[i][patient];
 				if (Long.MAX_VALUE == val || val == 0)
 					results[i][j] = Double.NaN;
 				else 

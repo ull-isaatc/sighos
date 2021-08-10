@@ -69,9 +69,9 @@ public class T1DMDisease extends StagedDisease {
 	final private Manifestation neu;
 	final private Manifestation lea;
 
-	private static final boolean DISABLE_NEU = false;
-	private static final boolean DISABLE_NPH = false;
-	private static final boolean DISABLE_SHE = true;
+	private static final boolean DISABLE_NEU = true;
+	private static final boolean DISABLE_NPH = true;
+	private static final boolean DISABLE_SHE = false;
 	
 	/**
 	 * @param secParams
@@ -142,6 +142,11 @@ public class T1DMDisease extends StagedDisease {
 
 		final double[] paramsduDNC = Statistics.betaParametersFromNormal(DEF_DU_DNC[0], DEF_DU_DNC[1]);
 		secParams.addDisutilityParam(this, "Disutility of DNC", "", DEF_DU_DNC[0], RandomVariateFactory.getInstance("BetaVariate", paramsduDNC[0], paramsduDNC[1]));
+		
+		if (!DISABLE_SHE) {
+			secParams.addProbParam(getAsymptomaticManifestation(), she, 
+					"GOLD", P_HYPO, RandomVariateFactory.getInstance("BetaVariate", P_HYPO_BETA[0], P_HYPO_BETA[1]));
+		}
 		
 		if (!DISABLE_NPH) {
 			// Adds parameters to compute HbA1c-dependent progressions for nephropathy-related complications 
