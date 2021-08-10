@@ -280,6 +280,18 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 	
 	/**
+	 * Returns the number of events of this manifestation suffered by the patient (or currently planned to happen if the patient is still alive).
+	 * If the manifestation is chronic, this method returns at most 1; otherwise, it can return an arbitrary value >= 0 
+	 * @param manif A manifestation
+	 * @return The number of events of this manifestation suffered by the patient (or currently planned to happen if the patient is still alive)
+	 */
+	public int getNManifestations(Manifestation manif) {
+		if (!manifestationEvents.containsKey(manif))
+			return 0;
+		return manifestationEvents.get(manif).size(); 		
+	}
+	
+	/**
 	 * Recomputes time to death in case the risk increases
 	 * @param manif Manifestation that (potentially) induces a change in the risk of death 
 	 */
