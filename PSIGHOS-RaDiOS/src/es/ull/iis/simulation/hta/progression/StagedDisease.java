@@ -30,7 +30,7 @@ public abstract class StagedDisease extends Disease {
 	 * @see es.ull.iis.simulation.hta.progression.Disease#getProgression(es.ull.iis.simulation.hta.Patient)
 	 */
 	/**
-	 * First checks the patient's current state. For each chronic manifestation in the state, recomputed times to new manifestations. 
+	 * First checks the patient's current state. For each chronic manifestation in the state, recomputes times to new manifestations. 
 	 */
 	@Override
 	public DiseaseProgression getProgression(Patient pat) {
@@ -42,7 +42,7 @@ public abstract class StagedDisease extends Disease {
 		for (final Manifestation manif : pat.getDetailedState()) {
 			for (final Transition trans : getTransitions(manif)) {
 				final Manifestation destManif = trans.getDestManifestation();
-				if (Manifestation.Type.ACUTE.equals(destManif.getType()) || !pat.getDetailedState().contains(destManif)) { 
+				if (Manifestation.Type.ACUTE.equals(destManif.getType()) || (!pat.getDetailedState().contains(destManif) && !pat.mustBeExcluded(destManif))) { 
 					// If no previous transition to this new manifestation has been included
 					if (!times2events.containsKey(destManif)) {
 						final long previousTime = pat.getTimeToManifestation(destManif);
@@ -64,10 +64,9 @@ public abstract class StagedDisease extends Disease {
 		for (final Manifestation destManif : times2events.keySet()) {
 			// If there is a new time for the event
 			if (times2events.get(destManif) != Long.MAX_VALUE) {
-				// FIXME: Si no pongo esto (en línea con el TO DO a continuación), no funciona correctamente la generación de tiempos hasta evento con riesgos competitivos para la misma complicación (P.ej. DNC->ALB1 y NEU->ALB1)
-//				if (previousTimes2events.get(destManif) > times2events.get(destManif)) {
 				// TODO: Me entran muchas dudas con respecto a sustituir SIEMPRE el evento. En la versión anterior, asumía que cualquier
 				// efecto era contraproducente y solo sustituía si era menor, pero ahora debo ser menos restrictivo. ¿TIENE ESTO EFECTOS COLATERALES? 
+//				if (previousTimes2events.get(destManif) > times2events.get(destManif)) {
 				if (previousTimes2events.get(destManif) != Long.MAX_VALUE)
 					prog.addCancelEvent(destManif);
 				prog.addNewEvent(destManif, times2events.get(destManif));

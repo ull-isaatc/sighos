@@ -11,6 +11,7 @@ import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
 import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UniqueRandomSeedPerPatient;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 
@@ -84,7 +85,12 @@ public class Transition {
 	
 	public RandomSeedForPatients getRandomSeedForPatients(int id, boolean logRandom) {		
 		if (randomSeeds[id] == null) {
-			randomSeeds[id] = new MultipleRandomSeedPerPatient(secParams.getnPatients(), logRandom);
+			if (Manifestation.Type.CHRONIC.equals(destManifestation.getType())) {
+				randomSeeds[id] = new UniqueRandomSeedPerPatient(secParams.getnPatients(), logRandom);
+			}
+			else {
+				randomSeeds[id] = new MultipleRandomSeedPerPatient(secParams.getnPatients(), logRandom);
+			}
 		}
 		return randomSeeds[id];
 	}
