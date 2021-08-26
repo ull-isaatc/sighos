@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.hta.diab.manifestations;
 
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
@@ -13,7 +13,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla
  *
  */
-public class EndStageRenalDisease extends Manifestation {
+public class EndStageRenalDisease extends ChronicManifestation {
 	/** Utility (avg, SD) from either Bagust and Beale; or Sullivan */
 	private static final double[] DU = new double[] {0.204, (0.342 - 0.066) / 3.92};
 	private static final double COST = 34259.48;
@@ -25,7 +25,7 @@ public class EndStageRenalDisease extends Manifestation {
 	 * @param disease
 	 */
 	public EndStageRenalDisease(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "ESRD", "End-stage renal disease", disease, Type.CHRONIC);
+		super(secParams, "ESRD", "End-stage renal disease", disease);
 	}
 
 	@Override

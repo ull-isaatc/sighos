@@ -55,7 +55,6 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 	private Matrix costFollowUps;
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
-	private Disease disease;
 
 	public RadiosScreeningIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, 
 			Integer timeHorizont, Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis, Disease disease) {
@@ -67,7 +66,6 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		this.costScreenings = baseCostScreenings.clone();
 		this.costClinicalDiagnosis = baseCostClinicalDiagnosis.clone();
 		this.timeHorizont = timeHorizont;
-		this.disease = disease;
 		
 		// TODO: las intervenciones al definirlas en Radios, puede llevar vinculadas modificaciones de las manifestaciones. Es aquí donde las daremos de alta.
 		
@@ -342,7 +340,7 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 		if (manifestacion.equalsIgnoreCase(this.naturalDevelopmentName)) {
 			nTimesManifestations = 1;
 		} else {
-			for (Manifestation manif : pat.getDetailedState()) {
+			for (Manifestation manif : pat.getState()) {
 				if (manif.name().equalsIgnoreCase(manifestacion)) {
 					nTimesManifestations++;
 				}
@@ -367,7 +365,7 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 				if (modificatorValue != null && modificatorValue == 0.0) {
 					// This is the only case implemented at the moment and it is in which the modification is to set the parameter to zero.
 					if ("*".equals(matcher.group(1))) {
-						secParams.addModificationParam(this, Modification.Type.SET, disease.getAsymptomaticManifestation(), registerManifestation,  
+						secParams.addModificationParam(this, Modification.Type.SET, SecondOrderParamsRepository.getProbString(registerManifestation),  
 								Constants.CONSTANT_EMPTY_STRING, modificatorValue, RandomVariateFactory.getInstance("ConstantVariate", modificatorValue));
 					}
 				}

@@ -14,6 +14,7 @@ import es.ull.iis.ontology.radios.json.schema4simulation.Utility;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.StagedDisease;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
 import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
@@ -44,7 +45,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	 * @param manifestationName
 	 * @return
 	 */
-	private es.ull.iis.simulation.hta.progression.Manifestation searchManifestationFromDisease(Disease disease, String manifestationName) {
+	private es.ull.iis.simulation.hta.progression.Manifestation searchManifestationFromDisease(StagedDisease disease, String manifestationName) {
 		for (es.ull.iis.simulation.hta.progression.Manifestation manifestation : disease.getManifestations()) {
 			if (manifestationName.equals(manifestation.name())) {
 				return manifestation;
@@ -58,7 +59,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	 * @param disease
 	 * @throws JAXBException
 	 */
-	private void addParamProbabilities(SecondOrderParamsRepository repository, Disease disease) throws JAXBException {
+	private void addParamProbabilities(SecondOrderParamsRepository repository, StagedDisease disease) throws JAXBException {
 		String manifestationProbability = getManifestation().getProbability();
 		if (manifestationProbability != null) {
 			RadiosTransition transition = new RadiosTransition(repository, disease.getAsymptomaticManifestation(), this); 
@@ -198,7 +199,7 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	public void addParametersToRepository () {
 		if (getManifestation() != null) {
 			try {
-				addParamProbabilities(this.getRepository(), this.getDisease());
+				addParamProbabilities(this.getRepository(), (StagedDisease)this.getDisease());
 			} catch (JAXBException e) {
 				e.printStackTrace();
 			}

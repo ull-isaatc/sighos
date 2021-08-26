@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta;
+package es.ull.iis.simulation.hta.tests;
 
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;

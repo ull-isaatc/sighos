@@ -3,7 +3,9 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
@@ -11,12 +13,12 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.BernoulliParam;
 import es.ull.iis.simulation.hta.params.MultipleBernoulliParam;
+import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.Describable;
 
 /**
- * A stage of a {@link ChronicComplication chronic complication} defined in the model. Different chronic complications submodels
- * can define different stages that are registered at the beginning of the simulation. 
+ * A manifestation of a {@link Disease} defined in the model. Manifestations may be chronic or acute. 
  * @author Iván Castilla Rodríguez
  *
  */
@@ -36,9 +38,12 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
 	 * complications defined to be used within a simulation */ 
 	private int ord = -1;
+	/** Type of manifestation */
 	private final Type type;
 	
+	/** Minimum age for the onset of the manifestation */
 	private double onsetAge;
+	/** Maximum age when this manifestation appears */
 	private double endAge;
 	
 	/** Probability that a patient starts in this stage */
@@ -47,7 +52,12 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	private final MultipleBernoulliParam[] associatedDeath;
 	/** Probability that this manifestation leads to diagnose the patient in case he/she is not already diagnosed */
 	private final MultipleBernoulliParam[] pDiagnose;
-	
+	/** Random numbers used for each patient and simulation. Each patient has a random number between 0 and 1 that determines the "risk" of 
+	 * developing the manifestation; a set of random numbers in case the manifestation is acute and can recur */
+	private final RandomSeedForPatients[] randomSeeds;
+
+	private final ArrayList<ManifestationPathway> pathways;
+
 	/**
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
 	 * @param secParams Common parameters repository
@@ -82,18 +92,22 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		Arrays.fill(pDiagnose, null);
 		this.onsetAge = (onsetAge != null) ? onsetAge : 0.0;
 		this.endAge = (endAge != null) ? endAge : BasicConfigParams.DEF_MAX_AGE;
+		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
+		Arrays.fill(randomSeeds, null);
+		this.pathways = new ArrayList<>();
 	}
 	
 	/**
-	 * @return
+	 * Returns the short name of the manifestation
+	 * @return the short name of the manifestation
 	 */
 	public String getName() {
 		return name;
 	}
 	
 	/**
-	 * Returns the description of the complication
-	 * @return the description of the complication
+	 * Returns the description of the manifestation
+	 * @return the description of the manifestation
 	 */
 	public String getDescription() {
 		return description;
@@ -108,7 +122,8 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	}
 	
 	/**
-	 * @return the type
+	 * Returns the type of the manifestation (currently, ACUTE or CHRONIC)
+	 * @return the type of the manifestation (currently, ACUTE or CHRONIC)
 	 */
 	public Type getType() {
 		return type;
@@ -120,19 +135,36 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	}
 	
 	/**
-	 * @return the endAge
+	 * Returns the maximum age when this manifestation appears
+	 * @return the maximum age when this manifestation appears
 	 */
 	public double getEndAge() {
 		return endAge;
 	}
 	
 	/**
-	 * @return the onsetAge
+	 * Returns the minimum age when this manifestation appears
+	 * @return the minimum age when this manifestation appears
 	 */
 	public double getOnsetAge() {
 		return onsetAge;
 	}
 	
+	/**
+	 * Checks every suitable pathway for a patient to progress to this manifestation, and returns the lowest time to this manifestation from all the pathways. 
+	 * @param pat A patient
+	 * @param limit Threshold for the manifestation to happen (in general, the expected death time for the patient)
+	 * @return The lowest time to this manifestation from all the suitable pathways
+	 */
+	public long getTimeTo(Patient pat, long limit) {
+		long timeTo = Long.MAX_VALUE;
+		for (ManifestationPathway path : pathways) {
+			long newTime = path.getTimeToEvent(pat, limit);
+			if (newTime < timeTo)
+				timeTo = newTime;
+		}
+		return timeTo;
+	}
 	/**
 	 * Returns the order assigned to this stage in a simulation.
 	 * @return the order assigned to this stage in a simulation
@@ -164,11 +196,24 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		return name;
 	}
 
+	/**
+	 * Prepares the manifestation to be used within a new simulation that probably sets a different intervention. This method is useful to preserve the random numbers 
+	 * previously generated and thus make easier the comparison among interventions (common random numbers).
+	 * @param id Identifier of the simulation to reset
+	 */
 	public void reset(int id) {
 		if (associatedDeath[id] != null)
 			associatedDeath[id].reset();
+		if (randomSeeds[id] != null) {
+			randomSeeds[id].reset();
+		}
 	}
 	
+	/**
+	 * Returns true if the patient starts in the simulation with this manifestation
+	 * @param pat A patient 
+	 * @return true if the patient starts in the simulation with this manifestation
+	 */
 	public boolean hasManifestationAtStart(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (pInit[id] == null)
@@ -199,4 +244,27 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 			pDiagnose[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDiagnosisProbParam(this, pat.getSimulation()));
 		return pDiagnose[id].getValue(pat);
 	}
+
+	/**
+	 * Adds a pathway to the manifestation
+	 * @param pathway A new pathway that may lead to this manifestation 
+	 */
+	public void addPathway(ManifestationPathway pathway) {
+		pathways.add(pathway);		
+	}
+	
+	/**
+	 * Returns n random values between 0 and 1 for the specified patient
+	 * @param pat A patient
+	 * @param n Number of random numbers to generate
+	 * @return n random values between 0 and 1 for the specified patient
+	 */
+	public abstract List<Double> getRandomValues(Patient pat, int n);
+	
+	/**
+	 * Returns a random values between 0 and 1 for the specified patient
+	 * @param pat A patient
+	 * @return A random values between 0 and 1 for the specified patient
+	 */
+	public abstract double getRandomValue(Patient pat);
 }

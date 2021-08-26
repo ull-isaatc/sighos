@@ -4,15 +4,15 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class VisionLossManifestation extends Manifestation {
+public class VisionLossManifestation extends ChronicManifestation {
 	private final static int COST_YEAR = 2013;
 	private final static double DIAGNOSTIC_COST = 251.8;
 	private final static double ANNUAL_COST = 121.86;
@@ -22,7 +22,7 @@ public class VisionLossManifestation extends Manifestation {
 	 * @param disease
 	 */
 	public VisionLossManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "#PBD_ManifestationVisionLoss", "Vision loss", disease, Type.CHRONIC, 1.0, 2.0);
+		super(secParams, "#PBD_ManifestationVisionLoss", "Vision loss", disease, 1.0, 2.0);
 	}
 
 	@Override

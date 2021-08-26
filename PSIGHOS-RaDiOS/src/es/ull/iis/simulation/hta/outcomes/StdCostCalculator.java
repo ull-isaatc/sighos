@@ -34,7 +34,7 @@ public class StdCostCalculator implements CostCalculator {
 	@Override
 	public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
 		double cost = pat.getIntervention().getAnnualCost(pat);
-		final Collection<Manifestation> state = pat.getDetailedState();
+		final Collection<Manifestation> state = pat.getState();
 		for (Manifestation st : state) {
 			cost += secParams.getCostsForManifestation(st, pat.getSimulation().getIdentifier())[0];
 		}
@@ -64,7 +64,7 @@ public class StdCostCalculator implements CostCalculator {
 	@Override
 	public TreeMap<Manifestation, Double> getAnnualManifestationCostWithinPeriod(Patient pat, double initAge, double endAge) {
 		final TreeMap<Manifestation, Double> results = new TreeMap<>(); 
-		final Collection<Manifestation> state = pat.getDetailedState();
+		final Collection<Manifestation> state = pat.getState();
 		for (Manifestation st : state) {
 			results.put(st, secParams.getCostsForManifestation(st, pat.getSimulation().getIdentifier())[0]);
 		}
@@ -74,7 +74,7 @@ public class StdCostCalculator implements CostCalculator {
 	@Override
 	public double getAnnualDiseaseCostWithinPeriod(Patient pat, double initAge, double endAge) {
 		double cost = 0.0;
-		final Collection<Manifestation> state = pat.getDetailedState();
+		final Collection<Manifestation> state = pat.getState();
 		for (Manifestation st : state) {
 			cost += secParams.getCostsForManifestation(st, pat.getSimulation().getIdentifier())[0];
 		}

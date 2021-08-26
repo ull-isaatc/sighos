@@ -43,15 +43,17 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	/** True if the patient has been diagnosed of his/her disease */
 	private boolean diagnosed;
 	/** The detailed state of the patient */
-	private final TreeSet<Manifestation> detailedState;
+	private final TreeSet<Manifestation> state;
 	/** Patient profile */
 	private final PatientProfile profile;
 	/** Initial age of the patient (stored as simulation time units) */
 	private final long initAge;
 	
 	// Events
-	/** Events related to each chronic complication */
+	/** Events that this patient has suffered related to each manifestation */
 	private final TreeMap<Manifestation, ArrayDeque<ManifestationEvent>> manifestationEvents;
+	/** Next events scheduled for each manifestation */
+	private final TreeMap<Manifestation, ManifestationEvent> nextManifestationEvents;
 	/** Death event */ 
 	protected DeathEvent deathEvent = null;
 
@@ -67,9 +69,10 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.dead = false;
 		this.profile = population.getPatientProfile(simul);
 		this.diagnosed = profile.isDiagnosedFromStart();
-		this.detailedState = new TreeSet<>();
+		this.state = new TreeSet<>();
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
 		manifestationEvents = new TreeMap<>();
+		nextManifestationEvents = new TreeMap<>();
 	}
 
 	/**
@@ -83,11 +86,12 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.intervention = intervention;
 		this.clonedFrom = original;		
 		this.dead = false;
-		this.detailedState = new TreeSet<>();
+		this.state = new TreeSet<>();
 		this.profile = original.profile;
 		this.diagnosed = profile.isDiagnosedFromStart();
 		this.initAge = original.initAge;
 		manifestationEvents = new TreeMap<>();
+		nextManifestationEvents = new TreeMap<>();
 	}
 
 	@Override
@@ -123,8 +127,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * Returns the state of the patient as regards to the detailed progression of main chronic manifestations
 	 * @return the state of the patient as regards to the detailed progression of main chronic manifestations
 	 */
-	public TreeSet<Manifestation> getDetailedState() {
-		return detailedState;
+	public TreeSet<Manifestation> getState() {
+		return state;
 	}
 	
 
@@ -210,17 +214,11 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 
 	/**
+	 * Returns the patient's profile
 	 * @return the profile
 	 */
 	public PatientProfile getProfile() {
 		return profile;
-	}
-
-	/**
-	 * @return the manifestationEvents
-	 */
-	public TreeMap<Manifestation, ArrayDeque<ManifestationEvent>> getManifestationEvents() {
-		return manifestationEvents;
 	}
 
 	/**
@@ -267,9 +265,9 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 
 	/**
-	 * Returns the timestamp when certain chronic complication started (or is planned to start)  
-	 * @param manif A chronic complication
-	 * @return the timestamp when certain chronic complication started (or is planned to start)
+	 * Returns the timestamp when certain manifestation complication started  
+	 * @param manif A manifestation
+	 * @return the timestamp when certain manifestation complication started
 	 */
 	public long getTimeToManifestation(Manifestation manif) {
 		if (!manifestationEvents.containsKey(manif)) 
@@ -280,10 +278,21 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 	
 	/**
-	 * Returns the number of events of this manifestation suffered by the patient (or currently planned to happen if the patient is still alive).
+	 * Returns the timestamp when the next manifestation of the specified type is planned to start  
+	 * @param manif A manifestation
+	 * @return the timestamp when the next manifestation of the specified type is planned to start
+	 */
+	public long getTimeToNextManifestation(Manifestation manif) {
+		if (!nextManifestationEvents.containsKey(manif)) 
+			return Long.MAX_VALUE;
+		return nextManifestationEvents.get(manif).getTs(); 
+	}
+	
+	/**
+	 * Returns the number of events of this manifestation already suffered by the patient.
 	 * If the manifestation is chronic, this method returns at most 1; otherwise, it can return an arbitrary value >= 0 
 	 * @param manif A manifestation
-	 * @return The number of events of this manifestation suffered by the patient (or currently planned to happen if the patient is still alive)
+	 * @return The number of events of this manifestation already suffered by the patient
 	 */
 	public int getNManifestations(Manifestation manif) {
 		if (!manifestationEvents.containsKey(manif))
@@ -306,21 +315,13 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	
 	/**
 	 * Applies the indicated progression to the patient, adding the new events
-	 * @param progs Progression of the disease for this patient
+	 * @param progs ManifestationPathway of the disease for this patient
 	 */
 	private void applyProgression(DiseaseProgression progs) {
 		for (DiseaseProgressionPair pr : progs.getNewEvents()) {
-			final ManifestationEvent ev = new ManifestationEvent(pr);
-			ArrayDeque<ManifestationEvent> events = null;
-			if (manifestationEvents.get(pr.getManifestation()) == null) {
-				events = new ArrayDeque<>();
-			}
-			else {
-				events = manifestationEvents.get(pr.getManifestation());
-			}
-			events.add(ev);
-			manifestationEvents.put(pr.getManifestation(), events);
-			simul.addEvent(ev);						
+			final ManifestationEvent ev = new ManifestationEvent(pr); 
+			nextManifestationEvents.put(pr.getManifestation(), ev);
+			simul.addEvent(ev);
 		}
 	}
 	
@@ -330,7 +331,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if progression to the specified manifestation is hindered by the current state of the patient
 	 */
 	public boolean mustBeExcluded(Manifestation newManif) {
-		for (Manifestation manif : detailedState) {
+		for (Manifestation manif : state) {
 			final TreeSet<Manifestation> excluded = getDisease().getExcluded(manif);
 			if (excluded.contains(newManif))
 				return true;
@@ -340,8 +341,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	
 	protected void startAction() {
 		startTs = this.getTs();
-		// Assigns the "absence of manifestations" as a starting state
-		detailedState.add(getDisease().getAsymptomaticManifestation());
 		simul.notifyInfo(new PatientInfo(simul, this, PatientInfo.Type.START, getTs()));
 
 		// Assign death event
@@ -355,12 +354,12 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			// I was scheduling these events in the usual way, but they were not executed before the next loop and progression fails
 			manifestationEvents.put(manif, events);
 			// This should never happen
-			if (Patient.this.detailedState.contains(manif)) {
+			if (Patient.this.state.contains(manif)) {
 				error("Health state already assigned!! " + manif.name());
 			}
 			else {
 				simul.notifyInfo(new PatientInfo(simul, this, manif, getTs()));
-				Patient.this.detailedState.add(manif);
+				Patient.this.state.add(manif);
 				
 				// Recompute time to death in case the risk increases
 				readjustDeath(manif);
@@ -413,19 +412,32 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		@Override
 		public void event() {
 			final Manifestation manifestation = progress.getManifestation();
-			if (Patient.this.detailedState.contains(manifestation)) {
+			if (Patient.this.state.contains(manifestation)) {
 				error("Health state already assigned!! " + manifestation.name());
 			}
 			else if (mustBeExcluded(manifestation)) {
 				this.cancel();
 			}
 			else {
+				// Add the event to the list of manifestation events
+				ArrayDeque<ManifestationEvent> events = null;
+				if (manifestationEvents.get(manifestation) == null) {
+					events = new ArrayDeque<>();
+				}
+				else {
+					events = manifestationEvents.get(manifestation);
+				}
+				events.add(this);
+				manifestationEvents.put(manifestation, events);
+				// ...and remove it from the list of next events
+				nextManifestationEvents.remove(manifestation);
+				
 				simul.notifyInfo(new PatientInfo(simul, Patient.this, manifestation, this.getTs()));
 				if (Manifestation.Type.CHRONIC.equals(manifestation.getType())) {
-					Patient.this.detailedState.add(manifestation);
+					Patient.this.state.add(manifestation);
 					// Removes chronic manifestations excluded by the new one
 					for (Manifestation excluded : getDisease().getExcluded(manifestation)) {
-						Patient.this.detailedState.remove(excluded);						
+						Patient.this.state.remove(excluded);						
 					}
 				}
 
@@ -447,7 +459,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 					// Update complications
 					final DiseaseProgression progs = getDisease().getProgression(Patient.this);
 					for (Manifestation st: progs.getCancelEvents()) {
-						manifestationEvents.get(st).peekLast().cancel();
+						nextManifestationEvents.get(st).cancel();
+						nextManifestationEvents.remove(st);
 					}
 					applyProgression(progs);
 				}
@@ -459,15 +472,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			return Patient.ManifestationEvent.class.getSimpleName() + "\t" + progress.getManifestation().name() + "[" + progress.getTimeToEvent() + "]";
 		}
 
-		@Override
-		public boolean cancel() {
-			if (super.cancel()) {
-				manifestationEvents.get(progress.getManifestation()).pollLast();
-				return true;
-			}
-			return false;
-		}
-		
 	}
 
 	/**
@@ -491,19 +495,15 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		@Override
 		public void event() {
 			// Cancel all events that cannot happen now but the one that causes the death
-			for (final Manifestation manif : manifestationEvents.keySet()) {
+			for (final Manifestation manif : nextManifestationEvents.keySet()) {
 				if (!manif.equals(cause)) {
-					final ArrayDeque<ManifestationEvent> events = manifestationEvents.get(manif);
-					while (events.size() > 0) {
-						if (events.peekLast().getTs() >= getTs()) {
-							events.peekLast().cancel();
-						}
-						else {
-							break;
-						}
+					final ManifestationEvent event = nextManifestationEvents.get(manif);
+					if (event.getTs() >= getTs()) {
+						event.cancel();
 					}
 				}
 			}
+			nextManifestationEvents.clear();
 			setDead();
 			simul.notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DEATH, cause, this.getTs()));
 			notifyEnd();

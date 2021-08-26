@@ -232,7 +232,7 @@ public abstract class SecondOrderParamsRepository {
 	public Manifestation[] getRegisteredManifestations(Manifestation.Type type) {
 		final ArrayList<Manifestation> arrayTyped = new ArrayList<>();
 		for (final Manifestation manif : registeredManifestations) {
-			if (Manifestation.Type.CHRONIC.equals(manif.getType()))
+			if (type.equals(manif.getType()))
 				arrayTyped.add(manif);
 		}
 		final Manifestation[] array = new Manifestation[arrayTyped.size()];
@@ -326,6 +326,14 @@ public abstract class SecondOrderParamsRepository {
 		addProbParam(new SecondOrderParam(this, getProbString(fromManifestation, toManifestation), "Probability of going from " + fromManifestation + " to " + toManifestation, source, detValue));
 	}
 	
+	public void addProbParam(Named toManifestation, String source, double detValue, RandomVariate rnd) {
+		addProbParam(new SecondOrderParam(this, getProbString(toManifestation), "Probability of going to " + toManifestation, source, detValue, rnd));
+	}
+	
+	public void addProbParam(Named toManifestation, String source, double detValue) {
+		addProbParam(new SecondOrderParam(this, getProbString(toManifestation), "Probability of going to " + toManifestation, source, detValue));
+	}
+	
 	public void addRRParam(Named fromManifestation, Named toManifestation, String source, double detValue, RandomVariate rnd) {
 		addOtherParam(new SecondOrderParam(this, getRRString(fromManifestation, toManifestation), "RR associated to going from " + fromManifestation + " to " + toManifestation, source, detValue, rnd));
 	}
@@ -334,12 +342,24 @@ public abstract class SecondOrderParamsRepository {
 		addOtherParam(new SecondOrderParam(this, getRRString(fromManifestation, toManifestation), "RR associated to going from " + fromManifestation + " to " + toManifestation, source, detValue));
 	}
 	
+	public void addRRParam(Named toManifestation, String source, double detValue, RandomVariate rnd) {
+		addOtherParam(new SecondOrderParam(this, getRRString(toManifestation), "RR associated to going to " + toManifestation, source, detValue, rnd));
+	}
+	
+	public void addRRParam(Named toManifestation, String source, double detValue) {
+		addOtherParam(new SecondOrderParam(this, getRRString(toManifestation), "RR associated to going to " + toManifestation, source, detValue));
+	}
+	
 	public void addModificationParam(Modification param) {
 		modificationParams.put(param.getName(), param);		
 	}
 	
 	public void addModificationParam(Intervention interv, Modification.Type type, Named fromManifestation, Named toManifestation, String source, double detValue, RandomVariate rnd) {
 		addModificationParam(new Modification(this, type, getModificationString(interv, fromManifestation, toManifestation), "Modification of probability of going from " + fromManifestation + " to " + toManifestation + " due to " + interv, source, detValue, rnd));
+	}
+	
+	public void addModificationParam(Intervention interv, Modification.Type type, String paramName, String source, double detValue, RandomVariate rnd) {
+		addModificationParam(new Modification(this, type, getModificationString(interv, paramName), "Modification of parameter " + paramName + " due to " + interv, source, detValue, rnd));
 	}
 	
 	public void addInitProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
@@ -514,6 +534,20 @@ public abstract class SecondOrderParamsRepository {
 	}
 
 	/**
+	 * Returns a relative risk; 1.0 if not defined
+	 * @param name Unique name that identifies the RR
+	 * @return the RR used to progress from a complication to another; 1.0 if not defined
+	 */
+	public double getRR(String name, DiseaseProgressionSimulation simul) {
+		final int id = simul.getIdentifier();
+		final SecondOrderParam param = otherParams.get(name);
+		if (param == null)
+			return 1.0;
+		final Modification modif = modificationParams.get(getModificationString(simul.getIntervention(), name));
+		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
+	}
+
+	/**
 	 * Returns a value for a probability parameter
 	 * @param name String identifier of the probability parameter
 	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
@@ -666,15 +700,33 @@ public abstract class SecondOrderParamsRepository {
 	}
 	
 	/**
-	 * Builds a string that represents a RR of developing a complication from another
-	 * @param from Initial complication
+	 * Builds a string that represents a probability of developing a complication
 	 * @param to Final complication
-	 * @return a string that represents a probability of developing a complication from another
+	 * @return a string that represents a probability of developing a complication
+	 */
+	public static String getProbString(Named to) {
+		return STR_PROBABILITY_PREFIX + to.name();
+	}
+	
+	/**
+	 * Builds a string that represents a RR of developing a manifestation from another
+	 * @param from Initial manifestation
+	 * @param to Final manifestation
+	 * @return a string that represents a probability of developing a manifestation from another
 	 */
 	public static String getRRString(Named from, Named to) {
 		final String fromName = (from == null) ? STR_HEALTHY : from.name();
 		final String toName = "_" + to.name();
 		return STR_RR_PREFIX + fromName + toName;
+	}
+	
+	/**
+	 * Builds a string that represents a RR of developing a manifestation
+	 * @param to Final manifestation
+	 * @return a string that represents a probability of developing a manifestation
+	 */
+	public static String getRRString(Named to) {
+		return STR_RR_PREFIX + to.name();
 	}
 	
 	public static String getModificationString(Intervention interv, Named from, Named to) {

@@ -174,9 +174,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 				}
 				else {
 					nEvents.get(manif)[nIntervention][pat.getIdentifier()] = pat.getNManifestations(manif);
-					if (time > 0 && Long.MAX_VALUE != time) {
-						incidence[nIntervention][i]++;
-					}
+					incidence[nIntervention][i] += nEvents.get(manif)[nIntervention][pat.getIdentifier()];
 					
 				}
 			}

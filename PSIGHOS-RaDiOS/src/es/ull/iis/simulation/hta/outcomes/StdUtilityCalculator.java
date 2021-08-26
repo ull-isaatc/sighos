@@ -44,7 +44,7 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	
 	@Override	
 	public double getUtilityValue(Patient pat) {
-		final Collection<Manifestation> state = pat.getDetailedState();
+		final Collection<Manifestation> state = pat.getState();
 		double du = 0.0;
 		for (Manifestation manif : state) {
 			du = method.combine(du, secParams.getDisutilityForManifestation(manif, pat.getSimulation().getIdentifier()));

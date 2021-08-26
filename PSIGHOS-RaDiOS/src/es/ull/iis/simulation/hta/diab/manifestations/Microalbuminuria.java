@@ -4,22 +4,22 @@
 package es.ull.iis.simulation.hta.diab.manifestations;
 
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla
  *
  */
-public class Microalbuminuria extends Manifestation {
+public class Microalbuminuria extends ChronicManifestation {
 
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public Microalbuminuria(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "ALB1", "Microalbuminuria", disease, Type.CHRONIC);
+		super(secParams, "ALB1", "Microalbuminuria", disease);
 	}
 
 	@Override

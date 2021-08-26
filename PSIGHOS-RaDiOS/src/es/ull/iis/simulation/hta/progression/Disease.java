@@ -14,7 +14,6 @@ import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinatio
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Manifestation.Type;
 import es.ull.iis.simulation.model.Describable;
 
 /**
@@ -31,36 +30,21 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	private int ord = -1;
 	
 	/** Manifestations related to this disease */
-	private final ArrayList<Manifestation> manifestations;
-	/** Manifestations and their associated transitions for this disease */
-	private final TreeMap<Manifestation, ArrayList<Transition>> transitions;
-	/** Manifestations and their associated REVERSE transitions for this disease */
-	private final TreeMap<Manifestation, ArrayList<Transition>> reverseTransitions;
+	protected final ArrayList<Manifestation> manifestations;
 	/** Manifestations that exclude another manifestation (generally, because they are more advance stages of the same condition */
-	private final TreeMap<Manifestation, TreeSet<Manifestation>> exclusions;	
+	protected final TreeMap<Manifestation, TreeSet<Manifestation>> exclusions;	
 	/** Short name of the disease */
 	private final String name;
 	/** Full description of the disease */
 	private final String description;
-	/** Default none manifestation, i.e., the patient would have the disease but he/she would be asymptomatic */
-	private final Manifestation asymptomatic;
 	
 	/**
 	 * Creates a submodel for a disease.
 	 */
 	public Disease(final SecondOrderParamsRepository secParams, String name, String description) {
 		this.secParams = secParams;
-		this.asymptomatic = new Manifestation(secParams, "NONE", "No manifestations", this, Type.CHRONIC) {
-			@Override
-			public void registerSecondOrderParameters() {			
-			}
-		};
 		this.manifestations = new ArrayList<>();
-		this.transitions = new TreeMap<>();
-		this.transitions.put(asymptomatic, new ArrayList<>());
-		this.reverseTransitions = new TreeMap<>();
 		this.exclusions = new TreeMap<>();
-		this.exclusions.put(asymptomatic, new TreeSet<>());
 		this.name = name;
 		this.description = description;
 	}
@@ -106,22 +90,9 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	}
 	
 	public void reset(int id) {
-		for (final Transition trans : transitions.get(asymptomatic))
-			trans.reset(id);
 		for (final Manifestation manif : manifestations) {
 			manif.reset(id);
-			for (final Transition trans : transitions.get(manif))
-				trans.reset(id);
 		}
-	}
-	
-	/**
-	 * Returns a "manifestation" that represents the absence of chronic manifestations of the disease (not necessarily excludes
-	 * acute manifestations)
-	 * @return An asymptomatic manifestation, i.e., absence of chronic manifestations
-	 */
-	public Manifestation getAsymptomaticManifestation() {
-		return asymptomatic;
 	}
 
 	/**
@@ -133,25 +104,9 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	public Manifestation addManifestation(Manifestation manif) {
 		manifestations.add(manif);
 		secParams.registerManifestation(manif);
-		transitions.put(manif, new ArrayList<>());
-		reverseTransitions.put(manif, new ArrayList<>());
 		TreeSet<Manifestation> excManif = new TreeSet<>();
-		if (Manifestation.Type.CHRONIC.equals(manif.getType())) {
-			excManif.add(asymptomatic);
-		}
 		exclusions.put(manif, excManif);
 		return manif;
-	}
-	
-	/**
-	 * Adds a new transition between two manifestations of this disease (or from "no manifestations" to any other manifestation)
-	 * @param trans New transition between manifestations of this disease
-	 * @return The transition added 
-	 */
-	public Transition addTransition(Transition trans) {
-		transitions.get(trans.getSrcManifestation()).add(trans);
-		reverseTransitions.get(trans.getDestManifestation()).add(trans);
-		return trans;
 	}
 	
 	/**
@@ -264,45 +219,6 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	public Manifestation[] getManifestations() {
 		final Manifestation[] array = new Manifestation[manifestations.size()];
 		return (Manifestation[]) manifestations.toArray(array);
-	}
-
-	/**
-	 * Returns the potential transitions from a manifestation
-	 * @param manif Source manifestation
-	 * @return the potential transitions from a manifestation
-	 */
-	public ArrayList<Transition> getTransitions(Manifestation manif) {
-		return transitions.get(manif);
-	}
-
-
-	/**
-	 * Returns all the transitions defined within the disease
-	 * @return the transitions for this disease
-	 */
-	public Transition[] getTransitions() {
-		final ArrayList<Transition> trans = new ArrayList<>();
-		for (final ArrayList<Transition> tt : transitions.values())
-			trans.addAll(tt);
-		final Transition[] array = new Transition[trans.size()];
-		return (Transition[]) trans.toArray(array);
-	}
-
-	/**
-	 * Returns the potential transitions to a manifestation
-	 * @param manif Destination manifestation
-	 * @return the potential transitions to a manifestation
-	 */
-	public ArrayList<Transition> getReverseTransitions(Manifestation manif) {
-		return reverseTransitions.get(manif);
-	}
-	
-	/**
-	 * Returns the number of different transitions defined from one manifestation to another
-	 * @return the number of different transitions defined from one manifestation to another
-	 */
-	public int getNTransitions() {
-		return transitions.size();
 	}
 	
 	/**

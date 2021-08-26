@@ -4,15 +4,15 @@
 package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class TestManifestationStage1 extends Manifestation {
+public class TestManifestationStage1 extends ChronicManifestation {
 	private final static double ANNUAL_COST = 100.0;
 	private final static double DISUTILITY = 0.2;
 
@@ -21,7 +21,7 @@ public class TestManifestationStage1 extends Manifestation {
 	 * @param disease
 	 */
 	public TestManifestationStage1(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "MANIF1", "Mild manifestation of test disease", disease, Type.CHRONIC);
+		super(secParams, "MANIF1", "Mild manifestation of test disease", disease);
 	}
 
 	@Override

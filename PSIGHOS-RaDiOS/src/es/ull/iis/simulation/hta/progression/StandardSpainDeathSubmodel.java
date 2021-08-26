@@ -62,7 +62,7 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 		
 		double imr = 1.0;
 		double ler = 0.0;
-		for (final Manifestation state : pat.getDetailedState()) {
+		for (final Manifestation state : pat.getState()) {
 			final double newIMR = secParams.getIMR(state, simul);
 			if (newIMR > imr) {
 				imr = newIMR;

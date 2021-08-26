@@ -4,15 +4,15 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class HypotoniaManifestation extends Manifestation {
+public class HypotoniaManifestation extends ChronicManifestation {
 	private final static int COST_YEAR = 2013;
 	private final static double COST = 3665.56;
 
@@ -21,7 +21,7 @@ public class HypotoniaManifestation extends Manifestation {
 	 * @param disease
 	 */
 	public HypotoniaManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "#PBD_ManifestationHypotonia", "Hypotonia", disease, Type.CHRONIC, 0.0, 1.0);
+		super(secParams, "#PBD_ManifestationHypotonia", "Hypotonia", disease, 0.0, 1.0);
 	}
 
 	@Override

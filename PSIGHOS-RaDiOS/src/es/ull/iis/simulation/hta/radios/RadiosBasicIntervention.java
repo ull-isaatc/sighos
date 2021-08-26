@@ -19,9 +19,9 @@ import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
 import es.ull.iis.ontology.radios.json.schema4simulation.ManifestationModification;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.Modification;
+import es.ull.iis.simulation.hta.progression.StagedDisease;
 import es.ull.iis.simulation.hta.progression.Transition;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
@@ -48,10 +48,10 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 	private Matrix costFollowUps;
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
-	private Disease disease;
+	private StagedDisease disease;
 
 	public RadiosBasicIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Integer timeHorizont, 
-			Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis, Disease disease) {
+			Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis, StagedDisease disease) {
 		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING);
 		this.intervention = intervention; 
 		this.naturalDevelopmentName = naturalDevelopmentName;
@@ -264,7 +264,7 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 		if (manifestacion.equalsIgnoreCase(this.naturalDevelopmentName)) {
 			nTimesManifestations = 1;
 		} else {
-			for (Manifestation manif : pat.getDetailedState()) {
+			for (Manifestation manif : pat.getState()) {
 				if (manif.name().equalsIgnoreCase(manifestacion)) {
 					nTimesManifestations++;
 				}
