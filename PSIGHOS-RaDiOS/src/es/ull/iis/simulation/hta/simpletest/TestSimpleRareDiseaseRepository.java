@@ -10,7 +10,6 @@ import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Modification;
 
@@ -35,11 +34,8 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
 
-		Disease testDisease = null;
+		TemplateTestRareDisease testDisease = null;
 		switch (disease) {
-		case 1: 
-			testDisease = new TestRareDisease1(this);
-			break;
 		case 2:
 			testDisease = new TestRareDisease2(this);
 			break;
@@ -49,6 +45,7 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 		case 4:
 			testDisease = new TestRareDisease4(this);
 			break;
+		case 1:
 		default:
 			testDisease = new TestRareDisease1(this);
 			break;
@@ -84,7 +81,7 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 			break;
 		case 1:
 		default:
-			registerIntervention(new EffectiveIntervention(this));
+			registerIntervention(new EffectiveIntervention(this, testDisease.getParamNames()));
 			registerIntervention(new NullIntervention(this));
 			break;
 		}

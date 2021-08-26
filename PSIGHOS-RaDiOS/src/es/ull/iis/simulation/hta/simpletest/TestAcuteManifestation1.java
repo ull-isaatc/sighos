@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.AcuteManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -13,7 +13,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla
  *
  */
-public class TestAcuteManifestation1 extends Manifestation {
+public class TestAcuteManifestation1 extends AcuteManifestation {
 	private final static double PUNCTUAL_COST = 1000.0;
 	private final static double DISUTILITY = 0.2;
 	private final static double P_DEAD = 0.1;
@@ -23,16 +23,8 @@ public class TestAcuteManifestation1 extends Manifestation {
 	 * @param secParams
 	 * @param disease
 	 */
-	public TestAcuteManifestation1(String name, SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, name, "Acute manifestation of test disease", disease, Type.ACUTE);
-	}
-
-	/**
-	 * @param secParams
-	 * @param disease
-	 */
 	public TestAcuteManifestation1(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "ACUTE1", "Acute manifestation of test disease", disease, Type.ACUTE);
+		super(secParams, "ACUTE1", "Acute manifestation of test disease", disease);
 	}
 
 	/* (non-Javadoc)

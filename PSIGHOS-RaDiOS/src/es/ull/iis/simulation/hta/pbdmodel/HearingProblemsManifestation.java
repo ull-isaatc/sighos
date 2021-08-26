@@ -4,15 +4,15 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class HearingProblemsManifestation extends Manifestation {
+public class HearingProblemsManifestation extends ChronicManifestation {
 	private final static int COST_YEAR = 2013;
 	private final static double DIAGNOSTIC_COST = 31169.95;
 	private final static double ANNUAL_COST = 155.14;
@@ -23,7 +23,7 @@ public class HearingProblemsManifestation extends Manifestation {
 	 * @param disease
 	 */
 	public HearingProblemsManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "#PBD_ManifestationHearingProblems", "Hearing problems", disease, Type.CHRONIC, 1.0, 2.0);
+		super(secParams, "#PBD_ManifestationHearingProblems", "Hearing problems", disease, 1.0, 2.0);
 	}
 
 	@Override

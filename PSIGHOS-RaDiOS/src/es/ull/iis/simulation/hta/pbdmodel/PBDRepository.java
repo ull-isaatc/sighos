@@ -35,7 +35,7 @@ public class PBDRepository extends SecondOrderParamsRepository {
 		registerDisease(dis);
 		registerPopulation(new PBDPopulation(this, dis, allAffected));
 		registerIntervention(new NullIntervention(this));
-		registerIntervention(new PBDNewbornScreening(this, dis));
+		registerIntervention(new PBDNewbornScreening(this));
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
 

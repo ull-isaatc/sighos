@@ -53,7 +53,6 @@ import es.ull.iis.simulation.hta.params.StdDiscount;
 import es.ull.iis.simulation.hta.params.ZeroDiscount;
 import es.ull.iis.simulation.hta.pbdmodel.PBDRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.Transition;
 import es.ull.iis.simulation.hta.radios.RadiosExperimentResult;
 import es.ull.iis.simulation.hta.radios.RadiosRepository;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
@@ -334,22 +333,30 @@ public class DiseaseMain {
 		}
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 			final Manifestation[] availableChronicManifestations = secParams.getRegisteredManifestations(Manifestation.Type.CHRONIC);
+			final Manifestation[] availableAcuteManifestations = secParams.getRegisteredManifestations(Manifestation.Type.ACUTE);
 			System.out.print("PAT");
 			for (int i = 0; i < nInterventions; i++) {
 				final String shortName = "_" + interventions[i].name();
 				System.out.print("\tCOST" + shortName + "\tLE" + shortName + "\tQALE" + shortName);
 				for (Manifestation comp : availableChronicManifestations) {
-					System.out.print("\t" + comp.name() + shortName);
+					System.out.print("\tT_" + comp.name() + shortName);
+				}			
+				for (Manifestation comp : availableAcuteManifestations) {
+					System.out.print("\tN_" + comp.name() + shortName);
 				}			
 			}
 			System.out.println();
 			final double[][][] timesTo = indTimeToEventListener.getTimes(); 
+			final int[][][] nEvents = indTimeToEventListener.getNEvents(); 
 			for (int i = 0; i < nPatients; i++) {
 				System.out.print(i);
 				for (int j = 0; j < nInterventions; j++) {
 					System.out.print("\t" + costListeners[j].getValues()[i] + "\t" + lyListeners[j].getValues()[i] + "\t" + qalyListeners[j].getValues()[i]);
 					for (int k = 0; k < availableChronicManifestations.length; k++) {
 						System.out.print("\t" + timesTo[i][j][k]);
+					}
+					for (int k = 0; k < availableAcuteManifestations.length; k++) {
+						System.out.print("\t" + nEvents[i][j][k]);
 					}
 				}
 				System.out.println();
@@ -642,7 +649,8 @@ public class DiseaseMain {
 			System.err.println("Could not validate model. Result = " + validity);
 		}
 		
-		return new RadiosExperimentResult(secParams.getRegisteredDiseases()[secParams.getRegisteredDiseases().length - 1].getTransitions(), baos, secParams.prettySavedParams(), arguments.nRuns);		
+		// TODO: Hecho typecast simplemente para que compile, pero no debería funcionar
+		return new RadiosExperimentResult(baos, secParams.prettySavedParams(), arguments.nRuns);		
 	}
 
 	private static void parseParameters(String[] args, final Arguments arguments, boolean useProgramaticArguments, String params) {
@@ -722,7 +730,10 @@ public class DiseaseMain {
 			boolean useProgramaticArguments = true;
 			boolean allAffected = true;
 			double utilityGeneralPopulation = 0.8861;
-			String params = "-n 5000 -r 0 -pop 3 -y 2019 -q -po"; // -o /tmp/result_david.txt
+			String params = "-n 20000 -r 0 -pop 3 -y 2019 -q -po"; // Testing diabetes
+//			String params = "-n 5000 -r 0 -pop 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
+//			String params = "-n 100 -r 0 -dr 0 -q -pop 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
+			
 			parseParameters(args, arguments, useProgramaticArguments, params);
 
 			int TEST_RARE_DISEASE1 = 1; int TEST_RARE_DISEASE2 = 1; int TEST_RARE_DISEASE3 = 1; int TEST_RARE_DISEASE4 = 1; int PBD = 11; 
@@ -753,10 +764,6 @@ public class DiseaseMain {
 			RadiosExperimentResult result = runExperiment(arguments, radiosDiseaseInstance, interventionsToCompare, allAffected, utilityGeneralPopulation);
 
 			System.out.println("=====================================================================================================");
-			for (Transition transition : result.getTransitions()) {
-				System.out.println(transition.getSrcManifestation().getName() + " --> " + transition.getDestManifestation().getName());
-			}
-			System.out.println();
 			System.out.println(result.getPrettySavedParams());
 			System.out.println();
 			if (replaceDotWithColon) {

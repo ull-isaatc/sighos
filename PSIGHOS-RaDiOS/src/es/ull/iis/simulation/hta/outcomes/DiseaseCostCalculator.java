@@ -55,7 +55,7 @@ public class DiseaseCostCalculator implements CostCalculator {
 	public TreeMap<Manifestation, Double> getAnnualManifestationCostWithinPeriod(Patient pat, double initAge,
 			double endAge) {
 		final TreeMap<Manifestation, Double> results = new TreeMap<>(); 
-		final Collection<Manifestation> state = pat.getDetailedState();
+		final Collection<Manifestation> state = pat.getState();
 		for (Manifestation st : state) {
 			results.put(st, secParams.getCostsForManifestation(st, pat.getSimulation().getIdentifier())[0]);
 		}

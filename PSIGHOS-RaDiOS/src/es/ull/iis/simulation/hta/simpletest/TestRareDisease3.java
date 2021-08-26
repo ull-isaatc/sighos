@@ -3,11 +3,15 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
-import es.ull.iis.simulation.hta.Patient;
+import java.util.ArrayList;
+
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.StagedDisease;
-import es.ull.iis.simulation.hta.progression.Transition;
+import es.ull.iis.simulation.hta.progression.PreviousManifestationCondition;
+import es.ull.iis.simulation.hta.progression.PathwayCondition;
+import es.ull.iis.simulation.hta.progression.ManifestationPathway;
+import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 
 /**
  * A disease with two chronic (and independent) manifestations. The first manifestation increases the risk of the second. 
@@ -15,7 +19,7 @@ import es.ull.iis.simulation.hta.progression.Transition;
  * @author Iván Castilla Rodríguez
  *
  */
-public class TestRareDisease3 extends StagedDisease {
+public class TestRareDisease3 extends TemplateTestRareDisease {
 	final private static double P_MANIF1 = 0.1;
 	final private static double P_MANIF2 = 0.02;
 	final private static double P_MANIF1_MANIF2 = 0.05;
@@ -23,12 +27,6 @@ public class TestRareDisease3 extends StagedDisease {
 	final private Manifestation manif1;
 	/** Second manifestation (severe) */
 	final private Manifestation manif2;
-	/** Transition from the first to the second manifestation */
-	final private Transition manif1_manif2;
-	/** Transition to the first manifestation */
-	final private Transition healthy_manif1;
-	/** Transition to the second manifestation */
-	final private Transition healthy_manif2;
 	
 	/**
 	 * @param secParams Repository with common information about the disease 
@@ -39,28 +37,28 @@ public class TestRareDisease3 extends StagedDisease {
 		manif2 = new TestManifestationStage2(secParams, this);
 		addManifestation(manif1);
 		addManifestation(manif2);
-		healthy_manif1 = new Transition(secParams, getAsymptomaticManifestation(), manif1); 
-		addTransition(healthy_manif1);
-		healthy_manif2 = new Transition(secParams, getAsymptomaticManifestation(), manif2); 
-		addTransition(healthy_manif2);
-		manif1_manif2 = new Transition(secParams, manif1, manif2); 
-		addTransition(manif1_manif2);
+		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif1), secParams, manif1);
+		new ManifestationPathway(secParams, manif1, tte);
+		tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif2), secParams, manif2);
+		new ManifestationPathway(secParams, manif2, tte);
+		final PathwayCondition cond = new PreviousManifestationCondition(manif1);
+		tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif1, manif2), secParams, manif2);
+		new ManifestationPathway(secParams, manif2, cond, tte); 
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(getAsymptomaticManifestation(), manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
-		secParams.addProbParam(getAsymptomaticManifestation(), manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
+		secParams.addProbParam(manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		secParams.addProbParam(manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
 		secParams.addProbParam(manif1, manif2, "Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
 	}
 
 	@Override
-	public double getDiagnosisCost(Patient pat) {
-		return 0;
-	}
-
-	@Override
-	public double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge) {
-		return 0;
+	public ArrayList<String> getParamNames() {
+		ArrayList<String> list = new ArrayList<>();
+		list.add(SecondOrderParamsRepository.getProbString(manif1));
+		list.add(SecondOrderParamsRepository.getProbString(manif2));
+		list.add(SecondOrderParamsRepository.getProbString(manif1, manif2));		
+		return list;
 	}
 }

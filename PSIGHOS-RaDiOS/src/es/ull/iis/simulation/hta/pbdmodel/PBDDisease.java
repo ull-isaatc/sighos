@@ -7,15 +7,16 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.StagedDisease;
-import es.ull.iis.simulation.hta.progression.Transition;
+import es.ull.iis.simulation.hta.progression.ManifestationPathway;
+import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.progression.StandardDisease;
 import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class PBDDisease extends StagedDisease {
+public class PBDDisease extends StandardDisease {
 	final private static double DIAGNOSIS_COST = 509.65;
 	final private static double TREATMENT_COST = 66.2475;
 	final private static double FOLLOW_UP_COST = 616.75672;
@@ -51,19 +52,17 @@ public class PBDDisease extends StagedDisease {
 
 	private void registerBasicManifestation(Manifestation manif) {
 		addManifestation(manif);
-		final Transition trans = new Transition(secParams, getAsymptomaticManifestation(), manif);
-		trans.setCalculator(trans.new ProportionBasedTimeToEventCalculator());
-		addTransition(trans);
+		new ManifestationPathway(secParams, manif, new ProportionBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif), secParams, manif));
 	}
 	
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(getAsymptomaticManifestation(), skinProblems, "Test", 0.41, RandomVariateFactory.getInstance("BetaVariate", 24, 34));
-		secParams.addProbParam(getAsymptomaticManifestation(), hypotonia, "Test", 0.457, RandomVariateFactory.getInstance("BetaVariate", 17, 20));
-		secParams.addProbParam(getAsymptomaticManifestation(), seizures, "Test", 0.564, RandomVariateFactory.getInstance("BetaVariate", 65, 50));
-		secParams.addProbParam(getAsymptomaticManifestation(), visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
-		secParams.addProbParam(getAsymptomaticManifestation(), hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
-		secParams.addProbParam(getAsymptomaticManifestation(), mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
+		secParams.addProbParam(skinProblems, "Test", 0.41, RandomVariateFactory.getInstance("BetaVariate", 24, 34));
+		secParams.addProbParam(hypotonia, "Test", 0.457, RandomVariateFactory.getInstance("BetaVariate", 17, 20));
+		secParams.addProbParam(seizures, "Test", 0.564, RandomVariateFactory.getInstance("BetaVariate", 65, 50));
+		secParams.addProbParam(visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
+		secParams.addProbParam(hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
+		secParams.addProbParam(mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
 		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_DIAGNOSIS, "Cost of diagnosing PBD", "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65)));
 		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_TREATMENT, "Cost of treating PBD", "", 2013, TREATMENT_COST));
 		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_FOLLOW_UP, "Cost of following up PBD", "", 2013, FOLLOW_UP_COST));

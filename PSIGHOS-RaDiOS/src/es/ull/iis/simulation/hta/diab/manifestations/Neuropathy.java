@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.hta.diab.manifestations;
 
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
@@ -13,7 +13,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class Neuropathy extends Manifestation {
+public class Neuropathy extends ChronicManifestation {
 	private static final double COST = 3108.86;
 	private static final int COSTYEAR = 2015;
 	private static final double[] DU = new double[] {0.084, (0.111 - 0.057) / 3.92};
@@ -23,7 +23,7 @@ public class Neuropathy extends Manifestation {
 	 * @param disease
 	 */
 	public Neuropathy(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams,"NEU", "Neuropathy", disease, Type.CHRONIC);
+		super(secParams,"NEU", "Neuropathy", disease);
 	}
 
 	@Override

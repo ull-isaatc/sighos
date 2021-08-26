@@ -1,6 +1,5 @@
 package es.ull.iis.simulation.hta.params;
 
-import es.ull.iis.simulation.hta.SpanishIPCUpdate;
 import simkit.random.RandomVariate;
 
 /**
@@ -25,7 +24,7 @@ public class SecondOrderCostParam extends SecondOrderParam {
 	public SecondOrderCostParam(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue) {
 		super(secParams, name, description, source, detValue);
 		this.year = year;
-		generatedValues[0] = SpanishIPCUpdate.updateCost(generatedValues[0], year, BasicConfigParams.STUDY_YEAR);
+		generatedValues[0] = SpanishCPIUpdate.updateCost(generatedValues[0], year, BasicConfigParams.STUDY_YEAR);
 	}
 	
 	/**
@@ -41,13 +40,13 @@ public class SecondOrderCostParam extends SecondOrderParam {
 	public SecondOrderCostParam(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
 		super(secParams, name, description, source, detValue, rnd);
 		this.year = year;
-		generatedValues[0] = SpanishIPCUpdate.updateCost(generatedValues[0], year, BasicConfigParams.STUDY_YEAR);
+		generatedValues[0] = SpanishCPIUpdate.updateCost(generatedValues[0], year, BasicConfigParams.STUDY_YEAR);
 	}
 
 	@Override
 	public double getValue(int id) {
 		if (Double.isNaN(generatedValues[id])) {
-				generatedValues[id] = SpanishIPCUpdate.updateCost(rnd.generate(), year, BasicConfigParams.STUDY_YEAR);
+				generatedValues[id] = SpanishCPIUpdate.updateCost(rnd.generate(), year, BasicConfigParams.STUDY_YEAR);
 		}
 		return generatedValues[id];
 	}
