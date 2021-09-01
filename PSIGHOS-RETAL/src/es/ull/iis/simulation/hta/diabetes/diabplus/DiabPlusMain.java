@@ -486,6 +486,7 @@ public class DiabPlusMain {
 			e.printStackTrace();
 		}
 		final double hypoRate = json.getDouble("hypoRate");
+		final double hypoRateRR = json.getDouble("hypoRateRR");
 		final double baseHbA1cLevel = json.getDouble("baseHbA1cLevel");
 		final double objHbA1cLevel = json.getDouble("objHbA1cLevel");
 		final double annualCost = json.getDouble("annualCost");
@@ -499,7 +500,7 @@ public class DiabPlusMain {
 			BasicConfigParams.INIT_PROP.put(manif, 1.0);
 		}
 		final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man, baseHbA1cLevel, age, durationOfDiabetes, hypoRate);
-        return new DiabPlusSecondOrderRepository(nPatients, population, objHbA1cLevel, annualCost);		
+        return new DiabPlusSecondOrderRepository(nPatients, population, objHbA1cLevel, hypoRateRR, annualCost);		
 	}
 	
 	public static void main(String[] args) {

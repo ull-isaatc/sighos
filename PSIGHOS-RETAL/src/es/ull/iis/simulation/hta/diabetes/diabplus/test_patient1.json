@@ -4,7 +4,8 @@
 		"age" : "40",
 		"durationOfDiabetes" : "5",
 		"hypoRate" : "2",
-		"baseHbA1cLevel" : "10",
+		"hypoRateRR" : "0.5",
+		"baseHbA1cLevel" : "8",
 		"objHbA1cLevel" : "8",
 		"annualCost" : "3000",
 		"manifestations": [
