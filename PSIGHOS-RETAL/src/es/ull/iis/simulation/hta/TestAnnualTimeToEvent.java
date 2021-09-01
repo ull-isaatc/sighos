@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.hta;
 
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 
@@ -231,6 +233,49 @@ public class TestAnnualTimeToEvent {
 			System.out.println(i + "\t" + surv1[0][i] + "\t" + surv1[1][i] + "\t" + surv2[0][i] + "\t" + surv2[1][i]);
 		}
 	}
+	
+	/**
+	 * Tests the way Sheffield RRs interact with an additional modification of the risk that may be indicated as part of an intervention, i.e., reducing X% the risk of certain commorbidity.
+	 * 
+	 * This method WORKS
+	 */
+	static void testSheffieldRRPlusInterventionMod(double hba1c, double annualRisk, double beta, double modifier, double gap) {
+		final double rr = Math.pow(hba1c/10, beta);
+		System.out.println("HBA1C: " + hba1c);
+		System.out.println("Annual risk: " + annualRisk);
+		System.out.println("Beta: " + beta);
+		System.out.println("Modifier: " + modifier);
+		double newAnnualRisk = 1-Math.exp(Math.log(1 - annualRisk) * modifier);
+		double rnd = gap;
+		do {			
+			double timeTo1 =Statistics.getAnnualBasedTimeToEvent(annualRisk, Math.log(rnd), rr);
+			double timeTo2 =Statistics.getAnnualBasedTimeToEvent(newAnnualRisk, Math.log(rnd), rr);
+			System.out.println("" + rnd + "\t" + timeTo1 + "\t" + timeTo2);
+			rnd += gap;
+		} while (rnd <= 1.0);		
+	}
+	
+	/**
+	 * Tests the way Sheffield RRs interact with an additional modification of the risk that may be indicated as part of an intervention, i.e., reducing X% the risk of certain commorbidity.
+	 * 
+	 * This method DOES NOT WORK
+	 */
+	static void testSheffieldRRPlusInterventionMod2(double hba1c, double annualRisk, double beta, double modifier, double gap) {
+		final double rr = Math.pow(hba1c/10, beta);
+		System.out.println("HBA1C: " + hba1c);
+		System.out.println("Annual risk: " + annualRisk);
+		System.out.println("Beta: " + beta);
+		System.out.println("Modifier: " + modifier);
+		double rnd = gap;
+		do {			
+			double timeTo1 =Statistics.getAnnualBasedTimeToEvent(annualRisk, Math.log(rnd), rr);
+			double timeTo2 =Statistics.getAnnualBasedTimeToEvent(annualRisk, Math.log(1-Math.exp(Math.log(1 - rnd) * modifier)), rr);
+			System.out.println("" + rnd + "\t" + timeTo1 + "\t" + timeTo2);
+			rnd += gap;
+		} while (rnd <= 1.0);
+		
+	}
+	
 	/**
 	 * Single tests benefit the iterative method when p is high; otherwise errors are similar and formula-based method is faster
 	 * @param args
@@ -238,7 +283,8 @@ public class TestAnnualTimeToEvent {
 	public static void main(String[] args) {
 //		testSingleProb(0.022);
 //		testCompoundProb(P_DNC_ALB1);
-		testDurationProb(5, P_TEST3);
+//		testDurationProb(5, P_TEST3);
+		testSheffieldRRPlusInterventionMod2(10.0, 0.0454, 10.10, 0.5, 0.01);
 	}
 
 }
