@@ -7,8 +7,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.EnumSet;
@@ -17,9 +15,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -27,7 +22,6 @@ import com.beust.jcommander.ParameterException;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
-import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AcuteComplicationCounterListener;
@@ -54,11 +48,11 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicati
 /**
  * Main class to launch simulation experiments
  * For example:
- * - to create data based on a JSON-defined patient: -q -n 100 -r 1000 -p
+ * - to create raw data for ML postprocessing: -q -n 5000 -r 0  -ex -po
  * @author Iván Castilla Rodríguez
  *
  */
-public class DiabPlusMain {
+public class DiabPlusExplorationMain {
 	private enum Outputs {
 		INDIVIDUAL_OUTCOMES, 	// printing the outcomes per patient
 		BREAKDOWN_COST,			// printing breakdown of costs
@@ -148,7 +142,6 @@ public class DiabPlusMain {
 	private static final String OUTPUTS_SUFIX = "_outputs"; 
 	private final PrintWriter out;
 	private final PrintWriter outListeners;
-	private final PrintWriter outJSON;	
 	private final ArrayList<SecondOrderDiabetesIntervention> interventions;
 	/** Number of simulations to run */
 	private final int nRuns;
@@ -167,15 +160,17 @@ public class DiabPlusMain {
 	private final int timeHorizon;
 	private final ArrayList<ExperimentListener> expListeners;
 	private final ArrayList<ExperimentListener> baseCaseExpListeners;
-	private final DiabPlusJSONWriter jsonWriter;
+	private final int initAge;
+	private final int duration;
 	
-	public DiabPlusMain(PrintWriter out, PrintWriter outListeners, PrintWriter outJSON, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs, final ArrayList<EpidemiologicOutputFormat> toPrint) {
+	public DiabPlusExplorationMain(PrintWriter out, PrintWriter outListeners, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs, final ArrayList<EpidemiologicOutputFormat> toPrint, int initAge, int duration) {
 		super();
+		this.initAge = initAge;
+		this.duration = duration;
 		this.printOutputs = printOutputs;
 		this.timeHorizon = timeHorizon;
 		this.out = out;
 		this.outListeners = outListeners;
-		this.outJSON = outJSON;
 		this.discountCost = discountCost;
 		this.discountEffect = discountEffect;
 		this.interventions = secParams.getRegisteredInterventions();
@@ -202,7 +197,6 @@ public class DiabPlusMain {
 			expListeners.add(new EpidemiologicView(nRuns, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 			baseCaseExpListeners.add(new EpidemiologicView(1, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 		}
-		this.jsonWriter = new DiabPlusJSONWriter(nRuns, interventions, secParams);
 	}
 	
 	/**
@@ -211,7 +205,7 @@ public class DiabPlusMain {
 	 */
 	private String getStrHeader() {
 		final StringBuilder str = new StringBuilder();
-		str.append("SIM\t");
+		str.append("SIM\tAGE\tDURATION\t");
 		for (int i = 0; i < interventions.size(); i++) {
 			final String shortName = interventions.get(i).getShortName();
 			str.append(HbA1cListener.getStrHeader(shortName));
@@ -245,6 +239,7 @@ public class DiabPlusMain {
 	private String print(DiabetesSimulation simul, HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, CostListener[] costListeners0, LYListener[] lyListeners0, QALYListener[] qalyListeners0, AcuteComplicationCounterListener[] acuteListeners, TimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		str.append("" +  simul.getIdentifier() + "\t");
+		str.append("" + initAge + "\t" + duration + "\t");
 		for (int i = 0; i < interventions.size(); i++) {
 			str.append(hba1cListeners[i]);
 			str.append(costListeners[i]);
@@ -259,28 +254,6 @@ public class DiabPlusMain {
 		return str.toString();
 	}
 
-	/**
-	 * Prints the header required to interpret the output produced by the method {@link #printIndividualOutcomes(DiabetesSimulation, int, HbA1cListener[], CostListener[], LYListener[], QALYListener[], TimeFreeOfComplicationsView) printIndividualOutcomes}.
-	 * @param nInterventions Total number of interventions being simulated
-	 * @return A string with tab separated headers for each piece of information of the individual patients.
-	 */
-	private String printInvidualOutcomesHeader(int nInterventions) {
-		final StringBuilder str = new StringBuilder("SIM\t");
-		str.append(DiabetesPatient.getStrHeader(secParams));
-		for (int i = 0; i < nInterventions; i++) {
-			final String shortName = interventions.get(i).getShortName();
-			str.append("\tTIME_TO_DEATH_" + shortName);
-			for (DiabetesComplicationStage stage : secParams.getRegisteredComplicationStages()) {
-				str.append("\tTIME_TO_" + stage + "_" + shortName);
-			}
-			for (SecondOrderAcuteComplicationSubmodel acute : secParams.getRegisteredAcuteComplications()) {
-				str.append("\tN_" + acute.getComplicationType().name() + "_" + shortName);
-			}
-			str.append("\tHBA1c_" + shortName + "\tCOST_" + shortName + "\tLE_" + shortName + "\tQALE_" + shortName);
-		}
-		return str.toString();
-	}
-	
 	/**
 	 * Prints the outcomes of each individual simulated for every simulation replica. Each line of the resulting string corresponds to a patient
 	 * @param simul Current simulation
@@ -390,12 +363,6 @@ public class DiabPlusMain {
 			}
 			simul.run();
 		}
-		if (baseCase) {
-			jsonWriter.notifyEndBaseCase(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener);
-		}
-		else {
-			jsonWriter.notifyEndProbabilisticRun(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener);
-		}
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 			out.print(printIndividualOutcomes(simul, nInterventions, hba1cListeners, costListeners, lyListeners, qalyListeners, acuteListeners, timeFreeListener));
 		}
@@ -408,16 +375,7 @@ public class DiabPlusMain {
 	 * Launches the simulations
 	 */
 	public void run() {
-		long t = System.currentTimeMillis(); 
-		final int nInterventions = interventions.size();
-		if (!quiet)
-			out.println(BasicConfigParams.printOptions());
-		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
-			out.println(printInvidualOutcomesHeader(nInterventions));
-		}
-		else {
-			out.println(getStrHeader());
-		}
+		out.println(getStrHeader());
 		
 		simulateInterventions(0, true);
 		if (baseCaseExpListeners.size() > 0) {
@@ -457,49 +415,7 @@ public class DiabPlusMain {
 					outListeners.println(listener);
 				}		
 			}
-			// Update JSON with results from probabilistic experiments
-	        jsonWriter.notifyEndProbabilisticExperiments();
 		}
-		
-		
-        if (!quiet)
-        	System.out.println("Execution time: " + ((System.currentTimeMillis() - t) / 1000) + " sec");
-        outJSON.println(jsonWriter.getJSON());
-        out.close();
-        outListeners.close();
-        outJSON.close();
-//        System.out.println(((DiabPlusSecondOrderRepository)secParams).getComplicationsJSON());
-	}
-
-	/**
-	 * Loads the Json file that defines the patient profile to simulate
-	 * @param nPatients Number of replicas of the patient to simulate
-	 * @param jsonFile Source Json file 
-	 * @return A repository configured to mimic the defined patient 
-	 */
-	private static SecondOrderParamsRepository loadJSON(int nPatients, String jsonFile) {
-		JSONObject json = null;
-		try {
-			String str = new String(Files.readAllBytes(Paths.get(jsonFile)));
-			json = new JSONObject(str).getJSONObject("patient");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		final double hypoRate = json.getDouble("hypoRate");
-		final double baseHbA1cLevel = json.getDouble("baseHbA1cLevel");
-		final double objHbA1cLevel = json.getDouble("objHbA1cLevel");
-		final double annualCost = json.getDouble("annualCost");
-		final double age = json.getDouble("age");
-		final double durationOfDiabetes = json.getDouble("durationOfDiabetes");
-		final boolean man = json.getBoolean("man");
-		
-		final JSONArray jmanif = json.getJSONArray("manifestations");
-		for (int i = 0; i < jmanif.length(); i++) {
-			final String manif = jmanif.getString(i);
-			BasicConfigParams.INIT_PROP.put(manif, 1.0);
-		}
-		final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man, baseHbA1cLevel, age, durationOfDiabetes, hypoRate);
-        return new DiabPlusSecondOrderRepository(nPatients, population, objHbA1cLevel, annualCost);		
 	}
 	
 	public static void main(String[] args) {
@@ -517,106 +433,118 @@ public class DiabPlusMain {
 	        	BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
 	        }
 
-	        final SecondOrderParamsRepository secParams = loadJSON(args1.nPatients, args1.inputJSONFileName);
-	    	final String validity = secParams.checkValidity();
-	    	final SecondOrderChronicComplicationSubmodel[] chronicSubmodels = secParams.getRegisteredChronicComplications();
-	    	final SecondOrderAcuteComplicationSubmodel[] acuteSubmodels = secParams.getRegisteredAcuteComplications();
-	    	for (final String compName : args1.disable) {
-	    		boolean found = false;
-	    		for (final DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
-	    			if (comp.name().equals(compName)) {
-	    				found = true;
-	    				chronicSubmodels[comp.ordinal()].disable();
-	    			}
-	    		}
-	    		if (!found) {
-		    		for (final DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
-		    			if (comp.name().equals(compName)) {
-		    				found = true;
-		    				acuteSubmodels[comp.ordinal()].disable();
-		    			}
-		    		}
-	    		}
-	    		if (!found) {
-	    			throw new ParameterException("Error using the disable submodel option: could not find complication \"" + compName + "\".");
-	    		}
-	    	}
-	    	if (validity == null) {
-		    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
-	    		final EnumSet<Outputs> printOutputs = EnumSet.noneOf(Outputs.class);
-	    		if (args1.bi)
-	    			printOutputs.add(Outputs.BI);
-	    		if (args1.individualOutcomes)
-	    			printOutputs.add(Outputs.INDIVIDUAL_OUTCOMES);
-	    		if (args1.breakdownCost)
-	    			printOutputs.add(Outputs.BREAKDOWN_COST);
-	    		final Discount discountCost;
-	    		final Discount discountEffect;
-	    		if (args1.discount.size() == 0) {
-		    		discountCost = new StdDiscount(BasicConfigParams.DEF_DISCOUNT_RATE);
-		    		discountEffect = new StdDiscount(BasicConfigParams.DEF_DISCOUNT_RATE);
-	    		}
-	    		else if (args1.discount.size() == 1) {
-	    			final double value = args1.discount.get(0);
-	    			discountCost = (value == 0.0) ? Discount.zeroDiscount : new StdDiscount(value);
-	    			discountEffect = (value == 0.0) ? Discount.zeroDiscount : new StdDiscount(value);
-	    		}
-	    		else {
-	    			final double valueCost = args1.discount.get(0);
-	    			final double valueEffect = args1.discount.get(1);
-	    			discountCost = (valueCost == 0.0) ? Discount.zeroDiscount : new StdDiscount(valueCost);
-	    			discountEffect = (valueEffect == 0.0) ? Discount.zeroDiscount : new StdDiscount(valueEffect);
-	    		}
-	    		final ArrayList<EpidemiologicOutputFormat> formats = new ArrayList<>();
-	    		for (final String format : args1.epidem) {
-	    			final EpidemiologicOutputFormat f = EpidemiologicOutputFormat.build(format);
-	    			if (f != null)
-	    				formats.add(f);
-	    		}
-	    		
-	    		// Set outputs: different files for simulation outputs and for other outputs. If no file name is specified or an error arises, standard output is used
-				PrintWriter out;
-				PrintWriter outListeners;
-				PrintWriter outJSON;
-		        final String outputJSONFileName = (args1.outputJSONFileName == null) ? "out.json" : args1.outputJSONFileName;
-				try {
-					outJSON = new PrintWriter(new BufferedWriter(new FileWriter(outputJSONFileName)));
-				} catch (IOException e1) {
-					outJSON = new PrintWriter(System.out);
-					e1.printStackTrace();
+    		final EnumSet<Outputs> printOutputs = EnumSet.noneOf(Outputs.class);
+    		if (args1.bi)
+    			printOutputs.add(Outputs.BI);
+    		if (args1.breakdownCost)
+    			printOutputs.add(Outputs.BREAKDOWN_COST);
+    		final Discount discountCost;
+    		final Discount discountEffect;
+    		if (args1.discount.size() == 0) {
+	    		discountCost = new StdDiscount(BasicConfigParams.DEF_DISCOUNT_RATE);
+	    		discountEffect = new StdDiscount(BasicConfigParams.DEF_DISCOUNT_RATE);
+    		}
+    		else if (args1.discount.size() == 1) {
+    			final double value = args1.discount.get(0);
+    			discountCost = (value == 0.0) ? Discount.zeroDiscount : new StdDiscount(value);
+    			discountEffect = (value == 0.0) ? Discount.zeroDiscount : new StdDiscount(value);
+    		}
+    		else {
+    			final double valueCost = args1.discount.get(0);
+    			final double valueEffect = args1.discount.get(1);
+    			discountCost = (valueCost == 0.0) ? Discount.zeroDiscount : new StdDiscount(valueCost);
+    			discountEffect = (valueEffect == 0.0) ? Discount.zeroDiscount : new StdDiscount(valueEffect);
+    		}
+    		final ArrayList<EpidemiologicOutputFormat> formats = new ArrayList<>();
+    		for (final String format : args1.epidem) {
+    			final EpidemiologicOutputFormat f = EpidemiologicOutputFormat.build(format);
+    			if (f != null)
+    				formats.add(f);
+    		}
+    		
+    		// Set outputs: different files for simulation outputs and for other outputs. If no file name is specified or an error arises, standard output is used
+			PrintWriter out;
+			PrintWriter outListeners;
+	        if (args1.outputFileName == null) {
+	        	out = new PrintWriter(System.out);
+	        	outListeners = out;
+	        }
+	        else  {
+	        	try {
+	        		out = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName)));
+				} catch (IOException e) {
+					e.printStackTrace();
+					out = new PrintWriter(System.out);
 				}
-		        if (args1.outputFileName == null) {
-		        	out = new PrintWriter(System.out);
-		        	outListeners = out;
-		        }
-		        else  {
+	        	if (formats.size() > 0 || printOutputs.size() > 0) { 
 		        	try {
-		        		out = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName)));
+		        		outListeners = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName + OUTPUTS_SUFIX)));
 					} catch (IOException e) {
 						e.printStackTrace();
-						out = new PrintWriter(System.out);
+						outListeners = new PrintWriter(System.out);
 					}
-		        	if (formats.size() > 0 || printOutputs.size() > 0) { 
-			        	try {
-			        		outListeners = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName + OUTPUTS_SUFIX)));
-						} catch (IOException e) {
-							e.printStackTrace();
-							outListeners = new PrintWriter(System.out);
-						}
-		        	}
-		        	else {
-						outListeners = new PrintWriter(System.out);		        		
-		        	}
+	        	}
+	        	else {
+					outListeners = new PrintWriter(System.out);		        		
+	        	}
 
-		        }
-
-	    		final DiabPlusMain experiment = new DiabPlusMain(out, outListeners, outJSON, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs, formats);
-		        experiment.run();
+	        }
+	    	
+	        final int[] HBA1C_LIMITS = new int[] {8, 14};
+	    	final int[] AGE_LIMITS = new int[] {20, 25};
+	    	final int[] DURATION_LIMITS = new int[] {10, 20};
+	    	final boolean man = true;
+	    	final double hypoRate = 2.0;
+	    	
+			if (!args1.quiet)
+				out.println(BasicConfigParams.printOptions());
+	        
+			long t = System.currentTimeMillis();	    	
+	    	for (int age = AGE_LIMITS[0]; age <= AGE_LIMITS[1]; age++) {
+	    		for (int duration = DURATION_LIMITS[0]; duration <= DURATION_LIMITS[1]; duration++) {
+	    	        if (!args1.quiet)
+	    	        	System.out.println("Experiment for age=" + age + "-duration=" + duration);
+	    	    	final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man, HBA1C_LIMITS[0], age, duration, hypoRate);
+	    	        final SecondOrderParamsRepository secParams = new DiabPlusExplorationSecondOrderRepository(args1.nPatients, population, HBA1C_LIMITS);
+	    	    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
+	    	    	final String validity = secParams.checkValidity();
+	    	    	final SecondOrderChronicComplicationSubmodel[] chronicSubmodels = secParams.getRegisteredChronicComplications();
+	    	    	final SecondOrderAcuteComplicationSubmodel[] acuteSubmodels = secParams.getRegisteredAcuteComplications();
+	    	    	for (final String compName : args1.disable) {
+	    	    		boolean found = false;
+	    	    		for (final DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+	    	    			if (comp.name().equals(compName)) {
+	    	    				found = true;
+	    	    				chronicSubmodels[comp.ordinal()].disable();
+	    	    			}
+	    	    		}
+	    	    		if (!found) {
+	    		    		for (final DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+	    		    			if (comp.name().equals(compName)) {
+	    		    				found = true;
+	    		    				acuteSubmodels[comp.ordinal()].disable();
+	    		    			}
+	    		    		}
+	    	    		}
+	    	    		if (!found) {
+	    	    			throw new ParameterException("Error using the disable submodel option: could not find complication \"" + compName + "\".");
+	    	    		}
+	    	    	}
+	    	    	if (validity == null) {
+	    	    		final DiabPlusExplorationMain experiment = new DiabPlusExplorationMain(out, outListeners, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs, formats, age, duration);
+	    		        experiment.run();
+	    	    	}
+	    	    	else {
+	    	    		System.err.println("Could not validate model");
+	    	    		System.err.println(validity);
+	    	    	}	    			
+	    		}
 	    	}
-	    	else {
-	    		System.err.println("Could not validate model");
-	    		System.err.println(validity);
-	    	}
+			
+	        if (!args1.quiet)
+	        	System.out.println("Execution time: " + ((System.currentTimeMillis() - t) / 1000) + " sec");
+	        out.close();
+	        outListeners.close();
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
 			ex.usage();
@@ -625,15 +553,9 @@ public class DiabPlusMain {
 			System.out.println(ex.getMessage());
 			System.exit(-1);
 		}
-		
-
 	}
 	
 	private static class Arguments {
-		@Parameter(description = "Name of the input JSON file name", order = 1)
-		private String inputJSONFileName = System.getProperty("user.dir") + "\\src\\es\\ull\\iis\\simulation\\hta\\diabetes\\diabplus\\test_patient1.json";
-		@Parameter(names ={"--outputjson", "-jout"}, description = "Name of the output JSON file name", order = 1)
-		private String outputJSONFileName = null;
 		@Parameter(names ={"--output", "-o"}, description = "Name of the output file name", order = 1)
 		private String outputFileName = null;
 		@Parameter(names ={"--patients", "-n"}, description = "Number of patients to test", order = 2)
@@ -654,8 +576,6 @@ public class DiabPlusMain {
 		 "\t- An optional number that indicates interval size (in years) (Default: 1)", order = 9)
 		private List<String> epidem = new ArrayList<>();
 		
-		@Parameter(names ={"--outcomes", "-po"}, description = "Enables printing individual outcomes", order = 9)
-		private boolean individualOutcomes = false;
 		@Parameter(names ={"--costs", "-pbc"}, description = "Enables printing breakdown of costs", order = 9)
 		private boolean breakdownCost = false;
 		@Parameter(names ={"--budget", "-pbi"}, description = "Enables printing budget impact", order = 9)
