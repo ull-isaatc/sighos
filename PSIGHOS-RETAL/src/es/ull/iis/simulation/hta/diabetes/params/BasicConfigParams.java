@@ -50,11 +50,11 @@ public class BasicConfigParams {
 	/** If true, uses the CHD submodel that includes death by the acute events */
 	public static boolean USE_CHD_DEATH_MODEL = true;
 	/** If true, all the patients start with the same age; otherwise, uses a probability distribution to assign ages */ 
-	public static boolean USE_FIXED_BASELINE_AGE = false;
+	public static boolean USE_FIXED_BASELINE_AGE = true;
 	/** If true, all the patients start with the same duration of diabetes; otherwise, uses a probability distribution to assign the duration */ 
-	public static boolean USE_FIXED_BASELINE_DURATION_OF_DIABETES = false;
+	public static boolean USE_FIXED_BASELINE_DURATION_OF_DIABETES = true;
 	/** If true, all the patients start with the same level of HbA1c; otherwise, uses a probability distribution to assign the level */ 
-	public static boolean USE_FIXED_BASELINE_HBA1C = false;
+	public static boolean USE_FIXED_BASELINE_HBA1C = true;
 	/** If true, the change in HbA1c for all the patients is fixed; otherwise, uses a probability distribution to assign the level */ 
 	public static boolean USE_FIXED_HBA1C_CHANGE = false;
 	/** If true, uses the calibrated progression to BGRET equations in the Sheffield submodel; otherwise, uses the original values */

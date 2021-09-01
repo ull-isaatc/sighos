@@ -206,6 +206,10 @@ public class T1DMDisease extends StandardDisease {
 			addProgression(bgret, pret, true);
 			addProgression(me, true);
 			addProgression(bgret, me, true);
+			// Manually adds a second pathway to ME from PRET that uses the same risk than BGRET, in case BGRET is ommited 
+			final TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(bgret, me), secParams, me, new SheffieldComplicationRR(SecondOrderParamsRepository.getRRString(me)));
+			final PathwayCondition cond = new PreviousManifestationCondition(pret);
+			new ManifestationPathway(secParams, me, cond, tte);
 			addProgression(bli, false);
 			addProgression(bgret, bli, false);
 			addProgression(pret, bli, false);
