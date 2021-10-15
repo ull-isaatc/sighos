@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.progression;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
@@ -56,7 +57,10 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	 * developing the manifestation; a set of random numbers in case the manifestation is acute and can recur */
 	private final RandomSeedForPatients[] randomSeeds;
 
+	/** The different ways to develop the manifestation */
 	private final ArrayList<ManifestationPathway> pathways;
+	/** A set of labels that may be assigned to this manifestation. Labels serve to group related manifestations */
+	private final TreeSet<Named> labels;
 
 	/**
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
@@ -95,6 +99,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
 		Arrays.fill(randomSeeds, null);
 		this.pathways = new ArrayList<>();
+		this.labels = new TreeSet<Named>();
 	}
 	
 	/**
@@ -251,6 +256,23 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	 */
 	public void addPathway(ManifestationPathway pathway) {
 		pathways.add(pathway);		
+	}
+	
+	/**
+	 * Adds a new label to this manifestation
+	 * @param label New label
+	 */
+	public void addLabel(Named label) {
+		labels.add(label);
+	}
+	
+	/**
+	 * Returns true if the manifestation defines the specified label
+	 * @param label A label
+	 * @return true if the manifestation defines the specified label
+	 */
+	public boolean definesLabel(Named label) {
+		return (labels.contains(label));
 	}
 	
 	/**

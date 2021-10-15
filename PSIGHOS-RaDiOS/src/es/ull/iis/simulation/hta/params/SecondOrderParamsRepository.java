@@ -106,7 +106,7 @@ public abstract class SecondOrderParamsRepository {
 	final protected int nPatients;
 	/** The registeredPopulation */
 	private Population registeredPopulation = null;
-	/** The number of simulations to run by using this repository */
+	/** The number of probabilistic simulations to run by using this repository */
 	final private int nRuns;
 	/** Absence of progression */
 	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
@@ -304,7 +304,8 @@ public abstract class SecondOrderParamsRepository {
 	}
 
 	/**
-	 * @return the nRuns
+	 * Returns the number of probabilistic simulations to run by using this repository
+	 * @return The number of probabilistic simulations to run by using this repository
 	 */
 	public int getnRuns() {
 		return nRuns;

@@ -37,6 +37,8 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	private final String name;
 	/** Full description of the disease */
 	private final String description;
+	/** A collection of manifestations with a specific label */
+	protected final TreeMap<Named, ArrayList<Manifestation>> labeledManifestations;
 	
 	/**
 	 * Creates a submodel for a disease.
@@ -47,6 +49,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 		this.exclusions = new TreeMap<>();
 		this.name = name;
 		this.description = description;
+		this.labeledManifestations = new TreeMap<>();
 	}
 	
 	/**
@@ -107,6 +110,29 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 		TreeSet<Manifestation> excManif = new TreeSet<>();
 		exclusions.put(manif, excManif);
 		return manif;
+	}
+	
+	/**
+	 * Assigns a label to a manifestation
+	 * @param label ÇA label that identifies related manifestations
+	 * @param manif A manifestation of the disease
+	 */
+	public void assignLabel(Named label, Manifestation manif) {
+		if (!labeledManifestations.containsKey(label))
+			labeledManifestations.put(label, new ArrayList<>());
+		labeledManifestations.get(label).add(manif);
+		manif.addLabel(label);
+	}
+	
+	/**
+	 * Returns the manifestations labeled with label; an empty list in case the label has no related manifestations
+	 * @param label A label that identifies related manifestations
+	 * @return the manifestations labeled with label; an empty list in case the label has no related manifestations
+	 */
+	public ArrayList<Manifestation> getLabeledManifestations(Named label) {
+		if (!labeledManifestations.containsKey(label))
+			return new ArrayList<>();
+		return labeledManifestations.get(label); 
 	}
 	
 	/**
