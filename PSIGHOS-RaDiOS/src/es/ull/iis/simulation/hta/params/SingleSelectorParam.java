@@ -1,18 +1,27 @@
-package simkit.random;
+/**
+ * 
+ */
+package es.ull.iis.simulation.hta.params;
+
+import es.ull.iis.simulation.hta.Patient;
+import simkit.random.RandomNumber;
 
 /**
- * A class to select among different options. Returns the index of the option selected according to a set of initial frequencies.
+ * A parameter to select between N different options (labeled 0, 1, ..., N - 1). In a single simulation replication, the selection will be always the same for each patient
  * Adapted from "simkit.random.DiscreteIntegerVariate" (https://github.com/kastork/simkit-mirror/blob/master/src/simkit/random/DiscreteIntegerVariate.java)
- * @author Iván Castilla Rodríguez
+ * @author Iván Castilla
  *
  */
-final public class RandomIntegerSelector {
+public class SingleSelectorParam extends UniqueEventParam<Integer> {
 	private final double[] frequencies;
 	private final double[] cdf;
+
 	/**
-	 * 
+	 * @param rng Random number generator
+	 * @param nPatients Number of patients simulated
 	 */
-	public RandomIntegerSelector(double[] frequencies) {
+	public SingleSelectorParam(RandomNumber rng, int nPatients, double[] frequencies) {
+		super(rng, nPatients);
         this.frequencies = frequencies;
         this.normalize();
         cdf = new double[frequencies.length];
@@ -22,14 +31,11 @@ final public class RandomIntegerSelector {
         }
 	}
 
-	/**
-	 * Returns the index that corresponds to the random value between 0 and 1 expressed as "uniform"
-	 * @param uniform A random number between 0 and 1
-	 * @return The index that corresponds to the specified random value 
-	 */
-	public int generate(double uniform) {
+	@Override
+	public Integer getValue(Patient pat) {
 		int index;
-		for (index = 0; (uniform > cdf[index]) && (index < cdf.length - 1); index++) ;
+		final double rnd = draw(pat);
+		for (index = 0; (rnd > cdf[index]) && (index < cdf.length - 1); index++) ;
 		return index;
 	}
 
