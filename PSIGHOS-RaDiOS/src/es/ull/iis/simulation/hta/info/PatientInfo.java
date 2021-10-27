@@ -21,10 +21,11 @@ public class PatientInfo extends AsynchronousInfo {
 	/** Possible types of pieces of information */
 	public enum Type {
 			START ("PATIENT STARTS"),
-			MANIFESTATION ("MANIFESTATION"),
-			DIAGNOSIS ("PATIENT_DIAGNOSED"),
-			SCREEN ("PATIENT_SCREENED"),
-			DEATH ("PATIENT_DIES");
+			START_MANIF ("MANIFESTATION STARTS"),
+			END_MANIF ("MANIFESTATION ENDS"),
+			DIAGNOSIS ("PATIENT DIAGNOSED"),
+			SCREEN ("PATIENT SCREENED"),
+			DEATH ("PATIENT DIES");
 			
 			private final String description;
 			
@@ -72,14 +73,26 @@ public class PatientInfo extends AsynchronousInfo {
 	}
 
 	/**
-	 * Piece of information related to a chronic manifestation
+	 * Piece of information related to the onset of a manifestation
 	 * @param simul Simulation that emits this piece of information 
 	 * @param patient A patients
-	 * @param manifestation Chronic manifestation stage (in case the simulation is reporting a manifestation-related piece of information)
+	 * @param manifestation A manifestation
 	 * @param ts Simulation time when this piece of information occurs
 	 */
 	public PatientInfo(Simulation simul, Patient patient, Manifestation complication, long ts) {
-		this(simul, patient, Type.MANIFESTATION, complication, ts);
+		this(simul, patient, complication, ts, false);
+	}
+
+	/**
+	 * Piece of information related to the onset or ending of a manifestation
+	 * @param simul Simulation that emits this piece of information 
+	 * @param patient A patients
+	 * @param manifestation A manifestation
+	 * @param ts Simulation time when this piece of information occurs
+	 * @param end True if the piece of information refers to a manifestation that the patient will no longer suffer; false in the case of the onset of the manifestation
+	 */
+	public PatientInfo(Simulation simul, Patient patient, Manifestation complication, long ts, boolean end) {
+		this(simul, patient, end ? Type.END_MANIF : Type.START_MANIF, complication, ts);
 	}
 
 	/**
@@ -118,7 +131,7 @@ public class PatientInfo extends AsynchronousInfo {
 	public String toString() {
 		String description = type.getDescription();
 		switch (type) {
-		case MANIFESTATION:
+		case START_MANIF:
 		case DIAGNOSIS:
 		case SCREEN:
 			description = description + "\t" + cause.name();

@@ -437,7 +437,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 					Patient.this.state.add(manifestation);
 					// Removes chronic manifestations excluded by the new one
 					for (Manifestation excluded : getDisease().getExcluded(manifestation)) {
-						Patient.this.state.remove(excluded);						
+						if (Patient.this.state.remove(excluded))						
+							simul.notifyInfo(new PatientInfo(simul, Patient.this, excluded, this.getTs(), true));
 					}
 				}
 
