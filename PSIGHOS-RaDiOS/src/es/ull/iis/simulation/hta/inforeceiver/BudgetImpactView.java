@@ -134,7 +134,7 @@ public class BudgetImpactView implements ExperimentListener {
 						case SCREEN:
 							update(calc.getCostForIntervention(pat), endAge);
 							break;
-						case MANIFESTATION:
+						case START_MANIF:
 							update(calc.getCostOfManifestation(pat, pInfo.getManifestation()), endAge);
 						case DEATH:
 						case START:

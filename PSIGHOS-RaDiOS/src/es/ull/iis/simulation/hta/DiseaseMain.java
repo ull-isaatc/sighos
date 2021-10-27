@@ -600,7 +600,7 @@ public class DiseaseMain {
 	/**
 	 * A class to print the progression of the simulations
 	 * 
-	 * @author Ivï¿½n Castilla Rodrï¿½guez
+	 * @author Iván Castilla Rodríguez
 	 *
 	 */
 	private class PrintProgress {
@@ -730,7 +730,7 @@ public class DiseaseMain {
 			boolean useProgramaticArguments = true;
 			boolean allAffected = true;
 			double utilityGeneralPopulation = 0.8861;
-			String params = "-n 20000 -r 0 -pop 3 -y 2019 -q -po"; // Testing diabetes
+			String params = "-n 20000 -r 0 -pop 3 -y 2019 -q -ep pr"; // Testing diabetes
 //			String params = "-n 5000 -r 0 -pop 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
 //			String params = "-n 100 -r 0 -dr 0 -q -pop 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 			

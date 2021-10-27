@@ -118,7 +118,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 					case START:
 						nAlivePatients[interval]++;
 						break;
-					case MANIFESTATION:
+					case START_MANIF:
 						nManifestation[pInfo.getManifestation().ordinal()][interval]++;
 						break;
 					case DEATH:

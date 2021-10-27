@@ -78,7 +78,7 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 			// Update lastTs
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {
-			case MANIFESTATION:
+			case START_MANIF:
 				if (Manifestation.Type.ACUTE.equals(pInfo.getManifestation().getType())) {
 					update(pat, -calc.getPunctualDisutilityValue(pat, pInfo.getManifestation()), endAge);
 				}
