@@ -36,6 +36,8 @@ public class AnnualCostView implements ExperimentListener {
 	private final double[][][] diseaseCost;
 	private final double[][] interventionCost;
 	private final double[][] managementCost;
+	/** A flag to indicate whether the results have been processed after finishing the experiment */
+	private boolean resultsReady;
 	
 	/**
 	 * 
@@ -52,6 +54,7 @@ public class AnnualCostView implements ExperimentListener {
 		diseaseCost = new double[nInterventions][secParams.getRegisteredDiseases().length][maxAge-minAge+1];
 		interventionCost = new double[nInterventions][maxAge-minAge+1];
 		managementCost = new double[nInterventions][maxAge-minAge+1];
+		resultsReady = false;
 	}
 
 	@Override
@@ -59,29 +62,48 @@ public class AnnualCostView implements ExperimentListener {
 		final CostCalculator calc = secParams.getCostCalculator();
 		simul.addInfoReceiver(new InnerListenerInstance(calc));
 	}
-	
+
 	@Override
-	public String toString() {
-		final StringBuilder str = new StringBuilder("Breakdown of costs");
-		str.append(System.lineSeparator()).append("Year");
-		for (int i = 0; i < interventions.length; i++) {
-			final String name = interventions[i].name();
-			str.append("\t").append(name).append("-I\t" + name + "-M");
-			for (Disease disease : secParams.getRegisteredDiseases()) {
-				str.append("\t" + name + "-").append(disease);
-			}
-		}
+	public void notifyEndExperiments() {
 		for (int year = 0; year < maxAge-minAge+1; year++) {
-			str.append(System.lineSeparator()).append(year);
 			for (int i = 0; i < interventions.length; i++) {
-				str.append("\t").append(String.format(Locale.US, "%.2f", interventionCost[i][year] /nExperiments));
-				str.append("\t").append(String.format(Locale.US, "%.2f", managementCost[i][year] /nExperiments));
+				interventionCost[i][year] /= nExperiments;
+				managementCost[i][year] /= nExperiments;
 				for (int k = 0; k < secParams.getRegisteredDiseases().length; k++) {
-					str.append("\t").append(String.format(Locale.US, "%.2f", diseaseCost[i][k][year] / nExperiments));
+					diseaseCost[i][k][year] /= nExperiments;
 				}
 			}
 		}
-		return str.toString();
+		resultsReady = true;
+	}
+	
+	@Override
+	public String toString() {
+		if (resultsReady) {
+			final StringBuilder str = new StringBuilder("Breakdown of costs");
+			str.append(System.lineSeparator()).append("Year");
+			for (int i = 0; i < interventions.length; i++) {
+				final String name = interventions[i].name();
+				str.append("\t").append(name).append("-I\t" + name + "-M");
+				for (Disease disease : secParams.getRegisteredDiseases()) {
+					str.append("\t" + name + "-").append(disease);
+				}
+			}
+			for (int year = 0; year < maxAge-minAge+1; year++) {
+				str.append(System.lineSeparator()).append(year);
+				for (int i = 0; i < interventions.length; i++) {
+					str.append("\t").append(String.format(Locale.US, "%.2f", interventionCost[i][year] /nExperiments));
+					str.append("\t").append(String.format(Locale.US, "%.2f", managementCost[i][year] /nExperiments));
+					for (int k = 0; k < secParams.getRegisteredDiseases().length; k++) {
+						str.append("\t").append(String.format(Locale.US, "%.2f", diseaseCost[i][k][year] / nExperiments));
+					}
+				}
+			}
+			return str.toString();
+		}
+		else {
+			return "Annual cost listener: RESULTS NOT READY";
+		}
 	}
 	
 	/**

@@ -381,6 +381,7 @@ public class DiseaseMain {
 			outListeners.println("Base case");
 			outListeners.println(BasicConfigParams.STR_SEP);
 			for (ExperimentListener listener : baseCaseExpListeners) {
+				listener.notifyEndExperiments();
 				outListeners.println(listener);
 			}
 		}
@@ -411,6 +412,7 @@ public class DiseaseMain {
 				outListeners.println("PSA");
 				outListeners.println(BasicConfigParams.STR_SEP);
 				for (ExperimentListener listener : expListeners) {
+					listener.notifyEndExperiments();
 					outListeners.println(listener);
 				}
 			}
@@ -730,7 +732,7 @@ public class DiseaseMain {
 			boolean useProgramaticArguments = true;
 			boolean allAffected = true;
 			double utilityGeneralPopulation = 0.8861;
-			String params = "-n 20000 -r 0 -pop 3 -y 2019 -q -ep pr"; // Testing diabetes
+			String params = "-n 20000 -r 0 -pop 3 -y 2019 -q -ep ca cr"; // Testing diabetes
 //			String params = "-n 5000 -r 0 -pop 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
 //			String params = "-n 100 -r 0 -dr 0 -q -pop 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 			
