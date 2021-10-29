@@ -79,6 +79,9 @@ public class EpidemiologicView implements ExperimentListener {
 	private final int minAge;
 	/** Length of the intervals (in years) */
 	private final int length;
+	/** A flag to indicate whether the results have been processed after finishing the experiment */
+	private boolean resultsReady;
+	private final EpidemiologicCalculator calc; 
 
 	/**
 	 * Creates a epidemiologic viewer
@@ -94,6 +97,18 @@ public class EpidemiologicView implements ExperimentListener {
 		this.byAge = byAge;
 		this.format = (absolute || nExperiments != 1) ? "%.0f" : "%.2f";
 		this.type = type;
+		switch(type) {
+		case CUMUL_INCIDENCE:
+			calc = new CummIncidenceCalculator();
+			break;
+		case PREVALENCE:
+			calc = new PrevalenceCalculator();
+			break;
+		case INCIDENCE:
+		default:
+			calc = new IncidenceCalculator();
+			break;		
+		}
 		this.nExperiments = nExperiments;
 		this.secParams = secParams;
 		this.nPatients = secParams.getnPatients();
@@ -107,6 +122,7 @@ public class EpidemiologicView implements ExperimentListener {
 		nManifestation = new double[nInterventions][secParams.getRegisteredManifestations().length][nIntervals];
 		nDisease = new double[nInterventions][secParams.getRegisteredDiseases().length][nIntervals];
 		nDeathsByCause = new HashMap<>();
+		this.resultsReady = false;
 	}
 
 	@Override
@@ -115,45 +131,56 @@ public class EpidemiologicView implements ExperimentListener {
 	}
 
 	@Override
+	public void notifyEndExperiments() {
+		calc.notifyEndExperiments();
+		resultsReady = true;
+	}
+	
+	@Override
 	public String toString() {
-		final StringBuilder str = new StringBuilder(type.getDescription()).append(absolute ? " ABS" : " REL").append(byAge ? " AGE" : "");
-		str.append(System.lineSeparator()).append(byAge ? "AGE" : "YEAR");
-		for (int i = 0; i < interventions.length; i++) {
-			final String name = interventions[i].name();
-			if (byAge)
-				str.append("\t" + name + "_N");
-			str.append("\t" + name + "_DEATH");
-			for (final Named cause : nDeathsByCause.keySet()) {
-				str.append("\t" + name + "_DEATH_" + cause);				
-			}
-			for (Disease dis : secParams.getRegisteredDiseases()) {
-				str.append("\t" + name + "_").append(dis.name());
-			}
-			for (Manifestation comp : secParams.getRegisteredManifestations()) {
-				str.append("\t" + name + "_").append(comp.name());
-			}
-		}
-		str.append(System.lineSeparator());
-		for (int year = 0; year < nIntervals; year++) {
-			str.append(byAge ? (length * year) + minAge : (length *year));
+		if (resultsReady) {
+			final StringBuilder str = new StringBuilder(type.getDescription()).append(absolute ? " ABS" : " REL").append(byAge ? " AGE" : "");
+			str.append(System.lineSeparator()).append(byAge ? "AGE" : "YEAR");
 			for (int i = 0; i < interventions.length; i++) {
-				if (byAge) {
-					str.append("\t").append(String.format(Locale.US, format, nBirths[i][year] / (double)nExperiments));					
-				}
-				str.append("\t").append(String.format(Locale.US, format, nDeaths[i][year] / (double)nExperiments));
+				final String name = interventions[i].name();
+				if (byAge)
+					str.append("\t" + name + "_N");
+				str.append("\t" + name + "_DEATH");
 				for (final Named cause : nDeathsByCause.keySet()) {
-					str.append("\t").append(String.format(Locale.US, format, nDeathsByCause.get(cause)[i][year] / (double)nExperiments));
+					str.append("\t" + name + "_DEATH_" + cause);				
 				}
-				for (int j = 0; j < nDisease[i].length; j++) {
-					str.append("\t").append(String.format(Locale.US, format, nDisease[i][j][year] / (double)nExperiments));
+				for (Disease dis : secParams.getRegisteredDiseases()) {
+					str.append("\t" + name + "_").append(dis.name());
 				}
-				for (int j = 0; j < nManifestation[i].length; j++) {
-					str.append("\t").append(String.format(Locale.US, format, nManifestation[i][j][year] / (double)nExperiments));
+				for (Manifestation comp : secParams.getRegisteredManifestations()) {
+					str.append("\t" + name + "_").append(comp.name());
 				}
 			}
 			str.append(System.lineSeparator());
+			for (int year = 0; year < nIntervals; year++) {
+				str.append(byAge ? (length * year) + minAge : (length *year));
+				for (int i = 0; i < interventions.length; i++) {
+					if (byAge) {
+						str.append("\t").append(String.format(Locale.US, format, nBirths[i][year]));					
+					}
+					str.append("\t").append(String.format(Locale.US, format, nDeaths[i][year]));
+					for (final Named cause : nDeathsByCause.keySet()) {
+						str.append("\t").append(String.format(Locale.US, format, nDeathsByCause.get(cause)[i][year]));
+					}
+					for (int j = 0; j < nDisease[i].length; j++) {
+						str.append("\t").append(String.format(Locale.US, format, nDisease[i][j][year]));
+					}
+					for (int j = 0; j < nManifestation[i].length; j++) {
+						str.append("\t").append(String.format(Locale.US, format, nManifestation[i][j][year]));
+					}
+				}
+				str.append(System.lineSeparator());
+			}
+			return str.toString();
 		}
-		return str.toString();
+		else {
+			return "Epidemiologic listener: RESULTS NOT READY";
+		}
 	}
 	
 	/**
@@ -178,15 +205,12 @@ public class EpidemiologicView implements ExperimentListener {
 		private final int[][] nEndDisease;
 		/** For each disease and patient, true if a patient already has the disease */ 
 		private final boolean[][] patientDisease;
-		/** A factor to compute results, either absolute or relative */
-		private final double n;
 
 		/**
 		 * Creates a listener for incidence, associated to a simulation
 		 */
 		public InnerListenerInstance() {
 			super("Viewer for incidence or prevalence");
-			n = (absolute) ? 1 : nPatients;
 			nDeaths = new int[nIntervals];
 			nDeathsByCause = new HashMap<>();			
 			nBirths = new int[nIntervals];
@@ -210,7 +234,7 @@ public class EpidemiologicView implements ExperimentListener {
 			else if (info instanceof PatientInfo) {
 				final PatientInfo pInfo = (PatientInfo) info;
 				final Patient pat = (Patient)pInfo.getPatient();
-				final int interval = byAge ? (int)((pat.getAge() - minAge) / length) : (int)(pInfo.getTs() / BasicConfigParams.YEAR_CONVERSION);
+				final int interval = byAge ? (int)((pat.getAge() - minAge) / length) : (int)Math.ceil((pInfo.getTs() / BasicConfigParams.YEAR_CONVERSION));
 				switch(pInfo.getType()) {
 					case START:
 						nBirths[interval]++;
@@ -251,99 +275,264 @@ public class EpidemiologicView implements ExperimentListener {
 
 		@Override
 		public synchronized void updateExperiment(DiseaseProgressionSimulation simul) {
+			calc.updateExperiment(simul, this);
+		}
+
+	}
+	
+	private interface EpidemiologicCalculator {
+		public void updateExperiment(DiseaseProgressionSimulation simul, InnerListenerInstance listener);
+		public void notifyEndExperiments();
+	}
+
+	private class IncidenceCalculator implements EpidemiologicCalculator {
+
+		@Override
+		public void updateExperiment(DiseaseProgressionSimulation simul, InnerListenerInstance listener) {
 			final int interventionId = simul.getIntervention().ordinal();
-			for (final Named cause : nDeathsByCause.keySet()) {
+			for (final Named cause : listener.nDeathsByCause.keySet()) {
 				if (!EpidemiologicView.this.nDeathsByCause.containsKey(cause)) {
 					EpidemiologicView.this.nDeathsByCause.put(cause, new double[interventions.length][nIntervals]);
 				}
 			}
-			if (Type.INCIDENCE.equals(type)) {
-				for (int i = 0; i < nIntervals; i++) {
-					EpidemiologicView.this.nBirths[interventionId][i] += nBirths[i] / n;
-					EpidemiologicView.this.nDeaths[interventionId][i] += nDeaths[i] / n;
-					for (final Named cause : nDeathsByCause.keySet()) {
-						EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][i] += nDeathsByCause.get(cause)[i] / n;
-					}
-					for (int j = 0; j < nDisease.length; j++) {
-						EpidemiologicView.this.nDisease[interventionId][j][i] += nDisease[j][i] / n;
-					}
-					for (int j = 0; j < nManifestation.length; j++) {
-						EpidemiologicView.this.nManifestation[interventionId][j][i] += nManifestation[j][i] / n;
-					}
-				}			
-			}
-			else if (Type.PREVALENCE.equals(type)) {
-				// First process base time interval
-				double accDeaths = nDeaths[0];
-				double accPatients = nBirths[0];
-				final double []accManifestation = new double[nManifestation.length];
-				final double []accDisease = new double[nDisease.length];
-				final HashMap<Named, Double> accDeathsByCause = new HashMap<>();
-				for (final Named cause : nDeathsByCause.keySet()) {
-					accDeathsByCause.put(cause, (double)nDeathsByCause.get(cause)[0]);
-					EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][0] = accDeathsByCause.get(cause) / n;
+			for (int i = 0; i < nIntervals; i++) {
+				EpidemiologicView.this.nBirths[interventionId][i] += listener.nBirths[i];
+				EpidemiologicView.this.nDeaths[interventionId][i] += listener.nDeaths[i];
+				for (final Named cause : listener.nDeathsByCause.keySet()) {
+					EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][i] += listener.nDeathsByCause.get(cause)[i];
 				}
-				EpidemiologicView.this.nDeaths[interventionId][0] = accDeaths / n;
-				EpidemiologicView.this.nBirths[interventionId][0] = accPatients / n;
-				for (int j = 0; j < nDisease.length; j++) {
-					accDisease[j] = nDisease[j][0];
-					EpidemiologicView.this.nDisease[interventionId][j][0] = accDisease[j] / n;
+				for (int j = 0; j < listener.nDisease.length; j++) {
+					EpidemiologicView.this.nDisease[interventionId][j][i] += listener.nDisease[j][i];
 				}
-				for (int j = 0; j < nManifestation.length; j++) {
-					accManifestation[j] = nManifestation[j][0];
-					EpidemiologicView.this.nManifestation[interventionId][j][0] = accManifestation[j] / n;
+				for (int j = 0; j < listener.nManifestation.length; j++) {
+					EpidemiologicView.this.nManifestation[interventionId][j][i] += listener.nManifestation[j][i];
 				}
-				// Now process the rest of time intervals
-				for (int i = 1; i < nIntervals; i++) {
-					accPatients += nBirths[i];
-					accDeaths += nDeaths[i];
-					EpidemiologicView.this.nDeaths[interventionId][i] += accDeaths / n;
-					EpidemiologicView.this.nBirths[interventionId][i] += accPatients / n;
-					for (final Named cause : nDeathsByCause.keySet()) {
-						accDeathsByCause.put(cause, accDeathsByCause.get(cause) + nDeathsByCause.get(cause)[i]);
-						EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][i] += accDeathsByCause.get(cause) / n;
-					}
-					for (int j = 0; j < nDisease.length; j++) {
-						accDisease[j] += nDisease[j][i] - nEndDisease[j][i-1];
-						EpidemiologicView.this.nDisease[interventionId][j][i] += accDisease[j] / n;
-					}
-					for (int j = 0; j < nManifestation.length; j++) {
-						accManifestation[j] += nManifestation[j][i] - nEndManifestation[j][i-1];
-						EpidemiologicView.this.nManifestation[interventionId][j][i] += accManifestation[j] / n;
+			}			
+		}
+
+		@Override
+		public void notifyEndExperiments() {
+			if (absolute) {
+				for (int year = 0; year < nIntervals; year++) {
+					for (int i = 0; i < interventions.length; i++) {
+						nBirths[i][year] /= (double)nExperiments;					
+						nDeaths[i][year] /= (double)nExperiments;
+						for (final Named cause : nDeathsByCause.keySet()) {
+							nDeathsByCause.get(cause)[i][year] /= (double)nExperiments;
+						}
+						for (int j = 0; j < nDisease[i].length; j++) {
+							nDisease[i][j][year] /= (double)nExperiments;
+						}
+						for (int j = 0; j < nManifestation[i].length; j++) {
+							nManifestation[i][j][year] /= (double)nExperiments;
+						}
 					}
 				}
 			}
 			else {
-				double accDeaths = 0.0;
-				final HashMap<Named, Double> accDeathsByCause = new HashMap<>();
-				for (final Named cause : nDeathsByCause.keySet()) {
-					accDeathsByCause.put(cause, 0.0);
-				}
-				double accPatients = 0.0;
-				final double []accManifestation = new double[nManifestation.length];
-				final double []accDisease = new double[nDisease.length];
-				for (int i = 0; i < nIntervals; i++) {
-					accPatients += nBirths[i];
-					accDeaths += nDeaths[i];
-					EpidemiologicView.this.nDeaths[interventionId][i] += accDeaths / n;
-					EpidemiologicView.this.nBirths[interventionId][i] += accPatients / n;
+				for (int i = 0; i < interventions.length; i++) {
+					int year = 0;
+					nBirths[i][year] /= (double)nExperiments;
+					double alive = nBirths[i][year];
+					System.out.println("" + year + "\t" + alive);
+					nDeaths[i][year] /= ((double)nExperiments * alive);
 					for (final Named cause : nDeathsByCause.keySet()) {
-						accDeathsByCause.put(cause, accDeathsByCause.get(cause) + nDeathsByCause.get(cause)[i]);
-						EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][i] += accDeathsByCause.get(cause) / n;
+						nDeathsByCause.get(cause)[i][year] /= ((double)nExperiments * alive);
 					}
-					for (int j = 0; j < nDisease.length; j++) {
-						accDisease[j] += nDisease[j][i];
-						EpidemiologicView.this.nDisease[interventionId][j][i] += accDisease[j] / n;
+					for (int j = 0; j < nDisease[i].length; j++) {
+						nDisease[i][j][year] /= ((double)nExperiments * alive);
 					}
-					for (int j = 0; j < nManifestation.length; j++) {
-						accManifestation[j] += nManifestation[j][i];
-						EpidemiologicView.this.nManifestation[interventionId][j][i] += accManifestation[j] / n;
+					for (int j = 0; j < nManifestation[i].length; j++) {
+						nManifestation[i][j][year] /= ((double)nExperiments * alive);
+					}
+					alive -= nDeaths[i][year];
+					year++;
+					for (; year < nIntervals; year++) {
+						System.out.println("" + year + "\t" + alive);
+						nBirths[i][year] /= (double)nExperiments;					
+						for (final Named cause : nDeathsByCause.keySet()) {
+							nDeathsByCause.get(cause)[i][year] /= ((double)nExperiments * alive);
+						}
+						for (int j = 0; j < nDisease[i].length; j++) {
+							nDisease[i][j][year] /= ((double)nExperiments * alive);
+						}
+						for (int j = 0; j < nManifestation[i].length; j++) {
+							nManifestation[i][j][year] /= ((double)nExperiments * alive);
+						}
+						alive += nBirths[i][year] - nDeaths[i][year];
+						nDeaths[i][year] /= ((double)nExperiments * (alive - nBirths[i][year] + nDeaths[i][year]));
 					}
 				}
-				
 			}
 		}
+		
+	}
 
+	private class CummIncidenceCalculator implements EpidemiologicCalculator {
+
+		@Override
+		public void updateExperiment(DiseaseProgressionSimulation simul, InnerListenerInstance listener) {
+			final int interventionId = simul.getIntervention().ordinal();
+			for (final Named cause : listener.nDeathsByCause.keySet()) {
+				if (!EpidemiologicView.this.nDeathsByCause.containsKey(cause)) {
+					EpidemiologicView.this.nDeathsByCause.put(cause, new double[interventions.length][nIntervals]);
+				}
+			}
+			for (int i = 0; i < nIntervals; i++) {
+				EpidemiologicView.this.nBirths[interventionId][i] += listener.nBirths[i];
+				EpidemiologicView.this.nDeaths[interventionId][i] += listener.nDeaths[i];
+				for (final Named cause : listener.nDeathsByCause.keySet()) {
+					EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][i] += listener.nDeathsByCause.get(cause)[i];
+				}
+				for (int j = 0; j < listener.nDisease.length; j++) {
+					EpidemiologicView.this.nDisease[interventionId][j][i] += listener.nDisease[j][i];
+				}
+				for (int j = 0; j < listener.nManifestation.length; j++) {
+					EpidemiologicView.this.nManifestation[interventionId][j][i] += listener.nManifestation[j][i];
+				}
+			}			
+		}
+
+		@Override
+		public void notifyEndExperiments() {
+			if (absolute) {
+				for (int i = 0; i < interventions.length; i++) {
+					int year = 0;
+					nBirths[i][year] /= (double)nExperiments;					
+					nDeaths[i][year] /= (double)nExperiments;
+					for (final Named cause : nDeathsByCause.keySet()) {
+						nDeathsByCause.get(cause)[i][year] /= (double)nExperiments;
+					}
+					for (int j = 0; j < nDisease[i].length; j++) {
+						nDisease[i][j][year] /= (double)nExperiments;
+					}
+					for (int j = 0; j < nManifestation[i].length; j++) {
+						nManifestation[i][j][year] /= (double)nExperiments;
+					}
+					year++;
+					for (; year < nIntervals; year++) {
+						nBirths[i][year] = nBirths[i][year - 1] + nBirths[i][year] / (double)nExperiments;					
+						nDeaths[i][year] = nDeaths[i][year - 1] + nDeaths[i][year] / (double)nExperiments;
+						for (final Named cause : nDeathsByCause.keySet()) {
+							nDeathsByCause.get(cause)[i][year] = nDeathsByCause.get(cause)[i][year - 1] + nDeathsByCause.get(cause)[i][year] / (double)nExperiments;
+						}
+						for (int j = 0; j < nDisease[i].length; j++) {
+							nDisease[i][j][year] = nDisease[i][j][year - 1] + nDisease[i][j][year] / (double)nExperiments;
+						}
+						for (int j = 0; j < nManifestation[i].length; j++) {
+							nManifestation[i][j][year] = nManifestation[i][j][year - 1] + nManifestation[i][j][year] / (double)nExperiments;
+						}
+					}
+				}
+			}
+			else {
+				for (int i = 0; i < interventions.length; i++) {
+					int year = 0;
+					nBirths[i][year] /= (double)nExperiments;
+					double alive = nBirths[i][year];
+					nDeaths[i][year] /= ((double)nExperiments * alive);
+					for (final Named cause : nDeathsByCause.keySet()) {
+						nDeathsByCause.get(cause)[i][year] /= ((double)nExperiments * alive);
+					}
+					for (int j = 0; j < nDisease[i].length; j++) {
+						nDisease[i][j][year] /= ((double)nExperiments * alive);
+					}
+					for (int j = 0; j < nManifestation[i].length; j++) {
+						nManifestation[i][j][year] /= ((double)nExperiments * alive);
+					}
+					year++;
+					for (; year < nIntervals; year++) {
+						alive += nBirths[i][year] / (double)nExperiments;
+						nBirths[i][year] = nBirths[i][year - 1] + nBirths[i][year] / ((double)nExperiments * alive);					
+						nDeaths[i][year] = nDeaths[i][year - 1] + nDeaths[i][year] / ((double)nExperiments * alive);
+						for (final Named cause : nDeathsByCause.keySet()) {
+							nDeathsByCause.get(cause)[i][year] = nDeathsByCause.get(cause)[i][year - 1] + nDeathsByCause.get(cause)[i][year] / ((double)nExperiments * alive);
+						}
+						for (int j = 0; j < nDisease[i].length; j++) {
+							nDisease[i][j][year] = nDisease[i][j][year - 1] + nDisease[i][j][year] / ((double)nExperiments * alive);
+						}
+						for (int j = 0; j < nManifestation[i].length; j++) {
+							nManifestation[i][j][year] = nManifestation[i][j][year - 1] + nManifestation[i][j][year] / ((double)nExperiments * alive);
+						}
+					}
+				}
+			}
+		}
+		
+	}
+
+	private class PrevalenceCalculator implements EpidemiologicCalculator {
+
+		@Override
+		public void updateExperiment(DiseaseProgressionSimulation simul, InnerListenerInstance listener) {
+			final int interventionId = simul.getIntervention().ordinal();
+			for (final Named cause : listener.nDeathsByCause.keySet()) {
+				if (!EpidemiologicView.this.nDeathsByCause.containsKey(cause)) {
+					EpidemiologicView.this.nDeathsByCause.put(cause, new double[interventions.length][nIntervals]);
+				}
+			}
+				// First process base time interval
+				double accDeaths = listener.nDeaths[0];
+				double accPatients = listener.nBirths[0];
+				final double []accManifestation = new double[listener.nManifestation.length];
+				final double []accDisease = new double[listener.nDisease.length];
+				final HashMap<Named, Double> accDeathsByCause = new HashMap<>();
+				for (final Named cause : listener.nDeathsByCause.keySet()) {
+					accDeathsByCause.put(cause, (double)listener.nDeathsByCause.get(cause)[0]);
+					EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][0] = accDeathsByCause.get(cause);
+				}
+				EpidemiologicView.this.nDeaths[interventionId][0] = accDeaths;
+				EpidemiologicView.this.nBirths[interventionId][0] = accPatients;
+				for (int j = 0; j < listener.nDisease.length; j++) {
+					accDisease[j] = listener.nDisease[j][0];
+					EpidemiologicView.this.nDisease[interventionId][j][0] = accDisease[j];
+				}
+				for (int j = 0; j < listener.nManifestation.length; j++) {
+					accManifestation[j] = listener.nManifestation[j][0];
+					EpidemiologicView.this.nManifestation[interventionId][j][0] = accManifestation[j];
+				}
+				// Now process the rest of time intervals
+				for (int i = 1; i < nIntervals; i++) {
+					accPatients += listener.nBirths[i];
+					accDeaths += listener.nDeaths[i];
+					EpidemiologicView.this.nDeaths[interventionId][i] += accDeaths;
+					EpidemiologicView.this.nBirths[interventionId][i] += accPatients;
+					for (final Named cause : listener.nDeathsByCause.keySet()) {
+						accDeathsByCause.put(cause, accDeathsByCause.get(cause) + listener.nDeathsByCause.get(cause)[i]);
+						EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][i] += accDeathsByCause.get(cause);
+					}
+					for (int j = 0; j < listener.nDisease.length; j++) {
+						accDisease[j] += listener.nDisease[j][i] - listener.nEndDisease[j][i-1];
+						EpidemiologicView.this.nDisease[interventionId][j][i] += accDisease[j];
+					}
+					for (int j = 0; j < listener.nManifestation.length; j++) {
+						accManifestation[j] += listener.nManifestation[j][i] - listener.nEndManifestation[j][i-1];
+						EpidemiologicView.this.nManifestation[interventionId][j][i] += accManifestation[j];
+					}
+				}
+		}
+
+		@Override
+		public void notifyEndExperiments() {
+			if (absolute) {
+				for (int year = 0; year < nIntervals; year++) {
+					for (int i = 0; i < interventions.length; i++) {
+						nBirths[i][year] /= (double)nExperiments;					
+						nDeaths[i][year] /= (double)nExperiments;
+						for (final Named cause : nDeathsByCause.keySet()) {
+							nDeathsByCause.get(cause)[i][year] /= (double)nExperiments;
+						}
+						for (int j = 0; j < nDisease[i].length; j++) {
+							nDisease[i][j][year] /= (double)nExperiments;
+						}
+						for (int j = 0; j < nManifestation[i].length; j++) {
+							nManifestation[i][j][year] /= (double)nExperiments;
+						}
+					}
+				}
+			}
+		}
+		
 	}
 }
 

@@ -11,6 +11,7 @@ import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
  */
 public interface ExperimentListener {
 	void addListener(DiseaseProgressionSimulation simul); 
+	void notifyEndExperiments();
 	
 	interface InnerListener {
 		void updateExperiment(DiseaseProgressionSimulation simul);

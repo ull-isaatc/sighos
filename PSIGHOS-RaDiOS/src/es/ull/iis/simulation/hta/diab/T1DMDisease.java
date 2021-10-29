@@ -150,11 +150,11 @@ public class T1DMDisease extends StandardDisease {
 	final private Manifestation hf;
 	final private Manifestation mi;
 
-	private static final boolean DISABLE_CHD = false;
-	private static final boolean DISABLE_RET = false;
+	private static final boolean DISABLE_CHD = true;
+	private static final boolean DISABLE_RET = true;
 	private static final boolean DISABLE_NEU = false;
-	private static final boolean DISABLE_NPH = false;
-	private static final boolean DISABLE_SHE = false;
+	private static final boolean DISABLE_NPH = true;
+	private static final boolean DISABLE_SHE = true;
 
 	/** A selector for each simulation run */
 	private final SingleSelectorParam[] selectorsCHD;
