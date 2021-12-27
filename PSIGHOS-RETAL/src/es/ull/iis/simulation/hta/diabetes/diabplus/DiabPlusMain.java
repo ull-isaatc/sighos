@@ -167,6 +167,8 @@ public class DiabPlusMain {
 	private final int timeHorizon;
 	private final ArrayList<ExperimentListener> expListeners;
 	private final ArrayList<ExperimentListener> baseCaseExpListeners;
+	private final EpidemiologicView baseCaseEpView;
+	private final EpidemiologicView expEpView;
 	private final DiabPlusJSONWriter jsonWriter;
 	
 	public DiabPlusMain(PrintWriter out, PrintWriter outListeners, PrintWriter outJSON, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs, final ArrayList<EpidemiologicOutputFormat> toPrint) {
@@ -202,6 +204,11 @@ public class DiabPlusMain {
 			expListeners.add(new EpidemiologicView(nRuns, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 			baseCaseExpListeners.add(new EpidemiologicView(1, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 		}
+		baseCaseEpView = new EpidemiologicView(1, secParams, 1, EpidemiologicView.Type.CUMUL_INCIDENCE, false, false);
+		if (nRuns > 0)
+			expEpView = new EpidemiologicView(nRuns, secParams, 1, EpidemiologicView.Type.CUMUL_INCIDENCE, false, false);
+		else
+			expEpView = null;
 		this.jsonWriter = new DiabPlusJSONWriter(nRuns, interventions, secParams);
 	}
 	
@@ -358,11 +365,13 @@ public class DiabPlusMain {
 			for (ExperimentListener listener : baseCaseExpListeners) {
 				listener.addListener(simul);
 			}			
+			baseCaseEpView.addListener(simul);
 		}
 		else {
 			for (ExperimentListener listener : expListeners) {
 				listener.addListener(simul);
 			}
+			expEpView.addListener(simul);
 		}
 		simul.run();
 		for (int i = 1; i < nInterventions; i++) {
@@ -381,17 +390,19 @@ public class DiabPlusMain {
 			if (baseCase) {
 				for (ExperimentListener listener : baseCaseExpListeners) {
 					listener.addListener(simul);
-				}			
+				}
+				baseCaseEpView.addListener(simul);
 			}
 			else {
 				for (ExperimentListener listener : expListeners) {
 					listener.addListener(simul);
 				}
+				expEpView.addListener(simul);
 			}
 			simul.run();
 		}
 		if (baseCase) {
-			jsonWriter.notifyEndBaseCase(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener);
+			jsonWriter.notifyEndBaseCase(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener, baseCaseEpView);
 		}
 		else {
 			jsonWriter.notifyEndProbabilisticRun(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, timeFreeListener);
@@ -458,7 +469,7 @@ public class DiabPlusMain {
 				}		
 			}
 			// Update JSON with results from probabilistic experiments
-	        jsonWriter.notifyEndProbabilisticExperiments();
+	        jsonWriter.notifyEndProbabilisticExperiments(expEpView);
 		}
 		
 		
@@ -673,7 +684,7 @@ public class DiabPlusMain {
 		private int year = Calendar.getInstance().get(Calendar.YEAR);
 		@DynamicParameter(names = {"--iniprop", "-I"}, description = "Initial proportion for complication stages")
 		private Map<String, String> initProportions = new TreeMap<String, String>();
-		@Parameter(names = {"--disable", "-D"}, description = "Disable a complication: any of CHD, NEU, NPH, RET, SHE", variableArity = true)
+		@Parameter(names = {"--disable", "-D"}, description = "Disables a complication: any of CHD, NEU, NPH, RET, SHE", variableArity = true)
 		private List<String> disable = new ArrayList<String>();
 	}
 

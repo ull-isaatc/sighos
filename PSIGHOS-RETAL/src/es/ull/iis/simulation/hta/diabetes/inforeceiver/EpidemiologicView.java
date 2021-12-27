@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.diabetes.inforeceiver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -165,6 +166,37 @@ public class EpidemiologicView implements ExperimentListener {
 			str.append(System.lineSeparator());
 		}
 		return str.toString();
+	}
+	
+	/**
+	 * @return the nIntervals
+	 */
+	public int getnIntervals() {
+		return nIntervals;
+	}
+
+	public double[][][]getnChronic() {
+		final double[][][] aux = Arrays.copyOf(nChronic, nChronic.length);
+		for (int year = 0; year < nIntervals; year++) {
+			for (int i = 0; i < interventions.size(); i++) {
+				for (int j = 0; j < nChronic[i].length; j++) {
+					aux[i][j][year] = nChronic[i][j][year] / (double)nExperiments;
+				}
+			}
+		}
+		return aux;
+	}
+	
+	public double[][][]getnAcute() {
+		final double[][][] aux = Arrays.copyOf(nAcute, nAcute.length);
+		for (int year = 0; year < nIntervals; year++) {
+			for (int i = 0; i < interventions.size(); i++) {
+				for (int j = 0; j < nAcute[i].length; j++) {
+					aux[i][j][year] = nAcute[i][j][year] / (double)nExperiments;
+				}
+			}
+		}
+		return aux;
 	}
 	
 	/**
