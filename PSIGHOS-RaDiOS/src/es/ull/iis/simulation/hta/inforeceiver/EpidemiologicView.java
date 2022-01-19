@@ -275,6 +275,11 @@ public class EpidemiologicView implements ExperimentListener {
 
 		@Override
 		public synchronized void updateExperiment(DiseaseProgressionSimulation simul) {
+			for (final Named cause : nDeathsByCause.keySet()) {
+				if (!EpidemiologicView.this.nDeathsByCause.containsKey(cause)) {
+					EpidemiologicView.this.nDeathsByCause.put(cause, new double[interventions.length][nIntervals]);
+				}
+			}
 			calc.updateExperiment(simul, this);
 		}
 
@@ -290,11 +295,6 @@ public class EpidemiologicView implements ExperimentListener {
 		@Override
 		public void updateExperiment(DiseaseProgressionSimulation simul, InnerListenerInstance listener) {
 			final int interventionId = simul.getIntervention().ordinal();
-			for (final Named cause : listener.nDeathsByCause.keySet()) {
-				if (!EpidemiologicView.this.nDeathsByCause.containsKey(cause)) {
-					EpidemiologicView.this.nDeathsByCause.put(cause, new double[interventions.length][nIntervals]);
-				}
-			}
 			for (int i = 0; i < nIntervals; i++) {
 				EpidemiologicView.this.nBirths[interventionId][i] += listener.nBirths[i];
 				EpidemiologicView.this.nDeaths[interventionId][i] += listener.nDeaths[i];
@@ -373,11 +373,6 @@ public class EpidemiologicView implements ExperimentListener {
 		@Override
 		public void updateExperiment(DiseaseProgressionSimulation simul, InnerListenerInstance listener) {
 			final int interventionId = simul.getIntervention().ordinal();
-			for (final Named cause : listener.nDeathsByCause.keySet()) {
-				if (!EpidemiologicView.this.nDeathsByCause.containsKey(cause)) {
-					EpidemiologicView.this.nDeathsByCause.put(cause, new double[interventions.length][nIntervals]);
-				}
-			}
 			for (int i = 0; i < nIntervals; i++) {
 				EpidemiologicView.this.nBirths[interventionId][i] += listener.nBirths[i];
 				EpidemiologicView.this.nDeaths[interventionId][i] += listener.nDeaths[i];
@@ -466,50 +461,45 @@ public class EpidemiologicView implements ExperimentListener {
 		@Override
 		public void updateExperiment(DiseaseProgressionSimulation simul, InnerListenerInstance listener) {
 			final int interventionId = simul.getIntervention().ordinal();
+			// First process base time interval
+			double accDeaths = listener.nDeaths[0];
+			double accPatients = listener.nBirths[0];
+			final double []accManifestation = new double[listener.nManifestation.length];
+			final double []accDisease = new double[listener.nDisease.length];
+			final HashMap<Named, Double> accDeathsByCause = new HashMap<>();
 			for (final Named cause : listener.nDeathsByCause.keySet()) {
-				if (!EpidemiologicView.this.nDeathsByCause.containsKey(cause)) {
-					EpidemiologicView.this.nDeathsByCause.put(cause, new double[interventions.length][nIntervals]);
-				}
+				accDeathsByCause.put(cause, (double)listener.nDeathsByCause.get(cause)[0]);
+				EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][0] = accDeathsByCause.get(cause);
 			}
-				// First process base time interval
-				double accDeaths = listener.nDeaths[0];
-				double accPatients = listener.nBirths[0];
-				final double []accManifestation = new double[listener.nManifestation.length];
-				final double []accDisease = new double[listener.nDisease.length];
-				final HashMap<Named, Double> accDeathsByCause = new HashMap<>();
+			EpidemiologicView.this.nDeaths[interventionId][0] = accDeaths;
+			EpidemiologicView.this.nBirths[interventionId][0] = accPatients;
+			for (int j = 0; j < listener.nDisease.length; j++) {
+				accDisease[j] = listener.nDisease[j][0];
+				EpidemiologicView.this.nDisease[interventionId][j][0] = accDisease[j];
+			}
+			for (int j = 0; j < listener.nManifestation.length; j++) {
+				accManifestation[j] = listener.nManifestation[j][0];
+				EpidemiologicView.this.nManifestation[interventionId][j][0] = accManifestation[j];
+			}
+			// Now process the rest of time intervals
+			for (int i = 1; i < nIntervals; i++) {
+				accPatients += listener.nBirths[i];
+				accDeaths += listener.nDeaths[i];
+				EpidemiologicView.this.nDeaths[interventionId][i] += accDeaths;
+				EpidemiologicView.this.nBirths[interventionId][i] += accPatients;
 				for (final Named cause : listener.nDeathsByCause.keySet()) {
-					accDeathsByCause.put(cause, (double)listener.nDeathsByCause.get(cause)[0]);
-					EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][0] = accDeathsByCause.get(cause);
+					accDeathsByCause.put(cause, accDeathsByCause.get(cause) + listener.nDeathsByCause.get(cause)[i]);
+					EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][i] += accDeathsByCause.get(cause);
 				}
-				EpidemiologicView.this.nDeaths[interventionId][0] = accDeaths;
-				EpidemiologicView.this.nBirths[interventionId][0] = accPatients;
 				for (int j = 0; j < listener.nDisease.length; j++) {
-					accDisease[j] = listener.nDisease[j][0];
-					EpidemiologicView.this.nDisease[interventionId][j][0] = accDisease[j];
+					accDisease[j] += listener.nDisease[j][i] - listener.nEndDisease[j][i-1];
+					EpidemiologicView.this.nDisease[interventionId][j][i] += accDisease[j];
 				}
 				for (int j = 0; j < listener.nManifestation.length; j++) {
-					accManifestation[j] = listener.nManifestation[j][0];
-					EpidemiologicView.this.nManifestation[interventionId][j][0] = accManifestation[j];
+					accManifestation[j] += listener.nManifestation[j][i] - listener.nEndManifestation[j][i-1];
+					EpidemiologicView.this.nManifestation[interventionId][j][i] += accManifestation[j];
 				}
-				// Now process the rest of time intervals
-				for (int i = 1; i < nIntervals; i++) {
-					accPatients += listener.nBirths[i];
-					accDeaths += listener.nDeaths[i];
-					EpidemiologicView.this.nDeaths[interventionId][i] += accDeaths;
-					EpidemiologicView.this.nBirths[interventionId][i] += accPatients;
-					for (final Named cause : listener.nDeathsByCause.keySet()) {
-						accDeathsByCause.put(cause, accDeathsByCause.get(cause) + listener.nDeathsByCause.get(cause)[i]);
-						EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][i] += accDeathsByCause.get(cause);
-					}
-					for (int j = 0; j < listener.nDisease.length; j++) {
-						accDisease[j] += listener.nDisease[j][i] - listener.nEndDisease[j][i-1];
-						EpidemiologicView.this.nDisease[interventionId][j][i] += accDisease[j];
-					}
-					for (int j = 0; j < listener.nManifestation.length; j++) {
-						accManifestation[j] += listener.nManifestation[j][i] - listener.nEndManifestation[j][i-1];
-						EpidemiologicView.this.nManifestation[interventionId][j][i] += accManifestation[j];
-					}
-				}
+			}
 		}
 
 		@Override
