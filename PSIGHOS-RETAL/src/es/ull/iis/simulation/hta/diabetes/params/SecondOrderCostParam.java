@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.hta.diabetes.params;
 
-import es.ull.iis.simulation.hta.SpanishIPCUpdate;
+import es.ull.iis.simulation.hta.SpanishCPIUpdate;
 import simkit.random.RandomVariate;
 
 /**
@@ -42,7 +42,7 @@ public class SecondOrderCostParam extends SecondOrderParam {
 
 	@Override
 	public double getValue(boolean baseCase) {
-		lastGeneratedValue = SpanishIPCUpdate.updateCost(super.getValue(baseCase), year, BasicConfigParams.STUDY_YEAR);
+		lastGeneratedValue = SpanishCPIUpdate.updateCost(super.getValue(baseCase), year, BasicConfigParams.STUDY_YEAR);
 		return lastGeneratedValue;
 	}
 	/**
