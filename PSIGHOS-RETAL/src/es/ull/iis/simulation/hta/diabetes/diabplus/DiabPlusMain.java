@@ -640,9 +640,9 @@ public class DiabPlusMain {
 		
 
 	}
-	
+	//Testing with "-q -n 100 -r 0 -ep cr"
 	private static class Arguments {
-		@Parameter(description = "Name of the input JSON file name", order = 1)
+		@Parameter(names ={"--inputjson", "-jin"}, description = "Name of the input JSON file name", order = 1)
 		private String inputJSONFileName = System.getProperty("user.dir") + "\\src\\es\\ull\\iis\\simulation\\hta\\diabetes\\diabplus\\test_patient1.json";
 		@Parameter(names ={"--outputjson", "-jout"}, description = "Name of the output JSON file name", order = 1)
 		private String outputJSONFileName = null;
