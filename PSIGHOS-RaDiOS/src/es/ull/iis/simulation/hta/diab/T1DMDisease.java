@@ -151,8 +151,8 @@ public class T1DMDisease extends StandardDisease {
 	final private Manifestation mi;
 
 	private static final boolean DISABLE_CHD = true;
-	private static final boolean DISABLE_RET = true;
-	private static final boolean DISABLE_NEU = false;
+	private static final boolean DISABLE_RET = false;
+	private static final boolean DISABLE_NEU = true;
 	private static final boolean DISABLE_NPH = true;
 	private static final boolean DISABLE_SHE = true;
 
