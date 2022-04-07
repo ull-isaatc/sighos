@@ -23,6 +23,7 @@ import es.ull.iis.ontology.radios.json.schema4simulation.PrecedingManifestation;
 import es.ull.iis.ontology.radios.json.schema4simulation.TreatmentStrategy;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.progression.Manifestation.Type;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
@@ -154,8 +155,14 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 
 	private void registerManifestation(SecondOrderParamsRepository repository, Set<String> processedManifestations, Map<String, RadiosManifestation> radiosManifestations, Manifestation manifestation)
 			throws JAXBException {
-		RadiosManifestation radiosManifestation = new RadiosManifestation(repository, this, manifestation);
-		addManifestation(radiosManifestation);
+		RadiosManifestation radiosManifestation = null;
+		if (manifestation.getKind() != null)
+			radiosManifestation = new RadiosAcuteManifestation(repository, this, manifestation);
+		else if (Type.ACUTE.equals(Type.valueOf(manifestation.getKind())))
+			radiosManifestation = new RadiosAcuteManifestation(repository, this, manifestation);
+		else 
+			radiosManifestation = new RadiosChronicManifestation(repository, this, manifestation);
+		addManifestation((es.ull.iis.simulation.hta.progression.Manifestation)radiosManifestation);
 		radiosManifestations.put(manifestation.getName(), radiosManifestation);
 		processedManifestations.add(manifestation.getName());
 	}

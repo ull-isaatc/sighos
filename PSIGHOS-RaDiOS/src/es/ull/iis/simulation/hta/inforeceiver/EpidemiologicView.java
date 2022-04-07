@@ -79,7 +79,7 @@ public abstract class EpidemiologicView implements ExperimentListener {
 		this.description = description;
 		this.absolute = absolute;
 		this.byAge = byAge;
-		this.format = (absolute || nExperiments != 1) ? "%.0f" : "%.3f";
+		this.format = (absolute && nExperiments == 1) ? "%.0f" : "%.3f";
 		this.nExperiments = nExperiments;
 		this.secParams = secParams;
 		this.nPatients = secParams.getnPatients();
