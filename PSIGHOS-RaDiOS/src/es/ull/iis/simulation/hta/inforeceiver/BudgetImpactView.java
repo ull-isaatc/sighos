@@ -27,11 +27,13 @@ public class BudgetImpactView implements ExperimentListener {
 	private final SecondOrderParamsRepository secParams;
 	private final double[][] cost;
 	private final Intervention[] interventions;
+	private final double coefExperiments;
 
 	/**
 	 * 
 	 */
-	public BudgetImpactView(SecondOrderParamsRepository secParams, int nYears) {
+	public BudgetImpactView(int nExperiments, SecondOrderParamsRepository secParams, int nYears) {
+		this.coefExperiments = 1.0 / (double)nExperiments;
 		this.interventions = secParams.getRegisteredInterventions();
 		this.nPatients = secParams.getnPatients();
 		this.secParams = secParams;
@@ -186,10 +188,19 @@ public class BudgetImpactView implements ExperimentListener {
 		public void updateExperiment(DiseaseProgressionSimulation simul) {			
 			final int interventionId = simul.getIntervention().ordinal();
 			for (int year = 0; year < cost.length; year++) {
-				BudgetImpactView.this.cost[interventionId][year] = cost[year] / nPatients;
+				BudgetImpactView.this.cost[interventionId][year] += (cost[year] / nPatients);
 			}
 		}
 		
 		
+	}
+
+	@Override
+	public void notifyEndExperiments() {
+		for (int interventionId = 0; interventionId < interventions.length; interventionId++) {
+			for (int year = 0; year < cost.length; year++) {
+				cost[interventionId][year] *= coefExperiments;
+			}
+		}
 	}
 }

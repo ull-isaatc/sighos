@@ -35,11 +35,13 @@ import es.ull.iis.simulation.hta.diab.T1DMRepository;
 import es.ull.iis.simulation.hta.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.inforeceiver.BudgetImpactView;
 import es.ull.iis.simulation.hta.inforeceiver.CostListener;
-import es.ull.iis.simulation.hta.inforeceiver.EpidemiologicView;
+import es.ull.iis.simulation.hta.inforeceiver.CumulativeIncidenceView;
 import es.ull.iis.simulation.hta.inforeceiver.ExperimentListener;
+import es.ull.iis.simulation.hta.inforeceiver.IncidenceView;
 import es.ull.iis.simulation.hta.inforeceiver.IndividualTime2ManifestationView;
 import es.ull.iis.simulation.hta.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.inforeceiver.PatientInfoView;
+import es.ull.iis.simulation.hta.inforeceiver.PrevalenceView;
 import es.ull.iis.simulation.hta.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.inforeceiver.ScreeningTestPerformanceView;
 import es.ull.iis.simulation.hta.inforeceiver.TimeFreeOfComplicationsView;
@@ -65,6 +67,8 @@ import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
  *
  */
 public class DiseaseMain {
+	/** Years for budget impact (in case it is enabled) */
+	private final static int BI_YEARS = 10;
 	private enum Outputs {
 		INDIVIDUAL_OUTCOMES, // printing the outcomes per patient
 		BREAKDOWN_COST, // printing breakdown of costs
@@ -72,7 +76,16 @@ public class DiseaseMain {
 	};
 
 	private static class EpidemiologicOutputFormat {
-		private final EpidemiologicView.Type type;
+		/**
+		 * Type of epidemiologic information
+		 * @author Iván Castilla
+		 */
+		public enum Type {
+			INCIDENCE,
+			PREVALENCE,
+			CUMUL_INCIDENCE
+		}
+		private final Type type;
 		private final boolean absolute;
 		private final boolean byAge;
 		private final int interval;
@@ -83,7 +96,7 @@ public class DiseaseMain {
 		 * @param byAge
 		 * @param interval
 		 */
-		private EpidemiologicOutputFormat(EpidemiologicView.Type type, boolean absolute, boolean byAge, int interval) {
+		private EpidemiologicOutputFormat(Type type, boolean absolute, boolean byAge, int interval) {
 			this.type = type;
 			this.absolute = absolute;
 			this.byAge = byAge;
@@ -91,16 +104,16 @@ public class DiseaseMain {
 		}
 
 		public static EpidemiologicOutputFormat build(String format) {
-			EpidemiologicView.Type type;
+			Type type;
 			switch (format.charAt(0)) {
 			case 'i':
-				type = EpidemiologicView.Type.INCIDENCE;
+				type = Type.INCIDENCE;
 				break;
 			case 'p':
-				type = EpidemiologicView.Type.PREVALENCE;
+				type = Type.PREVALENCE;
 				break;
 			case 'c':
-				type = EpidemiologicView.Type.CUMUL_INCIDENCE;
+				type = Type.CUMUL_INCIDENCE;
 				break;
 			default:
 				return null;
@@ -145,7 +158,7 @@ public class DiseaseMain {
 		/**
 		 * @return the type
 		 */
-		public EpidemiologicView.Type getType() {
+		public Type getType() {
 			return type;
 		}
 
@@ -223,11 +236,27 @@ public class DiseaseMain {
 			baseCaseExpListeners.add(new AnnualCostView(1, secParams, discountCost));
 		}
 		if (printOutputs.contains(Outputs.BI)) {
-			baseCaseExpListeners.add(new BudgetImpactView(secParams, 10));
+			expListeners.add(new BudgetImpactView(nRuns, secParams, BI_YEARS));
+			baseCaseExpListeners.add(new BudgetImpactView(1, secParams, BI_YEARS));
 		}
 		for (final EpidemiologicOutputFormat format : toPrint) {
-			expListeners.add(new EpidemiologicView(nRuns, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
-			baseCaseExpListeners.add(new EpidemiologicView(1, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
+			switch(format.getType()) {
+			case CUMUL_INCIDENCE:
+				expListeners.add(new CumulativeIncidenceView(nRuns, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				baseCaseExpListeners.add(new CumulativeIncidenceView(1, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				break;
+			case INCIDENCE:
+				expListeners.add(new IncidenceView(nRuns, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				baseCaseExpListeners.add(new IncidenceView(1, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				break;
+			case PREVALENCE:
+				expListeners.add(new PrevalenceView(nRuns, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				baseCaseExpListeners.add(new PrevalenceView(1, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				break;
+			default:
+				break;
+			
+			}
 		}
 	}
 
@@ -732,7 +761,7 @@ public class DiseaseMain {
 			boolean useProgramaticArguments = true;
 			boolean allAffected = true;
 			double utilityGeneralPopulation = 0.8861;
-			String params = "-n 20000 -r 0 -pop 3 -y 2019 -q -ep ca cr"; // Testing diabetes
+			String params = "-n 5000 -r 0 -pop 3 -y 2019 -q -ep ca cr ia ir"; // Testing diabetes
 //			String params = "-n 5000 -r 0 -pop 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
 //			String params = "-n 100 -r 0 -dr 0 -q -pop 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 			
