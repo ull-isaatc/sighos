@@ -216,7 +216,7 @@ public abstract class EpidemiologicView implements ExperimentListener {
 			else if (info instanceof PatientInfo) {
 				final PatientInfo pInfo = (PatientInfo) info;
 				final Patient pat = (Patient)pInfo.getPatient();
-				final int interval = byAge ? (int)((pat.getAge() - minAge) / length) : (int)Math.ceil((pInfo.getTs() / BasicConfigParams.YEAR_CONVERSION));
+				final int interval = byAge ? (int)((pat.getAge() - minAge) / length) : (int)Math.ceil(pInfo.getTs() / BasicConfigParams.YEAR_CONVERSION);
 				switch(pInfo.getType()) {
 					case START:
 						nBirths[interval]++;

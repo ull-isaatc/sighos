@@ -117,7 +117,19 @@ public class EpidemiologicView implements ExperimentListener {
 
 	@Override
 	public void addListener(DiabetesSimulation simul) {
-		simul.addInfoReceiver(Type.PREVALENCE.equals(type) ? new InnerPrevalenceListenerInstance() : new InnerIncidenceListenerInstance());
+		switch(type) {
+		case INCIDENCE:
+			simul.addInfoReceiver(new InnerIncidenceListenerInstance());
+			break;
+		case PREVALENCE:
+			simul.addInfoReceiver(new InnerPrevalenceListenerInstance());
+			break;
+		case CUMUL_INCIDENCE:
+		default:
+			simul.addInfoReceiver(new InnerCumulativeIncidenceListenerInstance());
+			break;
+		
+		}
 	}
 
 	@Override
@@ -199,6 +211,155 @@ public class EpidemiologicView implements ExperimentListener {
 		return aux;
 	}
 	
+	/**
+	 * @author Iván Castilla
+	 *
+	 */
+	public class InnerCumulativeIncidenceListenerInstance extends Listener implements InnerListener {
+		private final int [] nAlivePatients;
+		private final int [] nDeaths;
+		private final HashMap<Named, int[]> nDeathsByCause;
+		private final int[][] nChronic;
+		private final int[][] nMainChronic;
+		private final boolean[][] patientMainChronic;
+		private final int [][] nAcute;
+
+		/**
+		 * TODO: Add relative computation
+		 */
+		public InnerCumulativeIncidenceListenerInstance() {
+			super("Viewer for cumulative incidence");
+			nDeaths = new int[nIntervals];
+			nDeathsByCause = new HashMap<>();			
+			nAlivePatients = new int[nIntervals];
+			nChronic = new int[secParams.getRegisteredComplicationStages().size()][nIntervals];
+			nMainChronic = new int[DiabetesChronicComplications.values().length][nIntervals];
+			patientMainChronic = new boolean[DiabetesChronicComplications.values().length][nPatients];
+			nAcute = new int[DiabetesAcuteComplications.values().length][nIntervals];
+			addGenerated(DiabetesPatientInfo.class);
+			addEntrance(DiabetesPatientInfo.class);
+			addEntrance(SimulationStartStopInfo.class);
+		}
+
+		@Override
+		public void infoEmited(SimulationInfo info) {
+			if (info instanceof SimulationStartStopInfo) {
+				if (SimulationStartStopInfo.Type.END.equals(((SimulationStartStopInfo) info).getType())) {
+					updateExperiment((DiabetesSimulation) info.getSimul());
+				}
+			}
+			else if (info instanceof DiabetesPatientInfo) {
+				final DiabetesPatientInfo pInfo = (DiabetesPatientInfo) info;
+				final DiabetesPatient pat = (DiabetesPatient)pInfo.getPatient();
+				final int interval = byAge ? (int)((pat.getAge() - minAge) / length) : (int)Math.ceil(pInfo.getTs() / BasicConfigParams.YEAR_CONVERSION);
+				switch(pInfo.getType()) {
+					case START:
+						nAlivePatients[interval]++;
+						break;
+					case COMPLICATION:
+						nChronic[pInfo.getComplication().ordinal()][interval]++;
+						if (!patientMainChronic[pInfo.getComplication().getComplication().ordinal()][pInfo.getPatient().getIdentifier()]) {
+							patientMainChronic[pInfo.getComplication().getComplication().ordinal()][pInfo.getPatient().getIdentifier()] = true;
+							nMainChronic[pInfo.getComplication().getComplication().ordinal()][interval]++;
+						}
+						break;
+					case ACUTE_EVENT:
+						nAcute[pInfo.getAcuteEvent().ordinal()][interval]++;
+						break;
+					case DEATH:
+						nDeaths[interval]++;
+						final Named cause = pInfo.getCauseOfDeath();
+						if (cause != null) {
+							if (!nDeathsByCause.containsKey(cause)) {
+								nDeathsByCause.put(cause, new int[nIntervals]);
+							}
+							nDeathsByCause.get(cause)[interval]++;
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
+		@Override
+		public synchronized void updateExperiment(DiabetesSimulation simul) {
+			final int interventionId = simul.getIntervention().getIdentifier();
+			for (final Named cause : nDeathsByCause.keySet()) {
+				if (!EpidemiologicView.this.nDeathsByCause.containsKey(cause)) {
+					EpidemiologicView.this.nDeathsByCause.put(cause, new double[interventions.size()][nIntervals]);
+				}
+			}
+			int year = 0;
+			EpidemiologicView.this.nAlivePatients[interventionId][year] += nAlivePatients[year];
+			EpidemiologicView.this.nDeaths[interventionId][year] += nDeaths[year];
+			for (final Named cause : nDeathsByCause.keySet()) {
+				EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][year] += nDeathsByCause.get(cause)[year];
+			}
+			for (int j = 0; j < nAcute.length; j++) {
+				EpidemiologicView.this.nAcute[interventionId][j][year] += nAcute[j][year];
+			}
+			for (int j = 0; j < nMainChronic.length; j++) {
+				EpidemiologicView.this.nMainChronic[interventionId][j][year] += nMainChronic[j][year];
+			}
+			for (int j = 0; j < nChronic.length; j++) {
+				EpidemiologicView.this.nChronic[interventionId][j][year] += nChronic[j][year];
+			}
+			for (year = 1; year < nIntervals; year++) {
+				EpidemiologicView.this.nAlivePatients[interventionId][year] += nAlivePatients[year] + EpidemiologicView.this.nAlivePatients[interventionId][year-1];
+				EpidemiologicView.this.nDeaths[interventionId][year] += nDeaths[year] + EpidemiologicView.this.nDeaths[interventionId][year-1];
+				for (final Named cause : nDeathsByCause.keySet()) {
+					EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][year] += nDeathsByCause.get(cause)[year] + EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][year-1];
+				}
+				for (int j = 0; j < nAcute.length; j++) {
+					EpidemiologicView.this.nAcute[interventionId][j][year] += nAcute[j][year] + EpidemiologicView.this.nAcute[interventionId][j][year-1];
+				}
+				for (int j = 0; j < nMainChronic.length; j++) {
+					EpidemiologicView.this.nMainChronic[interventionId][j][year] += nMainChronic[j][year] + EpidemiologicView.this.nMainChronic[interventionId][j][year-1];
+				}
+				for (int j = 0; j < nChronic.length; j++) {
+					EpidemiologicView.this.nChronic[interventionId][j][year] += nChronic[j][year] + EpidemiologicView.this.nChronic[interventionId][j][year-1];
+				}
+			}			
+//			}
+//			else {
+//				double accDeaths = 0.0;
+//				final HashMap<Named, Double> accDeathsByCause = new HashMap<>();
+//				for (final Named cause : nDeathsByCause.keySet()) {
+//					accDeathsByCause.put(cause, 0.0);
+//				}
+//				double accPatients = 0.0;
+//				final double []accAcute = new double[nAcute.length];
+//				final double []accChronic = new double[nChronic.length];
+//				final double []accMainChronic = new double[nMainChronic.length];
+//				for (int i = 0; i < nIntervals; i++) {
+//					accPatients += nAlivePatients[i];
+//					accDeaths += nDeaths[i];
+//					EpidemiologicView.this.nDeaths[interventionId][i] += accDeaths / n;
+//					EpidemiologicView.this.nAlivePatients[interventionId][i] += accPatients / n;
+//					for (final Named cause : nDeathsByCause.keySet()) {
+//						accDeathsByCause.put(cause, accDeathsByCause.get(cause) + nDeathsByCause.get(cause)[i]);
+//						EpidemiologicView.this.nDeathsByCause.get(cause)[interventionId][i] += accDeathsByCause.get(cause) / n;
+//					}
+//					for (int j = 0; j < nAcute.length; j++) {
+//						accAcute[j] += nAcute[j][i];
+//						EpidemiologicView.this.nAcute[interventionId][j][i] += accAcute[j] / n;
+//					}
+//					for (int j = 0; j < nMainChronic.length; j++) {
+//						accMainChronic[j] += nMainChronic[j][i];
+//						EpidemiologicView.this.nMainChronic[interventionId][j][i] += accMainChronic[j] / n;
+//					}
+//					for (int j = 0; j < nChronic.length; j++) {
+//						accChronic[j] += nChronic[j][i];
+//						EpidemiologicView.this.nChronic[interventionId][j][i] += accChronic[j] / n;
+//					}
+//				}
+//				
+//			}
+		}
+
+	}
+
 	/**
 	 * @author Iván Castilla
 	 *
