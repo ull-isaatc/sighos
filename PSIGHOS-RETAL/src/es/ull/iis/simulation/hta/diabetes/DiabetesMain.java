@@ -369,6 +369,7 @@ public class DiabetesMain {
         outListeners.close();
 	}
 
+	// Arguments for cross-validation of diabetes-HTA model and diabetes-RADIOS model: -n 20000 -r 0 -y 2019 -pop 9  -ep ca  -D NEU -D NPH -D CHD -D SHE -o "D:\Mi unidad\Investigación\Proyectos\RaDiOS\check.txt" 
 	public static void main(String[] args) {
 		final Arguments args1 = new Arguments();
 		try {
