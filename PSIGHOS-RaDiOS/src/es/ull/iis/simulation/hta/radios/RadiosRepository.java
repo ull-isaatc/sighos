@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import es.ull.iis.ontology.radios.Constants;
+import es.ull.iis.ontology.radios.json.schema4simulation.Development;
 import es.ull.iis.ontology.radios.json.schema4simulation.Intervention;
 import es.ull.iis.ontology.radios.json.schema4simulation.Schema4Simulation;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
@@ -29,8 +30,11 @@ import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.progression.StandardDisease;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
+import es.ull.iis.simulation.hta.radios.utils.CostUtils;
+import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
 import es.ull.iis.simulation.hta.simpletest.NullIntervention;
 
 /**
@@ -40,6 +44,10 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	private ObjectMapper mapper; 
 	private CostCalculator costCalc;
 	private UtilityCalculator utilCalc;
+	private Matrix costTreatments;
+	private Matrix costFollowUps;
+	private Matrix costScreenings;
+	private Matrix costClinicalDiagnosis;
 
 	/**
 	 * For a repository, it is necessary to register the population {registerPopulation(...)}, the disease {registerDisease(...)}, the 
@@ -88,16 +96,37 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	 * @param nRuns
 	 * @param nPatients
 	 * @param radiosDiseaseInstance
-	 * @param timeHorizont
+	 * @param timeHorizon
 	 * @throws TransformException
 	 * @throws JAXBException
 	 */
-	private void initialize (int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizont, boolean allAffected, List<String> intenventionsToCompare) 
+	private void initialize (int nRuns, int nPatients, Schema4Simulation radiosDiseaseInstance, Integer timeHorizon, boolean allAffected, List<String> intenventionsToCompare) 
 		throws TransformException, JAXBException {
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
+		
+		final es.ull.iis.ontology.radios.json.schema4simulation.Disease diseaseJSON = radiosDiseaseInstance.getDisease(); 
 
-		RadiosDisease disease = new RadiosDisease(this, radiosDiseaseInstance.getDisease(), timeHorizont);
+		StandardDisease disease = null;
+		String naturalDevelopmentName = null;
+
+		if (diseaseJSON.getDevelopments() != null) {
+			List<Development> developments = diseaseJSON.getDevelopments();
+			Development naturalDevelopment = developments.stream()
+					.filter(development -> Constants.DATAPROPERTYVALUE_KIND_DEVELOPMENT_NATURAL_VALUE.equals(development.getKind()))
+					.findFirst()
+					.orElse(null);
+			naturalDevelopmentName = naturalDevelopment.getName();
+			if (naturalDevelopment != null && CollectionUtils.notIsEmpty(naturalDevelopment.getManifestations())) {
+				initializeCostMatrix(naturalDevelopment, diseaseJSON, timeHorizon);
+
+				List<es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> manifestations = naturalDevelopment.getManifestations();
+				disease = DiseaseFactory.getDiseaseInstance(this, diseaseJSON, naturalDevelopment.getManifestations(), timeHorizon);
+			} else {
+				throw new TransformException("ERROR => The selected disease has no associated natural development. The specification of this development is mandatory.");
+			}
+		}
+		
 		registerDisease(HEALTHY);
 		registerDisease(disease);
 
@@ -108,12 +137,12 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 			for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
 				if (intenventionsToCompare.contains(intervention.getName())) {
 					if (Constants.DATAPROPERTYVALUE_KIND_INTERVENTION_SCREENING_VALUE.equalsIgnoreCase(intervention.getKind())) {
-						RadiosScreeningIntervention radiosIntervention = new RadiosScreeningIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
-								disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis(), disease); 
+						RadiosScreeningIntervention radiosIntervention = new RadiosScreeningIntervention(this, intervention, naturalDevelopmentName, timeHorizon, 
+								this.costTreatments, this.costFollowUps, this.costScreenings, this.costClinicalDiagnosis, disease); 
 						this.registerIntervention(radiosIntervention);
 					} else {
-						RadiosBasicIntervention radiosIntervention = new RadiosBasicIntervention(this, intervention, disease.getNaturalDevelopmentName(), timeHorizont, 
-								disease.getCostTreatments(), disease.getCostFollowUps(), disease.getCostScreenings(), disease.getCostClinicalDiagnosis(), disease); 
+						RadiosBasicIntervention radiosIntervention = new RadiosBasicIntervention(this, intervention, naturalDevelopmentName, timeHorizon, 
+								this.costTreatments, this.costFollowUps, this.costScreenings, this.costClinicalDiagnosis, disease); 
 						this.registerIntervention(radiosIntervention);
 					}
 				}
@@ -126,7 +155,28 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 		// El submodelo de mortalidad (por defecto podemos usar el que te pongo)
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
-	
+
+	/**
+	 * Initializes the cost matrix for the follow-up tests associated with the disease
+	 */
+	private void initializeCostMatrix(Development naturalDevelopment, es.ull.iis.ontology.radios.json.schema4simulation.Disease diseaseJSON, Integer timeHorizon) {
+		this.costTreatments = new Matrix();
+		this.costFollowUps = new Matrix();
+		this.costScreenings = new Matrix();
+		this.costClinicalDiagnosis = new Matrix();
+
+		CostUtils.loadCostFromScreeningStrategies(this.costScreenings, diseaseJSON.getScreeningStrategies(), timeHorizon);
+		CostUtils.loadCostFromClinicalDiagnosisStrategies(this.costClinicalDiagnosis, diseaseJSON.getClinicalDiagnosisStrategies(), timeHorizon);
+		CostUtils.loadCostFromTreatmentStrategies(this.costTreatments, naturalDevelopment.getName(), diseaseJSON.getTreatmentStrategies(), timeHorizon);
+		CostUtils.loadCostFromFollowUpStrategies(this.costFollowUps, naturalDevelopment.getName(), diseaseJSON.getFollowUpStrategies(), timeHorizon);
+		List<es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> manifestations = naturalDevelopment.getManifestations();
+		for (es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifestation : manifestations) {
+			// TODO: actualizar la matriz de costos directos asociados a cada manifestación. Para el caso de estudio todos los costos vienen asociados por tratamiento. 
+			CostUtils.loadCostFromTreatmentStrategies(this.costTreatments, manifestation.getName(), manifestation.getTreatmentStrategies(), timeHorizon);
+			CostUtils.loadCostFromFollowUpStrategies(this.costFollowUps, manifestation.getName(), manifestation.getFollowUpStrategies(), timeHorizon);
+		}
+	}
+
 	@Override
 	public CostCalculator getCostCalculator() {
 		return costCalc;
@@ -140,5 +190,21 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 	public SecondOrderParamsRepository configDiseaseUtilityCalculator (DisutilityCombinationMethod disutilityCombinationMethod, double value) {
 		utilCalc = new DiseaseUtilityCalculator(this, disutilityCombinationMethod, value);
 		return this;
+	}
+	
+	public Matrix getCostTreatments() {
+		return costTreatments;
+	}
+
+	public Matrix getCostFollowUps() {
+		return costFollowUps;
+	}
+
+	public Matrix getCostScreenings() {
+		return costScreenings;
+	}
+
+	public Matrix getCostClinicalDiagnosis() {
+		return costClinicalDiagnosis;
 	}
 }

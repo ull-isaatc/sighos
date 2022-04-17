@@ -18,13 +18,14 @@ public class HeartFailure extends ChronicManifestation {
 	private static final double TRANS_COST = 5557.66 - ANNUAL_COST;
 	private static final int COSTYEAR = 2016;
 	private static final double[] DU = new double[] {0.108, (0.169 - 0.048) / 3.92};
+	public static final String NAME = "HF";
 	
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public HeartFailure(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "HF", "Heart Failure", disease);
+		super(secParams, NAME, "Heart Failure", disease);
 	}
 
 	@Override

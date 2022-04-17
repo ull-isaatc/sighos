@@ -18,13 +18,14 @@ public class Angina extends ChronicManifestation {
 	private static final double TRANS_COST = 2517.97 - ANNUAL_COST;
 	private static final int COSTYEAR = 2016;
 	private static final double[] DU = new double[] {0.09, (0.126 - 0.054) / 3.92};
+	public static final String NAME = "ANGINA";
 	
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public Angina(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams,"ANGINA", "Angina", disease);
+		super(secParams, NAME, "Angina", disease);
 	}
 
 	@Override

@@ -42,4 +42,8 @@ public class PreviousManifestationCondition extends PathwayCondition {
 		return true;
 	}
 
+	public TreeSet<Manifestation> getPreviousManifestationsList() {
+		return list;
+	}
+
 }

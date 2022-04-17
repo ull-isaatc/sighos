@@ -16,13 +16,14 @@ public class BackgroundRetinopathy extends ChronicManifestation {
 	private static final double COST = 146.4525;
 	private static final int COSTYEAR = 2018;
 	private static final double DU = 0.0;
+	public static final String NAME = "BGRET";
 
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public BackgroundRetinopathy(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "BGRET", "Background Retinopathy", disease);
+		super(secParams, NAME, "Background Retinopathy", disease);
 	}
 
 	@Override

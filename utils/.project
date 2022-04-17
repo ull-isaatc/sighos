@@ -6,6 +6,19 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
+<<<<<<< Upstream, based on origin/master
+=======
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+			<triggers>full,incremental,</triggers>
+			<arguments>
+				<dictionary>
+					<key>LaunchConfigHandle</key>
+					<value>&lt;project&gt;/.externalToolBuilders/org.eclipse.buildship.core.gradleprojectbuilder.launch</value>
+				</dictionary>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+>>>>>>> 99978c5 Adapting PSIGHOS-RaDiOS to deal with common diseases such as diabetes
 			<name>org.eclipse.jdt.core.javabuilder</name>
 			<arguments>
 			</arguments>

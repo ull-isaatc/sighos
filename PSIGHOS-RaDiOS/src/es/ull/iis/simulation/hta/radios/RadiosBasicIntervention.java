@@ -3,6 +3,7 @@ package es.ull.iis.simulation.hta.radios;
 import static java.lang.String.format;
 
 import java.util.Random;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,9 +21,10 @@ import es.ull.iis.ontology.radios.json.schema4simulation.ManifestationModificati
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.ManifestationPathway;
 import es.ull.iis.simulation.hta.progression.Modification;
-import es.ull.iis.simulation.hta.progression.StagedDisease;
-import es.ull.iis.simulation.hta.progression.Transition;
+import es.ull.iis.simulation.hta.progression.PreviousManifestationCondition;
+import es.ull.iis.simulation.hta.progression.StandardDisease;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.CostMatrixElement;
@@ -48,10 +50,10 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 	private Matrix costFollowUps;
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
-	private StagedDisease disease;
+	private StandardDisease disease;
 
 	public RadiosBasicIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Integer timeHorizont, 
-			Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis, StagedDisease disease) {
+			Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis, StandardDisease disease) {
 		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING);
 		this.intervention = intervention; 
 		this.naturalDevelopmentName = naturalDevelopmentName;
@@ -288,10 +290,13 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 				ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(matcher.group(2));
 				if (probabilityDistribution != null) {
 					if ("*".equals(matcher.group(1))) {
-						for (Transition transition : disease.getTransitions()) {
-							if (transition.getDestManifestation().getName().equals(registerManifestation)) {
-								secParams.addModificationParam(this, Modification.Type.RR, transition.getSrcManifestation(), transition.getDestManifestation(),  
+						for (ManifestationPathway path : disease.getManifestation(registerManifestation).getPathways()) {							
+							if (path.getCondition() instanceof PreviousManifestationCondition) {
+								final TreeSet<Manifestation> previousManif = ((PreviousManifestationCondition)path.getCondition()).getPreviousManifestationsList();
+								for (Manifestation srcManif : previousManif) {
+									secParams.addModificationParam(this, Modification.Type.RR, srcManif, disease.getManifestation(registerManifestation),  
 										Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+								}
 							}
 						}
 					}

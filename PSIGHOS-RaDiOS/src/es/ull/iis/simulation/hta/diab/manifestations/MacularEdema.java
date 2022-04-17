@@ -17,13 +17,14 @@ public class MacularEdema extends ChronicManifestation {
 	private static final double COST = 6785.16;
 	private static final int COSTYEAR = 2018;
 	private static final double[] DU = new double[] {0.04, (0.066 - 0.014) / 3.92};
+	public static final String NAME = "ME";
 
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public MacularEdema(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "ME", "Macular Edema", disease);
+		super(secParams, NAME, "Macular Edema", disease);
 	}
 
 	@Override

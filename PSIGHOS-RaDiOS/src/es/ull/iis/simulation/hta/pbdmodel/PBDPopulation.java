@@ -8,6 +8,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
+import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -28,18 +29,24 @@ public class PBDPopulation extends StdPopulation {
 	}
 
 	@Override
-	protected double getPMan(DiseaseProgressionSimulation simul) {
-		return 0.5;
+	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 0.5);
 	}
 
 	@Override
-	protected RandomVariate getBaselineAge(DiseaseProgressionSimulation simul) {
+	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
+		final double birthPrev = allAffected ? 1.0 : secParams.getProbParam(STR_BIRTH_PREV, simul);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, birthPrev);
+	}
+
+	@Override
+	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 0.0);
+	}
+
+	@Override
+	protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
 		return RandomVariateFactory.getInstance("ConstantVariate", 0.0);
-	}
-
-	@Override
-	public double getPDisease(DiseaseProgressionSimulation simul) {
-		return (allAffected ? 1.0 : secParams.getProbParam(STR_BIRTH_PREV, simul));
 	}
 
 	@Override
@@ -48,11 +55,6 @@ public class PBDPopulation extends StdPopulation {
 			secParams.addProbParam(
 				new SecondOrderParam(secParams, STR_BIRTH_PREV, "Birth prevalence", "", 
 				BIRTH_PREVALENCE, RandomVariateFactory.getInstance("BetaVariate", 8, 540955)));
-	}
-
-	@Override
-	protected double getPDiagnosed(DiseaseProgressionSimulation simul) {
-		return 0.0;
 	}
 
 	@Override

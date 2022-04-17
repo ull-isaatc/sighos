@@ -22,5 +22,11 @@ public abstract class ClinicalParameter {
 		return name;
 	}
 	
+	/**
+	 * Returns the initial value of a clinical parameter for a specific patient 
+	 * @param profile The patient's profile, with baseline characteristics
+	 * @param simul The current simulation
+	 * @return The initial value of a clinical parameter for a specific patient
+	 */
 	public abstract double getInitialValue(PatientProfile profile, DiseaseProgressionSimulation simul);	
 }

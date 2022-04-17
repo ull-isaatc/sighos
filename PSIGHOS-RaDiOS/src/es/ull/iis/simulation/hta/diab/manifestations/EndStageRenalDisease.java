@@ -19,13 +19,14 @@ public class EndStageRenalDisease extends ChronicManifestation {
 	private static final double COST = 34259.48;
 	private static final double TCOST = 3250.73;
 	private static final int COSTYEAR = 2015;
+	public static final String NAME = "ESRD";
 
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public EndStageRenalDisease(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "ESRD", "End-stage renal disease", disease);
+		super(secParams, NAME, "End-stage renal disease", disease);
 	}
 
 	@Override

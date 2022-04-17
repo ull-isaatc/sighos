@@ -13,13 +13,14 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class Microalbuminuria extends ChronicManifestation {
+	public static final String NAME = "ALB1";
 
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public Microalbuminuria(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "ALB1", "Microalbuminuria", disease);
+		super(secParams, NAME, "Microalbuminuria", disease);
 	}
 
 	@Override

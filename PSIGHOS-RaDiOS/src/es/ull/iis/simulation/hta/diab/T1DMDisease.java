@@ -81,8 +81,6 @@ public class T1DMDisease extends StandardDisease {
 	private static final double[] LIMITS_DNC_LEA = {0.0, 0.0006}; // Assumption
 	private static final double[] CI_NEU_LEA = {0.01232, 0.01848};
 	private static final double BETA_NEU = 5.3;
-	/** Beta parameters (cases, no cases) for the initial proportion of lower amputation, according to the GOLD study */
-	private static final double []P_INI_LEA_BETA = {1, 300-1}; 
 
 	private static final double P_NEU_ALB1 = 0.097;
 	private static final double[] CI_NEU_ALB1 = {0.055, 0.149};
@@ -100,8 +98,6 @@ public class T1DMDisease extends StandardDisease {
 	private static final double BETA_BGRET = 10.10;
 	private static final double BETA_PRET = 6.30;
 	private static final double BETA_ME = 1.20;
-	/** Beta parameters (cases, no cases) for the initial proportion of proliferative retinopathy, according to the GOLD study */
-	private static final double []P_INI_PRET_BETA = {28, 300-28}; 
 
 	// Probability parameters for Coronary Heart Disease
 	private static final double P_DNC_CHD = 0.0045;
@@ -123,13 +119,6 @@ public class T1DMDisease extends StandardDisease {
 	/** Proportion of CHD manifestations that result an angina */
 	private static final double P_CHD_ANGINA = 0.28;
 	
-	/** Beta parameters (cases, no cases) for the initial proportion of myocardial infarction, according to the GOLD study */
-	private static final double []P_INI_MI_BETA = {3, 300-3}; 
-	/** Beta parameters (cases, no cases) for the initial proportion of stroke, according to the GOLD study */
-	private static final double []P_INI_STROKE_BETA = {2, 300-2}; 
-	/** Beta parameters (cases, no cases) for the initial proportion of heart failure, according to the GOLD study */
-	private static final double []P_INI_HF_BETA = {1, 300-1}; 
-	
 	// Probability parameters for severe hypoglycemic episodes
 	/** Mean probability of hypoglycemic events in GOLD study (adjusted from annual rate */
 	private static final double P_HYPO = 0.0706690;
@@ -150,11 +139,11 @@ public class T1DMDisease extends StandardDisease {
 	final private Manifestation hf;
 	final private Manifestation mi;
 
-	private static final boolean DISABLE_CHD = true;
+	private static final boolean DISABLE_CHD = false;
 	private static final boolean DISABLE_RET = false;
-	private static final boolean DISABLE_NEU = true;
-	private static final boolean DISABLE_NPH = true;
-	private static final boolean DISABLE_SHE = true;
+	private static final boolean DISABLE_NEU = false;
+	private static final boolean DISABLE_NPH = false;
+	private static final boolean DISABLE_SHE = false;
 
 	/** A selector for each simulation run */
 	private final SingleSelectorParam[] selectorsCHD;
@@ -409,8 +398,6 @@ public class T1DMDisease extends StandardDisease {
 					"Klein et al. 2004 (also Sheffield)", 
 					P_NEU_LEA, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_LEA[0], paramsNEU_LEA[1]));
 			
-			secParams.addInitProbParam(lea, "GOLD", P_INI_LEA_BETA[0] / (P_INI_LEA_BETA[0] + P_INI_LEA_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_LEA_BETA[0], P_INI_LEA_BETA[1]));
-			
 			if (!DISABLE_NPH) {
 				final double[] paramsNEU_ALB1 = Statistics.betaParametersFromNormal(P_NEU_ALB1, Statistics.sdFrom95CI(CI_NEU_ALB1));
 				secParams.addProbParam(neu, alb1, 
@@ -446,8 +433,6 @@ public class T1DMDisease extends StandardDisease {
 					"Sheffield (WESDR XXII)", P_ME_BLI, SecondOrderParamsRepository.getRandomVariateForProbability(P_ME_BLI));			
 			secParams.addProbParam(bli, 
 					"Sheffield (WESDR XXII)", P_DNC_BLI, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_BLI));			
-			
-			secParams.addInitProbParam(pret, "GOLD", P_INI_PRET_BETA[0] / (P_INI_PRET_BETA[0] + P_INI_PRET_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_PRET_BETA[0], P_INI_PRET_BETA[1]));
 		}
 	}
 	
@@ -467,10 +452,6 @@ public class T1DMDisease extends StandardDisease {
 					"Probability of nephropathy to any CHD manifestation", "Klein (2004)", P_NPH_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNPH_CHD[0], paramsNPH_CHD[1])));
 			secParams.addProbParam(new SecondOrderParam(secParams, SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "RET_CHD",
 					"Probability of retinopathy to any CHD manifestation", "Klein (2004)", P_RET_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsRET_CHD[0], paramsRET_CHD[1])));
-
-			secParams.addInitProbParam(mi, "GOLD", P_INI_MI_BETA[0] / (P_INI_MI_BETA[0] + P_INI_MI_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_MI_BETA[0], P_INI_MI_BETA[1]));
-			secParams.addInitProbParam(stroke, "GOLD", P_INI_STROKE_BETA[0] / (P_INI_STROKE_BETA[0] + P_INI_STROKE_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_STROKE_BETA[0], P_INI_STROKE_BETA[1]));
-			secParams.addInitProbParam(hf, "GOLD", P_INI_HF_BETA[0] / (P_INI_HF_BETA[0] + P_INI_HF_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_HF_BETA[0], P_INI_HF_BETA[1]));
 			
 			secParams.addProbParam(mi, 
 					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", P_CHD_MI, RandomVariateFactory.getInstance("GammaVariate", 1.0, P_CHD_MI));

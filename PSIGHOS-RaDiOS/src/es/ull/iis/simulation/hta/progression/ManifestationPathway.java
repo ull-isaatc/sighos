@@ -58,4 +58,8 @@ public class ManifestationPathway {
 		}
 		return Long.MAX_VALUE;
 	}
+
+	public PathwayCondition getCondition() {
+		return condition;
+	}
 }

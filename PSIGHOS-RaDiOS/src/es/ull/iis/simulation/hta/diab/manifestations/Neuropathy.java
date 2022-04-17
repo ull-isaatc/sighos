@@ -17,13 +17,14 @@ public class Neuropathy extends ChronicManifestation {
 	private static final double COST = 3108.86;
 	private static final int COSTYEAR = 2015;
 	private static final double[] DU = new double[] {0.084, (0.111 - 0.057) / 3.92};
+	public static final String NAME = "NEU";
 	
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public Neuropathy(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams,"NEU", "Neuropathy", disease);
+		super(secParams, NAME, "Neuropathy", disease);
 	}
 
 	@Override

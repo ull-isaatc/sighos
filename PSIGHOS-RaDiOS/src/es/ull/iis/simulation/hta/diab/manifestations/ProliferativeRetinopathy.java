@@ -17,13 +17,14 @@ public class ProliferativeRetinopathy extends ChronicManifestation {
 	private static final double COST = 6394.62;
 	private static final int COSTYEAR = 2018;
 	private static final double[] DU = new double[] {0.04, (0.066 - 0.014) / 3.92};
+	public static final String NAME = "PRET";
 
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public ProliferativeRetinopathy(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "PRET", "Proliferative Retinopathy", disease);
+		super(secParams, NAME, "Proliferative Retinopathy", disease);
 	}
 
 	@Override
