@@ -9,6 +9,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
+import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -29,20 +30,25 @@ public class RadiosPopulation extends StdPopulation {
 		this.birthPrevalence = birthPrevalence;
 		this.allAffected = allAffected;
 	}
-
+	
 	@Override
-	protected double getPMan(DiseaseProgressionSimulation simul) {
-		return 0.5;
+	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 0.5);
 	}
 
 	@Override
-	protected RandomVariate getBaselineAge(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getInstance("ConstantVariate", 0.0);
+	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, allAffected ? 1.0 : secParams.getProbParam(STR_BIRTH_PREV, simul));
 	}
 
 	@Override
-	public double getPDisease(DiseaseProgressionSimulation simul) {
-		return (allAffected ? 1.0 : secParams.getProbParam(STR_BIRTH_PREV, simul));
+	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 0.0);
+	}
+
+	@Override
+	protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getInstance("ConstantVariate", 0.0);			
 	}
 
 	@Override
@@ -50,11 +56,6 @@ public class RadiosPopulation extends StdPopulation {
 		if (!allAffected && birthPrevalence != null) {
 			secParams.addProbParam(new SecondOrderParam(secParams, STR_BIRTH_PREV, "Birth prevalence", "", birthPrevalence.getDeterministicValue(), birthPrevalence.getProbabilisticValue()));
 		}
-	}
-
-	@Override
-	protected double getPDiagnosed(DiseaseProgressionSimulation simul) {
-		return 0.0;
 	}
 
 	@Override

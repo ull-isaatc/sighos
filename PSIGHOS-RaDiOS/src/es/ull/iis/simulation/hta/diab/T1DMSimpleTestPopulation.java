@@ -12,6 +12,7 @@ import es.ull.iis.simulation.hta.populations.ClinicalParameter;
 import es.ull.iis.simulation.hta.populations.InitiallySetClinicalParameter;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
+import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -42,11 +43,6 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	}
 
 	@Override
-	public double getPDisease(DiseaseProgressionSimulation simul) {
-		return 1.0;
-	}
-
-	@Override
 	public void registerSecondOrderParameters() {
 	}
 
@@ -60,17 +56,22 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	}
 	
 	@Override
-	protected double getPMan(DiseaseProgressionSimulation simul) {
-		return 168.0 / 300.0;
+	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 132.0 / 300.0);
 	}
 
 	@Override
-	protected double getPDiagnosed(DiseaseProgressionSimulation simul) {
-		return 1.0;
+	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 1.0);
 	}
 
 	@Override
-	protected RandomVariate getBaselineAge(DiseaseProgressionSimulation simul) {
+	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 1.0);
+	}
+
+	@Override
+	protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
 		return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE);			
 	}
 	

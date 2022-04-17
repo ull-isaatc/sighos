@@ -20,13 +20,14 @@ public class Stroke extends ChronicManifestation {
 	private static final double[] DU = new double[] {0.164, (0.222 - 0.105) / 3.92};
 	/** Probability of 30-day death after stroke */ 
 	private static final double P_DEATH = 0.124;
+	public static final String NAME = "STROKE";
 	
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public Stroke(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams,"STROKE", "Stroke", disease);
+		super(secParams, NAME, "Stroke", disease);
 	}
 
 	@Override

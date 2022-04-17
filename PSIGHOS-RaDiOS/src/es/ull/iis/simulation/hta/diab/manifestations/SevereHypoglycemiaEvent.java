@@ -21,13 +21,14 @@ public class SevereHypoglycemiaEvent extends AcuteManifestation {
 	private static final int COSTYEAR = 2017;
 	
 	private static final double P_DEATH = 0.0063;
+	public static final String NAME = "SHE";
 	
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public SevereHypoglycemiaEvent(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "SHE", "Severe hypoglycemic event", disease);
+		super(secParams, NAME, "Severe hypoglycemic event", disease);
 	}
 
 	@Override

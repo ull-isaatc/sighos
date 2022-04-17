@@ -17,13 +17,14 @@ public class Blindness extends ChronicManifestation {
 	private static final double COST = 2405.35;
 	private static final int COSTYEAR = 2016;
 	private static final double[] DU = new double[] {0.074, (0.124 - 0.025) / 3.92};
+	public static final String NAME = "BLI";
 
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public Blindness(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "BLI", "Blindness", disease);
+		super(secParams, NAME, "Blindness", disease);
 	}
 
 	@Override

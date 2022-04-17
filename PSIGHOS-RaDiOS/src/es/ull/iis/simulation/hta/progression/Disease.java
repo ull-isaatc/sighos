@@ -30,7 +30,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	private int ord = -1;
 	
 	/** Manifestations related to this disease */
-	protected final ArrayList<Manifestation> manifestations;
+	protected final TreeMap<String, Manifestation> manifestations;
 	/** Manifestations that exclude another manifestation (generally, because they are more advance stages of the same condition */
 	protected final TreeMap<Manifestation, TreeSet<Manifestation>> exclusions;	
 	/** Short name of the disease */
@@ -45,7 +45,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 */
 	public Disease(final SecondOrderParamsRepository secParams, String name, String description) {
 		this.secParams = secParams;
-		this.manifestations = new ArrayList<>();
+		this.manifestations = new TreeMap<>();
 		this.exclusions = new TreeMap<>();
 		this.name = name;
 		this.description = description;
@@ -93,7 +93,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	}
 	
 	public void reset(int id) {
-		for (final Manifestation manif : manifestations) {
+		for (final Manifestation manif : manifestations.values()) {
 			manif.reset(id);
 		}
 	}
@@ -105,7 +105,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 * @return The manifestation added
 	 */
 	public Manifestation addManifestation(Manifestation manif) {
-		manifestations.add(manif);
+		manifestations.put(manif.getName(), manif);
 		secParams.registerManifestation(manif);
 		TreeSet<Manifestation> excManif = new TreeSet<>();
 		exclusions.put(manif, excManif);
@@ -182,7 +182,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	public TreeSet<Manifestation> getInitialStage(Patient pat) {
 		final TreeSet<Manifestation> init = new TreeSet<>();
 		final TreeSet<Manifestation> excluded = new TreeSet<>();
-		for (final Manifestation manif : manifestations) {
+		for (final Manifestation manif : manifestations.values()) {
 			if (manif.hasManifestationAtStart(pat)) {
 				init.add(manif);
 				excluded.addAll(getExcluded(manif));
@@ -239,12 +239,21 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	}
 	
 	/**
-	 * Returns the stages used to model this chronic complication
-	 * @return An array containing the stages used to model this chronic complication 
+	 * Returns the manifestations used to model this disease
+	 * @return An array containing the manifestations used to model this disease 
 	 */
 	public Manifestation[] getManifestations() {
 		final Manifestation[] array = new Manifestation[manifestations.size()];
-		return (Manifestation[]) manifestations.toArray(array);
+		return (Manifestation[]) manifestations.values().toArray(array);
+	}
+	
+	/**
+	 * Returns a specific manifestation identified by a short description
+	 * @param name Short description of the manifestation used as id 
+	 * @return a specific manifestation identified by a short description
+	 */
+	public Manifestation getManifestation(String name) {
+		return manifestations.get(name);
 	}
 	
 	/**

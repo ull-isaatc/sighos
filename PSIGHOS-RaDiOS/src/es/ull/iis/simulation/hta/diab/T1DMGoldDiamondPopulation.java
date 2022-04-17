@@ -7,12 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.diab.manifestations.HeartFailure;
+import es.ull.iis.simulation.hta.diab.manifestations.LowExtremityAmputation;
+import es.ull.iis.simulation.hta.diab.manifestations.MyocardialInfarction;
+import es.ull.iis.simulation.hta.diab.manifestations.ProliferativeRetinopathy;
+import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.ClinicalParameter;
 import es.ull.iis.simulation.hta.populations.InitiallySetClinicalParameter;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
+import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -37,6 +43,16 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	private static final double []MIN_MAX_BASELINE_AGE = {26, 73};
 	/** Mean and SD of baseline duration of diabetes. SD from GOLD */
 	private static final double []BASELINE_DURATION = {22.16619718, 11.8};
+	/** Beta parameters (cases, no cases) for the initial proportion of proliferative retinopathy, according to the GOLD study */
+	private static final double []P_INI_PRET_BETA = {28, 300-28}; 
+	/** Beta parameters (cases, no cases) for the initial proportion of lower amputation, according to the GOLD study */
+	private static final double []P_INI_LEA_BETA = {1, 300-1}; 
+	/** Beta parameters (cases, no cases) for the initial proportion of myocardial infarction, according to the GOLD study */
+	private static final double []P_INI_MI_BETA = {3, 300-3}; 
+	/** Beta parameters (cases, no cases) for the initial proportion of stroke, according to the GOLD study */
+	private static final double []P_INI_STROKE_BETA = {2, 300-2}; 
+	/** Beta parameters (cases, no cases) for the initial proportion of heart failure, according to the GOLD study */
+	private static final double []P_INI_HF_BETA = {1, 300-1}; 
 
 	/**
 	 * @param secParams
@@ -47,12 +63,27 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	}
 
 	@Override
-	public double getPDisease(DiseaseProgressionSimulation simul) {
-		return 1.0;
+	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 132.0 / 300.0);
+	}
+
+	@Override
+	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 1.0);
+	}
+
+	@Override
+	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 1.0);
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
+		secParams.addInitProbParam(disease.getManifestation(ProliferativeRetinopathy.NAME), "GOLD", P_INI_PRET_BETA[0] / (P_INI_PRET_BETA[0] + P_INI_PRET_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_PRET_BETA[0], P_INI_PRET_BETA[1]));
+		secParams.addInitProbParam(disease.getManifestation(LowExtremityAmputation.NAME), "GOLD", P_INI_LEA_BETA[0] / (P_INI_LEA_BETA[0] + P_INI_LEA_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_LEA_BETA[0], P_INI_LEA_BETA[1]));
+		secParams.addInitProbParam(disease.getManifestation(MyocardialInfarction.NAME), "GOLD", P_INI_MI_BETA[0] / (P_INI_MI_BETA[0] + P_INI_MI_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_MI_BETA[0], P_INI_MI_BETA[1]));
+		secParams.addInitProbParam(disease.getManifestation(Stroke.NAME), "GOLD", P_INI_STROKE_BETA[0] / (P_INI_STROKE_BETA[0] + P_INI_STROKE_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_STROKE_BETA[0], P_INI_STROKE_BETA[1]));
+		secParams.addInitProbParam(disease.getManifestation(HeartFailure.NAME), "GOLD", P_INI_HF_BETA[0] / (P_INI_HF_BETA[0] + P_INI_HF_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_HF_BETA[0], P_INI_HF_BETA[1]));
 	}
 
 	@Override
@@ -66,23 +97,13 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 		paramList.add(new InitiallySetClinicalParameter(T1DMRepository.STR_DURATION, RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION[0], BASELINE_DURATION[1])));
 		return paramList;
 	}
-	
-	@Override
-	protected double getPMan(DiseaseProgressionSimulation simul) {
-		return 168.0 / 300.0;
-	}
 
 	@Override
-	protected double getPDiagnosed(DiseaseProgressionSimulation simul) {
-		return 1.0;
-	}
-
-	@Override
-	protected RandomVariate getBaselineAge(DiseaseProgressionSimulation simul) {
+	protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
 		final double mode = Statistics.betaModeFromMeanSD(BASELINE_AGE[0], BASELINE_AGE[1]);
 		
 		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_AGE[0], mode, MIN_MAX_BASELINE_AGE[0], MIN_MAX_BASELINE_AGE[1]);
-		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]); 
+		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", rng, betaParams[0], betaParams[1]); 
 		return RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_BASELINE_AGE[1] - MIN_MAX_BASELINE_AGE[0], MIN_MAX_BASELINE_AGE[0]);			
 	}
 

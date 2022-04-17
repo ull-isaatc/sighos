@@ -20,13 +20,14 @@ public class LowExtremityAmputation extends ChronicManifestation {
 	private static final int COSTYEAR = 2017;
 	// Avg, SD
 	private static final double[] DU = new double[] {0.28, (0.389 - 0.17) / 3.92};
+	public static final String NAME = "LEA";
 	
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public LowExtremityAmputation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams,"LEA", "Low extremity amputation", disease);
+		super(secParams, NAME, "Low extremity amputation", disease);
 	}
 
 	@Override

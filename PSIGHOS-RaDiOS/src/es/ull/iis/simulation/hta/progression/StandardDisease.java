@@ -15,7 +15,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  *
  */
 public abstract class StandardDisease extends Disease {
-
+	
 	/**
 	 * Creates a new standard disease
 	 * @param secParams Repository for common parameters

@@ -289,4 +289,12 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	 * @return A random values between 0 and 1 for the specified patient
 	 */
 	public abstract double getRandomValue(Patient pat);
+
+	public ArrayList<ManifestationPathway> getPathways() {
+		return pathways;
+	}
+
+	public SecondOrderParamsRepository getSecParamsRepository() {
+		return secParams;
+	}
 }

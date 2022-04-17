@@ -24,6 +24,7 @@ public class InitiallySetClinicalParameter extends ClinicalParameter {
 		this.firstOrderValue = firstOrderValue;
 	}
 	
+	@Override
 	public double getInitialValue(PatientProfile profile, DiseaseProgressionSimulation simul) {
 		return firstOrderValue.generate();
 	}

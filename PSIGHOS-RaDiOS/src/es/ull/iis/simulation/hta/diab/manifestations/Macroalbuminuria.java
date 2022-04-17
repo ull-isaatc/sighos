@@ -16,13 +16,14 @@ import simkit.random.RandomVariateFactory;
 public class Macroalbuminuria extends ChronicManifestation {
 	/** Utility (avg, SD) from either Bagust and Beale; or Sullivan */
 	private static final double[] DU = new double[] {0.048, (0.091 - 0.005) / 3.92};
+	public static final String NAME = "ALB2";
 
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public Macroalbuminuria(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "ALB2", "Macroalbuminuria", disease);
+		super(secParams, NAME, "Macroalbuminuria", disease);
 	}
 
 	@Override

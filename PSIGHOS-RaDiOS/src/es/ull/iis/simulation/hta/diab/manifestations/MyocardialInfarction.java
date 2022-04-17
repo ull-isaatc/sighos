@@ -20,13 +20,14 @@ public class MyocardialInfarction extends ChronicManifestation {
 	private static final double[] DU = new double[] {0.055, (0.067 - 0.042) / 3.92};
 	/** Probability of sudden death after MI (average men-women) */ 
 	private static final double P_DEATH = (0.393 + 0.364) / 2;
+	public static final String NAME = "MI";
 	
 	/**
 	 * @param secParams
 	 * @param disease
 	 */
 	public MyocardialInfarction(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams,"MI", "Myocardial Infarction", disease);
+		super(secParams, NAME, "Myocardial Infarction", disease);
 	}
 
 	@Override
