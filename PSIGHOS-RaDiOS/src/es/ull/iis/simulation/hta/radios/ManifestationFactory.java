@@ -35,7 +35,7 @@ import jakarta.xml.bind.JAXBException;
  *
  */
 public class ManifestationFactory {
-	private static TreeMap<Manifestation, es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> mappings = new TreeMap<>();
+	private static final TreeMap<Manifestation, es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> mappings = new TreeMap<>();
 	
 	private ManifestationFactory() {		
 	}
@@ -79,6 +79,13 @@ public class ManifestationFactory {
 		return newManif;
 	}
 	
+
+	/**
+	 * @return the mappings
+	 */
+	public static TreeMap<Manifestation, es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> getMappings() {
+		return mappings;
+	}
 
 	/**
 	 * @param repository
@@ -239,18 +246,15 @@ public class ManifestationFactory {
 	 * 
 	 */
 	public static void addParametersToRepository(Manifestation manif) {
-		// FIXME: ¿Para qué se comprueba esto?
-//		if (getManifestation() != null) {
-			try {
-				addParamProbabilities(manif);
-			} catch (JAXBException e) {
-				e.printStackTrace();
-			}
-			addParamCosts(manif);
-			addParamMortalityFactorOrProbability(manif);
-			addParamDisutility(manif);
-			addParamProbabilityDiagnosis(manif);
-//		}
+		try {
+			addParamProbabilities(manif);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+		addParamCosts(manif);
+		addParamMortalityFactorOrProbability(manif);
+		addParamDisutility(manif);
+		addParamProbabilityDiagnosis(manif);
 	}
 
 }

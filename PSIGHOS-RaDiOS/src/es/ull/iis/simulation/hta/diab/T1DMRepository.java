@@ -33,14 +33,13 @@ public class T1DMRepository extends SecondOrderParamsRepository {
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, 0.911400915);
 		final Disease dis = new T1DMDisease(this);
-		registerDisease(dis);
 //		registerPopulation(new T1DMSimpleTestPopulation(this, dis));
 //		registerIntervention(new SMBG_Intervention(this));
 //		registerIntervention(new CGM_Intervention(this));
-		registerPopulation(new DCCTPopulation1(this, dis));
-		registerIntervention(new DCCT_ConventionalIntervention(this));
-		registerIntervention(new DCCT_IntensiveIntervention(this));
-		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		setPopulation(new DCCTPopulation1(this, dis));
+		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		new DCCT_ConventionalIntervention(this);
+		new DCCT_IntensiveIntervention(this);
 	}
 
 	@Override

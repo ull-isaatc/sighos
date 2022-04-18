@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.params;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
@@ -27,22 +28,22 @@ import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
- * A repository to define the second order parameters for the simulation. It contains several "standard" collections 
- * of {@link SecondOrderParam parameters}, grouped by type: probability, {@link SecondOrderCostParam cost} and utility. It also contains a miscellaneous category (others) 
- * for all other parameters which do not fit in the former collections. To add a parameter:
+ * A repository to define the second order parameters for the simulation, as well as the basic components to be simulated. 
+ * A repository should be created in two stages:
+ * <ol>
+ * <li>First, the basic components should be added: population ({@link #setPopulation(Population)}), death submodel ({@link #setDeathSubmodel(DeathSubmodel)},
+ * one or more diseases ({@link #addDisease(Disease)}), one or more manifestations ({@link #addManifestation(Manifestation)}, which are generally defined within the constructor of the 
+ * corresponding disease), and one or more interventions ({@link #addIntervention(Intervention)}).</li>
+ * <li>All those basic components define a {@link CreatesSecondOrderParameters#registerSecondOrderParameters() method} to create and register second order parameters. Once all the basic 
+ * components have been added to the repository, the method {@link #registerAllSecondOrderParams()} must be invoked.</li> 
+ * </ol> 
+ * {@link SecondOrderParam Second order parameters} are stored in a number of "standard" collections, grouped by type: probability, {@link SecondOrderCostParam cost} and utility. There is also 
+ * a miscellaneous category (others) for all other parameters which do not fit in the former collections. To add a parameter:
  * <ol>
  * <li>Create a constant name</li>
  * <li>Create a method to return the parameter (or ensure that the parameter is added to one of the standard collections, which already defined access methods)</li>
  * <li>Remember to add the value of the parameter in the corresponding subclasses</li> 
  * </ol>
- * <p>
- * This repository also contains the acute and chronic complications defined for diabetes. Complications must be registered 
- * to be used within the simulation. To register a complication:
- * <ol>
- * <li>Use the {@link #registerComplication(ChronicComplication)} or the {@link #registerComplication(AcuteComplication)} method</li>
- * <li>Currently, only chronic complications allow for stages. Use the {@link #registerComplicationStages(Manifestation[])} method to add them</li>
- * </ol>
- * </p>
  * TODO El cálculo de tiempo hasta complicación usa siempre el mismo número aleatorio para la misma complicación. Si aumenta el riesgo de esa
  * complicación en un momento de la simulación, se recalcula el tiempo, pero empezando en el instante actual. Esto produce que no necesariamente se acorte
  * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
@@ -180,31 +181,70 @@ public abstract class SecondOrderParamsRepository {
 		return (str.length() > 0) ? str.toString() : null;
 	}
 	
-	public boolean registerPopulation(Population population) {
+	/**
+	 * Registers the second order parameters associated to the population, death submodel, diseases, manifestations and interventions that were
+	 * previously included in this repository. This method must be invoked after all these components have been created. 
+	 */
+	public void registerAllSecondOrderParams() {
+		registeredPopulation.registerSecondOrderParameters();
+		registeredDeathSubmodel.registerSecondOrderParameters();
+		for (Disease disease : registeredDiseases)
+			disease.registerSecondOrderParameters();
+		for (Manifestation manif : registeredManifestations)
+			manif.registerSecondOrderParameters();
+		for (Intervention intervention : registeredInterventions)
+			intervention.registerSecondOrderParameters();
+	}
+	
+	/**
+	 * Sets the population characteristics that will be simulated
+	 * @param population A definition of the characteristics of a population
+	 * @return False if a population was already defined for this repository; true otherwise 
+	 */
+	public boolean setPopulation(Population population) {
 		if (registeredPopulation != null)
 			return false;
 		this.registeredPopulation = population;
-		registeredPopulation.registerSecondOrderParameters();
 		return true;
 	}
+	
 	/**
-	 * Registers a new disease
+	 * Adds a new disease to his repository. This method is invoked from the constructor of {@link Disease} and should not be invoked elsewhere 
 	 * @param disease Disease
 	 */
-	public void registerDisease(Disease disease) {
+	public void addDisease(Disease disease) {
 		disease.setOrder(registeredDiseases.size());
 		registeredDiseases.add(disease);
-		disease.registerSecondOrderParameters();
 	}
 
 	/**
-	 * Register a new manifestation
+	 * Adds a new manifestation to this repository. This method is invoked from the method {@link Disease#addManifestation(Manifestation)} and should not be invoked elsewhere
 	 * @param manif New manifestation
 	 */
-	public void registerManifestation(Manifestation manif) {
+	public void addManifestation(Manifestation manif) {
 		manif.setOrder(registeredManifestations.size());
 		registeredManifestations.add(manif);
-		manif.registerSecondOrderParameters();
+	}
+
+	/**
+	 * Adds a new intervention to this repository. This method is invoked from the constructor of {@link Intervention} and should not be invoked elsewhere 
+	 * @param intervention The description of an intervention
+	 */
+	public void addIntervention(Intervention intervention) {
+		intervention.setOrder(registeredInterventions.size());
+		registeredInterventions.add(intervention);
+	}
+
+	/**
+	 * Sets the death submodel that will be used during the simulation. Returns false if there was an already registered death submodel
+	 * @param deathSubmodel Death submodel to be used
+	 * @return false if there was an already registered death submodel; true otherwise
+	 */
+	public boolean setDeathSubmodel(DeathSubmodel deathSubmodel) {
+		if (registeredDeathSubmodel != null)
+			return false;
+		registeredDeathSubmodel = deathSubmodel;
+		return true;
 	}
 	
 	/**
@@ -238,33 +278,10 @@ public abstract class SecondOrderParamsRepository {
 		final Manifestation[] array = new Manifestation[arrayTyped.size()];
 		return (Manifestation[]) arrayTyped.toArray(array);
 	}
-
-	/**
-	 * Registers a new intervention 
-	 * @param intervention The description of an intervention
-	 */
-	public void registerIntervention(Intervention intervention) {
-		intervention.setOrder(registeredInterventions.size());
-		registeredInterventions.add(intervention);
-		intervention.registerSecondOrderParameters();
-	}
 	
 	public Intervention[] getRegisteredInterventions() {
 		final Intervention[] array = new Intervention[registeredInterventions.size()];
 		return (Intervention[]) registeredInterventions.toArray(array);
-	}
-
-	/**
-	 * Registers the death submodel. Returns false if there was an already registered death submodel
-	 * @param deathSubmodel Death submodel to be used
-	 * @return false if there was an already registered death submodel; true otherwise
-	 */
-	public boolean registerDeathSubmodel(DeathSubmodel deathSubmodel) {
-		if (registeredDeathSubmodel != null)
-			return false;
-		registeredDeathSubmodel = deathSubmodel;
-		registeredDeathSubmodel.registerSecondOrderParameters();
-		return true;
 	}
 	
 	/**

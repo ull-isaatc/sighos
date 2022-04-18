@@ -100,6 +100,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		Arrays.fill(randomSeeds, null);
 		this.pathways = new ArrayList<>();
 		this.labels = new TreeSet<Named>();
+		disease.addManifestation(this);
 	}
 	
 	/**

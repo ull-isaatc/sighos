@@ -30,13 +30,10 @@ public class PBDRepository extends SecondOrderParamsRepository {
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.MAX, 0.8861);
 		Disease dis = new PBDDisease(this);
-		// FIXME: ¿Deberíamos hacer esto siempre?
-		registerDisease(HEALTHY);
-		registerDisease(dis);
-		registerPopulation(new PBDPopulation(this, dis, allAffected));
-		registerIntervention(new NullIntervention(this));
-		registerIntervention(new PBDNewbornScreening(this));
-		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		setPopulation(new PBDPopulation(this, dis, allAffected));
+		new NullIntervention(this);
+		new PBDNewbornScreening(this);
+		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
 
 	@Override

@@ -670,6 +670,7 @@ public class DiseaseMain {
 		final String validity = secParams.checkValidity();
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
 		if (validity == null) {
+			secParams.registerAllSecondOrderParams();
 			final EnumSet<Outputs> printOutputs = configurePrintOutputs(arguments.bi, arguments.individualOutcomes, arguments.breakdownCost);				
 			final ArrayList<EpidemiologicOutputFormat> formats = configureOutputFormats(arguments.epidem);
 			final PrintWriter[] outputPrintWriters = configureOutputPrintWriters(arguments.outputFileName, baos, printOutputs.size(), formats.size());
@@ -679,8 +680,6 @@ public class DiseaseMain {
 		} else {
 			System.err.println("Could not validate model. Result = " + validity);
 		}
-		
-		// TODO: Hecho typecast simplemente para que compile, pero no debería funcionar
 		return new RadiosExperimentResult(baos, secParams.prettySavedParams(), arguments.nRuns);		
 	}
 
@@ -756,14 +755,14 @@ public class DiseaseMain {
 			// ##############################################################################################################
 			// Parameters definition
 			// ##############################################################################################################
-			boolean usePreviousLoadedJsonDiseaseDefinition = false;
+			boolean usePreviousLoadedJsonDiseaseDefinition = true;
 			boolean replaceDotWithColon = false;
 			boolean useProgramaticArguments = true;
 			boolean allAffected = true;
 			double utilityGeneralPopulation = 0.8861;
-			String params = "-n 20000 -r 0 -pop 3 -y 2019 -q -ep cr"; // Testing diabetes
+//			String params = "-n 20000 -r 0 -pop 3 -y 2019 -q -ep cr"; // Testing diabetes
 //			String params = "-n 5000 -r 0 -pop 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
-//			String params = "-n 100 -r 0 -dr 0 -q -pop 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
+			String params = "-n 100 -r 0 -dr 0 -q -pop 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 			
 			parseParameters(args, arguments, useProgramaticArguments, params);
 

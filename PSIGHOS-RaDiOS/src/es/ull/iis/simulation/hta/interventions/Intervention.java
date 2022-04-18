@@ -47,6 +47,7 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 		lifeExpectancyModification = secParams.NO_MODIF;
 		allParameterModification = secParams.NO_MODIF;
 		clinicalParameterModifications = new TreeMap<>();
+		secParams.addIntervention(this);
 	}
 
 	@Override

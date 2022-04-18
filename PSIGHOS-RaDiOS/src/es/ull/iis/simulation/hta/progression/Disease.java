@@ -50,6 +50,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 		this.name = name;
 		this.description = description;
 		this.labeledManifestations = new TreeMap<>();
+		secParams.addDisease(this);
 	}
 	
 	/**
@@ -99,14 +100,13 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	}
 
 	/**
-	 * Adds a manifestation to this disease. If the manifestation is chronic, by default excludes the "asymptomatic" chronic
-	 * manifestation
+	 * Adds a manifestation to this disease and also to the repository. 
 	 * @param manif New manifestation associated to this disease
 	 * @return The manifestation added
 	 */
 	public Manifestation addManifestation(Manifestation manif) {
 		manifestations.put(manif.getName(), manif);
-		secParams.registerManifestation(manif);
+		secParams.addManifestation(manif);
 		TreeSet<Manifestation> excManif = new TreeSet<>();
 		exclusions.put(manif, excManif);
 		return manif;
