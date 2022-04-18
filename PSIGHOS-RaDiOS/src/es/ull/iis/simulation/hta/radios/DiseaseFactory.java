@@ -3,25 +3,17 @@
  */
 package es.ull.iis.simulation.hta.radios;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
 import java.util.TreeMap;
 
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.ClinicalDiagnosisStrategy;
 import es.ull.iis.ontology.radios.json.schema4simulation.FollowUpStrategy;
-import es.ull.iis.ontology.radios.json.schema4simulation.PrecedingManifestation;
 import es.ull.iis.ontology.radios.json.schema4simulation.TreatmentStrategy;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.StandardDisease;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
@@ -40,7 +32,7 @@ public class DiseaseFactory {
 	private DiseaseFactory() {		
 	}
 	
-	public static StandardDisease getDiseaseInstance(SecondOrderParamsRepository secParams, es.ull.iis.ontology.radios.json.schema4simulation.Disease diseaseJSON, List<es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> manifestations, Integer timeHorizon) throws TransformException, JAXBException {
+	public static StandardDisease getDiseaseInstance(SecondOrderParamsRepository secParams, es.ull.iis.ontology.radios.json.schema4simulation.Disease diseaseJSON, Integer timeHorizon) throws TransformException, JAXBException {
 		StandardDisease disease = new StandardDisease(secParams, diseaseJSON.getName(), Constants.CONSTANT_EMPTY_STRING) {
 			
 			@Override
@@ -86,50 +78,9 @@ public class DiseaseFactory {
 				return 0;
 			}
 		};
-	
-		firstPassManifestationsAnalysis(secParams, disease, manifestations);
-		return disease;
-	}
-
-	/**
-	 * Add manifestations to the disease
-	 * @param secParams
-	 * @param manifestations
-	 * @return
-	 * @throws JAXBException 
-	 */
-	private static void firstPassManifestationsAnalysis(SecondOrderParamsRepository secParams, Disease disease, List<es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> manifestations) throws JAXBException {
-		Queue<es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> queueManifestations = new LinkedList<>();
-		Set<String> processedManifestations = new HashSet<>();
-		for (es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifestation : manifestations) {
-			if (CollectionUtils.isEmpty(manifestation.getPrecedingManifestations())) {
-				registerManifestation(secParams, disease, processedManifestations, manifestation);
-			} else {
-				queueManifestations.add(manifestation);
-			}
-		}
 		
-		while (!queueManifestations.isEmpty()) {
-			es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifestation = queueManifestations.remove();
-			List<String> precedingManifesationToListString = new ArrayList<>();
-			if (manifestation.getPrecedingManifestations() != null) {
-				for (PrecedingManifestation precedingManifestation : manifestation.getPrecedingManifestations()) {
-					precedingManifesationToListString.add(precedingManifestation.getName());
-				}
-			}
-			if (processedManifestations.containsAll(precedingManifesationToListString)) {
-				registerManifestation(secParams, disease, processedManifestations, manifestation);
-			} else {
-				queueManifestations.add(manifestation);
-			}
-		}
-	}
-
-	private static void registerManifestation(SecondOrderParamsRepository repository, Disease disease, Set<String> processedManifestations, es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifJSON)
-			throws JAXBException {
-		Manifestation manif = ManifestationFactory.getManifestationInstance(repository, disease, manifJSON);
-		disease.addManifestation(manif);
-		processedManifestations.add(manifJSON.getName());
+		mappings.put(disease, diseaseJSON);
+		return disease;
 	}
 
 	private static void calculateDiseaseStrategyCost(SecondOrderParamsRepository secParams, String paramName, String paramDescription, Matrix costs, String costType) {

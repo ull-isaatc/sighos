@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
-import jakarta.xml.bind.JAXBException;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -36,6 +34,7 @@ import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
 import es.ull.iis.simulation.hta.simpletest.NullIntervention;
+import jakarta.xml.bind.JAXBException;
 
 /**
  * @author David Prieto Gonz�lez
@@ -120,40 +119,38 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 			if (naturalDevelopment != null && CollectionUtils.notIsEmpty(naturalDevelopment.getManifestations())) {
 				initializeCostMatrix(naturalDevelopment, diseaseJSON, timeHorizon);
 
-				List<es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> manifestations = naturalDevelopment.getManifestations();
-				disease = DiseaseFactory.getDiseaseInstance(this, diseaseJSON, naturalDevelopment.getManifestations(), timeHorizon);
+				// Creates the disease
+				disease = DiseaseFactory.getDiseaseInstance(this, diseaseJSON, timeHorizon);
+				// Creates the manifestations
+				for (es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifJSON : naturalDevelopment.getManifestations()) {
+					ManifestationFactory.getManifestationInstance(this, disease, manifJSON);
+				}
 			} else {
 				throw new TransformException("ERROR => The selected disease has no associated natural development. The specification of this development is mandatory.");
 			}
 		}
 		
-		registerDisease(HEALTHY);
-		registerDisease(disease);
-
 		Population population = new RadiosPopulation(this, disease, ValueTransform.splitProbabilityDistribution(radiosDiseaseInstance.getDisease().getBirthPrevalence()), allAffected);
-		registerPopulation(population);
+		setPopulation(population);
 		
 		if (CollectionUtils.notIsEmpty(radiosDiseaseInstance.getDisease().getInterventions())) {
 			for (Intervention intervention : radiosDiseaseInstance.getDisease().getInterventions()) {
 				if (intenventionsToCompare.contains(intervention.getName())) {
 					if (Constants.DATAPROPERTYVALUE_KIND_INTERVENTION_SCREENING_VALUE.equalsIgnoreCase(intervention.getKind())) {
-						RadiosScreeningIntervention radiosIntervention = new RadiosScreeningIntervention(this, intervention, naturalDevelopmentName, timeHorizon, 
+						new RadiosScreeningIntervention(this, intervention, naturalDevelopmentName, timeHorizon, 
 								this.costTreatments, this.costFollowUps, this.costScreenings, this.costClinicalDiagnosis, disease); 
-						this.registerIntervention(radiosIntervention);
 					} else {
-						RadiosBasicIntervention radiosIntervention = new RadiosBasicIntervention(this, intervention, naturalDevelopmentName, timeHorizon, 
+						new RadiosBasicIntervention(this, intervention, naturalDevelopmentName, timeHorizon, 
 								this.costTreatments, this.costFollowUps, this.costScreenings, this.costClinicalDiagnosis, disease); 
-						this.registerIntervention(radiosIntervention);
 					}
 				}
 			}
 			if (intenventionsToCompare == null || intenventionsToCompare.contains(Constants.CONSTANT_DO_NOTHING)) {
-				this.registerIntervention(new NullIntervention(this));
+				new NullIntervention(this);
 			}
 		}
 
-		// El submodelo de mortalidad (por defecto podemos usar el que te pongo)
-		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
 
 	/**

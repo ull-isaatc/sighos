@@ -158,7 +158,7 @@ public class T1DMDisease extends StandardDisease {
 		if (DISABLE_SHE)
 			she = null;
 		else {
-			she = addManifestation(new SevereHypoglycemiaEvent(secParams, this));
+			she = new SevereHypoglycemiaEvent(secParams, this);
 			assignLabel(GroupOfManifestations.HYPO, she);
 			addProgression(she, false);
 		}
@@ -170,9 +170,9 @@ public class T1DMDisease extends StandardDisease {
 		}
 		else {
 			// Register and configure Nephropathy-related manifestations
-			alb1 = addManifestation(new Microalbuminuria(secParams, this));
-			alb2 = addManifestation(new Macroalbuminuria(secParams, this));
-			esrd = addManifestation(new EndStageRenalDisease(secParams, this));
+			alb1 = new Microalbuminuria(secParams, this);
+			alb2 = new Macroalbuminuria(secParams, this);
+			esrd = new EndStageRenalDisease(secParams, this);
 			assignLabel(GroupOfManifestations.NPH, alb1);
 			assignLabel(GroupOfManifestations.NPH, alb2);
 			assignLabel(GroupOfManifestations.NPH, esrd);
@@ -195,8 +195,8 @@ public class T1DMDisease extends StandardDisease {
 		}
 		else {
 			// Register and configure Nephropathy-related manifestations
-			neu = addManifestation(new Neuropathy(secParams, this));
-			lea = addManifestation(new LowExtremityAmputation(secParams, this));
+			neu = new Neuropathy(secParams, this);
+			lea = new LowExtremityAmputation(secParams, this);
 			assignLabel(GroupOfManifestations.NEU, neu);
 			assignLabel(GroupOfManifestations.NEU, lea);
 			addProgression(neu, true);
@@ -221,10 +221,10 @@ public class T1DMDisease extends StandardDisease {
 			bli = null;
 		}
 		else {
-			bgret = addManifestation(new BackgroundRetinopathy(secParams, this));
-			pret = addManifestation(new ProliferativeRetinopathy(secParams, this));
-			me = addManifestation(new MacularEdema(secParams, this));
-			bli = addManifestation(new Blindness(secParams, this));
+			bgret = new BackgroundRetinopathy(secParams, this);
+			pret = new ProliferativeRetinopathy(secParams, this);
+			me = new MacularEdema(secParams, this);
+			bli = new Blindness(secParams, this);
 			assignLabel(GroupOfManifestations.RET, bgret);
 			assignLabel(GroupOfManifestations.RET, pret);
 			assignLabel(GroupOfManifestations.RET, me);
@@ -260,10 +260,10 @@ public class T1DMDisease extends StandardDisease {
 			selectorsCHD = new SingleSelectorParam[secParams.getnRuns() + 1];
 			Arrays.fill(selectorsCHD, null);
 			
-			angina = addManifestation(new Angina(secParams, this));
-			stroke = addManifestation(new Stroke(secParams, this));
-			mi = addManifestation(new MyocardialInfarction(secParams, this));
-			hf = addManifestation(new HeartFailure(secParams, this));
+			angina = new Angina(secParams, this);
+			stroke = new Stroke(secParams, this);
+			mi = new MyocardialInfarction(secParams, this);
+			hf = new HeartFailure(secParams, this);
 			assignLabel(GroupOfManifestations.CHD, stroke);
 			assignLabel(GroupOfManifestations.CHD, angina);
 			assignLabel(GroupOfManifestations.CHD, mi);

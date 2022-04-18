@@ -50,42 +50,41 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 			testDisease = new TestRareDisease1(this);
 			break;
 		}
-		registerDisease(testDisease);
 		switch(TEST_POPULATION) {
 		case 1:
-			registerPopulation(new TestPopulation(this, testDisease));
+			setPopulation(new TestPopulation(this, testDisease));
 			break;
 		case 2:
-			registerPopulation(new TestNotDiagnosedPopulation(this, testDisease));
+			setPopulation(new TestNotDiagnosedPopulation(this, testDisease));
 			break;
 		default:
-			registerPopulation(new TestPopulation(this, testDisease));
+			setPopulation(new TestPopulation(this, testDisease));
 			break;		
 		}
 		switch(TEST_INTERVENTIONS) {
 		case 2:
-			registerIntervention(new NullIntervention(this));
-			registerIntervention(new MortalityReductionIntervention(this, Modification.Type.DIFF));
+			new NullIntervention(this);
+			new MortalityReductionIntervention(this, Modification.Type.DIFF);
 			break;
 		case 3:
-			registerIntervention(new NullIntervention(this));
-			registerIntervention(new MortalityReductionIntervention(this, Modification.Type.RR));
+			new NullIntervention(this);
+			new MortalityReductionIntervention(this, Modification.Type.RR);
 			break;
 		case 4:
-			registerIntervention(new NullIntervention(this));
-			registerIntervention(new MortalityReductionIntervention(this, Modification.Type.SET));
+			new NullIntervention(this);
+			new MortalityReductionIntervention(this, Modification.Type.SET);
 			break;
 		case 5:
-			registerIntervention(new NullIntervention(this));
-			registerIntervention(new BasicNewbornScreening(this));
+			new NullIntervention(this);
+			new BasicNewbornScreening(this);
 			break;
 		case 1:
 		default:
-			registerIntervention(new EffectiveIntervention(this, testDisease.getParamNames()));
-			registerIntervention(new NullIntervention(this));
+			new EffectiveIntervention(this, testDisease.getParamNames());
+			new NullIntervention(this);
 			break;
 		}
-		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
 
 	@Override
