@@ -27,7 +27,6 @@ public class TestRareDisease2 extends TemplateTestRareDisease {
 	public TestRareDisease2(SecondOrderParamsRepository secParams) {
 		super(secParams, "RD2", "Test rare disease 2");
 		acuteManif1 = new TestAcuteManifestation1(secParams, this);
-		addManifestation(acuteManif1);
 		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(acuteManif1), secParams, acuteManif1);
 		new ManifestationPathway(secParams, acuteManif1, tte);
 	}

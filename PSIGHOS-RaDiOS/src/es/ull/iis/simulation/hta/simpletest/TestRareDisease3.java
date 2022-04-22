@@ -35,8 +35,6 @@ public class TestRareDisease3 extends TemplateTestRareDisease {
 		super(secParams, "RD3", "Test rare disease 3");
 		manif1 = new TestManifestationStage1(secParams, this);
 		manif2 = new TestManifestationStage2(secParams, this);
-		addManifestation(manif1);
-		addManifestation(manif2);
 		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif1), secParams, manif1);
 		new ManifestationPathway(secParams, manif1, tte);
 		tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif2), secParams, manif2);

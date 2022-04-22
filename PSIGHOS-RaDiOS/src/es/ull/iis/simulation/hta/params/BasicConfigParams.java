@@ -51,6 +51,8 @@ public class BasicConfigParams {
 		public final static double UTILITY = 0.2;
 		public final static double PROBABILITY = 0.5;
 	}
+	/** Years for budget impact (in case it is enabled) */
+	public final static int DEF_BI_YEARS = 10;
 
 	
 	/**

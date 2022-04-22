@@ -51,7 +51,6 @@ public class PBDDisease extends StandardDisease {
 	}
 
 	private void registerBasicManifestation(Manifestation manif) {
-		addManifestation(manif);
 		new ManifestationPathway(secParams, manif, new ProportionBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif), secParams, manif));
 	}
 	

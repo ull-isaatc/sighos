@@ -60,9 +60,9 @@ public class Tests {
 		boolean expectedResult = true;
 		boolean result = true;
 		
-		try {			
+		try {
 			Schema4Simulation schema4Simulation = loadDiseaseFromJson("/home/davidpg/workspace/java/RaDiOS-MTT/radios.json");
-			RadiosRepository repository = new RadiosRepository(1, 1, schema4Simulation, 10, true, Arrays.asList(""));
+			RadiosRepository repository = new RadiosRepository(1, 1, "/home/davidpg/workspace/java/RaDiOS-MTT/radios.json", 10, true, Arrays.asList(""));
 			for (Manifestation m : schema4Simulation.getDisease().getDevelopments().get(0).getManifestations()) {
 				if (m.getProbability() != null && m.getProbability().length() > 50) {
 					System.out.println(String.format("Parseando la probabilidad de %s: %s...", m.getName(), m.getProbability().substring(0, 50)));

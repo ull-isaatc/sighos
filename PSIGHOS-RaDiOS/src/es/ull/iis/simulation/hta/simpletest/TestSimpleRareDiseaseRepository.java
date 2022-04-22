@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
+import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
@@ -63,25 +64,25 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 		}
 		switch(TEST_INTERVENTIONS) {
 		case 2:
-			new NullIntervention(this);
+			new DoNothingIntervention(this);
 			new MortalityReductionIntervention(this, Modification.Type.DIFF);
 			break;
 		case 3:
-			new NullIntervention(this);
+			new DoNothingIntervention(this);
 			new MortalityReductionIntervention(this, Modification.Type.RR);
 			break;
 		case 4:
-			new NullIntervention(this);
+			new DoNothingIntervention(this);
 			new MortalityReductionIntervention(this, Modification.Type.SET);
 			break;
 		case 5:
-			new NullIntervention(this);
+			new DoNothingIntervention(this);
 			new BasicNewbornScreening(this);
 			break;
 		case 1:
 		default:
 			new EffectiveIntervention(this, testDisease.getParamNames());
-			new NullIntervention(this);
+			new DoNothingIntervention(this);
 			break;
 		}
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));

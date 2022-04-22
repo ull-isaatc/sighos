@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.progression;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -143,6 +144,18 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 */
 	public Disease addExclusion(Manifestation manif, Manifestation excluded) {
 		exclusions.get(manif).add(excluded);
+		return this;
+	}
+	
+	/**
+	 * Adds a new rule of exclusion for a manifestation, that precludes a patient from experiencing the "excluded" manifestations at the same time.
+	 * @param manif The "exclusive" manifestation
+	 * @param excluded The collection of "excluded" manifestations
+	 * @return This disease
+	 */
+	public Disease addExclusion(Manifestation manif, Collection<Manifestation> excluded) {
+		for (Manifestation exc : excluded)
+			exclusions.get(manif).add(exc);
 		return this;
 	}
 	
