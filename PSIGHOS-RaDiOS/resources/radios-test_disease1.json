@@ -3,6 +3,7 @@
     "name" : "#RD1_Disease",
     "developments" : [ {
       "name" : "#RD1_Natural_Development",
+      "kind" : "NATURAL",
       "manifestations" : [ {
         "name" : "#RD1_MANIF1",
         "probability" : "0.1",

@@ -3,10 +3,8 @@
  */
 package es.ull.iis.simulation.hta.diab;
 
-import es.ull.iis.simulation.hta.diab.interventions.CGM_Intervention;
 import es.ull.iis.simulation.hta.diab.interventions.DCCT_ConventionalIntervention;
 import es.ull.iis.simulation.hta.diab.interventions.DCCT_IntensiveIntervention;
-import es.ull.iis.simulation.hta.diab.interventions.SMBG_Intervention;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
@@ -31,11 +29,11 @@ public class T1DMRepository extends SecondOrderParamsRepository {
 	public T1DMRepository(int nRuns, int nPatients) {
 		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
-		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, 0.911400915);
+		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, DEF_U_GENERAL_POP);
 		final Disease dis = new T1DMDisease(this);
-//		registerPopulation(new T1DMSimpleTestPopulation(this, dis));
-//		registerIntervention(new SMBG_Intervention(this));
-//		registerIntervention(new CGM_Intervention(this));
+//		setPopulation(new T1DMSimpleTestPopulation(this, dis));
+//		new SMBG_Intervention(this);
+//		new CGM_Intervention(this);
 		setPopulation(new DCCTPopulation1(this, dis));
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 		new DCCT_ConventionalIntervention(this);

@@ -132,6 +132,7 @@ public class PatientInfo extends AsynchronousInfo {
 		String description = type.getDescription();
 		switch (type) {
 		case START_MANIF:
+		case END_MANIF:
 		case DIAGNOSIS:
 		case SCREEN:
 			description = description + "\t" + cause.name();
