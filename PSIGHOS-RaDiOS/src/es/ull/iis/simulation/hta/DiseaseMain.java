@@ -23,7 +23,7 @@ import es.ull.iis.simulation.hta.radios.RadiosExperimentResult;
 import es.ull.iis.simulation.hta.radios.RadiosRepository;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
-import jakarta.xml.bind.JAXBException;
+import javax.xml.bind.JAXBException;
 
 /**
  * Main class to launch simulation experiments

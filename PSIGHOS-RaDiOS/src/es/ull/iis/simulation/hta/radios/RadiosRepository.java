@@ -33,7 +33,7 @@ import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
-import jakarta.xml.bind.JAXBException;
+import javax.xml.bind.JAXBException;
 
 /**
  * @author David Prieto Gonz�lez

@@ -21,7 +21,7 @@
 	<classpathentry kind="lib" path="jar/radios-mtt-2.0.jar"/>
 	<classpathentry kind="lib" path="jar/commons-jexl3-3.1.jar"/>
 	<classpathentry kind="lib" path="jar/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="jar/jakarta.xml.bind-api.jar"/>
 	<classpathentry kind="lib" path="jar/simkit.jar"/>
+	<classpathentry kind="lib" path="jar/jakarta.xml.bind-api-2.3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

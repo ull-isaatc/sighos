@@ -18,7 +18,7 @@ import es.ull.iis.simulation.hta.progression.StandardDisease;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
-import jakarta.xml.bind.JAXBException;
+import javax.xml.bind.JAXBException;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
