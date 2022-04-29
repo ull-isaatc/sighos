@@ -27,7 +27,7 @@ import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
 import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
-import jakarta.xml.bind.JAXBException;
+import javax.xml.bind.JAXBException;
 
 /**
  * @author Iván Castilla Rodríguez
