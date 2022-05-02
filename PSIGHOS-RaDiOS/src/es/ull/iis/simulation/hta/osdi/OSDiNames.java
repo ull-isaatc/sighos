@@ -66,7 +66,7 @@ public interface OSDiNames {
 		HAS_DEVELOPMENT_KIND("#hasDevelopmentKind"),
 		HAS_DOSE("#hasDose"),
 		HAS_DURATION("#hasDuration"),
-		HAS_ENDAGE("#hasEndAge"),
+		HAS_END_AGE("#hasEndAge"),
 		HAS_EPIDEMIOLOGICAL_PARAMETER_KIND("#hasEpidemiologicalParameterKind"),
 		HAS_FEMALE_PROPORTION("#hasFemaleProportion"),
 		HAS_FREQUENCY("#hasFrequency"),
@@ -94,21 +94,20 @@ public interface OSDiNames {
 		HAS_REF_TO_DO("#hasRefToDO"),
 		HAS_REF_TO_GARD("#hasRefToGARD"),
 		HAS_REF_TO_ICD("#hasRefToICD"),
-		HAS_REFTOOMIM("#hasRefToOMIM"),
-		HAS_REFTOORDO("#hasRefToORDO"),
-		HAS_REFTOSNOMED("#hasRefToSNOMED"),
-		HAS_RELATIVERISK("#hasRelativeRisk"),
-		HAS_RELATIVERISKMODIFICATION("#hasRelativeRiskModification"),
+		HAS_REF_TO_OMIM("#hasRefToOMIM"),
+		HAS_REF_TO_ORDO("#hasRefToORDO"),
+		HAS_REF_TO_SNOMED("#hasRefToSNOMED"),
+		HAS_RELATIVE_RISK("#hasRelativeRisk"),
+		HAS_RELATIVE_RISK_MODIFICATION("#hasRelativeRiskModification"),
 		HAS_SENSITIVITY("#hasSensitivity"),
 		HAS_SIZE("#hasSize"),
 		HAS_SOURCE("#hasSource"),
 		HAS_SPECIFICITY("#hasSpecificity"),
-		HAS_STAGE("#hasStage"),
 		HAS_STEPORDER("#hasStepOrder"),
-		HAS_TEMPORALBEHAVIOR("#hasTemporalBehavior"),
-		HAS_TEMPORARYTHRESHOLD("#hasTemporaryThreshold"),
-		HAS_TIMETO("#hasTimeTo"),
-		HAS_UTILITYKIND("#hasUtilityKind"),
+		HAS_TEMPORAL_BEHAVIOR("#hasTemporalBehavior"),
+		HAS_TEMPORARY_THRESHOLD("#hasTemporaryThreshold"),
+		HAS_TIME_TO("#hasTimeTo"),
+		HAS_UTILITY_KIND("#hasUtilityKind"),
 		HAS_VALUE("#hasValue"),
 		HAS_YEAR("#hasYear");
 		
@@ -144,6 +143,7 @@ public interface OSDiNames {
 		HAS_INTERVENTION("#hasIntervention"),
 		HAS_MANIFESTATION("#hasManifestation"),
 		HAS_MANIFESTATION_MODIFICATION("#hasManifestationModification"),
+		HAS_NATURAL_DEVELOPMENT("#hasNaturalDevelopment"),
 		HAS_PARAMETER("#hasParameter"),
 		HAS_PATHWAY("#hasPathway"),
 		HAS_SCREENING("#hasScreening"),
@@ -164,6 +164,7 @@ public interface OSDiNames {
 		IS_STRATEGY_OF("#isStrategyOf"),
 		IS_SUBPOPULATION_OF("#isSubpopulationOf"),
 		MODIFIES("#modifies"),
+		REQUIRES_DEVELOPMENT("#requiresDevelopment"),
 		REQUIRES_PREVIOUS_MANIFESTATION("#requiresPreviousManifestation");
 		
 		private final String name;
@@ -177,4 +178,33 @@ public interface OSDiNames {
 			return name;
 		}
 	}
+
+	/**
+	 * Names of the ranges defined for data properties in the ontology
+	 * @author Iván Castilla
+	 *
+	 */
+	public static enum DataPropertyRange implements Named {
+		KIND_INTERVENTION_SCREENING_VALUE("SCREENING"),
+		KIND_INTERVENTION_NOSCREENING_VALUE("NO_SCREENING"),
+		TEMPORAL_BEHAVIOR_ANNUAL_VALUE("ANNUAL"),
+		TEMPORAL_BEHAVIOR_ONETIME_VALUE("ONETIME"),
+		TEMPORAL_BEHAVIOR_LIFETIME_VALUE("LIFETIME"),
+		KIND_UTILITY_UTILITY("UTILITY"),
+		KIND_UTILITY_DISUTILITY("DISUTILITY"),
+		KIND_MANIFESTATION_CHRONIC("CHRONIC"),
+		KIND_MANIFESTATION_ACUTE("ACUTE");
+		
+		private final String name;
+		private DataPropertyRange(String name) {
+			this.name = name;
+		}
+		/**
+		 * @return the name
+		 */
+		public String getName() {
+			return name;
+		}
+	}
+
 }

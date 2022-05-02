@@ -20,9 +20,27 @@ public class OwlHelper {
 		dataPropertyValues = DataStoreService.eTLDataPropertyValues(radios);
 		objectPropertyValues = DataStoreService.eTLObjectProperties(radios);
 	}
+
+	/**
+	 * Returns the string corresponding to the specified data property defined in the specified instance in the ontology. 
+	 * If the data property is not defined, returns the default value.
+	 * In any case, returns null if the instance is not defined.
+	 * @param instanceName Name of the instance that defines the data property
+	 * @param propertyName Name of the data property
+	 * @param defaultValue Value that is returned when not defined 
+	 * @return the string corresponding to the specified data property defined in the specified instance in the ontology.
+	 */
+	public static String getDataPropertyValue (String instanceName, String propertyName, String defaultValue) {
+		final Map<String, PropertyData> data = dataPropertyValues.get(instanceName);
+		if (data == null)
+			return null;
+		if (data.get(propertyName) == null)
+			return defaultValue;
+		return data.get(propertyName).getValue();
+	}
 	
-	public static String getDataPropertyValue (String object, String property) {
-		return dataPropertyValues.get(object) != null && dataPropertyValues.get(object).get(property) != null ? dataPropertyValues.get(object).get(property).getValue() : null;
+	public static String getDataPropertyValue (String instanceName, String propertyName) {
+		return getDataPropertyValue(instanceName, propertyName, null);
 	}
 	
 	public static List<String> getObjectPropertiesByName(String objectName, String objectPropertyName) {

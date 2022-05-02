@@ -12,9 +12,9 @@ public class NodeData {
 	private Map<String, PropertyData> properties;
 
 	private Map<String, PropertyData> initProperties() throws TranspilerException {
-		this.addProperty(Constants.DATAPROPERTY_PROBABILITY, String.format(Locale.US, Constants.CONSTANT_DOUBLE_FORMAT_STRING_3DEC, 1.0), Constants.CONSTANT_DOUBLE_TYPE);
-		this.addProperty(Constants.DATAPROPERTY_COST, String.format(Locale.US, Constants.CONSTANT_DOUBLE_FORMAT_STRING_3DEC, 0.0), Constants.CONSTANT_DOUBLE_TYPE);
-		this.addProperty(Constants.DATAPROPERTY_TEMPORAL_BEHAVIOR, Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE, Constants.CONSTANT_STRING_TYPE);
+		this.addProperty(OSDiNames.DataProperty.HAS_PROBABILITY.getName(), String.format(Locale.US, Constants.CONSTANT_DOUBLE_FORMAT_STRING_3DEC, 1.0), Constants.CONSTANT_DOUBLE_TYPE);
+		this.addProperty(OSDiNames.ObjectProperty.HAS_COST.getName(), String.format(Locale.US, Constants.CONSTANT_DOUBLE_FORMAT_STRING_3DEC, 0.0), Constants.CONSTANT_DOUBLE_TYPE);
+		this.addProperty(OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getName(), OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL_VALUE.getName(), Constants.CONSTANT_STRING_TYPE);
 		return this.getProperties();
 	}
 
