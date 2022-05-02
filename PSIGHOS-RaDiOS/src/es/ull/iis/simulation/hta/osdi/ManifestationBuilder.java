@@ -71,6 +71,8 @@ public class ManifestationBuilder {
 						@Override
 						public void registerSecondOrderParameters() {
 							addParamProbabilities(this);
+							// FIXME: The original method had a for loop, but it should be a single param
+							SecondOrderParamsBuilder.createCostParams(secParams, this);
 							addParamCosts(this);
 							addParamMortalityFactorOrProbability(this);
 							addParamDisutility(this);
