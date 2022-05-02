@@ -12,9 +12,9 @@ import es.ull.iis.ontology.radios.xml.datatables.ContentKind;
 import es.ull.iis.ontology.radios.xml.datatables.Datatable;
 import es.ull.iis.ontology.radios.xml.datatables.RowType;
 import es.ull.iis.simulation.hta.osdi.Constants;
+import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
