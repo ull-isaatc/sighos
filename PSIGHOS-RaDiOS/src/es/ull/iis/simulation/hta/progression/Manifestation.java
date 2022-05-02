@@ -295,7 +295,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		return pathways;
 	}
 
-	public SecondOrderParamsRepository getSecParamsRepository() {
+	public SecondOrderParamsRepository getParamsRepository() {
 		return secParams;
 	}
 }

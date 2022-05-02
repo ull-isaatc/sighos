@@ -1,90 +1,99 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.radios;
+package es.ull.iis.simulation.hta.osdi;
 
 import java.util.GregorianCalendar;
-import java.util.TreeMap;
+
+import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.xsd.owl2.Ontology;
 
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.ontology.radios.json.schema4simulation.Cost;
 import es.ull.iis.ontology.radios.json.schema4simulation.PrecedingManifestation;
 import es.ull.iis.ontology.radios.json.schema4simulation.Utility;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
+import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
+import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AcuteManifestation;
 import es.ull.iis.simulation.hta.progression.AgeBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
-import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
 import es.ull.iis.simulation.hta.progression.PathwayCondition;
 import es.ull.iis.simulation.hta.progression.PreviousManifestationCondition;
 import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.progression.StandardDisease;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
+import es.ull.iis.simulation.hta.radios.RadiosRangeAgeMatrixRRCalculator;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
 import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
-import javax.xml.bind.JAXBException;
 
 /**
- * @author Iván Castilla Rodríguez
- * @author David Prieto González
+ * @author Iván Castilla
  *
  */
-public class ManifestationFactory {
-	private static final TreeMap<Manifestation, es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> mappings = new TreeMap<>();
-	
-	private ManifestationFactory() {		
-	}
-	
-	public static Manifestation getManifestationInstance(SecondOrderParamsRepository secParams, Disease disease, es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifJSON) throws JAXBException {
-		Manifestation newManif = null;
-		if (manifJSON.getKind() != null) {
-			if (Manifestation.Type.CHRONIC.equals(Manifestation.Type.valueOf(manifJSON.getKind()))) {
-				newManif = new ChronicManifestation(secParams, manifJSON.getName(), Constants.CONSTANT_EMPTY_STRING, disease,  
-						ValueTransform.toDoubleValue(manifJSON.getOnSetAge()), ValueTransform.toDoubleValue(manifJSON.getEndAge())) {
-					
-					@Override
-					public void registerSecondOrderParameters() {
-						addParametersToRepository(this);
-					}
-				};
-			}
-			else {
-				newManif = new AcuteManifestation(secParams, manifJSON.getName(), Constants.CONSTANT_EMPTY_STRING, disease, 
-						ValueTransform.toDoubleValue(manifJSON.getOnSetAge()), ValueTransform.toDoubleValue(manifJSON.getEndAge())) {
-					
-					@Override
-					public void registerSecondOrderParameters() {
-						addParametersToRepository(this);
-					}
-				};
-			}
-		}
-		// If no type is specified at the instance, the manifestation is assumed to be chronic
-		else {
-			newManif = new ChronicManifestation(secParams, manifJSON.getName(), Constants.CONSTANT_EMPTY_STRING, disease,  
-					ValueTransform.toDoubleValue(manifJSON.getOnSetAge()), ValueTransform.toDoubleValue(manifJSON.getEndAge())) {
-				
-				@Override
-				public void registerSecondOrderParameters() {
-					addParametersToRepository(this);
-				}
-			};
-		}
-		mappings.put(newManif, manifJSON);
-		return newManif;
-	}
-	
+public class ManifestationBuilder {
 
 	/**
-	 * @return the mappings
+	 * 
 	 */
-	public static TreeMap<Manifestation, es.ull.iis.ontology.radios.json.schema4simulation.Manifestation> getMappings() {
-		return mappings;
+	private ManifestationBuilder() {
+	}
+
+	public static Manifestation getManifestationInstance(Ontology ontology, SecondOrderParamsRepository secParams, StandardDisease disease, String manifestationName) {
+		Manifestation manifestation = null;
+		String type = OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_MANIFESTATION_KIND.getName(), OSDiNames.DataPropertyRange.KIND_MANIFESTATION_CHRONIC.getName());
+		final Double onsetAge = ValueParser.toDoubleValue(OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_ONSET_AGE.getName(), "0.0"));
+		final Double endAge = ValueParser.toDoubleValue(OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_END_AGE.getName(), "" + BasicConfigParams.DEF_MAX_AGE));
+		if (OSDiNames.DataPropertyRange.KIND_MANIFESTATION_CHRONIC.equals(type)) {
+			manifestation = new ChronicManifestation(secParams, manifestationName, OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_DESCRIPTION.getName(), ""),
+				disease, onsetAge, endAge) {
+
+					@Override
+					public void registerSecondOrderParameters() {
+						addParamProbabilities(this);
+						addParamCosts(this);
+						addParamMortalityFactorOrProbability(this);
+						addParamDisutility(this);
+						addParamProbabilityDiagnosis(this);
+					}
+			};
+		}
+		else {
+			manifestation = new AcuteManifestation(secParams, manifestationName, OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_DESCRIPTION.getName(), ""),
+					disease, onsetAge, endAge) {
+
+						@Override
+						public void registerSecondOrderParameters() {
+							addParamProbabilities(this);
+							addParamCosts(this);
+							addParamMortalityFactorOrProbability(this);
+							addParamDisutility(this);
+							addParamProbabilityDiagnosis(this);
+						}
+				};			
+		}
+
+		manifestation.setDuration(OwlHelper.getDataPropertyValue(manifestationName, Constants.DATAPROPERTY_DURATION));
+		manifestation.setFrequency(OwlHelper.getDataPropertyValue(manifestationName, Constants.DATAPROPERTY_FREQUENCY));
+		
+		manifestation.setMortalityFactor(SecondOrderParamsBuilder.recalculatePropabilityField(manifestationName, Constants.DATAPROPERTY_MORTALITY_FACTOR, Constants.DATAPROPERTY_MORTALITY_FACTOR_DISTRIBUTION));
+		manifestation.setProbability(SecondOrderParamsBuilder.recalculatePropabilityField(manifestationName, Constants.DATAPROPERTY_PROBABILITY, Constants.DATAPROPERTY_PROBABILITY_DISTRIBUTION));
+
+		manifestation.setProbabilityOfDiagnosis(OwlHelper.getDataPropertyValue(manifestationName, Constants.DATAPROPERTY_PROBABILITYOFLEADINGTODIAGNOSIS));
+		manifestation.setRelativeRisk(OwlHelper.getDataPropertyValue(manifestationName, Constants.DATAPROPERTY_RELATIVE_RISK));
+
+		manifestation.setPrecedingManifestations(getPrecedingManifestations(manifestationName));
+		manifestation.setCosts(SecondOrderParamsBuilder.getCosts(manifestationName));		
+		manifestation.setUtilities(SecondOrderParamsBuilder.getUtilities(manifestationName));		
+		manifestation.setTreatmentStrategies(TreatmentBuilder.getTreatmentStrategies(manifestationName));		
+		manifestation.setFollowUpStrategies(FollowUpBuilder.getFollowUpStrategies(manifestationName));
+		return manifestation;
 	}
 
 	/**
@@ -241,20 +250,4 @@ public class ManifestationFactory {
 			}
 		}
 	}
-	
-	/**
-	 * 
-	 */
-	public static void addParametersToRepository(Manifestation manif) {
-		try {
-			addParamProbabilities(manif);
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		}
-		addParamCosts(manif);
-		addParamMortalityFactorOrProbability(manif);
-		addParamDisutility(manif);
-		addParamProbabilityDiagnosis(manif);
-	}
-
 }

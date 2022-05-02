@@ -40,100 +40,6 @@ public interface Constants {
    public static String DATASHEET_INTERVENTION_SUMMARY_QALYS = "summaryQalys"; 
    public static String DATASHEET_INTERVENTION_SUMMARY_COSTS = "summaryCosts"; 
 
-   // Classes
-	public static String CLASS_DISEASE = "#Disease";
-	public static String CLASS_DEVELOPMENT = "#Development";
-	public static String CLASS_TREATMENT = "#Treatment";
-	public static String CLASS_FOLLOWUP = "#FollowUp";
-	public static String CLASS_SCREENING = "#Screening";
-	public static String CLASS_CLINICALDIAGNOSIS = "#ClinicalDiagnosis";	
-	public static String CLASS_MANIFESTATION = "#Manifestation";
-	public static String CLASS_INTERVENTION = "#Intervention";
-	public static String CLASS_COST = "#Cost";
-	public static String CLASS_UTILITY = "#Utility";
-	public static String CLASS_SCREENINGSTRATEGY = "#ScreeningStrategy";
-	public static String CLASS_CLINICALDIAGNOSISSTRATEGY = "#ClinicalDiagnosisStrategy";
-	public static String CLASS_TREATMENTSTRATEGY = "#TreatmentStrategy";
-	public static String CLASS_FOLLOWUPSTRATEGY = "#FollowUpStrategy";	
-	public static String CLASS_SCREENINGSTEPSTRATEGY = "#ScreeningStepStrategy";
-	public static String CLASS_CLINICALDIAGNOSISSTEPSTRATEGY = "#ClinicalDiagnosisStepStrategy";
-	public static String CLASS_TREATMENTSTEPSTRATEGY = "#TreatmentStepStrategy";
-	public static String CLASS_FOLLOWUPSTEPSTRATEGY = "#FollowUpStepStrategy";	
-	public static String CLASS_GUIDELINES = "#Guideline";
-	public static String CLASS_DRUG = "#Drug";
-	public static String CLASS_DEVELOPMENTMODIFICACION = "#DevelopmentModificacion";
-	public static String CLASS_MANIFESTATIONMODIFICATION = "#ManifestationModification";
-
-	// Object Properties
-	public static String OBJECTPROPERTY_DISEASE_DEVELOPMENTS = "#hasDevelopment";	
-	public static String OBJECTPROPERTY_DISEASE_SCREENINGSTRATEGY = "#hasScreeningStrategy";	
-	public static String OBJECTPROPERTY_DISEASE_CLINICALDIAGNOSISSTRATEGY = "#hasClinicalDiagnosisStrategy";	
-	public static String OBJECTPROPERTY_DISEASE_TREATMENTSTRATEGY = "#hasTreatmentStrategy";	
-	public static String OBJECTPROPERTY_DISEASE_FOLLOWUPSTRATEGY = "#hasFollowUpStrategy";	
-	public static String OBJECTPROPERTY_DISEASE_INTERVENTIONS = "#hasIntervention";	
-
-	public static String OBJECTPROPERTY_DEVELOPMENT_MODIFICATION = "#hasDevelopmentModification";	
-	public static String OBJECTPROPERTY_DEVELOPMENT_MANIFESTATIONS = "#hasManifestation";	
-	public static String OBJECTPROPERTY_DEVELOPMENT = "#hasDevelopment";	
-	
-	public static String OBJECTPROPERTY_MANIFESTATION_MODIFICATION = "#hasManifestationModification";	
-	public static String OBJECTPROPERTY_MANIFESTATION = "#hasManifestation";	
-	public static String OBJECTPROPERTY_MANIFESTATION_COST = "#hasCost";
-	public static String OBJECTPROPERTY_MANIFESTATION_PRECEDINGMANIFESTATIONS = "#hasPrecedingManifestation";	
-
-	public static String OBJECTPROPERTY_PRECEDINGMANIFESTATIONS_PRECEDINGMANIFESTATION = "#hasManifestation";	
-	
-	public static String OBJECTPROPERTY_UTILITY = "#hasUtility";	
-	
-	public static String OBJECTPROPERTY_CLINICAL_DIAGNOSIS_COST = "#hasCost";	
-	
-	public static String OBJECTPROPERTY_INTERVENTION_FOLLOWUP_STRATEGY = "#hasFollowUpStrategy";	
-	public static String OBJECTPROPERTY_INTERVENTION_TREATMENT_STRATEGY = "#hasTreatmentStrategy";	
-	public static String OBJECTPROPERTY_INTERVENTION_SCREENING_STRATEGY = "#hasScreeningStrategy";	
-	public static String OBJECTPROPERTY_INTERVENTION_CLINICAL_DIAGNOSIS_STRATEGY = "#hasClinicalDiagnosisStrategy";	
-
-	// Data Properties
-	public static String DATAPROPERTY_BIRTH_PREVALENCE = "#hasBirthPrevalence";
-	public static String DATAPROPERTY_KIND_INTERVENTION = "#hasInterventionKind";
-	public static String DATAPROPERTY_KIND_DEVELOPMENT = "#hasDevelopmentKind";
-	public static String DATAPROPERTY_KIND_MANIFESTATION = "#hasManifestationKind";
-	public static String DATAPROPERTY_STAGE = "#hasStage";
-	public static String DATAPROPERTY_SPECIFICITY = "#hasSpecificity";
-	public static String DATAPROPERTY_SENSITIVITY = "#hasSensitivity";
-	public static String DATAPROPERTY_LIFE_EXPECTANCY = "#hasLifeExpectancy";	
-	public static String DATAPROPERTY_COST = "#hasCost";	
-	public static String DATAPROPERTY_FREQUENCY = "#hasFrequency";	
-	public static String DATAPROPERTY_PROBABILITY = "#hasProbability";	
-	public static String DATAPROPERTY_PROBABILITY_DISTRIBUTION = "#hasProbabilityDistribution";
-	public static String DATAPROPERTY_PROBABILITYOFLEADINGTODIAGNOSIS = "#hasProbabilityOfDiagnosis";
-	public static String DATAPROPERTY_MORTALITY_FACTOR = "#hasMortalityFactor";	
-	public static String DATAPROPERTY_MORTALITY_FACTOR_DISTRIBUTION = "#hasMortalityFactorDistribution";	
-	public static String DATAPROPERTY_RELATIVE_RISK = "#hasRelativeRisk";	
-	public static String DATAPROPERTY_FREQUENCY_MODIFICATION = "#hasFrequencyModification";	
-	public static String DATAPROPERTY_PROBABILITY_MODIFICATION = "#hasProbabilityModification";	
-	public static String DATAPROPERTY_MORTALITY_FACTOR_MODIFICATION = "#hasMortalityFactorModification";	
-	public static String DATAPROPERTY_RELATIVE_RISK_MODIFICATION = "#hasRelativeRiskModification";
-	public static String DATAPROPERTY_PROBABILITYOFLEADINGTODIAGNOSISMODIFICATION = "#hasProbabilityOfDiagnosisModification";	
-	public static String DATAPROPERTY_VALUE = "#hasValue";
-	public static String DATAPROPERTY_VALUE_DISTRIBUTION = "#hasValueDistribution";
-	public static String DATAPROPERTY_KIND_UTILITY = "#hasUtilityKind";
-	public static String DATAPROPERTY_ONSET_AGE = "#hasOnsetAge";
-	public static String DATAPROPERTY_END_AGE = "#hasEndAge";
-	public static String DATAPROPERTY_TEMPORAL_BEHAVIOR = "#hasTemporalBehavior";
-	public static String DATAPROPERTY_DURATION = "#hasDuration";
-	public static String DATAPROPERTY_AMOUNT = "#hasAmount";
-	public static String DATAPROPERTY_CALCULATEMETHOD = "#hasCalculationMethod";	
-	public static String DATAPROPERTY_DOSE = "#hasDose";	
-	public static String DATAPROPERTY_HOURSINTERVAL = "#hasHoursInterval";	
-	public static String DATAPROPERTY_CONDITIONS = "#hasCondition";	
-	public static String DATAPROPERTY_RANGE = "#hasRange";	
-	public static String DATAPROPERTY_PERCENTAGETREATED = "#hasPercentageTreated";	
-	public static String DATAPROPERTY_PERCENTFORTHENEXT = "#hasPercentageNext";	
-	public static String DATAPROPERTY_TEMPORARYTHRESHOLD = "#hasTemporaryThreshold";	
-	public static String DATAPROPERTY_MODIFICATIONFORALLPARAMS = "#hasModificationForAllParams";	
-	public static String DATAPROPERTY_YEAR = "#hasYear";
-	public static String DATAPROPERTY_REPLACEPREVIOUS = "#isReplacingPrevious";
-
 	// Data properties that do not belong to the ontology, but are generated on the fly
 	public static String CUSTOM_PROPERTY_CUMULATIVE_COST = "#hasCumulativeCost";
 	public static String CUSTOM_PROPERTY_COST_TYPE = "#hasCostType";
@@ -154,18 +60,6 @@ public interface Constants {
 	public static String CUSTOM_PROPERTY_ANNUAL_COST = "#hasAnnualCost";
 	public static String CUSTOM_PROPERTY_ONETIME_COST = "#hasOnetimeCost";
 	public static String CUSTOM_PROPERTY_LIFETIME_COST = "#hasLifetimeCost";
-	
-	// Data Properties Ranges
-	public static String DATAPROPERTYVALUE_KIND_DEVELOPMENT_NATURAL_VALUE = "NATURAL";
-	public static String DATAPROPERTYVALUE_KIND_INTERVENTION_SCREENING_VALUE = "SCREENING";
-	public static String DATAPROPERTYVALUE_KIND_INTERVENTION_NOSCREENING_VALUE = "NO_SCREENING";
-	public static String DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE = "ANNUAL";
-	public static String DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE = "ONETIME";
-	public static String DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_LIFETIME_VALUE = "LIFETIME";
-	public static String DATAPROPERTYVALUE_KIND_UTILITY_UTILITY = "UTILITY";
-	public static String DATAPROPERTYVALUE_KIND_UTILITY_DISUTILITY = "DISUTILITY";
-	public static String DATAPROPERTYVALUE_KIND_MANIFESTATION_CHRONIC = "CHRONIC";
-	public static String DATAPROPERTYVALUE_KIND_MANIFESTATION_ACUTE = "ACUTE";
 	
 	public static String DATAPROPERTYVALUE_CALCULATED_METHOD_DEFAULT = "MIN";
 }
