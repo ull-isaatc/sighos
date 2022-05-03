@@ -15,6 +15,7 @@ import es.ull.iis.ontology.radios.json.schema4simulation.Cost;
 import es.ull.iis.ontology.radios.json.schema4simulation.PrecedingManifestation;
 import es.ull.iis.ontology.radios.json.schema4simulation.Utility;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
+import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -34,7 +35,8 @@ import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
 import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
 
 /**
- * @author Iván Castilla
+ * @author David Prieto González
+ * @author Iván Castilla Rodríguez
  *
  */
 public class ManifestationBuilder {
@@ -47,38 +49,25 @@ public class ManifestationBuilder {
 
 	public static Manifestation getManifestationInstance(Ontology ontology, SecondOrderParamsRepository secParams, StandardDisease disease, String manifestationName) {
 		Manifestation manifestation = null;
-		String type = OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_MANIFESTATION_KIND.getName(), OSDiNames.DataPropertyRange.KIND_MANIFESTATION_CHRONIC.getName());
+		final String type = OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_MANIFESTATION_KIND.getName(), OSDiNames.DataPropertyRange.KIND_MANIFESTATION_CHRONIC.getName());
 		final Double onsetAge = ValueParser.toDoubleValue(OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_ONSET_AGE.getName(), "0.0"));
 		final Double endAge = ValueParser.toDoubleValue(OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_END_AGE.getName(), "" + BasicConfigParams.DEF_MAX_AGE));
+		final String description = OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_DESCRIPTION.getName(), "");
 		if (OSDiNames.DataPropertyRange.KIND_MANIFESTATION_CHRONIC.equals(type)) {
-			manifestation = new ChronicManifestation(secParams, manifestationName, OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_DESCRIPTION.getName(), ""),
-				disease, onsetAge, endAge) {
-
+			manifestation = new ChronicManifestation(secParams, manifestationName, description,	disease, onsetAge, endAge) {
 					@Override
 					public void registerSecondOrderParameters() {
-						addParamProbabilities(this);
-						addParamCosts(this);
-						addParamMortalityFactorOrProbability(this);
-						addParamDisutility(this);
-						addParamProbabilityDiagnosis(this);
+						createParams(secParams, manifestation);
 					}
 			};
 		}
 		else {
-			manifestation = new AcuteManifestation(secParams, manifestationName, OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_DESCRIPTION.getName(), ""),
-					disease, onsetAge, endAge) {
-
-						@Override
-						public void registerSecondOrderParameters() {
-							addParamProbabilities(this);
-							// FIXME: The original method had a for loop, but it should be a single param
-							SecondOrderParamsBuilder.createCostParams(secParams, this);
-							addParamCosts(this);
-							addParamMortalityFactorOrProbability(this);
-							addParamDisutility(this);
-							addParamProbabilityDiagnosis(this);
-						}
-				};			
+			manifestation = new AcuteManifestation(secParams, manifestationName, description, disease, onsetAge, endAge) {
+					@Override
+					public void registerSecondOrderParameters() {
+						createParams(secParams, manifestation);
+					}
+			};			
 		}
 
 		manifestation.setDuration(OwlHelper.getDataPropertyValue(manifestationName, Constants.DATAPROPERTY_DURATION));
@@ -98,6 +87,14 @@ public class ManifestationBuilder {
 		return manifestation;
 	}
 
+	private static void createParams(SecondOrderParamsRepository secParams, Named instance) {
+		SecondOrderParamsBuilder.createCostParam(secParams, instance);
+		addParamProbabilities(instance);
+		addParamMortalityFactorOrProbability(instance);
+		addParamDisutility(instance);
+		addParamProbabilityDiagnosis(instance);
+		
+	}
 	/**
 	 * @param repository
 	 * @param disease
@@ -164,45 +161,6 @@ public class ManifestationBuilder {
 					}
 				} else if (Manifestation.Type.ACUTE == manif.getType()) { // Se debe interpretar el valor de mortalityFactor como la probabilidad de muerte				
 					manif.getParamsRepository().addDeathProbParam(manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
-				}
-			}
-		}
-	}
-
-
-	/**
-	 * TODO: es necesario tener en cuenta los costos de los tipos: ANNUAL, LIFETIME y ONETIME
-	 */
-	private static void addParamCosts(Manifestation manif) {
-		es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifJSON = mappings.get(manif);
-		if (CollectionUtils.notIsEmpty(manifJSON.getCosts())) {
-			String annualCost = null;
-			String onetimeCost = null;
-			Integer yearAnnualCost = null;
-			Integer yearOnetimeCost = null;
-			for (Cost cost : manifJSON.getCosts()) {
-				if (annualCost == null && Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE.equals(cost.getTemporalBehavior())) {
-					annualCost = cost.getAmount();
-					yearAnnualCost = !StringUtils.isEmpty(cost.getYear()) ? Integer.parseInt(cost.getYear()) : (new GregorianCalendar()).get(GregorianCalendar.YEAR);
-				} else if (onetimeCost == null && Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equals(cost.getTemporalBehavior())) {
-					onetimeCost = cost.getAmount();
-					yearOnetimeCost = !StringUtils.isEmpty(cost.getYear()) ? Integer.parseInt(cost.getYear()) : (new GregorianCalendar()).get(GregorianCalendar.YEAR);
-				}
-			}		
-			
-			if (annualCost != null) {
-				ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(annualCost);
-				if (probabilityDistribution != null) {
-					manif.getParamsRepository().addCostParam(manif, "Cost for " + manif, Constants.CONSTANT_EMPTY_STRING, yearAnnualCost, 
-							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForCost());
-				}
-			}
-			
-			if (onetimeCost != null) {
-				ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(onetimeCost);
-				if (probabilityDistribution != null) {
-					manif.getParamsRepository().addTransitionCostParam(manif, "Punctual cost for " + manif, Constants.CONSTANT_EMPTY_STRING, yearOnetimeCost, probabilityDistribution.getDeterministicValue(),
-							probabilityDistribution.getProbabilisticValueInitializedForCost());
 				}
 			}
 		}

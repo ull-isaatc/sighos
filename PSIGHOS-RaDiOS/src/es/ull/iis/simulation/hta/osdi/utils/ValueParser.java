@@ -12,6 +12,7 @@ import es.ull.iis.ontology.radios.xml.datatables.ContentKind;
 import es.ull.iis.ontology.radios.xml.datatables.Datatable;
 import es.ull.iis.ontology.radios.xml.datatables.RowType;
 import es.ull.iis.simulation.hta.osdi.Constants;
+import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -26,6 +27,7 @@ public class ValueParser {
 
 	private static String DISTRIBUTION_NAME_SUFFIX = "Variate";
 	private static String REGEX_RANGE = "(-?[0-9]+(\\.[0-9]+)?)-(-?[0-9]+(\\.[0-9]+)?)";
+	private static String REGEX_NUMERICVALUE_DISTRO_EXTENDED = "^([0-9\\.,E-]+)?(#?([A-Z]+)\\(([+-]?[0-9]+\\.?[0-9]*)(,([+-]?[0-9]+\\.?[0-9]*))?\\))?$";	
 	
    /**
     * @param distributionName
@@ -33,20 +35,23 @@ public class ValueParser {
     * @param secondParameter
     * @return
     */
-   private static RandomVariate buildDistributionVariate(String distributionName, String firstParameter, String secondParameter) {
-   	if (distributionName == null) {
-   		return null;
-   	}
-   	if (distributionName.toUpperCase().contains("EXP")) {
-   		distributionName = "Exponential";
-   	}
-   	
-   	if (secondParameter != null) {
-   		return RandomVariateFactory.getInstance(WordUtils.capitalizeFully(distributionName) + DISTRIBUTION_NAME_SUFFIX, toDoubleValue(firstParameter), toDoubleValue(secondParameter));
-   	} else {
-   		return RandomVariateFactory.getInstance(WordUtils.capitalizeFully(distributionName) + DISTRIBUTION_NAME_SUFFIX, toDoubleValue(firstParameter));
-   	}
-   }
+	private static RandomVariate buildDistributionVariate(double detValue, String distributionName, String firstParameter, String secondParameter) {
+		if (distributionName == null) {
+			return RandomVariateFactory.getInstance("ConstantVariate", detValue);
+		}
+		if (distributionName.toUpperCase().contains("EXP")) {
+			distributionName = "Exponential";
+		}
+		try {
+		   	if (secondParameter != null) {
+		   		return RandomVariateFactory.getInstance(WordUtils.capitalizeFully(distributionName) + DISTRIBUTION_NAME_SUFFIX, toDoubleValue(firstParameter), toDoubleValue(secondParameter));
+		   	} else {
+		   		return RandomVariateFactory.getInstance(WordUtils.capitalizeFully(distributionName) + DISTRIBUTION_NAME_SUFFIX, toDoubleValue(firstParameter));
+		   	}
+		} catch(NumberFormatException e) {
+			return null;
+		}
+	}
 	
 	/**
 	 * @param value
@@ -56,14 +61,15 @@ public class ValueParser {
 		ProbabilityDistribution result = null;		
 		if (value != null) {
 			String valueNormalized = value.toUpperCase().replace(" ", "");
-			Pattern pattern = Pattern.compile(Constants.REGEX_NUMERICVALUE_DISTRO_EXTENDED);
+			Pattern pattern = Pattern.compile(REGEX_NUMERICVALUE_DISTRO_EXTENDED);
 			Matcher matcher = pattern.matcher(valueNormalized);
 			if (matcher.find()) {			
 				Double deterministicValue = (matcher.group(DETERMINISTIC_VALUE_POS) != null) ? toDoubleValue(matcher.group(DETERMINISTIC_VALUE_POS)) : 1.0;
 				String distributionName = matcher.group(DISTRIBUTION_NAME_POS);
 				String firstParameter = matcher.group(FIRST_PARAM_4_DISTRIBUTION_POS);
 				String secondParameter = matcher.group(SECOND_PARAM_4_DISTRIBUTION_POS);
-				result = new ProbabilityDistribution(deterministicValue, buildDistributionVariate(distributionName, firstParameter, secondParameter));
+				RandomVariate rnd = buildDistributionVariate(deterministicValue, distributionName, firstParameter, secondParameter);
+				result = (rnd == null) ? null : new ProbabilityDistribution(deterministicValue, rnd);
 			}
 		}
 		return result;		
@@ -111,17 +117,10 @@ public class ValueParser {
 	 * @param strValue
 	 * @return
 	 */
-	public static Double toDoubleValue (String strValue) {
+	public static Double toDoubleValue (String strValue) throws NumberFormatException {
 		if (strValue == null) {
 			return null;
 		}
-		
-		Double result = null;
-		try {
-			result = Double.parseDouble(strValue);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return result;
+		return Double.parseDouble(strValue);
 	}
 }
