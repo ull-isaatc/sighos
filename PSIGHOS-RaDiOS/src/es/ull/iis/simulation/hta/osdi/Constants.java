@@ -26,7 +26,6 @@ public interface Constants {
 	
 	public static String REGEX_ANYEXPRESION_TYPE = ".*::[#a-zA-Z0-9(),]+";
 	public static String REGEX_NUMERICVALUE_DISTRO = "[0-9.,E-]+#[a-zA-Z0-9(),.#]+";
-	public static String REGEX_NUMERICVALUE_DISTRO_EXTENDED = "^([0-9\\.,E-]+)?(#?([A-Z]+)\\(([+-]?[0-9]+\\.?[0-9]*)(,([+-]?[0-9]+\\.?[0-9]*))?\\))?$";	
 	public static String REGEX_OPERATION_NUMERICVALUE = "[*/+-][0-9.,E-]+";
    public static String REGEX_NUMERICVALUE = "[0-9.,E-]+";	
 
@@ -61,5 +60,5 @@ public interface Constants {
 	public static String CUSTOM_PROPERTY_ONETIME_COST = "#hasOnetimeCost";
 	public static String CUSTOM_PROPERTY_LIFETIME_COST = "#hasLifetimeCost";
 	
-	public static String DATAPROPERTYVALUE_CALCULATED_METHOD_DEFAULT = "MIN";
+	public static String UTILITY_DEFAULT_CALCULATION_METHOD = "MIN";
 }

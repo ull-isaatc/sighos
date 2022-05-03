@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * A utility calculator that relies on the specific disease to compute the disutility, and then 
- * combines it with the diutility from the intervention according to the defined {@link DisutilityCombinationMethod} and the current health state of the patient.
+ * combines it with the disutility from the intervention according to the defined {@link DisutilityCombinationMethod} and the current health state of the patient.
  * 
  * @author Iván Castilla Rodríguez
  *
