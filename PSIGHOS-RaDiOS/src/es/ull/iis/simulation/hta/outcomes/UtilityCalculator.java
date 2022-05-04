@@ -45,12 +45,12 @@ public interface UtilityCalculator {
 	}
 
 	/**
-	 * Returns the disutility value for the specified acute event
+	 * Returns the disutility value for an acute manifestation the specified acute event
 	 * @param pat A patient
 	 * @param manif The acute complication
 	 * @return the disutility value for the specified acute event
 	 */
-	public double getPunctualDisutilityValue(Patient pat, Manifestation manif);
+	public double getDisutilityValueUponIncidence(Patient pat, Manifestation manif);
 	
 	/**
 	 * Returns the utility value for a patient, taking into account the chronic manifestations he/she is suffering

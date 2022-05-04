@@ -30,15 +30,7 @@ public interface CostCalculator {
 	 * @param newEvent A new complication for the patient
 	 * @return the cost of a complication upon incidence
 	 */
-	public double getCostOfManifestation(Patient pat, Manifestation newEvent);
-	
-	/**
-	 * Returns the cost of an acute event
-	 * @param pat A patient
-	 * @param comp The acute event
-	 * @return the cost of an acute event
-	 */
-	public double getCostForAcuteManifestation(Patient pat, Manifestation comp);
+	public double getCostUponIncidence(Patient pat, Manifestation newEvent);
 
 	/**
 	 * Returns the costs incurred by the intervention alone

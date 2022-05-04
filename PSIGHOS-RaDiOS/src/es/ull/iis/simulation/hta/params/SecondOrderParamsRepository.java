@@ -15,6 +15,8 @@ import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.populations.Population;
+import es.ull.iis.simulation.hta.progression.AcuteManifestation;
+import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -62,11 +64,15 @@ public abstract class SecondOrderParamsRepository {
 	/** String prefix for cost parameters */
 	public static final String STR_COST_PREFIX = "C_";
 	/** String prefix for transition (one-time) cost parameters */
-	public static final String STR_TRANS_PREFIX = "TC_";
+	public static final String STR_ONETIME_COST_PREFIX = "TC_";
 	/** String prefix for utility parameters */
 	public static final String STR_UTILITY_PREFIX = "U_";
+	/** String prefix for a one-time utility parameters */
+	public static final String STR_ONETIME_UTILITY_PREFIX = "TU_";
 	/** String prefix for disutility parameters */
 	public static final String STR_DISUTILITY_PREFIX = "DU_";
+	/** String prefix for a one-time disutility parameters */
+	public static final String STR_ONETIME_DISUTILITY_PREFIX = "TDU_";
 	/** String prefix for death parameters */
 	public static final String STR_DEATH_PREFIX = "DEATH_";
 	/** String prefix for initial parameters */
@@ -143,7 +149,7 @@ public abstract class SecondOrderParamsRepository {
 			}
 
 			@Override
-			public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
+			public double getDisutility(Patient pat, DisutilityCombinationMethod method, double refUtility) {
 				return 0;
 			}
 
@@ -336,35 +342,35 @@ public abstract class SecondOrderParamsRepository {
 		probabilityParams.put(param.getName(), param);
 	}
 	
-	public void addProbParam(Named fromManifestation, Named toManifestation, String source, double detValue, RandomVariate rnd) {
+	public void addProbParam(Manifestation fromManifestation, Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
 		addProbParam(new SecondOrderParam(this, getProbString(fromManifestation, toManifestation), "Probability of going from " + fromManifestation + " to " + toManifestation, source, detValue, rnd));
 	}
 	
-	public void addProbParam(Named fromManifestation, Named toManifestation, String source, double detValue) {
+	public void addProbParam(Manifestation fromManifestation, Manifestation toManifestation, String source, double detValue) {
 		addProbParam(new SecondOrderParam(this, getProbString(fromManifestation, toManifestation), "Probability of going from " + fromManifestation + " to " + toManifestation, source, detValue));
 	}
 	
-	public void addProbParam(Named toManifestation, String source, double detValue, RandomVariate rnd) {
+	public void addProbParam(Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
 		addProbParam(new SecondOrderParam(this, getProbString(toManifestation), "Probability of going to " + toManifestation, source, detValue, rnd));
 	}
 	
-	public void addProbParam(Named toManifestation, String source, double detValue) {
+	public void addProbParam(Manifestation toManifestation, String source, double detValue) {
 		addProbParam(new SecondOrderParam(this, getProbString(toManifestation), "Probability of going to " + toManifestation, source, detValue));
 	}
 	
-	public void addRRParam(Named fromManifestation, Named toManifestation, String source, double detValue, RandomVariate rnd) {
+	public void addRRParam(Manifestation fromManifestation, Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
 		addOtherParam(new SecondOrderParam(this, getRRString(fromManifestation, toManifestation), "RR associated to going from " + fromManifestation + " to " + toManifestation, source, detValue, rnd));
 	}
 	
-	public void addRRParam(Named fromManifestation, Named toManifestation, String source, double detValue) {
+	public void addRRParam(Manifestation fromManifestation, Manifestation toManifestation, String source, double detValue) {
 		addOtherParam(new SecondOrderParam(this, getRRString(fromManifestation, toManifestation), "RR associated to going from " + fromManifestation + " to " + toManifestation, source, detValue));
 	}
 	
-	public void addRRParam(Named toManifestation, String source, double detValue, RandomVariate rnd) {
+	public void addRRParam(Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
 		addOtherParam(new SecondOrderParam(this, getRRString(toManifestation), "RR associated to going to " + toManifestation, source, detValue, rnd));
 	}
 	
-	public void addRRParam(Named toManifestation, String source, double detValue) {
+	public void addRRParam(Manifestation toManifestation, String source, double detValue) {
 		addOtherParam(new SecondOrderParam(this, getRRString(toManifestation), "RR associated to going to " + toManifestation, source, detValue));
 	}
 	
@@ -372,7 +378,7 @@ public abstract class SecondOrderParamsRepository {
 		modificationParams.put(param.getName(), param);		
 	}
 	
-	public void addModificationParam(Intervention interv, Modification.Type type, Named fromManifestation, Named toManifestation, String source, double detValue, RandomVariate rnd) {
+	public void addModificationParam(Intervention interv, Modification.Type type, Manifestation fromManifestation, Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
 		addModificationParam(new Modification(this, type, getModificationString(interv, fromManifestation, toManifestation), "Modification of probability of going from " + fromManifestation + " to " + toManifestation + " due to " + interv, source, detValue, rnd));
 	}
 	
@@ -380,17 +386,17 @@ public abstract class SecondOrderParamsRepository {
 		addModificationParam(new Modification(this, type, getModificationString(interv, paramName), "Modification of parameter " + paramName + " due to " + interv, source, detValue, rnd));
 	}
 	
-	public void addInitProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
+	public void addInitProbParam(Manifestation manifestation, String source, double detValue, RandomVariate rnd) {
 		final String name = getInitProbString(manifestation);
 		probabilityParams.put(name, new SecondOrderParam(this, name, "Probability of starting with " + manifestation, source, detValue, rnd));
 	}
 
-	public void addDeathProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
+	public void addDeathProbParam(Manifestation manifestation, String source, double detValue, RandomVariate rnd) {
 		final String name = getDeathProbString(manifestation);
 		probabilityParams.put(name, new SecondOrderParam(this, name, "Probability of dying from " + manifestation, source, detValue, rnd));
 	}
 	
-	public void addDiagnosisProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
+	public void addDiagnosisProbParam(Manifestation manifestation, String source, double detValue, RandomVariate rnd) {
 		final String name = getDiagnosisProbString(manifestation);
 		probabilityParams.put(name, new SecondOrderParam(this, name, "Probability of being diagnosed from " + manifestation, source, detValue, rnd));
 	}
@@ -404,30 +410,44 @@ public abstract class SecondOrderParamsRepository {
 	}
 	
 	/**
-	 * Adds a cost parameter associated to a complication or complication stage
-	 * @param stage A complication or complication stage
+	 * Adds a cost parameter associated to a chronic manifestation
+	 * @param manifestation A chronic manifestation
 	 * @param description Full description of the parameter
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param year Year when the cost was originally estimated
 	 * @param detValue Deterministic/expected value
 	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 * @param oneTime If true, the cost is applied only upon incidence of the manifestation; otherwise, it is considered to be annual
 	 */
-	public void addCostParam(Named stage, String description, String source, int year, double detValue, RandomVariate rnd) {
-		final String paramName = STR_COST_PREFIX + stage.name();
+	public void addCostParam(ChronicManifestation manifestation, String description, String source, int year, double detValue, RandomVariate rnd, boolean oneTime) {
+		final String paramName = (oneTime ? STR_ONETIME_COST_PREFIX : STR_COST_PREFIX) + manifestation.name();
 		addCostParam(new SecondOrderCostParam(this, paramName, description, source, year, detValue, rnd));
 	}
 	
 	/**
-	 * Adds a transition (or one-time) cost parameter associated to a complication or complication stage
-	 * @param stage A complication or complication stage
+	 * Adds an annual cost parameter associated to a chronic manifestation
+	 * @param manifestation A chronic manifestation
 	 * @param description Full description of the parameter
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param year Year when the cost was originally estimated
 	 * @param detValue Deterministic/expected value
 	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
 	 */
-	public void addTransitionCostParam(Named stage, String description, String source, int year, double detValue, RandomVariate rnd) {
-		final String paramName = STR_TRANS_PREFIX + stage.name();
+	public void addCostParam(ChronicManifestation manifestation, String description, String source, int year, double detValue, RandomVariate rnd) {
+		addCostParam(manifestation, description, source, year, detValue, rnd, false);
+	}
+	
+	/**
+	 * Adds a one time cost parameter associated to an acute manifestation
+	 * @param manifestation An acute manifestation
+	 * @param description Full description of the parameter
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param year Year when the cost was originally estimated
+	 * @param detValue Deterministic/expected value to be applied each year
+	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 */
+	public void addCostParam(AcuteManifestation manifestation, String description, String source, int year, double detValue, RandomVariate rnd) {
+		final String paramName = STR_ONETIME_COST_PREFIX + manifestation.name();
 		addCostParam(new SecondOrderCostParam(this, paramName, description, source, year, detValue, rnd));
 	}
 	
@@ -440,28 +460,62 @@ public abstract class SecondOrderParamsRepository {
 	}
 
 	/**
-	 * Adds a utility parameter
-	 * @param stage A complication or complication stage
+	 * Adds a utility parameter to a chronic manifestation
+	 * @param manifestation A chronic manifestation
 	 * @param description Full description of the parameter
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param detValue Deterministic/expected value
 	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 * @param disutility If true, the value is a disutility; otherwise, it is a utility
+	 * @param oneTime If true, the utility is applied only upon incidence of the manifestation; otherwise, it is considered to be annual
 	 */
-	public void addUtilityParam(Named stage, String description, String source, double detValue, RandomVariate rnd) {
-		final String paramName = STR_UTILITY_PREFIX + stage.name();
+	public void addUtilityParam(ChronicManifestation manifestation, String description, String source, double detValue, RandomVariate rnd, boolean disutility, boolean oneTime) {
+		String paramName = null;
+		if (disutility)
+			paramName = (oneTime ? STR_ONETIME_DISUTILITY_PREFIX : STR_DISUTILITY_PREFIX) + manifestation.name();
+		else
+			paramName = (oneTime ? STR_ONETIME_UTILITY_PREFIX : STR_UTILITY_PREFIX) + manifestation.name();
 		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
 	/**
-	 * Adds a disutility parameter
-	 * @param stage A complication or complication stage
+	 * Adds an annual utility parameter to a chronic manifestation
+	 * @param manifestation A chronic manifestation
 	 * @param description Full description of the parameter
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param detValue Deterministic/expected value
 	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 * @param disutility If true, the value is a disutility; otherwise, it is a utility
 	 */
-	public void addDisutilityParam(Named stage, String description, String source, double detValue, RandomVariate rnd) {
-		final String paramName = STR_DISUTILITY_PREFIX + stage.name();
+	public void addUtilityParam(ChronicManifestation manifestation, String description, String source, double detValue, RandomVariate rnd, boolean disutility) {
+		addUtilityParam(manifestation, description, source, detValue, rnd, disutility, false);
+	}
+
+	/**
+	 * Adds a utility parameter to an acute manifestation
+	 * @param manifestation An acute manifestation
+	 * @param description Full description of the parameter
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param detValue Deterministic/expected value
+	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 * @param disutility If true, the value is a disutility; otherwise, it is a utility
+	 */
+	public void addUtilityParam(AcuteManifestation manifestation, String description, String source, double detValue, RandomVariate rnd, boolean disutility) {
+		final String paramName = (disutility ? STR_ONETIME_DISUTILITY_PREFIX : STR_ONETIME_UTILITY_PREFIX) + manifestation.name();
+		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
+	}
+
+	/**
+	 * Adds a utility parameter to a disease
+	 * @param disease An acute manifestation
+	 * @param description Full description of the parameter
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param detValue Deterministic/expected value
+	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 * @param disutility If true, the value is a disutility; otherwise, it is a utility
+	 */
+	public void addUtilityParam(Disease disease, String description, String source, double detValue, RandomVariate rnd, boolean disutility) {
+		final String paramName = (disutility ? STR_DISUTILITY_PREFIX : STR_UTILITY_PREFIX) + disease.name();
 		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
@@ -625,47 +679,62 @@ public abstract class SecondOrderParamsRepository {
 	}
 	
 	/**
-	 * Returns the cost for a complication or complication stage &ltannual cost, cost at incidence&gt; &lt0, 0&gt
+	 * Returns the cost for a manifestation &ltannual cost, cost at incidence&gt; &lt0, 0&gt
 	 * if not defined
-	 * @param stage Complication or complication stage
-	 * @return the cost for a complication or complication stage &ltannual cost, cost at incidence&gt; &lt0, 0&gt
+	 * @param manifestation Complication or complication stage
+	 * @param id Simulation identifier
+	 * @return the cost for a manifestation &ltannual cost, cost at incidence&gt; &lt0, 0&gt
 	 * if not defined 
 	 */
-	public double[] getCostsForManifestation(Manifestation stage, int id) {
+	public double[] getCostsForManifestation(Manifestation manifestation, int id) {
 		final double[] costs = new double[2];
-		final SecondOrderParam annualCost = costParams.get(STR_COST_PREFIX + stage.name());
-		final SecondOrderParam transCost = costParams.get(STR_TRANS_PREFIX + stage.name());
+		final SecondOrderParam annualCost = costParams.get(STR_COST_PREFIX + manifestation.name());
+		final SecondOrderParam oneTimeCost = costParams.get(STR_ONETIME_COST_PREFIX + manifestation.name());
 		costs[0] = (annualCost == null) ? 0.0 : annualCost.getValue(id);
-		costs[1] = (transCost == null) ? 0.0 : transCost.getValue(id);
+		costs[1] = (oneTimeCost == null) ? 0.0 : oneTimeCost.getValue(id);
 		return costs;
 	}
 	
 	/**
-	 * Returns the cost for an acute complication; 0.0 if not defined
-	 * @param manif Acute complication
-	 * @return the cost for an acute complication; 0.0 if not defined
-	 */
-	public double getCostForManifestation(Manifestation manif, int id) {
-		final SecondOrderParam param = costParams.get(STR_COST_PREFIX + manif.name());
-		return (param == null) ? 0.0 : param.getValue(id); 						
-	}
-	
-	/**
-	 * Returns the disutility for a manifestation; 0.0 if not defined
+	 * Returns the disutility for a manifestation &ltannual disutility, disutility at incidence&gt. If it is not defined as disutility, 
+	 * looks for a utility value and uses the reference utility to compute a disutility. If not defined neither, returns &lt0, 0&gt.
 	 * @param manif Manifestation
+	 * @param id Identifier of the simulation
+	 * @param refUtility Reference utility
 	 * @return the disutility for a manifestation; 0.0 if not defined 
 	 */
-	public double getDisutilityForManifestation(Manifestation manif, int id) {
-		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + manif.name());
-		return (param == null) ? 0.0 : param.getValue(id);		
+	public double[] getDisutilitiesForManifestation(Manifestation manif, int id, double refUtility) {
+		final double[] utils = new double[2];
+		SecondOrderParam annualParam = utilParams.get(STR_DISUTILITY_PREFIX + manif.name());
+		if (annualParam != null) {
+			utils[0] = annualParam.getValue(id);
+		}
+		else {
+			annualParam = utilParams.get(STR_UTILITY_PREFIX + manif.name());
+			// Do not allow "negative" disutilities
+			utils[0] = (annualParam == null) ? 0.0 : Math.max(0.0, refUtility - annualParam.getValue(id));
+		}
+		SecondOrderParam oneTimeParam = utilParams.get(STR_ONETIME_DISUTILITY_PREFIX + manif.name());
+		if (oneTimeParam != null) {
+			utils[1] = oneTimeParam.getValue(id);
+		}
+		else {
+			oneTimeParam = utilParams.get(STR_ONETIME_UTILITY_PREFIX + manif.name());
+			// Do not allow "negative" disutilities
+			utils[1] = (oneTimeParam == null) ? 0.0 : Math.max(0.0, refUtility - oneTimeParam.getValue(id));
+		}
+		return utils;		
 	}
 	
 	/**
-	 * Returns the base disutility for a disease; 0.0 if not defined
+	 * Returns the base disutility for a disease. If it is not defined as disutility, looks for a utility
+	 * value and uses the reference utility to compute a disutility. If not defined neither, returns 0.0.
 	 * @param disease Disease
+	 * @param id Identifier of the simulation
+	 * @param refUtility Reference utility
 	 * @return the base disutility for a disease; 0.0 if not defined 
 	 */
-	public double getDisutilityForDisease(Disease disease, int id) {
+	public double getDisutilityForDisease(Disease disease, int id, double refUtility) {
 		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + disease.name());
 		return (param == null) ? 0.0 : param.getValue(id);		
 	}

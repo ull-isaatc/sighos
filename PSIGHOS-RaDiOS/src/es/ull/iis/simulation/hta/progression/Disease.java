@@ -239,9 +239,10 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 * @param pat A patient
 	 * @param method Method used to compute the disutility of this disease in case there are more 
 	 * than one commorbility
+	 * @param refUtility Reference utility
 	 * @return The disutility value associated to the current stage of this disease
 	 */
-	public abstract double getDisutility(Patient pat, DisutilityCombinationMethod method);
+	public abstract double getDisutility(Patient pat, DisutilityCombinationMethod method, double refUtility);
 	
 	/** 
 	 * Returns the number of stages used to model this complication

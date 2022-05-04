@@ -11,7 +11,6 @@ import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -79,9 +78,7 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {
 			case START_MANIF:
-				if (Manifestation.Type.ACUTE.equals(pInfo.getManifestation().getType())) {
-					update(pat, -calc.getPunctualDisutilityValue(pat, pInfo.getManifestation()), endAge);
-				}
+				update(pat, -calc.getDisutilityValueUponIncidence(pat, pInfo.getManifestation()), endAge);
 			case DEATH:
 				// Update outcomes
 				if (endAge > initAge) {

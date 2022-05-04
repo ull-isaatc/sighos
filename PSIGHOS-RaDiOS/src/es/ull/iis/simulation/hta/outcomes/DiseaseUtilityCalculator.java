@@ -35,12 +35,12 @@ public class DiseaseUtilityCalculator implements UtilityCalculator {
 	}
 	
 	@Override
-	public double getPunctualDisutilityValue(Patient pat, Manifestation manif) {
-		return secParams.getDisutilityForManifestation(manif, pat.getSimulation().getIdentifier());
+	public double getDisutilityValueUponIncidence(Patient pat, Manifestation manif) {
+		return secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier(), genPopUtility)[1];
 	}
 	
 	@Override	
 	public double getUtilityValue(Patient pat) {
-		return genPopUtility - method.combine(pat.getDisease().getDisutility(pat, method), pat.getIntervention().getDisutility(pat));
+		return genPopUtility - method.combine(pat.getDisease().getDisutility(pat, method, genPopUtility), pat.getIntervention().getDisutility(pat));
 	}
 }
