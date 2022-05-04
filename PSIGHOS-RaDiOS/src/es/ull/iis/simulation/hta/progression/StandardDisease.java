@@ -60,13 +60,13 @@ public abstract class StandardDisease extends Disease {
 	}
 
 	@Override
-	public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
+	public double getDisutility(Patient pat, DisutilityCombinationMethod method, double refUtility) {
 		final int simulId = pat.getSimulation().getIdentifier();
 		final TreeSet<Manifestation> state = pat.getState();
 		// Uses the base disutility for the disease if available 
-		double du = secParams.getDisutilityForDisease(this, simulId);
+		double du = secParams.getDisutilityForDisease(this, simulId, refUtility);
 		for (final Manifestation manif : state) {
-			du = method.combine(du, secParams.getDisutilityForManifestation(manif, simulId));
+			du = method.combine(du, secParams.getDisutilitiesForManifestation(manif, simulId, refUtility)[0]);
 		}
 		return du;
 	}

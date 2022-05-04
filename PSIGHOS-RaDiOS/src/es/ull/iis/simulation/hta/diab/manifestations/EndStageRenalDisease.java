@@ -32,9 +32,9 @@ public class EndStageRenalDisease extends ChronicManifestation {
 	@Override
 	public void registerSecondOrderParameters() {
 		secParams.addCostParam(this, "Cost for " + this, "Ray (2005)", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
-		secParams.addTransitionCostParam(this, "Transition cost for " + this, "Ray (2005)", COSTYEAR, TCOST, SecondOrderParamsRepository.getRandomVariateForCost(TCOST));
+		secParams.addCostParam(this, "Transition cost for " + this, "Ray (2005)", COSTYEAR, TCOST, SecondOrderParamsRepository.getRandomVariateForCost(TCOST), true);
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
-		secParams.addDisutilityParam(this, "Disutility for " + this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
+		secParams.addUtilityParam(this, "Disutility for " + this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]), true);
 		secParams.addIMRParam(this, "Increased mortality risk due to end-stage renal disease", 
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				4.53, RandomVariateFactory.getInstance("RRFromLnCIVariate", 4.53, 2.64, 7.77, 1));

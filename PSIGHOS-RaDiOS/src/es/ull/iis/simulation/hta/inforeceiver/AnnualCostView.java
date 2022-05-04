@@ -173,7 +173,7 @@ public class AnnualCostView implements ExperimentListener {
 					interventionCost[(int) endAge] += discount.applyPunctualDiscount(calc.getCostForIntervention(pat), endAge);
 					break;
 				case START_MANIF:
-					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostOfManifestation(pat, pInfo.getManifestation()), endAge);
+					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostUponIncidence(pat, pInfo.getManifestation()), endAge);
 				case DEATH:
 				case START:
 					break;

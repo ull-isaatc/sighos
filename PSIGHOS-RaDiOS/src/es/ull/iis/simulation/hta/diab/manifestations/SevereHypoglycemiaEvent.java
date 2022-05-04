@@ -35,8 +35,8 @@ public class SevereHypoglycemiaEvent extends AcuteManifestation {
 	public void registerSecondOrderParameters() {
 		secParams.addCostParam(this, "Cost of a severe hypoglycemic episode", 
 			"https://doi.org/10.1007/s13300-017-0285-0", COSTYEAR, COST_HYPO_EPISODE, SecondOrderParamsRepository.getRandomVariateForCost(COST_HYPO_EPISODE));
-		secParams.addDisutilityParam(this, "Disutility of severe hypoglycemic episode", "Walters et al. 10.1016/s1098-3015(10)63316-5", 
-			DU_HYPO_EPISODE, RandomVariateFactory.getInstance("UniformVariate", LIMITS_DU_HYPO_EPISODE[0], LIMITS_DU_HYPO_EPISODE[1]));
+		secParams.addUtilityParam(this, "Disutility of severe hypoglycemic episode", "Walters et al. 10.1016/s1098-3015(10)63316-5", 
+			DU_HYPO_EPISODE, RandomVariateFactory.getInstance("UniformVariate", LIMITS_DU_HYPO_EPISODE[0], LIMITS_DU_HYPO_EPISODE[1]), true);
 		
 		final double[] paramsDeathHypo = Statistics.betaParametersFromNormal(P_DEATH, Statistics.sdFrom95CI(new double[]{0.0058, 0.0068}));		
 		secParams.addDeathProbParam(this, "Canada", P_DEATH, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1]));

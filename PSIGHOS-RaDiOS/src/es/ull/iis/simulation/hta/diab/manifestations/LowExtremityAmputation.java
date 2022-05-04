@@ -34,12 +34,12 @@ public class LowExtremityAmputation extends ChronicManifestation {
 	public void registerSecondOrderParameters() {
 		secParams.addCostParam(this, "Cost for " + this, "del Pino et al", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
 		final double[] tcParams = Statistics.gammaParametersFromNormal(TC[0], TC[1]);
-		secParams.addTransitionCostParam(this, "Cost of amputation", 
+		secParams.addCostParam(this, "Cost of amputation", 
 				"Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", COSTYEAR, 
-				TC[0], RandomVariateFactory.getInstance("GammaVariate", tcParams[0], tcParams[1]));
+				TC[0], RandomVariateFactory.getInstance("GammaVariate", tcParams[0], tcParams[1]), true);
 
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
-		secParams.addDisutilityParam(this, "Disutility for " + this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
+		secParams.addUtilityParam(this, "Disutility for " + this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]), true);
 		secParams.addIMRParam(this, "Increased mortality risk due to peripheral neuropathy (amputation)", 
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				3.98, RandomVariateFactory.getInstance("RRFromLnCIVariate", 3.98, 1.84, 8.59, 1));

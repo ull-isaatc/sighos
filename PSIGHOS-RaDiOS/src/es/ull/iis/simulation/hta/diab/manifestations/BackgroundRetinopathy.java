@@ -29,7 +29,7 @@ public class BackgroundRetinopathy extends ChronicManifestation {
 	@Override
 	public void registerSecondOrderParameters() {
 		secParams.addCostParam(this, "Cost for " + this, "Original analysis", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
-		secParams.addDisutilityParam(this, "Disutility for " + this, "Assumption", DU, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
+		secParams.addUtilityParam(this, "Disutility for " + this, "Assumption", DU, RandomVariateFactory.getInstance("ConstantVariate", 0.0), true);
 	}
 
 }

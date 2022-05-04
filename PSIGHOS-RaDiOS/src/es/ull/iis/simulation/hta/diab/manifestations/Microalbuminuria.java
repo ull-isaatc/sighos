@@ -26,7 +26,7 @@ public class Microalbuminuria extends ChronicManifestation {
 	@Override
 	public void registerSecondOrderParameters() {
 		secParams.addCostParam(this, "Cost for " + this, "Assumption", 2021, 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
-		secParams.addDisutilityParam(this, "Disutility for " + this, "Assumption", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
+		secParams.addUtilityParam(this, "Disutility for " + this, "Assumption", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0), true);
 	}
 
 }

@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
+import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.Modification;
@@ -26,7 +27,8 @@ public class PBDNewbornScreening extends ScreeningStrategy {
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addCostParam(this, "Cost of screening", "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
+		secParams.addCostParam(new SecondOrderCostParam(secParams, SecondOrderParamsRepository.STR_COST_PREFIX + this, 
+				"Cost of screening", "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5)));
 		for (Manifestation manif : secParams.getRegisteredManifestations())
 			secParams.addModificationParam(this, Modification.Type.SET, SecondOrderParamsRepository.getProbString(manif), "", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 	}

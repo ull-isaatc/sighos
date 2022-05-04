@@ -38,8 +38,8 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	}
 	
 	@Override
-	public double getPunctualDisutilityValue(Patient pat, Manifestation manif) {
-		return secParams.getDisutilityForManifestation(manif, pat.getSimulation().getIdentifier());
+	public double getDisutilityValueUponIncidence(Patient pat, Manifestation manif) {
+		return secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier(), genPopUtility)[1];
 	}
 	
 	@Override	
@@ -47,7 +47,7 @@ public class StdUtilityCalculator implements UtilityCalculator {
 		final Collection<Manifestation> state = pat.getState();
 		double du = 0.0;
 		for (Manifestation manif : state) {
-			du = method.combine(du, secParams.getDisutilityForManifestation(manif, pat.getSimulation().getIdentifier()));
+			du = method.combine(du, secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier(), genPopUtility)[0]);
 		}
 		return genPopUtility - du - pat.getIntervention().getDisutility(pat);
 	}
