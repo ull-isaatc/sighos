@@ -26,6 +26,7 @@ public class ProbabilityDistribution {
 		return probabilisticValue;
 	}
 
+	// FIXME: Currently, this function is useless as far as ValuePArser initializes the probabilisticValue by default to constant
 	public RandomVariate getProbabilisticValueInitializedForProbability() {
 		if (probabilisticValue == null && deterministicValue != null) {
 			if (deterministicValue == 0.0 || deterministicValue == 1.0) {
@@ -37,6 +38,7 @@ public class ProbabilityDistribution {
 		return probabilisticValue;
 	}
 
+	// FIXME: Currently, this function is useless as far as ValuePArser initializes the probabilisticValue by default to constant
 	public RandomVariate getProbabilisticValueInitializedForCost() {
 		if (probabilisticValue == null && deterministicValue != null) {
 			return SecondOrderParamsRepository.getRandomVariateForCost(getDeterministicValue());

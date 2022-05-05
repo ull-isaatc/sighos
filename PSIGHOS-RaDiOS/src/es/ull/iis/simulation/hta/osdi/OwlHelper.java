@@ -39,6 +39,13 @@ public class OwlHelper {
 		return data.get(propertyName).getValue();
 	}
 	
+	/**
+	 * Returns the string corresponding to the specified data property defined in the specified instance in the ontology. 
+	 * If the data property or the instance are not defined, returns null.
+	 * @param instanceName Name of the instance that defines the data property
+	 * @param propertyName Name of the data property
+	 * @return the string corresponding to the specified data property defined in the specified instance in the ontology.
+	 */
 	public static String getDataPropertyValue (String instanceName, String propertyName) {
 		return getDataPropertyValue(instanceName, propertyName, null);
 	}

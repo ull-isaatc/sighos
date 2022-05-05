@@ -60,5 +60,5 @@ public interface Constants {
 	public static String CUSTOM_PROPERTY_ONETIME_COST = "#hasOnetimeCost";
 	public static String CUSTOM_PROPERTY_LIFETIME_COST = "#hasLifetimeCost";
 	
-	public static String UTILITY_DEFAULT_CALCULATION_METHOD = "MIN";
+	public static String UTILITY_DEFAULT_CALCULATION_METHOD = "Unknown";
 }

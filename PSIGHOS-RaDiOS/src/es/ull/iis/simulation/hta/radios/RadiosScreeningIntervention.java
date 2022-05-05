@@ -419,7 +419,7 @@ public class RadiosScreeningIntervention extends ScreeningStrategy {
 				if (manifestationModification.getManifestations() != null) {
 					for (Manifestation registerManifestation : secParams.getRegisteredManifestations()) {
 						for (String manifestation : manifestationModification.getManifestations()) {
-							if (registerManifestation.getName().equals(manifestation)) {
+							if (registerManifestation.getDescription().equals(manifestation)) {
 								addInterventionParamModification(registerManifestation, manifestationModification.getProbabilityModification());
 							}
 						}
