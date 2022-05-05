@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta.osdi;
 
-import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.model.Describable;
 
 /**
  * @author Iván Castilla
@@ -16,7 +16,7 @@ public interface OSDiNames {
 	 * @author Iván Castilla
 	 *
 	 */
-	public static enum Class implements Named {
+	public static enum Class implements Describable {
 		CLINICAL_DIAGNOSIS("#ClinicalDiagnosis"),	
 		DEVELOPMENT("#Development"),
 		DISEASE("#Disease"),
@@ -39,15 +39,16 @@ public interface OSDiNames {
 		STRATEGY_STEP("#StrategyStep"),
 		TREATMENT("#Treatment");
 
-		private final String name;
-		private Class(String name) {
-			this.name = name;
+		private final String description;
+		private Class(String description) {
+			this.description = description;
 		}
 		/**
-		 * @return the name
+		 * @return the description
 		 */
-		public String getName() {
-			return name;
+		@Override
+		public String getDescription() {
+			return description;
 		}
 	}
 
@@ -56,7 +57,7 @@ public interface OSDiNames {
 	 * @author Iván Castilla
 	 *
 	 */
-	public static enum DataProperty implements Named {
+	public static enum DataProperty implements Describable {
 		HAS_AGE("#hasAge"),
 		HAS_AGE_OF_FIRST_PRESENTATION("#hasAgeOfFirstPresentation"),
 		HAS_CALCULATION_METHOD("#hasCalculationMethod"),
@@ -111,15 +112,16 @@ public interface OSDiNames {
 		HAS_VALUE("#hasValue"),
 		HAS_YEAR("#hasYear");
 		
-		private final String name;
-		private DataProperty(String name) {
-			this.name = name;
+		private final String description;
+		private DataProperty(String description) {
+			this.description = description;
 		}
 		/**
-		 * @return the name
+		 * @return the description
 		 */
-		public String getName() {
-			return name;
+		@Override
+		public String getDescription() {
+			return description;
 		}
 	}
 	
@@ -129,7 +131,7 @@ public interface OSDiNames {
 	 * @author Iván Castilla
 	 *
 	 */
-	public static enum ObjectProperty implements Named {
+	public static enum ObjectProperty implements Describable {
 		EXCLUDES("#excludes"),
 		HAS_CLINICAL_DIAGNOSIS("#hasClinicalDiagnosis"),
 		HAS_CLINICAL_DIAGNOSIS_STRATEGY("#hasClinicalDiagnosisStrategy"),
@@ -167,15 +169,13 @@ public interface OSDiNames {
 		REQUIRES_DEVELOPMENT("#requiresDevelopment"),
 		REQUIRES_PREVIOUS_MANIFESTATION("#requiresPreviousManifestation");
 		
-		private final String name;
-		private ObjectProperty(String name) {
-			this.name = name;
+		private final String description;
+		private ObjectProperty(String description) {
+			this.description = description;
 		}
-		/**
-		 * @return the name
-		 */
-		public String getName() {
-			return name;
+		@Override
+		public String getDescription() {
+			return description;
 		}
 	}
 
@@ -184,7 +184,7 @@ public interface OSDiNames {
 	 * @author Iván Castilla
 	 *
 	 */
-	public static enum DataPropertyRange implements Named {
+	public static enum DataPropertyRange implements Describable {
 		KIND_INTERVENTION_SCREENING_VALUE("SCREENING"),
 		KIND_INTERVENTION_NOSCREENING_VALUE("NO_SCREENING"),
 		TEMPORAL_BEHAVIOR_ANNUAL_VALUE("ANNUAL"),
@@ -194,15 +194,13 @@ public interface OSDiNames {
 		KIND_MANIFESTATION_CHRONIC("CHRONIC"),
 		KIND_MANIFESTATION_ACUTE("ACUTE");
 		
-		private final String name;
-		private DataPropertyRange(String name) {
-			this.name = name;
+		private final String description;
+		private DataPropertyRange(String description) {
+			this.description = description;
 		}
-		/**
-		 * @return the name
-		 */
-		public String getName() {
-			return name;
+		@Override
+		public String getDescription() {
+			return description;
 		}
 	}
 

@@ -115,7 +115,7 @@ public class ManifestationFactory {
 				// Looks for the preceding manifestation
 				Manifestation precManif = null;
 				for (Manifestation mm : mappings.keySet()) {
-					if (mm.getName().equals(precedingManifestation.getName())) {
+					if (mm.getDescription().equals(precedingManifestation.getName())) {
 						precManif = mm;
 					}
 				}

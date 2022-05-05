@@ -99,7 +99,7 @@ public class CostsUtils {
 					List<String> strategyChilds = strategyObjectProperties.get(strategyObjectProperty);
 					if (strategyChilds != null) {
 						for (String strategyChild : strategyChilds) {
-							if (DataStoreService.eTLClassIndividuals(ontology).get(strategyChild).equals(OSDiNames.Class.COST.getName())) {
+							if (DataStoreService.eTLClassIndividuals(ontology).get(strategyChild).equals(OSDiNames.Class.COST.getDescription())) {
 								cumulativeCost += OntologyUtils.parseValueOrValueDistributionExpression(ontology, strategyChild, Constants.CUSTOM_PROPERTY_AMOUNT).getValue();
 							}
 						}
@@ -125,7 +125,7 @@ public class CostsUtils {
 													List<String> methodObjectPropertyChilds = methodObjectProperties.get(methodObjectProperty);
 													if (methodObjectPropertyChilds != null) {
 														for (String methodObjectPropertyChild : methodObjectPropertyChilds) {
-															if (DataStoreService.eTLClassIndividuals(ontology).get(methodObjectPropertyChild).equals(OSDiNames.Class.COST.getName())) {
+															if (DataStoreService.eTLClassIndividuals(ontology).get(methodObjectPropertyChild).equals(OSDiNames.Class.COST.getDescription())) {
 																cumulativeCost += OntologyUtils.parseValueOrValueDistributionExpression(ontology, methodObjectPropertyChild, Constants.CUSTOM_PROPERTY_AMOUNT)
 																		.getValue();
 															}
@@ -155,8 +155,8 @@ public class CostsUtils {
 	 * @throws TranspilerException
 	 */
 	public static void addCostToNode(TreeNode<NodeData> node, Double cost, String costType) throws TranspilerException {
-		node.getData().addProperty(OSDiNames.ObjectProperty.HAS_COST.getName(), String.format(Locale.US, Constants.CONSTANT_DOUBLE_FORMAT_STRING_3DEC, cost), Constants.CONSTANT_DOUBLE_TYPE);
-		node.getData().addProperty(OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getName(), costType, Constants.CONSTANT_STRING_TYPE);
+		node.getData().addProperty(OSDiNames.ObjectProperty.HAS_COST.getDescription(), String.format(Locale.US, Constants.CONSTANT_DOUBLE_FORMAT_STRING_3DEC, cost), Constants.CONSTANT_DOUBLE_TYPE);
+		node.getData().addProperty(OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getDescription(), costType, Constants.CONSTANT_STRING_TYPE);
 	}
 
 	/**

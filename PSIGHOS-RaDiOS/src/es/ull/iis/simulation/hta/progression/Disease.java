@@ -106,7 +106,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 * @return The manifestation added
 	 */
 	public Manifestation addManifestation(Manifestation manif) {
-		manifestations.put(manif.getName(), manif);
+		manifestations.put(manif.name(), manif);
 		secParams.addManifestation(manif);
 		TreeSet<Manifestation> excManif = new TreeSet<>();
 		exclusions.put(manif, excManif);

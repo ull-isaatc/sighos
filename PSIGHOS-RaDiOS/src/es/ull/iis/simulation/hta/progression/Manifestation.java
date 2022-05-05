@@ -104,14 +104,6 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	}
 	
 	/**
-	 * Returns the short name of the manifestation
-	 * @return the short name of the manifestation
-	 */
-	public String getName() {
-		return name;
-	}
-	
-	/**
 	 * Returns the description of the manifestation
 	 * @return the description of the manifestation
 	 */

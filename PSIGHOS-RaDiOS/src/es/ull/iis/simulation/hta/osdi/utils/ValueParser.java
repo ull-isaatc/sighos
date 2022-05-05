@@ -12,7 +12,6 @@ import es.ull.iis.ontology.radios.xml.datatables.ContentKind;
 import es.ull.iis.ontology.radios.xml.datatables.Datatable;
 import es.ull.iis.ontology.radios.xml.datatables.RowType;
 import es.ull.iis.simulation.hta.osdi.Constants;
-import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -30,6 +29,7 @@ public class ValueParser {
 	private static String REGEX_NUMERICVALUE_DISTRO_EXTENDED = "^([0-9\\.,E-]+)?(#?([A-Z]+)\\(([+-]?[0-9]+\\.?[0-9]*)(,([+-]?[0-9]+\\.?[0-9]*))?\\))?$";	
 	
    /**
+    * FIXME: By default, a constant variate is assigned if not defined. Depending on the type of parameter, it would be desirable to use specific distributions by default 
     * @param distributionName
     * @param firstParameter
     * @param secondParameter
