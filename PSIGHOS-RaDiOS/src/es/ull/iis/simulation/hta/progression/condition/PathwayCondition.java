@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.progression;
+package es.ull.iis.simulation.hta.progression.condition;
 
 import es.ull.iis.simulation.hta.Patient;
 

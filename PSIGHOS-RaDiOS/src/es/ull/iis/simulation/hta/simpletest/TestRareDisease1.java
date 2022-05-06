@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.PreviousManifestationCondition;
-import es.ull.iis.simulation.hta.progression.PathwayCondition;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
+import es.ull.iis.simulation.hta.progression.condition.PathwayCondition;
+import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
 
 /**
  * A disease with two chronic manifestations in increasing order or severity. Each manifestation supposes a new stage in the development of the disease and replaces the previous one

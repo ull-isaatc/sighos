@@ -11,7 +11,7 @@ import org.apache.commons.jexl3.MapContext;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.PathwayCondition;
+import es.ull.iis.simulation.hta.progression.condition.PathwayCondition;
 
 /**
  * @author Iván Castilla
