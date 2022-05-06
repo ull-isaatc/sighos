@@ -50,6 +50,12 @@ public class OwlHelper {
 		return getDataPropertyValue(instanceName, propertyName, null);
 	}
 	
+	/**
+	 * Returns the list of objects associated to another object by means of the specified object property  
+	 * @param objectName Name of the original object
+	 * @param objectPropertyName Name of the property
+	 * @return the list of objects associated to another object by means of the specified object property
+	 */
 	public static List<String> getObjectPropertiesByName(String objectName, String objectPropertyName) {
 		return objectPropertyValues.get(objectName) != null ? objectPropertyValues.get(objectName).get(objectPropertyName) : new ArrayList<>();
 	}

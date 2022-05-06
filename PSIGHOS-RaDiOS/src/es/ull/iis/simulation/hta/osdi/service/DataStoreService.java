@@ -13,7 +13,7 @@ import org.w3c.xsd.owl2.ObjectProperty;
 import org.w3c.xsd.owl2.ObjectPropertyAssertion;
 import org.w3c.xsd.owl2.Ontology;
 
-import es.ull.iis.ontology.radios.Constants;
+import es.ull.iis.simulation.hta.osdi.Constants;
 import es.ull.iis.simulation.hta.osdi.PropertyData;
 
 public class DataStoreService {

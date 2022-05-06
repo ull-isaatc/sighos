@@ -1,12 +1,13 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.progression;
+package es.ull.iis.simulation.hta.progression.condition;
 
 import java.util.Collection;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * A condition that meets if the patient is suffering all of the manifestations specified 

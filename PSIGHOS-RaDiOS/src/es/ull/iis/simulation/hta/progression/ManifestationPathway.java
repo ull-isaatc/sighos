@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.progression;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.condition.PathwayCondition;
 
 /**
  * A "pathway" to a manifestation. Pathways consists of a {@link PathwayCondition condition} that must be met by the patient and a way of computing the 
