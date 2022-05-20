@@ -64,17 +64,17 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 
 	@Override
 	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 132.0 / 300.0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 132.0 / 300.0);
 	}
 
 	@Override
 	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 1.0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 	}
 
 	@Override
 	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 1.0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 		final double mode = Statistics.betaModeFromMeanSD(BASELINE_AGE[0], BASELINE_AGE[1]);
 		
 		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_AGE[0], mode, MIN_MAX_BASELINE_AGE[0], MIN_MAX_BASELINE_AGE[1]);
-		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", rng, betaParams[0], betaParams[1]); 
+		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", getCommonRandomNumber(), betaParams[0], betaParams[1]); 
 		return RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_BASELINE_AGE[1] - MIN_MAX_BASELINE_AGE[0], MIN_MAX_BASELINE_AGE[0]);			
 	}
 

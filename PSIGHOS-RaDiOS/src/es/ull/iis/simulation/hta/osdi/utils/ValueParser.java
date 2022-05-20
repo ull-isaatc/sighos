@@ -54,8 +54,9 @@ public class ValueParser {
 	}
 	
 	/**
-	 * @param value
-	 * @return
+	 * Creates a {@link ProbabilityDistribution} from a string
+	 * @param value A string that should represent a deterministic value and a probability distribution 
+	 * @return An object with the details of the deterministic and probabilistic values of a expression 
 	 */
 	public static ProbabilityDistribution splitProbabilityDistribution (String value) {
 		ProbabilityDistribution result = null;		

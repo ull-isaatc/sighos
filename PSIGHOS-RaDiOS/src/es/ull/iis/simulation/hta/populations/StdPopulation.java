@@ -22,7 +22,7 @@ import simkit.random.RandomVariate;
  */
 public abstract class StdPopulation implements Population {
 	/** Random number generator */
-	protected final RandomNumber rng;
+	private final RandomNumber rng;
 
 	protected final Disease disease;
 	protected final SecondOrderParamsRepository secParams;
@@ -78,7 +78,10 @@ public abstract class StdPopulation implements Population {
 
 	/**
 	 * Creates and returns a distribution that represents the probability of having a disease according to the population characteristics.
-	 * @param simul TODO
+	 * TODO: Should be changed to a "time to disease" distribution to fully connect with the concepts of prevalence and incidence. If prevalence were
+	 * used, time to would be 0 for prevalent and MAX for non-prevalent; if incidence were used, different times to event would be created. The latter
+	 * would also require a new type of patient event and patient info.  
+	 * @param simul Current simulation replica
 	 * @return a distribution that represents the probability of having a disease according to the population characteristics
 	 */
 	protected abstract DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul);
@@ -86,7 +89,7 @@ public abstract class StdPopulation implements Population {
 	/**
 	 * Creates and returns a distribution that should return {@link BasicConfigParams.MAN} if the patient is a male, 
 	 * and {@link BasicConfigParams.WOMAN} if she is a female.
-	 * @param simul TODO
+	 * @param simul Current simulation replica
 	 * @return Distribution that should return 0 if the patient is a male, and 1 if she is a female.
 	 */
 	protected abstract DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul);
@@ -94,7 +97,7 @@ public abstract class StdPopulation implements Population {
 	/**
 	 * Creates and returns a distribution which returns 1 (true) if the patient will start with a diagnosis according 
 	 * to the population characteristics; and 0 (false) otherwise
-	 * @param simul TODO
+	 * @param simul Current simulation replica
 	 * @return a distribution which returns 1 (true) if the patient will start with a diagnosis according 
 	 * to the population characteristics; and 0 (false) otherwise
 	 */
@@ -102,12 +105,19 @@ public abstract class StdPopulation implements Population {
 	
 	/**
 	 * Creates and returns a function to assign the baseline age
-	 * @param simul TODO
+	 * @param simul Current simulation replica
 	 * @return a function to assign the baseline age
 	 */
 	protected abstract RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul);
 	
 	protected List<ClinicalParameter> getPatientParameterList() {
 		return new ArrayList<>();
+	}
+
+	/**
+	 * @return the common random number generator for random variates used within this class
+	 */
+	public RandomNumber getCommonRandomNumber() {
+		return rng;
 	}
 }

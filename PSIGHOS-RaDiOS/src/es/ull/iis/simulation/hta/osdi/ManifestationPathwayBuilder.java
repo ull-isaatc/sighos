@@ -4,15 +4,18 @@
 package es.ull.iis.simulation.hta.osdi;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.w3c.xsd.owl2.Ontology;
 
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguagePathwayCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.AgeBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -21,8 +24,6 @@ import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.AndCondition;
 import es.ull.iis.simulation.hta.progression.condition.PathwayCondition;
 import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
-import es.ull.iis.simulation.hta.radios.RadiosRangeAgeMatrixRRCalculator;
-import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -30,6 +31,8 @@ import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
  *
  */
 public class ManifestationPathwayBuilder {
+	private static final Map<String, ManifestationPathway> createdPathways = new TreeMap<>();
+	private static final Map<ManifestationPathway, String> inverseMap = new HashMap<>();
 
 	/**
 	 * 
@@ -39,7 +42,8 @@ public class ManifestationPathwayBuilder {
 
 
 	/**
-	 * Creates a {@link ManifestationPathway manifestation pathway}
+	 * Creates a {@link ManifestationPathway manifestation pathway}. If, for any reason, a manifestation pathway was already created for the specified name, returns the 
+	 * previously created pathway.
 	 * @param ontology
 	 * @param secParams
 	 * @param disease
@@ -47,17 +51,39 @@ public class ManifestationPathwayBuilder {
 	 * @param pathwayName
 	 * @return
 	 */
-	public static ManifestationPathway getManifestationPathwayInstance(Ontology ontology, SecondOrderParamsRepository secParams, Disease disease, Manifestation manifestation, String pathwayName) {
-		ManifestationPathway pathway = null;
+	public static ManifestationPathway getManifestationPathwayInstance(Ontology ontology, SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) {
+		if (createdPathways.containsKey(pathwayName))
+			return createdPathways.get(pathwayName);
+		final Disease disease = manifestation.getDisease();
 		final PathwayCondition cond = createCondition(ontology, secParams, disease, pathwayName);
 		final TimeToEventCalculator tte = createTimeToEventCalculator(ontology, secParams, manifestation, pathwayName);
-		pathway = new ManifestationPathway(secParams, manifestation, cond, tte);
+		final ManifestationPathway pathway = new ManifestationPathway(secParams, manifestation, cond, tte) {
+			@Override
+			public void registerSecondOrderParameters() {
+				createParameters(secParams, this);
+			}
+		};
+		createdPathways.put(pathwayName, pathway);
+		inverseMap.put(pathway, pathwayName);
 		return pathway;
 	}
 	
+	private static void createParameters(SecondOrderParamsRepository secParams, ManifestationPathway pathway) {
+		final String pathwayName = inverseMap.get(pathway);
+		final Manifestation manifestation = pathway.getDestManifestation();
+		final String strPManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY.getDescription());
+		if (strPManif != null) {
+			ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPManif);
+			if (probabilityDistribution != null) {
+				SecondOrderParam param = new SecondOrderParam(secParams, getProbString(manifestation, pathwayName), getDescriptionString(manifestation, pathwayName), Constants.CONSTANT_EMPTY_STRING, 
+						probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+				secParams.addProbParam(param);
+			} 
+		}
+	}
+	
 	/**
-	 * Creates a condition for the pathway. Conditions may be expressed as text in the "hasCondition" data property, or as object properties by means of "requiresPreviousManifestation".
-	 * FIXME: A pathway may involve more than a condition, but currently, only one value is loaded for each data property. This change requires modifying DataStoreService.eTLDataPropertyValues().  
+	 * Creates a condition for the pathway. Conditions may be expressed by one or more strings in a "hasCondition" data property, or as object properties by means of "requiresPreviousManifestation".
 	 * @param ontology The preloaded ontology
 	 * @param secParams Repository
 	 * @param disease The disease
@@ -65,26 +91,24 @@ public class ManifestationPathwayBuilder {
 	 * @return A condition for the pathway
 	 */
 	private static PathwayCondition createCondition(Ontology ontology, SecondOrderParamsRepository secParams, Disease disease, String pathwayName) {
-		final String strCond = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_CONDITION.getDescription());
+		final List<String> strConditions = OwlHelper.getDataPropertyValues(pathwayName, OSDiNames.DataProperty.HAS_CONDITION.getDescription());
 		final List<String> strPrevManifestations = OwlHelper.getObjectPropertiesByName(pathwayName, OSDiNames.ObjectProperty.REQUIRES_PREVIOUS_MANIFESTATION.getDescription());
-		PathwayCondition cond = null;
-		if (strCond == null && strPrevManifestations.size() == 0) {
-			cond = PathwayCondition.TRUE_CONDITION;
-		}
-		else if (strPrevManifestations.size() == 0) {
-			cond = new ExpressionLanguagePathwayCondition(strCond);
-		}
-		else {
-			List<Manifestation> manifList = new ArrayList<>();
+		final ArrayList<PathwayCondition> condList = new ArrayList<>();
+		if (strPrevManifestations.size() > 0) {
+			final List<Manifestation> manifList = new ArrayList<>();
 			for (String manifestationName: strPrevManifestations) {
 				manifList.add(disease.getManifestation(manifestationName));
 			}
-			cond = new PreviousManifestationCondition(manifList);
-			if (strCond != null) {
-				cond = new AndCondition(cond, new ExpressionLanguagePathwayCondition(strCond));
-			}
-		}		
-		return cond;
+			condList.add(new PreviousManifestationCondition(manifList));
+		}
+		for (String strCond : strConditions)
+			condList.add(new ExpressionLanguagePathwayCondition(strCond));
+		// After going through for previous manifestations and other conditions, checks how many conditions were created
+		if (condList.size() == 0)
+			return PathwayCondition.TRUE_CONDITION;
+		if (condList.size() == 1)
+			return condList.get(0);
+		return new AndCondition(condList);
 	}
 	
 	/**
@@ -111,8 +135,8 @@ public class ManifestationPathwayBuilder {
 				// FIXME: Still not capable of distinguish among different types of parameters
 				// tte = new ProportionBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manifestation), secParams, manifestation);
 			} else {
-				Object[][] datatableMatrix = ValueParser.rangeDatatableToMatrix(XmlTransform.getDataTable(strPManif), secParams);
-				tte = new AgeBasedTimeToEventCalculator(datatableMatrix, manifestation, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix));
+//				Object[][] datatableMatrix = ValueParser.rangeDatatableToMatrix(XmlTransform.getDataTable(strPManif), secParams);
+//				tte = new AgeBasedTimeToEventCalculator(datatableMatrix, manifestation, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix));
 			}
 		}
 		return tte;
@@ -133,5 +157,15 @@ public class ManifestationPathwayBuilder {
 		else {
 			return SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + pathwayName + "_" + manifestation.name(); 			
 		}
+	}
+
+	/**
+	 * Creates a proper description for the second-order parameter that represents the probability associated to this pathway.  
+	 * @param manifestation The destination manifestation for this pathway
+	 * @param pathwayName The name of the pathway instance in the ontology
+	 * @return a proper description for the second-order parameter that represents the probability associated to this pathway
+	 */
+	public static String getDescriptionString(Manifestation manifestation, String pathwayName) {
+		return "Probability of developing " + manifestation + " due to " + pathwayName; 
 	}
 }

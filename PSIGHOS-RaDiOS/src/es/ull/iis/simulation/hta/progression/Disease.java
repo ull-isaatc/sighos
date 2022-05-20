@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
@@ -23,7 +24,7 @@ import es.ull.iis.simulation.model.Describable;
  * excludes the "asymptomatic" chronic manifestation. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Disease implements Named, Describable, CreatesSecondOrderParameters, Comparable<Disease> {
+public abstract class Disease implements Named, Describable, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable {
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
@@ -296,5 +297,26 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	@Override
 	public String toString() {
 		return name;
+	}
+	
+	@Override
+	public String prettyPrint(String linePrefix) {
+		final StringBuilder str = new StringBuilder(linePrefix).append("Disease: ").append(name).append(System.lineSeparator());
+		str.append(linePrefix).append(description).append(System.lineSeparator());
+		if (manifestations.size() > 0) {
+			str.append(linePrefix).append("MANIFESTATIONS").append(System.lineSeparator());
+			for (Manifestation manif : manifestations.values())
+				str.append(manif.prettyPrint(linePrefix + "\t"));
+			if (exclusions.size() > 0) {
+				str.append(linePrefix).append("EXCLUSIONS").append(System.lineSeparator());				
+				for (Manifestation manif : exclusions.keySet()) {
+					str.append(linePrefix).append(manif).append(": ");
+					for (Manifestation excluded : exclusions.get(manif))
+						str.append(excluded).append("\t");
+					str.append(System.lineSeparator());
+				}
+			}
+		}
+		return str.toString();
 	}
 }

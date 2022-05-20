@@ -57,17 +57,17 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	
 	@Override
 	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 132.0 / 300.0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 132.0 / 300.0);
 	}
 
 	@Override
 	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 1.0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 	}
 
 	@Override
 	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 1.0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 	}
 
 	@Override

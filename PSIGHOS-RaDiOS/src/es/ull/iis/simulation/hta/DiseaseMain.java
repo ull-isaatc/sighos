@@ -40,10 +40,10 @@ public class DiseaseMain extends HTAExperiment {
 	private final static int TEST_SCD = 0;
 	private final static boolean REPLACE_DOT_WITH_COLON = false;
 	private final static boolean ALL_AFFECTED = true;
-//	private final static String PARAMS = "-n 20000 -r 0 -pop 3 -y 2019 -q -ep cr"; // Testing diabetes
+	private final static String PARAMS = "-n 20000 -r 0 -pop 3 -y 2019 -q -ep cr"; // Testing diabetes
 //	private final static String PARAMS = "-n 5000 -r 0 -pop 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
 //	private final static String PARAMS = "-n 100 -r 0 -dr 0 -q -pop 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
-	private final static String PARAMS = "-n 1000 -r 0 -dr 0 -q -pop 1 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
+//	private final static String PARAMS = "-n 1000 -r 0 -dr 0 -q -pop 1 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 
 	public DiseaseMain(Arguments arguments, ByteArrayOutputStream simResult) throws MalformedSimulationModelException {
 		super(arguments, simResult);

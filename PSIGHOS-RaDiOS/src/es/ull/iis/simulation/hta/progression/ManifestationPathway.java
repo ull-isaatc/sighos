@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
+import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.condition.PathwayCondition;
@@ -13,7 +14,9 @@ import es.ull.iis.simulation.hta.progression.condition.PathwayCondition;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ManifestationPathway {
+public class ManifestationPathway implements CreatesSecondOrderParameters {
+	/** Resulting manifestation */
+	private final Manifestation destManifestation;
 	/** Condition that must be met progress to a manifestation */
 	private final PathwayCondition condition;
 	/** Calculator of the time to event if the condition is met */
@@ -24,11 +27,12 @@ public class ManifestationPathway {
 	/**
 	 * Creates a new pathway to a manifestation
 	 * @param secParams Repository for common parameters
-	 * @param destManifestation Resulting manifestion
+	 * @param destManifestation Resulting manifestation
 	 * @param condition A condition that the patient must met before he/she can progress to the manifestation
 	 * @param timeToEvent A way of computing the time that will take the patient to show the manifestation in case the condition is met 
 	 */
 	public ManifestationPathway(SecondOrderParamsRepository secParams, Manifestation destManifestation, PathwayCondition condition, TimeToEventCalculator timeToEvent) {
+		this.destManifestation = destManifestation;
 		this.secParams = secParams;
 		this.condition = condition;
 		this.timeToEvent = timeToEvent;
@@ -62,5 +66,16 @@ public class ManifestationPathway {
 
 	public PathwayCondition getCondition() {
 		return condition;
+	}
+
+	/**
+	 * @return the resulting manifestation
+	 */
+	public Manifestation getDestManifestation() {
+		return destManifestation;
+	}
+
+	@Override
+	public void registerSecondOrderParameters() {
 	}
 }

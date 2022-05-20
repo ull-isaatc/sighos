@@ -24,6 +24,7 @@ public class PatientGenerator extends TimeDrivenGenerator<PatientGenerator.Patie
 	private final Patient[] copyOf;
 	/** Intervention assigned to all the patients created */
 	private final Intervention intervention;
+	/** The characteristics of the generated patients */
 	private final Population population;
 
 	/**
@@ -31,6 +32,7 @@ public class PatientGenerator extends TimeDrivenGenerator<PatientGenerator.Patie
 	 * @param simul Associated simulation
 	 * @param nPatients Amount of patients to create
 	 * @param intervention Intervention assigned to the patients
+	 * @param population The characteristics of the generated patients
 	 */
 	public PatientGenerator(DiseaseProgressionSimulation simul, int nPatients, Intervention intervention, Population population) {
 		super(simul, nPatients, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
