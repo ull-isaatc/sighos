@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.BernoulliParam;
 import es.ull.iis.simulation.hta.params.MultipleBernoulliParam;
@@ -23,7 +24,7 @@ import es.ull.iis.simulation.model.Describable;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Manifestation implements Named, Describable, Comparable<Manifestation>, CreatesSecondOrderParameters {
+public abstract class Manifestation implements Named, Describable, Comparable<Manifestation>, CreatesSecondOrderParameters, PrettyPrintable {
 	public enum Type {
 		ACUTE,
 		CHRONIC
@@ -283,11 +284,35 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	 */
 	public abstract double getRandomValue(Patient pat);
 
+	/**
+	 * Returns the collection of pathways that lead to this manifestation
+	 * @return the collection of pathways that lead to this manifestation
+	 */
 	public ArrayList<ManifestationPathway> getPathways() {
 		return pathways;
 	}
 
+	/**
+	 * Returns the related repository for parameters
+	 * @return the related repository for parameters
+	 */
 	public SecondOrderParamsRepository getParamsRepository() {
 		return secParams;
+	}
+	
+	@Override
+	public String prettyPrint(String linePrefix) {
+		
+		final StringBuilder str = new StringBuilder(linePrefix).append(type.name()).append(" manifestation: ").append(name).append(System.lineSeparator());
+		str.append(linePrefix).append(description).append(System.lineSeparator());
+		str.append(linePrefix).append("Onset age: ").append(onsetAge).append(System.lineSeparator());
+		str.append(linePrefix).append("End age: ").append(endAge).append(System.lineSeparator());
+		if (labels.size() > 0) {
+			str.append(linePrefix).append("Labeled as: ");
+			for (Named label : labels)
+				str.append(label).append("\t");
+			str.append(System.lineSeparator());
+		}
+		return str.toString();
 	}
 }

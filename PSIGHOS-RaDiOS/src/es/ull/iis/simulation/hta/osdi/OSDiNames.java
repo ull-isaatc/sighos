@@ -192,7 +192,12 @@ public interface OSDiNames {
 		KIND_UTILITY_UTILITY("UTILITY"),
 		KIND_UTILITY_DISUTILITY("DISUTILITY"),
 		KIND_MANIFESTATION_CHRONIC("CHRONIC"),
-		KIND_MANIFESTATION_ACUTE("ACUTE");
+		KIND_MANIFESTATION_ACUTE("ACUTE"),
+		KIND_EPIDEMIOLOGICAL_PARAMETER_BIRTH_PREVALENCE("BIRTH PREVALENCE"),
+		KIND_EPIDEMIOLOGICAL_PARAMETER_INCIDENCE("INCIDENCE"),
+		KIND_EPIDEMIOLOGICAL_PARAMETER_PREVALENCE("PREVALENCE"),
+		EPIDEMIOLOGICAL_PARAMETER_NATURE_APPARENT("APPARENT"),
+		EPIDEMIOLOGICAL_PARAMETER_NATURE_TRUE("TRUE");
 		
 		private final String description;
 		private DataPropertyRange(String description) {
@@ -204,4 +209,7 @@ public interface OSDiNames {
 		}
 	}
 
+	public static String getSource(String instanceName) {
+		return OwlHelper.getDataPropertyValue(instanceName, DataProperty.HAS_SOURCE.getDescription(), "Unknown");
+	}
 }

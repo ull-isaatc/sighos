@@ -21,6 +21,7 @@ import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.ManifestationPathway;
 import es.ull.iis.simulation.hta.progression.Modification;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
@@ -196,8 +197,12 @@ public abstract class SecondOrderParamsRepository {
 		registeredDeathSubmodel.registerSecondOrderParameters();
 		for (Disease disease : registeredDiseases)
 			disease.registerSecondOrderParameters();
-		for (Manifestation manif : registeredManifestations)
+		for (Manifestation manif : registeredManifestations) {
 			manif.registerSecondOrderParameters();
+			for (ManifestationPathway pathway : manif.getPathways()) {
+				pathway.registerSecondOrderParameters();
+			}
+		}
 		for (Intervention intervention : registeredInterventions)
 			intervention.registerSecondOrderParameters();
 	}

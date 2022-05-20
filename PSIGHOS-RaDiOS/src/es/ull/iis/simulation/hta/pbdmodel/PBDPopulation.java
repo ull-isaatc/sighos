@@ -30,18 +30,18 @@ public class PBDPopulation extends StdPopulation {
 
 	@Override
 	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 0.5);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 0.5);
 	}
 
 	@Override
 	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
 		final double birthPrev = allAffected ? 1.0 : secParams.getProbParam(STR_BIRTH_PREV, simul);
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, birthPrev);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), birthPrev);
 	}
 
 	@Override
 	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 0.0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 0.0);
 	}
 
 	@Override

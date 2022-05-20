@@ -72,24 +72,24 @@ public class DCCTPopulation2 extends StdPopulation {
 
 	@Override
 	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, P_WOMAN);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), P_WOMAN);
 	}
 
 	@Override
 	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 1.0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 	}
 
 	@Override
 	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 1.0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 	}
 
 	@Override
 	protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
 		// 28.4 has been established empirically to get a sd of 7.
 		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_AGE_AVG, 28.4, BASELINE_AGE_MIN, BASELINE_AGE_MAX);
-		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", rng, betaParams[0], betaParams[1]); 
+		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", getCommonRandomNumber(), betaParams[0], betaParams[1]); 
 		return RandomVariateFactory.getInstance("ScaledVariate", rnd, BASELINE_AGE_MAX - BASELINE_AGE_MIN, BASELINE_AGE_MIN);
 	}
 

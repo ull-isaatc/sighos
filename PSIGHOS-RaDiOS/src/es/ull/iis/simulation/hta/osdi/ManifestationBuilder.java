@@ -100,7 +100,7 @@ public class ManifestationBuilder {
 			if (acute) {
 					secParams.addCostParam((AcuteManifestation)manifestation, 
 							OwlHelper.getDataPropertyValue(costName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), ""),  
-							OwlHelper.getDataPropertyValue(costName, OSDiNames.DataProperty.HAS_SOURCE.getDescription(), ""), 
+							OSDiNames.getSource(costName), 
 							year, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
 			}
 			else {
@@ -108,7 +108,7 @@ public class ManifestationBuilder {
 				final boolean isOneTime = OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME_VALUE.getDescription().equals(strTempBehavior);
 				secParams.addCostParam((ChronicManifestation)manifestation, 
 						OwlHelper.getDataPropertyValue(costName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), ""),  
-						OwlHelper.getDataPropertyValue(costName, OSDiNames.DataProperty.HAS_SOURCE.getDescription(), ""), 
+						OSDiNames.getSource(costName), 
 						year, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isOneTime);			
 			}
 		}
@@ -149,15 +149,15 @@ public class ManifestationBuilder {
 			if (acute) {
 					secParams.addUtilityParam((AcuteManifestation)manifestation, 
 							OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "Utility for " + manifestation.name() + " calculated using " + strCalcMethod),  
-							OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_SOURCE.getDescription(), ""), 
+							OSDiNames.getSource(utilityName), 
 							probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isDisutility);
 			}
 			else {
 				// If defined to be applied one time
 				final boolean isOneTime = OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME_VALUE.getDescription().equals(strTempBehavior);
 				secParams.addUtilityParam((ChronicManifestation)manifestation, 
-						OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), ""),  
-						OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_SOURCE.getDescription(), ""), 
+						OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "Utility for " + manifestation.name() + " calculated using " + strCalcMethod),  
+						OSDiNames.getSource(utilityName), 
 						probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isDisutility, isOneTime);			
 			}
 		}

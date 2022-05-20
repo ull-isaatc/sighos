@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.osdi.service.DataStoreService;
 
 
 public class OwlHelper {
-	private static Map<String, Map<String, PropertyData>> dataPropertyValues = null;
+	private static Map<String, Map<String, List<PropertyData>>> dataPropertyValues = null;
 	private static Map<String, Map<String, List<String>>> objectPropertyValues = null;
 	private static Map<String, String> instanceToClazz = new HashMap<String, String>();
 	
@@ -22,7 +22,8 @@ public class OwlHelper {
 	}
 
 	/**
-	 * Returns the string corresponding to the specified data property defined in the specified instance in the ontology. 
+	 * Returns the string corresponding to the specified data property defined in the specified instance in the ontology.
+	 * If there are is than one value for that property, returns the first one. 
 	 * If the data property is not defined, returns the default value.
 	 * In any case, returns null if the instance is not defined.
 	 * @param instanceName Name of the instance that defines the data property
@@ -31,12 +32,31 @@ public class OwlHelper {
 	 * @return the string corresponding to the specified data property defined in the specified instance in the ontology.
 	 */
 	public static String getDataPropertyValue (String instanceName, String propertyName, String defaultValue) {
-		final Map<String, PropertyData> data = dataPropertyValues.get(instanceName);
+		final Map<String, List<PropertyData>> data = dataPropertyValues.get(instanceName);
 		if (data == null)
 			return null;
 		if (data.get(propertyName) == null)
 			return defaultValue;
-		return data.get(propertyName).getValue();
+		return data.get(propertyName).get(0).getValue();
+	}
+	
+	/**
+	 * Returns the string values corresponding to the specified data property defined in the specified instance in the ontology.
+	 * If the data instance is not defined, returns null. If the data property is not defined, returns an empty list.
+	 * @param instanceName Name of the instance that defines the data property
+	 * @param propertyName Name of the data property
+	 * @return the string values corresponding to the specified data property defined in the specified instance in the ontology.
+	 */
+	public static List<String> getDataPropertyValues(String instanceName, String propertyName) {
+		final Map<String, List<PropertyData>> data = dataPropertyValues.get(instanceName);
+		if (data == null)
+			return null;
+		final ArrayList<String> values = new ArrayList<>();
+		if (data.get(propertyName) != null)
+			for (PropertyData dataItem : data.get(propertyName)) {
+				values.add(dataItem.getValue());
+			}
+		return values;
 	}
 	
 	/**

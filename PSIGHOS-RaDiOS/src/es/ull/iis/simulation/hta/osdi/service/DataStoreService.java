@@ -19,7 +19,7 @@ import es.ull.iis.simulation.hta.osdi.PropertyData;
 public class DataStoreService {
 	private static Map<String, String> classIndividualsInstance = null;
 	private static Map<String, List<String>> classIndividualsByClassInstance = null;
-	private static Map<String, Map<String, PropertyData>> dataPropertyValuesInstance = null;
+	private static Map<String, Map<String, List<PropertyData>>> dataPropertyValuesInstance = null;
 	private static Map<String, Map<String, List<PropertyData>>> diseasesDatasheetInstance = null;
 	
 	public static void initializeDiseaseDatasheet (String diseaseName) {
@@ -112,7 +112,7 @@ public class DataStoreService {
 	 * @param ontology
 	 * @return
 	 */
-	public static Map<String, Map<String, PropertyData>> getDataPropertyValuesInstance(Ontology ontology) {
+	public static Map<String, Map<String, List<PropertyData>>> getDataPropertyValuesInstance(Ontology ontology) {
 		if (dataPropertyValuesInstance == null) {
 			dataPropertyValuesInstance = eTLDataPropertyValues(ontology);
 		}
@@ -211,18 +211,20 @@ public class DataStoreService {
 	 * @param ontology
 	 * @return
 	 */
-	public static Map<String, Map<String, PropertyData>> eTLDataPropertyValues(Ontology ontology) {
-		Map<String, Map<String, PropertyData>> result = new HashMap<String, Map<String, PropertyData>>();
+	public static Map<String, Map<String, List<PropertyData>>> eTLDataPropertyValues(Ontology ontology) {
+		Map<String, Map<String, List<PropertyData>>> result = new HashMap<String, Map<String, List<PropertyData>>>();
 		for (Axiom axiom : ontology.getAxiom()) {
 			if (axiom instanceof DataPropertyAssertion) {
 				DataPropertyAssertion dataPropertyAssertion = (DataPropertyAssertion) axiom;
 				String clazzName = dataPropertyAssertion.getNamedIndividual().getIRI();
-				Map<String, PropertyData> dataProperties = result.get(clazzName);
+				Map<String, List<PropertyData>> dataProperties = result.get(clazzName);
 				if (dataProperties == null) {
-					dataProperties = new HashMap<String, PropertyData>();
+					dataProperties = new HashMap<String, List<PropertyData>>();
 				}
 				
 				String dataPropertyName = dataPropertyAssertion.getDataProperty().getIRI();
+				if (!dataProperties.containsKey(dataPropertyName))
+					dataProperties.put(dataPropertyName, new ArrayList<PropertyData>());
 				
 				String dataPropertyType = Constants.CONSTANT_UNDEFINED_TYPE;
 				if (dataPropertyAssertion.getLiteral().getDatatypeIRI() != null) {
@@ -232,10 +234,12 @@ public class DataStoreService {
 				String dataPropertyValue = dataPropertyAssertion.getLiteral().getValue();
 				if (dataPropertyValue.matches(Constants.REGEX_NUMERICVALUE_DISTRO)) {
 					String valueSplitted[] = dataPropertyValue.split(Constants.CONSTANT_HASHTAG); 
-					dataProperties.put(dataPropertyName, new PropertyData(dataPropertyName, valueSplitted[0], Constants.CONSTANT_DOUBLE_TYPE));
-					dataProperties.put(dataPropertyName + Constants.CONSTANT_DISTRUBUTION_SUFFIX, new PropertyData(dataPropertyName + Constants.CONSTANT_DISTRUBUTION_SUFFIX, valueSplitted[1], Constants.CONSTANT_STRING_TYPE));
+					dataProperties.get(dataPropertyName).add(new PropertyData(dataPropertyName, valueSplitted[0], Constants.CONSTANT_DOUBLE_TYPE));
+					if (!dataProperties.containsKey(dataPropertyName + Constants.CONSTANT_DISTRUBUTION_SUFFIX))
+						dataProperties.put(dataPropertyName + Constants.CONSTANT_DISTRUBUTION_SUFFIX, new ArrayList<PropertyData>());
+					dataProperties.get(dataPropertyName + Constants.CONSTANT_DISTRUBUTION_SUFFIX).add(new PropertyData(dataPropertyName + Constants.CONSTANT_DISTRUBUTION_SUFFIX, valueSplitted[1], Constants.CONSTANT_STRING_TYPE));
 				} else {
-					dataProperties.put(dataPropertyName, new PropertyData(dataPropertyName, dataPropertyValue, dataPropertyType));
+					dataProperties.get(dataPropertyName).add(new PropertyData(dataPropertyName, dataPropertyValue, dataPropertyType));
 				}
 
 				result.put(clazzName, dataProperties);
@@ -284,10 +288,10 @@ public class DataStoreService {
 	 * @param classInstance
 	 * @return
 	 */
-	public static Map<String, PropertyData> getDataPropertyValues(Ontology ontology, String classInstance) {
+	public static Map<String, List<PropertyData>> getDataPropertyValues(Ontology ontology, String classInstance) {
 		if (eTLDataPropertyValues(ontology).containsKey(classInstance)) {
 			return eTLDataPropertyValues(ontology).get(classInstance);
 		}
-		return new HashMap<String, PropertyData> ();		
+		return new HashMap<String, List<PropertyData>> ();		
 	}
 }

@@ -33,17 +33,17 @@ public class RadiosPopulation extends StdPopulation {
 	
 	@Override
 	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 0.5);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 0.5);
 	}
 
 	@Override
 	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, allAffected ? 1.0 : secParams.getProbParam(STR_BIRTH_PREV, simul));
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), allAffected ? 1.0 : secParams.getProbParam(STR_BIRTH_PREV, simul));
 	}
 
 	@Override
 	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", rng, 0.0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 0.0);
 	}
 
 	@Override
