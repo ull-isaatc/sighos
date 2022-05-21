@@ -438,28 +438,6 @@ public class OntologyUtils {
 		
 		return result;
 	}
-	
-	/**
-	 * @param ontology
-	 * @param manifestations
-	 */
-	private static void loadNaturalDevelopmentManifestations(Ontology ontology, String disease, Map<String, Map<String, PropertyData>> manifestations) {
-		if (DataStoreService.eTLObjectProperties(ontology).get(disease).containsKey(Constants.OBJECTPROPERTY_DISEASE_DEVELOPMENTS)) {
-			List<String> developments = DataStoreService.eTLObjectProperties(ontology).get(disease).get(Constants.OBJECTPROPERTY_DISEASE_DEVELOPMENTS);		
-			for (String development : developments) {
-				String kindDevelopment = DataStoreService.eTLDataPropertyValues(ontology).get(development).get(Constants.DATAPROPERTY_KIND_DEVELOPMENT).getValue().split(Constants.CONSTANT_SPLIT_TYPE)[0];
-				if (Constants.DATAPROPERTYVALUE_KIND_DEVELOPMENT_NATURAL_VALUE.equals(kindDevelopment)) {
-					Map<String, List<String>> objectProperties = DataStoreService.eTLObjectProperties(ontology).get(development);
-					for (String key : objectProperties.keySet()) {
-						for (String manifestation : objectProperties.get(key)) {
-							manifestations.put(new String(manifestation), MapUtils.cloneSimpleHashMap(DataStoreService.eTLDataPropertyValues(ontology).get(manifestation)));
-						}
-					}
-					break;
-				}
-			}
-		}
-	}
 
 	/**
 	 * Given a set of values, calculate the combinatorial tree of all possible combinations of its elements.

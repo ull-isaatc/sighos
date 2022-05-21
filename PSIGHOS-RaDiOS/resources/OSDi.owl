@@ -1373,6 +1373,11 @@
         <NamedIndividual IRI="#PBD_UtilityManifestationSeizure"/>
     </ClassAssertion>
     <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasParameter"/>
+        <NamedIndividual IRI="#PBD_BasePopulation"/>
+        <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
         <ObjectProperty IRI="#isParameterOfDisease"/>
         <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
         <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>

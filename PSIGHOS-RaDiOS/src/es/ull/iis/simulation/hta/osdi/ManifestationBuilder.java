@@ -6,8 +6,6 @@ package es.ull.iis.simulation.hta.osdi;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.w3c.xsd.owl2.Ontology;
-
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
@@ -30,7 +28,7 @@ public class ManifestationBuilder {
 	private ManifestationBuilder() {
 	}
 
-	public static Manifestation getManifestationInstance(Ontology ontology, SecondOrderParamsRepository secParams, StandardDisease disease, String manifestationName) {
+	public static Manifestation getManifestationInstance(SecondOrderParamsRepository secParams, StandardDisease disease, String manifestationName) {
 		Manifestation manifestation = null;
 		final String type = OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_MANIFESTATION_KIND.getDescription(), OSDiNames.DataPropertyRange.KIND_MANIFESTATION_CHRONIC.getDescription());
 		final Double onsetAge = ValueParser.toDoubleValue(OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_ONSET_AGE.getDescription(), "0.0"));

@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.w3c.xsd.owl2.Ontology;
-
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguagePathwayCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
@@ -51,12 +49,12 @@ public class ManifestationPathwayBuilder {
 	 * @param pathwayName
 	 * @return
 	 */
-	public static ManifestationPathway getManifestationPathwayInstance(Ontology ontology, SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) {
+	public static ManifestationPathway getManifestationPathwayInstance(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) {
 		if (createdPathways.containsKey(pathwayName))
 			return createdPathways.get(pathwayName);
 		final Disease disease = manifestation.getDisease();
-		final PathwayCondition cond = createCondition(ontology, secParams, disease, pathwayName);
-		final TimeToEventCalculator tte = createTimeToEventCalculator(ontology, secParams, manifestation, pathwayName);
+		final PathwayCondition cond = createCondition(secParams, disease, pathwayName);
+		final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, manifestation, pathwayName);
 		final ManifestationPathway pathway = new ManifestationPathway(secParams, manifestation, cond, tte) {
 			@Override
 			public void registerSecondOrderParameters() {
@@ -84,13 +82,12 @@ public class ManifestationPathwayBuilder {
 	
 	/**
 	 * Creates a condition for the pathway. Conditions may be expressed by one or more strings in a "hasCondition" data property, or as object properties by means of "requiresPreviousManifestation".
-	 * @param ontology The preloaded ontology
 	 * @param secParams Repository
 	 * @param disease The disease
 	 * @param pathwayName The name of the pathway instance in the ontology
 	 * @return A condition for the pathway
 	 */
-	private static PathwayCondition createCondition(Ontology ontology, SecondOrderParamsRepository secParams, Disease disease, String pathwayName) {
+	private static PathwayCondition createCondition(SecondOrderParamsRepository secParams, Disease disease, String pathwayName) {
 		final List<String> strConditions = OwlHelper.getDataPropertyValues(pathwayName, OSDiNames.DataProperty.HAS_CONDITION.getDescription());
 		final List<String> strPrevManifestations = OwlHelper.getObjectPropertiesByName(pathwayName, OSDiNames.ObjectProperty.REQUIRES_PREVIOUS_MANIFESTATION.getDescription());
 		final ArrayList<PathwayCondition> condList = new ArrayList<>();
@@ -120,7 +117,7 @@ public class ManifestationPathwayBuilder {
 	 * @param pathwayName The name of the pathway instance in the ontology
 	 * @return
 	 */
-	private static TimeToEventCalculator createTimeToEventCalculator(Ontology ontology, SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) {
+	private static TimeToEventCalculator createTimeToEventCalculator(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) {
 		TimeToEventCalculator tte = null;
 		// FIXME: Currently not using time to
 		// final String strTimeTo = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_TIME_TO.getDescription());
