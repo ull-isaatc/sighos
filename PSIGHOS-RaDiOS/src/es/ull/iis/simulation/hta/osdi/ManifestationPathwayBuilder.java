@@ -4,10 +4,7 @@
 package es.ull.iis.simulation.hta.osdi;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguagePathwayCondition;
@@ -28,16 +25,7 @@ import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCond
  * @author David Prieto González
  *
  */
-public class ManifestationPathwayBuilder {
-	private static final Map<String, ManifestationPathway> createdPathways = new TreeMap<>();
-	private static final Map<ManifestationPathway, String> inverseMap = new HashMap<>();
-
-	/**
-	 * 
-	 */
-	private ManifestationPathwayBuilder() {
-	}
-
+public interface ManifestationPathwayBuilder {
 
 	/**
 	 * Creates a {@link ManifestationPathway manifestation pathway}. If, for any reason, a manifestation pathway was already created for the specified name, returns the 
@@ -50,34 +38,11 @@ public class ManifestationPathwayBuilder {
 	 * @return
 	 */
 	public static ManifestationPathway getManifestationPathwayInstance(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) {
-		if (createdPathways.containsKey(pathwayName))
-			return createdPathways.get(pathwayName);
 		final Disease disease = manifestation.getDisease();
 		final PathwayCondition cond = createCondition(secParams, disease, pathwayName);
 		final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, manifestation, pathwayName);
-		final ManifestationPathway pathway = new ManifestationPathway(secParams, manifestation, cond, tte) {
-			@Override
-			public void registerSecondOrderParameters() {
-				createParameters(secParams, this);
-			}
-		};
-		createdPathways.put(pathwayName, pathway);
-		inverseMap.put(pathway, pathwayName);
+		final ManifestationPathway pathway = new OSDiManifestationPathway(secParams, manifestation, cond, tte, pathwayName);
 		return pathway;
-	}
-	
-	private static void createParameters(SecondOrderParamsRepository secParams, ManifestationPathway pathway) {
-		final String pathwayName = inverseMap.get(pathway);
-		final Manifestation manifestation = pathway.getDestManifestation();
-		final String strPManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY.getDescription());
-		if (strPManif != null) {
-			ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPManif);
-			if (probabilityDistribution != null) {
-				SecondOrderParam param = new SecondOrderParam(secParams, getProbString(manifestation, pathwayName), getDescriptionString(manifestation, pathwayName), Constants.CONSTANT_EMPTY_STRING, 
-						probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
-				secParams.addProbParam(param);
-			} 
-		}
 	}
 	
 	/**
@@ -164,5 +129,30 @@ public class ManifestationPathwayBuilder {
 	 */
 	public static String getDescriptionString(Manifestation manifestation, String pathwayName) {
 		return "Probability of developing " + manifestation + " due to " + pathwayName; 
+	}
+	
+	static class OSDiManifestationPathway extends ManifestationPathway {
+		private final String pathwayName; 
+
+		public OSDiManifestationPathway(SecondOrderParamsRepository secParams, Manifestation destManifestation,
+				PathwayCondition condition, TimeToEventCalculator timeToEvent, String pathwayName) {
+			super(secParams, destManifestation, condition, timeToEvent);
+			this.pathwayName = pathwayName;
+		}
+		
+		@Override
+		public void registerSecondOrderParameters() {
+			final Manifestation manifestation = this.getDestManifestation();
+			final String strPManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY.getDescription());
+			if (strPManif != null) {
+				ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPManif);
+				if (probabilityDistribution != null) {
+					SecondOrderParam param = new SecondOrderParam(secParams, getProbString(manifestation, pathwayName), getDescriptionString(manifestation, pathwayName), Constants.CONSTANT_EMPTY_STRING, 
+							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+					secParams.addProbParam(param);
+				} 
+			}
+		}
+		
 	}
 }

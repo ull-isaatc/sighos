@@ -2,11 +2,17 @@ package es.ull.iis.simulation.hta.osdi;
 
 import java.util.List;
 
+import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.StandardDisease;
+import es.ull.iis.simulation.hta.radios.utils.CostUtils;
+import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
+import simkit.random.RandomVariate;
+import simkit.random.RandomVariateFactory;
 
-public class DiseaseBuilder {
+public interface DiseaseBuilder {
 	public static StandardDisease getDiseaseInstance(SecondOrderParamsRepository secParams, String diseaseName) {
 		
 		StandardDisease disease = new StandardDisease(secParams, diseaseName, OwlHelper.getDataPropertyValue(diseaseName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "")) {
@@ -47,4 +53,20 @@ public class DiseaseBuilder {
 
 		return disease;
 	}
+
+
+	private static void calculateDiseaseStrategyCost(SecondOrderParamsRepository secParams, String paramName, String paramDescription, Matrix costs, String costType) {
+		Object[] calculatedCost = null;
+		if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equalsIgnoreCase(costType)) {
+			calculatedCost = CostUtils.calculateOnetimeCostFromMatrix(costs);
+		} else if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE.equalsIgnoreCase(costType)) {
+			calculatedCost = CostUtils.calculateAnnualCostFromMatrix(costs);
+		}
+		RandomVariate distribution = RandomVariateFactory.getInstance("ConstantVariate", (Double) calculatedCost[1]);
+		if (calculatedCost[2] != null) {
+			distribution = (RandomVariate) calculatedCost[2];
+		}
+		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, paramDescription, "", (Integer) calculatedCost[0], (Double) calculatedCost[1], distribution));
+	}
+
 }

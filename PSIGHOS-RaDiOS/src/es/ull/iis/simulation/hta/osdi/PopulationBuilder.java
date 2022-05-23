@@ -20,13 +20,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class PopulationBuilder {
-
-	/**
-	 * 
-	 */
-	private PopulationBuilder() {
-	}
+public interface PopulationBuilder {
 
 	/**
 	 * Returns a population according to the description in the ontology. 
@@ -40,7 +34,7 @@ public class PopulationBuilder {
 		return new OSDiPopulation(secParams, disease, populationName);		
 	}
 	
-	private static class OSDiPopulation extends StdPopulation {
+	static class OSDiPopulation extends StdPopulation {
 		private final String populationName;
 		private final String[] strParamFemale = new String[2];
 		private final String[] strParamPrevalence = new String[2];
