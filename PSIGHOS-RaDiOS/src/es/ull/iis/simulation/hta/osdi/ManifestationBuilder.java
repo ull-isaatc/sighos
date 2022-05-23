@@ -20,13 +20,7 @@ import es.ull.iis.simulation.hta.progression.StandardDisease;
  * @author David Prieto González
  * @author Iván Castilla Rodríguez
  */
-public class ManifestationBuilder {
-
-	/**
-	 * 
-	 */
-	private ManifestationBuilder() {
-	}
+public interface ManifestationBuilder {
 
 	public static Manifestation getManifestationInstance(SecondOrderParamsRepository secParams, StandardDisease disease, String manifestationName) {
 		Manifestation manifestation = null;
