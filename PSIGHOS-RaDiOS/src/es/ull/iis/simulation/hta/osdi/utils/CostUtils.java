@@ -12,8 +12,10 @@ import es.ull.iis.simulation.hta.osdi.OSDiNames;
 import es.ull.iis.simulation.hta.osdi.TreeNode;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.service.DataStoreService;
+import es.ull.iis.simulation.hta.osdi.wrappers.CostMatrixElement;
+import es.ull.iis.simulation.hta.osdi.wrappers.Matrix;
 
-public class CostsUtils {
+public class CostUtils {
 
 	/**
 	 * This formula is applied to costs as well as to profits.
@@ -78,8 +80,8 @@ public class CostsUtils {
 	 * @throws TranspilerException
 	 */
 	public static Double calculateStrategyCost(Ontology ontology, String strategy) throws TranspilerException {
-		Double partialCost = CostsUtils.calculateStrategyCost(ontology, strategy, Constants.CONSTANT_COST_CALCULATION_STRATEGY_ALTERNATIVE_GLOBAL);
-		Double finalCost = (partialCost > 0.0) ? partialCost : CostsUtils.calculateStrategyCost(ontology, strategy, Constants.CONSTANT_COST_CALCULATION_STRATEGY_ALTERNATIVE_SPECIFIC);
+		Double partialCost = CostUtils.calculateStrategyCost(ontology, strategy, Constants.CONSTANT_COST_CALCULATION_STRATEGY_ALTERNATIVE_GLOBAL);
+		Double finalCost = (partialCost > 0.0) ? partialCost : CostUtils.calculateStrategyCost(ontology, strategy, Constants.CONSTANT_COST_CALCULATION_STRATEGY_ALTERNATIVE_SPECIFIC);
 		return finalCost;
 	}
 
@@ -180,4 +182,22 @@ public class CostsUtils {
 		}
 		return Math.sqrt(sum / (double) values.size());
 	}
+
+	/**
+	 * Show intervention cost matrix
+	 */
+	public static String showCostMatrix(Matrix costs, String prefix) {
+		StringBuffer sb = new StringBuffer();
+		for (String keyR : costs.keySetR()) {
+			sb.append(String.format("%s%s:\n", prefix, keyR));
+			for (String keyC : costs.keySetC(keyR)) {
+				sb.append(String.format("%s%s:\n", prefix + "\t", keyC));
+				for (CostMatrixElement e : costs.get(keyR, keyC)) {
+					sb.append(e.toString(prefix + "\t\t"));
+				}
+			}
+		}
+		return sb.toString();
+	}
+
 }

@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.hta.osdi;
 
+import es.ull.iis.simulation.hta.osdi.utils.CostUtils;
+import es.ull.iis.simulation.hta.osdi.wrappers.Matrix;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
@@ -17,8 +19,10 @@ import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
  *
  */
 public class OSDiGenericRepository extends SecondOrderParamsRepository {
-	final CostCalculator costCalc;
-	final UtilityCalculator utilCalc;
+	private final CostCalculator costCalc;
+	private final UtilityCalculator utilCalc;
+	private final Matrix treatmentCosts;
+	private final Matrix followUpCosts;
 
 	/**
 	 * @param nRuns
@@ -28,6 +32,11 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, method, generalPopulationUtility);
+		treatmentCosts = new Matrix();
+		followUpCosts = new Matrix();
+		CostUtils.loadCostFromTreatmentStrategies(this.treatmentCosts, naturalDevelopment.getName(), diseaseJSON.getTreatmentStrategies(), timeHorizon);
+		CostUtils.loadCostFromFollowUpStrategies(this.followUpCosts, naturalDevelopment.getName(), diseaseJSON.getFollowUpStrategies(), timeHorizon);
+
 		Disease disease = DiseaseBuilder.getDiseaseInstance(this, diseaseId);
 		setPopulation(PopulationBuilder.getPopulationInstance(this, disease, populationId));
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));

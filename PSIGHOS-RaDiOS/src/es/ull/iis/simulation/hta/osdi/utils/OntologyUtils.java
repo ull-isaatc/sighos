@@ -291,12 +291,12 @@ public class OntologyUtils {
 				throw new TranspilerException("The possibility of working with clinical diagnoses that are not 100% effective is not yet available.");
 			}
 			else {
-				Double clinicalDiagnosisStrategyCost = CostsUtils.calculateStrategyCost(ontology, clinicalDiagnosisStrategy);
+				Double clinicalDiagnosisStrategyCost = CostUtils.calculateStrategyCost(ontology, clinicalDiagnosisStrategy);
 				Double actualNodeCost = 0.0;
 				if (node.getData().getProperties().containsKey(Constants.DATAPROPERTY_COST)) {
 					actualNodeCost = Double.valueOf(node.getData().getProperties().get(Constants.DATAPROPERTY_COST).getValue());	
 				}
-				CostsUtils.addCostToNode(node, actualNodeCost + clinicalDiagnosisStrategyCost, Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_LIFETIME_VALUE);
+				CostUtils.addCostToNode(node, actualNodeCost + clinicalDiagnosisStrategyCost, Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_LIFETIME_VALUE);
 			}
 		}
 	}
