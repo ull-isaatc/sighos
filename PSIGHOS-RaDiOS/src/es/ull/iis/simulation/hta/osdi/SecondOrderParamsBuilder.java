@@ -17,6 +17,7 @@ import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
 public class SecondOrderParamsBuilder {
+	// TODO: Check if this method is useful. Doesn't seem to
 	public static String recalculatePropabilityField(String manifestationName, String dataPropertyValue, String dataPropertyValueDistro) {
 		String mf = "";
 		if (OwlHelper.getDataPropertyValue(manifestationName, dataPropertyValue) != null) {

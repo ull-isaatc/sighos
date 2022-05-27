@@ -34,11 +34,14 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		utilCalc = new DiseaseUtilityCalculator(this, method, generalPopulationUtility);
 		treatmentCosts = new Matrix();
 		followUpCosts = new Matrix();
-		CostUtils.loadCostFromTreatmentStrategies(this.treatmentCosts, naturalDevelopment.getName(), diseaseJSON.getTreatmentStrategies(), timeHorizon);
-		CostUtils.loadCostFromFollowUpStrategies(this.followUpCosts, naturalDevelopment.getName(), diseaseJSON.getFollowUpStrategies(), timeHorizon);
+		// TODO
+//		CostUtils.loadCostFromTreatmentStrategies(this.treatmentCosts, naturalDevelopment.getName(), diseaseJSON.getTreatmentStrategies(), timeHorizon);
+//		CostUtils.loadCostFromFollowUpStrategies(this.followUpCosts, naturalDevelopment.getName(), diseaseJSON.getFollowUpStrategies(), timeHorizon);
 
 		Disease disease = DiseaseBuilder.getDiseaseInstance(this, diseaseId);
 		setPopulation(PopulationBuilder.getPopulationInstance(this, disease, populationId));
+		
+		// TODO: Death submodel should be context specific, depending on the population
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
 

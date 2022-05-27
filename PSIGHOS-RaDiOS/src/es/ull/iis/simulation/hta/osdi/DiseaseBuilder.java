@@ -54,7 +54,7 @@ public interface DiseaseBuilder {
 		return disease;
 	}
 
-
+	// TODO
 	private static void calculateDiseaseStrategyCost(SecondOrderParamsRepository secParams, String paramName, String paramDescription, Matrix costs, String costType) {
 		Object[] calculatedCost = null;
 		if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equalsIgnoreCase(costType)) {
