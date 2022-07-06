@@ -304,9 +304,10 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	public String prettyPrint(String linePrefix) {
 		
 		final StringBuilder str = new StringBuilder(linePrefix).append(type.name()).append(" manifestation: ").append(name).append(System.lineSeparator());
-		str.append(linePrefix).append(description).append(System.lineSeparator());
-		str.append(linePrefix).append("Onset age: ").append(onsetAge).append(System.lineSeparator());
-		str.append(linePrefix).append("End age: ").append(endAge).append(System.lineSeparator());
+		if (!"".equals(description))
+			str.append(linePrefix + "\t").append(description).append(System.lineSeparator());
+		str.append(linePrefix + "\t").append("Onset age: ").append(onsetAge).append(System.lineSeparator());
+		str.append(linePrefix + "\t").append("End age: ").append(endAge).append(System.lineSeparator());
 		if (labels.size() > 0) {
 			str.append(linePrefix).append("Labeled as: ");
 			for (Named label : labels)

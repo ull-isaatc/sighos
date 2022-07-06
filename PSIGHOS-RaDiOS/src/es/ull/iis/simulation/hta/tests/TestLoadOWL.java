@@ -10,6 +10,7 @@ import javax.xml.bind.JAXBException;
 
 import org.w3c.xsd.owl2.Ontology;
 
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.OntologyUtils;
@@ -39,10 +40,13 @@ public class TestLoadOWL {
 			Ontology testOntology = OntologyUtils.loadOntology(System.getProperty("user.dir") + "\\resources\\OSDi.owl");
 			OwlHelper.initilize(testOntology);
 			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD, GENERAL_POPULATION_UTILITY);
+			secParams.registerAllSecondOrderParams();
 			for (Disease disease : secParams.getRegisteredDiseases()) {
 				System.out.println(disease.prettyPrint(""));
 			}
-			secParams.registerAllSecondOrderParams();
+			for (Intervention interv : secParams.getRegisteredInterventions()) {
+				System.out.println(interv.prettyPrint(""));
+			}
 			System.out.println(secParams.prettySavedParams());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

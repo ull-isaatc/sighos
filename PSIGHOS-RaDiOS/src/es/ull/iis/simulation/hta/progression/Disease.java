@@ -302,7 +302,8 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	@Override
 	public String prettyPrint(String linePrefix) {
 		final StringBuilder str = new StringBuilder(linePrefix).append("Disease: ").append(name).append(System.lineSeparator());
-		str.append(linePrefix).append(description).append(System.lineSeparator());
+		if (!"".equals(description))
+			str.append(linePrefix + "\t").append(description).append(System.lineSeparator());
 		if (manifestations.size() > 0) {
 			str.append(linePrefix).append("MANIFESTATIONS").append(System.lineSeparator());
 			for (Manifestation manif : manifestations.values())
