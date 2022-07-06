@@ -2375,10 +2375,6 @@
         <ObjectProperty IRI="#isParameterOf"/>
     </InverseObjectProperties>
     <InverseObjectProperties>
-        <ObjectProperty IRI="#hasPathway"/>
-        <ObjectProperty IRI="#requiresPreviousManifestation"/>
-    </InverseObjectProperties>
-    <InverseObjectProperties>
         <ObjectProperty IRI="#hasStep"/>
         <ObjectProperty IRI="#isStepOf"/>
     </InverseObjectProperties>

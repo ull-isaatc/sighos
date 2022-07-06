@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.hta.osdi;
 
+import java.util.EnumSet;
+
 import es.ull.iis.simulation.model.Describable;
 
 /**
@@ -68,22 +70,22 @@ public interface OSDiNames {
 		HAS_DOSE("#hasDose"),
 		HAS_DURATION("#hasDuration"),
 		HAS_END_AGE("#hasEndAge"),
-		HAS_EPIDEMIOLOGICAL_PARAMETER_KIND("#hasEpidemiologicalParameterKind"),
+		HAS_EPIDEMIOLOGICAL_PARAMETER_KIND("#hasEpidemiologicalParameterKind", EnumSet.of(DataPropertyRange.KIND_EPIDEMIOLOGICAL_PARAMETER_BIRTH_PREVALENCE, DataPropertyRange.KIND_EPIDEMIOLOGICAL_PARAMETER_INCIDENCE, DataPropertyRange.KIND_EPIDEMIOLOGICAL_PARAMETER_PREVALENCE)),
 		HAS_FEMALE_PROPORTION("#hasFemaleProportion"),
 		HAS_FREQUENCY("#hasFrequency"),
 		HAS_FREQUENCY_MODIFICATION("#hasFrequencyModification"),
 		HAS_GEOGRAPHICAL_CONTEXT("#hasGeographicalContext"),
 		HAS_HOURS_INTERVAL("#hasHoursInterval"),
 		HAS_IDENTIFIER("#hasIdentifier"),
-		HAS_INTERVENTION_KIND("#hasInterventionKind"),
+		HAS_INTERVENTION_KIND("#hasInterventionKind", EnumSet.of(DataPropertyRange.KIND_INTERVENTION_NOSCREENING_VALUE, DataPropertyRange.KIND_INTERVENTION_SCREENING_VALUE)),
 		HAS_LIFE_EXPECTANCY("#hasLifeExpectancy"),
 		HAS_LIFE_EXPECTANCY_MODIFICATION("#hasLifeExpectancyModification"),
-		HAS_MANIFESTATION_KIND("#hasManifestationKind"),
+		HAS_MANIFESTATION_KIND("#hasManifestationKind", EnumSet.of(DataPropertyRange.KIND_MANIFESTATION_ACUTE, DataPropertyRange.KIND_MANIFESTATION_CHRONIC)),
 		HAS_MODIFICATION_FOR_ALL_PARAMS("#hasModificationForAllParams"),
 		HAS_MORTALITY_FACTOR("#hasMortalityFactor"),
 		HAS_MORTALITY_FACTOR_MODIFICATION("#hasMortalityFactorModification"),
 		HAS_NAME("#hasName"),
-		HAS_NATURE_OF_EPIDEMIOLOGICAL_PARAMETER_ESTIMATE("#hasNatureOfEpidemiologicalParameterEstimate"),
+		HAS_NATURE_OF_EPIDEMIOLOGICAL_PARAMETER_ESTIMATE("#hasNatureOfEpidemiologicalParameterEstimate", EnumSet.of(DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_NATURE_APPARENT, DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_NATURE_TRUE)),
 		HAS_ONSET_AGE("#hasOnsetAge"),
 		HAS_PERCENTAGE_NEXT("#hasPercentageNext"),
 		HAS_PERCENTAGE_TREATED("#hasPercentageTreated"),
@@ -105,16 +107,21 @@ public interface OSDiNames {
 		HAS_SOURCE("#hasSource"),
 		HAS_SPECIFICITY("#hasSpecificity"),
 		HAS_STEPORDER("#hasStepOrder"),
-		HAS_TEMPORAL_BEHAVIOR("#hasTemporalBehavior"),
+		HAS_TEMPORAL_BEHAVIOR("#hasTemporalBehavior", EnumSet.of(DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL_VALUE, DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME_VALUE)),
 		HAS_TEMPORARY_THRESHOLD("#hasTemporaryThreshold"),
 		HAS_TIME_TO("#hasTimeTo"),
-		HAS_UTILITY_KIND("#hasUtilityKind"),
+		HAS_UTILITY_KIND("#hasUtilityKind", EnumSet.of(DataPropertyRange.KIND_UTILITY_DISUTILITY, DataPropertyRange.KIND_UTILITY_UTILITY)),
 		HAS_VALUE("#hasValue"),
 		HAS_YEAR("#hasYear");
 		
 		private final String description;
+		private final EnumSet<DataPropertyRange> range;
 		private DataProperty(String description) {
+			this(description, EnumSet.noneOf(DataPropertyRange.class));
+		}
+		private DataProperty(String description, EnumSet<DataPropertyRange> range) {
 			this.description = description;
+			this.range = range;
 		}
 		/**
 		 * @return the description
@@ -122,6 +129,10 @@ public interface OSDiNames {
 		@Override
 		public String getDescription() {
 			return description;
+		}
+		
+		public EnumSet<DataPropertyRange> getRange() {
+			return range;
 		}
 	}
 	

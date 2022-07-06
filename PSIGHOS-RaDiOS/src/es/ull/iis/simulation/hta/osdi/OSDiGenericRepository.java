@@ -3,6 +3,9 @@
  */
 package es.ull.iis.simulation.hta.osdi;
 
+import java.util.List;
+
+import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.CostUtils;
 import es.ull.iis.simulation.hta.osdi.wrappers.Matrix;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
@@ -43,6 +46,17 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		
 		// TODO: Death submodel should be context specific, depending on the population
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		
+		// Build interventions
+		List<String> interventions = OwlHelper.getChildsByClassName(disease.name(), OSDiNames.Class.INTERVENTION.getDescription());
+		try {
+			for (String interventionName : interventions) {
+				InterventionBuilder.getInterventionInstance(this, interventionName);
+			}
+		} catch (TranspilerException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	@Override

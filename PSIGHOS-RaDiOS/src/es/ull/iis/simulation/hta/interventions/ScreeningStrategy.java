@@ -16,6 +16,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
+ * TODO: Make specificity and sensitivity second-order parameters
  * @author Iván Castilla Rodríguez
  *
  */
@@ -114,5 +115,14 @@ public abstract class ScreeningStrategy extends Intervention {
 			}
 		}
 		
+	}
+	
+	@Override
+	public String prettyPrint(String linePrefix) {
+		final StringBuilder str = new StringBuilder(linePrefix).append(super.prettyPrint(linePrefix));
+		str.append(linePrefix + "\t").append("Sensitivity: ").append(sensitivity).append(System.lineSeparator());
+		str.append(linePrefix + "\t").append("Specificity: ").append(specificity).append(System.lineSeparator());
+
+		return str.toString();
 	}
 }

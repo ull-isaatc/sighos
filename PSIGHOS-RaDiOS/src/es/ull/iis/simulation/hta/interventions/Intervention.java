@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Modification;
 import es.ull.iis.simulation.model.Describable;
@@ -20,7 +21,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Intervention implements Named, Describable, CreatesSecondOrderParameters, Comparable<Intervention> {
+public abstract class Intervention implements Named, Describable, CreatesSecondOrderParameters, Comparable<Intervention>, PrettyPrintable {
 	/** A short name for the intervention */
 	final private String name;
 	/** A full description of the intervention */
@@ -179,5 +180,13 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 	 */
 	public ArrayList<DiscreteEvent> getEvents(Patient pat) {
 		return new ArrayList<>();
+	}
+	
+	@Override
+	public String prettyPrint(String linePrefix) {
+		final StringBuilder str = new StringBuilder(linePrefix).append("Intervention: ").append(name).append(System.lineSeparator());
+		if (!"".equals(description))
+			str.append(linePrefix + "\t").append(description).append(System.lineSeparator());
+		return str.toString();
 	}
 }
