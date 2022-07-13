@@ -1,9 +1,10 @@
-package es.ull.iis.simulation.hta.osdi;
+package es.ull.iis.simulation.hta.osdi.utils;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import es.ull.iis.simulation.hta.osdi.OSDiNames;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 
 public class NodeData {
@@ -14,7 +15,7 @@ public class NodeData {
 	private Map<String, PropertyData> initProperties() throws TranspilerException {
 		this.addProperty(OSDiNames.DataProperty.HAS_PROBABILITY.getDescription(), String.format(Locale.US, Constants.CONSTANT_DOUBLE_FORMAT_STRING_3DEC, 1.0), Constants.CONSTANT_DOUBLE_TYPE);
 		this.addProperty(OSDiNames.ObjectProperty.HAS_COST.getDescription(), String.format(Locale.US, Constants.CONSTANT_DOUBLE_FORMAT_STRING_3DEC, 0.0), Constants.CONSTANT_DOUBLE_TYPE);
-		this.addProperty(OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getDescription(), OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL_VALUE.getDescription(), Constants.CONSTANT_STRING_TYPE);
+		this.addProperty(OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getDescription(), OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription(), Constants.CONSTANT_STRING_TYPE);
 		return this.getProperties();
 	}
 

@@ -9,7 +9,6 @@ import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Modification;
@@ -33,7 +32,7 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 		super(nRuns, nPatients);
 
 		costCalc = new DiseaseCostCalculator(this);
-		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
+		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD);
 
 		TemplateTestRareDisease testDisease = null;
 		switch (disease) {

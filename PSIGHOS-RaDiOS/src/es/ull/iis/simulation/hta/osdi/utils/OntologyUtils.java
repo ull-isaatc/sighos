@@ -28,10 +28,6 @@ import org.w3c.xsd.owl2.ObjectFactory;
 import org.w3c.xsd.owl2.ObjectPropertyAssertion;
 import org.w3c.xsd.owl2.Ontology;
 
-import es.ull.iis.simulation.hta.osdi.Constants;
-import es.ull.iis.simulation.hta.osdi.NodeData;
-import es.ull.iis.simulation.hta.osdi.PropertyData;
-import es.ull.iis.simulation.hta.osdi.TreeNode;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.service.DataStoreService;
 import es.ull.iis.simulation.hta.osdi.wrappers.ValueDistributionWrapper;

@@ -59,7 +59,7 @@ public class T1DMDisease extends StandardDisease {
 		/** Description of the source */
 		public final static String SOURCE = "Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007";
 	}
-	public final static double[] DEF_DU_DNC = {T1DMRepository.DEF_U_GENERAL_POP - 0.785, ((0.889 - 0.681) / 3.92)};
+	public final static double[] DEF_U_DNC = {0.785, ((0.889 - 0.681) / 3.92)};
 	
 	// Probability parameters for nephropathy
 	private static final double P_DNC_ALB1 = 0.0436;
@@ -332,8 +332,8 @@ public class T1DMDisease extends StandardDisease {
 				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, 
 				DEF_C_DNC.VALUE, SecondOrderParamsRepository.getRandomVariateForCost(DEF_C_DNC.VALUE)));
 
-		final double[] paramsduDNC = Statistics.betaParametersFromNormal(DEF_DU_DNC[0], DEF_DU_DNC[1]);
-		secParams.addUtilityParam(this, "Disutility of DNC", "", DEF_DU_DNC[0], RandomVariateFactory.getInstance("BetaVariate", paramsduDNC[0], paramsduDNC[1]), true);
+		final double[] paramsU_DNC = Statistics.betaParametersFromNormal(DEF_U_DNC[0], DEF_U_DNC[1]);
+		secParams.addUtilityParam(this, "Utility of DNC", "", DEF_U_DNC[0], RandomVariateFactory.getInstance("BetaVariate", paramsU_DNC[0], paramsU_DNC[1]), false);
 		
 		if (!DISABLE_SHE) {
 			secParams.addProbParam(she, 

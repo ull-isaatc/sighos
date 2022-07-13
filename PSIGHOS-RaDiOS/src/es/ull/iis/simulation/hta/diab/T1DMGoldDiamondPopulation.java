@@ -53,6 +53,8 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	private static final double []P_INI_STROKE_BETA = {2, 300-2}; 
 	/** Beta parameters (cases, no cases) for the initial proportion of heart failure, according to the GOLD study */
 	private static final double []P_INI_HF_BETA = {1, 300-1}; 
+	/** Default utility for general population: From adult Spanish population but those with DM */ 
+	private static final double DEF_U_GENERAL_POP = 0.911400915;
 
 	/**
 	 * @param secParams
@@ -79,6 +81,7 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters() {
+		secParams.addBaseUtilityParam("Default utility for general population", "From adult Spanish population but those with DM", DEF_U_GENERAL_POP, RandomVariateFactory.getInstance("ConstantVariate", DEF_U_GENERAL_POP));
 		secParams.addInitProbParam(disease.getManifestation(ProliferativeRetinopathy.NAME), "GOLD", P_INI_PRET_BETA[0] / (P_INI_PRET_BETA[0] + P_INI_PRET_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_PRET_BETA[0], P_INI_PRET_BETA[1]));
 		secParams.addInitProbParam(disease.getManifestation(LowExtremityAmputation.NAME), "GOLD", P_INI_LEA_BETA[0] / (P_INI_LEA_BETA[0] + P_INI_LEA_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_LEA_BETA[0], P_INI_LEA_BETA[1]));
 		secParams.addInitProbParam(disease.getManifestation(MyocardialInfarction.NAME), "GOLD", P_INI_MI_BETA[0] / (P_INI_MI_BETA[0] + P_INI_MI_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_MI_BETA[0], P_INI_MI_BETA[1]));

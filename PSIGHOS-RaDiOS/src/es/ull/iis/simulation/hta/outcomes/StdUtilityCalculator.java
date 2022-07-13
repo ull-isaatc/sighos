@@ -18,8 +18,6 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  *
  */
 public class StdUtilityCalculator implements UtilityCalculator {
-	/** Utility assigned to the general population */
-	private final double genPopUtility;
 	/** Method used to combine the disutilities for different chronic complications */
 	private final DisutilityCombinationMethod method;
 	private final SecondOrderParamsRepository secParams;
@@ -28,18 +26,16 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	 * Creates an instance of a standard calculator that simply combines the disutilities for every complication that suffers the
 	 * patient
 	 * @param method Method to combine the disutilies
-	 * @param genPopUtility Utility for general population
 	 * @param duAcuteEvent Disutility of acute events
 	 */
-	public StdUtilityCalculator(SecondOrderParamsRepository secParams, DisutilityCombinationMethod method, double genPopUtility) {
+	public StdUtilityCalculator(SecondOrderParamsRepository secParams, DisutilityCombinationMethod method) {
 		this.secParams = secParams;
 		this.method = method;
-		this.genPopUtility = genPopUtility;
 	}
 	
 	@Override
 	public double getDisutilityValueUponIncidence(Patient pat, Manifestation manif) {
-		return secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier(), genPopUtility)[1];
+		return secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier())[1];
 	}
 	
 	@Override	
@@ -47,8 +43,8 @@ public class StdUtilityCalculator implements UtilityCalculator {
 		final Collection<Manifestation> state = pat.getState();
 		double du = 0.0;
 		for (Manifestation manif : state) {
-			du = method.combine(du, secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier(), genPopUtility)[0]);
+			du = method.combine(du, secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier())[0]);
 		}
-		return genPopUtility - du - pat.getIntervention().getDisutility(pat);
+		return secParams.getBaseUtility(pat.getSimulation().getIdentifier()) - du - pat.getIntervention().getDisutility(pat);
 	}
 }

@@ -28,7 +28,7 @@ public class PBDRepository extends SecondOrderParamsRepository {
 	public PBDRepository(int nRuns, int nPatients, boolean allAffected) {
 		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
-		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.MAX, 0.8861);
+		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.MAX);
 		Disease dis = new PBDDisease(this);
 		setPopulation(new PBDPopulation(this, dis, allAffected));
 		new DoNothingIntervention(this);

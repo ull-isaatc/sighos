@@ -18,6 +18,7 @@ import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.AcuteManifestation;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.DeathSubmodel;
+import es.ull.iis.simulation.hta.progression.Development;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -104,7 +105,9 @@ public abstract class SecondOrderParamsRepository {
 	final protected ArrayList<Manifestation> registeredManifestations;
 	/** The collection of defined diseases */
 	final protected ArrayList<Disease> registeredDiseases;
-
+	/** The collection of defined developments */
+	final protected ArrayList<Development> registeredDevelopments;
+	
 	/** The death submodel to be used */
 	protected DeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
@@ -135,7 +138,8 @@ public abstract class SecondOrderParamsRepository {
 		this.nPatients = nPatients;
 		this.nRuns = nRuns;
 		this.registeredManifestations = new ArrayList<>();
-		this.registeredDiseases = new ArrayList<Disease>();
+		this.registeredDiseases = new ArrayList<>();
+		this.registeredDevelopments = new ArrayList<>();
 		this.registeredInterventions = new ArrayList<>();
 		this.HEALTHY = new Disease(this, "HEALTHY", "Healthy") {
 
@@ -150,7 +154,7 @@ public abstract class SecondOrderParamsRepository {
 			}
 
 			@Override
-			public double getDisutility(Patient pat, DisutilityCombinationMethod method, double refUtility) {
+			public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
 				return 0;
 			}
 
@@ -221,16 +225,24 @@ public abstract class SecondOrderParamsRepository {
 	
 	/**
 	 * Adds a new disease to his repository. This method is invoked from the constructor of {@link Disease} and should not be invoked elsewhere 
-	 * @param disease Disease
+	 * @param disease New disease to be registered
 	 */
 	public void addDisease(Disease disease) {
 		disease.setOrder(registeredDiseases.size());
 		registeredDiseases.add(disease);
 	}
+	
+	/**
+	 * Adds a new development to his repository. This method is invoked from the method {@link Disease#addDevelopment(Development)} and should not be invoked elsewhere 
+	 * @param development New development to be registered
+	 */
+	public void addDevelopment(Development development) {
+		registeredDevelopments.add(development);
+	}
 
 	/**
 	 * Adds a new manifestation to this repository. This method is invoked from the method {@link Disease#addManifestation(Manifestation)} and should not be invoked elsewhere
-	 * @param manif New manifestation
+	 * @param manif New manifestation to be registered
 	 */
 	public void addManifestation(Manifestation manif) {
 		manif.setOrder(registeredManifestations.size());
@@ -266,7 +278,30 @@ public abstract class SecondOrderParamsRepository {
 		final Disease[] array = new Disease[registeredDiseases.size()];
 		return (Disease[])registeredDiseases.toArray(array);
 	}
+	
+	/**
+	 * Returns the registered developments
+	 * @return the registered developments
+	 */
+	public Development[] getRegisteredDevelopments() {
+		final Development[] array = new Development[registeredDevelopments.size()];
+		return (Development[])registeredDevelopments.toArray(array);
+	}
 
+	/**
+	 * Returns a registered manifestation with the specified name; <code>null</code> is not found.
+	 * Currently implemented as a sequential search (not the most efficient method), but we assume that the number of manifestations is limited and this method is not used during simulations.
+	 * @param name Name of a manifestation
+	 * @return a registered manifestation with the specified name; <code>null</code> is not found.
+	 */
+	public Manifestation getManifestationByName(String name) {
+		for (Manifestation manif : registeredManifestations) {
+			if (manif.name().equals(name))
+				return manif;
+		}
+		return null;
+	}
+	
 	/**
 	 * Returns the already registered manifestations
 	 * @return The already registered manifestations
@@ -512,7 +547,7 @@ public abstract class SecondOrderParamsRepository {
 
 	/**
 	 * Adds a utility parameter to a disease
-	 * @param disease An acute manifestation
+	 * @param disease A disease
 	 * @param description Full description of the parameter
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param detValue Deterministic/expected value
@@ -521,6 +556,19 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public void addUtilityParam(Disease disease, String description, String source, double detValue, RandomVariate rnd, boolean disutility) {
 		final String paramName = (disutility ? STR_DISUTILITY_PREFIX : STR_UTILITY_PREFIX) + disease.name();
+		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
+	}
+
+	/**
+	 * Adds the base utility parameter to the registered population
+	 * @param population A population
+	 * @param description Full description of the parameter
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param detValue Deterministic/expected value
+	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 */
+	public void addBaseUtilityParam(String description, String source, double detValue, RandomVariate rnd) {
+		final String paramName = STR_UTILITY_PREFIX + "POPULATION";
 		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
@@ -702,14 +750,14 @@ public abstract class SecondOrderParamsRepository {
 	
 	/**
 	 * Returns the disutility for a manifestation &ltannual disutility, disutility at incidence&gt. If it is not defined as disutility, 
-	 * looks for a utility value and uses the reference utility to compute a disutility. If not defined neither, returns &lt0, 0&gt.
+	 * looks for a utility value and uses the population utility to compute a disutility. If not defined neither, returns &lt0, 0&gt.
 	 * @param manif Manifestation
 	 * @param id Identifier of the simulation
-	 * @param refUtility Reference utility
 	 * @return the disutility for a manifestation; 0.0 if not defined 
 	 */
-	public double[] getDisutilitiesForManifestation(Manifestation manif, int id, double refUtility) {
+	public double[] getDisutilitiesForManifestation(Manifestation manif, int id) {
 		final double[] utils = new double[2];
+		final double refUtility = getBaseUtility(id);
 		SecondOrderParam annualParam = utilParams.get(STR_DISUTILITY_PREFIX + manif.name());
 		if (annualParam != null) {
 			utils[0] = annualParam.getValue(id);
@@ -733,15 +781,33 @@ public abstract class SecondOrderParamsRepository {
 	
 	/**
 	 * Returns the base disutility for a disease. If it is not defined as disutility, looks for a utility
-	 * value and uses the reference utility to compute a disutility. If not defined neither, returns 0.0.
+	 * value and uses the utility of the registered population to compute a disutility. If not defined neither, returns 0.0.
 	 * @param disease Disease
 	 * @param id Identifier of the simulation
-	 * @param refUtility Reference utility
 	 * @return the base disutility for a disease; 0.0 if not defined 
 	 */
-	public double getDisutilityForDisease(Disease disease, int id, double refUtility) {
-		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + disease.name());
-		return (param == null) ? 0.0 : param.getValue(id);		
+	public double getDisutilityForDisease(Disease disease, int id) {
+		double value = 0.0;
+		SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + disease.name());
+		if (param == null) {
+			param = utilParams.get(STR_UTILITY_PREFIX + disease.name());
+			if (param != null)
+				value = getBaseUtility(id) - param.getValue(id);
+		}
+		else {
+			value = param.getValue(id);
+		}
+		return value;		
+	}
+	
+	/**
+	 * Returns the base utility for the registered population. If not defined, returns 1.0.
+	 * @param id Identifier of the simulation
+	 * @return the base utility for the registered population; 1.0 if not defined 
+	 */
+	public double getBaseUtility(int id) {
+		final SecondOrderParam param = utilParams.get(STR_UTILITY_PREFIX + "POPULATION");
+		return (param == null) ? 1.0 : param.getValue(id);		
 	}
 	
 	/**

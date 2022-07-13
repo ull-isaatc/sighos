@@ -4,7 +4,10 @@
 package es.ull.iis.simulation.hta.osdi;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
+import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.model.Describable;
 
 /**
@@ -30,7 +33,8 @@ public interface OSDiNames {
 		MANIFESTATION_PATHWAY("#ManifestationPathway"),
 		MODIFICATION("#Modification"),
 		MANIFESTATION_MODIFICATION("#ManifestationModification"),
-		DEVELOPMENT_MODIFICACION("#DevelopmentModificacion"),
+		MANIFESTATION_PATHWAY_MODIFICATION("#ManifestationPathwayModification"),
+		DEVELOPMENT_MODIFICATION("#DevelopmentModification"),
 		PARAMETER("#Parameter"),
 		EPIDEMIOLOGICAL_PARAMETER("#EpidemiologicalParameter"),
 		COST("#Cost"),
@@ -54,6 +58,7 @@ public interface OSDiNames {
 		}
 	}
 
+	public static final Map<String, OSDiNames.DataProperty> DATA_PROPERTY_MAP = new HashMap<String, OSDiNames.DataProperty>();  
 	/**
 	 * Names of the data properties defined in the ontology
 	 * @author Iván Castilla
@@ -65,34 +70,31 @@ public interface OSDiNames {
 		HAS_CALCULATION_METHOD("#hasCalculationMethod"),
 		HAS_CONDITION("#hasCondition"),
 		HAS_COUNTRY("#hasCountry"),
+		HAS_DATA_PROPERTY_MODIFIED("#hasDataPropertyModified"),
 		HAS_DESCRIPTION("#hasDescription"),
 		HAS_DEVELOPMENT_KIND("#hasDevelopmentKind"),
 		HAS_DOSE("#hasDose"),
 		HAS_DURATION("#hasDuration"),
 		HAS_END_AGE("#hasEndAge"),
-		HAS_EPIDEMIOLOGICAL_PARAMETER_KIND("#hasEpidemiologicalParameterKind", EnumSet.of(DataPropertyRange.KIND_EPIDEMIOLOGICAL_PARAMETER_BIRTH_PREVALENCE, DataPropertyRange.KIND_EPIDEMIOLOGICAL_PARAMETER_INCIDENCE, DataPropertyRange.KIND_EPIDEMIOLOGICAL_PARAMETER_PREVALENCE)),
+		HAS_EPIDEMIOLOGICAL_PARAMETER_KIND("#hasEpidemiologicalParameterKind", EnumSet.of(DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_BIRTH_PREVALENCE, DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_INCIDENCE, DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_PREVALENCE)),
 		HAS_FEMALE_PROPORTION("#hasFemaleProportion"),
 		HAS_FREQUENCY("#hasFrequency"),
-		HAS_FREQUENCY_MODIFICATION("#hasFrequencyModification"),
 		HAS_GEOGRAPHICAL_CONTEXT("#hasGeographicalContext"),
 		HAS_HOURS_INTERVAL("#hasHoursInterval"),
 		HAS_IDENTIFIER("#hasIdentifier"),
-		HAS_INTERVENTION_KIND("#hasInterventionKind", EnumSet.of(DataPropertyRange.KIND_INTERVENTION_NOSCREENING_VALUE, DataPropertyRange.KIND_INTERVENTION_SCREENING_VALUE)),
+		HAS_INTERVENTION_KIND("#hasInterventionKind", EnumSet.of(DataPropertyRange.INTERVENTION_KIND_NOSCREENING, DataPropertyRange.INTERVENTION_KIND_SCREENING)),
 		HAS_LIFE_EXPECTANCY("#hasLifeExpectancy"),
-		HAS_LIFE_EXPECTANCY_MODIFICATION("#hasLifeExpectancyModification"),
-		HAS_MANIFESTATION_KIND("#hasManifestationKind", EnumSet.of(DataPropertyRange.KIND_MANIFESTATION_ACUTE, DataPropertyRange.KIND_MANIFESTATION_CHRONIC)),
+		HAS_MANIFESTATION_KIND("#hasManifestationKind", EnumSet.of(DataPropertyRange.MANIFESTATION_KIND_ACUTE, DataPropertyRange.MANIFESTATION_KIND_CHRONIC)),
 		HAS_MODIFICATION_FOR_ALL_PARAMS("#hasModificationForAllParams"),
+		HAS_MODIFICATION_KIND("#hasModificationKind", EnumSet.of(DataPropertyRange.MODIFICATION_KIND_DIFF, DataPropertyRange.MODIFICATION_KIND_RR, DataPropertyRange.MODIFICATION_KIND_SET)),
 		HAS_MORTALITY_FACTOR("#hasMortalityFactor"),
-		HAS_MORTALITY_FACTOR_MODIFICATION("#hasMortalityFactorModification"),
 		HAS_NAME("#hasName"),
 		HAS_NATURE_OF_EPIDEMIOLOGICAL_PARAMETER_ESTIMATE("#hasNatureOfEpidemiologicalParameterEstimate", EnumSet.of(DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_NATURE_APPARENT, DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_NATURE_TRUE)),
 		HAS_ONSET_AGE("#hasOnsetAge"),
 		HAS_PERCENTAGE_NEXT("#hasPercentageNext"),
 		HAS_PERCENTAGE_TREATED("#hasPercentageTreated"),
 		HAS_PROBABILITY("#hasProbability"),
-		HAS_PROBABILITY_MODIFICATION("#hasProbabilityModification"),
 		HAS_PROBABILITY_OF_DIAGNOSIS("#hasProbabilityOfDiagnosis"),
-		HAS_PROBABILITY_OF_DIAGNOSIS_MODIFICATION("#hasProbabilityOfDiagnosisModification"),
 		HAS_RANGE("#hasRange"),
 		HAS_REF_TO_DO("#hasRefToDO"),
 		HAS_REF_TO_GARD("#hasRefToGARD"),
@@ -101,16 +103,15 @@ public interface OSDiNames {
 		HAS_REF_TO_ORDO("#hasRefToORDO"),
 		HAS_REF_TO_SNOMED("#hasRefToSNOMED"),
 		HAS_RELATIVE_RISK("#hasRelativeRisk"),
-		HAS_RELATIVE_RISK_MODIFICATION("#hasRelativeRiskModification"),
 		HAS_SENSITIVITY("#hasSensitivity"),
 		HAS_SIZE("#hasSize"),
 		HAS_SOURCE("#hasSource"),
 		HAS_SPECIFICITY("#hasSpecificity"),
 		HAS_STEPORDER("#hasStepOrder"),
-		HAS_TEMPORAL_BEHAVIOR("#hasTemporalBehavior", EnumSet.of(DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL_VALUE, DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME_VALUE)),
+		HAS_TEMPORAL_BEHAVIOR("#hasTemporalBehavior", EnumSet.of(DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL, DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME)),
 		HAS_TEMPORARY_THRESHOLD("#hasTemporaryThreshold"),
 		HAS_TIME_TO("#hasTimeTo"),
-		HAS_UTILITY_KIND("#hasUtilityKind", EnumSet.of(DataPropertyRange.KIND_UTILITY_DISUTILITY, DataPropertyRange.KIND_UTILITY_UTILITY)),
+		HAS_UTILITY_KIND("#hasUtilityKind", EnumSet.of(DataPropertyRange.UTILITY_KIND_DISUTILITY, DataPropertyRange.UTILITY_KIND_UTILITY)),
 		HAS_VALUE("#hasValue"),
 		HAS_YEAR("#hasYear");
 		
@@ -122,6 +123,7 @@ public interface OSDiNames {
 		private DataProperty(String description, EnumSet<DataPropertyRange> range) {
 			this.description = description;
 			this.range = range;
+			DATA_PROPERTY_MAP.put(description, this);
 		}
 		/**
 		 * @return the description
@@ -148,14 +150,12 @@ public interface OSDiNames {
 		HAS_CLINICAL_DIAGNOSIS_STRATEGY("#hasClinicalDiagnosisStrategy"),
 		HAS_COST("#hasCost"),
 		HAS_DEVELOPMENT("#hasDevelopment"),
-		HAS_DEVELOPMENT_MODIFICATION("#hasDevelopmentModification"),
 		HAS_DRUG("#hasDrug"),
 		HAS_FOLLOWUP("#hasFollowUp"),
 		HAS_FOLLOWUP_STRATEGY("#hasFollowUpStrategy"),
 		HAS_GUIDELINE("#hasGuideline"),
 		HAS_INTERVENTION("#hasIntervention"),
 		HAS_MANIFESTATION("#hasManifestation"),
-		HAS_MANIFESTATION_MODIFICATION("#hasManifestationModification"),
 		HAS_NATURAL_DEVELOPMENT("#hasNaturalDevelopment"),
 		HAS_PARAMETER("#hasParameter"),
 		HAS_PATHWAY("#hasPathway"),
@@ -169,6 +169,7 @@ public interface OSDiNames {
 		HAS_UTILITY("#hasUtility"),
 		INVOLVES_MODIFICATION("#involvesModification"),
 		IS_MODIFIED_BY("#isModifiedBy"),
+		IS_PATHWAY_TO("#isPathwayTo"),
 		IS_PARAMETER_OF("#isParameterOf"),
 		IS_PARAMETER_OF_DISEASE("#isParameterOfDisease"),
 		IS_PARAMETER_OF_MANIFESTATION("#isParameterOfManifestation"),
@@ -177,6 +178,9 @@ public interface OSDiNames {
 		IS_STRATEGY_OF("#isStrategyOf"),
 		IS_SUBPOPULATION_OF("#isSubpopulationOf"),
 		MODIFIES("#modifies"),
+		MODIFIES_DEVELOPMENT("#modifiesDevelopment"),
+		MODIFIES_MANIFESTATION("#modifiesManifestation"),
+		MODIFIES_MANIFESTATION_PATHWAY("#modifiesManifestationPathway"),
 		REQUIRES_DEVELOPMENT("#requiresDevelopment"),
 		REQUIRES_PREVIOUS_MANIFESTATION("#requiresPreviousManifestation");
 		
@@ -196,19 +200,22 @@ public interface OSDiNames {
 	 *
 	 */
 	public static enum DataPropertyRange implements Describable {
-		KIND_INTERVENTION_SCREENING_VALUE("SCREENING"),
-		KIND_INTERVENTION_NOSCREENING_VALUE("NO_SCREENING"),
-		TEMPORAL_BEHAVIOR_ANNUAL_VALUE("ANNUAL"),
-		TEMPORAL_BEHAVIOR_ONETIME_VALUE("ONETIME"),
-		KIND_UTILITY_UTILITY("UTILITY"),
-		KIND_UTILITY_DISUTILITY("DISUTILITY"),
-		KIND_MANIFESTATION_CHRONIC("CHRONIC"),
-		KIND_MANIFESTATION_ACUTE("ACUTE"),
-		KIND_EPIDEMIOLOGICAL_PARAMETER_BIRTH_PREVALENCE("BIRTH PREVALENCE"),
-		KIND_EPIDEMIOLOGICAL_PARAMETER_INCIDENCE("INCIDENCE"),
-		KIND_EPIDEMIOLOGICAL_PARAMETER_PREVALENCE("PREVALENCE"),
+		INTERVENTION_KIND_SCREENING("SCREENING"),
+		INTERVENTION_KIND_NOSCREENING("NO_SCREENING"),
+		TEMPORAL_BEHAVIOR_ANNUAL("ANNUAL"),
+		TEMPORAL_BEHAVIOR_ONETIME("ONETIME"),
+		UTILITY_KIND_UTILITY("UTILITY"),
+		UTILITY_KIND_DISUTILITY("DISUTILITY"),
+		MANIFESTATION_KIND_CHRONIC("CHRONIC"),
+		MANIFESTATION_KIND_ACUTE("ACUTE"),
+		EPIDEMIOLOGICAL_PARAMETER_KIND_BIRTH_PREVALENCE("BIRTH PREVALENCE"),
+		EPIDEMIOLOGICAL_PARAMETER_KIND_INCIDENCE("INCIDENCE"),
+		EPIDEMIOLOGICAL_PARAMETER_KIND_PREVALENCE("PREVALENCE"),
 		EPIDEMIOLOGICAL_PARAMETER_NATURE_APPARENT("APPARENT"),
-		EPIDEMIOLOGICAL_PARAMETER_NATURE_TRUE("TRUE");
+		EPIDEMIOLOGICAL_PARAMETER_NATURE_TRUE("TRUE"),
+		MODIFICATION_KIND_DIFF("DIFF"),
+		MODIFICATION_KIND_RR("RR"),
+		MODIFICATION_KIND_SET("SET");
 		
 		private final String description;
 		private DataPropertyRange(String description) {

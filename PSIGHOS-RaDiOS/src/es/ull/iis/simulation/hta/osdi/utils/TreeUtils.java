@@ -8,9 +8,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
 
-import es.ull.iis.simulation.hta.osdi.Constants;
-import es.ull.iis.simulation.hta.osdi.NodeData;
-import es.ull.iis.simulation.hta.osdi.TreeNode;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 
 public interface TreeUtils {

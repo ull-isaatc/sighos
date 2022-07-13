@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.hta.osdi;
+package es.ull.iis.simulation.hta.osdi.utils;
 
 /**
  * A simple class to represent a property in an ontology

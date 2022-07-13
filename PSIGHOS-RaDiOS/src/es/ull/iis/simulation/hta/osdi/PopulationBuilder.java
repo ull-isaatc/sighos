@@ -6,6 +6,9 @@ package es.ull.iis.simulation.hta.osdi;
 import java.util.List;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
+import es.ull.iis.simulation.hta.osdi.utils.Constants;
+import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
@@ -31,6 +34,7 @@ public interface PopulationBuilder {
 	 * @return
 	 */
 	public static StdPopulation getPopulationInstance(SecondOrderParamsRepository secParams, Disease disease, String populationName) {
+		
 		return new OSDiPopulation(secParams, disease, populationName);		
 	}
 	
@@ -71,15 +75,51 @@ public interface PopulationBuilder {
 			List<String> epidemParams = OwlHelper.getChildsByClassName(populationName, OSDiNames.Class.EPIDEMIOLOGICAL_PARAMETER.getDescription());
 			for (String paramName : epidemParams) {
 				final String type = OwlHelper.getDataPropertyValue(paramName, OSDiNames.DataProperty.HAS_EPIDEMIOLOGICAL_PARAMETER_KIND.getDescription());
-				if (OSDiNames.DataPropertyRange.KIND_EPIDEMIOLOGICAL_PARAMETER_PREVALENCE.getDescription().equals(type)) {
+				if (OSDiNames.DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_PREVALENCE.getDescription().equals(type)) {
 					registerEpidemParam(paramName, strParamPrevalence);
 					hasPrevalence = true;
 				}
-				else if (OSDiNames.DataPropertyRange.KIND_EPIDEMIOLOGICAL_PARAMETER_BIRTH_PREVALENCE.getDescription().equals(type)) {
+				else if (OSDiNames.DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_BIRTH_PREVALENCE.getDescription().equals(type)) {
 					registerEpidemParam(paramName, strParamBirthPrevalence);
 					hasBirthPrevalence = true;
 				}
 
+			}
+			try {
+				registerUtilityParam();
+			} catch(TranspilerException ex) {
+				System.err.println(ex.getStackTrace());
+			}
+		}
+		
+		/**
+		 * Registers the base utility associated to the population by extracting the information from the ontology. 
+		 * @throws TranspilerException When there was a problem parsing the ontology
+		 */
+		private void registerUtilityParam() throws TranspilerException {
+			List<String> utilities = OwlHelper.getChildsByClassName(populationName, OSDiNames.Class.UTILITY.getDescription());
+			if (utilities.size() > 1)
+				throw new TranspilerException("Only one base utility should be associated to the population \"" + populationName + "\". Instead, " + utilities.size() + " found");
+			for (String utilityName : utilities) {
+				// Assumes annual behavior if not specified
+				final String strTempBehavior = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getDescription(), OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
+				// Indeed, only annual behavior is valid 
+				if (!OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription().equals(strTempBehavior))
+					throw new TranspilerException("Only utilities with annual temporal behavior should be associated to the population \"" + populationName + "\". Instead, " + strTempBehavior + " found");
+				// Assumes that it is a utility (not a disutility) if not specified
+				final String strType = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_UTILITY_KIND.getDescription(), OSDiNames.DataPropertyRange.UTILITY_KIND_UTILITY.getDescription());
+				// Only utilities can be used for populations
+				if (OSDiNames.DataPropertyRange.UTILITY_KIND_DISUTILITY.getDescription().equals(strType))
+					throw new TranspilerException("Only utilities should be associated to the population \"" + populationName + "\". Instead, found a disutility");
+				// Default value is 1;
+				final String strValue = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_VALUE.getDescription(), "1.0");
+				// Assumes a default calculation method specified in Constants if not specified
+				final String strCalcMethod = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_CALCULATION_METHOD.getDescription(), Constants.UTILITY_DEFAULT_CALCULATION_METHOD);
+				final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
+				if (probDistribution == null)
+					throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for instance \"" + populationName + "\"");
+				secParams.addBaseUtilityParam(OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "Utility for " + populationName + " calculated using " + strCalcMethod),  
+						OSDiNames.getSource(utilityName), probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
 			}
 		}
 		

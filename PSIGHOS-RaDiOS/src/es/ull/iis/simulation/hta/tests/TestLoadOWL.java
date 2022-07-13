@@ -12,8 +12,8 @@ import org.w3c.xsd.owl2.Ontology;
 
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
-import es.ull.iis.simulation.hta.osdi.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.OntologyUtils;
+import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -23,7 +23,6 @@ import es.ull.iis.simulation.hta.progression.Disease;
  *
  */
 public class TestLoadOWL {
-	private final static double GENERAL_POPULATION_UTILITY = 0.8861;
 
 	/**
 	 * 
@@ -39,7 +38,7 @@ public class TestLoadOWL {
 		try {
 			Ontology testOntology = OntologyUtils.loadOntology(System.getProperty("user.dir") + "\\resources\\OSDi.owl");
 			OwlHelper.initilize(testOntology);
-			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD, GENERAL_POPULATION_UTILITY);
+			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
 			secParams.registerAllSecondOrderParams();
 			for (Disease disease : secParams.getRegisteredDiseases()) {
 				System.out.println(disease.prettyPrint(""));

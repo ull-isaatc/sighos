@@ -51,6 +51,7 @@ public class PBDPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters() {
+		secParams.addBaseUtilityParam("Base utility for the general population of PBD", "Utility for Spanish general population", 0.8861, RandomVariateFactory.getInstance("ConstantVariate", 0.8861));
 		if (!allAffected)
 			secParams.addProbParam(
 				new SecondOrderParam(secParams, STR_BIRTH_PREV, "Birth prevalence", "", 

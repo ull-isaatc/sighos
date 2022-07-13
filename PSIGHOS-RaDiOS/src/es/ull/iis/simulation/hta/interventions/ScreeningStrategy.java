@@ -16,6 +16,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
+ * A screening intervention to detect a disease 
  * TODO: Make specificity and sensitivity second-order parameters
  * @author Iván Castilla Rodríguez
  *
