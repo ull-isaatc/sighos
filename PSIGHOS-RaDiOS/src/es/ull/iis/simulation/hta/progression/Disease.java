@@ -41,6 +41,8 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	private final String description;
 	/** A collection of manifestations with a specific label */
 	protected final TreeMap<Named, ArrayList<Manifestation>> labeledManifestations;
+	/** A collection of developments associated to the disease */
+	protected final ArrayList<Development> developments;
 	
 	/**
 	 * Creates a submodel for a disease.
@@ -52,6 +54,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 		this.name = name;
 		this.description = description;
 		this.labeledManifestations = new TreeMap<>();
+		this.developments = new ArrayList<>();
 		secParams.addDisease(this);
 	}
 	
@@ -101,6 +104,17 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 		}
 	}
 
+	/**
+	 * Adds a development to this disease and also to the repository.
+	 * @param New development associated to this disease
+	 * @return The development added
+	 */
+	public Development addDevelopment(Development development) {
+		developments.add(development);
+		secParams.addDevelopment(development);
+		return development;
+	}
+	
 	/**
 	 * Adds a manifestation to this disease and also to the repository. 
 	 * @param manif New manifestation associated to this disease
@@ -240,10 +254,9 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 * @param pat A patient
 	 * @param method Method used to compute the disutility of this disease in case there are more 
 	 * than one commorbility
-	 * @param refUtility Reference utility
 	 * @return The disutility value associated to the current stage of this disease
 	 */
-	public abstract double getDisutility(Patient pat, DisutilityCombinationMethod method, double refUtility);
+	public abstract double getDisutility(Patient pat, DisutilityCombinationMethod method);
 	
 	/** 
 	 * Returns the number of stages used to model this complication
@@ -304,6 +317,12 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 		final StringBuilder str = new StringBuilder(linePrefix).append("Disease: ").append(name).append(System.lineSeparator());
 		if (!"".equals(description))
 			str.append(linePrefix + "\t").append(description).append(System.lineSeparator());
+		if (developments.size() > 0) {
+			str.append(linePrefix).append("DEVELOPMENTS").append(System.lineSeparator());
+			for (Development development : developments) {
+				str.append(development.prettyPrint(linePrefix + "\t"));
+			}
+		}
 		if (manifestations.size() > 0) {
 			str.append(linePrefix).append("MANIFESTATIONS").append(System.lineSeparator());
 			for (Manifestation manif : manifestations.values())

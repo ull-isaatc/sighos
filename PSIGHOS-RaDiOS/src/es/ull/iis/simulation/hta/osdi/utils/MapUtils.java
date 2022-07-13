@@ -5,8 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import es.ull.iis.simulation.hta.osdi.PropertyData;
-
 
 public interface MapUtils {
 	public static Map<String, Map<String, PropertyData>> cloneComplexHashMap(Map<String, Map<String, PropertyData>> original) {

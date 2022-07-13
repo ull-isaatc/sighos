@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
-import es.ull.iis.simulation.hta.osdi.Constants;
+import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;

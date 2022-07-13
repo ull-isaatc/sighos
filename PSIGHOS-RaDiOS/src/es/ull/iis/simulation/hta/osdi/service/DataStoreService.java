@@ -13,8 +13,8 @@ import org.w3c.xsd.owl2.ObjectProperty;
 import org.w3c.xsd.owl2.ObjectPropertyAssertion;
 import org.w3c.xsd.owl2.Ontology;
 
-import es.ull.iis.simulation.hta.osdi.Constants;
-import es.ull.iis.simulation.hta.osdi.PropertyData;
+import es.ull.iis.simulation.hta.osdi.utils.Constants;
+import es.ull.iis.simulation.hta.osdi.utils.PropertyData;
 
 public class DataStoreService {
 	private static Map<String, String> classIndividualsInstance = null;

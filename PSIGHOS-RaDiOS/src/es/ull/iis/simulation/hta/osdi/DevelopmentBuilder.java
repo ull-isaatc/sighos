@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.osdi;
 
+import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.progression.Development;
 import es.ull.iis.simulation.hta.progression.Disease;
 

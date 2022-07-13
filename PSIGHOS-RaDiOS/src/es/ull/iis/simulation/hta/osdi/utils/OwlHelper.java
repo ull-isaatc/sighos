@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.hta.osdi;
+package es.ull.iis.simulation.hta.osdi.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +77,13 @@ public class OwlHelper {
 	 * @return the list of objects associated to another object by means of the specified object property
 	 */
 	public static List<String> getObjectPropertiesByName(String objectName, String objectPropertyName) {
-		return objectPropertyValues.get(objectName) != null ? objectPropertyValues.get(objectName).get(objectPropertyName) : new ArrayList<>();
+		final Map<String, List<String>> map = objectPropertyValues.get(objectName);
+		if (map == null)
+			return new ArrayList<>();
+		List<String> list = map.get(objectPropertyName);
+		if (list == null)
+			return new ArrayList<>();
+		return list;
 	}
 	
 	public static List<String> getChilds(String objectName) {

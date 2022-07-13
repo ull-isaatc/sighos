@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.PatientProfile;
 
 /**
  * A class that can create patient profiles belonging to a population description
- * @author icasrod
+ * @author Iván Castilla Rodríguez
  *
  */
 public interface Population extends CreatesSecondOrderParameters {
@@ -28,5 +28,4 @@ public interface Population extends CreatesSecondOrderParameters {
 	 * @return the maximum age for the patients
 	 */
 	public int getMaxAge();
-
 }

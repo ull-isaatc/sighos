@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import es.ull.iis.simulation.hta.osdi.Constants;
+import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.CostUtils;
 
 public class Matrix {

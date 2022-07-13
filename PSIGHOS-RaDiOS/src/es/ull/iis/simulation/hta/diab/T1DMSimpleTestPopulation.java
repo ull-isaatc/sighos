@@ -33,6 +33,8 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	private static final double BASELINE_AGE = 46.217;
 	/** Mean baseline duration of diabetes */
 	private static final double BASELINE_DURATION = 22.16619718;
+	/** Default utility for general population: From adult Spanish population but those with DM */ 
+	private static final double DEF_U_GENERAL_POP = 0.911400915;
 
 	/**
 	 * @param secParams
@@ -44,6 +46,7 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters() {
+		secParams.addBaseUtilityParam("Default utility for general population", "From adult Spanish population but those with DM", DEF_U_GENERAL_POP, RandomVariateFactory.getInstance("ConstantVariate", DEF_U_GENERAL_POP));
 	}
 
 	@Override

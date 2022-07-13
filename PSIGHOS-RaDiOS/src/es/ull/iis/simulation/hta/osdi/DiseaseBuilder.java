@@ -4,6 +4,7 @@ import java.util.List;
 
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.StandardDisease;
@@ -33,6 +34,12 @@ public interface DiseaseBuilder {
 			}
 			
 		};
+		// Build developments
+		List<String> developments = OwlHelper.getChildsByClassName(diseaseName, OSDiNames.Class.DEVELOPMENT.getDescription());
+		for (String developmentName : developments) {
+			DevelopmentBuilder.getDevelopmentInstance(developmentName, disease);
+		}
+		
 		// Build manifestations
 		List<String> manifestations = OwlHelper.getChildsByClassName(diseaseName, OSDiNames.Class.MANIFESTATION.getDescription());
 		for (String manifestationName: manifestations) {

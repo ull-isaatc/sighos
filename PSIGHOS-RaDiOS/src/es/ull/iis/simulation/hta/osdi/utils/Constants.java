@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.hta.osdi;
+package es.ull.iis.simulation.hta.osdi.utils;
 
 public interface Constants {
 	public static String CONSTANT_DO_NOTHING = "DO_NOTHING";

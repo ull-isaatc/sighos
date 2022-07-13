@@ -21,15 +21,13 @@ import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 public class T1DMRepository extends SecondOrderParamsRepository {
 	public static final String STR_HBA1C = "HbA1c";
 	public static final String STR_DURATION = "Duration";
-	/** Default utility for general population: From adult Spanish population but those with DM */ 
-	public static double DEF_U_GENERAL_POP = 0.911400915;
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
 
 	public T1DMRepository(int nRuns, int nPatients) {
 		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
-		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, DEF_U_GENERAL_POP);
+		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD);
 		final Disease dis = new T1DMDisease(this);
 //		setPopulation(new T1DMSimpleTestPopulation(this, dis));
 //		new SMBG_Intervention(this);

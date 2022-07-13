@@ -11,7 +11,6 @@ import es.ull.iis.ontology.radios.xml.datatables.ColumnType;
 import es.ull.iis.ontology.radios.xml.datatables.ContentKind;
 import es.ull.iis.ontology.radios.xml.datatables.Datatable;
 import es.ull.iis.ontology.radios.xml.datatables.RowType;
-import es.ull.iis.simulation.hta.osdi.Constants;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -19,16 +18,17 @@ import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 public class ValueParser {
-	private static int DETERMINISTIC_VALUE_POS = 1;
-	private static int DISTRIBUTION_NAME_POS = 3;
-	private static int FIRST_PARAM_4_DISTRIBUTION_POS = 4;
-	private static int SECOND_PARAM_4_DISTRIBUTION_POS = 6;
+	private static final int DETERMINISTIC_VALUE_POS = 1;
+	private static final int DISTRIBUTION_NAME_POS = 3;
+	private static final int FIRST_PARAM_4_DISTRIBUTION_POS = 4;
+	private static final int SECOND_PARAM_4_DISTRIBUTION_POS = 6;
 
-	private static String DISTRIBUTION_NAME_SUFFIX = "Variate";
-	private static String REGEX_RANGE = "(-?[0-9]+(\\.[0-9]+)?)-(-?[0-9]+(\\.[0-9]+)?)";
-	private static String REGEX_NUMERICVALUE_DISTRO_EXTENDED = "^([0-9\\.,E-]+)?(#?([A-Z]+)\\(([+-]?[0-9]+\\.?[0-9]*)(,([+-]?[0-9]+\\.?[0-9]*))?\\))?$";	
+	private static final String DISTRIBUTION_NAME_SUFFIX = "Variate";
 	
-   /**
+	private static final Pattern PATTERN_RANGE = Pattern.compile("(-?[0-9]+(\\.[0-9]+)?)-(-?[0-9]+(\\.[0-9]+)?)");
+	private static final Pattern PATTERN_NUMERICVALUE_DISTRO_EXTENDED = Pattern.compile("^([0-9\\.,E-]+)?(#?([A-Z]+)\\(([+-]?[0-9]+\\.?[0-9]*)(,([+-]?[0-9]+\\.?[0-9]*))?\\))?$");
+	
+	   /**
     * FIXME: By default, a constant variate is assigned if not defined. Depending on the type of parameter, it would be desirable to use specific distributions by default 
     * @param distributionName
     * @param firstParameter
@@ -62,8 +62,7 @@ public class ValueParser {
 		ProbabilityDistribution result = null;		
 		if (value != null) {
 			String valueNormalized = value.toUpperCase().replace(" ", "");
-			Pattern pattern = Pattern.compile(REGEX_NUMERICVALUE_DISTRO_EXTENDED);
-			Matcher matcher = pattern.matcher(valueNormalized);
+			Matcher matcher = PATTERN_NUMERICVALUE_DISTRO_EXTENDED.matcher(valueNormalized);
 			if (matcher.find()) {			
 				Double deterministicValue = (matcher.group(DETERMINISTIC_VALUE_POS) != null) ? toDoubleValue(matcher.group(DETERMINISTIC_VALUE_POS)) : 1.0;
 				String distributionName = matcher.group(DISTRIBUTION_NAME_POS);
@@ -90,8 +89,7 @@ public class ValueParser {
 				for (int i = 0; i < rows.size(); i++) {
 					for (ColumnType column : rows.get(i).getColumn()) {						
 						if (ContentKind.RANGE.equals(column.getType())) {
-							Pattern pattern = Pattern.compile(REGEX_RANGE);
-							Matcher matcher = pattern.matcher(column.getValue());
+							Matcher matcher = PATTERN_RANGE.matcher(column.getValue());
 							if (matcher.find()) {
 								result[i][0] = toDoubleValue(matcher.group(1).replace(",", "."));
 								result[i][1] = toDoubleValue(matcher.group(3).replace(",", "."));

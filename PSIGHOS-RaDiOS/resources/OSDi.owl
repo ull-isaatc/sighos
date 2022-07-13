@@ -137,9 +137,6 @@
         <Class IRI="#Manifestation"/>
     </Declaration>
     <Declaration>
-        <Class IRI="#ManifestationModification"/>
-    </Declaration>
-    <Declaration>
         <Class IRI="#ManifestationPathway"/>
     </Declaration>
     <Declaration>
@@ -185,9 +182,6 @@
         <ObjectProperty IRI="#hasDevelopment"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#hasDevelopmentModification"/>
-    </Declaration>
-    <Declaration>
         <ObjectProperty IRI="#hasDrug"/>
     </Declaration>
     <Declaration>
@@ -204,9 +198,6 @@
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#hasManifestation"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#hasManifestationModification"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#hasNaturalDevelopment"/>
@@ -260,6 +251,9 @@
         <ObjectProperty IRI="#isParameterOfPopulation"/>
     </Declaration>
     <Declaration>
+        <ObjectProperty IRI="#isPathwayTo"/>
+    </Declaration>
+    <Declaration>
         <ObjectProperty IRI="#isStepOf"/>
     </Declaration>
     <Declaration>
@@ -270,6 +264,15 @@
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#modifies"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#modifiesDevelopment"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#modifiesManifestation"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#modifiesManifestationPathway"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#requiresDevelopment"/>
@@ -291,6 +294,9 @@
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasCountry"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasDataPropertyModified"/>
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasDescription"/>
@@ -339,6 +345,9 @@
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasModificationForAllParams"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasModificationKind"/>
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasMortalityFactor"/>
@@ -423,6 +432,9 @@
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasTimeTo"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasTimeToModification"/>
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasUtilityKind"/>
@@ -557,6 +569,9 @@
         <NamedIndividual IRI="#PBD_TreatmentStrategy"/>
     </Declaration>
     <Declaration>
+        <NamedIndividual IRI="#PBD_UtilityBasePopulation"/>
+    </Declaration>
+    <Declaration>
         <NamedIndividual IRI="#PBD_UtilityManifestationHearingProblems"/>
     </Declaration>
     <Declaration>
@@ -568,13 +583,6 @@
     <Declaration>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
     </Declaration>
-    <SubClassOf>
-        <Class IRI="#ClinicalDiagnosis"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasDescription"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
     <SubClassOf>
         <Class IRI="#ClinicalDiagnosis"/>
         <DataSomeValuesFrom>
@@ -595,6 +603,13 @@
             <DataProperty IRI="#hasSpecificity"/>
             <Datatype abbreviatedIRI="xsd:double"/>
         </DataSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ClinicalDiagnosis"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasDescription"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#ClinicalParameter"/>
@@ -645,16 +660,16 @@
     <SubClassOf>
         <Class IRI="#Development"/>
         <DataSomeValuesFrom>
-            <DataProperty IRI="#hasDescription"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
+            <DataProperty IRI="#hasLifeExpectancy"/>
+            <Datatype abbreviatedIRI="xsd:double"/>
         </DataSomeValuesFrom>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Development"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasLifeExpectancy"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
-        </DataSomeValuesFrom>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasDescription"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#DevelopmentModification"/>
@@ -677,13 +692,6 @@
     <SubClassOf>
         <Class IRI="#Disease"/>
         <DataSomeValuesFrom>
-            <DataProperty IRI="#hasDescription"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Disease"/>
-        <DataSomeValuesFrom>
             <DataProperty IRI="#hasIdentifier"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
@@ -701,6 +709,13 @@
             <DataProperty IRI="#hasRefToICD"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Disease"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasDescription"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Drug"/>
@@ -800,16 +815,16 @@
     <SubClassOf>
         <Class IRI="#Intervention"/>
         <DataSomeValuesFrom>
-            <DataProperty IRI="#hasDescription"/>
+            <DataProperty IRI="#hasInterventionKind"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Intervention"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasInterventionKind"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Manifestation"/>
@@ -892,45 +907,6 @@
         </DataExactCardinality>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#ManifestationModification"/>
-        <Class IRI="#Modification"/>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#ManifestationModification"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasProbabilityOfDiagnosisModification"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#ManifestationModification"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasFrequencyModification"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
-        </DataExactCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#ManifestationModification"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasMortalityFactorModification"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
-        </DataExactCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#ManifestationModification"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasProbabilityModification"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataExactCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#ManifestationModification"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasRelativeRiskModification"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
-        </DataExactCardinality>
-    </SubClassOf>
-    <SubClassOf>
         <Class IRI="#ManifestationPathway"/>
         <DataSomeValuesFrom>
             <DataProperty IRI="#hasCondition"/>
@@ -960,17 +936,42 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Modification"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasDescription"/>
+        <DataMinCardinality cardinality="1">
+            <DataProperty IRI="#hasDataPropertyModified"/>
             <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
+        </DataMinCardinality>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#Parameter"/>
-        <DataSomeValuesFrom>
+        <Class IRI="#Modification"/>
+        <DataExactCardinality cardinality="1">
+            <DataProperty IRI="#hasModificationKind"/>
+            <DataOneOf>
+                <Literal>DIFF</Literal>
+                <Literal>RR</Literal>
+                <Literal>SET</Literal>
+            </DataOneOf>
+        </DataExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Modification"/>
+        <DataExactCardinality cardinality="1">
+            <DataProperty IRI="#hasValue"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Modification"/>
+        <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Modification"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasSource"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Parameter"/>
@@ -1001,16 +1002,16 @@
         </DataSomeValuesFrom>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#Population"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasAge"/>
+        <Class IRI="#Parameter"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Population"/>
         <DataSomeValuesFrom>
-            <DataProperty IRI="#hasDescription"/>
+            <DataProperty IRI="#hasAge"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
     </SubClassOf>
@@ -1043,6 +1044,13 @@
         </DataSomeValuesFrom>
     </SubClassOf>
     <SubClassOf>
+        <Class IRI="#Population"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasDescription"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
         <Class IRI="#RareDisease"/>
         <Class IRI="#Disease"/>
     </SubClassOf>
@@ -1064,13 +1072,6 @@
         <Class IRI="#RareDisease"/>
         <DataSomeValuesFrom>
             <DataProperty IRI="#hasRefToORDO"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Screening"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
     </SubClassOf>
@@ -1103,6 +1104,13 @@
         </DataSomeValuesFrom>
     </SubClassOf>
     <SubClassOf>
+        <Class IRI="#Screening"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasDescription"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
         <Class IRI="#Strategy"/>
         <ObjectSomeValuesFrom>
             <ObjectProperty IRI="#hasStep"/>
@@ -1118,17 +1126,10 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Strategy"/>
-        <DataSomeValuesFrom>
+        <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#StrategyStep"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasDescription"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#StrategyStep"/>
@@ -1145,11 +1146,11 @@
         </DataExactCardinality>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#Treatment"/>
-        <DataSomeValuesFrom>
+        <Class IRI="#StrategyStep"/>
+        <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Treatment"/>
@@ -1164,6 +1165,13 @@
             <DataProperty IRI="#hasIdentifier"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Treatment"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasDescription"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Utility"/>
@@ -1333,7 +1341,7 @@
         <NamedIndividual IRI="#PBD_ManifestationVisionLoss"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#ManifestationModification"/>
+        <Class IRI="#Modification"/>
         <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -1362,6 +1370,10 @@
     </ClassAssertion>
     <ClassAssertion>
         <Class IRI="#Utility"/>
+        <NamedIndividual IRI="#PBD_UtilityBasePopulation"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Utility"/>
         <NamedIndividual IRI="#PBD_UtilityManifestationHearingProblems"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -1376,6 +1388,11 @@
         <ObjectProperty IRI="#hasParameter"/>
         <NamedIndividual IRI="#PBD_BasePopulation"/>
         <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasUtility"/>
+        <NamedIndividual IRI="#PBD_BasePopulation"/>
+        <NamedIndividual IRI="#PBD_UtilityBasePopulation"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
         <ObjectProperty IRI="#isParameterOfDisease"/>
@@ -1413,14 +1430,14 @@
         <NamedIndividual IRI="#GuidelineLifetimeAnual"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#hasManifestationModification"/>
-        <NamedIndividual IRI="#PBD_InterventionScreening"/>
-        <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
-    </ObjectPropertyAssertion>
-    <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasScreeningStrategy"/>
         <NamedIndividual IRI="#PBD_InterventionScreening"/>
         <NamedIndividual IRI="#PBD_ScreeningStrategy"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#involvesModification"/>
+        <NamedIndividual IRI="#PBD_InterventionScreening"/>
+        <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasCost"/>
@@ -1473,6 +1490,36 @@
         <NamedIndividual IRI="#PBD_UtilityManifestationMentalDelay"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwayHearingProblems"/>
+        <NamedIndividual IRI="#PBD_ManifestationHearingProblems"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwayHypotonia"/>
+        <NamedIndividual IRI="#PBD_ManifestationHypotonia"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwayMentalDelay"/>
+        <NamedIndividual IRI="#PBD_ManifestationMentalDelay"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwaySeizure"/>
+        <NamedIndividual IRI="#PBD_ManifestationSeizure"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwaySkinProblems"/>
+        <NamedIndividual IRI="#PBD_ManifestationSkinProblems"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwayVisionLoss"/>
+        <NamedIndividual IRI="#PBD_ManifestationVisionLoss"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasCost"/>
         <NamedIndividual IRI="#PBD_ManifestationSeizure"/>
         <NamedIndividual IRI="#PBD_CostManifestationSeizure"/>
@@ -1513,34 +1560,34 @@
         <NamedIndividual IRI="#PBD_ManifestationPathwayVisionLoss"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#modifies"/>
+        <ObjectProperty IRI="#modifiesManifestationPathway"/>
         <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
-        <NamedIndividual IRI="#PBD_ManifestationHearingProblems"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwayHearingProblems"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#modifies"/>
+        <ObjectProperty IRI="#modifiesManifestationPathway"/>
         <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
-        <NamedIndividual IRI="#PBD_ManifestationHypotonia"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwayHypotonia"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#modifies"/>
+        <ObjectProperty IRI="#modifiesManifestationPathway"/>
         <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
-        <NamedIndividual IRI="#PBD_ManifestationMentalDelay"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwayMentalDelay"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#modifies"/>
+        <ObjectProperty IRI="#modifiesManifestationPathway"/>
         <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
-        <NamedIndividual IRI="#PBD_ManifestationSeizure"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwaySeizure"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#modifies"/>
+        <ObjectProperty IRI="#modifiesManifestationPathway"/>
         <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
-        <NamedIndividual IRI="#PBD_ManifestationSkinProblems"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwaySkinProblems"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#modifies"/>
+        <ObjectProperty IRI="#modifiesManifestationPathway"/>
         <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
-        <NamedIndividual IRI="#PBD_ManifestationVisionLoss"/>
+        <NamedIndividual IRI="#PBD_ManifestationPathwayVisionLoss"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasClinicalDiagnosisStrategy"/>
@@ -2193,9 +2240,24 @@
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">1.0</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasProbabilityModification"/>
+        <DataProperty IRI="#hasDataPropertyModified"/>
         <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
-        <Literal>*0.0</Literal>
+        <Literal>#hasProbability</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
+        <Literal>Sets the probabilities of all the manifestations to 0</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasModificationKind"/>
+        <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
+        <Literal>SET</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.0</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasLifeExpectancy"/>
@@ -2269,6 +2331,21 @@
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#PBD_UtilityBasePopulation"/>
+        <Literal>ANNUAL</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasUtilityKind"/>
+        <NamedIndividual IRI="#PBD_UtilityBasePopulation"/>
+        <Literal>UTILITY</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#PBD_UtilityBasePopulation"/>
+        <Literal>0.8861</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_UtilityManifestationHearingProblems"/>
         <Literal>ANNUAL</Literal>
     </DataPropertyAssertion>
@@ -2331,16 +2408,8 @@
         <ObjectProperty IRI="#hasParameter"/>
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
-        <ObjectProperty IRI="#hasDevelopmentModification"/>
-        <ObjectProperty IRI="#involvesModification"/>
-    </SubObjectPropertyOf>
-    <SubObjectPropertyOf>
         <ObjectProperty IRI="#hasFollowUpStrategy"/>
         <ObjectProperty IRI="#hasStrategy"/>
-    </SubObjectPropertyOf>
-    <SubObjectPropertyOf>
-        <ObjectProperty IRI="#hasManifestationModification"/>
-        <ObjectProperty IRI="#involvesModification"/>
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
         <ObjectProperty IRI="#hasNaturalDevelopment"/>
@@ -2370,9 +2439,25 @@
         <ObjectProperty IRI="#isParameterOfPopulation"/>
         <ObjectProperty IRI="#isParameterOf"/>
     </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#modifiesDevelopment"/>
+        <ObjectProperty IRI="#modifies"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#modifiesManifestation"/>
+        <ObjectProperty IRI="#modifies"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#modifiesManifestationPathway"/>
+        <ObjectProperty IRI="#modifies"/>
+    </SubObjectPropertyOf>
     <InverseObjectProperties>
         <ObjectProperty IRI="#hasParameter"/>
         <ObjectProperty IRI="#isParameterOf"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#hasPathway"/>
+        <ObjectProperty IRI="#isPathwayTo"/>
     </InverseObjectProperties>
     <InverseObjectProperties>
         <ObjectProperty IRI="#hasStep"/>
@@ -2495,6 +2580,7 @@
             <Class IRI="#Disease"/>
             <Class IRI="#Guideline"/>
             <Class IRI="#Manifestation"/>
+            <Class IRI="#Population"/>
         </ObjectUnionOf>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
@@ -2504,6 +2590,10 @@
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#isParameterOf"/>
         <Class IRI="#Parameter"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <Class IRI="#ManifestationPathway"/>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#isStrategyOf"/>
@@ -2542,10 +2632,6 @@
         <Class IRI="#Development"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#hasDevelopmentModification"/>
-        <Class IRI="#DevelopmentModification"/>
-    </ObjectPropertyRange>
-    <ObjectPropertyRange>
         <ObjectProperty IRI="#hasDrug"/>
         <Class IRI="#Drug"/>
     </ObjectPropertyRange>
@@ -2564,10 +2650,6 @@
     <ObjectPropertyRange>
         <ObjectProperty IRI="#hasManifestation"/>
         <Class IRI="#Manifestation"/>
-    </ObjectPropertyRange>
-    <ObjectPropertyRange>
-        <ObjectProperty IRI="#hasManifestationModification"/>
-        <Class IRI="#ManifestationModification"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#hasPathway"/>
@@ -2610,6 +2692,10 @@
         <Class IRI="#Population"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <Class IRI="#Manifestation"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
         <ObjectProperty IRI="#isSubpopulationOf"/>
         <Class IRI="#Population"/>
     </ObjectPropertyRange>
@@ -2618,7 +2704,20 @@
         <ObjectUnionOf>
             <Class IRI="#Development"/>
             <Class IRI="#Manifestation"/>
+            <Class IRI="#ManifestationPathway"/>
         </ObjectUnionOf>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#modifiesDevelopment"/>
+        <Class IRI="#Development"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#modifiesManifestation"/>
+        <Class IRI="#Manifestation"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#modifiesManifestationPathway"/>
+        <Class IRI="#ManifestationPathway"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#requiresDevelopment"/>
@@ -2648,6 +2747,14 @@
         <DataOneOf>
             <Literal>ACUTE</Literal>
             <Literal>CHRONIC</Literal>
+        </DataOneOf>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="#hasModificationKind"/>
+        <DataOneOf>
+            <Literal>DIFF</Literal>
+            <Literal>RR</Literal>
+            <Literal>SET</Literal>
         </DataOneOf>
     </DataPropertyRange>
     <DataPropertyRange>

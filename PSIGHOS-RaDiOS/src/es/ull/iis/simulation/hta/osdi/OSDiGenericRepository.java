@@ -7,6 +7,7 @@ import java.util.List;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.CostUtils;
+import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.wrappers.Matrix;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
@@ -31,10 +32,10 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	 * @param nRuns
 	 * @param nPatients
 	 */
-	public OSDiGenericRepository(int nRuns, int nPatients, String diseaseId, String populationId, DisutilityCombinationMethod method, double generalPopulationUtility) {
+	public OSDiGenericRepository(int nRuns, int nPatients, String diseaseId, String populationId, DisutilityCombinationMethod method) {
 		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
-		utilCalc = new DiseaseUtilityCalculator(this, method, generalPopulationUtility);
+		utilCalc = new DiseaseUtilityCalculator(this, method);
 		treatmentCosts = new Matrix();
 		followUpCosts = new Matrix();
 		// TODO

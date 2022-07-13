@@ -15,8 +15,6 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  *
  */
 public class DiseaseUtilityCalculator implements UtilityCalculator {
-	/** Utility assigned to the general population */
-	private final double genPopUtility;
 	/** Method used to combine the disutilities for different chronic complications */
 	private final DisutilityCombinationMethod method;
 	private final SecondOrderParamsRepository secParams;
@@ -28,19 +26,18 @@ public class DiseaseUtilityCalculator implements UtilityCalculator {
 	 * @param genPopUtility Utility for general population
 	 * @param duAcuteEvent Disutility of acute events
 	 */
-	public DiseaseUtilityCalculator(SecondOrderParamsRepository secParams, DisutilityCombinationMethod method, double genPopUtility) {
+	public DiseaseUtilityCalculator(SecondOrderParamsRepository secParams, DisutilityCombinationMethod method) {
 		this.secParams = secParams;
 		this.method = method;
-		this.genPopUtility = genPopUtility;
 	}
 	
 	@Override
 	public double getDisutilityValueUponIncidence(Patient pat, Manifestation manif) {
-		return secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier(), genPopUtility)[1];
+		return secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier())[1];
 	}
 	
 	@Override	
 	public double getUtilityValue(Patient pat) {
-		return genPopUtility - method.combine(pat.getDisease().getDisutility(pat, method, genPopUtility), pat.getIntervention().getDisutility(pat));
+		return secParams.getBaseUtility(pat.getSimulation().getIdentifier()) - method.combine(pat.getDisease().getDisutility(pat, method), pat.getIntervention().getDisutility(pat));
 	}
 }
