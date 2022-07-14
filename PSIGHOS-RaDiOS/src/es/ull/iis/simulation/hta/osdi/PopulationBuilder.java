@@ -11,6 +11,7 @@ import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
@@ -46,6 +47,7 @@ public interface PopulationBuilder {
 		private final ProbabilityDistribution ageDist;
 		private boolean hasPrevalence;
 		private boolean hasBirthPrevalence;
+		private final int minAge; 
 		
 		public OSDiPopulation(SecondOrderParamsRepository secParams, Disease disease, String populationName) {
 			super(secParams, disease);
@@ -60,6 +62,8 @@ public interface PopulationBuilder {
 			this.ageDist = ValueParser.splitProbabilityDistribution(strAge);
 			this.hasPrevalence = false;
 			this.hasBirthPrevalence = false;
+			final String strMinAge = OwlHelper.getDataPropertyValue(populationName, OSDiNames.DataProperty.HAS_MIN_AGE.getDescription(), "" + super.getMinAge());
+			minAge = Integer.parseInt(strMinAge);
 		}
 		
 		@Override
@@ -166,6 +170,11 @@ public interface PopulationBuilder {
 		@Override
 		protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
 			return ageDist.getProbabilisticValue();
+		}
+		
+		@Override
+		public int getMinAge() {
+			return minAge;
 		}
 	}
 }

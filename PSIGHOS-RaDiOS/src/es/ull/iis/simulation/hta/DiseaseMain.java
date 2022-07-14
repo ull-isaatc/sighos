@@ -45,7 +45,7 @@ public class DiseaseMain extends HTAExperiment {
 	private final static int TEST_SCD = 10;
 	private final static boolean REPLACE_DOT_WITH_COLON = false;
 	private final static boolean ALL_AFFECTED = true;
-	private final static String PARAMS = "-n 1000 -r 0 -t 2 -y 2019 -q -ep cr"; // Testing OSDi PBD
+	private final static String PARAMS = "-n 1000 -r 0 -t 2 -dis 11 -y 2019 -q -ep cr"; // Testing OSDi PBD
 //	private final static String PARAMS = "-n 20000 -r 0 -t 0 -dis 12 -y 2019 -q -ep cr"; // Testing diabetes
 //	private final static String PARAMS = "-n 5000 -r 0 -t 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
 //	private final static String PARAMS = "-n 100 -r 0 -dr 0 -q -t 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt

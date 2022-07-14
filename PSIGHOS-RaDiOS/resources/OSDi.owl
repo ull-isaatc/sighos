@@ -341,6 +341,9 @@
         <DataProperty IRI="#hasManifestationKind"/>
     </Declaration>
     <Declaration>
+        <DataProperty IRI="#hasMinAge"/>
+    </Declaration>
+    <Declaration>
         <DataProperty IRI="#hasModificationForAllParams"/>
     </Declaration>
     <Declaration>
@@ -378,6 +381,9 @@
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasProbabilityOfDiagnosisModification"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasProportion"/>
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasRange"/>
@@ -908,6 +914,13 @@
     <SubClassOf>
         <Class IRI="#ManifestationPathway"/>
         <DataSomeValuesFrom>
+            <DataProperty IRI="#hasProportion"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ManifestationPathway"/>
+        <DataSomeValuesFrom>
             <DataProperty IRI="#hasRelativeRisk"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
@@ -996,28 +1009,7 @@
     <SubClassOf>
         <Class IRI="#Population"/>
         <DataSomeValuesFrom>
-            <DataProperty IRI="#hasAge"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Population"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasFemaleProportion"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Population"/>
-        <DataSomeValuesFrom>
             <DataProperty IRI="#hasGeographicalContext"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Population"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasSize"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
     </SubClassOf>
@@ -1031,7 +1023,35 @@
     <SubClassOf>
         <Class IRI="#Population"/>
         <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasAge"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Population"/>
+        <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasDescription"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Population"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasFemaleProportion"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Population"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasMinAge"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Population"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasSize"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
     </SubClassOf>
@@ -1713,6 +1733,11 @@
         <Literal xml:lang="https://www.wikidata.org/wiki/q29">Spain </Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasMinAge"/>
+        <NamedIndividual IRI="#PBD_BasePopulation"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">0</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasSize"/>
         <NamedIndividual IRI="#PBD_BasePopulation"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">540963</Literal>
@@ -2103,6 +2128,11 @@
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.5</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasMinAge"/>
+        <NamedIndividual IRI="#PBD_FakePopulation"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">0</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasSize"/>
         <NamedIndividual IRI="#PBD_FakePopulation"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#int">540963</Literal>
@@ -2188,32 +2218,32 @@
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">1.0</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasProbability"/>
+        <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwayHearingProblems"/>
         <Literal>0.515#BETA(24.0,34.0)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasProbability"/>
+        <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwayHypotonia"/>
         <Literal>0.457#BETA(17,20)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasProbability"/>
+        <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwayMentalDelay"/>
         <Literal>0.557#BETA(14,6)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasProbability"/>
+        <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwaySeizure"/>
         <Literal>0.564#BETA(65,50)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasProbability"/>
+        <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwaySkinProblems"/>
         <Literal>0.41#BETA(24,34)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasProbability"/>
+        <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwayVisionLoss"/>
         <Literal>0.175#BETA(19,91)</Literal>
     </DataPropertyAssertion>
