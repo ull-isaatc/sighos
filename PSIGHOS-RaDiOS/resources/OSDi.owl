@@ -113,9 +113,6 @@
         <Class IRI="#Development"/>
     </Declaration>
     <Declaration>
-        <Class IRI="#DevelopmentModification"/>
-    </Declaration>
-    <Declaration>
         <Class IRI="#Disease"/>
     </Declaration>
     <Declaration>
@@ -670,24 +667,6 @@
             <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#DevelopmentModification"/>
-        <Class IRI="#Modification"/>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#DevelopmentModification"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasLifeExpectancyModification"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
-        </DataExactCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#DevelopmentModification"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasModificationForAllParams"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
-        </DataExactCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Disease"/>

@@ -5,10 +5,10 @@ package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
+import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.Modification;
 import simkit.random.RandomVariateFactory;
 
 /**

@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Modification;
 
 /**
  * The baseline information required to generate a patient from a {@link Population}. It contains also generic 
