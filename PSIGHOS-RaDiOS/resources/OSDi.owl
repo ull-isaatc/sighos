@@ -500,6 +500,12 @@
         <NamedIndividual IRI="#PBD_CostTreatmentStrategy"/>
     </Declaration>
     <Declaration>
+        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#PBD_FakePopulation"/>
+    </Declaration>
+    <Declaration>
         <NamedIndividual IRI="#PBD_FollowUpStrategy"/>
     </Declaration>
     <Declaration>
@@ -1260,6 +1266,14 @@
         <NamedIndividual IRI="#PBD_CostTreatmentStrategy"/>
     </ClassAssertion>
     <ClassAssertion>
+        <Class IRI="#EpidemiologicalParameter"/>
+        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Population"/>
+        <NamedIndividual IRI="#PBD_FakePopulation"/>
+    </ClassAssertion>
+    <ClassAssertion>
         <Class IRI="#Strategy"/>
         <NamedIndividual IRI="#PBD_FollowUpStrategy"/>
     </ClassAssertion>
@@ -1397,6 +1411,26 @@
         <ObjectProperty IRI="#hasStep"/>
         <NamedIndividual IRI="#PBD_ClinicalDiagnosisStrategy"/>
         <NamedIndividual IRI="#PBD_ClinicalDiagnosisStepStrategy"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isParameterOfDisease"/>
+        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
+        <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isParameterOfPopulation"/>
+        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
+        <NamedIndividual IRI="#PBD_FakePopulation"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasParameter"/>
+        <NamedIndividual IRI="#PBD_FakePopulation"/>
+        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasUtility"/>
+        <NamedIndividual IRI="#PBD_FakePopulation"/>
+        <NamedIndividual IRI="#PBD_UtilityBasePopulation"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasCost"/>
@@ -2042,6 +2076,36 @@
         <DataProperty IRI="#hasYear"/>
         <NamedIndividual IRI="#PBD_CostTreatmentStrategy"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#short">2013</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
+        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
+        <Literal>BIRTH PREVALENCE</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
+        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
+        <Literal>APPARENT</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">1</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasAge"/>
+        <NamedIndividual IRI="#PBD_FakePopulation"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.5</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasFemaleProportion"/>
+        <NamedIndividual IRI="#PBD_FakePopulation"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.5</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSize"/>
+        <NamedIndividual IRI="#PBD_FakePopulation"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#int">540963</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>

@@ -4,6 +4,7 @@ import java.util.List;
 
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -14,7 +15,7 @@ import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 public interface DiseaseBuilder {
-	public static StandardDisease getDiseaseInstance(SecondOrderParamsRepository secParams, String diseaseName) {
+	public static StandardDisease getDiseaseInstance(SecondOrderParamsRepository secParams, String diseaseName) throws TranspilerException {
 		
 		StandardDisease disease = new StandardDisease(secParams, diseaseName, OwlHelper.getDataPropertyValue(diseaseName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "")) {
 

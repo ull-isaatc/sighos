@@ -12,6 +12,7 @@ import org.w3c.xsd.owl2.Ontology;
 
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.OntologyUtils;
 import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
@@ -36,9 +37,7 @@ public class TestLoadOWL {
 	 */
 	public static void main(String[] args) {
 		try {
-			Ontology testOntology = OntologyUtils.loadOntology(System.getProperty("user.dir") + "\\resources\\OSDi.owl");
-			OwlHelper.initilize(testOntology);
-			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
+			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
 			secParams.registerAllSecondOrderParams();
 			for (Disease disease : secParams.getRegisteredDiseases()) {
 				System.out.println(disease.prettyPrint(""));
@@ -52,6 +51,8 @@ public class TestLoadOWL {
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (TranspilerException e) {
 			e.printStackTrace();
 		}
 	}

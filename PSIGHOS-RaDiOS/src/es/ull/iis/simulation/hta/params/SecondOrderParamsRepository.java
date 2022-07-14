@@ -561,7 +561,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 
 	/**
 	 * Adds the base utility parameter to the registered population
-	 * @param population A population
+	 * @param type A population
 	 * @param description Full description of the parameter
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param detValue Deterministic/expected value

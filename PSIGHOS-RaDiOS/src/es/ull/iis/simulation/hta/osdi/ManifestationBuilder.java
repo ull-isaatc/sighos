@@ -56,7 +56,7 @@ public interface ManifestationBuilder {
 			createMortalityParams(secParams, manifestation);
 			createProbabilityDiagnosisParam(secParams, manifestation);
 		} catch(TranspilerException ex) {
-			System.err.println(ex.getStackTrace());
+			System.err.println(ex.getMessage());
 		}
 		
 	}
