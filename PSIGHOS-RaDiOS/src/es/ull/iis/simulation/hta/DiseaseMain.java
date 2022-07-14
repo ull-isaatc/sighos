@@ -16,6 +16,9 @@ import com.beust.jcommander.Parameter;
 
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.simulation.hta.diab.T1DMRepository;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
+import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.pbdmodel.PBDRepository;
@@ -37,13 +40,16 @@ public class DiseaseMain extends HTAExperiment {
 	private final static int TEST_RARE_DISEASE3 = 3; 
 	private final static int TEST_RARE_DISEASE4 = 4; 
 	private final static int TEST_PBD = 11;
-	private final static int TEST_SCD = 0;
+	private final static int TEST_T1DM = 12;
+	
+	private final static int TEST_SCD = 10;
 	private final static boolean REPLACE_DOT_WITH_COLON = false;
 	private final static boolean ALL_AFFECTED = true;
-	private final static String PARAMS = "-n 20000 -r 0 -pop 3 -y 2019 -q -ep cr"; // Testing diabetes
-//	private final static String PARAMS = "-n 5000 -r 0 -pop 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
-//	private final static String PARAMS = "-n 100 -r 0 -dr 0 -q -pop 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
-//	private final static String PARAMS = "-n 1000 -r 0 -dr 0 -q -pop 1 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
+	private final static String PARAMS = "-n 1000 -r 0 -t 2 -y 2019 -q -ep cr"; // Testing OSDi PBD
+//	private final static String PARAMS = "-n 20000 -r 0 -t 0 -dis 12 -y 2019 -q -ep cr"; // Testing diabetes
+//	private final static String PARAMS = "-n 5000 -r 0 -t 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
+//	private final static String PARAMS = "-n 100 -r 0 -dr 0 -q -t 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
+//	private final static String PARAMS = "-n 1000 -r 0 -dr 0 -q -t 1 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 
 	public DiseaseMain(Arguments arguments, ByteArrayOutputStream simResult) throws MalformedSimulationModelException {
 		super(arguments, simResult);
@@ -54,9 +60,9 @@ public class DiseaseMain extends HTAExperiment {
 		 * -n 100 -r 5 -dr 0 -q -pop 1 -ps 3 -po -dis 1: 100 pacientes, 5 ejecuciones probabilisticas, sin descuento, sin mostrar el progreso de ejecución, para RaDiOS, con el progreso para el tercer
 		 * paciente, habilitada la salida individual por paciente y para la enfermedad test1
 		 */
-		@Parameter(names = { "--population", "-pop" }, description = "Selects an alternative scenario (0: Test; 1: RaDiOS)", order = 8)
-		public int population = 0;
-		@Parameter(names = { "--disease", "-dis" }, description = "Disease to test with (1-3)", order = 3)
+		@Parameter(names = { "--type", "-t" }, description = "Selects an alternative scenario (0: Programmatic; 1: RaDiOS; 2: OSDi)", order = 8)
+		public int type = 0;
+		@Parameter(names = { "--disease", "-dis" }, description = "Disease to test with (1-4: Synthetic diseases; 10:SCD; 11: PBD; 12: T1DM)", order = 3)
 		public int disease = 1;
 		@DynamicParameter(names = { "--iniprop", "-I" }, description = "Initial proportion for complication stages")
 		public Map<String, String> initProportions = new TreeMap<String, String>();
@@ -70,24 +76,37 @@ public class DiseaseMain extends HTAExperiment {
 		final int nRuns = ((Arguments)arguments).nRuns;
 		final int nPatients = ((Arguments)arguments).nPatients;
 		final int timeHorizon = ((Arguments)arguments).timeHorizon;
-		switch (((Arguments)arguments).population) {			
+		switch (((Arguments)arguments).type) {			
 		case 1:
 			String path = "";
-			if (disease == TEST_SCD) {
+			switch(disease) {
+			case TEST_SCD:
+				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease SCD \n\n"));
 				path = "resources/radios_SCD.json";
-			} else if (disease == TEST_RARE_DISEASE1 || disease == TEST_RARE_DISEASE2 || disease == TEST_RARE_DISEASE3 || disease == TEST_RARE_DISEASE4) {
+				break;
+			case TEST_RARE_DISEASE1:
+			case TEST_RARE_DISEASE2:
+			case TEST_RARE_DISEASE3:
+			case TEST_RARE_DISEASE4:
 				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", disease));
 				interventionsToCompare.add(Constants.CONSTANT_DO_NOTHING);
 				interventionsToCompare.add("#RD1_Intervention_Effective");
 				path = "resources/radios-test_disease" + disease + ".json";
-			} else if (disease == TEST_PBD) {
+				break;
+			case TEST_T1DM:
+				System.out.println("No RaDiOS test available for T1DM\n\n");
+				break;
+			case TEST_PBD:
+			default:
 				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease PBD \n\n"));
 				interventionsToCompare.add(Constants.CONSTANT_DO_NOTHING);
 				interventionsToCompare.add("#PBD_InterventionScreening");
 				path = "resources/radios_PBD.json";
+				break;				
 			}
 			try {
-				secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon, ALL_AFFECTED, interventionsToCompare);
+				if (!path.equals(""))
+					secParams = new RadiosRepository(nRuns, nPatients, path, timeHorizon, ALL_AFFECTED, interventionsToCompare);
 			} catch (IOException | TransformException | JAXBException e) {
 				MalformedSimulationModelException ex = new MalformedSimulationModelException("");
 				ex.initCause(e);
@@ -95,17 +114,35 @@ public class DiseaseMain extends HTAExperiment {
 			}
 			break;
 		case 2:
-			System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for the rare disease PBD \n\n"));
-			secParams = new PBDRepository(nRuns, nPatients, ALL_AFFECTED);
+			try {
+				secParams = new OSDiGenericRepository(nRuns, nPatients, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_FakePopulation", DisutilityCombinationMethod.ADD);
+			} catch (IOException | TranspilerException | JAXBException e) {
+				e.printStackTrace();
+			}
         	break;
-		case 3:
-			System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for T1DM \n\n"));
-			secParams = new T1DMRepository(nRuns, nPatients);
-			break;
 		case 0:
 		default:
-			System.out.println(String.format("\n\nExecuting the PROGRAMATIC test for the rare disease [%d] \n\n", disease));
-			secParams = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
+			switch(disease) {
+			case TEST_SCD:
+				System.out.println("No programmatic test available for SCD\n\n");
+				break;
+			case TEST_RARE_DISEASE1:
+			case TEST_RARE_DISEASE2:
+			case TEST_RARE_DISEASE3:
+			case TEST_RARE_DISEASE4:
+				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for the rare disease [%d] \n\n", disease));
+				secParams = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
+				break;
+			case TEST_T1DM:
+				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for T1DM \n\n"));
+				secParams = new T1DMRepository(nRuns, nPatients);
+				break;
+			case TEST_PBD:
+			default:
+				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for the rare disease PBD \n\n"));
+				secParams = new PBDRepository(nRuns, nPatients, ALL_AFFECTED);
+				break;				
+			}			
 			break;
 		}
 

@@ -88,7 +88,7 @@ public interface PopulationBuilder {
 			try {
 				registerUtilityParam();
 			} catch(TranspilerException ex) {
-				System.err.println(ex.getStackTrace());
+				System.err.println(ex.getMessage());
 			}
 		}
 		
