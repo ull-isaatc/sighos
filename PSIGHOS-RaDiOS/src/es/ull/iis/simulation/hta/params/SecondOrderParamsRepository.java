@@ -10,6 +10,7 @@ import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
@@ -23,7 +24,6 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
-import es.ull.iis.simulation.hta.progression.Modification;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
@@ -53,7 +53,7 @@ import simkit.random.RandomVariateFactory;
  * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
  * @author Iván Castilla Rodríguez
  */
-public abstract class SecondOrderParamsRepository {
+public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	// Strings to define standard parameters
 	/** String prefix for probability parameters */
 	public static final String STR_PROBABILITY_PREFIX = "P_";
@@ -998,22 +998,23 @@ public abstract class SecondOrderParamsRepository {
 		return str.toString();
 	}
 	
-	public String prettySavedParams() {
+	@Override
+	public String prettyPrint(String linePrefix) {
 		StringBuilder str = new StringBuilder();
 		for (SecondOrderParam param : probabilityParams.values()) {
-			str.append(param.getName()).append(" ::: ").append(param.getValuesAsString()).append("\n");
+			str.append(param.prettyPrint(linePrefix)).append("\n");
 		}			
 		for (SecondOrderParam param : costParams.values()) {
-			str.append(param.getName()).append(" ::: ").append(param.getValuesAsString()).append("\n");
+			str.append(param.prettyPrint(linePrefix)).append("\n");
 		}
 		for (SecondOrderParam param : utilParams.values()) {
-			str.append(param.getName()).append(" ::: ").append(param.getValuesAsString()).append("\n");
+			str.append(param.prettyPrint(linePrefix)).append("\n");
 		}
 		for (SecondOrderParam param : otherParams.values()) {
-			str.append(param.getName()).append(" ::: ").append(param.getValuesAsString()).append("\n");
+			str.append(param.prettyPrint(linePrefix)).append("\n");
 		}
 		for (SecondOrderParam param : modificationParams.values()) {
-			str.append(param.getName()).append(" ::: ").append(param.getValuesAsString()).append("\n");
+			str.append(param.prettyPrint(linePrefix)).append("\n");
 		}
 		return str.toString();
 	}

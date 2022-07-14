@@ -6,9 +6,9 @@ package es.ull.iis.simulation.hta.diab.interventions;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.T1DMRepository;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Modification;
-import es.ull.iis.simulation.hta.progression.Modification.Type;
+import es.ull.iis.simulation.hta.params.Modification.Type;
 import simkit.random.RandomVariateFactory;
 
 /**

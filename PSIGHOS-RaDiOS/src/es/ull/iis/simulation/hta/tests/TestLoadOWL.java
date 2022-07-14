@@ -46,7 +46,7 @@ public class TestLoadOWL {
 			for (Intervention interv : secParams.getRegisteredInterventions()) {
 				System.out.println(interv.prettyPrint(""));
 			}
-			System.out.println(secParams.prettySavedParams());
+			System.out.println(secParams.prettyPrint(""));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (JAXBException e) {

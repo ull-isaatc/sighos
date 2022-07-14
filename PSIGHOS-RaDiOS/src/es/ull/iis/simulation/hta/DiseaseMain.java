@@ -130,7 +130,7 @@ public class DiseaseMain extends HTAExperiment {
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
 			final DiseaseMain experiment = new DiseaseMain(arguments, baos);
 			experiment.run();
-			RadiosExperimentResult result = new RadiosExperimentResult(baos, experiment.getRepository().prettySavedParams(), arguments.nRuns);
+			RadiosExperimentResult result = new RadiosExperimentResult(baos, experiment.getRepository().prettyPrint(""), arguments.nRuns);
 
 			System.out.println("=====================================================================================================");
 			System.out.println(result.getPrettySavedParams());

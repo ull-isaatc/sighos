@@ -24,8 +24,8 @@ public class OwlHelper {
 	/**
 	 * Returns the string corresponding to the specified data property defined in the specified instance in the ontology.
 	 * If there are is than one value for that property, returns the first one. 
-	 * If the data property is not defined, returns the default value.
-	 * In any case, returns null if the instance is not defined.
+	 * If the data property or the instance are not defined, returns the default value. Be aware that the instance might be not defined simply because 
+	 * it does not define any data property, and not because it does not exists.
 	 * @param instanceName Name of the instance that defines the data property
 	 * @param propertyName Name of the data property
 	 * @param defaultValue Value that is returned when not defined 
@@ -34,7 +34,7 @@ public class OwlHelper {
 	public static String getDataPropertyValue (String instanceName, String propertyName, String defaultValue) {
 		final Map<String, List<PropertyData>> data = dataPropertyValues.get(instanceName);
 		if (data == null)
-			return null;
+			return defaultValue;
 		if (data.get(propertyName) == null)
 			return defaultValue;
 		return data.get(propertyName).get(0).getValue();

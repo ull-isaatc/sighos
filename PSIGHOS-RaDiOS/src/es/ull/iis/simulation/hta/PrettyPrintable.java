@@ -9,6 +9,7 @@ package es.ull.iis.simulation.hta;
  *
  */
 public interface PrettyPrintable {
+	public static final String SEPARATOR = " ::: ";
 	/**
 	 * Creates a detailed and "pretty" formatted description of the instance
 	 * @param linePrefix A string to prefix each line. This is intended to add tabs to indent inner structures

@@ -2,7 +2,7 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.Arrays;
 
-import es.ull.iis.simulation.hta.progression.Modification;
+import es.ull.iis.simulation.hta.PrettyPrintable;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -11,7 +11,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SecondOrderParam {
+public class SecondOrderParam implements PrettyPrintable {
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 	/** Short name and identifier of the parameter */
@@ -82,15 +82,6 @@ public class SecondOrderParam {
 			generatedValues[id] = rnd.generate(); // FIXME: if the rnd function is null it gives a NullPointerException
 		return generatedValues[id];
 	}
-
-	public String getValuesAsString () {
-		StringBuilder sb = new StringBuilder();
-		if (!Double.isNaN(generatedValues[0])) {
-			sb.append(generatedValues[0]).append(" :::");	
-		}			
-		sb.append(" ").append(rnd.toString()).append(" ");	
-		return sb.toString();		
-	}
 	
 	/**
 	 * Returns a value for the parameter, modified according to a {@link Modification}
@@ -139,6 +130,16 @@ public class SecondOrderParam {
 	 */
 	public String getSource() {
 		return source;
+	}
+
+	@Override
+	public String prettyPrint(String linePrefix) {
+		StringBuilder sb = new StringBuilder(linePrefix).append(name);
+		if (!Double.isNaN(generatedValues[0])) {
+			sb.append(PrettyPrintable.SEPARATOR).append(generatedValues[0]);	
+		}			
+		sb.append(PrettyPrintable.SEPARATOR).append(rnd.toString());	
+		return sb.toString();		
 	}
 
 }

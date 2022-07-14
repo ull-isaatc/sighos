@@ -1,10 +1,9 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.progression;
+package es.ull.iis.simulation.hta.params;
 
-import es.ull.iis.simulation.hta.params.SecondOrderParam;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.PrettyPrintable;
 import simkit.random.RandomVariate;
 
 /**
@@ -69,4 +68,9 @@ public class Modification extends SecondOrderParam {
 		return type;
 	}
 
+	@Override
+	public String prettyPrint(String linePrefix) {
+		StringBuilder sb = new StringBuilder(super.prettyPrint(linePrefix)).append(PrettyPrintable.SEPARATOR).append(type.name());
+		return sb.toString();
+	}
 }

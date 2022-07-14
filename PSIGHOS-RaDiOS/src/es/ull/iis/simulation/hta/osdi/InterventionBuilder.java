@@ -13,9 +13,9 @@ import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.Modification;
 
 /**
  * @author Iván Castilla
@@ -86,7 +86,7 @@ public interface InterventionBuilder {
 		try {
 			createModificationParams(secParams, intervention);
 		} catch(TranspilerException ex) {
-			System.err.println(ex.getStackTrace());
+			System.err.println(ex.getMessage());
 		}
 	}
 	
@@ -109,7 +109,7 @@ public interface InterventionBuilder {
 			final String strValue = OwlHelper.getDataPropertyValue(modificationName, OSDiNames.DataProperty.HAS_VALUE.getDescription());
 			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 			if (probDistribution == null)
-				throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for instance \"" + modificationName + "\"");
+				throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for data property 'has_value' in instance \"" + modificationName + "\"");
 			// Parse the property which is modified
 			final List<String> strProperties = OwlHelper.getDataPropertyValues(modificationName, OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED.getDescription());
 			for (String strProperty : strProperties) {

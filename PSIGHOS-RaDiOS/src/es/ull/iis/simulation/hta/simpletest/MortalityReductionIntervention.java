@@ -5,8 +5,8 @@ package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Modification;
 
 /**
  * @author Iván Castilla Rodríguez
