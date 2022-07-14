@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.osdi;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
@@ -17,6 +18,7 @@ import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculato
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
+import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.AndCondition;
 import es.ull.iis.simulation.hta.progression.condition.PathwayCondition;
@@ -38,8 +40,9 @@ public interface ManifestationPathwayBuilder {
 	 * @param manifestation
 	 * @param pathwayName
 	 * @return
+	 * @throws TranspilerException 
 	 */
-	public static ManifestationPathway getManifestationPathwayInstance(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) {
+	public static ManifestationPathway getManifestationPathwayInstance(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) throws TranspilerException {
 		final Disease disease = manifestation.getDisease();
 		final PathwayCondition cond = createCondition(secParams, disease, pathwayName);
 		final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, manifestation, pathwayName);
@@ -83,27 +86,28 @@ public interface ManifestationPathwayBuilder {
 	 * @param manifestation The destination manifestation for this pathway
 	 * @param pathwayName The name of the pathway instance in the ontology
 	 * @return
+	 * @throws TranspilerException 
 	 */
-	private static TimeToEventCalculator createTimeToEventCalculator(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) {
-		TimeToEventCalculator tte = null;
-		// FIXME: Currently not using time to
-		// final String strTimeTo = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_TIME_TO.getDescription());
-		// FIXME: Assuming that the time to event is described always as an annual risk
+	private static TimeToEventCalculator createTimeToEventCalculator(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) throws TranspilerException {
+		// TODO: Check the order to process these parameters or think in a different solution
+		// First check if the pathway is defined as a proportion
+		final String strPropManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROPORTION.getDescription());
+		if (strPropManif != null) {
+			return new ProportionBasedTimeToEventCalculator(getProbString(manifestation, pathwayName), secParams, manifestation);
+		}
 		final String strPManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY.getDescription());
+		// FIXME: Assuming that the time to event is described always as an annual risk
 		if (strPManif != null) {
-			ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPManif);
-			if (probabilityDistribution != null) {
 				// FIXME: Still not capable of processing RR 
 				final String strRRManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_RELATIVE_RISK.getDescription());
-				tte = new AnnualRiskBasedTimeToEventCalculator(getProbString(manifestation, pathwayName), secParams, manifestation);
-				// FIXME: Still not capable of distinguish among different types of parameters
-				// tte = new ProportionBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manifestation), secParams, manifestation);
-			} else {
-//				Object[][] datatableMatrix = ValueParser.rangeDatatableToMatrix(XmlTransform.getDataTable(strPManif), secParams);
-//				tte = new AgeBasedTimeToEventCalculator(datatableMatrix, manifestation, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix));
-			}
-		}
-		return tte;
+				return new AnnualRiskBasedTimeToEventCalculator(getProbString(manifestation, pathwayName), secParams, manifestation);
+		}			
+		// FIXME: Currently not using time to
+		// final String strTimeTo = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_TIME_TO.getDescription());
+		// FIXME: Still not processing data tables
+//		Object[][] datatableMatrix = ValueParser.rangeDatatableToMatrix(XmlTransform.getDataTable(strPManif), secParams);
+//		tte = new AgeBasedTimeToEventCalculator(datatableMatrix, manifestation, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix));
+		return null;
 	}
 
 	/**
@@ -145,14 +149,32 @@ public interface ManifestationPathwayBuilder {
 		@Override
 		public void registerSecondOrderParameters() {
 			final Manifestation manifestation = this.getDestManifestation();
-			final String strPManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY.getDescription());
-			if (strPManif != null) {
-				ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPManif);
-				if (probabilityDistribution != null) {
-					SecondOrderParam param = new SecondOrderParam(secParams, getProbString(manifestation, pathwayName), getDescriptionString(manifestation, pathwayName), Constants.CONSTANT_EMPTY_STRING, 
+			try {
+				// TODO: Check the order to process these parameters or think in a different solution
+				final String strPropManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROPORTION.getDescription());
+				if (strPropManif != null) {
+					final ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPropManif);
+					if (probabilityDistribution == null) {
+						throw new TranspilerException("Error parsing regular expression \"" + strPropManif + "\" for data property 'hasProportion' of instance \"" + pathwayName + "\"");
+					}
+					SecondOrderParam param = new SecondOrderParam(secParams, getProbString(manifestation, pathwayName), "Proportion of patients developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING, 
 							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 					secParams.addProbParam(param);
-				} 
+				}
+				else {
+					final String strPManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY.getDescription());
+					if (strPManif != null) {
+						ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPManif);
+						if (probabilityDistribution == null) {
+							throw new TranspilerException("Error parsing regular expression \"" + strPManif + "\" for data property 'hasProbability' of instance \"" + pathwayName + "\"");
+						} 
+						SecondOrderParam param = new SecondOrderParam(secParams, getProbString(manifestation, pathwayName), "Probability of developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING, 
+								probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+						secParams.addProbParam(param);
+					}
+				}
+			} catch(TranspilerException ex) {
+				System.err.println(ex.getMessage());
 			}
 		}
 		
