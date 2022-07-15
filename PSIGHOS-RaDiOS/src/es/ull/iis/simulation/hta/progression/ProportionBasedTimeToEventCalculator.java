@@ -40,9 +40,11 @@ public class ProportionBasedTimeToEventCalculator implements TimeToEventCalculat
 			final double deathAge = pat.getAgeAtDeath();
 			// Gets another random number
 			// Only if lifetime of the patient is compatible with the manifestation
-			if (destManifestation.getEndAge() > age && destManifestation.getOnsetAge() < deathAge) {
-				final double minRef = Math.max(age, destManifestation.getOnsetAge());
-				final double maxRef = Math.min(deathAge, destManifestation.getEndAge());
+			final double endAge = destManifestation.getEndAge(pat); 
+			final double onsetAge = destManifestation.getOnsetAge(pat); 
+			if (endAge > age && onsetAge < deathAge) {
+				final double minRef = Math.max(age, onsetAge);
+				final double maxRef = Math.min(deathAge, endAge);
 				final double time = rndValues.get(1) * (maxRef - minRef) + (minRef - age);
 				return pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 			}

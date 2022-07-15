@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AcuteManifestation;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
@@ -27,11 +27,9 @@ public interface ManifestationBuilder {
 	public static Manifestation getManifestationInstance(SecondOrderParamsRepository secParams, StandardDisease disease, String manifestationName) {
 		Manifestation manifestation = null;
 		final String type = OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_MANIFESTATION_KIND.getDescription(), OSDiNames.DataPropertyRange.MANIFESTATION_KIND_CHRONIC.getDescription());
-		final Double onsetAge = ValueParser.toDoubleValue(OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_ONSET_AGE.getDescription(), "0.0"));
-		final Double endAge = ValueParser.toDoubleValue(OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_END_AGE.getDescription(), "" + BasicConfigParams.DEF_MAX_AGE));
 		final String description = OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "");
 		if (OSDiNames.DataPropertyRange.MANIFESTATION_KIND_CHRONIC.getDescription().equals(type)) {
-			manifestation = new ChronicManifestation(secParams, manifestationName, description,	disease, onsetAge, endAge) {
+			manifestation = new ChronicManifestation(secParams, manifestationName, description,	disease) {
 					@Override
 					public void registerSecondOrderParameters() {
 						createParams(secParams, this);
@@ -39,7 +37,7 @@ public interface ManifestationBuilder {
 			};
 		}
 		else {
-			manifestation = new AcuteManifestation(secParams, manifestationName, description, disease, onsetAge, endAge) {
+			manifestation = new AcuteManifestation(secParams, manifestationName, description, disease) {
 					@Override
 					public void registerSecondOrderParameters() {
 						createParams(secParams, this);
@@ -51,6 +49,7 @@ public interface ManifestationBuilder {
 
 	private static void createParams(SecondOrderParamsRepository secParams, Manifestation manifestation) {
 		try {
+			createOnsetEndAgeParams(secParams, manifestation);
 			createCostParams(secParams, manifestation);
 			createUtilityParams(secParams, manifestation);
 			createMortalityParams(secParams, manifestation);
@@ -62,6 +61,27 @@ public interface ManifestationBuilder {
 	}
 	
 
+	private static void createOnsetEndAgeParams(SecondOrderParamsRepository secParams, Manifestation manifestation) throws TranspilerException {
+		String strAge = OwlHelper.getDataPropertyValue(manifestation.name(), OSDiNames.DataProperty.HAS_ONSET_AGE.getDescription());
+		if (strAge != null) {
+			ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strAge);
+			if (probDistribution == null)
+				throw new TranspilerException("Error parsing regular expression \"" + strAge + "\" for data property 'hasOnsetAge' in instance \"" + manifestation.name() + "\"");
+			secParams.addOtherParam(new SecondOrderParam(secParams, manifestation.getOnsetAgeParameterString(false), manifestation.getOnsetAgeParameterString(true), "", 
+					probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue()));			
+		}
+		
+		strAge = OwlHelper.getDataPropertyValue(manifestation.name(), OSDiNames.DataProperty.HAS_END_AGE.getDescription());
+		if (strAge != null) {
+			ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strAge);
+			if (probDistribution == null)
+				throw new TranspilerException("Error parsing regular expression \"" + strAge + "\" for data property 'hasEndAge' in instance \"" + manifestation.name() + "\"");
+			secParams.addOtherParam(new SecondOrderParam(secParams, manifestation.getEndAgeParameterString(false), manifestation.getEndAgeParameterString(true), "", 
+					probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue()));
+		}
+		
+	}
+	
 	/**
 	 * Creates the costs associated to a specific manifestation by extracting the information from the ontology. If the manifestation is acute, only one cost should be defined; otherwise, up to two costs 
 	 * (one-time and annual) may be defined.
