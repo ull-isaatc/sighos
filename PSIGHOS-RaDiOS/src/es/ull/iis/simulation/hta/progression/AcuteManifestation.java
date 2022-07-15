@@ -31,23 +31,6 @@ public abstract class AcuteManifestation extends Manifestation {
 				rndValues[i][j] = new RandomValues();
 	}
 
-	/**
-	 * @param secParams
-	 * @param name
-	 * @param description
-	 * @param disease
-	 * @param onsetAge
-	 * @param endAge
-	 */
-	public AcuteManifestation(SecondOrderParamsRepository secParams, String name, String description, Disease disease,
-			Double onsetAge, Double endAge) {
-		super(secParams, name, description, disease, Type.ACUTE, onsetAge, endAge);
-		rndValues = new RandomValues[secParams.getnRuns() + 1][secParams.getnPatients()];
-		for (int i = 0; i < secParams.getnRuns() + 1; i++)
-			for (int j = 0; j < secParams.getnPatients(); j++)
-				rndValues[i][j] = new RandomValues();
-	}
-
 	@Override
 	public List<Double> getRandomValues(Patient pat, int n) {
 		return rndValues[pat.getSimulation().getIdentifier()][pat.getIdentifier()].draw(pat.getNManifestations(this) + 1, n);

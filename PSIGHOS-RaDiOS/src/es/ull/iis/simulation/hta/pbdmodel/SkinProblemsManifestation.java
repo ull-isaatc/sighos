@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.pbdmodel;
 
+import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -21,11 +22,13 @@ public class SkinProblemsManifestation extends ChronicManifestation {
 	 * @param disease
 	 */
 	public SkinProblemsManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "#PBD_ManifestationSkinProblems", "Skin problems", disease, 0.0, 1.0);
+		super(secParams, "#PBD_ManifestationSkinProblems", "Skin problems", disease);
 	}	 
 
 	@Override
 	public void registerSecondOrderParameters() {
+		secParams.addOtherParam(new SecondOrderParam(secParams, getOnsetAgeParameterString(false), getOnsetAgeParameterString(true), "", 0.0));
+		secParams.addOtherParam(new SecondOrderParam(secParams, getEndAgeParameterString(false), getEndAgeParameterString(true), "", 1.0));
 		secParams.addCostParam(this, "Punctual cost for " + this, "Test", COST_YEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST), true);		
 		secParams.addDiagnosisProbParam(this, "Assumption", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));
 	}

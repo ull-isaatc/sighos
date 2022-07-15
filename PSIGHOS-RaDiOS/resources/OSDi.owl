@@ -15,79 +15,79 @@
     <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483648"/>
+        <AnonymousIndividual nodeID="_:genid2147483686"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483649"/>
+        <AnonymousIndividual nodeID="_:genid2147483687"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483650"/>
+        <AnonymousIndividual nodeID="_:genid2147483688"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483651"/>
+        <AnonymousIndividual nodeID="_:genid2147483689"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483652"/>
+        <AnonymousIndividual nodeID="_:genid2147483690"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483653"/>
+        <AnonymousIndividual nodeID="_:genid2147483691"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483654"/>
+        <AnonymousIndividual nodeID="_:genid2147483692"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483655"/>
+        <AnonymousIndividual nodeID="_:genid2147483693"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483656"/>
+        <AnonymousIndividual nodeID="_:genid2147483694"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483657"/>
+        <AnonymousIndividual nodeID="_:genid2147483695"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483658"/>
+        <AnonymousIndividual nodeID="_:genid2147483696"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483659"/>
+        <AnonymousIndividual nodeID="_:genid2147483697"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483660"/>
+        <AnonymousIndividual nodeID="_:genid2147483698"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483661"/>
+        <AnonymousIndividual nodeID="_:genid2147483699"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483662"/>
+        <AnonymousIndividual nodeID="_:genid2147483700"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483663"/>
+        <AnonymousIndividual nodeID="_:genid2147483701"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483664"/>
+        <AnonymousIndividual nodeID="_:genid2147483702"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483665"/>
+        <AnonymousIndividual nodeID="_:genid2147483703"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483666"/>
+        <AnonymousIndividual nodeID="_:genid2147483704"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
@@ -819,13 +819,6 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Manifestation"/>
-        <ObjectMaxCardinality cardinality="1">
-            <ObjectProperty IRI="#hasCost"/>
-            <Class IRI="#Cost"/>
-        </ObjectMaxCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Manifestation"/>
         <DataSomeValuesFrom>
             <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
@@ -1209,6 +1202,24 @@
             </DataOneOf>
         </DataSomeValuesFrom>
     </SubClassOf>
+    <DisjointClasses>
+        <Class IRI="#ClinicalDiagnosis"/>
+        <Class IRI="#Development"/>
+        <Class IRI="#Disease"/>
+        <Class IRI="#Drug"/>
+        <Class IRI="#FollowUp"/>
+        <Class IRI="#Guideline"/>
+        <Class IRI="#Intervention"/>
+        <Class IRI="#Manifestation"/>
+        <Class IRI="#ManifestationPathway"/>
+        <Class IRI="#Modification"/>
+        <Class IRI="#Parameter"/>
+        <Class IRI="#Population"/>
+        <Class IRI="#Screening"/>
+        <Class IRI="#Strategy"/>
+        <Class IRI="#StrategyStep"/>
+        <Class IRI="#Treatment"/>
+    </DisjointClasses>
     <ClassAssertion>
         <Class IRI="#Guideline"/>
         <NamedIndividual IRI="#GuidelineLifetimeAnual"/>
@@ -1730,7 +1741,7 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_BasePopulation"/>
-        <Literal xml:lang="https://www.wikidata.org/wiki/q29">Spain </Literal>
+        <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasMinAge"/>

@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.pbdmodel;
 
+import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -23,11 +24,13 @@ public class HearingProblemsManifestation extends ChronicManifestation {
 	 * @param disease
 	 */
 	public HearingProblemsManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "#PBD_ManifestationHearingProblems", "Hearing problems", disease, 1.0, 2.0);
+		super(secParams, "#PBD_ManifestationHearingProblems", "Hearing problems", disease);
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
+		secParams.addOtherParam(new SecondOrderParam(secParams, getOnsetAgeParameterString(false), getOnsetAgeParameterString(true), "", 1.0));
+		secParams.addOtherParam(new SecondOrderParam(secParams, getEndAgeParameterString(false), getEndAgeParameterString(true), "", 2.0));
 		secParams.addCostParam(this, "Punctual cost for " + this, "Test", COST_YEAR, DIAGNOSTIC_COST, SecondOrderParamsRepository.getRandomVariateForCost(DIAGNOSTIC_COST), true);		
 		secParams.addCostParam(this, "Annual cost for " + this, "Test", COST_YEAR, ANNUAL_COST, SecondOrderParamsRepository.getRandomVariateForCost(ANNUAL_COST));		
 		secParams.addDiagnosisProbParam(this, "Assumption", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));

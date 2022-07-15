@@ -25,6 +25,12 @@ import es.ull.iis.simulation.model.Describable;
  *
  */
 public abstract class Manifestation implements Named, Describable, Comparable<Manifestation>, CreatesSecondOrderParameters, PrettyPrintable {
+	protected final static String [] STR_ONSET_AGE = {"ONSET_AGE_", "Onset age for "};
+	protected final static String [] STR_END_AGE = {"END_AGE_", "End age for "};
+	/**
+	 * The type of the manifestation. Currently distinguishes among chronic and acute manifestations
+	 * @author Iván Castilla
+	 */
 	public enum Type {
 		ACUTE,
 		CHRONIC
@@ -43,11 +49,6 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	/** Type of manifestation */
 	private final Type type;
 	
-	/** Minimum age for the onset of the manifestation */
-	private double onsetAge;
-	/** Maximum age when this manifestation appears */
-	private double endAge;
-	
 	/** Probability that a patient starts in this stage */
 	private final BernoulliParam[] pInit;
 	/** Death associated to the acute events */
@@ -62,18 +63,6 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	private final ArrayList<ManifestationPathway> pathways;
 	/** A set of labels that may be assigned to this manifestation. Labels serve to group related manifestations */
 	private final TreeSet<Named> labels;
-
-	/**
-	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
-	 * @param secParams Common parameters repository
-	 * @param name Name of the stage
-	 * @param description Full description of the stage
-	 * @param disease Main chronic complication
-	 * @param type The {@link Type} of the manifestation
-	 */
-	public Manifestation(SecondOrderParamsRepository secParams, String name, String description, Disease disease, Type type) {
-		this(secParams, name, description, disease, type, 0.0, (double)BasicConfigParams.DEF_MAX_AGE);
-	}
 	
 	/**
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
@@ -83,7 +72,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	 * @param disease Main chronic complication
 	 * @param type The {@link Type} of the manifestation
 	 */
-	public Manifestation(SecondOrderParamsRepository secParams, String name, String description, Disease disease, Type type, Double onsetAge, Double endAge) {
+	public Manifestation(SecondOrderParamsRepository secParams, String name, String description, Disease disease, Type type) {
 		this.secParams = secParams;
 		this.name = name;
 		this.description = description;
@@ -95,8 +84,6 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		Arrays.fill(associatedDeath, null);
 		pDiagnose = new MultipleBernoulliParam[secParams.getnRuns() + 1];
 		Arrays.fill(pDiagnose, null);
-		this.onsetAge = (onsetAge != null) ? onsetAge : 0.0;
-		this.endAge = (endAge != null) ? endAge : BasicConfigParams.DEF_MAX_AGE;
 		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
 		Arrays.fill(randomSeeds, null);
 		this.pathways = new ArrayList<>();
@@ -134,19 +121,39 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	}
 	
 	/**
+	 * Returns a string to identify/describe the end age parameter associated to this manifestation
+	 * @param longText If true, returns the description of the parameter; otherwise, returns the identifier
+	 * @return a string to identify/describe the end age parameter associated to this manifestation
+	 */
+	public String getEndAgeParameterString(boolean longText) {
+		return longText ? (STR_END_AGE[1] + description) : (STR_END_AGE[0] + name);
+	}
+	
+	/**
+	 * Returns a string to identify/describe the onset age parameter associated to this manifestation
+	 * @param longText If true, returns the description of the parameter; otherwise, returns the identifier
+	 * @return a string to identify/describe the onset age parameter associated to this manifestation
+	 */
+	public String getOnsetAgeParameterString(boolean longText) {
+		return longText ? (STR_ONSET_AGE[1] + description) : (STR_ONSET_AGE[0] + name);
+	}
+	
+	/**
 	 * Returns the maximum age when this manifestation appears
+	 * @param pat A patient
 	 * @return the maximum age when this manifestation appears
 	 */
-	public double getEndAge() {
-		return endAge;
+	public double getEndAge(Patient pat) {
+		return secParams.getOtherParam(getEndAgeParameterString(false), BasicConfigParams.DEF_MAX_AGE, pat.getSimulation());
 	}
 	
 	/**
 	 * Returns the minimum age when this manifestation appears
+	 * @param pat A patient
 	 * @return the minimum age when this manifestation appears
 	 */
-	public double getOnsetAge() {
-		return onsetAge;
+	public double getOnsetAge(Patient pat) {
+		return secParams.getOtherParam(getOnsetAgeParameterString(false), 0.0, pat.getSimulation());
 	}
 	
 	/**
@@ -306,8 +313,6 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		final StringBuilder str = new StringBuilder(linePrefix).append(type.name()).append(" manifestation: ").append(name).append(System.lineSeparator());
 		if (!"".equals(description))
 			str.append(linePrefix + "\t").append(description).append(System.lineSeparator());
-		str.append(linePrefix + "\t").append("Onset age: ").append(onsetAge).append(System.lineSeparator());
-		str.append(linePrefix + "\t").append("End age: ").append(endAge).append(System.lineSeparator());
 		if (labels.size() > 0) {
 			str.append(linePrefix).append("Labeled as: ");
 			for (Named label : labels)
