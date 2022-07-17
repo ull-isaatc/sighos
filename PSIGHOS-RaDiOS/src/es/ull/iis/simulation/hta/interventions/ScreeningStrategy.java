@@ -17,11 +17,12 @@ import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
  * A screening intervention to detect a disease 
- * TODO: Make specificity and sensitivity second-order parameters
  * @author Iván Castilla Rodríguez
  *
  */
 public abstract class ScreeningStrategy extends Intervention {
+	protected final static String [] STR_SPECIFICITY = {"Specificity_", "Specificity for "};
+	protected final static String [] STR_SENSITIVITY = {"Sensitivity_", "Sensitivity for "};
 	public final static String STR_SCREENING = "tScreening";
 	public enum ScreeningResult implements Named {
 		TP,
@@ -29,17 +30,13 @@ public abstract class ScreeningStrategy extends Intervention {
 		TN,
 		FN
 	}
-	private final double sensitivity;
-	private final double specificity;
 	private final RandomSeedForPatients[] randomSeeds;
 	
 	/**
 	 * 
 	 */
-	public ScreeningStrategy(SecondOrderParamsRepository secParams, String name, String description, double sensitivity, double specificity) {
+	public ScreeningStrategy(SecondOrderParamsRepository secParams, String name, String description) {
 		super(secParams, name, description);
-		this.sensitivity = sensitivity;
-		this.specificity = specificity;
 		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
 		Arrays.fill(randomSeeds, null);
 	}
@@ -56,17 +53,35 @@ public abstract class ScreeningStrategy extends Intervention {
 	}
 	
 	/**
+	 * Returns a string to identify/describe the specificity parameter associated to this intervention
+	 * @param longText If true, returns the description of the parameter; otherwise, returns the identifier
+	 * @return a string to identify/describe the specificity parameter associated to this disease
+	 */
+	public String getSpecificityParameterString(boolean longText) {
+		return longText ? (STR_SPECIFICITY[1] + getDescription()) : (STR_SPECIFICITY[0] + name());
+	}
+	
+	/**
+	 * Returns a string to identify/describe the sensitivity parameter associated to this intervention
+	 * @param longText If true, returns the description of the parameter; otherwise, returns the identifier
+	 * @return a string to identify/describe the sensitivity parameter associated to this disease
+	 */
+	public String getSensitivityParameterString(boolean longText) {
+		return longText ? (STR_SENSITIVITY[1] + getDescription()) : (STR_SENSITIVITY[0] + name());
+	}
+	
+	/**
 	 * @return the sensitivity
 	 */
-	public double getSensitivity() {
-		return sensitivity;
+	public double getSensitivity(Patient pat) {
+		return secParams.getProbParam(getSpecificityParameterString(false), pat.getSimulation());
 	}
 
 	/**
 	 * @return the specificity
 	 */
-	public double getSpecificity() {
-		return specificity;
+	public double getSpecificity(Patient pat) {
+		return secParams.getProbParam(getSensitivityParameterString(false), pat.getSimulation());
 	}
 	
 	@Override
@@ -95,10 +110,10 @@ public abstract class ScreeningStrategy extends Intervention {
 				ScreeningResult result;
 				// Healthy patients can be wrongly identified as false positives 
 				if (pat.isHealthy()) {
-					result = (getRandomSeedForPatients(id).draw(pat) >= getSpecificity()) ? ScreeningResult.FP : ScreeningResult.TN;
+					result = (getRandomSeedForPatients(id).draw(pat) >= getSpecificity(pat)) ? ScreeningResult.FP : ScreeningResult.TN;
 				}
 				else {
-					result = (getRandomSeedForPatients(id).draw(pat) >= getSensitivity()) ? ScreeningResult.FN : ScreeningResult.TP;					
+					result = (getRandomSeedForPatients(id).draw(pat) >= getSensitivity(pat)) ? ScreeningResult.FN : ScreeningResult.TP;					
 				}
 				simul.notifyInfo(new PatientInfo(simul, pat, PatientInfo.Type.SCREEN, result, this.getTs()));
 				switch(result) {
@@ -116,14 +131,5 @@ public abstract class ScreeningStrategy extends Intervention {
 			}
 		}
 		
-	}
-	
-	@Override
-	public String prettyPrint(String linePrefix) {
-		final StringBuilder str = new StringBuilder(linePrefix).append(super.prettyPrint(linePrefix));
-		str.append(linePrefix + "\t").append("Sensitivity: ").append(sensitivity).append(System.lineSeparator());
-		str.append(linePrefix + "\t").append("Specificity: ").append(specificity).append(System.lineSeparator());
-
-		return str.toString();
 	}
 }

@@ -8,13 +8,9 @@ import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
 
-import org.w3c.xsd.owl2.Ontology;
-
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.utils.OntologyUtils;
-import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -29,7 +25,6 @@ public class TestLoadOWL {
 	 * 
 	 */
 	public TestLoadOWL() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
