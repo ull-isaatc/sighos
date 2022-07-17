@@ -14,6 +14,7 @@ import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.Modification;
+import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
@@ -28,21 +29,12 @@ public interface InterventionBuilder {
 		final String kind = OwlHelper.getDataPropertyValue(interventionName, OSDiNames.DataProperty.HAS_INTERVENTION_KIND.getDescription(), OSDiNames.DataPropertyRange.INTERVENTION_KIND_NOSCREENING.getDescription());
 		Intervention intervention = null;
 		if (OSDiNames.DataPropertyRange.INTERVENTION_KIND_SCREENING.getDescription().equals(kind)) {			
-			// TODO: Move to createSecondOrderParams when ScreeningIntervention be modified accordingly
-			String strSensitivity = OwlHelper.getDataPropertyValue(interventionName, DataProperty.HAS_SENSITIVITY.getDescription(), "1.0");
-			final ProbabilityDistribution probSensitivity = ValueParser.splitProbabilityDistribution(strSensitivity);
-			if (probSensitivity == null)
-				throw new TranspilerException("Error parsing regular expression \"" + strSensitivity + "\" for instance \"" + interventionName + "\"");
-			String strSpecificity = OwlHelper.getDataPropertyValue(interventionName, DataProperty.HAS_SPECIFICITY.getDescription(), "1.0");
-			final ProbabilityDistribution probSpecificity = ValueParser.splitProbabilityDistribution(strSpecificity);
-			if (probSpecificity == null)
-				throw new TranspilerException("Error parsing regular expression \"" + strSpecificity + "\" for instance \"" + interventionName + "\"");
 
-			intervention = new ScreeningStrategy(secParams, interventionName, description, probSpecificity.getDeterministicValue(), probSpecificity.getDeterministicValue()) {
+			intervention = new ScreeningStrategy(secParams, interventionName, description) {
 				
 				@Override
 				public void registerSecondOrderParameters() {
-					createParams(secParams, this);										
+					createParamsForScreening(secParams, this);										
 				}
 				
 				@Override
@@ -88,6 +80,30 @@ public interface InterventionBuilder {
 		} catch(TranspilerException ex) {
 			System.err.println(ex.getMessage());
 		}
+	}
+	
+	private static void createParamsForScreening(SecondOrderParamsRepository secParams, ScreeningStrategy intervention) {
+		try {
+			createModificationParams(secParams, intervention);
+			createSpecificityAndSensitivity(secParams, intervention);
+		} catch(TranspilerException ex) {
+			System.err.println(ex.getMessage());
+		}
+	}
+	
+	private static void createSpecificityAndSensitivity(SecondOrderParamsRepository secParams, ScreeningStrategy intervention) throws TranspilerException {
+		String strSensitivity = OwlHelper.getDataPropertyValue(intervention.name(), DataProperty.HAS_SENSITIVITY.getDescription(), "1.0");
+		final ProbabilityDistribution probSensitivity = ValueParser.splitProbabilityDistribution(strSensitivity);
+		if (probSensitivity == null)
+			throw new TranspilerException("Error parsing regular expression \"" + strSensitivity + "\" for instance \"" + intervention.name() + "\"");
+		secParams.addProbParam(new SecondOrderParam(secParams, intervention.getSensitivityParameterString(false), intervention.getSensitivityParameterString(true), "", 
+				probSensitivity.getDeterministicValue(), probSensitivity.getProbabilisticValue()));
+		String strSpecificity = OwlHelper.getDataPropertyValue(intervention.name(), DataProperty.HAS_SPECIFICITY.getDescription(), "1.0");
+		final ProbabilityDistribution probSpecificity = ValueParser.splitProbabilityDistribution(strSpecificity);
+		if (probSpecificity == null)
+			throw new TranspilerException("Error parsing regular expression \"" + strSpecificity + "\" for instance \"" + intervention.name() + "\"");
+		secParams.addProbParam(new SecondOrderParam(secParams, intervention.getSpecificityParameterString(false), intervention.getSpecificityParameterString(true), "", 
+				probSpecificity.getDeterministicValue(), probSpecificity.getProbabilisticValue()));
 	}
 	
 	private static void createModificationParams(SecondOrderParamsRepository secParams, Intervention intervention) throws TranspilerException {
