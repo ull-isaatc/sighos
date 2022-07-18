@@ -5,6 +5,7 @@ package es.ull.iis.simulation.examples.hospital;
 
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.PercentageCondition;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
@@ -105,7 +106,7 @@ public class BasicHospitalModel extends Simulation {
 		// Create a conditional flow to determine if a patient requires surgery
 		ExclusiveChoiceFlow fRequireSurgery = new ExclusiveChoiceFlow(this);
 		// Define 5% of patients requiring surgery
-		PercentageCondition requiresSurgeryCondition = new PercentageCondition(50.0);
+		PercentageCondition<ElementInstance> requiresSurgeryCondition = new PercentageCondition<ElementInstance>(50.0);
 		
 		actAppointment.link(fRequireSurgery);
 		fRequireSurgery.link(actSurgery, requiresSurgeryCondition);

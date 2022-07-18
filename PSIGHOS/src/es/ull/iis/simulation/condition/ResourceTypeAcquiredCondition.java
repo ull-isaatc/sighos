@@ -10,7 +10,7 @@ import es.ull.iis.simulation.model.ResourceType;
  * @author Iván Castilla
  *
  */
-public class ResourceTypeAcquiredCondition extends Condition {
+public class ResourceTypeAcquiredCondition extends Condition<ElementInstance> {
 	final private ResourceType rt;
 	
 	/**

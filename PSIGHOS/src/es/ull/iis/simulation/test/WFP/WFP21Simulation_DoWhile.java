@@ -25,7 +25,7 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulation {
 		super(id, "WFP21: Structured Loop (DoWhile). EjReveladoFotografico");
 	}
 
-	class WFP21Condition extends Condition {
+	class WFP21Condition extends Condition<ElementInstance> {
 		
 		public WFP21Condition() {
 			super();
@@ -49,7 +49,7 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulation {
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);
         
-        final Condition cond = new WFP21Condition();
+        final Condition<ElementInstance> cond = new WFP21Condition();
         
     	ActivityFlow act0 = new TestActivityFlow("Revelar foto", 0, wg, false) {
     		@Override

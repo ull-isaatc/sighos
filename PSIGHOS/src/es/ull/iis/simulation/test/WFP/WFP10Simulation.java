@@ -57,7 +57,7 @@ public class WFP10Simulation extends WFPTestSimulation {
 		this.deliveries++;
 	}
 	
-	private class WFP10Condition extends Condition {
+	private class WFP10Condition extends Condition<ElementInstance> {
 		
 		public WFP10Condition() {
 			super();
@@ -84,7 +84,7 @@ public class WFP10Simulation extends WFPTestSimulation {
         getDefResource("Operator1", rt0);
         getDefResource("Special_operator1", rt1);
         
-        final Condition cond = new WFP10Condition();
+        final Condition<ElementInstance> cond = new WFP10Condition();
         
         final MultiChoiceFlow mul1 = new MultiChoiceFlow(this) {
         	@Override
@@ -115,9 +115,9 @@ public class WFP10Simulation extends WFPTestSimulation {
         ArrayList<Flow> succList = new ArrayList<Flow>();
         succList.add(act0);
         succList.add(act1);
-        ArrayList<Condition> condList = new ArrayList<Condition>();
+        ArrayList<Condition<ElementInstance>> condList = new ArrayList<>();
         condList.add(cond);
-        condList.add(new NotCondition(cond));
+        condList.add(new NotCondition<ElementInstance>(cond));
         mul1.link(succList, condList);
         
         getDefGenerator(getDefElementType("Client"), act0);

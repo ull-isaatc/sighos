@@ -13,7 +13,7 @@ public class LongVariable extends NumberVariable{
 	 * @param value Init value.
 	 */
 	public LongVariable(long value) {
-		this.value = new Long(value);
+		this.value = Long.valueOf(value);
 	}
 	
 	/**
@@ -21,7 +21,7 @@ public class LongVariable extends NumberVariable{
 	 * @param value Init value.
 	 */
 	public LongVariable(double value) {
-		this.value = new Long((long)value);
+		this.value = Long.valueOf((long)value);
 	}
 	
 	/**
@@ -38,7 +38,7 @@ public class LongVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(int value) {
-		this.value = new Long((long) value);
+		this.value = Long.valueOf((long) value);
 	}
 
 	/**
@@ -47,9 +47,9 @@ public class LongVariable extends NumberVariable{
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Long(0);
+			this.value = Long.valueOf(0);
 		else
-			this.value = new Long(1);
+			this.value = Long.valueOf(1);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class LongVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Long((long) value);
+		this.value = Long.valueOf((long) value);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class LongVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Long((long) value);
+		this.value = Long.valueOf((long) value);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class LongVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Long((long) value);
+		this.value = Long.valueOf((long) value);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class LongVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Long((long)value);
+		this.value = Long.valueOf((long)value);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class LongVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		this.value = new Long((long)value);
+		this.value = Long.valueOf((long)value);
 	}
 
 	/**
@@ -97,6 +97,6 @@ public class LongVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Long((long)value);
+		this.value = Long.valueOf((long)value);
 	}
 }

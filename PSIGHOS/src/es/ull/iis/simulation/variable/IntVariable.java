@@ -13,7 +13,7 @@ public class IntVariable extends NumberVariable{
 	 * @param value Init value.
 	 */
 	public IntVariable(int value) {
-		this.value = new Integer(value);
+		this.value = Integer.valueOf(value);
 	}
 	
 	/**
@@ -21,7 +21,7 @@ public class IntVariable extends NumberVariable{
 	 * @param value Init value.
 	 */
 	public IntVariable(double value) {
-		this.value = new Integer((int)value);
+		this.value = Integer.valueOf((int)value);
 	}
 	
 	/**
@@ -38,7 +38,7 @@ public class IntVariable extends NumberVariable{
 	 * @param value New value.
 	 */	
 	public void setValue(int value) {
-		this.value = new Integer((int) value);
+		this.value = Integer.valueOf(value);
 	}
 
 	/**
@@ -47,9 +47,9 @@ public class IntVariable extends NumberVariable{
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Integer(0);
+			this.value = Integer.valueOf(0);
 		else
-			this.value = new Integer(1);
+			this.value = Integer.valueOf(1);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class IntVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Integer((int) value);
+		this.value = Integer.valueOf((int) value);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class IntVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Integer((int) value);
+		this.value = Integer.valueOf((int) value);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class IntVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Integer((int) value);
+		this.value = Integer.valueOf((int) value);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class IntVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Integer((int) value);
+		this.value = Integer.valueOf((int) value);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class IntVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		this.value = new Integer((int) value);
+		this.value = Integer.valueOf((int) value);
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class IntVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Integer((int) value);
+		this.value = Integer.valueOf((int) value);
 	}
 	
 }

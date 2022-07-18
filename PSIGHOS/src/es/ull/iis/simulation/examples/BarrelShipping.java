@@ -9,6 +9,7 @@ import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.UserMethod;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Resource;
@@ -84,8 +85,8 @@ class BarrelShippingExperiment extends Experiment {
 		actShipping.newWorkGroupAdder(wgOperator).withDelay(20).add();
 
 		// Defines loop conditions	
-		Condition cond = factory.getCustomizedConditionInstance("", "<%GET(S.totalLiters)%> < <%GET(S.barrelCapacity)%>");
-		NotCondition notCond = new NotCondition(cond);
+		Condition<ElementInstance> cond = factory.getCustomizedConditionInstance("", "<%GET(S.totalLiters)%> < <%GET(S.barrelCapacity)%>");
+		NotCondition<ElementInstance> notCond = new NotCondition<ElementInstance>(cond);
 
 		// Declares a MultiChoice node	
 		MultiChoiceFlow mul1 = (MultiChoiceFlow) factory.getFlowInstance("MultiChoiceFlow");
@@ -96,7 +97,7 @@ class BarrelShippingExperiment extends Experiment {
 		ArrayList<Flow> succList = new ArrayList<Flow>();
 		succList.add(actFilling);
 		succList.add(actShipping);
-		ArrayList<Condition> condList = new ArrayList<Condition>();
+		ArrayList<Condition<ElementInstance>> condList = new ArrayList<Condition<ElementInstance>>();
 		condList.add(cond);
 		condList.add(notCond);
 		mul1.link(succList, condList);

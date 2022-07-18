@@ -9,7 +9,7 @@ import es.ull.iis.simulation.model.ElementInstance;
  * @author Yeray Callero
  *
  */
-public final class ElementTypeCondition extends Condition{
+public final class ElementTypeCondition extends Condition<ElementInstance>{
 
 	/** Type for the comparison */
 	private final ElementType type;

@@ -13,7 +13,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value Init value.
 	 */
 	public DoubleVariable(double value) {
-		this.value = new Double(value);
+		this.value = Double.valueOf(value);
 	}
 	
 	/**
@@ -30,7 +30,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(int value) {
-		this.value = new Double((double) value);
+		this.value = Double.valueOf((double) value);
 	}
 
 	/**
@@ -39,9 +39,9 @@ public class DoubleVariable extends NumberVariable{
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Double(0);
+			this.value = Double.valueOf(0);
 		else
-			this.value = new Double(1);
+			this.value = Double.valueOf(1);
 		
 	}
 
@@ -50,7 +50,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Double((double) value);
+		this.value = Double.valueOf((double) value);
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Double((double) value);
+		this.value = Double.valueOf((double) value);
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Double((double) value);
+		this.value = Double.valueOf((double) value);
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Double((double) value);
+		this.value = Double.valueOf((double) value);
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		this.value = new Double((double) value);
+		this.value = Double.valueOf((double) value);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Double((double) value);
+		this.value = Double.valueOf((double) value);
 	}
 
 }

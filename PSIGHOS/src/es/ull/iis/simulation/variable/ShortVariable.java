@@ -13,7 +13,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value Init value.
 	 */
 	public ShortVariable(short value) {
-		this.value = new Short(value);
+		this.value = Short.valueOf(value);
 	}
 	
 	/**
@@ -21,7 +21,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value Init value.
 	 */
 	public ShortVariable(double value) {
-		this.value = new Short((short)value);
+		this.value = Short.valueOf((short)value);
 	}
 	
 	/**
@@ -38,7 +38,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(int value) {
-		this.value = new Short((short) value);	
+		this.value = Short.valueOf((short) value);	
 	}
 
 	/**
@@ -47,9 +47,9 @@ public class ShortVariable extends NumberVariable{
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Short((short) 0);
+			this.value = Short.valueOf((short) 0);
 		else
-			this.value = new Short((short) 1);
+			this.value = Short.valueOf((short) 1);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Short((short) value);	
+		this.value = Short.valueOf((short) value);	
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Short((short) value);	
+		this.value = Short.valueOf((short) value);	
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Short((short) value);	
+		this.value = Short.valueOf((short) value);	
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Short((short) value);	
+		this.value = Short.valueOf((short) value);	
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		this.value = new Short((short) value);	
+		this.value = Short.valueOf((short) value);	
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Short((short) value);
+		this.value = Short.valueOf((short) value);
 	}
 
 }

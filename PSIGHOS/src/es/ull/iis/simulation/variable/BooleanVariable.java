@@ -12,7 +12,7 @@ public class BooleanVariable implements UserVariable {
 	Boolean value;
 
 	/**
-	 * Create a new BooleanVariable.
+	 * Create a Boolean.valueOfVariable.
 	 * @param value Init value.
 	 */
 	public BooleanVariable(Boolean value) {
@@ -25,9 +25,9 @@ public class BooleanVariable implements UserVariable {
 	 */
 	public BooleanVariable(double value) {
 		if (value == 0.0)
-			this.value = new Boolean(true);
+			this.value = Boolean.valueOf(true);
 		else
-			this.value = new Boolean(false);
+			this.value = Boolean.valueOf(false);
 	}
 	
 	/**
@@ -36,8 +36,8 @@ public class BooleanVariable implements UserVariable {
 	 */
 	public Number getValue(Object... params) {
 		if (value.booleanValue())
-			return (new Integer(1));
-		return (new Integer(0));
+			return (Integer.valueOf(1));
+		return (Integer.valueOf(0));
 	}
 
 	/**
@@ -71,9 +71,9 @@ public class BooleanVariable implements UserVariable {
 	 */
 	public void setValue(int value) {
 		if (value == 0)
-			this.value = new Boolean(true);
+			this.value = Boolean.valueOf(true);
 		else
-			this.value = new Boolean(false);
+			this.value = Boolean.valueOf(false);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class BooleanVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(boolean value) {
-		this.value = new Boolean(value);
+		this.value = Boolean.valueOf(value);
 	}
 
 	/**
@@ -90,9 +90,9 @@ public class BooleanVariable implements UserVariable {
 	 */
 	public void setValue(char value) {
 		if (value == '0')
-			this.value = new Boolean(true);
+			this.value = Boolean.valueOf(true);
 		else
-			this.value = new Boolean(false);			
+			this.value = Boolean.valueOf(false);			
 	}
 
 	/**
@@ -101,9 +101,9 @@ public class BooleanVariable implements UserVariable {
 	 */
 	public void setValue(byte value) {
 		if (value == 0)
-			this.value = new Boolean(true);
+			this.value = Boolean.valueOf(true);
 		else
-			this.value = new Boolean(false);
+			this.value = Boolean.valueOf(false);
 	}
 
 	/**
@@ -112,9 +112,9 @@ public class BooleanVariable implements UserVariable {
 	 */
 	public void setValue(double value) {
 		if (value == 0)
-			this.value = new Boolean(true);
+			this.value = Boolean.valueOf(true);
 		else
-			this.value = new Boolean(false);
+			this.value = Boolean.valueOf(false);
 	}
 
 	/**
@@ -123,9 +123,9 @@ public class BooleanVariable implements UserVariable {
 	 */
 	public void setValue(float value) {
 		if (value == 0)
-			this.value = new Boolean(true);
+			this.value = Boolean.valueOf(true);
 		else
-			this.value = new Boolean(false);
+			this.value = Boolean.valueOf(false);
 	}
 
 	/**
@@ -134,9 +134,9 @@ public class BooleanVariable implements UserVariable {
 	 */
 	public void setValue(long value) {
 		if (value == 0)
-			this.value = new Boolean(true);
+			this.value = Boolean.valueOf(true);
 		else
-			this.value = new Boolean(false);
+			this.value = Boolean.valueOf(false);
 	}
 
 	/**
@@ -145,8 +145,8 @@ public class BooleanVariable implements UserVariable {
 	 */
 	public void setValue(short value) {
 		if (value == 0)
-			this.value = new Boolean(true);
+			this.value = Boolean.valueOf(true);
 		else
-			this.value = new Boolean(false);
+			this.value = Boolean.valueOf(false);
 	}
 }

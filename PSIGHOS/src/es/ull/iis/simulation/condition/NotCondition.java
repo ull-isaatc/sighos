@@ -1,7 +1,5 @@
 package es.ull.iis.simulation.condition;
 
-import es.ull.iis.simulation.model.ElementInstance;
-
 /**
  * Condition used to build NOT logical operations. This NotCondition 
  * returns <tt>true</tt> if the associated {@link Condition} returns <tt>false</tt>,
@@ -9,15 +7,15 @@ import es.ull.iis.simulation.model.ElementInstance;
  * @author Yeray Callero
  *
  */
-public final class NotCondition extends Condition {
+public final class NotCondition<E> extends Condition<E> {
 	/** Associated Condition */
-	final private Condition cond;
+	final private Condition<E> cond;
 	
 	/**
 	 * Create a new NotCondition
 	 * @param newCond Associated Condition
 	 */
-	public NotCondition(Condition newCond){
+	public NotCondition(Condition<E> newCond){
 		cond = newCond;
 	}
 	
@@ -26,7 +24,7 @@ public final class NotCondition extends Condition {
 	 * @param e Element used to check the condition.
 	 * @return The negated result of the associated Condition
 	 */
-	public boolean check(ElementInstance fe) {
+	public boolean check(E fe) {
 		return !cond.check(fe);
 	}
 
@@ -34,7 +32,7 @@ public final class NotCondition extends Condition {
 	 * Returns the associated Condition.
 	 * @return The associated Condition.
 	 */
-	public Condition getCond() {
+	public Condition<E> getCond() {
 		return cond;
 	}
 

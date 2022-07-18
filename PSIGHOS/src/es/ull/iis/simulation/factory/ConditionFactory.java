@@ -93,7 +93,7 @@ public class ConditionFactory {
 	 * @param condition Condition code.
 	 * @return A Condition's instance.
 	 */
-	static public Condition getInstance(int id, String imports, String condition){
+	static public Condition<ElementInstance> getInstance(int id, String imports, String condition){
 		String classCode = generateClass(id, imports, condition);
 		StringJFO src = null;
 		try {
@@ -106,7 +106,7 @@ public class ConditionFactory {
 		// Obtain the Class's constructors.
 		Constructor<?> cons = getConstructor(src);
 		try {
-			return (Condition) cons.newInstance();
+			return (Condition<ElementInstance>) cons.newInstance();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {

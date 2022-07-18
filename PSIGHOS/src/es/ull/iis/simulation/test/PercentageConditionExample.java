@@ -12,7 +12,7 @@ public class PercentageConditionExample {
 		int acceptedCounter = 0;
 		int totalCounter = 10000;
 		
-		PercentageCondition cond = new PercentageCondition(75);
+		PercentageCondition<ElementInstance> cond = new PercentageCondition<ElementInstance>(75);
 		ElementInstance e = null;
 		
 		for (int i = 0; i < totalCounter; i++) {

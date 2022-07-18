@@ -13,7 +13,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value Init value.
 	 */
 	public FloatVariable(float value) {
-		this.value = new Float(value);
+		this.value = Float.valueOf(value);
 	}
 
 	/**
@@ -21,7 +21,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value Init value.
 	 */
 	public FloatVariable(double value) {
-		this.value = new Float(value);
+		this.value = Float.valueOf((float)value);
 	}
 	
 	/**
@@ -38,7 +38,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(int value) {
-		this.value = new Float((float) value);
+		this.value = Float.valueOf((float) value);
 	}
 
 	/**
@@ -47,9 +47,9 @@ public class FloatVariable extends NumberVariable {
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Float(0);
+			this.value = Float.valueOf(0);
 		else
-			this.value = new Float(1);
+			this.value = Float.valueOf(1);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Float((float) value);
+		this.value = Float.valueOf((float) value);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Float((float) value);
+		this.value = Float.valueOf((float) value);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Float((float) value);	
+		this.value = Float.valueOf((float) value);	
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Float((float) value);
+		this.value = Float.valueOf((float) value);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		this.value = new Float((float) value);
+		this.value = Float.valueOf((float) value);
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Float((float) value);
+		this.value = Float.valueOf((float) value);
 	}
 
 }

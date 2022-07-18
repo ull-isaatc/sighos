@@ -24,7 +24,7 @@ public class CharacterVariable implements UserVariable {
 	 * @return Variable's value.
 	 */
 	public Number getValue(Object... params) {
-		return (new Integer(Character.charCount(value.charValue())));
+		return (Integer.valueOf(Character.charCount(value.charValue())));
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class CharacterVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(int value) {
-		this.value = new Character((char) value);
+		this.value = Character.valueOf((char) value);
 	}
 
 	/**
@@ -66,9 +66,9 @@ public class CharacterVariable implements UserVariable {
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Character('0');
+			this.value = Character.valueOf('0');
 		else
-			this.value = new Character('1');
+			this.value = Character.valueOf('1');
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class CharacterVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Character((char) value);
+		this.value = Character.valueOf((char) value);
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class CharacterVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Character((char) value);
+		this.value = Character.valueOf((char) value);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class CharacterVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Character((char) value);
+		this.value = Character.valueOf((char) value);
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class CharacterVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Character((char) value);
+		this.value = Character.valueOf((char) value);
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class CharacterVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		this.value = new Character((char) value);
+		this.value = Character.valueOf((char) value);
 	}
 
 	/**
@@ -116,6 +116,6 @@ public class CharacterVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Character((char) value);
+		this.value = Character.valueOf((char) value);
 	}
 }

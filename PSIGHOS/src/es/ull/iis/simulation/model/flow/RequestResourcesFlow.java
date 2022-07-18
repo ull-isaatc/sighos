@@ -322,7 +322,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 		/** Priority of the workgroup */
 		private int priority = 0;
 		/** Availability condition */
-		private Condition cond = null;
+		private Condition<ElementInstance> cond = null;
 		/** Delay applied after seizing the resources */
 		private TimeFunction delay = null;
 		
@@ -335,7 +335,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 			return this;
 		}
 		
-		public WorkGroupAdder withCondition(final Condition cond) {
+		public WorkGroupAdder withCondition(final Condition<ElementInstance> cond) {
 			this.cond = cond;
 			return this;
 		}
@@ -356,7 +356,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	     */
 		public int add() {
 			if (cond == null)
-				cond = new TrueCondition();
+				cond = new TrueCondition<ElementInstance>();
 			if (delay == null)
 				delay = TimeFunctionFactory.getInstance("ConstantVariate", 0L);			
 	    	final int wgId = workGroupTable.size();
@@ -375,7 +375,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 		/** Priority of the workgroup */
 	    final private int priority;
 	    /** Availability condition */
-	    final private Condition cond;
+	    final private Condition<ElementInstance> cond;
 	    /** A function to characterize the duration of the delay */
 	    final private TimeFunction duration;
 	    /** Precomputed string which identifies this WG */
@@ -389,7 +389,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	     * @param wg The original workgroup
 	     * @param cond  Availability condition
 	     */    
-	    public ActivityWorkGroup(final Simulation model, final int id, final int priority, final WorkGroup wg, final Condition cond, final TimeFunction duration) {
+	    public ActivityWorkGroup(final Simulation model, final int id, final int priority, final WorkGroup wg, final Condition<ElementInstance> cond, final TimeFunction duration) {
 	    	super(model, wg.getResourceTypes(), wg.getNeeded());
 	        this.priority = priority;
 	        this.cond = cond;
@@ -433,7 +433,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	     * Returns a condition to set the availability of the workgroup
 	     * @return a condition to set the availability of the workgroup
 	     */
-		public Condition getCondition() {
+		public Condition<ElementInstance> getCondition() {
 			return cond;
 		}
 	}

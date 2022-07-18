@@ -15,7 +15,7 @@ public class ByteVariable extends NumberVariable {
 	 */
 	public ByteVariable(byte value) {
 		super();
-		this.value = new Byte(value);
+		this.value = Byte.valueOf(value);
 	}
 	
 	/**
@@ -24,7 +24,7 @@ public class ByteVariable extends NumberVariable {
 	 */
 	public ByteVariable(double value) {
 		super();
-		this.value = new Byte((byte)value);
+		this.value = Byte.valueOf((byte)value);
 	}
 	
 	/**
@@ -41,7 +41,7 @@ public class ByteVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(int value) {
-		this.value = new Byte((byte)value);
+		this.value = Byte.valueOf((byte)value);
 	}
 
 	/**
@@ -50,9 +50,9 @@ public class ByteVariable extends NumberVariable {
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Byte((byte) 0);
+			this.value = Byte.valueOf((byte) 0);
 		else
-			this.value = new Byte((byte) 1);
+			this.value = Byte.valueOf((byte) 1);
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class ByteVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Byte((byte)value);
+		this.value = Byte.valueOf((byte)value);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class ByteVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Byte(value);
+		this.value = Byte.valueOf(value);
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class ByteVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Byte((byte)value);
+		this.value = Byte.valueOf((byte)value);
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class ByteVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Byte((byte)value);
+		this.value = Byte.valueOf((byte)value);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class ByteVariable extends NumberVariable {
 	 * @param value New value.
 	 */	
 	public void setValue(long value) {
-		this.value = new Byte((byte)value);
+		this.value = Byte.valueOf((byte)value);
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class ByteVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Byte((byte)value);
+		this.value = Byte.valueOf((byte)value);
 	}
 
 }

@@ -1,14 +1,12 @@
 package es.ull.iis.simulation.condition;
 
-import es.ull.iis.simulation.model.ElementInstance;
-
 /**
  * Defines a {@link Condition} which is satisfied according to a specified percentage
  * of success.
  * @author Yeray Callero
  *
  */
-public final class PercentageCondition extends Condition {
+public final class PercentageCondition<E> extends Condition<E> {
 	/** Probability of success */
 	final private double percentage;
 	
@@ -26,7 +24,7 @@ public final class PercentageCondition extends Condition {
 	 * @param e Element used to check the condition (useless in this case).
 	 * @return <tt>True</tt> if success, <tt>false</tt> otherwise 
 	 */
-	public boolean check(ElementInstance fe) {
+	public boolean check(E fe) {
 		double randomProb = Math.random();
 		if (randomProb < percentage)
 			return true;

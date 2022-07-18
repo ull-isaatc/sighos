@@ -53,7 +53,7 @@ public class ResourceList extends es.ull.iis.simulation.model.ResourceList {
     	if (pos == -1)
     		throw new RuntimeException("Unexpected error: Resource not found in resource type");
     	if (counter.get(pos).intValue() > 1) {
-    		counter.set(pos, new Integer(counter.get(pos).intValue() - 1));
+    		counter.set(pos, Integer.valueOf(counter.get(pos).intValue() - 1));
     		return false;
     	}
 		resources.remove(pos);

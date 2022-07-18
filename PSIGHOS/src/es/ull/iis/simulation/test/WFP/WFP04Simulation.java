@@ -3,6 +3,7 @@ package es.ull.iis.simulation.test.WFP;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -34,7 +35,7 @@ public class WFP04Simulation extends WFPTestSimulation {
         ExclusiveChoiceFlow excho1 = new ExclusiveChoiceFlow(this);
         
         act0.link(excho1);
-        Condition falseCond = new NotCondition(new TrueCondition());
+        Condition<ElementInstance> falseCond = new NotCondition<ElementInstance>(new TrueCondition<ElementInstance>());
         excho1.link(act1);
         excho1.link(act2, falseCond);
 

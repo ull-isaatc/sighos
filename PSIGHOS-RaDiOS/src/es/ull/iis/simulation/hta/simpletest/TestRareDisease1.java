@@ -5,12 +5,13 @@ package es.ull.iis.simulation.hta.simpletest;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
-import es.ull.iis.simulation.hta.progression.condition.PathwayCondition;
 import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
 
 /**
@@ -35,7 +36,7 @@ public class TestRareDisease1 extends TemplateTestRareDisease {
 		manif2 = new TestManifestationStage2(secParams, this);
 		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif1), secParams, manif1);
 		new ManifestationPathway(secParams, manif1, tte);
-		final PathwayCondition cond = new PreviousManifestationCondition(manif1);
+		final Condition<Patient> cond = new PreviousManifestationCondition(manif1);
 		tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif1, manif2), secParams, manif2);
 		new ManifestationPathway(secParams, manif2, cond, tte); 
 		addExclusion(manif2, manif1);

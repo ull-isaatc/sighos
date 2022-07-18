@@ -126,7 +126,7 @@ class ResourceList2 {
     	if (pos == -1)
     		throw new RuntimeException("Unexpected error: Integer not found in resource type");
     	if (counter.get(pos).intValue() > 1) {
-    		counter.set(pos, new Integer(counter.get(pos).intValue() - 1));
+    		counter.set(pos, Integer.valueOf(counter.get(pos).intValue() - 1));
     		return false;
     	}
 		resources.remove(pos);
@@ -174,7 +174,7 @@ public class TestRTStructure {
 		long t1, t2, t3, t4;
 		Integer[] list = new Integer[NTEST];
 		for (int i = 0; i < NTEST; i++)
-			list[i] = new Integer(i % NDIF);
+			list[i] = Integer.valueOf(i % NDIF);
 		
 		t1 = System.nanoTime();
 		ResourceList1 rList1 = new ResourceList1();
