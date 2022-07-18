@@ -8,7 +8,6 @@ import java.util.List;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.Constants;
-import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
@@ -26,8 +25,8 @@ public interface ManifestationBuilder {
 
 	public static Manifestation getManifestationInstance(SecondOrderParamsRepository secParams, StandardDisease disease, String manifestationName) {
 		Manifestation manifestation = null;
-		final String type = OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_MANIFESTATION_KIND.getDescription(), OSDiNames.DataPropertyRange.MANIFESTATION_KIND_CHRONIC.getDescription());
-		final String description = OwlHelper.getDataPropertyValue(manifestationName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "");
+		final String type = OSDiNames.DataProperty.HAS_MANIFESTATION_KIND.getValue(manifestationName, OSDiNames.DataPropertyRange.MANIFESTATION_KIND_CHRONIC.getDescription());
+		final String description = OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(manifestationName, "");
 		if (OSDiNames.DataPropertyRange.MANIFESTATION_KIND_CHRONIC.getDescription().equals(type)) {
 			manifestation = new ChronicManifestation(secParams, manifestationName, description,	disease) {
 					@Override
@@ -62,7 +61,7 @@ public interface ManifestationBuilder {
 	
 
 	private static void createOnsetEndAgeParams(SecondOrderParamsRepository secParams, Manifestation manifestation) throws TranspilerException {
-		String strAge = OwlHelper.getDataPropertyValue(manifestation.name(), OSDiNames.DataProperty.HAS_ONSET_AGE.getDescription());
+		String strAge = OSDiNames.DataProperty.HAS_ONSET_AGE.getValue(manifestation.name());
 		if (strAge != null) {
 			ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strAge);
 			if (probDistribution == null)
@@ -71,7 +70,7 @@ public interface ManifestationBuilder {
 					probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue()));			
 		}
 		
-		strAge = OwlHelper.getDataPropertyValue(manifestation.name(), OSDiNames.DataProperty.HAS_END_AGE.getDescription());
+		strAge = OSDiNames.DataProperty.HAS_END_AGE.getValue(manifestation.name());
 		if (strAge != null) {
 			ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strAge);
 			if (probDistribution == null)
@@ -91,7 +90,7 @@ public interface ManifestationBuilder {
 	 * FIXME: Make a comprehensive error control of cost types for each type of manifestation 
 	 */
 	public static void createCostParams(SecondOrderParamsRepository secParams, Manifestation manifestation) throws TranspilerException {
-		List<String> costs = OwlHelper.getChildsByClassName(manifestation.name(), OSDiNames.Class.COST.getDescription());
+		List<String> costs = OSDiNames.Class.COST.getDescendantsOf(manifestation.name());
 		boolean acute = Manifestation.Type.ACUTE.equals(manifestation.getType());
 		if (acute) {
 			if (costs.size() > 1 )
@@ -103,17 +102,17 @@ public interface ManifestationBuilder {
 		}
 		for (String costName : costs) {
 			// Assumes current year if not specified
-			final int year = Integer.parseInt(OwlHelper.getDataPropertyValue(costName, OSDiNames.DataProperty.HAS_YEAR.getDescription(), "" + (new GregorianCalendar()).get(GregorianCalendar.YEAR)));
+			final int year = Integer.parseInt(OSDiNames.DataProperty.HAS_YEAR.getValue(costName, "" + (new GregorianCalendar()).get(GregorianCalendar.YEAR)));
 			// Assumes cost to be 0 if not defined
-			final String strValue = OwlHelper.getDataPropertyValue(costName, OSDiNames.DataProperty.HAS_VALUE.getDescription(), "0.0");
+			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(costName, "0.0");
 			// Assumes annual behavior if not specified
-			final String strTempBehavior = OwlHelper.getDataPropertyValue(costName, OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getDescription(), OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
+			final String strTempBehavior = OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(costName, OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
 			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 			if (probDistribution == null)
 				throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for instance \"" + manifestation.name() + "\"");
 			if (acute) {
 					secParams.addCostParam((AcuteManifestation)manifestation, 
-							OwlHelper.getDataPropertyValue(costName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), ""),  
+							OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(costName, ""),  
 							OSDiNames.getSource(costName), 
 							year, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
 			}
@@ -121,7 +120,7 @@ public interface ManifestationBuilder {
 				// If defined to be applied one time
 				final boolean isOneTime = OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME.getDescription().equals(strTempBehavior);
 				secParams.addCostParam((ChronicManifestation)manifestation, 
-						OwlHelper.getDataPropertyValue(costName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), ""),  
+						OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(costName, ""),  
 						OSDiNames.getSource(costName), 
 						year, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isOneTime);			
 			}
@@ -137,7 +136,7 @@ public interface ManifestationBuilder {
 	 * FIXME: Make a comprehensive error control of utility types for each type of manifestation 
 	 */
 	public static void createUtilityParams(SecondOrderParamsRepository secParams, Manifestation manifestation) throws TranspilerException {
-		List<String> utilities = OwlHelper.getChildsByClassName(manifestation.name(), OSDiNames.Class.UTILITY.getDescription());
+		List<String> utilities = OSDiNames.Class.UTILITY.getDescendantsOf(manifestation.name());
 		boolean acute = Manifestation.Type.ACUTE.equals(manifestation.getType());
 		if (acute) {
 			if (utilities.size() > 1)
@@ -149,20 +148,20 @@ public interface ManifestationBuilder {
 		}
 		for (String utilityName : utilities) {
 			// Assumes annual behavior if not specified
-			final String strTempBehavior = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getDescription(), OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
+			final String strTempBehavior = OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(utilityName, OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
 			// Assumes that it is a utility (not a disutility) if not specified
-			final String strType = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_UTILITY_KIND.getDescription(), OSDiNames.DataPropertyRange.UTILITY_KIND_UTILITY.getDescription());
+			final String strType = OSDiNames.DataProperty.HAS_UTILITY_KIND.getValue(utilityName, OSDiNames.DataPropertyRange.UTILITY_KIND_UTILITY.getDescription());
 			final boolean isDisutility = OSDiNames.DataPropertyRange.UTILITY_KIND_DISUTILITY.getDescription().equals(strType);
 			// Default value for utilities is 1; 0 for disutilities
-			final String strValue = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_VALUE.getDescription(), isDisutility ? "0.0" : "1.0");
+			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(utilityName, isDisutility ? "0.0" : "1.0");
 			// Assumes a default calculation method specified in Constants if not specified
-			final String strCalcMethod = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_CALCULATION_METHOD.getDescription(), Constants.UTILITY_DEFAULT_CALCULATION_METHOD);
+			final String strCalcMethod = OSDiNames.DataProperty.HAS_CALCULATION_METHOD.getValue(utilityName, Constants.UTILITY_DEFAULT_CALCULATION_METHOD);
 			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 			if (probDistribution == null)
 				throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for instance \"" + manifestation.name() + "\"");
 			if (acute) {
 					secParams.addUtilityParam((AcuteManifestation)manifestation, 
-							OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "Utility for " + manifestation.name() + " calculated using " + strCalcMethod),  
+							OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(utilityName, "Utility for " + manifestation.name() + " calculated using " + strCalcMethod),  
 							OSDiNames.getSource(utilityName), 
 							probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isDisutility);
 			}
@@ -170,7 +169,7 @@ public interface ManifestationBuilder {
 				// If defined to be applied one time
 				final boolean isOneTime = OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME.getDescription().equals(strTempBehavior);
 				secParams.addUtilityParam((ChronicManifestation)manifestation, 
-						OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "Utility for " + manifestation.name() + " calculated using " + strCalcMethod),  
+						OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(utilityName, "Utility for " + manifestation.name() + " calculated using " + strCalcMethod),  
 						OSDiNames.getSource(utilityName), 
 						probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isDisutility, isOneTime);			
 			}
@@ -181,7 +180,7 @@ public interface ManifestationBuilder {
 	 * 
 	 */
 	private static void createMortalityParams(SecondOrderParamsRepository secParams, Manifestation manifestation) {
-		final String mortalityFactor = OwlHelper.getDataPropertyValue(manifestation.name(), OSDiNames.DataProperty.HAS_MORTALITY_FACTOR.getDescription());
+		final String mortalityFactor = OSDiNames.DataProperty.HAS_MORTALITY_FACTOR.getValue(manifestation.name());
 		if (mortalityFactor != null) {
 			ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(mortalityFactor);
 			if (probabilityDistribution != null) {
@@ -190,6 +189,7 @@ public interface ManifestationBuilder {
 					if (probabilityDistribution.getDeterministicValue() > 0) {
 						manifestation.getParamsRepository().addIMRParam(manifestation, "Mortality factor for " + manifestation, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
 					} else {
+						// FIXME: Inconsistent value: positive for deterministic, negative for probabilistic. Best to define different data properties for each
 						manifestation.getParamsRepository().addLERParam(manifestation, "Life expectancy reduction for " + manifestation, Constants.CONSTANT_EMPTY_STRING, Math.abs(probabilityDistribution.getDeterministicValue()), probabilityDistribution.getProbabilisticValue());
 					}
 				// Acute manifestations involve a probability of death
@@ -204,7 +204,7 @@ public interface ManifestationBuilder {
 	 * 
 	 */
 	private static void createProbabilityDiagnosisParam(SecondOrderParamsRepository secParams, Manifestation manifestation) {
-		final String pDiagnosis = OwlHelper.getDataPropertyValue(manifestation.name(), OSDiNames.DataProperty.HAS_PROBABILITY_OF_DIAGNOSIS.getDescription());
+		final String pDiagnosis = OSDiNames.DataProperty.HAS_PROBABILITY_OF_DIAGNOSIS.getValue(manifestation.name());
 		if (pDiagnosis != null) {
 			ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(pDiagnosis);
 			manifestation.getParamsRepository().addDiagnosisProbParam(manifestation, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());

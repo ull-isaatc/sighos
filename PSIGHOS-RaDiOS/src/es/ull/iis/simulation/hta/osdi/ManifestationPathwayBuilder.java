@@ -12,9 +12,8 @@ import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.Constants;
-import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
-import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguagePathwayCondition;
+import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -60,8 +59,8 @@ public interface ManifestationPathwayBuilder {
 	 * @return A condition for the pathway
 	 */
 	private static Condition<Patient> createCondition(SecondOrderParamsRepository secParams, Disease disease, String pathwayName) {
-		final List<String> strConditions = OwlHelper.getDataPropertyValues(pathwayName, OSDiNames.DataProperty.HAS_CONDITION.getDescription());
-		final List<String> strPrevManifestations = OwlHelper.getObjectPropertiesByName(pathwayName, OSDiNames.ObjectProperty.REQUIRES_PREVIOUS_MANIFESTATION.getDescription());
+		final List<String> strConditions = OSDiNames.DataProperty.HAS_CONDITION.getValues(pathwayName);
+		final List<String> strPrevManifestations = OSDiNames.ObjectProperty.REQUIRES_PREVIOUS_MANIFESTATION.getValues(pathwayName);
 		final ArrayList<Condition<Patient>> condList = new ArrayList<>();
 		if (strPrevManifestations.size() > 0) {
 			final List<Manifestation> manifList = new ArrayList<>();
@@ -71,7 +70,7 @@ public interface ManifestationPathwayBuilder {
 			condList.add(new PreviousManifestationCondition(manifList));
 		}
 		for (String strCond : strConditions)
-			condList.add(new ExpressionLanguagePathwayCondition(strCond));
+			condList.add(new ExpressionLanguageCondition(strCond));
 		// After going through for previous manifestations and other conditions, checks how many conditions were created
 		if (condList.size() == 0)
 			return new TrueCondition<Patient>();
@@ -93,15 +92,15 @@ public interface ManifestationPathwayBuilder {
 	private static TimeToEventCalculator createTimeToEventCalculator(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) throws TranspilerException {
 		// TODO: Check the order to process these parameters or think in a different solution
 		// First check if the pathway is defined as a proportion
-		final String strPropManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROPORTION.getDescription());
+		final String strPropManif = OSDiNames.DataProperty.HAS_PROPORTION.getValue(pathwayName);
 		if (strPropManif != null) {
 			return new ProportionBasedTimeToEventCalculator(getProbString(manifestation, pathwayName), secParams, manifestation);
 		}
-		final String strPManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY.getDescription());
+		final String strPManif = OSDiNames.DataProperty.HAS_PROBABILITY.getValue(pathwayName);
 		// FIXME: Assuming that the time to event is described always as an annual risk
 		if (strPManif != null) {
 				// FIXME: Still not capable of processing RR 
-				final String strRRManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_RELATIVE_RISK.getDescription());
+				final String strRRManif = OSDiNames.DataProperty.HAS_RELATIVE_RISK.getValue(pathwayName);
 				return new AnnualRiskBasedTimeToEventCalculator(getProbString(manifestation, pathwayName), secParams, manifestation);
 		}			
 		// FIXME: Currently not using time to
@@ -153,7 +152,7 @@ public interface ManifestationPathwayBuilder {
 			final Manifestation manifestation = this.getDestManifestation();
 			try {
 				// TODO: Check the order to process these parameters or think in a different solution
-				final String strPropManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROPORTION.getDescription());
+				final String strPropManif = OSDiNames.DataProperty.HAS_PROPORTION.getValue(pathwayName);
 				if (strPropManif != null) {
 					final ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPropManif);
 					if (probabilityDistribution == null) {
@@ -164,7 +163,7 @@ public interface ManifestationPathwayBuilder {
 					secParams.addProbParam(param);
 				}
 				else {
-					final String strPManif = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY.getDescription());
+					final String strPManif = OSDiNames.DataProperty.HAS_PROBABILITY.getValue(pathwayName);
 					if (strPManif != null) {
 						ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPManif);
 						if (probabilityDistribution == null) {

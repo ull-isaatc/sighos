@@ -17,14 +17,14 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  * @author Iván Castilla
  *
  */
-public class ExpressionLanguagePathwayCondition extends Condition<Patient> {
+public class ExpressionLanguageCondition extends Condition<Patient> {
 	private static final JexlEngine jexl = new JexlBuilder().create();
 	
 	final JexlExpression exprToEvaluate;
 	/**
 	 * 
 	 */
-	public ExpressionLanguagePathwayCondition(String expression) {
+	public ExpressionLanguageCondition(String expression) {
 		exprToEvaluate = jexl.createExpression(expression);
 	}
 

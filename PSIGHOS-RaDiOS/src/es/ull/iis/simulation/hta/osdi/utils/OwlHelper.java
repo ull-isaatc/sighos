@@ -71,13 +71,30 @@ public class OwlHelper {
 	}
 	
 	/**
+	 * Returns the object associated to another object by means of the specified object property. If there are more than 
+	 * one, returns the first one.  
+	 * @param instanceName Name of the original instance
+	 * @param objectPropertyName Name of the property
+	 * @return the object associated to another object by means of the specified object property
+	 */
+	public static String getObjectPropertyByName(String instanceName, String objectPropertyName) {
+		final Map<String, List<String>> map = objectPropertyValues.get(instanceName);
+		if (map == null)
+			return null;
+		List<String> list = map.get(objectPropertyName);
+		if (list == null)
+			return null;
+		return list.get(0);
+	}
+	
+	/**
 	 * Returns the list of objects associated to another object by means of the specified object property  
-	 * @param objectName Name of the original object
+	 * @param instanceName Name of the original instance
 	 * @param objectPropertyName Name of the property
 	 * @return the list of objects associated to another object by means of the specified object property
 	 */
-	public static List<String> getObjectPropertiesByName(String objectName, String objectPropertyName) {
-		final Map<String, List<String>> map = objectPropertyValues.get(objectName);
+	public static List<String> getObjectPropertiesByName(String instanceName, String objectPropertyName) {
+		final Map<String, List<String>> map = objectPropertyValues.get(instanceName);
 		if (map == null)
 			return new ArrayList<>();
 		List<String> list = map.get(objectPropertyName);
