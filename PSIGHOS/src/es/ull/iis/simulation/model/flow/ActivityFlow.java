@@ -169,7 +169,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	 * @param duration Duration of the cancellation.
 	 * @param cond Condition that must be fulfilled to apply the cancellation 
 	 */
-	public void addResourceCancellation(final ResourceType rt, final long duration, final Condition cond) {
+	public void addResourceCancellation(final ResourceType rt, final long duration, final Condition<ElementInstance> cond) {
 		((ReleaseResourcesFlow)finalFlow).addResourceCancellation(rt, duration, cond);
 	}
 	

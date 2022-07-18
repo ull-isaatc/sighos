@@ -6,6 +6,10 @@ package es.ull.iis.simulation.hta.osdi;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.ull.iis.simulation.condition.AndCondition;
+import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
@@ -20,8 +24,6 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
 import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
-import es.ull.iis.simulation.hta.progression.condition.AndCondition;
-import es.ull.iis.simulation.hta.progression.condition.PathwayCondition;
 import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
 
 /**
@@ -44,7 +46,7 @@ public interface ManifestationPathwayBuilder {
 	 */
 	public static ManifestationPathway getManifestationPathwayInstance(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) throws TranspilerException {
 		final Disease disease = manifestation.getDisease();
-		final PathwayCondition cond = createCondition(secParams, disease, pathwayName);
+		final Condition<Patient> cond = createCondition(secParams, disease, pathwayName);
 		final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, manifestation, pathwayName);
 		final ManifestationPathway pathway = new OSDiManifestationPathway(secParams, manifestation, cond, tte, pathwayName);
 		return pathway;
@@ -57,10 +59,10 @@ public interface ManifestationPathwayBuilder {
 	 * @param pathwayName The name of the pathway instance in the ontology
 	 * @return A condition for the pathway
 	 */
-	private static PathwayCondition createCondition(SecondOrderParamsRepository secParams, Disease disease, String pathwayName) {
+	private static Condition<Patient> createCondition(SecondOrderParamsRepository secParams, Disease disease, String pathwayName) {
 		final List<String> strConditions = OwlHelper.getDataPropertyValues(pathwayName, OSDiNames.DataProperty.HAS_CONDITION.getDescription());
 		final List<String> strPrevManifestations = OwlHelper.getObjectPropertiesByName(pathwayName, OSDiNames.ObjectProperty.REQUIRES_PREVIOUS_MANIFESTATION.getDescription());
-		final ArrayList<PathwayCondition> condList = new ArrayList<>();
+		final ArrayList<Condition<Patient>> condList = new ArrayList<>();
 		if (strPrevManifestations.size() > 0) {
 			final List<Manifestation> manifList = new ArrayList<>();
 			for (String manifestationName: strPrevManifestations) {
@@ -72,10 +74,10 @@ public interface ManifestationPathwayBuilder {
 			condList.add(new ExpressionLanguagePathwayCondition(strCond));
 		// After going through for previous manifestations and other conditions, checks how many conditions were created
 		if (condList.size() == 0)
-			return PathwayCondition.TRUE_CONDITION;
+			return new TrueCondition<Patient>();
 		if (condList.size() == 1)
 			return condList.get(0);
-		return new AndCondition(condList);
+		return new AndCondition<Patient>(condList);
 	}
 	
 	/**
@@ -141,7 +143,7 @@ public interface ManifestationPathwayBuilder {
 		private final String pathwayName; 
 
 		public OSDiManifestationPathway(SecondOrderParamsRepository secParams, Manifestation destManifestation,
-				PathwayCondition condition, TimeToEventCalculator timeToEvent, String pathwayName) {
+				Condition<Patient> condition, TimeToEventCalculator timeToEvent, String pathwayName) {
 			super(secParams, destManifestation, condition, timeToEvent);
 			this.pathwayName = pathwayName;
 		}

@@ -13,7 +13,7 @@ import es.ull.iis.simulation.model.Simulation;
  */
 public class WhileDoFlow extends StructuredLoopFlow {
 	/** Condition which controls the loop operation. */
-	protected final Condition cond;
+	protected final Condition<ElementInstance> cond;
 	
 	/**
 	 * Create a new WhileDoFlow.
@@ -21,7 +21,7 @@ public class WhileDoFlow extends StructuredLoopFlow {
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param postCondition Break loop condition.
  	 */
-	public WhileDoFlow(Simulation model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition postCondition) {
+	public WhileDoFlow(Simulation model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition<ElementInstance> postCondition) {
 		super(model, initialSubFlow, finalSubFlow);
 		cond = postCondition;
 	}
@@ -31,7 +31,7 @@ public class WhileDoFlow extends StructuredLoopFlow {
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param postCondition Break loop condition.
  	 */
-	public WhileDoFlow(Simulation model, TaskFlow subFlow, Condition postCondition) {
+	public WhileDoFlow(Simulation model, TaskFlow subFlow, Condition<ElementInstance> postCondition) {
 		this(model, subFlow, subFlow, postCondition);
 	}
 
@@ -39,7 +39,7 @@ public class WhileDoFlow extends StructuredLoopFlow {
 	 * Returns the condition which controls the loop operation.
 	 * @return The condition which controls the loop operation
 	 */
-	public Condition getCondition() {
+	public Condition<ElementInstance> getCondition() {
 		return cond;
 	}
 

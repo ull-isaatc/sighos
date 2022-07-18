@@ -12,7 +12,7 @@ class EnumTest1 {
 	}
 	
 	public void run() {
-		var.setValue(new Integer(5));
+		var.setValue(Integer.valueOf(5));
 		System.out.println (var.getValue());
 	}
 }

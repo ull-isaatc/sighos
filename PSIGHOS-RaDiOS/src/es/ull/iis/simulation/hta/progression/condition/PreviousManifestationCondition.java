@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.progression.condition;
 import java.util.Collection;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
@@ -14,7 +15,7 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  * @author Iván Castilla Rodríguez
  *
  */
-public class PreviousManifestationCondition extends PathwayCondition {
+public class PreviousManifestationCondition extends Condition<Patient> {
 	private final TreeSet<Manifestation> list;
 
 	/**

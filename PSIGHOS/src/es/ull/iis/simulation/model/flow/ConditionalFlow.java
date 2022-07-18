@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 /**
@@ -18,20 +19,20 @@ import es.ull.iis.simulation.model.Simulation;
  */
 public abstract class ConditionalFlow extends MultipleSuccessorFlow {
 	/** Condition list associated to the successor list. */
-	protected final ArrayList<Condition> conditionList;
+	protected final ArrayList<Condition<ElementInstance>> conditionList;
 	
 	/**
 	 * Creates a new ConditionalFlow.
 	 */
 	public ConditionalFlow(Simulation model) {
 		super(model);
-		conditionList = new ArrayList<Condition>();
+		conditionList = new ArrayList<>();
 	}
 
 	/**
 	 * @return the conditionList
 	 */
-	public ArrayList<Condition> getConditionList() {
+	public ArrayList<Condition<ElementInstance>> getConditionList() {
 		return conditionList;
 	}
 
@@ -42,7 +43,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow {
 	 */
 	@Override
 	public Flow link(Flow successor) {
-		return link(successor, new TrueCondition());
+		return link(successor, new TrueCondition<ElementInstance>());
 	}
 	
 	/**
@@ -50,7 +51,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow {
 	 * @param successor This flow's successor
 	 * @param cond The condition that has to be met to invoke the successor
 	 */
-	public Flow link(Flow successor, Condition cond) {
+	public Flow link(Flow successor, Condition<ElementInstance> cond) {
 		super.link(successor);
 		conditionList.add(cond);
 		return successor;
@@ -63,7 +64,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow {
 	 */
 	@Override
 	public void link(Collection<Flow> succList) {
-		link(succList, Collections.nCopies(succList.size(), (Condition)new TrueCondition()));
+		link(succList, Collections.nCopies(succList.size(), new TrueCondition<ElementInstance>()));
 	}
 
 	/**
@@ -72,7 +73,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow {
 	 * @param succList This flow's successors
 	 * @param condList The conditions attached to each successor
 	 */
-	public void link(Collection<Flow> succList, Collection<Condition> condList) {
+	public void link(Collection<Flow> succList, Collection<Condition<ElementInstance>> condList) {
 		super.link(succList);
 		conditionList.addAll(condList);
 	}

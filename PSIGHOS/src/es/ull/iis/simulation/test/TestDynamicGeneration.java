@@ -6,6 +6,7 @@ package es.ull.iis.simulation.test;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.factory.SimulationFactory;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
@@ -36,9 +37,9 @@ class TestDynamicGenerationExperiment extends Experiment {
 		
 		WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType [] {rt0, rt1}, new int[] {1,1});
 		
-		Condition cond = factory.getCustomizedConditionInstance(null, "false");
+		Condition<ElementInstance> cond = factory.getCustomizedConditionInstance(null, "false");
 		ActivityFlow act0 = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT0");
-    	act0.newWorkGroupAdder(wg0).withDelay(10).withCondition(new NotCondition(cond)).add();
+    	act0.newWorkGroupAdder(wg0).withDelay(10).withCondition(new NotCondition<ElementInstance>(cond)).add();
 		
 		factory.getElementTypeInstance("ET0");
 		factory.getFlowInstance("SingleFlow", act0);

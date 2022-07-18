@@ -5,7 +5,6 @@ package es.ull.iis.simulation.model.engine;
 
 import es.ull.iis.simulation.model.Identifiable;
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * An {@link Identifiable} object associated to a {@link SimulationEngine}. The identifier is

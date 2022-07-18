@@ -15,79 +15,79 @@
     <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483686"/>
+        <AnonymousIndividual nodeID="_:genid2147483648"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483687"/>
+        <AnonymousIndividual nodeID="_:genid2147483649"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483688"/>
+        <AnonymousIndividual nodeID="_:genid2147483650"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483689"/>
+        <AnonymousIndividual nodeID="_:genid2147483651"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483690"/>
+        <AnonymousIndividual nodeID="_:genid2147483652"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483691"/>
+        <AnonymousIndividual nodeID="_:genid2147483653"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483692"/>
+        <AnonymousIndividual nodeID="_:genid2147483654"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483693"/>
+        <AnonymousIndividual nodeID="_:genid2147483655"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483694"/>
+        <AnonymousIndividual nodeID="_:genid2147483656"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483695"/>
+        <AnonymousIndividual nodeID="_:genid2147483657"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483696"/>
+        <AnonymousIndividual nodeID="_:genid2147483658"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483697"/>
+        <AnonymousIndividual nodeID="_:genid2147483659"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483698"/>
+        <AnonymousIndividual nodeID="_:genid2147483660"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483699"/>
+        <AnonymousIndividual nodeID="_:genid2147483661"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483700"/>
+        <AnonymousIndividual nodeID="_:genid2147483662"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483701"/>
+        <AnonymousIndividual nodeID="_:genid2147483663"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483702"/>
+        <AnonymousIndividual nodeID="_:genid2147483664"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483703"/>
+        <AnonymousIndividual nodeID="_:genid2147483665"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483704"/>
+        <AnonymousIndividual nodeID="_:genid2147483666"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
@@ -324,9 +324,6 @@
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasHoursInterval"/>
-    </Declaration>
-    <Declaration>
-        <DataProperty IRI="#hasIdentifier"/>
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasInterventionKind"/>
@@ -595,13 +592,6 @@
     <SubClassOf>
         <Class IRI="#ClinicalDiagnosis"/>
         <DataSomeValuesFrom>
-            <DataProperty IRI="#hasIdentifier"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#ClinicalDiagnosis"/>
-        <DataSomeValuesFrom>
             <DataProperty IRI="#hasSensitivity"/>
             <Datatype abbreviatedIRI="xsd:double"/>
         </DataSomeValuesFrom>
@@ -683,13 +673,6 @@
     <SubClassOf>
         <Class IRI="#Disease"/>
         <DataSomeValuesFrom>
-            <DataProperty IRI="#hasIdentifier"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Disease"/>
-        <DataSomeValuesFrom>
             <DataProperty IRI="#hasRefToDO"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
@@ -712,13 +695,6 @@
         <Class IRI="#Drug"/>
         <DataSomeValuesFrom>
             <DataProperty IRI="#hasDescription"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Drug"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasIdentifier"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
     </SubClassOf>
@@ -753,13 +729,6 @@
             <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#FollowUp"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasIdentifier"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataExactCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Guideline"/>
@@ -843,13 +812,6 @@
         <DataSomeValuesFrom>
             <DataProperty IRI="#hasFrequency"/>
             <Datatype abbreviatedIRI="xsd:double"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Manifestation"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasIdentifier"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
     </SubClassOf>
     <SubClassOf>
@@ -1075,36 +1037,29 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Screening"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasIdentifier"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Screening"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasSensitivity"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Screening"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasSpecificity"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Screening"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasTemporaryThreshold"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
-        </DataSomeValuesFrom>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Screening"/>
         <DataMaxCardinality cardinality="1">
-            <DataProperty IRI="#hasDescription"/>
+            <DataProperty IRI="#hasSensitivity"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Screening"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasSpecificity"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Screening"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasTemporaryThreshold"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
     </SubClassOf>
@@ -1156,13 +1111,6 @@
             <DataProperty IRI="#hasPercentageTreated"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Treatment"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasIdentifier"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataExactCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Treatment"/>
@@ -2389,11 +2337,6 @@
         <Literal>Measurement of biotinidase activity in blood-saturated filter paper samples on enzymatic assay or semiquantitative fluorometric determination</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasIdentifier"/>
-        <NamedIndividual IRI="#PBD_ScreeningTechnique"/>
-        <Literal>BioActivity</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasSensitivity"/>
         <NamedIndividual IRI="#PBD_ScreeningTechnique"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">1.0</Literal>
@@ -2918,11 +2861,6 @@ By default = 1, for the Manifestations.</Literal>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
         <IRI>#hasHoursInterval</IRI>
         <Literal>Interval in which the indicated dose of drug should be given.</Literal>
-    </AnnotationAssertion>
-    <AnnotationAssertion>
-        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
-        <IRI>#hasIdentifier</IRI>
-        <Literal>Stores the identifier of an instance. The objective of this field is to facilitate the identification and relationship between instances with a view to software programming.</Literal>
     </AnnotationAssertion>
     <AnnotationAssertion>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>

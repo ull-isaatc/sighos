@@ -13,7 +13,7 @@ import es.ull.iis.simulation.condition.Condition;
  */
 public abstract class ConditionDrivenGenerator<INF extends Generator.GenerationInfo> extends Generator<INF> {
 	/** The condition that must be met to generate the event sources */
-	protected final Condition cond;
+	protected final Condition<ElementInstance> cond;
 
 	/**
 	 * Creates a condition-driven generator
@@ -21,7 +21,7 @@ public abstract class ConditionDrivenGenerator<INF extends Generator.GenerationI
 	 * @param nElem A function to characterize the number of entities to create every time the generator is invoked 
 	 * @param cond The condition that must be met to generate the event sources
 	 */
-	public ConditionDrivenGenerator(final Simulation model, final TimeFunction nElem, final Condition cond) {
+	public ConditionDrivenGenerator(final Simulation model, final TimeFunction nElem, final Condition<ElementInstance> cond) {
 		super(model, model.getConditionDrivenGeneratorList().size(), nElem);
 		this.cond = cond;
 		model.add(this);
@@ -33,7 +33,7 @@ public abstract class ConditionDrivenGenerator<INF extends Generator.GenerationI
 	 * @param nElem A fixed number of entities to create every time the generator is invoked 
 	 * @param cond The condition that must be met to generate the event sources
 	 */
-	public ConditionDrivenGenerator(final Simulation model, final int nElem, final Condition cond) {
+	public ConditionDrivenGenerator(final Simulation model, final int nElem, final Condition<ElementInstance> cond) {
 		super(model, model.getConditionDrivenGeneratorList().size(), nElem);
 		this.cond = cond;
 		model.add(this);
@@ -43,7 +43,7 @@ public abstract class ConditionDrivenGenerator<INF extends Generator.GenerationI
 	 * Returns the condition that fires the generator
 	 * @return the condition that fires the generator
 	 */
-	public Condition getCondition() {
+	public Condition<ElementInstance> getCondition() {
 		return cond;
 	}
 

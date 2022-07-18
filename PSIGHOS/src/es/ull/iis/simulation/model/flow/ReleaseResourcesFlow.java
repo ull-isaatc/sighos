@@ -33,7 +33,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
     /** Resources cancellation table */
     protected final TreeMap<ResourceType, Long> cancellationList;
     /** Conditions associated to resource cancellations */
-    protected final TreeMap<ResourceType, Condition> cancellationConditionList;
+    protected final TreeMap<ResourceType, Condition<ElementInstance>> cancellationConditionList;
 	
 	/**
 	 * Creates a release resources flow
@@ -78,7 +78,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
         this.description = description;
 		this.resourcesId = resourcesId;
 		cancellationList = new TreeMap<ResourceType, Long>();
-		cancellationConditionList = new TreeMap<ResourceType, Condition>();
+		cancellationConditionList = new TreeMap<ResourceType, Condition<ElementInstance>>();
 		this.wg = wg;
 	}
 	
@@ -118,7 +118,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	 * @param duration Duration of the cancellation.
 	 * @param cond Condition that must be fulfilled to apply the cancellation 
 	 */
-	public void addResourceCancellation(final ResourceType rt, final long duration, final Condition cond) {
+	public void addResourceCancellation(final ResourceType rt, final long duration, final Condition<ElementInstance> cond) {
 		cancellationList.put(rt, duration);	
 		cancellationConditionList.put(rt, cond);
 	}
@@ -132,7 +132,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	public long getResourceCancellation(final ResourceType rt, final ElementInstance ei) {
 		final Long duration = cancellationList.get(rt);
 		if (duration != null) {
-			final Condition cond = cancellationConditionList.get(rt);
+			final Condition<ElementInstance> cond = cancellationConditionList.get(rt);
 			if (cond == null) {
 				return duration;
 			}

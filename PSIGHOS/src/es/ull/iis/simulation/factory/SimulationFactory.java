@@ -5,6 +5,7 @@ package es.ull.iis.simulation.factory;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
@@ -134,7 +135,7 @@ public class SimulationFactory {
 		return FlowFactory.getInstance(flowId++, flowType, userMethods, simul, params);
 	}
 
-	public Condition getCustomizedConditionInstance(String imports, String condition) {
+	public Condition<ElementInstance> getCustomizedConditionInstance(String imports, String condition) {
 		return ConditionFactory.getInstance(condId++, imports, condition);
 	}
 }	

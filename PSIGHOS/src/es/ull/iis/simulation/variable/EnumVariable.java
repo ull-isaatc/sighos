@@ -32,7 +32,7 @@ public class EnumVariable implements UserVariable{
 	 * @param defaultValue Init variable's value.
 	 */
 	public EnumVariable(EnumType type, Double defaultValue) {
-		value = new Integer (defaultValue.intValue());
+		value = Integer.valueOf (defaultValue.intValue());
 		this.type = type;
 	}
 	
@@ -65,7 +65,7 @@ public class EnumVariable implements UserVariable{
 				}
 			} else
 				/** If the value doesn't exist in the type */ 
-				this.value = new Integer(-1);
+				this.value = Integer.valueOf(-1);
 		} else
 			this.value = (Integer) value;
 	}
@@ -75,7 +75,7 @@ public class EnumVariable implements UserVariable{
 	 * @param value New value.
 	 */
 	public void setValue(int value) {
-		this.value = new Integer(value);	
+		this.value = Integer.valueOf(value);	
 	}
 
 	/**
@@ -84,9 +84,9 @@ public class EnumVariable implements UserVariable{
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Integer(0);
+			this.value = Integer.valueOf(0);
 		else
-			this.value = new Integer(1);
+			this.value = Integer.valueOf(1);
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class EnumVariable implements UserVariable{
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Integer(value);
+		this.value = Integer.valueOf(value);
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class EnumVariable implements UserVariable{
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Integer(value);
+		this.value = Integer.valueOf(value);
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class EnumVariable implements UserVariable{
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Integer((int) value);
+		this.value = Integer.valueOf((int) value);
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class EnumVariable implements UserVariable{
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Integer((int) value);
+		this.value = Integer.valueOf((int) value);
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class EnumVariable implements UserVariable{
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		this.value = new Integer((int) value);
+		this.value = Integer.valueOf((int) value);
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class EnumVariable implements UserVariable{
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Integer(value);
+		this.value = Integer.valueOf(value);
 	}
 
 	/**

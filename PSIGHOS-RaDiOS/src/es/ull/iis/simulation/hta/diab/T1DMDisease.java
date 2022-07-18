@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diab;
 import java.util.Arrays;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.Angina;
@@ -32,7 +33,6 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
 import es.ull.iis.simulation.hta.progression.StandardDisease;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
-import es.ull.iis.simulation.hta.progression.condition.PathwayCondition;
 import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
@@ -209,7 +209,7 @@ public class T1DMDisease extends StandardDisease {
 				addProgression(neu, alb1, false);
 				// Manually adds a second extra risk from LEA, which uses the same probability as the other progression 
 				final TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(neu, alb1), secParams, alb1);
-				final PathwayCondition cond = new PreviousManifestationCondition(lea);
+				final Condition<Patient> cond = new PreviousManifestationCondition(lea);
 				new ManifestationPathway(secParams, alb1, cond, tte);
 			}
 		}
@@ -236,7 +236,7 @@ public class T1DMDisease extends StandardDisease {
 			addProgression(bgret, me, true);
 			// Manually adds a second pathway to ME from PRET that uses the same risk than BGRET, in case BGRET is ommited 
 			final TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(bgret, me), secParams, me, new SheffieldComplicationRR(secParams, SecondOrderParamsRepository.getRRString(me)));
-			final PathwayCondition cond = new PreviousManifestationCondition(pret);
+			final Condition<Patient> cond = new PreviousManifestationCondition(pret);
 			new ManifestationPathway(secParams, me, cond, tte);
 			addProgression(bli, false);
 			addProgression(bgret, bli, false);
@@ -312,7 +312,7 @@ public class T1DMDisease extends StandardDisease {
 			tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(fromManif, toManif), secParams, toManif, new SheffieldComplicationRR(secParams, SecondOrderParamsRepository.getRRString(toManif)));
 		else
 			tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(fromManif, toManif), secParams, toManif);
-		final PathwayCondition cond = new PreviousManifestationCondition(fromManif);
+		final Condition<Patient> cond = new PreviousManifestationCondition(fromManif);
 		new ManifestationPathway(secParams, toManif, cond, tte);
 	}
 
@@ -558,7 +558,7 @@ public class T1DMDisease extends StandardDisease {
 	 * @author Iván Castilla
 	 *
 	 */
-	public class CHDCondition extends PathwayCondition {
+	public class CHDCondition extends Condition<Patient> {
 		/** Internal identifier of the manifestation */
 		private final int order;
 		/** Previous manifestation which is a prerequisite for this progression */  

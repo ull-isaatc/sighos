@@ -3,6 +3,7 @@ package es.ull.iis.simulation.test.WFP;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -39,7 +40,7 @@ public class WFP07Simulation extends WFPTestSimulation {
         
         StructuredSynchroMergeFlow root = new StructuredSynchroMergeFlow(this);
         
-        Condition falseCond = new NotCondition(new TrueCondition());
+        Condition<ElementInstance> falseCond = new NotCondition<ElementInstance>(new TrueCondition<ElementInstance>());
         
         // Create leafs
 

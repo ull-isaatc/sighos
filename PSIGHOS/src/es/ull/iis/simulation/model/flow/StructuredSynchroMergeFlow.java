@@ -4,6 +4,7 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 /**
@@ -30,7 +31,7 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow {
 	 * @param cond This branch's condition.
 	 */
 	
-	public void addBranch(TaskFlow branch, Condition cond) {
+	public void addBranch(TaskFlow branch, Condition<ElementInstance> cond) {
 		addBranch(branch, branch, cond);
 	}
 	
@@ -40,7 +41,7 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow {
 	 * @param finalBranch Last step of the internal branch
 	 * @param cond This branch's condition.
 	 */
-	public void addBranch(InitializerFlow initialBranch, FinalizerFlow finalBranch, Condition cond) {
+	public void addBranch(InitializerFlow initialBranch, FinalizerFlow finalBranch, Condition<ElementInstance> cond) {
 		final TreeSet<Flow> visited = new TreeSet<Flow>(); 
 		initialBranch.setRecursiveStructureLink(this, visited);
 		((MultiChoiceFlow)initialFlow).link(initialBranch, cond);
@@ -49,11 +50,11 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow {
 	
 	@Override
 	public void addBranch(InitializerFlow initialBranch, FinalizerFlow finalBranch) {
-		addBranch(initialBranch, finalBranch, new TrueCondition());		
+		addBranch(initialBranch, finalBranch, new TrueCondition<ElementInstance>());		
 	}
 	
 	@Override
 	public void addBranch(TaskFlow initialBranch) {
-		addBranch(initialBranch, new TrueCondition());
+		addBranch(initialBranch, new TrueCondition<ElementInstance>());
 	}
 }

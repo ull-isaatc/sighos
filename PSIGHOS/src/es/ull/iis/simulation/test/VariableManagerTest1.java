@@ -42,7 +42,7 @@ class ExperimentTest1 extends Experiment {
     	System.out.println("Coste total= " + sim.getVar("Coste total").toString());
     	
     	EnumType type = new EnumType("Deportivo", "Familiar", "Gasoil");
-    	sim.putVar("tipoCoche", new EnumVariable(type, new Integer(0)));
+    	sim.putVar("tipoCoche", new EnumVariable(type, Integer.valueOf(0)));
     	((EnumVariable)sim.getVar("tipoCoche")).setValue(2);
     	System.out.println("Valor del enumerado: " + sim.getVar("tipoCoche").toString());
     	((EnumVariable)sim.getVar("tipoCoche")).setValue("Deportivo");

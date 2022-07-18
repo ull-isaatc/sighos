@@ -12,11 +12,9 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.flow.ActionFlow;
-import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.SingleSuccessorFlow;
-import es.ull.iis.simulation.model.flow.TaskFlow;
 
 /**
  * Checks the elements created and finished during the simulation
@@ -44,6 +42,7 @@ public class CheckFlowsListener extends CheckerListener {
 		return null;
 	}
 	
+	@SuppressWarnings("unused")
 	private static final NodeInfo createNode(Flow flow, boolean optional, int minIterations, int maxIterations) {
 		if (flow instanceof ActionFlow) {
 			return new NodeLeafInfo((ActionFlow)flow, optional, minIterations, maxIterations);
@@ -80,6 +79,7 @@ public class CheckFlowsListener extends CheckerListener {
 		/**
 		 * @return the flow
 		 */
+		@SuppressWarnings("unused")
 		public ActionFlow getFlow() {
 			return flow;
 		}
@@ -117,10 +117,12 @@ public class CheckFlowsListener extends CheckerListener {
 			components = new TreeMap<NodeInfo, Integer>();
 		}
 		
+		@SuppressWarnings("unused")
 		public void addComponent(final NodeInfo info, final int maxN) {
 			components.put(info, maxN);
 		}
 		
+		@SuppressWarnings("unused")
 		public void link(final NodeInfo nextInfo) {
 			next.add(nextInfo);
 		}
@@ -128,6 +130,7 @@ public class CheckFlowsListener extends CheckerListener {
 		/**
 		 * @return the next
 		 */
+		@SuppressWarnings("unused")
 		public ArrayList<NodeInfo> getNext() {
 			return next;
 		}
@@ -135,6 +138,7 @@ public class CheckFlowsListener extends CheckerListener {
 		/**
 		 * @return the components
 		 */
+		@SuppressWarnings("unused")
 		public TreeMap<NodeInfo, Integer> getComponents() {
 			return components;
 		}
@@ -169,7 +173,6 @@ public class CheckFlowsListener extends CheckerListener {
 		}
 		if (info instanceof ElementActionInfo) {
 			final ElementActionInfo eInfo = (ElementActionInfo)info;
-			final ActivityFlow act = (ActivityFlow)eInfo.getActivity().getParent(); 
 			switch(eInfo.getType()) {
 			case ACQ:
 				break;

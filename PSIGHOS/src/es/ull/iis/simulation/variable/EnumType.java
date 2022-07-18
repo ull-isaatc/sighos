@@ -21,7 +21,7 @@ public class EnumType {
 	public EnumType(String ... params) {
 		valuesDescrip = new TreeMap<Integer, String>();
 		for (int i = 0; i < params.length; i++) {
-			valuesDescrip.put(new Integer(maxValue + i), params[i]);
+			valuesDescrip.put(Integer.valueOf(maxValue + i), params[i]);
 		}
 		maxValue += params.length;
 	}
@@ -31,7 +31,7 @@ public class EnumType {
 	 * @param field New field.
 	 */
 	public void addField(String field) {
-		valuesDescrip.put(new Integer(maxValue), field);
+		valuesDescrip.put(Integer.valueOf(maxValue), field);
 		maxValue++;
 	}
 

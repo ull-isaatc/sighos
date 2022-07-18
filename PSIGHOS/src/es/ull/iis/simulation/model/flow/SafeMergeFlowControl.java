@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.ElementInstance;
-import es.ull.iis.simulation.model.flow.MergeFlow;
 
 /**
  * @author Iván Castilla Rodríguez
