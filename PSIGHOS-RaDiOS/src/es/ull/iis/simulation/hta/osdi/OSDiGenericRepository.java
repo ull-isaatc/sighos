@@ -67,7 +67,7 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 		
 		// Build interventions
-		List<String> interventions = OwlHelper.getChildsByClassName(disease.name(), OSDiNames.Class.INTERVENTION.getDescription());
+		List<String> interventions = OSDiNames.Class.INTERVENTION.getDescendantsOf(disease.name());
 		for (String interventionName : interventions) {
 			InterventionBuilder.getInterventionInstance(this, interventionName);
 		}

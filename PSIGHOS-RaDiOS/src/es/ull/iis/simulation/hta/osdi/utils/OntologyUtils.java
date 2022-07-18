@@ -74,24 +74,6 @@ public class OntologyUtils {
 
 	/**
 	 * @param ontology
-	 * @return
-	 * @throws JAXBException
-	 */
-	public static String getRadiosAsString(Ontology ontology) throws JAXBException {
-		JAXBContext jc = JAXBContext.newInstance("org.w3c.xsd.owl2");
-		Marshaller marshaller = jc.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		ByteArrayOutputStream radiosAsOutpuStream = new ByteArrayOutputStream();
-		
-		ObjectFactory objectFactory = new ObjectFactory();
-		JAXBElement<Ontology> jaxbOntology = objectFactory.createOntology(ontology);
-		marshaller.marshal(jaxbOntology, radiosAsOutpuStream);
-
-		return (radiosAsOutpuStream != null) ? new String(radiosAsOutpuStream.toByteArray()) : "";
-	}
-
-	/**
-	 * @param ontology
 	 * @param instanceToClazz
 	 * @param disease
 	 * @return
@@ -119,80 +101,6 @@ public class OntologyUtils {
 			}
 		}
 		return nArioTree;
-	}
-
-	/**
-	 * @param ontology
-	 * @param manifestationsResult
-	 * @param manifestationModification
-	 * @param dataPropertyModification
-	 * @param dataPropertyModificationDistribution
-	 * @param modifyDataProperty
-	 */
-	private static void precalculateDataForUpdateManifestation(Ontology ontology, Map<String, Map<String, PropertyData>> manifestationsResult, String manifestationModification,
-			String dataPropertyModification, String dataPropertyModificationDistribution, String modifyDataProperty) {
-
-		String operation = null;
-		String dataPropertyValueDistribution = null;
-		String dataPropertyValue = null;
-		if (DataStoreService.eTLDataPropertyValues(ontology).get(manifestationModification).get(dataPropertyModification) != null) {
-			dataPropertyValue = DataStoreService.eTLDataPropertyValues(ontology).get(manifestationModification).get(dataPropertyModification).getValue();
-		}
-
-		if (DataStoreService.eTLDataPropertyValues(ontology).get(manifestationModification).containsKey(dataPropertyModificationDistribution)) {
-			dataPropertyValueDistribution = DataStoreService.eTLDataPropertyValues(ontology).get(manifestationModification).get(dataPropertyModificationDistribution).getValue();
-		}
-
-		if (dataPropertyValue != null) {
-			if (dataPropertyValue.matches(Constants.REGEX_OPERATION_NUMERICVALUE)) {
-				operation = dataPropertyValue.substring(0,1);
-				dataPropertyValue = dataPropertyValue.substring(1);
-			}
-			
-			updateManifestations(ontology, manifestationsResult, manifestationModification, operation, dataPropertyValue, dataPropertyValueDistribution, modifyDataProperty);
-		}
-	}
-
-	/**
-	 * @param ontology
-	 * @param manifestations
-	 * @param manifestationModification
-	 * @param operation
-	 * @param value
-	 * @param valueDistribution
-	 * @param modifyDataProperty
-	 */
-	private static void updateManifestations(Ontology ontology, Map<String, Map<String, PropertyData>> manifestations, String manifestationModification,
-			String operation, String value, String valueDistribution, String modifyDataProperty) {
-		List<String> manifestationsToModify = DataStoreService.eTLObjectProperties(ontology).get(manifestationModification).get(Constants.OBJECTPROPERTY_MANIFESTATION);
-		for (String manifestationToModify : manifestationsToModify) {
-			String resultOperationStr = value;
-			if (operation != null) {
-				String valueOfManifestationToModify = manifestations.get(manifestationToModify).get(modifyDataProperty).getValue();
-				Double resultOperation = null;
-				if ("*".equals(operation)) {
-					resultOperation = Double.valueOf(valueOfManifestationToModify) * Double.valueOf(value);
-				} else if ("/".equals(operation)) {
-					resultOperation = Double.valueOf(valueOfManifestationToModify) / Double.valueOf(value);
-				} else if ("+".equals(operation)) {
-					resultOperation = Double.valueOf(valueOfManifestationToModify) + Double.valueOf(value);
-				} else if ("-".equals(operation)) {
-					resultOperation = Double.valueOf(valueOfManifestationToModify) - Double.valueOf(value);
-				}
-				
-				if (resultOperation < 0.0) {
-					resultOperation = 0.0; 
-				} else if (resultOperation > 0.0) {
-					resultOperation = 1.0; 
-				}
-				
-				resultOperationStr = String.valueOf(resultOperation);
-			}
-			manifestations.get(manifestationToModify).get(modifyDataProperty).setValue(resultOperationStr);
-			if (valueDistribution != null) {
-				manifestations.get(manifestationToModify).get(modifyDataProperty + Constants.CONSTANT_DISTRUBUTION_SUFFIX).setValue(valueDistribution);
-			}
-		}
 	}
 
 	/**

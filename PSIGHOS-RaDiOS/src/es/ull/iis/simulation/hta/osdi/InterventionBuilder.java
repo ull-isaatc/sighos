@@ -10,7 +10,6 @@ import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
 import es.ull.iis.simulation.hta.osdi.OSDiNames.DataProperty;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.Modification;
@@ -25,8 +24,8 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
 public interface InterventionBuilder {
 
 	public static Intervention getInterventionInstance(SecondOrderParamsRepository secParams, String interventionName) throws TranspilerException {
-		final String description = OwlHelper.getDataPropertyValue(interventionName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "");
-		final String kind = OwlHelper.getDataPropertyValue(interventionName, OSDiNames.DataProperty.HAS_INTERVENTION_KIND.getDescription(), OSDiNames.DataPropertyRange.INTERVENTION_KIND_NOSCREENING.getDescription());
+		final String description = OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(interventionName, "");
+		final String kind = OSDiNames.DataProperty.HAS_INTERVENTION_KIND.getValue(interventionName, OSDiNames.DataPropertyRange.INTERVENTION_KIND_NOSCREENING.getDescription());
 		Intervention intervention = null;
 		if (OSDiNames.DataPropertyRange.INTERVENTION_KIND_SCREENING.getDescription().equals(kind)) {			
 
@@ -92,13 +91,13 @@ public interface InterventionBuilder {
 	}
 	
 	private static void createSpecificityAndSensitivity(SecondOrderParamsRepository secParams, ScreeningStrategy intervention) throws TranspilerException {
-		String strSensitivity = OwlHelper.getDataPropertyValue(intervention.name(), DataProperty.HAS_SENSITIVITY.getDescription(), "1.0");
+		String strSensitivity = DataProperty.HAS_SENSITIVITY.getValue(intervention.name(), "1.0");
 		final ProbabilityDistribution probSensitivity = ValueParser.splitProbabilityDistribution(strSensitivity);
 		if (probSensitivity == null)
 			throw new TranspilerException("Error parsing regular expression \"" + strSensitivity + "\" for instance \"" + intervention.name() + "\"");
 		secParams.addProbParam(new SecondOrderParam(secParams, intervention.getSensitivityParameterString(false), intervention.getSensitivityParameterString(true), "", 
 				probSensitivity.getDeterministicValue(), probSensitivity.getProbabilisticValue()));
-		String strSpecificity = OwlHelper.getDataPropertyValue(intervention.name(), DataProperty.HAS_SPECIFICITY.getDescription(), "1.0");
+		String strSpecificity = DataProperty.HAS_SPECIFICITY.getValue(intervention.name(), "1.0");
 		final ProbabilityDistribution probSpecificity = ValueParser.splitProbabilityDistribution(strSpecificity);
 		if (probSpecificity == null)
 			throw new TranspilerException("Error parsing regular expression \"" + strSpecificity + "\" for instance \"" + intervention.name() + "\"");
@@ -108,10 +107,10 @@ public interface InterventionBuilder {
 	
 	private static void createModificationParams(SecondOrderParamsRepository secParams, Intervention intervention) throws TranspilerException {
 		// Collects the modifications associated to the specified intervention
-		List<String> modifications = OwlHelper.getObjectPropertiesByName(intervention.name(), OSDiNames.ObjectProperty.INVOLVES_MODIFICATION.getDescription());
+		List<String> modifications = OSDiNames.ObjectProperty.INVOLVES_MODIFICATION.getValues(intervention.name());
 		for (String modificationName : modifications) {			
 			// Parse the modification kind
-			final String strKind = OwlHelper.getDataPropertyValue(modificationName, OSDiNames.DataProperty.HAS_MODIFICATION_KIND.getDescription(), OSDiNames.DataPropertyRange.MODIFICATION_KIND_SET.getDescription());
+			final String strKind = OSDiNames.DataProperty.HAS_MODIFICATION_KIND.getValue(modificationName, OSDiNames.DataPropertyRange.MODIFICATION_KIND_SET.getDescription());
 			// I assume that modification kinds are equivalent to those defined in Modificaton.Type
 			Modification.Type kind = null;
 			try {
@@ -120,21 +119,21 @@ public interface InterventionBuilder {
 				throw new TranspilerException("Error parsing modification kind. Unexpected value: " + strKind); 				
 			}
 			// Get the source, if specified
-			final String strSource = OwlHelper.getDataPropertyValue(modificationName, OSDiNames.DataProperty.HAS_SOURCE.getDescription(), "");
+			final String strSource = OSDiNames.DataProperty.HAS_SOURCE.getValue(modificationName, "");
 			// Parse the value
-			final String strValue = OwlHelper.getDataPropertyValue(modificationName, OSDiNames.DataProperty.HAS_VALUE.getDescription());
+			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(modificationName);
 			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 			if (probDistribution == null)
 				throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for data property 'has_value' in instance \"" + modificationName + "\"");
 			// Parse the property which is modified
-			final List<String> strProperties = OwlHelper.getDataPropertyValues(modificationName, OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED.getDescription());
+			final List<String> strProperties = OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED.getValues(modificationName);
 			for (String strProperty : strProperties) {
 				final OSDiNames.DataProperty property = OSDiNames.DATA_PROPERTY_MAP.get(strProperty);
 				if (property == null) {
 					throw new TranspilerException("Error parsing the name of the modified property. Unexpected value: " + strProperty); 				
 				}
 				// Process modifications that affect the development
-				List<String> modifiedItems = OwlHelper.getObjectPropertiesByName(modificationName, OSDiNames.ObjectProperty.MODIFIES_DEVELOPMENT.getDescription());
+				List<String> modifiedItems = OSDiNames.ObjectProperty.MODIFIES_DEVELOPMENT.getValues(modificationName);
 				for (String developmentName : modifiedItems) {
 					switch(property) {
 					case HAS_LIFE_EXPECTANCY:
@@ -146,7 +145,7 @@ public interface InterventionBuilder {
 					}
 				}
 				// Then process modifications that affect to specific manifestations
-				modifiedItems = OwlHelper.getObjectPropertiesByName(modificationName, OSDiNames.ObjectProperty.MODIFIES_MANIFESTATION.getDescription());
+				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_MANIFESTATION.getValues(modificationName);
 				for (String manifestationName : modifiedItems) {
 					final Manifestation manif = secParams.getManifestationByName(manifestationName);
 					switch(property) {
@@ -167,9 +166,9 @@ public interface InterventionBuilder {
 					}
 				}
 				// And finally process modifications that affect to specific manifestation pathways
-				modifiedItems = OwlHelper.getObjectPropertiesByName(modificationName, OSDiNames.ObjectProperty.MODIFIES_MANIFESTATION_PATHWAY.getDescription());
+				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_MANIFESTATION_PATHWAY.getValues(modificationName);
 				for (String manifPathwayName : modifiedItems) {
-					final List<String> manifestationNames = OwlHelper.getObjectPropertiesByName(manifPathwayName, OSDiNames.ObjectProperty.IS_PATHWAY_TO.getDescription());
+					final List<String> manifestationNames = OSDiNames.ObjectProperty.IS_PATHWAY_TO.getValues(manifPathwayName);
 					switch(property) {
 					case HAS_PROBABILITY:
 						for (String manifestationName : manifestationNames) {

@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.osdi;
 
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
@@ -55,6 +56,9 @@ public interface OSDiNames {
 		@Override
 		public String getDescription() {
 			return description;
+		}
+		public List<String> getDescendantsOf(String instanceName) {
+			return OwlHelper.getChildsByClassName(instanceName, description);
 		}
 	}
 
@@ -138,6 +142,18 @@ public interface OSDiNames {
 		public EnumSet<DataPropertyRange> getRange() {
 			return range;
 		}
+		
+		public String getValue(String instanceName) {
+			return OwlHelper.getDataPropertyValue(instanceName, description);
+		}
+		
+		public String getValue(String instanceName, String defaultValue) {
+			return OwlHelper.getDataPropertyValue(instanceName, description, defaultValue);
+		}
+		
+		public List<String> getValues(String instanceName) {
+			return OwlHelper.getDataPropertyValues(instanceName, description);
+		}
 	}
 	
 
@@ -194,6 +210,14 @@ public interface OSDiNames {
 		public String getDescription() {
 			return description;
 		}
+		
+		public String getValue(String instanceName) {
+			return OwlHelper.getObjectPropertyByName(instanceName, description);
+		}
+		
+		public List<String> getValues(String instanceName) {
+			return OwlHelper.getObjectPropertiesByName(instanceName, description);
+		}
 	}
 
 	/**
@@ -230,6 +254,6 @@ public interface OSDiNames {
 	}
 
 	public static String getSource(String instanceName) {
-		return OwlHelper.getDataPropertyValue(instanceName, DataProperty.HAS_SOURCE.getDescription(), "Unknown");
+		return DataProperty.HAS_SOURCE.getValue(instanceName, "Unknown");
 	}
 }

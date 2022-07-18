@@ -5,12 +5,10 @@ import java.util.List;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.Constants;
-import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.StandardDisease;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
 import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
@@ -25,7 +23,7 @@ import simkit.random.RandomVariateFactory;
 public interface DiseaseBuilder {
 	public static StandardDisease getDiseaseInstance(SecondOrderParamsRepository secParams, String diseaseName) throws TranspilerException {
 		
-		StandardDisease disease = new StandardDisease(secParams, diseaseName, OwlHelper.getDataPropertyValue(diseaseName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "")) {
+		StandardDisease disease = new StandardDisease(secParams, diseaseName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(diseaseName, "")) {
 
 			@Override
 			public void registerSecondOrderParameters() {
@@ -48,19 +46,19 @@ public interface DiseaseBuilder {
 			
 		};
 		// Build developments
-		List<String> developments = OwlHelper.getChildsByClassName(diseaseName, OSDiNames.Class.DEVELOPMENT.getDescription());
+		List<String> developments = OSDiNames.Class.DEVELOPMENT.getDescendantsOf(diseaseName);
 		for (String developmentName : developments) {
 			DevelopmentBuilder.getDevelopmentInstance(developmentName, disease);
 		}
 		
 		// Build manifestations
-		List<String> manifestations = OwlHelper.getChildsByClassName(diseaseName, OSDiNames.Class.MANIFESTATION.getDescription());
+		List<String> manifestations = OSDiNames.Class.MANIFESTATION.getDescendantsOf(diseaseName);
 		for (String manifestationName: manifestations) {
 			ManifestationBuilder.getManifestationInstance(secParams, disease, manifestationName);
 		}
 		// Build manifestation pathways after creating all the manifestations
 		for (String manifestationName: manifestations) {
-			List<String> pathways = OwlHelper.getChildsByClassName(manifestationName, OSDiNames.Class.MANIFESTATION_PATHWAY.getDescription());
+			List<String> pathways = OSDiNames.Class.MANIFESTATION_PATHWAY.getDescendantsOf(manifestationName);
 			for (String pathwayName : pathways)
 				ManifestationPathwayBuilder.getManifestationPathwayInstance(secParams, disease.getManifestation(manifestationName), pathwayName);
 		}
@@ -81,26 +79,26 @@ public interface DiseaseBuilder {
 	 * @throws TranspilerException When there was a problem parsing the ontology
 	 */
 	public static void createUtilityParam(SecondOrderParamsRepository secParams, StandardDisease disease) throws TranspilerException {
-		List<String> utilities = OwlHelper.getObjectPropertiesByName(disease.name(), OSDiNames.ObjectProperty.HAS_UTILITY.getDescription());
+		List<String> utilities = OSDiNames.ObjectProperty.HAS_UTILITY.getValues(disease.name());
 		if (utilities.size() > 1)
 			throw new TranspilerException("A maximum of one annual (dis)utility should be associated to the disease \"" + disease.name() + "\". Instead, " + utilities.size() + " found");
 		for (String utilityName : utilities) {
 			// Assumes annual behavior if not specified
-			final String strTempBehavior = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getDescription(), OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
+			final String strTempBehavior = OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(utilityName, OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
 			if (!OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription().equals(strTempBehavior))
 				throw new TranspilerException("Only annual (dis)utilities should be associated to the disease \"" + disease.name() + "\". Instead, " + strTempBehavior + " found");
 			// Assumes that it is a utility (not a disutility) if not specified
-			final String strType = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_UTILITY_KIND.getDescription(), OSDiNames.DataPropertyRange.UTILITY_KIND_UTILITY.getDescription());
+			final String strType = OSDiNames.DataProperty.HAS_UTILITY_KIND.getValue(utilityName, OSDiNames.DataPropertyRange.UTILITY_KIND_UTILITY.getDescription());
 			final boolean isDisutility = OSDiNames.DataPropertyRange.UTILITY_KIND_DISUTILITY.getDescription().equals(strType);
 			// Default value for utilities is 1; 0 for disutilities
-			final String strValue = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_VALUE.getDescription(), isDisutility ? "0.0" : "1.0");
+			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(utilityName, isDisutility ? "0.0" : "1.0");
 			// Assumes a default calculation method specified in Constants if not specified
-			final String strCalcMethod = OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_CALCULATION_METHOD.getDescription(), Constants.UTILITY_DEFAULT_CALCULATION_METHOD);
+			final String strCalcMethod = OSDiNames.DataProperty.HAS_CALCULATION_METHOD.getValue(utilityName, Constants.UTILITY_DEFAULT_CALCULATION_METHOD);
 			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 			if (probDistribution == null)
 				throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for instance \"" + disease.name() + "\"");
 			secParams.addUtilityParam(disease, 
-					OwlHelper.getDataPropertyValue(utilityName, OSDiNames.DataProperty.HAS_DESCRIPTION.getDescription(), "Utility for " + disease.name() + " calculated using " + strCalcMethod),  
+					OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(utilityName, "Utility for " + disease.name() + " calculated using " + strCalcMethod),  
 					OSDiNames.getSource(utilityName), 
 					probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isDisutility);			
 		}
