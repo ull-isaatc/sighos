@@ -17,7 +17,8 @@ import simkit.random.RandomVariateFactory;
  * @author David Prieto González
  *
  */
-public class RadiosPopulation extends StdPopulation {	
+public class RadiosPopulation extends StdPopulation {
+	private final static double GENERAL_POPULATION_UTILITY = 0.8861;	
 	private ProbabilityDistribution birthPrevalence = null;
 	private static final String STR_BIRTH_PREV = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "BIRTH_PREVALENCE";
 	private final boolean allAffected;
@@ -56,6 +57,7 @@ public class RadiosPopulation extends StdPopulation {
 		if (!allAffected && birthPrevalence != null) {
 			secParams.addProbParam(new SecondOrderParam(secParams, STR_BIRTH_PREV, "Birth prevalence", "", birthPrevalence.getDeterministicValue(), birthPrevalence.getProbabilisticValue()));
 		}
+		secParams.addBaseUtilityParam("Base utility", "", GENERAL_POPULATION_UTILITY, RandomVariateFactory.getInstance("ContantVariate", GENERAL_POPULATION_UTILITY));
 	}
 
 	@Override

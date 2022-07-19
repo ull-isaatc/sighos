@@ -39,7 +39,6 @@ import javax.xml.bind.JAXBException;
  * @author David Prieto Gonz�lez
  */
 public class RadiosRepository extends SecondOrderParamsRepository {
-	private final static double GENERAL_POPULATION_UTILITY = 0.8861;
 	private ObjectMapper mapper; 
 	private CostCalculator costCalc;
 	private UtilityCalculator utilCalc;
@@ -65,7 +64,7 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 			throws JsonParseException, JsonMappingException, MalformedURLException, IOException, TransformException, JAXBException {
 		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
-		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.MAX, GENERAL_POPULATION_UTILITY);
+		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.MAX);
 
 		mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).setSerializationInclusion(Include.NON_NULL).setSerializationInclusion(Include.NON_EMPTY);
 		Schema4Simulation radiosDiseaseInstance = mapper.readValue(new File(pathToRaDiOSJson), Schema4Simulation.class);
