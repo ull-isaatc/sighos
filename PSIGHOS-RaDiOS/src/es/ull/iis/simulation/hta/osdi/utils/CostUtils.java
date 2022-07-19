@@ -14,11 +14,9 @@ import es.ull.iis.simulation.hta.osdi.wrappers.CostMatrixElement;
 import es.ull.iis.simulation.hta.osdi.wrappers.Matrix;
 
 public class CostUtils {
-	private static final String REGEXP_RANGE = "^([0-9]+)([udmy])(-([0-9]+)([dmy]))$|^([0-9]+)([udmy])(-(\\*))$|^([&@])([0-9]+)([udmy])";
 	private static final String REGEXP_FRECUENCY = "^([0-9]+)([dmy])$";
 	private static final String REGEXP_DOSE = "^(([0-9]+)(\\.[0-9]+)?)[a-zA-Z]*(/kg)?$";
 
-	private static Pattern rangePattern = Pattern.compile(REGEXP_RANGE);
 	private static Pattern frequencyPattern = Pattern.compile(REGEXP_FRECUENCY);
 	private static Pattern dosePattern = Pattern.compile(REGEXP_DOSE);
 
