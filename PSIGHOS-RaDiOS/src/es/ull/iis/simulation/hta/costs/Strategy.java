@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * A stepped strategy intended to involve different costs at different stages. For example, a treatment strategy may consist on starting with a drug, 
@@ -22,22 +23,24 @@ public class Strategy implements PartOfStrategy {
 	private final String name;
 	private final ArrayList<ArrayList<PartOfStrategy>> parts;
 	private Strategy parent = null;
+	protected final SecondOrderParamsRepository secParams;
 	
 	/**
 	 * 
 	 */
-	public Strategy(String name, String description) {
-		this(name, description, new TrueCondition<Patient>());
+	public Strategy(SecondOrderParamsRepository secParams,String name, String description) {
+		this(secParams, name, description, new TrueCondition<Patient>());
 	}
 
 	/**
 	 * 
 	 */
-	public Strategy(String name, String description, Condition<Patient> cond) {
+	public Strategy(SecondOrderParamsRepository secParams, String name, String description, Condition<Patient> cond) {
 		this.condition = cond;
 		this.description = description;
 		this.name = name;
 		this.parts = new  ArrayList<>();
+		this.secParams = secParams;
 	}
 
 	@Override
@@ -67,7 +70,7 @@ public class Strategy implements PartOfStrategy {
 
 	@Override
 	public double getUnitCost(Patient pat) {
-		return 0.0;
+		return secParams.getCostParam(getUnitCostParameterString(false), pat.getSimulation());
 	}
 	
 	/**
@@ -77,7 +80,7 @@ public class Strategy implements PartOfStrategy {
 		return parts;
 	}
 
-	public void addPart(PartOfStrategy child, boolean nextLevel) {
+	private ArrayList<PartOfStrategy> getProperLevel(boolean nextLevel) {
 		ArrayList<PartOfStrategy> level = null;
 		if (parts.isEmpty() || nextLevel) {
 			level = new ArrayList<>();
@@ -86,8 +89,19 @@ public class Strategy implements PartOfStrategy {
 		else {
 			level = parts.get(parts.size() - 1);
 		}
-		child.setParent(this);
-		level.add(child);
+		return level;
 	}
 	
+	public void addPart(Strategy child, boolean nextLevel) {
+		child.setParent(this);
+		getProperLevel(nextLevel).add(child);
+	}
+
+	public void addPart(HealthTechnology child, boolean nextLevel) {
+		getProperLevel(nextLevel).add(child);
+	}
+
+	@Override
+	public void registerSecondOrderParameters() {
+	}
 }

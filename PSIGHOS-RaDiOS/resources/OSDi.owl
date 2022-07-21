@@ -15,79 +15,79 @@
     <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483648"/>
+        <AnonymousIndividual nodeID="_:genid2147483971"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483649"/>
+        <AnonymousIndividual nodeID="_:genid2147483972"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483650"/>
+        <AnonymousIndividual nodeID="_:genid2147483973"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483651"/>
+        <AnonymousIndividual nodeID="_:genid2147483974"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483652"/>
+        <AnonymousIndividual nodeID="_:genid2147483975"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483653"/>
+        <AnonymousIndividual nodeID="_:genid2147483976"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483654"/>
+        <AnonymousIndividual nodeID="_:genid2147483977"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483655"/>
+        <AnonymousIndividual nodeID="_:genid2147483978"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483656"/>
+        <AnonymousIndividual nodeID="_:genid2147483979"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483657"/>
+        <AnonymousIndividual nodeID="_:genid2147483980"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483658"/>
+        <AnonymousIndividual nodeID="_:genid2147483981"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483659"/>
+        <AnonymousIndividual nodeID="_:genid2147483982"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483660"/>
+        <AnonymousIndividual nodeID="_:genid2147483983"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483661"/>
+        <AnonymousIndividual nodeID="_:genid2147483984"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483662"/>
+        <AnonymousIndividual nodeID="_:genid2147483985"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483663"/>
+        <AnonymousIndividual nodeID="_:genid2147483986"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483664"/>
+        <AnonymousIndividual nodeID="_:genid2147483987"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483665"/>
+        <AnonymousIndividual nodeID="_:genid2147483988"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483666"/>
+        <AnonymousIndividual nodeID="_:genid2147483989"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
@@ -101,13 +101,16 @@
 }</Literal>
     </Annotation>
     <Declaration>
-        <Class IRI="#ClinicalDiagnosis"/>
-    </Declaration>
-    <Declaration>
         <Class IRI="#Cost"/>
     </Declaration>
     <Declaration>
         <Class IRI="#Development"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DiagnosisStrategy"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DiagnosisTest"/>
     </Declaration>
     <Declaration>
         <Class IRI="#Disease"/>
@@ -119,7 +122,10 @@
         <Class IRI="#EpidemiologicalParameter"/>
     </Declaration>
     <Declaration>
-        <Class IRI="#FollowUp"/>
+        <Class IRI="#FollowUpStrategy"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#FollowUpTest"/>
     </Declaration>
     <Declaration>
         <Class IRI="#Guideline"/>
@@ -135,6 +141,9 @@
     </Declaration>
     <Declaration>
         <Class IRI="#Intervention"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#LineOfTherapy"/>
     </Declaration>
     <Declaration>
         <Class IRI="#Manifestation"/>
@@ -155,7 +164,10 @@
         <Class IRI="#RareDisease"/>
     </Declaration>
     <Declaration>
-        <Class IRI="#Screening"/>
+        <Class IRI="#ScreeningStrategy"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#ScreeningTest"/>
     </Declaration>
     <Declaration>
         <Class IRI="#Strategy"/>
@@ -167,13 +179,7 @@
         <Class IRI="#Utility"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#excludes"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#hasClinicalDiagnosis"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#hasClinicalDiagnosisStrategy"/>
+        <ObjectProperty IRI="#excludesManifestation"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#hasCost"/>
@@ -182,10 +188,7 @@
         <ObjectProperty IRI="#hasDevelopment"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#hasDrug"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#hasFollowUp"/>
+        <ObjectProperty IRI="#hasDiagnosisStrategy"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#hasFollowUpStrategy"/>
@@ -200,6 +203,9 @@
         <ObjectProperty IRI="#hasIntervention"/>
     </Declaration>
     <Declaration>
+        <ObjectProperty IRI="#hasLineOfTherapy"/>
+    </Declaration>
+    <Declaration>
         <ObjectProperty IRI="#hasManifestation"/>
     </Declaration>
     <Declaration>
@@ -212,25 +218,13 @@
         <ObjectProperty IRI="#hasPathway"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#hasScreening"/>
-    </Declaration>
-    <Declaration>
         <ObjectProperty IRI="#hasScreeningStrategy"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#hasStep"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#hasStrategy"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#hasSubpopulation"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#hasTreatment"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#hasTreatmentStrategy"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#hasUtility"/>
@@ -257,12 +251,6 @@
         <ObjectProperty IRI="#isPathwayTo"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#isStepOf"/>
-    </Declaration>
-    <Declaration>
-        <ObjectProperty IRI="#isStrategyOf"/>
-    </Declaration>
-    <Declaration>
         <ObjectProperty IRI="#isSubpopulationOf"/>
     </Declaration>
     <Declaration>
@@ -282,6 +270,27 @@
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#requiresPreviousManifestation"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#usesDiagnosisTest"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#usesDrug"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#usesFollowUpTest"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#usesHealthTechnology"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#usesScreeningTest"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#usesTreatment"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#failsIf"/>
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasAge"/>
@@ -593,24 +602,6 @@
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
     </Declaration>
     <SubClassOf>
-        <Class IRI="#ClinicalDiagnosis"/>
-        <Class IRI="#HealthTechnology"/>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#ClinicalDiagnosis"/>
-        <DataMaxCardinality cardinality="1">
-            <DataProperty IRI="#hasSensitivity"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataMaxCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#ClinicalDiagnosis"/>
-        <DataMaxCardinality cardinality="1">
-            <DataProperty IRI="#hasSpecificity"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataMaxCardinality>
-    </SubClassOf>
-    <SubClassOf>
         <Class IRI="#Cost"/>
         <Class IRI="#Parameter"/>
     </SubClassOf>
@@ -642,6 +633,42 @@
         <Class IRI="#Development"/>
         <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasDescription"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DiagnosisStrategy"/>
+        <Class IRI="#Strategy"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DiagnosisStrategy"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasSensitivity"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DiagnosisStrategy"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasSpecificity"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DiagnosisTest"/>
+        <Class IRI="#HealthTechnology"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DiagnosisTest"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasSensitivity"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#DiagnosisTest"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasSpecificity"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
     </SubClassOf>
@@ -696,7 +723,11 @@
         </DataExactCardinality>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#FollowUp"/>
+        <Class IRI="#FollowUpStrategy"/>
+        <Class IRI="#Strategy"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#FollowUpTest"/>
         <Class IRI="#HealthTechnology"/>
     </SubClassOf>
     <SubClassOf>
@@ -782,6 +813,17 @@
             <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#LineOfTherapy"/>
+        <Class IRI="#Strategy"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#LineOfTherapy"/>
+        <DataSomeValuesFrom>
+            <DataProperty IRI="#failsIf"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataSomeValuesFrom>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Manifestation"/>
@@ -1033,27 +1075,38 @@
         </DataSomeValuesFrom>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#Screening"/>
-        <Class IRI="#HealthTechnology"/>
+        <Class IRI="#ScreeningStrategy"/>
+        <Class IRI="#Strategy"/>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#Screening"/>
+        <Class IRI="#ScreeningStrategy"/>
         <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasSensitivity"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#Screening"/>
+        <Class IRI="#ScreeningStrategy"/>
         <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasSpecificity"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#Screening"/>
+        <Class IRI="#ScreeningTest"/>
+        <Class IRI="#HealthTechnology"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ScreeningTest"/>
         <DataMaxCardinality cardinality="1">
-            <DataProperty IRI="#hasTemporaryThreshold"/>
+            <DataProperty IRI="#hasSensitivity"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ScreeningTest"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasSpecificity"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
     </SubClassOf>
@@ -1130,11 +1183,11 @@
         <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#ClinicalDiagnosis"/>
+        <Class IRI="#DiagnosisTest"/>
         <NamedIndividual IRI="#PBD_ClinicalDiagnosis"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#Strategy"/>
+        <Class IRI="#DiagnosisStrategy"/>
         <NamedIndividual IRI="#PBD_ClinicalDiagnosisStrategy"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -1198,7 +1251,7 @@
         <NamedIndividual IRI="#PBD_FakePopulation"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#Strategy"/>
+        <Class IRI="#FollowUpStrategy"/>
         <NamedIndividual IRI="#PBD_FollowUpStrategy"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -1270,15 +1323,15 @@
         <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#Strategy"/>
+        <Class IRI="#ScreeningStrategy"/>
         <NamedIndividual IRI="#PBD_ScreeningStrategy"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#Screening"/>
+        <Class IRI="#ScreeningTest"/>
         <NamedIndividual IRI="#PBD_ScreeningTechnique"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#Strategy"/>
+        <Class IRI="#LineOfTherapy"/>
         <NamedIndividual IRI="#PBD_TreatmentStrategy"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -1328,7 +1381,7 @@
         <NamedIndividual IRI="#PBD_CostDiagnosis"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#hasClinicalDiagnosis"/>
+        <ObjectProperty IRI="#usesDiagnosisTest"/>
         <NamedIndividual IRI="#PBD_ClinicalDiagnosisStrategy"/>
         <NamedIndividual IRI="#PBD_ClinicalDiagnosis"/>
     </ObjectPropertyAssertion>
@@ -1523,7 +1576,7 @@
         <NamedIndividual IRI="#PBD_ManifestationPathwayVisionLoss"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#hasClinicalDiagnosisStrategy"/>
+        <ObjectProperty IRI="#hasDiagnosisStrategy"/>
         <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>
         <NamedIndividual IRI="#PBD_ClinicalDiagnosisStrategy"/>
     </ObjectPropertyAssertion>
@@ -1541,6 +1594,11 @@
         <ObjectProperty IRI="#hasIntervention"/>
         <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>
         <NamedIndividual IRI="#PBD_InterventionScreening"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasLineOfTherapy"/>
+        <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>
+        <NamedIndividual IRI="#PBD_TreatmentStrategy"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasManifestation"/>
@@ -1578,12 +1636,7 @@
         <NamedIndividual IRI="#PBD_NaturalDevelopment"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#hasTreatmentStrategy"/>
-        <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>
-        <NamedIndividual IRI="#PBD_TreatmentStrategy"/>
-    </ObjectPropertyAssertion>
-    <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#hasScreening"/>
+        <ObjectProperty IRI="#usesScreeningTest"/>
         <NamedIndividual IRI="#PBD_ScreeningStrategy"/>
         <NamedIndividual IRI="#PBD_ScreeningTechnique"/>
     </ObjectPropertyAssertion>
@@ -2353,15 +2406,19 @@
         <Literal>0.04#UNIFORM(0.032,0.048)</Literal>
     </DataPropertyAssertion>
     <SubObjectPropertyOf>
-        <ObjectProperty IRI="#hasClinicalDiagnosisStrategy"/>
-        <ObjectProperty IRI="#hasStrategy"/>
-    </SubObjectPropertyOf>
-    <SubObjectPropertyOf>
         <ObjectProperty IRI="#hasCost"/>
         <ObjectProperty IRI="#hasParameter"/>
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
+        <ObjectProperty IRI="#hasDiagnosisStrategy"/>
+        <ObjectProperty IRI="#hasStrategy"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
         <ObjectProperty IRI="#hasFollowUpStrategy"/>
+        <ObjectProperty IRI="#hasStrategy"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#hasLineOfTherapy"/>
         <ObjectProperty IRI="#hasStrategy"/>
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
@@ -2370,10 +2427,6 @@
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
         <ObjectProperty IRI="#hasScreeningStrategy"/>
-        <ObjectProperty IRI="#hasStrategy"/>
-    </SubObjectPropertyOf>
-    <SubObjectPropertyOf>
-        <ObjectProperty IRI="#hasTreatmentStrategy"/>
         <ObjectProperty IRI="#hasStrategy"/>
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
@@ -2404,6 +2457,26 @@
         <ObjectProperty IRI="#modifiesManifestationPathway"/>
         <ObjectProperty IRI="#modifies"/>
     </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#usesDiagnosisTest"/>
+        <ObjectProperty IRI="#usesHealthTechnology"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#usesDrug"/>
+        <ObjectProperty IRI="#usesHealthTechnology"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#usesFollowUpTest"/>
+        <ObjectProperty IRI="#usesHealthTechnology"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#usesScreeningTest"/>
+        <ObjectProperty IRI="#usesHealthTechnology"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#usesTreatment"/>
+        <ObjectProperty IRI="#usesHealthTechnology"/>
+    </SubObjectPropertyOf>
     <InverseObjectProperties>
         <ObjectProperty IRI="#hasParameter"/>
         <ObjectProperty IRI="#isParameterOf"/>
@@ -2411,14 +2484,6 @@
     <InverseObjectProperties>
         <ObjectProperty IRI="#hasPathway"/>
         <ObjectProperty IRI="#isPathwayTo"/>
-    </InverseObjectProperties>
-    <InverseObjectProperties>
-        <ObjectProperty IRI="#hasStep"/>
-        <ObjectProperty IRI="#isStepOf"/>
-    </InverseObjectProperties>
-    <InverseObjectProperties>
-        <ObjectProperty IRI="#hasStrategy"/>
-        <ObjectProperty IRI="#isStrategyOf"/>
     </InverseObjectProperties>
     <InverseObjectProperties>
         <ObjectProperty IRI="#hasSubpopulation"/>
@@ -2429,29 +2494,21 @@
         <ObjectProperty IRI="#modifies"/>
     </InverseObjectProperties>
     <ObjectPropertyDomain>
-        <ObjectProperty IRI="#excludes"/>
+        <ObjectProperty IRI="#excludesManifestation"/>
         <Class IRI="#Manifestation"/>
-    </ObjectPropertyDomain>
-    <ObjectPropertyDomain>
-        <ObjectProperty IRI="#hasClinicalDiagnosis"/>
-        <Class IRI="#Strategy"/>
-    </ObjectPropertyDomain>
-    <ObjectPropertyDomain>
-        <ObjectProperty IRI="#hasClinicalDiagnosisStrategy"/>
-        <ObjectUnionOf>
-            <Class IRI="#Disease"/>
-            <Class IRI="#Intervention"/>
-        </ObjectUnionOf>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#hasCost"/>
         <ObjectUnionOf>
-            <Class IRI="#ClinicalDiagnosis"/>
+            <Class IRI="#DiagnosisStrategy"/>
+            <Class IRI="#DiagnosisTest"/>
             <Class IRI="#Drug"/>
-            <Class IRI="#FollowUp"/>
+            <Class IRI="#FollowUpStrategy"/>
+            <Class IRI="#FollowUpTest"/>
+            <Class IRI="#LineOfTherapy"/>
             <Class IRI="#Manifestation"/>
-            <Class IRI="#Screening"/>
-            <Class IRI="#Strategy"/>
+            <Class IRI="#ScreeningStrategy"/>
+            <Class IRI="#ScreeningTest"/>
             <Class IRI="#Treatment"/>
         </ObjectUnionOf>
     </ObjectPropertyDomain>
@@ -2460,18 +2517,21 @@
         <Class IRI="#Disease"/>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
-        <ObjectProperty IRI="#hasDrug"/>
-        <Class IRI="#Strategy"/>
-    </ObjectPropertyDomain>
-    <ObjectPropertyDomain>
-        <ObjectProperty IRI="#hasFollowUp"/>
-        <Class IRI="#Strategy"/>
+        <ObjectProperty IRI="#hasDiagnosisStrategy"/>
+        <ObjectUnionOf>
+            <Class IRI="#DiagnosisStrategy"/>
+            <Class IRI="#Disease"/>
+            <Class IRI="#Intervention"/>
+        </ObjectUnionOf>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#hasFollowUpStrategy"/>
         <ObjectUnionOf>
+            <Class IRI="#Development"/>
             <Class IRI="#Disease"/>
+            <Class IRI="#FollowUpStrategy"/>
             <Class IRI="#Intervention"/>
+            <Class IRI="#LineOfTherapy"/>
             <Class IRI="#Manifestation"/>
         </ObjectUnionOf>
     </ObjectPropertyDomain>
@@ -2479,14 +2539,29 @@
         <ObjectProperty IRI="#hasGuideline"/>
         <ObjectUnionOf>
             <Class IRI="#Drug"/>
-            <Class IRI="#FollowUp"/>
-            <Class IRI="#Strategy"/>
+            <Class IRI="#FollowUpStrategy"/>
+            <Class IRI="#FollowUpTest"/>
+            <Class IRI="#LineOfTherapy"/>
             <Class IRI="#Treatment"/>
         </ObjectUnionOf>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
+        <ObjectProperty IRI="#hasGuidelineRange"/>
+        <Class IRI="#Guideline"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
         <ObjectProperty IRI="#hasIntervention"/>
         <Class IRI="#Disease"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#hasLineOfTherapy"/>
+        <ObjectUnionOf>
+            <Class IRI="#Development"/>
+            <Class IRI="#Disease"/>
+            <Class IRI="#Intervention"/>
+            <Class IRI="#LineOfTherapy"/>
+            <Class IRI="#Manifestation"/>
+        </ObjectUnionOf>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#hasManifestation"/>
@@ -2497,35 +2572,16 @@
         <Class IRI="#Manifestation"/>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
-        <ObjectProperty IRI="#hasScreening"/>
-        <Class IRI="#Strategy"/>
-    </ObjectPropertyDomain>
-    <ObjectPropertyDomain>
         <ObjectProperty IRI="#hasScreeningStrategy"/>
         <ObjectUnionOf>
             <Class IRI="#Disease"/>
             <Class IRI="#Intervention"/>
+            <Class IRI="#ScreeningStrategy"/>
         </ObjectUnionOf>
-    </ObjectPropertyDomain>
-    <ObjectPropertyDomain>
-        <ObjectProperty IRI="#hasStep"/>
-        <Class IRI="#Strategy"/>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#hasSubpopulation"/>
         <Class IRI="#Population"/>
-    </ObjectPropertyDomain>
-    <ObjectPropertyDomain>
-        <ObjectProperty IRI="#hasTreatment"/>
-        <Class IRI="#Strategy"/>
-    </ObjectPropertyDomain>
-    <ObjectPropertyDomain>
-        <ObjectProperty IRI="#hasTreatmentStrategy"/>
-        <ObjectUnionOf>
-            <Class IRI="#Disease"/>
-            <Class IRI="#Intervention"/>
-            <Class IRI="#Manifestation"/>
-        </ObjectUnionOf>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#hasUtility"/>
@@ -2549,10 +2605,6 @@
         <Class IRI="#ManifestationPathway"/>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
-        <ObjectProperty IRI="#isStrategyOf"/>
-        <Class IRI="#Strategy"/>
-    </ObjectPropertyDomain>
-    <ObjectPropertyDomain>
         <ObjectProperty IRI="#isSubpopulationOf"/>
         <Class IRI="#Population"/>
     </ObjectPropertyDomain>
@@ -2568,13 +2620,29 @@
         <ObjectProperty IRI="#requiresPreviousManifestation"/>
         <Class IRI="#ManifestationPathway"/>
     </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#usesDiagnosisTest"/>
+        <Class IRI="#DiagnosisStrategy"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#usesDrug"/>
+        <Class IRI="#LineOfTherapy"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#usesFollowUpTest"/>
+        <Class IRI="#FollowUpStrategy"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#usesScreeningTest"/>
+        <Class IRI="#ScreeningStrategy"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#usesTreatment"/>
+        <Class IRI="#LineOfTherapy"/>
+    </ObjectPropertyDomain>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#excludes"/>
+        <ObjectProperty IRI="#excludesManifestation"/>
         <Class IRI="#Manifestation"/>
-    </ObjectPropertyRange>
-    <ObjectPropertyRange>
-        <ObjectProperty IRI="#hasClinicalDiagnosis"/>
-        <Class IRI="#ClinicalDiagnosis"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#hasCost"/>
@@ -2585,20 +2653,28 @@
         <Class IRI="#Development"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#hasDrug"/>
-        <Class IRI="#Drug"/>
+        <ObjectProperty IRI="#hasDiagnosisStrategy"/>
+        <Class IRI="#DiagnosisStrategy"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#hasFollowUp"/>
-        <Class IRI="#FollowUp"/>
+        <ObjectProperty IRI="#hasFollowUpStrategy"/>
+        <Class IRI="#FollowUpStrategy"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#hasGuideline"/>
         <Class IRI="#Guideline"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
+        <ObjectProperty IRI="#hasGuidelineRange"/>
+        <Class IRI="#GuidelineRange"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
         <ObjectProperty IRI="#hasIntervention"/>
         <Class IRI="#Intervention"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#hasLineOfTherapy"/>
+        <Class IRI="#LineOfTherapy"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#hasManifestation"/>
@@ -2609,28 +2685,20 @@
         <Class IRI="#ManifestationPathway"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#hasScreening"/>
-        <Class IRI="#Screening"/>
-    </ObjectPropertyRange>
-    <ObjectPropertyRange>
-        <ObjectProperty IRI="#hasStep"/>
-        <Class IRI="#Strategy"/>
-    </ObjectPropertyRange>
-    <ObjectPropertyRange>
-        <ObjectProperty IRI="#hasStrategy"/>
-        <Class IRI="#Strategy"/>
+        <ObjectProperty IRI="#hasScreeningStrategy"/>
+        <Class IRI="#ScreeningStrategy"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#hasSubpopulation"/>
         <Class IRI="#Population"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#hasTreatment"/>
-        <Class IRI="#Treatment"/>
-    </ObjectPropertyRange>
-    <ObjectPropertyRange>
         <ObjectProperty IRI="#hasUtility"/>
         <Class IRI="#Utility"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#involvesModification"/>
+        <Class IRI="#Modification"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#isParameterOfDisease"/>
@@ -2679,6 +2747,26 @@
     <ObjectPropertyRange>
         <ObjectProperty IRI="#requiresPreviousManifestation"/>
         <Class IRI="#Manifestation"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#usesDiagnosisTest"/>
+        <Class IRI="#DiagnosisTest"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#usesDrug"/>
+        <Class IRI="#Drug"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#usesFollowUpTest"/>
+        <Class IRI="#FollowUpTest"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#usesScreeningTest"/>
+        <Class IRI="#ScreeningTest"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#usesTreatment"/>
+        <Class IRI="#Treatment"/>
     </ObjectPropertyRange>
     <SubDataPropertyOf>
         <DataProperty IRI="#hasAgeOfFirstPresentation"/>
