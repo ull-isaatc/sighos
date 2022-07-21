@@ -23,28 +23,30 @@ public interface OSDiNames {
 	 *
 	 */
 	public static enum Class implements Describable {
-		CLINICAL_DIAGNOSIS("#ClinicalDiagnosis"),	
 		DEVELOPMENT("#Development"),
+		DIAGNOSIS_STRATEGY("#DiagnosisStrategy"),	
+		DIAGNOSIS_TEST("#DiagnosisTest"),	
 		DISEASE("#Disease"),
 		DRUG("#Drug"),
-		FOLLOWUP("#FollowUp"),
+		FOLLOW_UP_STRATEGY("#FollowUpStrategy"),
+		FOLLOW_UP_TEST("#FollowUpTest"),
 		GUIDELINE("#Guideline"),
 		GUIDELINE_RANGE("#GuidelineRange"),
+		HEALTH_TECHNOLOGY("#HealthTechnology"),
+		INDIVIDUAL_PARAMETER("#IndividualParameter"),	
 		INTERVENTION("#Intervention"),
+		LINE_OF_THERAPY("#LineOfTherapy"),
 		MANIFESTATION("#Manifestation"),
 		MANIFESTATION_PATHWAY("#ManifestationPathway"),
 		MODIFICATION("#Modification"),
-		MANIFESTATION_MODIFICATION("#ManifestationModification"),
-		MANIFESTATION_PATHWAY_MODIFICATION("#ManifestationPathwayModification"),
-		DEVELOPMENT_MODIFICATION("#DevelopmentModification"),
 		PARAMETER("#Parameter"),
 		EPIDEMIOLOGICAL_PARAMETER("#EpidemiologicalParameter"),
 		COST("#Cost"),
 		UTILITY("#Utility"),
 		POPULATION("#Population"),
-		SCREENING("#Screening"),
+		SCREENING_STRATEGY("#ScreeningStrategy"),
+		SCREENING_TEST("#ScreeningTest"),
 		STRATEGY("#Strategy"),
-		STRATEGY_STEP("#StrategyStep"),
 		TREATMENT("#Treatment");
 
 		private final String description;
@@ -70,6 +72,7 @@ public interface OSDiNames {
 	 *
 	 */
 	public static enum DataProperty implements Describable {
+		FAILS_IF("#failsIf"),
 		HAS_AGE("#hasAge"),
 		HAS_AGE_OF_FIRST_PRESENTATION("#hasAgeOfFirstPresentation"),
 		HAS_CALCULATION_METHOD("#hasCalculationMethod"),
@@ -164,45 +167,44 @@ public interface OSDiNames {
 	 *
 	 */
 	public static enum ObjectProperty implements Describable {
-		EXCLUDES("#excludes"),
-		HAS_CLINICAL_DIAGNOSIS("#hasClinicalDiagnosis"),
-		HAS_CLINICAL_DIAGNOSIS_STRATEGY("#hasClinicalDiagnosisStrategy"),
-		HAS_COST("#hasCost"),
+		EXCLUDES_MANIFESTATION("#excludesManifestation"),
 		HAS_DEVELOPMENT("#hasDevelopment"),
-		HAS_DRUG("#hasDrug"),
-		HAS_FOLLOWUP("#hasFollowUp"),
+		HAS_DIAGNOSIS_STRATEGY("#hasDiagnosisStrategy"),
+		HAS_COST("#hasCost"),
 		HAS_FOLLOWUP_STRATEGY("#hasFollowUpStrategy"),
 		HAS_GUIDELINE("#hasGuideline"),
 		HAS_GUIDELINE_RANGE("#hasGuidelineRange"),
 		HAS_INTERVENTION("#hasIntervention"),
+		HAS_LINE_OF_THERAPY("#hasLineOfTherapy"),
 		HAS_MANIFESTATION("#hasManifestation"),
 		HAS_NATURAL_DEVELOPMENT("#hasNaturalDevelopment"),
 		HAS_PARAMETER("#hasParameter"),
 		HAS_PATHWAY("#hasPathway"),
-		HAS_SCREENING("#hasScreening"),
 		HAS_SCREENING_STRATEGY("#hasScreeningStrategy"),
-		HAS_STEP("#hasStep"),
 		HAS_STRATEGY("#hasStrategy"),
 		HAS_SUBPOPULATION("#hasSubpopulation"),
-		HAS_TREATMENT("#hasTreatment"),
 		HAS_TREATMENT_STRATEGY("#hasTreatmentStrategy"),
 		HAS_UTILITY("#hasUtility"),
 		INVOLVES_MODIFICATION("#involvesModification"),
 		IS_MODIFIED_BY("#isModifiedBy"),
-		IS_PATHWAY_TO("#isPathwayTo"),
 		IS_PARAMETER_OF("#isParameterOf"),
 		IS_PARAMETER_OF_DISEASE("#isParameterOfDisease"),
 		IS_PARAMETER_OF_MANIFESTATION("#isParameterOfManifestation"),
 		IS_PARAMETER_OF_POPULATION("#isParameterOfPopulation"),
-		IS_STEP_OF("#isStepOf"),
-		IS_STRATEGY_OF("#isStrategyOf"),
+		IS_PATHWAY_TO("#isPathwayTo"),
 		IS_SUBPOPULATION_OF("#isSubpopulationOf"),
 		MODIFIES("#modifies"),
 		MODIFIES_DEVELOPMENT("#modifiesDevelopment"),
 		MODIFIES_MANIFESTATION("#modifiesManifestation"),
 		MODIFIES_MANIFESTATION_PATHWAY("#modifiesManifestationPathway"),
 		REQUIRES_DEVELOPMENT("#requiresDevelopment"),
-		REQUIRES_PREVIOUS_MANIFESTATION("#requiresPreviousManifestation");
+		REQUIRES_PREVIOUS_MANIFESTATION("#requiresPreviousManifestation"),
+		USES_DIAGNOSIS_TEST("#usesDiagnosisTest"),
+		USES_DRUG("#usesDrug"),
+		USES_FOLLOW_UP_TEST("#usesFollowUpTest"),
+		USES_HEALTH_TECHNOLOGY("#usesHealthTechnology"),
+		USES_SCREENING_TEST("#usesScreeningTest"),
+		USES_TREATMENT("#hasTreatment");
 		
 		private final String description;
 		private ObjectProperty(String description) {

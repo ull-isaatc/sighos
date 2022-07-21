@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.costs;
 
-import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
@@ -11,7 +10,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  * @author Iván Castilla
  *
  */
-public class HealthTechnology implements PartOfStrategy, CreatesSecondOrderParameters {
+public class HealthTechnology implements PartOfStrategy {
 	private final String name;
 	private final String description;
 	protected final SecondOrderParamsRepository secParams;
@@ -42,7 +41,7 @@ public class HealthTechnology implements PartOfStrategy, CreatesSecondOrderParam
 
 	@Override
 	public double getUnitCost(Patient pat) {
-		return 0.0;
+		return secParams.getCostParam(getUnitCostParameterString(false), pat.getSimulation());
 	}
 
 	/**
