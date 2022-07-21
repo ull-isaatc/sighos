@@ -8,9 +8,9 @@ import java.util.Locale;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.costs.CostCalculator;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;

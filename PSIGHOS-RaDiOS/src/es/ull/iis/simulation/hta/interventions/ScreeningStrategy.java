@@ -9,6 +9,8 @@ import java.util.Arrays;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.costs.ScreeningTest;
+import es.ull.iis.simulation.hta.costs.Strategy;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
@@ -21,8 +23,6 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  *
  */
 public abstract class ScreeningStrategy extends Intervention {
-	protected final static String [] STR_SPECIFICITY = {"Specificity_", "Specificity for "};
-	protected final static String [] STR_SENSITIVITY = {"Sensitivity_", "Sensitivity for "};
 	public final static String STR_SCREENING = "tScreening";
 	public enum ScreeningResult implements Named {
 		TP,
@@ -31,14 +31,16 @@ public abstract class ScreeningStrategy extends Intervention {
 		FN
 	}
 	private final RandomSeedForPatients[] randomSeeds;
+	private final Strategy strategy;
 	
 	/**
 	 * 
 	 */
-	public ScreeningStrategy(SecondOrderParamsRepository secParams, String name, String description) {
+	public ScreeningStrategy(SecondOrderParamsRepository secParams, String name, String description, Strategy strategy) {
 		super(secParams, name, description);
 		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
 		Arrays.fill(randomSeeds, null);
+		this.strategy = strategy;
 	}
 	
 	public void reset(int id) {
@@ -52,52 +54,22 @@ public abstract class ScreeningStrategy extends Intervention {
 		return randomSeeds[id];
 	}
 	
-	/**
-	 * Returns a string to identify/describe the specificity parameter associated to this intervention
-	 * @param longText If true, returns the description of the parameter; otherwise, returns the identifier
-	 * @return a string to identify/describe the specificity parameter associated to this disease
-	 */
-	public String getSpecificityParameterString(boolean longText) {
-		return longText ? (STR_SPECIFICITY[1] + getDescription()) : (STR_SPECIFICITY[0] + name());
-	}
-	
-	/**
-	 * Returns a string to identify/describe the sensitivity parameter associated to this intervention
-	 * @param longText If true, returns the description of the parameter; otherwise, returns the identifier
-	 * @return a string to identify/describe the sensitivity parameter associated to this disease
-	 */
-	public String getSensitivityParameterString(boolean longText) {
-		return longText ? (STR_SENSITIVITY[1] + getDescription()) : (STR_SENSITIVITY[0] + name());
-	}
-	
-	/**
-	 * @return the sensitivity
-	 */
-	public double getSensitivity(Patient pat) {
-		return secParams.getProbParam(getSpecificityParameterString(false), pat.getSimulation());
-	}
-
-	/**
-	 * @return the specificity
-	 */
-	public double getSpecificity(Patient pat) {
-		return secParams.getProbParam(getSensitivityParameterString(false), pat.getSimulation());
-	}
-	
 	@Override
 	public ArrayList<DiscreteEvent> getEvents(Patient pat) {
 		final ArrayList<DiscreteEvent> eventList = new ArrayList<>();
-		eventList.add(new ScreeningEvent(pat.getTs(), pat));
+		eventList.add(new ScreeningEvent(pat.getTs(), pat, strategy));
 		return eventList;
 	}
 
 	
 	public class ScreeningEvent extends DiscreteEvent {
-		final Patient pat;
+		private final Patient pat;
+		private final Strategy strategyStage;
 		
-		public ScreeningEvent(long ts, Patient pat) {
+		public ScreeningEvent(long ts, Patient pat, Strategy strategyStage) {
 			super(ts);
 			this.pat = pat;
+			this.strategyStage = strategyStage;
 		}
 
 		@Override
@@ -105,7 +77,7 @@ public abstract class ScreeningStrategy extends Intervention {
 			final DiseaseProgressionSimulation simul = pat.getSimulation();
 			pat.getProfile().addElementToListProperty(STR_SCREENING, ts);
 			// If the patient is already diagnosed, no sense in performing screening
-			if (!pat.isDiagnosed()) {
+			if (!pat.isDiagnosed() && strategyStage.getCondition().check(pat)) {
 				final int id = simul.getIdentifier();
 				ScreeningResult result;
 				// Healthy patients can be wrongly identified as false positives 

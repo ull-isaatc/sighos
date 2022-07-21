@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.progression;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**

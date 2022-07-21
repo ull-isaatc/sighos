@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
-import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
