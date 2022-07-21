@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.outcomes;
+package es.ull.iis.simulation.hta.costs;
 
 import java.util.Collection;
 import java.util.TreeMap;

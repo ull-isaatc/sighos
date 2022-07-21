@@ -3,13 +3,13 @@
  */
 package es.ull.iis.simulation.hta.diab;
 
+import es.ull.iis.simulation.hta.costs.CostCalculator;
+import es.ull.iis.simulation.hta.costs.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.diab.interventions.DCCT_ConventionalIntervention;
 import es.ull.iis.simulation.hta.diab.interventions.DCCT_IntensiveIntervention;
-import es.ull.iis.simulation.hta.outcomes.CostCalculator;
-import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
-import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
-import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
-import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.effectiveness.DiseaseUtilityCalculator;
+import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator;
+import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;

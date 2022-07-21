@@ -1,20 +1,23 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.outcomes;
+package es.ull.iis.simulation.hta.effectiveness;
+
+import java.util.Collection;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
- * A utility calculator that relies on the specific disease to compute the disutility, and then 
- * combines it with the disutility from the intervention according to the defined {@link DisutilityCombinationMethod} and the current health state of the patient.
+ * A standard utility calculator that simply collects constant disutility values for each complication and then 
+ * combines them according to the defined {@link DisutilityCombinationMethod} and the current health state of the patient.
+ * Acute events and no complication utilities are defined in the constructor. 
  * 
  * @author Iván Castilla Rodríguez
  *
  */
-public class DiseaseUtilityCalculator implements UtilityCalculator {
+public class StdUtilityCalculator implements UtilityCalculator {
 	/** Method used to combine the disutilities for different chronic complications */
 	private final DisutilityCombinationMethod method;
 	private final SecondOrderParamsRepository secParams;
@@ -23,10 +26,9 @@ public class DiseaseUtilityCalculator implements UtilityCalculator {
 	 * Creates an instance of a standard calculator that simply combines the disutilities for every complication that suffers the
 	 * patient
 	 * @param method Method to combine the disutilies
-	 * @param genPopUtility Utility for general population
 	 * @param duAcuteEvent Disutility of acute events
 	 */
-	public DiseaseUtilityCalculator(SecondOrderParamsRepository secParams, DisutilityCombinationMethod method) {
+	public StdUtilityCalculator(SecondOrderParamsRepository secParams, DisutilityCombinationMethod method) {
 		this.secParams = secParams;
 		this.method = method;
 	}
@@ -38,6 +40,11 @@ public class DiseaseUtilityCalculator implements UtilityCalculator {
 	
 	@Override	
 	public double getUtilityValue(Patient pat) {
-		return secParams.getBaseUtility(pat.getSimulation().getIdentifier()) - method.combine(pat.getDisease().getDisutility(pat, method), pat.getIntervention().getDisutility(pat));
+		final Collection<Manifestation> state = pat.getState();
+		double du = 0.0;
+		for (Manifestation manif : state) {
+			du = method.combine(du, secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier())[0]);
+		}
+		return secParams.getBaseUtility(pat.getSimulation().getIdentifier()) - du - pat.getIntervention().getDisutility(pat);
 	}
 }
