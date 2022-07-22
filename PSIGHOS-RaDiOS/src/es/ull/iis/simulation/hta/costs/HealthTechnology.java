@@ -4,6 +4,8 @@
 package es.ull.iis.simulation.hta.costs;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.Discount;
+import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
@@ -13,7 +15,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 public class HealthTechnology implements PartOfStrategy {
 	private final String name;
 	private final String description;
-	protected final SecondOrderParamsRepository secParams;
+	private final SecondOrderParamsRepository secParams;
 	private final Guideline guide;
 	/**
 	 * 
@@ -39,7 +41,6 @@ public class HealthTechnology implements PartOfStrategy {
 		return name;
 	}
 
-	@Override
 	public double getUnitCost(Patient pat) {
 		return secParams.getCostParam(getUnitCostParameterString(false), pat.getSimulation());
 	}
@@ -49,6 +50,29 @@ public class HealthTechnology implements PartOfStrategy {
 	 */
 	public Guideline getGuide() {
 		return guide;
+	}
+
+	@Override
+	public double getCostForPeriod(Patient pat, double startT, double endT, Discount discountRate) {
+		final double unitCost = secParams.getCostParam(getUnitCostParameterString(false), pat.getSimulation());
+		final boolean isAnnual = SecondOrderCostParam.TemporalBehavior.ANNUAL.equals(secParams.getTemporalBehaviorOfCostParam(getUnitCostParameterString(false)));
+		// If the cost is annual, then the guideline is ignored
+		if (isAnnual) {
+			return discountRate.applyDiscount(unitCost, startT, endT);
+		}
+		// If the cost is punctual, the guideline is used
+		return guide.getCost(unitCost, startT, endT, discountRate);
+	}
+
+	@Override
+	public double[] getAnnualizedCostForPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SecondOrderParamsRepository getRepository() {
+		return secParams;
 	}
 
 }

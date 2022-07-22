@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
+import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
@@ -16,7 +16,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class PBDNewbornScreening extends ScreeningStrategy {
+public class PBDNewbornScreening extends ScreeningIntervention {
 	private final static double C_TEST = 0.89;
 
 	/**

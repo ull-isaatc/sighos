@@ -103,21 +103,5 @@ public interface DiseaseBuilder {
 					probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isDisutility);			
 		}
 	}
-	
-
-	// TODO
-	private static void calculateDiseaseStrategyCost(SecondOrderParamsRepository secParams, String paramName, String paramDescription, Matrix costs, String costType) {
-		Object[] calculatedCost = null;
-		if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ONETIME_VALUE.equalsIgnoreCase(costType)) {
-			calculatedCost = CostUtils.calculateOnetimeCostFromMatrix(costs);
-		} else if (Constants.DATAPROPERTYVALUE_TEMPORAL_BEHAVIOR_ANNUAL_VALUE.equalsIgnoreCase(costType)) {
-			calculatedCost = CostUtils.calculateAnnualCostFromMatrix(costs);
-		}
-		RandomVariate distribution = RandomVariateFactory.getInstance("ConstantVariate", (Double) calculatedCost[1]);
-		if (calculatedCost[2] != null) {
-			distribution = (RandomVariate) calculatedCost[2];
-		}
-		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, paramDescription, "", (Integer) calculatedCost[0], (Double) calculatedCost[1], distribution));
-	}
 
 }

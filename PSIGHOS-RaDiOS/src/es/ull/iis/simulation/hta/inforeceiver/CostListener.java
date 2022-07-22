@@ -60,8 +60,8 @@ public class CostListener extends Listener implements StructuredOutputListener {
 						final double initAge = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
 						final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
 						if (endAge > initAge) {
-							final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
-							update(pat, periodCost, initAge, endAge);							
+							final double periodCost = calc.getCostWithinPeriod(pat, initAge, endAge, discountRate);
+							update(pat, periodCost);							
 						}						
 					}
 				}
@@ -78,13 +78,13 @@ public class CostListener extends Listener implements StructuredOutputListener {
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {
 			case DIAGNOSIS:
-				update(pat, pat.getDisease().getDiagnosisCost(pat), endAge);
+				update(pat, pat.getDisease().getDiagnosisCost(pat, endAge, discountRate));
 				break;
 			case SCREEN:
-				update(pat, calc.getCostForIntervention(pat), endAge);
+				update(pat, calc.getCostForIntervention(pat, discountRate));
 				break;
 			case START_MANIF:
-				update(pat, calc.getCostUponIncidence(pat, pInfo.getManifestation()), endAge);
+				update(pat, calc.getCostUponIncidence(pat, pInfo.getManifestation(), discountRate));
 			case DEATH:
 			case START:
 				break;
@@ -95,33 +95,20 @@ public class CostListener extends Listener implements StructuredOutputListener {
 			if (!PatientInfo.Type.START.equals(pInfo.getType())) {
 				// Update outcomes
 				if (endAge > initAge) {
-					final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
-					update(pat, periodCost, initAge, endAge);
+					final double periodCost = calc.getCostWithinPeriod(pat, initAge, endAge, discountRate);
+					update(pat, periodCost);
 				}
 			}
 		}
 	}
 
 	/**
-	 * Updates the value of this outcome for a specified period
-	 * @param pat A patient
-	 * @param value A constant value during the period
-	 * @param initAge Initial age when the value is applied
-	 * @param endAge End age when the value is applied
-	 */
-	private void update(Patient pat, double value, double initAge, double endAge) {
-		value = discountRate.applyDiscount(value, initAge, endAge);
-		values[pat.getIdentifier()] += value;
-		aggregated += value;
-	}
-	/**
-	 * Updates the value of this outcome at a specified age
+	 * Updates the value of this outcome
 	 * @param pat A patient
 	 * @param value The value to update
 	 * @param age The age at which the value is applied
 	 */
-	private void update(Patient pat, double value, double age) {
-		value = discountRate.applyPunctualDiscount(value, age);
+	private void update(Patient pat, double value) {
 		values[pat.getIdentifier()] += value;
 		aggregated += value;
 	}

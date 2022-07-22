@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
@@ -49,13 +50,13 @@ public abstract class StandardDisease extends Disease {
 	}
 
 	@Override
-	public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
+	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		double cost = 0.0;
 		for (final Manifestation manif : pat.getState()) {
 			cost += secParams.getCostsForManifestation(manif, pat.getSimulation().getIdentifier())[0];
 		}
 		if (pat.isDiagnosed())
-			cost += getAnnualTreatmentAndFollowUpCosts(pat, initAge, endAge);
+			cost += getTreatmentAndFollowUpCosts(pat, initT, endT, discountRate);
 		return cost;
 	}
 

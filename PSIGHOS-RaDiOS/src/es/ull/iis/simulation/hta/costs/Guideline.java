@@ -10,8 +10,11 @@ import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.Discount;
+import es.ull.iis.simulation.hta.params.StdDiscount;
 import es.ull.iis.simulation.model.Describable;
 import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -61,25 +64,53 @@ public class Guideline implements Named, Describable {
 		ranges.add(new GuidelineRange(start, end, frequency, duration));
 	}
 	
+	public double getCost(double unitCost, double startT, double endT, Discount discountRate) {
+		if (endT <= startT)
+			return 0.0;
+		double cost = 0.0;
+		double t = startT;
+		for (GuidelineRange range : ranges) {
+			if (range.getStart() > endT)
+				break;
+			double minEndInRange = Math.min(range.getEnd(), endT);
+			double frequency = range.getFrequency();
+			// Checks if the range involves more than a natural year
+			int naturalYear = (int)t;
+			while (naturalYear <= minEndInRange) {
+				double period = Math.min(naturalYear + 1, minEndInRange) - t;
+				cost += discountRate.applyPunctualDiscount(period * frequency * unitCost, naturalYear) ;
+				t = ++naturalYear;
+			}
+			t = range.getEnd();
+		}
+		return cost;
+	}
+	
 	private static class GuidelineRange implements Comparable<GuidelineRange> {
-		private final long start;
-		private final long end;
+		private final double start;
+		private final double end;
 		private final double frequency;
 		private final double dose;
+		private final double uses;
 		
 		public GuidelineRange(TimeStamp start, TimeStamp end, double frequency, double dose) {
+			this(TimeUnit.DAY.convert(start) / BasicConfigParams.YEAR_CONVERSION, TimeUnit.DAY.convert(end) / BasicConfigParams.YEAR_CONVERSION, frequency, dose);
+		}
+		
+		public GuidelineRange(double start, double end, double frequency, double dose) {
 			super();
-			this.start = BasicConfigParams.SIMUNIT.convert(start);
-			this.end = BasicConfigParams.SIMUNIT.convert(end);
+			this.start = start;
+			this.end = end;
 			this.frequency = frequency;
 			this.dose = dose;
+			this.uses = (end - start) * frequency;
 		}
 
-		public long getStart() {
+		public double getStart() {
 			return start;
 		}
 
-		public long getEnd() {
+		public double getEnd() {
 			return end;
 		}
 
@@ -90,7 +121,7 @@ public class Guideline implements Named, Describable {
 		public double getDose() {
 			return dose;
 		}
-
+		
 		@Override
 		public int compareTo(GuidelineRange o) {
 			if (start < o.start)

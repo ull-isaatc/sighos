@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
@@ -26,9 +27,9 @@ public class DiseaseCostCalculator implements CostCalculator {
 	}
 
 	@Override
-	public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
+	public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge, Discount discountRate) {
 		double cost = pat.getIntervention().getAnnualCost(pat);
-		return cost + pat.getDisease().getAnnualCostWithinPeriod(pat, initAge, endAge);
+		return cost + pat.getDisease().getCostWithinPeriod(pat, initAge, endAge, discountRate);
 	}
 
 	@Override

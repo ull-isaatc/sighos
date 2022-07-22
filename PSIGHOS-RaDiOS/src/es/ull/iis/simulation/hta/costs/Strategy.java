@@ -4,16 +4,23 @@
 package es.ull.iis.simulation.hta.costs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.Discount;
+import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
+import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
+import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * A stepped strategy intended to involve different costs at different stages. For example, a treatment strategy may consist on starting with a drug, 
  * then switching to another, and finally staying with a different one. Strategies may require a previous condition to be applied. The simplest strategy just incurs
- * in a specific cost; more complex strategies involve a succession of stages or steps, each one consisting on one or several drugs, treatments, follow-up tests...  
+ * in a unit cost (either one-time or annual); more complex strategies involve a succession of stages or steps, each one consisting on one or several drugs, 
+ * treatments, follow-up tests...
+ * TODO: The computation of costs for complex structures is not yet implemented  
  * @author Iván Castilla Rodríguez
  *
  */
@@ -24,6 +31,7 @@ public class Strategy implements PartOfStrategy {
 	private final ArrayList<ArrayList<PartOfStrategy>> parts;
 	private Strategy parent = null;
 	protected final SecondOrderParamsRepository secParams;
+	private final RandomSeedForPatients[] randomSeeds;
 	
 	/**
 	 * 
@@ -41,8 +49,21 @@ public class Strategy implements PartOfStrategy {
 		this.name = name;
 		this.parts = new  ArrayList<>();
 		this.secParams = secParams;
+		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
+		Arrays.fill(randomSeeds, null);
 	}
 
+	public void reset(int id) {
+		randomSeeds[id].reset();
+	}
+	
+	public RandomSeedForPatients getRandomSeedForPatients(int id) {
+		if (randomSeeds[id] == null) {
+			randomSeeds[id] = new MultipleRandomSeedPerPatient(secParams.getnPatients(), true);
+		}
+		return randomSeeds[id];
+	}
+	
 	@Override
 	public String name() {
 		return name;
@@ -66,11 +87,6 @@ public class Strategy implements PartOfStrategy {
 
 	public Condition<Patient> getCondition() {
 		return condition;
-	}
-
-	@Override
-	public double getUnitCost(Patient pat) {
-		return secParams.getCostParam(getUnitCostParameterString(false), pat.getSimulation());
 	}
 	
 	/**
@@ -103,5 +119,43 @@ public class Strategy implements PartOfStrategy {
 
 	@Override
 	public void registerSecondOrderParameters() {
+	}
+
+	@Override
+	public double getCostForPeriod(Patient pat, double startT, double endT, Discount discountRate) {
+		double cost = 0.0;
+		// If the patient does not meet the condition, the strategy cannot be applied
+		if (condition.check(pat)) {
+			final double unitCost = secParams.getCostParam(getUnitCostParameterString(false), pat.getSimulation());
+			// In case a unit cost is defined, it is used first to compute the cost of the strategy
+			if (!Double.isNaN(unitCost)) {
+				final boolean isAnnual = SecondOrderCostParam.TemporalBehavior.ANNUAL.equals(secParams.getTemporalBehaviorOfCostParam(getUnitCostParameterString(false)));
+				if (isAnnual) {
+					cost += discountRate.applyDiscount(unitCost, startT, endT);
+				}
+				else {
+					cost += discountRate.applyPunctualDiscount(unitCost, startT);
+				}
+			}
+			// In any case, checks if the strategy is more complex
+			/* TODO: Though the class allows to define complex structure with multiple levels, still assuming a single level. Should implement more levels but,
+			 * how to store the level for a patient, when to consider that a level has failed or you must recheck conditions? 
+			 */
+			for (PartOfStrategy part : parts.get(0)) {
+				cost += part.getCostForPeriod(pat, startT, endT, discountRate);
+			}
+		}
+		return cost;
+	}
+
+	@Override
+	public double[] getAnnualizedCostForPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SecondOrderParamsRepository getRepository() {
+		return secParams;
 	}
 }

@@ -27,7 +27,7 @@ import es.ull.iis.simulation.hta.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.inforeceiver.ScreeningTestPerformanceView;
 import es.ull.iis.simulation.hta.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
+import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -290,7 +290,7 @@ public abstract class HTAExperiment {
 			str.append(CostListener.getStrHeader(shortName));
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
-			if (interventions[i] instanceof ScreeningStrategy)
+			if (interventions[i] instanceof ScreeningIntervention)
 				str.append(ScreeningTestPerformanceView.getStrHeader(shortName));
 		}
 		str.append(TimeFreeOfComplicationsView.getStrHeader(false, secParams));
@@ -306,7 +306,7 @@ public abstract class HTAExperiment {
 			str.append(costListeners[i]);
 			str.append(lyListeners[i]);
 			str.append(qalyListeners[i]);
-			if (interventions[i] instanceof ScreeningStrategy)
+			if (interventions[i] instanceof ScreeningIntervention)
 				str.append(screenListeners[i]);
 		}
 		str.append(timeFreeListener).append(secParams.print(simul.getIdentifier()));
@@ -333,7 +333,7 @@ public abstract class HTAExperiment {
 			costListeners[i] = new CostListener(secParams.getCostCalculator(), discountCost, nPatients);
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), discountEffect, nPatients);
-			screenListeners[i] = (interventions[i] instanceof ScreeningStrategy) ? new ScreeningTestPerformanceView(secParams) : null;
+			screenListeners[i] = (interventions[i] instanceof ScreeningIntervention) ? new ScreeningTestPerformanceView(secParams) : null;
 		}
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
@@ -344,7 +344,7 @@ public abstract class HTAExperiment {
 			indTimeToEventListener = new IndividualTime2ManifestationView(secParams);
 			simul.addInfoReceiver(indTimeToEventListener);
 		}
-		if (interventions[0] instanceof ScreeningStrategy)
+		if (interventions[0] instanceof ScreeningIntervention)
 			simul.addInfoReceiver(screenListeners[0]);
 		if (patientListener != null)
 			simul.addInfoReceiver(patientListener);
@@ -367,7 +367,7 @@ public abstract class HTAExperiment {
 			if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 				simul.addInfoReceiver(indTimeToEventListener);
 			}
-			if (interventions[i] instanceof ScreeningStrategy)
+			if (interventions[i] instanceof ScreeningIntervention)
 				simul.addInfoReceiver(screenListeners[i]);
 			if (patientListener != null)
 				simul.addInfoReceiver(patientListener);

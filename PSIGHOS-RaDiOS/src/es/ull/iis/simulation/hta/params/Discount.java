@@ -20,18 +20,34 @@ public interface Discount {
 	/**
 	 * Apply a discount rate to a constant value over a time period. 
 	 * @param value A constant value that applied each year
-	 * @param initAge The age that the patient had when starting the period
-	 * @param endAge The age that the patient had when ending the period
+	 * @param initT The starting time of the period (in years from the beginning of the simulation)
+	 * @param endT The ending time of the period (in years from the beginning of the simulation)
 	 * @return A discounted value
 	 */
-	public double applyDiscount(double value, double initAge, double endAge);
+	public double applyDiscount(double value, double initT, double endT);
 	
 	/**
 	 * Apply a discount rate to a value at a specific moment of the simulation.
 	 * @param value A value
-	 * @param time The specific age when the discount is applied 
+	 * @param time Time when the discount is applied (in years from the beginning of the simulation) 
 	 * @return A discounted value
 	 */
 	public double applyPunctualDiscount(double value, double time);
+
+	/**
+	 * Given an initial time (initT) and ending time (endT), returns the next interval 
+	 * within a natural year for such period. For example, if initT = 0.5 and endT >= 1.0,
+	 * the result will be {0.5, 1.0}; for initT = 2.1 and endT = 2.5, the result will be
+	 * {2.1, 2.5}, and so on.    
+	 * @param initT The starting time of the period (in years from the beginning of the simulation)
+	 * @param endT The ending time of the period (in years from the beginning of the simulation)
+	 * @return The next time interval within a natural year for the period {initT, endT}; null
+	 * if initT >= endT
+	 */
+	public static double[] getNextAnnualInterval(double initT, double endT) {
+		if (initT >= endT)
+			return null;
+		return new double[] {initT, Math.min(endT, (int)initT+1)};
+	}
 	
 }
