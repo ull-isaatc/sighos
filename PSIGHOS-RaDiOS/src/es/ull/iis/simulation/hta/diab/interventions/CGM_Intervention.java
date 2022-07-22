@@ -55,7 +55,7 @@ public class CGM_Intervention extends Intervention {
 		betaParams = Statistics.betaParametersFromEmpiricData(C_STRIPS[0], mode, MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[1]);
 		rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);
 		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_STRIPS, "Annual cost of strips", 
-				"Average from Spanish regions", YEAR_C_STRIPS, C_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_C_STRIPS[1] - MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[0])));
+				"Average from Spanish regions", SecondOrderCostParam.TemporalBehavior.ANNUAL, YEAR_C_STRIPS, C_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_C_STRIPS[1] - MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[0])));
 
 		// I assume a daily use with +-25% uncertainty
 		secParams.addOtherParam(new SecondOrderParam(secParams, STR_USE_SENSOR_G5, "Use of sensor", 

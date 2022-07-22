@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -62,18 +63,25 @@ public class PBDDisease extends StandardDisease {
 		secParams.addProbParam(visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
 		secParams.addProbParam(hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
 		secParams.addProbParam(mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
-		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_DIAGNOSIS, "Cost of diagnosing PBD", "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65)));
-		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_TREATMENT, "Cost of treating PBD", "", 2013, TREATMENT_COST));
-		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_FOLLOW_UP, "Cost of following up PBD", "", 2013, FOLLOW_UP_COST));
+		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_DIAGNOSIS, "Cost of diagnosing PBD", "", SecondOrderCostParam.TemporalBehavior.ONE_TIME, 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65)));
+		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_TREATMENT, "Cost of treating PBD", "", SecondOrderCostParam.TemporalBehavior.ANNUAL, 2013, TREATMENT_COST));
+		secParams.addCostParam(new SecondOrderCostParam(secParams, STR_C_FOLLOW_UP, "Cost of following up PBD", "", SecondOrderCostParam.TemporalBehavior.ANNUAL, 2013, FOLLOW_UP_COST));
 	}
 
 	@Override
-	public double getDiagnosisCost(Patient pat) {
-		return secParams.getCostParam(STR_C_DIAGNOSIS, pat.getSimulation());
+	public double getDiagnosisCost(Patient pat, double time, Discount discountRate) {
+		return discountRate.applyPunctualDiscount(secParams.getCostParam(STR_C_DIAGNOSIS, pat.getSimulation()), time);
 	}
 
 	@Override
-	public double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge) {
-		return secParams.getCostParam(STR_C_TREATMENT, pat.getSimulation()) + secParams.getCostParam(STR_C_FOLLOW_UP, pat.getSimulation());
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
+		// TODO
+		double [] results = new double[(int)endT - (int)initT + 1];
+		return results;
+	}
+
+	@Override
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
+		return discountRate.applyDiscount(secParams.getCostParam(STR_C_TREATMENT, pat.getSimulation()) + secParams.getCostParam(STR_C_FOLLOW_UP, pat.getSimulation()), initT, endT);
 	}
 }

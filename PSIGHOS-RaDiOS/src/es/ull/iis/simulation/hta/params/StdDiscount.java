@@ -38,18 +38,18 @@ public class StdDiscount implements Discount {
 	/**
 	 * Apply a discount rate to a constant value over a time period. 
 	 * @param value A constant value that applied each year
-	 * @param initAge The age that the patient had when starting the period
-	 * @param endAge The age that the patient had when ending the period
+	 * @param initT The starting time of the period (in years from the beginning of the simulation)
+	 * @param endT The ending time of the period (in years from the beginning of the simulation)
 	 * @return A discounted value
 	 */
-	public double applyDiscount(double value, double initAge, double endAge) {
-		return value * invLogDiscountRatePlus1 * (Math.pow(1 + discountRate, -endAge) - Math.pow(1 + discountRate, -initAge));
+	public double applyDiscount(double value, double initT, double endT) {
+		return value * invLogDiscountRatePlus1 * (Math.pow(1 + discountRate, -endT) - Math.pow(1 + discountRate, -initT));
 	}
 	
 	/**
 	 * Apply a discount rate to a value at a specific moment of the simulation.
 	 * @param value A value
-	 * @param time The specific age when the discount is applied 
+	 * @param time Time when the discount is applied (in years from the beginning of the simulation) 
 	 * @return A discounted value
 	 */
 	public double applyPunctualDiscount(double value, double time) {

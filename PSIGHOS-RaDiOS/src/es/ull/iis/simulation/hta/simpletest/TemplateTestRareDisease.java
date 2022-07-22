@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.simpletest;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.StandardDisease;
 
@@ -28,14 +29,21 @@ public abstract class TemplateTestRareDisease extends StandardDisease {
 	}
 
 	@Override
-	public double getDiagnosisCost(Patient pat) {
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
+		double [] results = new double[(int)endT - (int)initT + 1];
+		return results;
+	}
+
+	@Override
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+			Discount discountRate) {
 		return 0;
 	}
 
 	@Override
-	public double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge) {
+	public double getDiagnosisCost(Patient pat, double time, Discount discountRate) {
 		return 0;
 	}
-	
+
 	public abstract ArrayList<String> getParamNames();
 }

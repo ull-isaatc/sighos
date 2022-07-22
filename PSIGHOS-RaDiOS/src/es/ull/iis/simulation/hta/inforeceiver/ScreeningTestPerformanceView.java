@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.hta.inforeceiver;
 
 import es.ull.iis.simulation.hta.info.PatientInfo;
-import es.ull.iis.simulation.hta.interventions.ScreeningStrategy.ScreeningResult;
+import es.ull.iis.simulation.hta.interventions.ScreeningIntervention.ScreeningResult;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;

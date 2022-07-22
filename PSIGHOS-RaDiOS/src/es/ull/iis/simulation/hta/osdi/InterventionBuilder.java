@@ -7,7 +7,7 @@ import java.util.List;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
+import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.osdi.OSDiNames.DataProperty;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
@@ -29,7 +29,7 @@ public interface InterventionBuilder {
 		Intervention intervention = null;
 		if (OSDiNames.DataPropertyRange.INTERVENTION_KIND_SCREENING.getDescription().equals(kind)) {			
 
-			intervention = new ScreeningStrategy(secParams, interventionName, description) {
+			intervention = new ScreeningIntervention(secParams, interventionName, description) {
 				
 				@Override
 				public void registerSecondOrderParameters() {
@@ -81,7 +81,7 @@ public interface InterventionBuilder {
 		}
 	}
 	
-	private static void createParamsForScreening(SecondOrderParamsRepository secParams, ScreeningStrategy intervention) {
+	private static void createParamsForScreening(SecondOrderParamsRepository secParams, ScreeningIntervention intervention) {
 		try {
 			createModificationParams(secParams, intervention);
 			createSpecificityAndSensitivity(secParams, intervention);
@@ -90,7 +90,7 @@ public interface InterventionBuilder {
 		}
 	}
 	
-	private static void createSpecificityAndSensitivity(SecondOrderParamsRepository secParams, ScreeningStrategy intervention) throws TranspilerException {
+	private static void createSpecificityAndSensitivity(SecondOrderParamsRepository secParams, ScreeningIntervention intervention) throws TranspilerException {
 		String strSensitivity = DataProperty.HAS_SENSITIVITY.getValue(intervention.name(), "1.0");
 		final ProbabilityDistribution probSensitivity = ValueParser.splitProbabilityDistribution(strSensitivity);
 		if (probSensitivity == null)

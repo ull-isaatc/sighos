@@ -149,11 +149,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 			}
 
 			@Override
-			public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
-				return 0;
-			}
-
-			@Override
 			public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
 				return 0;
 			}
@@ -163,12 +158,24 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 			}
 
 			@Override
-			public double getDiagnosisCost(Patient pat) {
+			public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
+				double [] results = new double[(int)endT - (int)initT + 1];
+				return results;
+			}
+
+			@Override
+			public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+					Discount discountRate) {
 				return 0;
 			}
 
 			@Override
-			public double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge) {
+			public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+				return 0;
+			}
+
+			@Override
+			public double getDiagnosisCost(Patient pat, double time, Discount discountRate) {
 				return 0;
 			}
 		};
@@ -461,7 +468,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 */
 	public void addCostParam(ChronicManifestation manifestation, String description, String source, int year, double detValue, RandomVariate rnd, boolean oneTime) {
 		final String paramName = (oneTime ? STR_ONETIME_COST_PREFIX : STR_COST_PREFIX) + manifestation.name();
-		addCostParam(new SecondOrderCostParam(this, paramName, description, source, year, detValue, rnd));
+		addCostParam(new SecondOrderCostParam(this, paramName, description, source, SecondOrderCostParam.TemporalBehavior.ANNUAL, year, detValue, rnd));
 	}
 	
 	/**
@@ -488,7 +495,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 */
 	public void addCostParam(AcuteManifestation manifestation, String description, String source, int year, double detValue, RandomVariate rnd) {
 		final String paramName = STR_ONETIME_COST_PREFIX + manifestation.name();
-		addCostParam(new SecondOrderCostParam(this, paramName, description, source, year, detValue, rnd));
+		addCostParam(new SecondOrderCostParam(this, paramName, description, source, SecondOrderCostParam.TemporalBehavior.ONE_TIME, year, detValue, rnd));
 	}
 	
 	/**
@@ -632,6 +639,16 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		return (param == null) ? Double.NaN : param.getValue(id); 
 	}
 
+	/**
+	 * Returns the expected temporal behavior for a cost parameter
+	 * @param name String identifier of the cost parameter
+	 * @return the expected temporal behavior for a cost parameter
+	 */
+	public SecondOrderCostParam.TemporalBehavior getTemporalBehaviorOfCostParam(String name) {
+		final SecondOrderCostParam param = costParams.get(name);
+		return (param == null) ? null : param.getTemporalBehavior(); 
+	}
+	
 	/**
 	 * Returns the probability from a complication to another; 0.0 if not defined
 	 * @param fromStage The source complication or complication stage

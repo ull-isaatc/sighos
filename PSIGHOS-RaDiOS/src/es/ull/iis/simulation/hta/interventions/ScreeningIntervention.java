@@ -9,7 +9,7 @@ import java.util.Arrays;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.costs.ScreeningTest;
+import es.ull.iis.simulation.hta.costs.ScreeningStrategy;
 import es.ull.iis.simulation.hta.costs.Strategy;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
@@ -22,7 +22,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class ScreeningStrategy extends Intervention {
+public abstract class ScreeningIntervention extends Intervention {
 	public final static String STR_SCREENING = "tScreening";
 	public enum ScreeningResult implements Named {
 		TP,
@@ -31,12 +31,12 @@ public abstract class ScreeningStrategy extends Intervention {
 		FN
 	}
 	private final RandomSeedForPatients[] randomSeeds;
-	private final Strategy strategy;
+	private final ScreeningStrategy strategy;
 	
 	/**
 	 * 
 	 */
-	public ScreeningStrategy(SecondOrderParamsRepository secParams, String name, String description, Strategy strategy) {
+	public ScreeningIntervention(SecondOrderParamsRepository secParams, String name, String description, ScreeningStrategy strategy) {
 		super(secParams, name, description);
 		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
 		Arrays.fill(randomSeeds, null);
@@ -82,17 +82,17 @@ public abstract class ScreeningStrategy extends Intervention {
 				ScreeningResult result;
 				// Healthy patients can be wrongly identified as false positives 
 				if (pat.isHealthy()) {
-					result = (getRandomSeedForPatients(id).draw(pat) >= getSpecificity(pat)) ? ScreeningResult.FP : ScreeningResult.TN;
+					result = (getRandomSeedForPatients(id).draw(pat) >= strategy.getSpecificity(pat)) ? ScreeningResult.FP : ScreeningResult.TN;
 				}
 				else {
-					result = (getRandomSeedForPatients(id).draw(pat) >= getSensitivity(pat)) ? ScreeningResult.FN : ScreeningResult.TP;					
+					result = (getRandomSeedForPatients(id).draw(pat) >= strategy.getSensitivity(pat)) ? ScreeningResult.FN : ScreeningResult.TP;					
 				}
 				simul.notifyInfo(new PatientInfo(simul, pat, PatientInfo.Type.SCREEN, result, this.getTs()));
 				switch(result) {
 				case TP:
 					pat.setDiagnosed(true);
 				case FP:
-					simul.notifyInfo(new PatientInfo(simul, pat, PatientInfo.Type.DIAGNOSIS, ScreeningStrategy.this, this.getTs()));
+					simul.notifyInfo(new PatientInfo(simul, pat, PatientInfo.Type.DIAGNOSIS, ScreeningIntervention.this, this.getTs()));
 					break;
 				case FN:
 				case TN:

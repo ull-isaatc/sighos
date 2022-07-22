@@ -21,7 +21,7 @@ import es.ull.iis.ontology.radios.json.schema4simulation.ManifestationModificati
 import es.ull.iis.ontology.radios.json.schema4simulation.ScreeningTechnique;
 import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
+import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -39,7 +39,7 @@ import simkit.random.RandomVariateFactory;
 /**
  * @author David Prieto González
  */
-public class RadiosScreeningIntervention extends ScreeningStrategy {
+public class RadiosScreeningIntervention extends ScreeningIntervention {
 	private boolean debug = false;
 	private boolean fine = false;
 	

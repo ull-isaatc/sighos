@@ -14,6 +14,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.Describable;
@@ -225,29 +226,40 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	}
 	
 	/**
-	 * Returns the annual cost associated to the current state of the patient and during the defined period
+	 * Returns the cost associated to the current state of the patient and during the defined period
 	 * @param pat A patient
-	 * @param initAge Starting time of the period (in years)
-	 * @param endAge Ending time of the period
+	 * @param initT Starting time of the period (in years)
+	 * @param endT Ending time of the period
 	 * @return the annual cost associated to the current state of the patient and during the defined period
 	 */
-	public abstract double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge);
+	public abstract double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate);
 	
 	/**
 	 * Returns the diagnosis cost for this disease
 	 * @param pat A patient
+	 * @param time Specific time when the cost is applied (in years)
+	 * @param discountRate The discount rate to apply to the cost
 	 * @return the diagnosis cost for this disease
 	 */
-	public abstract double getDiagnosisCost(Patient pat);
+	public abstract double getDiagnosisCost(Patient pat, double time, Discount discountRate);
 	
 	/**
-	 * Returns the treatment and follow up costs for this disease during the defined period (adjusted for a full year). These costs should only be applied to diagnosed patients 
+	 * Returns the annualized treatment and follow up costs for this disease during the defined period. These costs should only be applied to diagnosed patients 
 	 * @param pat A patient
-	 * @param initAge Starting time of the period (in years)
-	 * @param endAge Ending time of the period
-	 * @return the treatment and follow up costs for this disease
+	 * @param initT Starting time of the period (in years)
+	 * @param endT Ending time of the period
+	 * @return The treatment and follow up costs for each natural year within the specified period for this disease
 	 */
-	public abstract double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge);
+	public abstract double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate);
+	
+	/**
+	 * Returns the treatment and follow up costs for this disease during the defined period. These costs should only be applied to diagnosed patients 
+	 * @param pat A patient
+	 * @param initT Starting time of the period (in years)
+	 * @param endT Ending time of the period
+	 * @return the first element of the array contains the total cost; the rest of elements contains the treatment and follow up costs for each natural year this disease
+	 */
+	public abstract double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate);
 	
 	/**
 	 * Returns the disutility value associated to the current stage of this disease

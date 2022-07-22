@@ -23,6 +23,7 @@ import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
 import es.ull.iis.simulation.hta.diab.manifestations.ProliferativeRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.SevereHypoglycemiaEvent;
 import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
@@ -329,7 +330,7 @@ public class T1DMDisease extends StandardDisease {
 	public void registerSecondOrderParameters() {
 		// Set asymptomatic cost and disutility 
 		secParams.addCostParam(new SecondOrderCostParam(secParams, SecondOrderParamsRepository.STR_COST_PREFIX + "DNC", "Cost of Diabetes with no complications", 
-				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, 
+				DEF_C_DNC.SOURCE, SecondOrderCostParam.TemporalBehavior.ANNUAL, DEF_C_DNC.YEAR, 
 				DEF_C_DNC.VALUE, SecondOrderParamsRepository.getRandomVariateForCost(DEF_C_DNC.VALUE)));
 
 		final double[] paramsU_DNC = Statistics.betaParametersFromNormal(DEF_U_DNC[0], DEF_U_DNC[1]);
@@ -482,13 +483,19 @@ public class T1DMDisease extends StandardDisease {
 	}
 	
 	@Override
-	public double getDiagnosisCost(Patient pat) {
+	public double getDiagnosisCost(Patient pat, double age, Discount discountRate) {
 		return 0;
 	}
 
 	@Override
-	public double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge) {
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge, Discount discountRate) {
 		return secParams.getCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + "DNC", pat.getSimulation());
+	}
+	@Override
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
+		// TODO
+		double [] results = new double[(int)endT - (int)initT + 1];
+		return results;
 	}
 
 	/**
