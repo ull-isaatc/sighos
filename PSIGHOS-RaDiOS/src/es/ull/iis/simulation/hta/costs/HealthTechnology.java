@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.hta.costs;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.DefaultSecondOrderParam;
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -43,7 +43,7 @@ public class HealthTechnology implements PartOfStrategy {
 	}
 
 	public double getUnitCost(Patient pat) {
-		return secParams.getCostParam(DefaultSecondOrderParam.UNIT_COST.getName(this), pat.getSimulation());
+		return secParams.getCostParam(DefaultProbabilitySecondOrderParam.UNIT_COST.getParameterName(this), pat.getSimulation());
 	}
 
 	/**
@@ -55,8 +55,8 @@ public class HealthTechnology implements PartOfStrategy {
 
 	@Override
 	public double getCostForPeriod(Patient pat, double startT, double endT, Discount discountRate) {
-		final double unitCost = secParams.getCostParam(DefaultSecondOrderParam.UNIT_COST.getName(this), pat.getSimulation());
-		final boolean isAnnual = SecondOrderCostParam.TemporalBehavior.ANNUAL.equals(secParams.getTemporalBehaviorOfCostParam(DefaultSecondOrderParam.UNIT_COST.getName(this)));
+		final double unitCost = secParams.getCostParam(DefaultProbabilitySecondOrderParam.UNIT_COST.getParameterName(this), pat.getSimulation());
+		final boolean isAnnual = SecondOrderCostParam.TemporalBehavior.ANNUAL.equals(secParams.getTemporalBehaviorOfCostParam(DefaultProbabilitySecondOrderParam.UNIT_COST.getParameterName(this)));
 		// If the cost is annual, then the guideline is ignored
 		if (isAnnual) {
 			return discountRate.applyDiscount(unitCost, startT, endT);

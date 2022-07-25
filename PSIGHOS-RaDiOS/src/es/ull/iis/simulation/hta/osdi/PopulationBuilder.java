@@ -10,6 +10,7 @@ import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
@@ -39,9 +40,6 @@ public interface PopulationBuilder {
 	
 	static class OSDiPopulation extends StdPopulation {
 		private final String populationName;
-		private final String[] strParamFemale = new String[2];
-		private final String[] strParamPrevalence = new String[2];
-		private final String[] strParamBirthPrevalence = new String[2];
 		private final ProbabilityDistribution ageDist;
 		private boolean hasPrevalence;
 		private boolean hasBirthPrevalence;
@@ -50,12 +48,6 @@ public interface PopulationBuilder {
 		public OSDiPopulation(SecondOrderParamsRepository secParams, Disease disease, String populationName) {
 			super(secParams, disease);
 			this.populationName = populationName;
-			this.strParamFemale[0] = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "FEMALE_" + populationName;
-			this.strParamFemale[1] = "Proportion of females among individuals in population " + populationName;
-			this.strParamPrevalence[0] = "PREVALENCE_" + populationName;
-			this.strParamPrevalence[1] = "Prevalence of disease " + disease + " in population " + populationName;
-			this.strParamBirthPrevalence[0] = "BIRTH_PREVALENCE_" + populationName;
-			this.strParamBirthPrevalence[1] = "Birth prevalence of disease " + disease + " in population " + populationName;
 			final String strAge = OSDiNames.DataProperty.HAS_AGE.getValue(populationName, "0.0");
 			this.ageDist = ValueParser.splitProbabilityDistribution(strAge);
 			this.hasPrevalence = false;
@@ -69,20 +61,19 @@ public interface PopulationBuilder {
 			final String strPFemale = OSDiNames.DataProperty.HAS_FEMALE_PROPORTION.getValue(populationName, "0.5");
 			final ProbabilityDistribution pFemale = ValueParser.splitProbabilityDistribution(strPFemale);
 			if (pFemale != null) {
-				SecondOrderParam sexParam = new SecondOrderParam(secParams, strParamFemale[0], strParamFemale[1], 
+				DefaultProbabilitySecondOrderParam.PROPORTION.addParameter(secParams, "FEMALE_" + populationName, "females in population " + populationName, 
 					"",	pFemale.getDeterministicValue(), pFemale.getProbabilisticValue());
-				secParams.addProbParam(sexParam);
 			}
 			// Register epidemiologic parameters
 			List<String> epidemParams = OSDiNames.Class.EPIDEMIOLOGICAL_PARAMETER.getDescendantsOf(populationName);
 			for (String paramName : epidemParams) {
 				final String type = OSDiNames.DataProperty.HAS_EPIDEMIOLOGICAL_PARAMETER_KIND.getValue(paramName);
 				if (OSDiNames.DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_PREVALENCE.getDescription().equals(type)) {
-					registerEpidemParam(paramName, strParamPrevalence);
+					registerEpidemParam(paramName, DefaultProbabilitySecondOrderParam.PREVALENCE);
 					hasPrevalence = true;
 				}
 				else if (OSDiNames.DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_BIRTH_PREVALENCE.getDescription().equals(type)) {
-					registerEpidemParam(paramName, strParamBirthPrevalence);
+					registerEpidemParam(paramName, DefaultProbabilitySecondOrderParam.BIRTH_PREVALENCE);
 					hasBirthPrevalence = true;
 				}
 
@@ -125,7 +116,7 @@ public interface PopulationBuilder {
 			}
 		}
 		
-		private void registerEpidemParam(String paramName, String[] nameAndDesc) {
+		private void registerEpidemParam(String paramName, DefaultProbabilitySecondOrderParam secondOrderParam) {
 			// Check if the prevalence is related to the objective disease
 			final List<String> strDiseases = OSDiNames.ObjectProperty.IS_PARAMETER_OF_DISEASE.getValues(paramName);
 			boolean found = false;
@@ -138,9 +129,8 @@ public interface PopulationBuilder {
 				final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(paramName, "1.0");
 				final ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strValue);
 				if (probabilityDistribution != null) {
-					SecondOrderParam prevParam = new SecondOrderParam(secParams, nameAndDesc[0], nameAndDesc[1], OSDiNames.getSource(paramName), 
+					secondOrderParam.addParameter(secParams, populationName, populationName, OSDiNames.getSource(paramName), 
 							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
-					secParams.addProbParam(prevParam);
 				}
 			}
 		}

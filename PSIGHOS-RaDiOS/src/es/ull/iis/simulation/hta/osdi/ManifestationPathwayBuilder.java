@@ -15,6 +15,7 @@ import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
@@ -121,10 +122,10 @@ public interface ManifestationPathwayBuilder {
 	 */
 	public static String getProbString(Manifestation manifestation, String pathwayName) {
 		if (pathwayName.contains(manifestation.name())) {
-			return SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + pathwayName; 
+			return pathwayName; 
 		}
 		else {
-			return SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + pathwayName + "_" + manifestation.name(); 			
+			return pathwayName + "_" + manifestation.name(); 			
 		}
 	}
 
@@ -158,9 +159,8 @@ public interface ManifestationPathwayBuilder {
 					if (probabilityDistribution == null) {
 						throw new TranspilerException("Error parsing regular expression \"" + strPropManif + "\" for data property 'hasProportion' of instance \"" + pathwayName + "\"");
 					}
-					SecondOrderParam param = new SecondOrderParam(secParams, getProbString(manifestation, pathwayName), "Proportion of patients developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING, 
+					DefaultProbabilitySecondOrderParam.PROPORTION.addParameter(secParams, getProbString(manifestation, pathwayName), "patients developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING,
 							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
-					secParams.addProbParam(param);
 				}
 				else {
 					final String strPManif = OSDiNames.DataProperty.HAS_PROBABILITY.getValue(pathwayName);
@@ -169,9 +169,8 @@ public interface ManifestationPathwayBuilder {
 						if (probabilityDistribution == null) {
 							throw new TranspilerException("Error parsing regular expression \"" + strPManif + "\" for data property 'hasProbability' of instance \"" + pathwayName + "\"");
 						} 
-						SecondOrderParam param = new SecondOrderParam(secParams, getProbString(manifestation, pathwayName), "Probability of developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING, 
+						DefaultProbabilitySecondOrderParam.PROBABILITY.addParameter(secParams, getProbString(manifestation, pathwayName), "developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING,
 								probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
-						secParams.addProbParam(param);
 					}
 				}
 			} catch(TranspilerException ex) {

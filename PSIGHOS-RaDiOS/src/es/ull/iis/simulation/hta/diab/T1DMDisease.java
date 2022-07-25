@@ -23,6 +23,7 @@ import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
 import es.ull.iis.simulation.hta.diab.manifestations.ProliferativeRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.SevereHypoglycemiaEvent;
 import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
@@ -271,14 +272,14 @@ public class T1DMDisease extends StandardDisease {
 			assignLabel(GroupOfManifestations.CHD, hf);
 			final RRCalculator rrCHD = new HbA1c1PPComplicationRR(secParams);
 			// I use angina as the "destination manifestation" in all cases to share the same random number 
-			TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "CHD", secParams, angina, rrCHD);
+			TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(DefaultProbabilitySecondOrderParam.PROBABILITY.getParameterName("CHD"), secParams, angina, rrCHD);
 
 			// Defines a single pathway, but the calculator uses the different probabilities
 			int order = 0;
 			for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
 				new ManifestationPathway(secParams, manifCHD, new CHDCondition(order++), tte);
 			if (!DISABLE_NEU) {
-				tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "NEU_CHD", secParams, angina, rrCHD);
+				tte = new AnnualRiskBasedTimeToEventCalculator(DefaultProbabilitySecondOrderParam.PROBABILITY.getParameterName("NEU_CHD"), secParams, angina, rrCHD);
 				for (Manifestation manif : getLabeledManifestations(GroupOfManifestations.NEU)) {
 					order = 0;
 					for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
@@ -287,7 +288,7 @@ public class T1DMDisease extends StandardDisease {
 				}
 			}
 			if (!DISABLE_NPH) {
-				tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "NPH_CHD", secParams, angina, rrCHD);
+				tte = new AnnualRiskBasedTimeToEventCalculator(DefaultProbabilitySecondOrderParam.PROBABILITY.getParameterName("NPH_CHD"), secParams, angina, rrCHD);
 				for (Manifestation manif : getLabeledManifestations(GroupOfManifestations.NPH)) {
 					order = 0;
 					for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
@@ -296,7 +297,7 @@ public class T1DMDisease extends StandardDisease {
 				}
 			}
 			if (!DISABLE_RET) {
-				tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "RET_CHD", secParams, angina, rrCHD);
+				tte = new AnnualRiskBasedTimeToEventCalculator(DefaultProbabilitySecondOrderParam.PROBABILITY.getParameterName("RET_CHD"), secParams, angina, rrCHD);
 				for (Manifestation manif : getLabeledManifestations(GroupOfManifestations.RET)) {
 					order = 0;
 					for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
@@ -445,22 +446,22 @@ public class T1DMDisease extends StandardDisease {
 			final double[] paramsRET_CHD = Statistics.betaParametersFromNormal(P_RET_CHD, Statistics.sdFrom95CI(CI_RET_CHD));		
 
 			// All these parameters are generic for any CHD-related manifestation
-			secParams.addProbParam(new SecondOrderParam(secParams, SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "CHD", 
-					"Probability of no complication to any CHD manifestation", "Hoerger (2004)", P_DNC_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_CHD[0], paramsDNC_CHD[1])));
-			secParams.addProbParam(new SecondOrderParam(secParams, SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "NEU_CHD",
-					"Probability of neuropathy to any CHD manifestation", "Klein (2004)", P_NEU_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_CHD[0], paramsNEU_CHD[1])));
-			secParams.addProbParam(new SecondOrderParam(secParams, SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "NPH_CHD",
-					"Probability of nephropathy to any CHD manifestation", "Klein (2004)", P_NPH_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNPH_CHD[0], paramsNPH_CHD[1])));
-			secParams.addProbParam(new SecondOrderParam(secParams, SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "RET_CHD",
-					"Probability of retinopathy to any CHD manifestation", "Klein (2004)", P_RET_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsRET_CHD[0], paramsRET_CHD[1])));
+			DefaultProbabilitySecondOrderParam.PROBABILITY.addParameter(secParams, "CHD", "no complication to any CHD manifestation", "Hoerger (2004)", 
+					P_DNC_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_CHD[0], paramsDNC_CHD[1]));
+			DefaultProbabilitySecondOrderParam.PROBABILITY.addParameter(secParams, "NEU_CHD", "neuropathy to any CHD manifestation", "Klein (2004)", 
+					P_NEU_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_CHD[0], paramsNEU_CHD[1]));
+			DefaultProbabilitySecondOrderParam.PROBABILITY.addParameter(secParams, "NPH_CHD", "nephropathy to any CHD manifestation", "Klein (2004)", 
+					P_NPH_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNPH_CHD[0], paramsNPH_CHD[1]));
+			DefaultProbabilitySecondOrderParam.PROBABILITY.addParameter(secParams, "RET_CHD", "retinopathy to any CHD manifestation", "Klein (2004)", 
+					P_RET_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsRET_CHD[0], paramsRET_CHD[1]));
 			
-			secParams.addProbParam(mi, 
+			DefaultProbabilitySecondOrderParam.PROBABILITY.addParameter(secParams, mi, mi,  
 					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", P_CHD_MI, RandomVariateFactory.getInstance("GammaVariate", 1.0, P_CHD_MI));
-			secParams.addProbParam(stroke, 
+			DefaultProbabilitySecondOrderParam.PROBABILITY.addParameter(secParams, stroke, stroke, 
 					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", P_CHD_STROKE, RandomVariateFactory.getInstance("GammaVariate", 1.0, P_CHD_STROKE));
-			secParams.addProbParam(hf, 
+			DefaultProbabilitySecondOrderParam.PROBABILITY.addParameter(secParams, hf, hf, 
 					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", P_CHD_HF, RandomVariateFactory.getInstance("GammaVariate", 1.0, P_CHD_HF));
-			secParams.addProbParam(angina, 
+			DefaultProbabilitySecondOrderParam.PROBABILITY.addParameter(secParams, angina, angina, 
 					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", P_CHD_ANGINA, RandomVariateFactory.getInstance("GammaVariate", 1.0, P_CHD_ANGINA));
 			
 			secParams.addOtherParam(new SecondOrderParam(secParams, SecondOrderParamsRepository.STR_RR_PREFIX + "CHD",
@@ -476,7 +477,7 @@ public class T1DMDisease extends StandardDisease {
 			final double [] coef = new double[4];
 			int order = 0;
 			for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-				coef[order++] = secParams.getProbParam(SecondOrderParamsRepository.getProbString(manifCHD), pat.getSimulation());
+				coef[order++] = DefaultProbabilitySecondOrderParam.PROBABILITY.getValue(secParams, manifCHD, pat.getSimulation());
 			selectorsCHD[id] = new SingleSelectorParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), coef);
 		}
 		return selectorsCHD[id].getValue(pat);
@@ -520,7 +521,7 @@ public class T1DMDisease extends StandardDisease {
 
 		@Override
 		public double getRR(Patient pat) {
-			final double beta = secParams.getRR(paramName, pat.getSimulation());
+			final double beta = DefaultProbabilitySecondOrderParam.RELATIVE_RISK.getValue(secParams, paramName, pat.getSimulation());
 			return Math.pow(pat.getProfile().getPropertyValue(T1DMRepository.STR_HBA1C, pat).doubleValue()/10.0, beta);
 		}
 	}

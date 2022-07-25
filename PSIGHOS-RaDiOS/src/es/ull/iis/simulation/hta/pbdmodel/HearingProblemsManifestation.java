@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.pbdmodel;
 
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
@@ -33,7 +34,7 @@ public class HearingProblemsManifestation extends ChronicManifestation {
 		secParams.addOtherParam(new SecondOrderParam(secParams, getEndAgeParameterString(false), getEndAgeParameterString(true), "", 2.0));
 		secParams.addCostParam(this, "Punctual cost for " + this, "Test", COST_YEAR, DIAGNOSTIC_COST, SecondOrderParamsRepository.getRandomVariateForCost(DIAGNOSTIC_COST), true);		
 		secParams.addCostParam(this, "Annual cost for " + this, "Test", COST_YEAR, ANNUAL_COST, SecondOrderParamsRepository.getRandomVariateForCost(ANNUAL_COST));		
-		secParams.addDiagnosisProbParam(this, "Assumption", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));
+		DefaultProbabilitySecondOrderParam.PROBABILITY_DIAGNOSIS.addParameter(secParams, this, this, "Assumption", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));
 		secParams.addUtilityParam(this, "Disutility for " + this, "Test", DU, RandomVariateFactory.getInstance("UniformVariate", DU*0.8, DU*1.2), true);
 	}
 

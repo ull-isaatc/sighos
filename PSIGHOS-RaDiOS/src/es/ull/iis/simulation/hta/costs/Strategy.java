@@ -9,7 +9,7 @@ import java.util.Arrays;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.DefaultSecondOrderParam;
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
@@ -127,10 +127,10 @@ public class Strategy implements PartOfStrategy {
 		double cost = 0.0;
 		// If the patient does not meet the condition, the strategy cannot be applied
 		if (condition.check(pat)) {
-			final double unitCost = secParams.getCostParam(DefaultSecondOrderParam.UNIT_COST.getName(this), pat.getSimulation());
+			final double unitCost = secParams.getCostParam(DefaultProbabilitySecondOrderParam.UNIT_COST.getParameterName(this), pat.getSimulation());
 			// In case a unit cost is defined, it is used first to compute the cost of the strategy
 			if (!Double.isNaN(unitCost)) {
-				final boolean isAnnual = SecondOrderCostParam.TemporalBehavior.ANNUAL.equals(secParams.getTemporalBehaviorOfCostParam(DefaultSecondOrderParam.UNIT_COST.getName(this)));
+				final boolean isAnnual = SecondOrderCostParam.TemporalBehavior.ANNUAL.equals(secParams.getTemporalBehaviorOfCostParam(DefaultProbabilitySecondOrderParam.UNIT_COST.getParameterName(this)));
 				if (isAnnual) {
 					cost += discountRate.applyDiscount(unitCost, startT, endT);
 				}

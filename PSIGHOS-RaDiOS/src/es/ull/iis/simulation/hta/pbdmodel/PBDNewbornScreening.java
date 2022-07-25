@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
@@ -30,8 +31,8 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 	public void registerSecondOrderParameters() {
 		secParams.addCostParam(new SecondOrderCostParam(secParams, SecondOrderParamsRepository.STR_COST_PREFIX + this, 
 				"Cost of screening", "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5)));
-		secParams.addProbParam(new SecondOrderParam(secParams, getSensitivityParameterString(false), getSensitivityParameterString(true), "", 1.0));
-		secParams.addProbParam(new SecondOrderParam(secParams, getSpecificityParameterString(false), getSpecificityParameterString(true), "", 0.999935));
+		DefaultProbabilitySecondOrderParam.SENSITIVITY.addParameter(secParams, this, this, "", 1.0);
+		DefaultProbabilitySecondOrderParam.SPECIFICTY.addParameter(secParams, this, this, "", 0.999935);
 		for (Manifestation manif : secParams.getRegisteredManifestations())
 			secParams.addModificationParam(this, Modification.Type.SET, SecondOrderParamsRepository.getProbString(manif), "", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 	}
