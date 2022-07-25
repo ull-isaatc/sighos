@@ -14,6 +14,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.DefaultSecondOrderParam;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -316,7 +317,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	public void addSecondOrderInitProportion() {
 		for (final Manifestation manif : getManifestations()) {
 			if (BasicConfigParams.INIT_PROP.containsKey(manif.name())) {
-				secParams.addProbParam(new SecondOrderParam(secParams, SecondOrderParamsRepository.getInitProbString(manif), "Initial proportion of " + manif.name(), "",
+				secParams.addProbParam(new SecondOrderParam(secParams, DefaultSecondOrderParam.INITIAL_PROBABILITY.getName(manif), "Initial proportion of " + manif.name(), "",
 						BasicConfigParams.INIT_PROP.get(manif.name())));
 			}			
 		}		
