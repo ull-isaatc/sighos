@@ -40,10 +40,10 @@ public abstract class StdPopulation implements Population {
 		this.secParams = secParams;
 		this.parameters = getPatientParameterList();
 		rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
-		rndBaselineAge = new RandomVariate[secParams.getnRuns() + 1];
-		rndSex = new DiscreteRandomVariate[secParams.getnRuns() + 1];
-		rndDiagnosed = new DiscreteRandomVariate[secParams.getnRuns() + 1];
-		rndDisease = new DiscreteRandomVariate[secParams.getnRuns() + 1];
+		rndBaselineAge = new RandomVariate[secParams.getNRuns() + 1];
+		rndSex = new DiscreteRandomVariate[secParams.getNRuns() + 1];
+		rndDiagnosed = new DiscreteRandomVariate[secParams.getNRuns() + 1];
+		rndDisease = new DiscreteRandomVariate[secParams.getNRuns() + 1];
 	}
 
 	@Override

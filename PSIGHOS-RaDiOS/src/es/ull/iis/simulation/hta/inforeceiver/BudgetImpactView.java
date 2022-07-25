@@ -35,7 +35,7 @@ public class BudgetImpactView implements ExperimentListener {
 	public BudgetImpactView(int nExperiments, SecondOrderParamsRepository secParams, int nYears) {
 		this.coefExperiments = 1.0 / (double)nExperiments;
 		this.interventions = secParams.getRegisteredInterventions();
-		this.nPatients = secParams.getnPatients();
+		this.nPatients = secParams.getNPatients();
 		this.secParams = secParams;
 		this.nYears = nYears;
 		this.cost = new double[interventions.length][nYears+1];

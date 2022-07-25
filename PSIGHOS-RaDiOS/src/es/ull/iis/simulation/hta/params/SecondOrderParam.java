@@ -40,7 +40,7 @@ public class SecondOrderParam implements PrettyPrintable {
 		this.description = description;
 		this.source = source;
 		this.rnd = rnd;
-		generatedValues = new double[secParams.getnRuns() + 1];
+		generatedValues = new double[secParams.getNRuns() + 1];
 		Arrays.fill(generatedValues, Double.NaN);
 		generatedValues[0] = detValue;
 	}

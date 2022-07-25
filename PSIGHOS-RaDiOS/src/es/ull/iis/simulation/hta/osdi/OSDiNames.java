@@ -90,7 +90,7 @@ public interface OSDiNames {
 		HAS_GEOGRAPHICAL_CONTEXT("#hasGeographicalContext"),
 		HAS_HOURS_INTERVAL("#hasHoursInterval"),
 		HAS_IDENTIFIER("#hasIdentifier"),
-		HAS_INTERVENTION_KIND("#hasInterventionKind", EnumSet.of(DataPropertyRange.INTERVENTION_KIND_NOSCREENING, DataPropertyRange.INTERVENTION_KIND_SCREENING)),
+		HAS_INTERVENTION_KIND("#hasInterventionKind", EnumSet.of(DataPropertyRange.INTERVENTION_KIND_DIAGNOSIS, DataPropertyRange.INTERVENTION_KIND_GENERAL, DataPropertyRange.INTERVENTION_KIND_SCREENING)),
 		HAS_LIFE_EXPECTANCY("#hasLifeExpectancy"),
 		HAS_MANIFESTATION_KIND("#hasManifestationKind", EnumSet.of(DataPropertyRange.MANIFESTATION_KIND_ACUTE, DataPropertyRange.MANIFESTATION_KIND_CHRONIC)),
 		HAS_MIN_AGE("#hasMinAge"),
@@ -230,8 +230,9 @@ public interface OSDiNames {
 	 *
 	 */
 	public static enum DataPropertyRange implements Describable {
+		INTERVENTION_KIND_DIAGNOSIS("DIAGNOSIS"),
+		INTERVENTION_KIND_GENERAL("GENERAL"),
 		INTERVENTION_KIND_SCREENING("SCREENING"),
-		INTERVENTION_KIND_NOSCREENING("NO_SCREENING"),
 		TEMPORAL_BEHAVIOR_ANNUAL("ANNUAL"),
 		TEMPORAL_BEHAVIOR_ONETIME("ONETIME"),
 		UTILITY_KIND_UTILITY("UTILITY"),

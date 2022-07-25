@@ -49,7 +49,7 @@ public class Strategy implements PartOfStrategy {
 		this.name = name;
 		this.parts = new  ArrayList<>();
 		this.secParams = secParams;
-		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
+		this.randomSeeds = new RandomSeedForPatients[secParams.getNRuns() + 1];
 		Arrays.fill(randomSeeds, null);
 	}
 
@@ -59,7 +59,7 @@ public class Strategy implements PartOfStrategy {
 	
 	public RandomSeedForPatients getRandomSeedForPatients(int id) {
 		if (randomSeeds[id] == null) {
-			randomSeeds[id] = new MultipleRandomSeedPerPatient(secParams.getnPatients(), true);
+			randomSeeds[id] = new MultipleRandomSeedPerPatient(secParams.getNPatients(), true);
 		}
 		return randomSeeds[id];
 	}

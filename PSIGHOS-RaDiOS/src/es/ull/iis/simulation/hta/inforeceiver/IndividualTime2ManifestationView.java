@@ -40,7 +40,7 @@ public class IndividualTime2ManifestationView extends Listener implements Struct
 	public IndividualTime2ManifestationView(SecondOrderParamsRepository secParams) {
 		super("Viewer of time to event per patient");
 		this.interventions = secParams.getRegisteredInterventions();
-		this.nPatients = secParams.getnPatients();
+		this.nPatients = secParams.getNPatients();
 		this.availableChronicManifestations = secParams.getRegisteredManifestations(Manifestation.Type.CHRONIC);
 		this.availableAcuteManifestations = secParams.getRegisteredManifestations(Manifestation.Type.ACUTE);
 		this.innerTimeTo = new double[nPatients][interventions.length][availableChronicManifestations.length];
