@@ -802,10 +802,14 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Intervention"/>
-        <DataSomeValuesFrom>
+        <DataExactCardinality cardinality="1">
             <DataProperty IRI="#hasInterventionKind"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
+            <DataOneOf>
+                <Literal>DIAGNOSIS</Literal>
+                <Literal>GENERAL</Literal>
+                <Literal>SCREENING</Literal>
+            </DataOneOf>
+        </DataExactCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Intervention"/>
@@ -2800,7 +2804,8 @@
     <DataPropertyRange>
         <DataProperty IRI="#hasInterventionKind"/>
         <DataOneOf>
-            <Literal>NO_SCREENING</Literal>
+            <Literal>DIAGNOSIS</Literal>
+            <Literal>GENERAL</Literal>
             <Literal>SCREENING</Literal>
         </DataOneOf>
     </DataPropertyRange>
