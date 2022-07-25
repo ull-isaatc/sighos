@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.progression;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -64,11 +65,11 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 		double imr = 1.0;
 		double ler = 0.0;
 		for (final Manifestation state : pat.getState()) {
-			final double newIMR = secParams.getIMR(state, simul);
+			final double newIMR = DefaultProbabilitySecondOrderParam.INCREASED_MORTALITY_RATE.getValue(secParams, state, simul);
 			if (newIMR > imr) {
 				imr = newIMR;
 			}
-			final double newLER = secParams.getLER(state, simul);
+			final double newLER = DefaultProbabilitySecondOrderParam.LIFE_EXPECTANCY_REDUCTION.getValue(secParams, state, simul);
 			if (newLER > ler) {
 				ler = newLER;
 			}

@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diab.manifestations;
 
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AcuteManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -39,7 +40,7 @@ public class SevereHypoglycemiaEvent extends AcuteManifestation {
 			DU_HYPO_EPISODE, RandomVariateFactory.getInstance("UniformVariate", LIMITS_DU_HYPO_EPISODE[0], LIMITS_DU_HYPO_EPISODE[1]), true);
 		
 		final double[] paramsDeathHypo = Statistics.betaParametersFromNormal(P_DEATH, Statistics.sdFrom95CI(new double[]{0.0058, 0.0068}));		
-		secParams.addDeathProbParam(this, "Canada", P_DEATH, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1]));
+		DefaultProbabilitySecondOrderParam.PROBABILITY_DEATH.addParameter(secParams, this, this, "Canada", P_DEATH, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1]));
 	}
 
 }

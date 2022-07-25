@@ -12,6 +12,7 @@ import es.ull.iis.simulation.hta.osdi.OSDiNames.DataProperty;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -95,14 +96,14 @@ public interface InterventionBuilder {
 		final ProbabilityDistribution probSensitivity = ValueParser.splitProbabilityDistribution(strSensitivity);
 		if (probSensitivity == null)
 			throw new TranspilerException("Error parsing regular expression \"" + strSensitivity + "\" for instance \"" + intervention.name() + "\"");
-		secParams.addProbParam(new SecondOrderParam(secParams, intervention.getSensitivityParameterString(false), intervention.getSensitivityParameterString(true), "", 
-				probSensitivity.getDeterministicValue(), probSensitivity.getProbabilisticValue()));
+		DefaultProbabilitySecondOrderParam.SENSITIVITY.addParameter(secParams, intervention, intervention, "",  
+				probSensitivity.getDeterministicValue(), probSensitivity.getProbabilisticValue());
 		String strSpecificity = DataProperty.HAS_SPECIFICITY.getValue(intervention.name(), "1.0");
 		final ProbabilityDistribution probSpecificity = ValueParser.splitProbabilityDistribution(strSpecificity);
 		if (probSpecificity == null)
 			throw new TranspilerException("Error parsing regular expression \"" + strSpecificity + "\" for instance \"" + intervention.name() + "\"");
-		secParams.addProbParam(new SecondOrderParam(secParams, intervention.getSpecificityParameterString(false), intervention.getSpecificityParameterString(true), "", 
-				probSpecificity.getDeterministicValue(), probSpecificity.getProbabilisticValue()));
+		DefaultProbabilitySecondOrderParam.SPECIFICTY.addParameter(secParams, intervention, intervention, "",  
+				probSpecificity.getDeterministicValue(), probSpecificity.getProbabilisticValue());
 	}
 	
 	private static void createModificationParams(SecondOrderParamsRepository secParams, Intervention intervention) throws TranspilerException {

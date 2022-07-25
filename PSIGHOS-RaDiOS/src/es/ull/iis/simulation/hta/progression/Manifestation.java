@@ -14,6 +14,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.BernoulliParam;
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.MultipleBernoulliParam;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -223,7 +224,8 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	public boolean hasManifestationAtStart(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (pInit[id] == null)
-			pInit[id] = new BernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), secParams.getInitProbParam(this, pat.getSimulation()));
+			pInit[id] = new BernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), 
+					DefaultProbabilitySecondOrderParam.INITIAL_PROBABILITY.getValue(secParams, this, pat.getSimulation()));
 		return pInit[id].getValue(pat);
 	}
 
@@ -235,7 +237,8 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	public boolean leadsToDeath(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (associatedDeath[id] == null)
-			associatedDeath[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), secParams.getDeathProbParam(this, pat.getSimulation()));
+			associatedDeath[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), 
+					DefaultProbabilitySecondOrderParam.PROBABILITY_DEATH.getValue(secParams, this, pat.getSimulation()));
 		return associatedDeath[id].getValue(pat);
 	}
 	
@@ -247,7 +250,8 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	public boolean leadsToDiagnose(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (pDiagnose[id] == null)
-			pDiagnose[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), secParams.getDiagnosisProbParam(this, pat.getSimulation()));
+			pDiagnose[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(),
+					DefaultProbabilitySecondOrderParam.PROBABILITY_DIAGNOSIS.getValue(secParams, this, pat.getSimulation()));
 		return pDiagnose[id].getValue(pat);
 	}
 

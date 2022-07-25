@@ -10,6 +10,7 @@ import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AcuteManifestation;
@@ -194,7 +195,7 @@ public interface ManifestationBuilder {
 					}
 				// Acute manifestations involve a probability of death
 				} else if (Manifestation.Type.ACUTE == manifestation.getType()) {
-					manifestation.getParamsRepository().addDeathProbParam(manifestation, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+					DefaultProbabilitySecondOrderParam.PROBABILITY_DEATH.addParameter(manifestation.getParamsRepository(), manifestation, manifestation, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 				}
 			}
 		}
@@ -207,7 +208,7 @@ public interface ManifestationBuilder {
 		final String pDiagnosis = OSDiNames.DataProperty.HAS_PROBABILITY_OF_DIAGNOSIS.getValue(manifestation.name());
 		if (pDiagnosis != null) {
 			ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(pDiagnosis);
-			manifestation.getParamsRepository().addDiagnosisProbParam(manifestation, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+			DefaultProbabilitySecondOrderParam.PROBABILITY_DIAGNOSIS.addParameter(manifestation.getParamsRepository(), manifestation, manifestation, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 		}
 	}
 }
