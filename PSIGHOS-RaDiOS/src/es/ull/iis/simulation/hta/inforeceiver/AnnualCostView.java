@@ -48,7 +48,7 @@ public class AnnualCostView implements ExperimentListener {
 		this.interventions = secParams.getRegisteredInterventions();
 		final int nInterventions = interventions.length;
 		this.discount = discount;
-		this.nPatients = secParams.getnPatients();
+		this.nPatients = secParams.getNPatients();
 		this.minAge = secParams.getMinAge();
 		this.maxAge = BasicConfigParams.DEF_MAX_AGE;
 		diseaseCost = new double[nInterventions][secParams.getRegisteredDiseases().length][maxAge-minAge+1];

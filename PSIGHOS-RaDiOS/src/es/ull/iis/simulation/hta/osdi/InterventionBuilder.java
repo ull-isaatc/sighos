@@ -25,7 +25,7 @@ public interface InterventionBuilder {
 
 	public static Intervention getInterventionInstance(SecondOrderParamsRepository secParams, String interventionName) throws TranspilerException {
 		final String description = OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(interventionName, "");
-		final String kind = OSDiNames.DataProperty.HAS_INTERVENTION_KIND.getValue(interventionName, OSDiNames.DataPropertyRange.INTERVENTION_KIND_NOSCREENING.getDescription());
+		final String kind = OSDiNames.DataProperty.HAS_INTERVENTION_KIND.getValue(interventionName, OSDiNames.DataPropertyRange.INTERVENTION_KIND_GENERAL.getDescription());
 		Intervention intervention = null;
 		if (OSDiNames.DataPropertyRange.INTERVENTION_KIND_SCREENING.getDescription().equals(kind)) {			
 

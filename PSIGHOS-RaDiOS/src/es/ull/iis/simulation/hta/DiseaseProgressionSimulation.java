@@ -44,7 +44,7 @@ public class DiseaseProgressionSimulation extends Simulation {
 		this.commonParams = commonParams;
 		this.cloned = false;
 		this.intervention = intervention;
-		this.nPatients = commonParams.getnPatients();
+		this.nPatients = commonParams.getNPatients();
 		this.generatedPatients = new Patient[nPatients];	
 		new PatientGenerator(this, nPatients, intervention, commonParams.getPopulation());
 	}

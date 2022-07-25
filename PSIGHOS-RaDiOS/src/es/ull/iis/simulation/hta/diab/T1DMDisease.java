@@ -258,7 +258,7 @@ public class T1DMDisease extends StandardDisease {
 			selectorsCHD = null;
 		}
 		else {
-			selectorsCHD = new SingleSelectorParam[secParams.getnRuns() + 1];
+			selectorsCHD = new SingleSelectorParam[secParams.getNRuns() + 1];
 			Arrays.fill(selectorsCHD, null);
 			
 			angina = new Angina(secParams, this);
@@ -477,7 +477,7 @@ public class T1DMDisease extends StandardDisease {
 			int order = 0;
 			for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
 				coef[order++] = secParams.getProbParam(SecondOrderParamsRepository.getProbString(manifCHD), pat.getSimulation());
-			selectorsCHD[id] = new SingleSelectorParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), coef);
+			selectorsCHD[id] = new SingleSelectorParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), coef);
 		}
 		return selectorsCHD[id].getValue(pat);
 	}

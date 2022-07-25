@@ -61,7 +61,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	public TimeFreeOfComplicationsView(SecondOrderParamsRepository secParams, boolean printFirstOrderVariance) {
 		super("Standard patient viewer");
 		this.nInterventions = secParams.getNInterventions();
-		this.nPatients = secParams.getnPatients();
+		this.nPatients = secParams.getNPatients();
 		this.availableManifestations = secParams.getRegisteredManifestations();
 		prevalence = new int[nInterventions][availableManifestations.length];
 		incidence = new int[nInterventions][availableManifestations.length];

@@ -24,9 +24,9 @@ public abstract class ChronicManifestation extends Manifestation {
 	 */
 	public ChronicManifestation(SecondOrderParamsRepository secParams, String name, String description, Disease disease) {
 		super(secParams, name, description, disease, Type.CHRONIC);
-		rndValues = new RandomValues[secParams.getnRuns() + 1][secParams.getnPatients()];
-		for (int i = 0; i < secParams.getnRuns() + 1; i++)
-			for (int j = 0; j < secParams.getnPatients(); j++)
+		rndValues = new RandomValues[secParams.getNRuns() + 1][secParams.getNPatients()];
+		for (int i = 0; i < secParams.getNRuns() + 1; i++)
+			for (int j = 0; j < secParams.getNPatients(); j++)
 				rndValues[i][j] = new RandomValues();
 	}
 	

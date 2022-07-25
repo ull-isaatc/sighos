@@ -77,8 +77,8 @@ public abstract class HTAExperiment {
 		}
 
 		this.interventions = secParams.getRegisteredInterventions();
-		this.nRuns = secParams.getnRuns();
-		this.nPatients = secParams.getnPatients();
+		this.nRuns = secParams.getNRuns();
+		this.nPatients = secParams.getNPatients();
 		this.progress = new PrintProgress((nRuns > N_PROGRESS) ? nRuns / N_PROGRESS : 1, nRuns + 1);
 		
 		final Discount[] discounts = configureDiscounts (arguments.discount);

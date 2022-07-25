@@ -34,9 +34,9 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	 */
 	public StandardSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
 		super(secParams);
-		rnd = new double[secParams.getnRuns() + 1][secParams.getnPatients()];
-		for (int i = 0; i < secParams.getnRuns() + 1; i++)
-			for (int j = 0; j < secParams.getnPatients(); j++) {
+		rnd = new double[secParams.getNRuns() + 1][secParams.getNPatients()];
+		for (int i = 0; i < secParams.getNRuns() + 1; i++)
+			for (int j = 0; j < secParams.getNPatients(); j++) {
 				rnd[i][j] = rng.draw();
 			}
 	}

@@ -230,6 +230,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 * @param pat A patient
 	 * @param initT Starting time of the period (in years)
 	 * @param endT Ending time of the period
+	 * @param discountRate The discount rate to apply to the cost
 	 * @return the annual cost associated to the current state of the patient and during the defined period
 	 */
 	public abstract double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate);
@@ -248,6 +249,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 * @param pat A patient
 	 * @param initT Starting time of the period (in years)
 	 * @param endT Ending time of the period
+	 * @param discountRate The discount rate to apply to the cost
 	 * @return The treatment and follow up costs for each natural year within the specified period for this disease
 	 */
 	public abstract double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate);
@@ -257,6 +259,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 * @param pat A patient
 	 * @param initT Starting time of the period (in years)
 	 * @param endT Ending time of the period
+	 * @param discountRate The discount rate to apply to the cost
 	 * @return the first element of the array contains the total cost; the rest of elements contains the treatment and follow up costs for each natural year this disease
 	 */
 	public abstract double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate);

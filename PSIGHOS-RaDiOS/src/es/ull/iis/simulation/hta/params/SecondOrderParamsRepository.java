@@ -121,8 +121,9 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	final private int nRuns;
 	/** Absence of progression */
 	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
-	/** A Disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
+	/** A dummy disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
 	public final Disease HEALTHY;
+	/** A dummy modification that do not modify anything */
 	public final Modification NO_MODIF;
 	
 	/**
@@ -349,7 +350,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * Returns the number of patients that will be generated during the simulation
 	 * @return the number of patients that will be generated during the simulation
 	 */
-	public int getnPatients() {
+	public int getNPatients() {
 		return nPatients;
 	}
 
@@ -377,7 +378,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * Returns the number of probabilistic simulations to run by using this repository
 	 * @return The number of probabilistic simulations to run by using this repository
 	 */
-	public int getnRuns() {
+	public int getNRuns() {
 		return nRuns;
 	}
 

@@ -27,29 +27,29 @@ public class DiseaseCostCalculator implements CostCalculator {
 	}
 
 	@Override
-	public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge, Discount discountRate) {
+	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		double cost = pat.getIntervention().getAnnualCost(pat);
-		return cost + pat.getDisease().getCostWithinPeriod(pat, initAge, endAge, discountRate);
+		return cost + pat.getDisease().getCostWithinPeriod(pat, initT, endT, discountRate);
 	}
 
 	@Override
-	public double getCostUponIncidence(Patient pat, Manifestation manif) {
-		return secParams.getCostsForManifestation(manif, pat.getSimulation().getIdentifier())[1];
+	public double getCostUponIncidence(Patient pat, Manifestation newEvent, Discount discountRate) {
+		return secParams.getCostsForManifestation(newEvent, pat.getSimulation().getIdentifier())[1];
 	}
 
 	@Override
-	public double getAnnualInterventionCostWithinPeriod(Patient pat, double initAge, double endAge) {
+	public double getInterventionCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		return pat.getIntervention().getAnnualCost(pat);
 	}
 
 	@Override
-	public double getCostForIntervention(Patient pat) {
+	public double getCostForIntervention(Patient pat, Discount discountRate) {
 		return pat.getIntervention().getStartingCost(pat);
 	}
-	
+
 	@Override
-	public TreeMap<Manifestation, Double> getAnnualManifestationCostWithinPeriod(Patient pat, double initAge,
-			double endAge) {
+	public TreeMap<Manifestation, Double> getManifestationCostWithinPeriod(Patient pat, double initT, double endT,
+			Discount discountRate) {
 		final TreeMap<Manifestation, Double> results = new TreeMap<>(); 
 		final Collection<Manifestation> state = pat.getState();
 		for (Manifestation st : state) {
@@ -59,12 +59,12 @@ public class DiseaseCostCalculator implements CostCalculator {
 	}
 
 	@Override
-	public double getAnnualDiseaseCostWithinPeriod(Patient pat, double initAge, double endAge) {
-		return pat.getDisease().getAnnualCostWithinPeriod(pat, initAge, endAge);
+	public double getDiseaseCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		return pat.getDisease().getCostWithinPeriod(pat, initT, endT, discountRate);
 	}
 
 	@Override
-	public double getStdManagementCostWithinPeriod(Patient pat, double initAge, double endAge) {
+	public double getStdManagementCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		return 0;
 	}
 
