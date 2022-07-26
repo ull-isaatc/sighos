@@ -7,12 +7,10 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.StdDiscount;
-import es.ull.iis.simulation.model.Describable;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -20,7 +18,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla Rodríguez
  *
  */
-public class Guideline implements Named, Describable {
+public class Guideline implements NamedAndDescribed {
 	private final String description;
 	private final String name;
 	private final TreeSet<GuidelineRange> ranges;

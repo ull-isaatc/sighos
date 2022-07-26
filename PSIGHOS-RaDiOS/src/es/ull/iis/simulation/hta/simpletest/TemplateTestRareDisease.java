@@ -34,16 +34,5 @@ public abstract class TemplateTestRareDisease extends StandardDisease {
 		return results;
 	}
 
-	@Override
-	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
-			Discount discountRate) {
-		return 0;
-	}
-
-	@Override
-	public double getDiagnosisCost(Patient pat, double time, Discount discountRate) {
-		return 0;
-	}
-
 	public abstract ArrayList<String> getParamNames();
 }

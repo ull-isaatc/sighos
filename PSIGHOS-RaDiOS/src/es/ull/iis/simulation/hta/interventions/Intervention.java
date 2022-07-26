@@ -7,12 +7,11 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
-import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.model.Describable;
 import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
@@ -21,7 +20,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Intervention implements Named, Describable, CreatesSecondOrderParameters, Comparable<Intervention>, PrettyPrintable {
+public abstract class Intervention implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Intervention>, PrettyPrintable {
 	/** A short name for the intervention */
 	final private String name;
 	/** A full description of the intervention */

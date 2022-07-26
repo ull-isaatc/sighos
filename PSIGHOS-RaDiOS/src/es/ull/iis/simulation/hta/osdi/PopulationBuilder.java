@@ -10,8 +10,7 @@ import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
-import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
-import es.ull.iis.simulation.hta.params.SecondOrderParam;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -44,6 +43,7 @@ public interface PopulationBuilder {
 		private boolean hasPrevalence;
 		private boolean hasBirthPrevalence;
 		private final int minAge; 
+		private final String strFemaleParamName;
 		
 		public OSDiPopulation(SecondOrderParamsRepository secParams, Disease disease, String populationName) {
 			super(secParams, disease);
@@ -54,6 +54,7 @@ public interface PopulationBuilder {
 			this.hasBirthPrevalence = false;
 			final String strMinAge = OSDiNames.DataProperty.HAS_MIN_AGE.getValue(populationName, "" + super.getMinAge());
 			minAge = Integer.parseInt(strMinAge);
+			this.strFemaleParamName = "FEMALE_" + populationName;
 		}
 		
 		@Override
@@ -61,7 +62,7 @@ public interface PopulationBuilder {
 			final String strPFemale = OSDiNames.DataProperty.HAS_FEMALE_PROPORTION.getValue(populationName, "0.5");
 			final ProbabilityDistribution pFemale = ValueParser.splitProbabilityDistribution(strPFemale);
 			if (pFemale != null) {
-				DefaultProbabilitySecondOrderParam.PROPORTION.addParameter(secParams, "FEMALE_" + populationName, "females in population " + populationName, 
+				ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, strFemaleParamName, "females in population " + populationName, 
 					"",	pFemale.getDeterministicValue(), pFemale.getProbabilisticValue());
 			}
 			// Register epidemiologic parameters
@@ -69,11 +70,11 @@ public interface PopulationBuilder {
 			for (String paramName : epidemParams) {
 				final String type = OSDiNames.DataProperty.HAS_EPIDEMIOLOGICAL_PARAMETER_KIND.getValue(paramName);
 				if (OSDiNames.DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_PREVALENCE.getDescription().equals(type)) {
-					registerEpidemParam(paramName, DefaultProbabilitySecondOrderParam.PREVALENCE);
+					registerEpidemParam(paramName, ProbabilityParamDescriptions.PREVALENCE);
 					hasPrevalence = true;
 				}
 				else if (OSDiNames.DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_BIRTH_PREVALENCE.getDescription().equals(type)) {
-					registerEpidemParam(paramName, DefaultProbabilitySecondOrderParam.BIRTH_PREVALENCE);
+					registerEpidemParam(paramName, ProbabilityParamDescriptions.BIRTH_PREVALENCE);
 					hasBirthPrevalence = true;
 				}
 
@@ -116,7 +117,7 @@ public interface PopulationBuilder {
 			}
 		}
 		
-		private void registerEpidemParam(String paramName, DefaultProbabilitySecondOrderParam secondOrderParam) {
+		private void registerEpidemParam(String paramName, ProbabilityParamDescriptions secondOrderParam) {
 			// Check if the prevalence is related to the objective disease
 			final List<String> strDiseases = OSDiNames.ObjectProperty.IS_PARAMETER_OF_DISEASE.getValues(paramName);
 			boolean found = false;
@@ -137,15 +138,15 @@ public interface PopulationBuilder {
 		
 		@Override
 		protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
-			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), secParams.getProbParam(strParamFemale[0], simul));
+			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.PROPORTION.getValue(secParams, strFemaleParamName, simul));
 		}
 		
 		@Override
 		protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
 			if (hasBirthPrevalence)
-				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), secParams.getProbParam(strParamBirthPrevalence[0], simul));
+				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(secParams, populationName, simul));
 			else if (hasPrevalence)
-				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), secParams.getProbParam(strParamPrevalence[0], simul));
+				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.PREVALENCE.getValue(secParams, populationName, simul));
 			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 		}
 		

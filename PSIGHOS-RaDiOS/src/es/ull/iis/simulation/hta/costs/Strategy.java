@@ -9,11 +9,10 @@ import java.util.Arrays;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
+import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
-import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
@@ -127,16 +126,14 @@ public class Strategy implements PartOfStrategy {
 		double cost = 0.0;
 		// If the patient does not meet the condition, the strategy cannot be applied
 		if (condition.check(pat)) {
-			final double unitCost = secParams.getCostParam(DefaultProbabilitySecondOrderParam.UNIT_COST.getParameterName(this), pat.getSimulation());
-			// In case a unit cost is defined, it is used first to compute the cost of the strategy
-			if (!Double.isNaN(unitCost)) {
-				final boolean isAnnual = SecondOrderCostParam.TemporalBehavior.ANNUAL.equals(secParams.getTemporalBehaviorOfCostParam(DefaultProbabilitySecondOrderParam.UNIT_COST.getParameterName(this)));
-				if (isAnnual) {
-					cost += discountRate.applyDiscount(unitCost, startT, endT);
-				}
-				else {
-					cost += discountRate.applyPunctualDiscount(unitCost, startT);
-				}
+			double partialCost = CostParamDescriptions.ANNUAL_COST.getValueIfExists(secParams, this, pat.getSimulation());
+			// If there is an annual cost defined, ignores the guideline
+			if (!Double.isNaN(partialCost))
+				cost += discountRate.applyDiscount(partialCost, startT, endT);
+			partialCost = CostParamDescriptions.ONE_TIME_COST.getValueIfExists(secParams, this, pat.getSimulation());
+			// In case a one-time cost is defined, it is used first to compute the cost of the strategy
+			if (!Double.isNaN(partialCost)) {
+				cost += discountRate.applyPunctualDiscount(partialCost, startT);
 			}
 			// In any case, checks if the strategy is more complex
 			/* TODO: Though the class allows to define complex structure with multiple levels, still assuming a single level. Should implement more levels but,

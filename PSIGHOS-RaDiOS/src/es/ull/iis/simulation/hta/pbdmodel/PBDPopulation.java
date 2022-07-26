@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
-import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -34,7 +34,7 @@ public class PBDPopulation extends StdPopulation {
 
 	@Override
 	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
-		final double birthPrev = allAffected ? 1.0 : DefaultProbabilitySecondOrderParam.BIRTH_PREVALENCE.getValue(secParams, disease, simul);
+		final double birthPrev = allAffected ? 1.0 : ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(secParams, disease, simul);
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), birthPrev);
 	}
 
@@ -52,7 +52,7 @@ public class PBDPopulation extends StdPopulation {
 	public void registerSecondOrderParameters() {
 		secParams.addBaseUtilityParam("Base utility for the general population of PBD", "Utility for Spanish general population", 0.8861, RandomVariateFactory.getInstance("ConstantVariate", 0.8861));
 		if (!allAffected)
-			DefaultProbabilitySecondOrderParam.BIRTH_PREVALENCE.addParameter(secParams, disease, disease, "", 
+			ProbabilityParamDescriptions.BIRTH_PREVALENCE.addParameter(secParams, disease, "", 
 				BIRTH_PREVALENCE, RandomVariateFactory.getInstance("BetaVariate", 8, 540955));
 	}
 

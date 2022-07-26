@@ -10,24 +10,22 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.BernoulliParam;
-import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
 import es.ull.iis.simulation.hta.params.MultipleBernoulliParam;
+import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.model.Describable;
 
 /**
  * A manifestation of a {@link Disease} defined in the model. Manifestations may be chronic or acute. 
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Manifestation implements Named, Describable, Comparable<Manifestation>, CreatesSecondOrderParameters, PrettyPrintable {
-	protected final static String [] STR_ONSET_AGE = {"ONSET_AGE_", "Onset age for "};
-	protected final static String [] STR_END_AGE = {"END_AGE_", "End age for "};
+public abstract class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, PrettyPrintable {
 	/**
 	 * The type of the manifestation. Currently distinguishes among chronic and acute manifestations
 	 * @author Iván Castilla
@@ -122,30 +120,12 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	}
 	
 	/**
-	 * Returns a string to identify/describe the end age parameter associated to this manifestation
-	 * @param longText If true, returns the description of the parameter; otherwise, returns the identifier
-	 * @return a string to identify/describe the end age parameter associated to this manifestation
-	 */
-	public String getEndAgeParameterString(boolean longText) {
-		return longText ? (STR_END_AGE[1] + description) : (STR_END_AGE[0] + name);
-	}
-	
-	/**
-	 * Returns a string to identify/describe the onset age parameter associated to this manifestation
-	 * @param longText If true, returns the description of the parameter; otherwise, returns the identifier
-	 * @return a string to identify/describe the onset age parameter associated to this manifestation
-	 */
-	public String getOnsetAgeParameterString(boolean longText) {
-		return longText ? (STR_ONSET_AGE[1] + description) : (STR_ONSET_AGE[0] + name);
-	}
-	
-	/**
 	 * Returns the maximum age when this manifestation appears
 	 * @param pat A patient
 	 * @return the maximum age when this manifestation appears
 	 */
 	public double getEndAge(Patient pat) {
-		return secParams.getOtherParam(getEndAgeParameterString(false), BasicConfigParams.DEF_MAX_AGE, pat.getSimulation());
+		return OtherParamDescriptions.END_AGE.getValue(secParams, this, pat.getSimulation());
 	}
 	
 	/**
@@ -154,7 +134,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	 * @return the minimum age when this manifestation appears
 	 */
 	public double getOnsetAge(Patient pat) {
-		return secParams.getOtherParam(getOnsetAgeParameterString(false), 0.0, pat.getSimulation());
+		return OtherParamDescriptions.ONSET_AGE.getValue(secParams, this, pat.getSimulation());
 	}
 	
 	/**
@@ -225,7 +205,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		final int id = pat.getSimulation().getIdentifier();
 		if (pInit[id] == null)
 			pInit[id] = new BernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), 
-					DefaultProbabilitySecondOrderParam.INITIAL_PROBABILITY.getValue(secParams, this, pat.getSimulation()));
+					ProbabilityParamDescriptions.INITIAL_PROBABILITY.getValue(secParams, this, pat.getSimulation()));
 		return pInit[id].getValue(pat);
 	}
 
@@ -238,7 +218,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		final int id = pat.getSimulation().getIdentifier();
 		if (associatedDeath[id] == null)
 			associatedDeath[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), 
-					DefaultProbabilitySecondOrderParam.PROBABILITY_DEATH.getValue(secParams, this, pat.getSimulation()));
+					ProbabilityParamDescriptions.PROBABILITY_DEATH.getValue(secParams, this, pat.getSimulation()));
 		return associatedDeath[id].getValue(pat);
 	}
 	
@@ -251,7 +231,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		final int id = pat.getSimulation().getIdentifier();
 		if (pDiagnose[id] == null)
 			pDiagnose[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(),
-					DefaultProbabilitySecondOrderParam.PROBABILITY_DIAGNOSIS.getValue(secParams, this, pat.getSimulation()));
+					ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS.getValue(secParams, this, pat.getSimulation()));
 		return pDiagnose[id].getValue(pat);
 	}
 

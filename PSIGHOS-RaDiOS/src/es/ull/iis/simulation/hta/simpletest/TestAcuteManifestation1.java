@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
-import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AcuteManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -34,9 +34,9 @@ public class TestAcuteManifestation1 extends AcuteManifestation {
 	@Override
 	public void registerSecondOrderParameters() {
 		secParams.addUtilityParam(this, "Disutility for " + this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05), true);
-		DefaultProbabilitySecondOrderParam.PROBABILITY_DEATH.addParameter(secParams, this, this, "Test", P_DEAD, SecondOrderParamsRepository.getRandomVariateForProbability(P_DEAD));
+		ProbabilityParamDescriptions.PROBABILITY_DEATH.addParameter(secParams, this, "Test", P_DEAD, SecondOrderParamsRepository.getRandomVariateForProbability(P_DEAD));
 		secParams.addCostParam(this, "Punctual cost for " + this, "Test", 2020, PUNCTUAL_COST, SecondOrderParamsRepository.getRandomVariateForCost(PUNCTUAL_COST));		
-		DefaultProbabilitySecondOrderParam.PROBABILITY_DIAGNOSIS.addParameter(secParams, this, this, "Test", P_DIAG, SecondOrderParamsRepository.getRandomVariateForProbability(P_DIAG));
+		ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(secParams, this, "Test", P_DIAG, SecondOrderParamsRepository.getRandomVariateForProbability(P_DIAG));
 	}
 
 }

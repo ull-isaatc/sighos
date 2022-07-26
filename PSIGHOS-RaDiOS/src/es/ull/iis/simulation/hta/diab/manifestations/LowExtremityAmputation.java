@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diab.manifestations;
 
+import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -40,7 +41,7 @@ public class LowExtremityAmputation extends ChronicManifestation {
 
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
 		secParams.addUtilityParam(this, "Disutility for " + this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]), true);
-		secParams.addIMRParam(this, "Increased mortality risk due to peripheral neuropathy (amputation)", 
+		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addParameter(secParams, this.name(), "peripheral neuropathy (amputation)", 
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				3.98, RandomVariateFactory.getInstance("RRFromLnCIVariate", 3.98, 1.84, 8.59, 1));
 	}
