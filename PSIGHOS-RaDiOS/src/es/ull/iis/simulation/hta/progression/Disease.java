@@ -10,14 +10,15 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
+import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.model.Describable;
 
 /**
  * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other.
@@ -25,7 +26,7 @@ import es.ull.iis.simulation.model.Describable;
  * excludes the "asymptomatic" chronic manifestation. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Disease implements Named, Describable, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable {
+public abstract class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable {
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
@@ -242,7 +243,9 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 * @param discountRate The discount rate to apply to the cost
 	 * @return the diagnosis cost for this disease
 	 */
-	public abstract double getDiagnosisCost(Patient pat, double time, Discount discountRate);
+	public double getDiagnosisCost(Patient pat, double time, Discount discountRate) {
+		return discountRate.applyPunctualDiscount(CostParamDescriptions.DIAGNOSIS_COST.getValue(secParams, this, pat.getSimulation()), time);
+	}
 	
 	/**
 	 * Returns the annualized treatment and follow up costs for this disease during the defined period. These costs should only be applied to diagnosed patients 
@@ -262,7 +265,11 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	 * @param discountRate The discount rate to apply to the cost
 	 * @return the first element of the array contains the total cost; the rest of elements contains the treatment and follow up costs for each natural year this disease
 	 */
-	public abstract double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate);
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
+		// If common costs are defined, uses them
+		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
+		return discountRate.applyDiscount(annualCost, initT, endT);
+	}
 	
 	/**
 	 * Returns the disutility value associated to the current stage of this disease
@@ -316,7 +323,7 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	public void addSecondOrderInitProportion() {
 		for (final Manifestation manif : getManifestations()) {
 			if (BasicConfigParams.INIT_PROP.containsKey(manif.name())) {
-				DefaultProbabilitySecondOrderParam.INITIAL_PROPORTION.addParameter(secParams, manif, manif, "", BasicConfigParams.INIT_PROP.get(manif.name()));
+				ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, manif, "", BasicConfigParams.INIT_PROP.get(manif.name()));
 			}			
 		}		
 	}

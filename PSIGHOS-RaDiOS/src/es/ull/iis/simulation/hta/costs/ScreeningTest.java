@@ -3,15 +3,14 @@
  */
 package es.ull.iis.simulation.hta.costs;
 
-import es.ull.iis.simulation.hta.params.CanDefineSensitivity;
-import es.ull.iis.simulation.hta.params.CanDefineSpecificity;
+import es.ull.iis.simulation.hta.params.DefinesSensitivityAndSpecificity;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class ScreeningTest extends HealthTechnology implements CanDefineSpecificity, CanDefineSensitivity {
+public class ScreeningTest extends HealthTechnology implements DefinesSensitivityAndSpecificity {
 
 	/**
 	 * @param name

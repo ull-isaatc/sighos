@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.osdi.OSDiNames.DataProperty;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
-import es.ull.iis.simulation.hta.params.DefaultProbabilitySecondOrderParam;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -96,13 +96,13 @@ public interface InterventionBuilder {
 		final ProbabilityDistribution probSensitivity = ValueParser.splitProbabilityDistribution(strSensitivity);
 		if (probSensitivity == null)
 			throw new TranspilerException("Error parsing regular expression \"" + strSensitivity + "\" for instance \"" + intervention.name() + "\"");
-		DefaultProbabilitySecondOrderParam.SENSITIVITY.addParameter(secParams, intervention, intervention, "",  
+		ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, "",  
 				probSensitivity.getDeterministicValue(), probSensitivity.getProbabilisticValue());
 		String strSpecificity = DataProperty.HAS_SPECIFICITY.getValue(intervention.name(), "1.0");
 		final ProbabilityDistribution probSpecificity = ValueParser.splitProbabilityDistribution(strSpecificity);
 		if (probSpecificity == null)
 			throw new TranspilerException("Error parsing regular expression \"" + strSpecificity + "\" for instance \"" + intervention.name() + "\"");
-		DefaultProbabilitySecondOrderParam.SPECIFICTY.addParameter(secParams, intervention, intervention, "",  
+		ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, intervention, "",  
 				probSpecificity.getDeterministicValue(), probSpecificity.getProbabilisticValue());
 	}
 	

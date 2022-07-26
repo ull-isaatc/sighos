@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -34,25 +35,26 @@ public class TestRareDisease1 extends TemplateTestRareDisease {
 		super(secParams, "RD1", "Test rare disease 1");
 		manif1 = new TestManifestationStage1(secParams, this);
 		manif2 = new TestManifestationStage2(secParams, this);
-		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif1), secParams, manif1);
+		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1), secParams, manif1);
 		new ManifestationPathway(secParams, manif1, tte);
 		final Condition<Patient> cond = new PreviousManifestationCondition(manif1);
-		tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif1, manif2), secParams, manif2);
+		tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1, manif2), secParams, manif2);
 		new ManifestationPathway(secParams, manif2, cond, tte); 
 		addExclusion(manif2, manif1);
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
-		secParams.addProbParam(manif1, manif2, "Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
+		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, manif1, manif2,  
+				"Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
 	}
 
 	@Override
 	public ArrayList<String> getParamNames() {
 		ArrayList<String> list = new ArrayList<>();
-		list.add(SecondOrderParamsRepository.getProbString(manif1));
-		list.add(SecondOrderParamsRepository.getProbString(manif1, manif2));		
+		list.add(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1));
+		list.add(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1, manif2));		
 		return list;
 	}
 

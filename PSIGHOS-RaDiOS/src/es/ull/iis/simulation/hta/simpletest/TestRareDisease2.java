@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.simpletest;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -27,19 +28,19 @@ public class TestRareDisease2 extends TemplateTestRareDisease {
 	public TestRareDisease2(SecondOrderParamsRepository secParams) {
 		super(secParams, "RD2", "Test rare disease 2");
 		acuteManif1 = new TestAcuteManifestation1(secParams, this);
-		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(acuteManif1), secParams, acuteManif1);
+		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(acuteManif1), secParams, acuteManif1);
 		new ManifestationPathway(secParams, acuteManif1, tte);
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(acuteManif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, acuteManif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
 	}
 
 	@Override
 	public ArrayList<String> getParamNames() {
 		ArrayList<String> list = new ArrayList<>();
-		list.add(SecondOrderParamsRepository.getProbString(acuteManif1));
+		list.add(ProbabilityParamDescriptions.PROBABILITY.getParameterName(acuteManif1));
 		return list;
 	}
 }

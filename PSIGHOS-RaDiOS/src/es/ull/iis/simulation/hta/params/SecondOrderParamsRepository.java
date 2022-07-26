@@ -54,12 +54,6 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  */
 public abstract class SecondOrderParamsRepository implements PrettyPrintable {
-	public enum ParameterType {
-		PROBABILITY,
-		COST,
-		UTILITY,
-		OTHER
-	};
 	public static final String STR_MOD_PREFIX = "MOD_";
 	/** A null relative risk, i.e., RR = 1.0 */
 	public static final RRCalculator NO_RR = new StdComplicationRR(1.0);
@@ -137,12 +131,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 			public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
 				double [] results = new double[(int)endT - (int)initT + 1];
 				return results;
-			}
-
-			@Override
-			public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
-					Discount discountRate) {
-				return 0;
 			}
 
 			@Override
@@ -308,6 +296,10 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		return (Manifestation[]) arrayTyped.toArray(array);
 	}
 	
+	/**
+	 * Returns the already registered intervention
+	 * @return The already registered interventions
+	 */
 	public Intervention[] getRegisteredInterventions() {
 		final Intervention[] array = new Intervention[registeredInterventions.size()];
 		return (Intervention[]) registeredInterventions.toArray(array);
@@ -365,32 +357,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		probabilityParams.put(param.getName(), param);
 	}
 	
-	// TODO: Move functionality to DefaultProbabilitySecondOrderParam
-	public void addProbParam(Manifestation fromManifestation, Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
-		addProbParam(new SecondOrderParam(this, getProbString(fromManifestation, toManifestation), "Probability of going from " + fromManifestation + " to " + toManifestation, source, detValue, rnd));
-	}
-	
-	// TODO: Move functionality to DefaultProbabilitySecondOrderParam
-	public void addProbParam(Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
-		addProbParam(new SecondOrderParam(this, getProbString(toManifestation), "Probability of going to " + toManifestation, source, detValue, rnd));
-	}
-	
-	public void addRRParam(Manifestation fromManifestation, Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
-		addOtherParam(new SecondOrderParam(this, getRRString(fromManifestation, toManifestation), "RR associated to going from " + fromManifestation + " to " + toManifestation, source, detValue, rnd));
-	}
-	
-	public void addRRParam(Manifestation fromManifestation, Manifestation toManifestation, String source, double detValue) {
-		addOtherParam(new SecondOrderParam(this, getRRString(fromManifestation, toManifestation), "RR associated to going from " + fromManifestation + " to " + toManifestation, source, detValue));
-	}
-	
-	public void addRRParam(Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
-		addOtherParam(new SecondOrderParam(this, getRRString(toManifestation), "RR associated to going to " + toManifestation, source, detValue, rnd));
-	}
-	
-	public void addRRParam(Manifestation toManifestation, String source, double detValue) {
-		addOtherParam(new SecondOrderParam(this, getRRString(toManifestation), "RR associated to going to " + toManifestation, source, detValue));
-	}
-	
 	public void addModificationParam(Modification param) {
 		modificationParams.put(param.getName(), param);		
 	}
@@ -422,7 +388,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param oneTime If true, the cost is applied only upon incidence of the manifestation; otherwise, it is considered to be annual
 	 */
 	public void addCostParam(ChronicManifestation manifestation, String description, String source, int year, double detValue, RandomVariate rnd, boolean oneTime) {
-		final String paramName = oneTime ? DefaultProbabilitySecondOrderParam.ONE_TIME_COST.getParameterName(manifestation) : DefaultProbabilitySecondOrderParam.COST.getParameterName(manifestation);
+		final String paramName = oneTime ? ProbabilityParamDescriptions.ONE_TIME_COST.getParameterName(manifestation) : ProbabilityParamDescriptions.COST.getParameterName(manifestation);
 		addCostParam(new SecondOrderCostParam(this, paramName, description, source, SecondOrderCostParam.TemporalBehavior.ANNUAL, year, detValue, rnd));
 	}
 	
@@ -449,7 +415,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
 	 */
 	public void addCostParam(AcuteManifestation manifestation, String description, String source, int year, double detValue, RandomVariate rnd) {
-		final String paramName = DefaultProbabilitySecondOrderParam.ONE_TIME_COST.getParameterName(manifestation);
+		final String paramName = ProbabilityParamDescriptions.ONE_TIME_COST.getParameterName(manifestation);
 		addCostParam(new SecondOrderCostParam(this, paramName, description, source, SecondOrderCostParam.TemporalBehavior.ONE_TIME, year, detValue, rnd));
 	}
 	
@@ -472,9 +438,9 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param oneTime If true, the utility is applied only upon incidence of the manifestation; otherwise, it is considered to be annual
 	 */
 	public void addUtilityParam(ChronicManifestation manifestation, String description, String source, double detValue, RandomVariate rnd, boolean disutility, boolean oneTime) {
-		final DefaultProbabilitySecondOrderParam paramDef = (disutility ? 
-				(oneTime ? DefaultProbabilitySecondOrderParam.ONE_TIME_DISUTILITY : DefaultProbabilitySecondOrderParam.DISUTILITY) :
-				(oneTime ? DefaultProbabilitySecondOrderParam.ONE_TIME_UTILITY : DefaultProbabilitySecondOrderParam.UTILITY)); 
+		final ProbabilityParamDescriptions paramDef = (disutility ? 
+				(oneTime ? ProbabilityParamDescriptions.ONE_TIME_DISUTILITY : ProbabilityParamDescriptions.DISUTILITY) :
+				(oneTime ? ProbabilityParamDescriptions.ONE_TIME_UTILITY : ProbabilityParamDescriptions.UTILITY)); 
 		addUtilityParam(new SecondOrderParam(this, paramDef.getParameterName(manifestation), description, source, detValue, rnd));
 	}
 
@@ -501,7 +467,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param disutility If true, the value is a disutility; otherwise, it is a utility
 	 */
 	public void addUtilityParam(AcuteManifestation manifestation, String description, String source, double detValue, RandomVariate rnd, boolean disutility) {
-		final String paramName = disutility ? DefaultProbabilitySecondOrderParam.ONE_TIME_DISUTILITY.getParameterName(manifestation) : DefaultProbabilitySecondOrderParam.ONE_TIME_UTILITY.getParameterName(manifestation);
+		final String paramName = disutility ? ProbabilityParamDescriptions.ONE_TIME_DISUTILITY.getParameterName(manifestation) : ProbabilityParamDescriptions.ONE_TIME_UTILITY.getParameterName(manifestation);
 		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
@@ -515,7 +481,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param disutility If true, the value is a disutility; otherwise, it is a utility
 	 */
 	public void addUtilityParam(Disease disease, String description, String source, double detValue, RandomVariate rnd, boolean disutility) {
-		final String paramName = disutility ? DefaultProbabilitySecondOrderParam.DISUTILITY.getParameterName(disease) : DefaultProbabilitySecondOrderParam.UTILITY.getParameterName(disease);
+		final String paramName = disutility ? ProbabilityParamDescriptions.DISUTILITY.getParameterName(disease) : ProbabilityParamDescriptions.UTILITY.getParameterName(disease);
 		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
@@ -528,35 +494,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
 	 */
 	public void addBaseUtilityParam(String description, String source, double detValue, RandomVariate rnd) {
-		final String paramName = DefaultProbabilitySecondOrderParam.UTILITY.getParameterName("POPULATION");
+		final String paramName = ProbabilityParamDescriptions.UTILITY.getParameterName("POPULATION");
 		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
-	}
-
-	/**
-	 * Adds a parameter that represents the increase mortality rate (IMR) associated to a complication or complication stage; 
-	 * 1.0 if no additional risk is associated
-	 * @param stage A complication or complication stage
-	 * @param description Full description of the parameter
-	 * @param source The reference from which this parameter was estimated/taken
-	 * @param detValue Deterministic/expected value
-	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
-	 */
-	public void addIMRParam(Named stage, String description, String source, double detValue, RandomVariate rnd) {
-		final String paramName = DefaultProbabilitySecondOrderParam.INCREASED_MORTALITY_RATE.getParameterName(stage);
-		otherParams.put(paramName, new SecondOrderParam(this, paramName, description, source, detValue, rnd));
-	}
-
-	/**
-	 * Adds a parameter that represents the life expectancy reduction (LER) associated to a complication or complication stage 
-	 * @param stage A complication or complication stage
-	 * @param description Full description of the parameter
-	 * @param source The reference from which this parameter was estimated/taken
-	 * @param detValue Deterministic/expected value
-	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
-	 */
-	public void addLERParam(Named stage, String description, String source, double detValue, RandomVariate rnd) {
-		final String paramName = DefaultProbabilitySecondOrderParam.LIFE_EXPECTANCY_REDUCTION.getParameterName(stage);
-		otherParams.put(paramName, new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
 	/**
@@ -567,10 +506,21 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		otherParams.put(param.getName(), param);
 	}
 
+
 	/**
 	 * Returns a value for a miscellaneous parameter
 	 * @param name String identifier of the miscellaneous parameter
 	 * @return A value for the specified miscellaneous parameter; {@link Double#NaN} in case the parameter is not defined
+	 */
+	public double getOtherParam(String name, DiseaseProgressionSimulation simul) {
+		return getOtherParam(name, Double.NaN, simul);
+	}
+
+	/**
+	 * Returns a value for a miscellaneous parameter
+	 * @param name String identifier of the miscellaneous parameter
+	 * @param defaultValue Default value in case the parameter is not defined
+	 * @return A value for the specified miscellaneous parameter; the specified default value in case the parameter is not defined
 	 */
 	public double getOtherParam(String name, double defaultValue, DiseaseProgressionSimulation simul) {
 		final int id = simul.getIdentifier();
@@ -593,6 +543,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	/**
 	 * Returns a value for a cost parameter
 	 * @param name String identifier of the cost parameter
+	 * @param defaultValue Default value in case the parameter is not defined
 	 * @return A value for the specified cost parameter; defaultValue in case the parameter is not defined
 	 */
 	public double getCostParam(String name, double defaultValue, DiseaseProgressionSimulation simul) {
@@ -602,29 +553,19 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	}
 
 	/**
-	 * Returns the expected temporal behavior for a cost parameter
-	 * @param name String identifier of the cost parameter
-	 * @return the expected temporal behavior for a cost parameter
-	 */
-	public SecondOrderCostParam.TemporalBehavior getTemporalBehaviorOfCostParam(String name) {
-		final SecondOrderCostParam param = costParams.get(name);
-		return (param == null) ? null : param.getTemporalBehavior(); 
-	}
-	
-	/**
-	 * Returns the probability from a complication to another; 0.0 if not defined
-	 * @param fromStage The source complication or complication stage
-	 * @param toStage The destination complication or complication stage
-	 * @return the probability of developing a complication to another; 0.0 if not defined
-	 */
-	public double getProbability(Named fromStage, Named toStage, DiseaseProgressionSimulation simul) {
-		return getProbParam(getProbString(fromStage, toStage), 0.0, simul);
+	 * Returns a value for a probability parameter
+	 * @param name String identifier of the probability parameter
+	 * @return A value for the specified probability parameter; {@link Double#NaN} in case the parameter is not defined
+	 */	
+	public double getProbParam(String name, DiseaseProgressionSimulation simul) {
+		return getProbParam(name, Double.NaN, simul);
 	}
 
 	/**
 	 * Returns a value for a probability parameter
 	 * @param name String identifier of the probability parameter
-	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
+	 * @param defaultValue Default value in case the parameter is not defined
+	 * @return A value for the specified probability parameter; the specified default value in case the parameter is not defined
 	 */	
 	public double getProbParam(String name, double defaultValue, DiseaseProgressionSimulation simul) {
 		final int id = simul.getIdentifier();
@@ -638,7 +579,18 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	/**
 	 * Returns a value for a utility parameter
 	 * @param name String identifier of the utility parameter
-	 * @return A value for the specified probability parameter; defaultValue in case the parameter is not defined
+	 * @param defaultValue Default value in case the parameter is not defined
+	 * @return A value for the specified probability parameter; {@link Double#NaN} in case the parameter is not defined
+	 */	
+	public double getUtilityParam(String name, DiseaseProgressionSimulation simul) {
+		return getUtilityParam(name, Double.NaN, simul);
+	}
+
+	/**
+	 * Returns a value for a utility parameter
+	 * @param name String identifier of the utility parameter
+	 * @param defaultValue Default value in case the parameter is not defined
+	 * @return A value for the specified probability parameter; the specified default value in case the parameter is not defined
 	 */	
 	public double getUtilityParam(String name, double defaultValue, DiseaseProgressionSimulation simul) {
 		final int id = simul.getIdentifier();
@@ -659,8 +611,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 */
 	public double[] getCostsForManifestation(Manifestation manifestation, int id) {
 		final double[] costs = new double[2];
-		final SecondOrderParam annualCost = costParams.get(DefaultProbabilitySecondOrderParam.COST.getParameterName(manifestation));
-		final SecondOrderParam oneTimeCost = costParams.get(DefaultProbabilitySecondOrderParam. ONE_TIME_COST.getParameterName(manifestation));
+		final SecondOrderParam annualCost = costParams.get(ProbabilityParamDescriptions.COST.getParameterName(manifestation));
+		final SecondOrderParam oneTimeCost = costParams.get(ProbabilityParamDescriptions. ONE_TIME_COST.getParameterName(manifestation));
 		costs[0] = (annualCost == null) ? 0.0 : annualCost.getValue(id);
 		costs[1] = (oneTimeCost == null) ? 0.0 : oneTimeCost.getValue(id);
 		return costs;
@@ -676,21 +628,22 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public double[] getDisutilitiesForManifestation(Manifestation manif, int id) {
 		final double[] utils = new double[2];
 		final double refUtility = getBaseUtility(id);
-		SecondOrderParam annualParam = utilParams.get(DefaultProbabilitySecondOrderParam.DISUTILITY.getParameterName(manif));
+//		utils[0] = UtilityParamDescriptions.DISUTILITY.getValueIfExists(this, manif, null)
+		SecondOrderParam annualParam = utilParams.get(ProbabilityParamDescriptions.DISUTILITY.getParameterName(manif));
 		if (annualParam != null) {
 			utils[0] = annualParam.getValue(id);
 		}
 		else {
-			annualParam = utilParams.get(DefaultProbabilitySecondOrderParam.UTILITY.getParameterName(manif));
+			annualParam = utilParams.get(ProbabilityParamDescriptions.UTILITY.getParameterName(manif));
 			// Do not allow "negative" disutilities
 			utils[0] = (annualParam == null) ? 0.0 : Math.max(0.0, refUtility - annualParam.getValue(id));
 		}
-		SecondOrderParam oneTimeParam = utilParams.get(DefaultProbabilitySecondOrderParam.ONE_TIME_DISUTILITY.getParameterName(manif));
+		SecondOrderParam oneTimeParam = utilParams.get(ProbabilityParamDescriptions.ONE_TIME_DISUTILITY.getParameterName(manif));
 		if (oneTimeParam != null) {
 			utils[1] = oneTimeParam.getValue(id);
 		}
 		else {
-			oneTimeParam = utilParams.get(DefaultProbabilitySecondOrderParam.ONE_TIME_UTILITY.getParameterName(manif));
+			oneTimeParam = utilParams.get(ProbabilityParamDescriptions.ONE_TIME_UTILITY.getParameterName(manif));
 			// Do not allow "negative" disutilities
 			utils[1] = (oneTimeParam == null) ? 0.0 : Math.max(0.0, refUtility - oneTimeParam.getValue(id));
 		}
@@ -706,9 +659,9 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 */
 	public double getDisutilityForDisease(Disease disease, int id) {
 		double value = 0.0;
-		SecondOrderParam param = utilParams.get(DefaultProbabilitySecondOrderParam.DISUTILITY.getParameterName(disease));
+		SecondOrderParam param = utilParams.get(ProbabilityParamDescriptions.DISUTILITY.getParameterName(disease));
 		if (param == null) {
-			param = utilParams.get(DefaultProbabilitySecondOrderParam.UTILITY.getParameterName(disease));
+			param = utilParams.get(ProbabilityParamDescriptions.UTILITY.getParameterName(disease));
 			if (param != null)
 				value = getBaseUtility(id) - param.getValue(id);
 		}
@@ -724,7 +677,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @return the base utility for the registered population; 1.0 if not defined 
 	 */
 	public double getBaseUtility(int id) {
-		final SecondOrderParam param = utilParams.get(DefaultProbabilitySecondOrderParam.UTILITY.getParameterName("POPULATION"));
+		final SecondOrderParam param = utilParams.get(ProbabilityParamDescriptions.UTILITY.getParameterName("POPULATION"));
 		return (param == null) ? 1.0 : param.getValue(id);		
 	}
 	
@@ -765,48 +718,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 */
 	public abstract UtilityCalculator getUtilityCalculator();
 	
-	/**
-	 * Builds a string that represents a probability of developing a complication from another
-	 * @param from Initial complication
-	 * @param to Final complication
-	 * @return a string that represents a probability of developing a complication from another
-	 */
-	public static String getProbString(Named from, Named to) {
-		return STR_PROBABILITY_PREFIX + from.name() + "_" + to.name();
-	}
-	
-	/**
-	 * Builds a string that represents a probability of developing a complication
-	 * @param to Final complication
-	 * @return a string that represents a probability of developing a complication
-	 */
-	public static String getProbString(Named to) {
-		return STR_PROBABILITY_PREFIX + to.name();
-	}
-	
-	/**
-	 * Builds a string that represents a RR of developing a manifestation from another
-	 * @param from Initial manifestation
-	 * @param to Final manifestation
-	 * @return a string that represents a probability of developing a manifestation from another
-	 */
-	public static String getRRString(Named from, Named to) {
-		final String fromName = (from == null) ? STR_HEALTHY : from.name();
-		final String toName = "_" + to.name();
-		return STR_RR_PREFIX + fromName + toName;
-	}
-	
-	/**
-	 * Builds a string that represents a RR of developing a manifestation
-	 * @param to Final manifestation
-	 * @return a string that represents a probability of developing a manifestation
-	 */
-	public static String getRRString(Named to) {
-		return STR_RR_PREFIX + to.name();
-	}
-	
 	public static String getModificationString(Intervention interv, Named from, Named to) {
-		return getModificationString(interv, getProbString(from, to));
+		return getModificationString(interv, ProbabilityParamDescriptions.PROBABILITY.getParameterName(from, to));
 	}
 	
 	public static String getModificationString(Intervention interv, String name) {

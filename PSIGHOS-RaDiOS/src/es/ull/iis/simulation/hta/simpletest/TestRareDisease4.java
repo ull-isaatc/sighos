@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -40,32 +41,33 @@ public class TestRareDisease4 extends TemplateTestRareDisease {
 		manif1 = new TestManifestationStage1(secParams, this);
 		manif2 = new TestManifestationStage2(secParams, this);
 		acuteManif1 = new TestAcuteManifestation1(secParams, this);
-		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif1), secParams, manif1);
+		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1), secParams, manif1);
 		new ManifestationPathway(secParams, manif1, tte);
-		tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif2), secParams, manif2);
+		tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif2), secParams, manif2);
 		new ManifestationPathway(secParams, manif2, tte);
 		final Condition<Patient> cond = new PreviousManifestationCondition(manif1);
-		tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(manif1, manif2), secParams, manif2);
+		tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1, manif2), secParams, manif2);
 		new ManifestationPathway(secParams, manif2, cond, tte); 
-		tte = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.getProbString(acuteManif1), secParams, acuteManif1);
+		tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(acuteManif1), secParams, acuteManif1);
 		new ManifestationPathway(secParams, acuteManif1, tte);
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(acuteManif1, "Test", P_ACUTE_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_ACUTE_MANIF1));
-		secParams.addProbParam(manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
-		secParams.addProbParam(manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
-		secParams.addProbParam(manif1, manif2, "Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
+		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, acuteManif1, "Test", P_ACUTE_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_ACUTE_MANIF1));
+		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
+		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, manif1, manif2, 
+				"Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
 	}
 	
 	@Override
 	public ArrayList<String> getParamNames() {
 		ArrayList<String> list = new ArrayList<>();
-		list.add(SecondOrderParamsRepository.getProbString(manif1));
-		list.add(SecondOrderParamsRepository.getProbString(manif2));
-		list.add(SecondOrderParamsRepository.getProbString(manif1, manif2));		
-		list.add(SecondOrderParamsRepository.getProbString(acuteManif1));
+		list.add(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1));
+		list.add(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif2));
+		list.add(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1, manif2));		
+		list.add(ProbabilityParamDescriptions.PROBABILITY.getParameterName(acuteManif1));
 		return list;
 	}
 }

@@ -3,16 +3,15 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
-import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.PrettyPrintable;
-import es.ull.iis.simulation.model.Describable;
 
 /**
  * A development for a disease. A disease may have different developments (natural vs modified, severe vs mild, ...).
  * @author Iván Castilla Rodríguez
  *
  */
-public class Development implements Named, Describable, PrettyPrintable {
+public class Development implements NamedAndDescribed, PrettyPrintable {
 	private final Disease disease;
 	private final String name;
 	private final String description;

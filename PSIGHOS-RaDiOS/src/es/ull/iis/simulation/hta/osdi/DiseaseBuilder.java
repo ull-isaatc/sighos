@@ -7,6 +7,7 @@ import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.StandardDisease;
@@ -32,16 +33,6 @@ public interface DiseaseBuilder {
 				} catch (TranspilerException e) {
 					System.err.println(e.getMessage());
 				}
-			}
-
-			@Override
-			public double getDiagnosisCost(Patient pat) {
-				return 0;
-			}
-
-			@Override
-			public double getAnnualTreatmentAndFollowUpCosts(Patient pat, double initAge, double endAge) {
-				return 0;
 			}
 			
 		};
