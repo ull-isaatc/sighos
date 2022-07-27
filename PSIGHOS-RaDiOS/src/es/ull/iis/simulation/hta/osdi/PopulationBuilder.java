@@ -12,6 +12,7 @@ import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.DiscreteRandomVariate;
@@ -46,7 +47,7 @@ public interface PopulationBuilder {
 		private final String strFemaleParamName;
 		
 		public OSDiPopulation(SecondOrderParamsRepository secParams, Disease disease, String populationName) {
-			super(secParams, disease);
+			super(secParams, populationName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(populationName, ""), disease);
 			this.populationName = populationName;
 			final String strAge = OSDiNames.DataProperty.HAS_AGE.getValue(populationName, "0.0");
 			this.ageDist = ValueParser.splitProbabilityDistribution(strAge);
@@ -112,7 +113,7 @@ public interface PopulationBuilder {
 				final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 				if (probDistribution == null)
 					throw new TranspilerException(OSDiNames.Class.UTILITY, utilityName, OSDiNames.DataProperty.HAS_VALUE, strValue);
-				secParams.addBaseUtilityParam(OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(utilityName, "Utility for " + populationName + " calculated using " + strCalcMethod),  
+				UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, populationName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(utilityName, "Utility for " + populationName + " calculated using " + strCalcMethod),  
 						OSDiNames.getSource(utilityName), probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
 			}
 		}

@@ -23,7 +23,8 @@ import simkit.random.RandomVariate;
 public abstract class StdPopulation implements Population {
 	/** Random number generator */
 	private final RandomNumber rng;
-
+	private final String name;
+	private final String description;
 	protected final Disease disease;
 	protected final SecondOrderParamsRepository secParams;
 	private final List<ClinicalParameter> parameters;
@@ -35,8 +36,10 @@ public abstract class StdPopulation implements Population {
 	/**
 	 * Creates a standard population
 	 */
-	public StdPopulation(SecondOrderParamsRepository secParams, Disease disease) {
+	public StdPopulation(SecondOrderParamsRepository secParams, String name, String description, Disease disease) {
 		this.disease = disease;
+		this.name = name;
+		this.description = description;
 		this.secParams = secParams;
 		this.parameters = getPatientParameterList();
 		rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
@@ -46,6 +49,16 @@ public abstract class StdPopulation implements Population {
 		rndDisease = new DiscreteRandomVariate[secParams.getNRuns() + 1];
 	}
 
+	@Override
+	public String name() {
+		return name;
+	}
+	
+	@Override
+	public String getDescription() {
+		return description;
+	}
+	
 	@Override
 	public PatientProfile getPatientProfile(DiseaseProgressionSimulation simul) {
 		final int id = simul.getIdentifier();
@@ -119,5 +132,10 @@ public abstract class StdPopulation implements Population {
 	 */
 	public RandomNumber getCommonRandomNumber() {
 		return rng;
+	}
+	
+	@Override
+	public SecondOrderParamsRepository getRepository() {
+		return secParams;
 	}
 }

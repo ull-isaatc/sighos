@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.effectiveness;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
@@ -33,11 +34,11 @@ public class DiseaseUtilityCalculator implements UtilityCalculator {
 	
 	@Override
 	public double getDisutilityValueUponIncidence(Patient pat, Manifestation manif) {
-		return secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier())[1];
+		return UtilityParamDescriptions.getDisutilityValue(secParams, manif.name(), pat, true);
 	}
 	
 	@Override	
 	public double getUtilityValue(Patient pat) {
-		return secParams.getBaseUtility(pat.getSimulation().getIdentifier()) - method.combine(pat.getDisease().getDisutility(pat, method), pat.getIntervention().getDisutility(pat));
+		return secParams.getPopulation().getBaseUtility(pat) - method.combine(pat.getDisease().getDisutility(pat, method), pat.getIntervention().getDisutility(pat));
 	}
 }

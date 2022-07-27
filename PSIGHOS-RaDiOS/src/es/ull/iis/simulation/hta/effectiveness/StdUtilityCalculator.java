@@ -7,6 +7,7 @@ import java.util.Collection;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
@@ -35,7 +36,7 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	
 	@Override
 	public double getDisutilityValueUponIncidence(Patient pat, Manifestation manif) {
-		return secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier())[1];
+		return UtilityParamDescriptions.getDisutilityValue(secParams, manif.name(), pat, true);
 	}
 	
 	@Override	
@@ -43,8 +44,8 @@ public class StdUtilityCalculator implements UtilityCalculator {
 		final Collection<Manifestation> state = pat.getState();
 		double du = 0.0;
 		for (Manifestation manif : state) {
-			du = method.combine(du, secParams.getDisutilitiesForManifestation(manif, pat.getSimulation().getIdentifier())[0]);
+			du = method.combine(du, UtilityParamDescriptions.getDisutilityValue(secParams, manif.name(), pat, false));
 		}
-		return secParams.getBaseUtility(pat.getSimulation().getIdentifier()) - du - pat.getIntervention().getDisutility(pat);
+		return secParams.getPopulation().getBaseUtility(pat) - du - pat.getIntervention().getDisutility(pat);
 	}
 }

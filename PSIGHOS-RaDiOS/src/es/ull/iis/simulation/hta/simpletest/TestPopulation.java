@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.simpletest;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.DiscreteRandomVariate;
@@ -22,7 +23,7 @@ public class TestPopulation extends StdPopulation {
 	 * @param disease
 	 */
 	public TestPopulation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, disease);
+		super(secParams, "TEST_POP", "Test population", disease);
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class TestPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addBaseUtilityParam("Base utility for test population", "Assumption", BasicConfigParams.DEF_U_GENERAL_POP, RandomVariateFactory.getInstance("ConstantVariate", BasicConfigParams.DEF_U_GENERAL_POP));
+		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "Assumption", BasicConfigParams.DEF_U_GENERAL_POP);
 	}
 
 	@Override

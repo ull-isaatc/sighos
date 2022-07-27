@@ -8,6 +8,7 @@ import java.util.List;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.ClinicalParameter;
 import es.ull.iis.simulation.hta.populations.InitiallySetClinicalParameter;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
@@ -41,12 +42,12 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	 * @param disease
 	 */
 	public T1DMSimpleTestPopulation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, disease);
+		super(secParams, "T1DMPop", "Simple test population for T1DM", disease);
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addBaseUtilityParam("Default utility for general population", "From adult Spanish population but those with DM", DEF_U_GENERAL_POP, RandomVariateFactory.getInstance("ConstantVariate", DEF_U_GENERAL_POP));
+		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);
 	}
 
 	@Override

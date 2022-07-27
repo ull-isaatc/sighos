@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.pbdmodel;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.DiscreteRandomVariate;
@@ -23,7 +24,7 @@ public class PBDPopulation extends StdPopulation {
 	 * @param disease
 	 */
 	public PBDPopulation(SecondOrderParamsRepository secParams, Disease disease, boolean allAffected) {
-		super(secParams, disease);
+		super(secParams, "PBD_POP", "Population for PBD", disease);
 		this.allAffected = allAffected;
 	}
 
@@ -50,7 +51,7 @@ public class PBDPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addBaseUtilityParam("Base utility for the general population of PBD", "Utility for Spanish general population", 0.8861, RandomVariateFactory.getInstance("ConstantVariate", 0.8861));
+		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "Utility for Spanish general population", 0.8861);
 		if (!allAffected)
 			ProbabilityParamDescriptions.BIRTH_PREVALENCE.addParameter(secParams, disease, "", 
 				BIRTH_PREVALENCE, RandomVariateFactory.getInstance("BetaVariate", 8, 540955));

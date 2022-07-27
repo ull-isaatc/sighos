@@ -10,6 +10,7 @@ import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombi
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 
 /**
  * A basic disease where progression is driven by @link {@link ManifestationPathway manifestation pathways}
@@ -63,12 +64,11 @@ public abstract class StandardDisease extends Disease {
 
 	@Override
 	public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
-		final int simulId = pat.getSimulation().getIdentifier();
 		final TreeSet<Manifestation> state = pat.getState();
 		// Uses the base disutility for the disease if available 
-		double du = secParams.getDisutilityForDisease(this, simulId);
+		double du = UtilityParamDescriptions.getDisutilityValue(secParams, this.name(), pat, false);
 		for (final Manifestation manif : state) {
-			du = method.combine(du, secParams.getDisutilitiesForManifestation(manif, simulId)[0]);
+			du = method.combine(du, UtilityParamDescriptions.getDisutilityValue(secParams, manif.name(), pat, false));
 		}
 		return du;
 	}
