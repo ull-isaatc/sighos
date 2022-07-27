@@ -81,7 +81,7 @@ public class CostListener extends Listener implements StructuredOutputListener {
 				update(pat, pat.getDisease().getDiagnosisCost(pat, endAge, discountRate));
 				break;
 			case SCREEN:
-				update(pat, calc.getCostForIntervention(pat, discountRate));
+				update(pat, calc.getCostForIntervention(pat, endAge, discountRate));
 				break;
 			case START_MANIF:
 				update(pat, calc.getCostUponIncidence(pat, pInfo.getManifestation(), endAge, discountRate));

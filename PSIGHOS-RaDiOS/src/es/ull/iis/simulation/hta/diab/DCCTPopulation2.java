@@ -43,7 +43,7 @@ public class DCCTPopulation2 extends StdPopulation {
 	 * @param disease
 	 */
 	public DCCTPopulation2(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, disease);
+		super(secParams, "DCCTPop", "Secondary prevention cohort of DCCT", disease);
 	}
 
 

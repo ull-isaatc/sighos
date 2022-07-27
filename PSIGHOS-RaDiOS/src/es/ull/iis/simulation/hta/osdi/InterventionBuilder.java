@@ -13,6 +13,7 @@ import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -38,14 +39,13 @@ public interface InterventionBuilder {
 				}
 				
 				@Override
-				public double getStartingCost(Patient pat) {
+				public double getStartingCost(Patient pat, double time, Discount discountRate) {
 					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				@Override
-				public double getAnnualCost(Patient pat) {
-					// TODO Auto-generated method stub
+				public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 					return 0;
 				}
 			};
@@ -59,13 +59,13 @@ public interface InterventionBuilder {
 				}
 
 				@Override
-				public double getAnnualCost(Patient pat) {
+				public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 					// TODO Auto-generated method stub
 					return 0;
 				}
 
 				@Override
-				public double getStartingCost(Patient pat) {
+				public double getStartingCost(Patient pat, double time, Discount discountRate) {
 					// TODO Auto-generated method stub
 					return 0;
 				}

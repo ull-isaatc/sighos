@@ -22,7 +22,7 @@ public class TestNotDiagnosedPopulation extends StdPopulation {
 	 * @param disease
 	 */
 	public TestNotDiagnosedPopulation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, disease);
+		super(secParams, "TESTPOP", "Test undiagnosed population", disease);
 	}
 
 	@Override

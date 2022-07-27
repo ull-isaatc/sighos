@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.interventions;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
@@ -24,12 +25,12 @@ public class DoNothingIntervention extends Intervention {
 	}
 
 	@Override
-	public double getAnnualCost(Patient pat) {
+	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		return 0;
 	}
 
 	@Override
-	public double getStartingCost(Patient pat) {
+	public double getStartingCost(Patient pat, double time, Discount discountRate) {
 		return 0;
 	}
 

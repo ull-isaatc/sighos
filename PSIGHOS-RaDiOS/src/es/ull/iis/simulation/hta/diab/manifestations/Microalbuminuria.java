@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.RandomVariateFactory;
@@ -27,7 +28,7 @@ public class Microalbuminuria extends ChronicManifestation {
 	@Override
 	public void registerSecondOrderParameters() {
 		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Assumption", 2021, 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
-		secParams.addUtilityParam(this, "Disutility for " + this, "Assumption", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0), true);
+		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Assumption", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 	}
 
 }

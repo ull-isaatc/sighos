@@ -49,10 +49,11 @@ public interface CostCalculator {
 	/**
 	 * Returns the punctual cost upon starting a new intervention 
 	 * @param pat A patient
+	 * @param time Specific time when the cost is applied (in years)
 	 * @param discountRate The discount rate to apply to the cost
 	 * @return the punctual cost upon starting a new intervention
 	 */
-	public double getCostForIntervention(Patient pat, Discount discountRate);
+	public double getCostForIntervention(Patient pat, double time, Discount discountRate);
 	
 	/**
 	 * Returns the cost for the specified patient during a period of time for each manifestation 

@@ -52,8 +52,15 @@ public abstract class StandardDisease extends Disease {
 	}
 
 	@Override
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+			Discount discountRate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-		double cost = 0.0;
+		double cost =  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initT, endT);;
 		for (final Manifestation manif : pat.getState()) {
 			cost +=  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initT, endT);
 		}

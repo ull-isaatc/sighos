@@ -311,7 +311,7 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 	 *******************************************************************************************************************************************************************************************
 	*******************************************************************************************************************************************************************************************/	
 	@Override
-	public double getAnnualCost(Patient pat) {
+	public double getCostWithinPeriod(Patient pat) {
 		Boolean calculateCummulativeCost = true;
 		Double cummulativeCost = 0.0;
 		if (calculateCummulativeCost) {

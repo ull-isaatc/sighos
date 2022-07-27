@@ -16,8 +16,6 @@ import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.populations.Population;
-import es.ull.iis.simulation.hta.progression.AcuteManifestation;
-import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Development;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -383,64 +381,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 */
 	public void addUtilityParam(SecondOrderParam param) {
 		utilParams.put(param.getName(), param);
-	}
-
-	/**
-	 * Adds a utility parameter to a chronic manifestation
-	 * @param manifestation A chronic manifestation
-	 * @param description Full description of the parameter
-	 * @param source The reference from which this parameter was estimated/taken
-	 * @param detValue Deterministic/expected value
-	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
-	 * @param disutility If true, the value is a disutility; otherwise, it is a utility
-	 * @param oneTime If true, the utility is applied only upon incidence of the manifestation; otherwise, it is considered to be annual
-	 */
-	public void addUtilityParam(ChronicManifestation manifestation, String description, String source, double detValue, RandomVariate rnd, boolean disutility, boolean oneTime) {
-		final ProbabilityParamDescriptions paramDef = (disutility ? 
-				(oneTime ? ProbabilityParamDescriptions.ONE_TIME_DISUTILITY : ProbabilityParamDescriptions.DISUTILITY) :
-				(oneTime ? ProbabilityParamDescriptions.ONE_TIME_UTILITY : ProbabilityParamDescriptions.UTILITY)); 
-		addUtilityParam(new SecondOrderParam(this, paramDef.getParameterName(manifestation), description, source, detValue, rnd));
-	}
-
-	/**
-	 * Adds an annual utility parameter to a chronic manifestation
-	 * @param manifestation A chronic manifestation
-	 * @param description Full description of the parameter
-	 * @param source The reference from which this parameter was estimated/taken
-	 * @param detValue Deterministic/expected value
-	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
-	 * @param disutility If true, the value is a disutility; otherwise, it is a utility
-	 */
-	public void addUtilityParam(ChronicManifestation manifestation, String description, String source, double detValue, RandomVariate rnd, boolean disutility) {
-		addUtilityParam(manifestation, description, source, detValue, rnd, disutility, false);
-	}
-
-	/**
-	 * Adds a utility parameter to an acute manifestation
-	 * @param manifestation An acute manifestation
-	 * @param description Full description of the parameter
-	 * @param source The reference from which this parameter was estimated/taken
-	 * @param detValue Deterministic/expected value
-	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
-	 * @param disutility If true, the value is a disutility; otherwise, it is a utility
-	 */
-	public void addUtilityParam(AcuteManifestation manifestation, String description, String source, double detValue, RandomVariate rnd, boolean disutility) {
-		final String paramName = disutility ? ProbabilityParamDescriptions.ONE_TIME_DISUTILITY.getParameterName(manifestation) : ProbabilityParamDescriptions.ONE_TIME_UTILITY.getParameterName(manifestation);
-		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
-	}
-
-	/**
-	 * Adds a utility parameter to a disease
-	 * @param disease A disease
-	 * @param description Full description of the parameter
-	 * @param source The reference from which this parameter was estimated/taken
-	 * @param detValue Deterministic/expected value
-	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
-	 * @param disutility If true, the value is a disutility; otherwise, it is a utility
-	 */
-	public void addUtilityParam(Disease disease, String description, String source, double detValue, RandomVariate rnd, boolean disutility) {
-		final String paramName = disutility ? ProbabilityParamDescriptions.DISUTILITY.getParameterName(disease) : ProbabilityParamDescriptions.UTILITY.getParameterName(disease);
-		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
 	/**

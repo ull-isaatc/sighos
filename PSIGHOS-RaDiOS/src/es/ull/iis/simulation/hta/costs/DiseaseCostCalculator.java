@@ -29,7 +29,7 @@ public class DiseaseCostCalculator implements CostCalculator {
 
 	@Override
 	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-		double cost = pat.getIntervention().getAnnualCost(pat);
+		double cost = pat.getIntervention().getCostWithinPeriod(pat, initT, endT, discountRate);
 		return cost + pat.getDisease().getCostWithinPeriod(pat, initT, endT, discountRate);
 	}
 
@@ -40,14 +40,13 @@ public class DiseaseCostCalculator implements CostCalculator {
 
 	@Override
 	public double getInterventionCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-		// TODO: Review whether the discount should be applied here, or maybe change the method in intervention
-		return pat.getIntervention().getAnnualCost(pat);
+		return pat.getIntervention().getCostWithinPeriod(pat, initT, endT, discountRate);
 	}
 
 	@Override
-	public double getCostForIntervention(Patient pat, Discount discountRate) {
+	public double getCostForIntervention(Patient pat, double time, Discount discountRate) {
 		// TODO: Review whether the discount should be applied here, or maybe change the method in intervention
-		return pat.getIntervention().getStartingCost(pat);
+		return pat.getIntervention().getStartingCost(pat, time, discountRate);
 	}
 
 	@Override

@@ -2,19 +2,12 @@ package es.ull.iis.simulation.hta.osdi;
 
 import java.util.List;
 
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
-import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.StandardDisease;
-import es.ull.iis.simulation.hta.radios.utils.CostUtils;
-import es.ull.iis.simulation.hta.radios.wrappers.Matrix;
-import simkit.random.RandomVariate;
-import simkit.random.RandomVariateFactory;
 
 /**
  * Allows the creation of a {@link StandardDisease} based on the information stored in the ontology
@@ -83,15 +76,19 @@ public interface DiseaseBuilder {
 			final boolean isDisutility = OSDiNames.DataPropertyRange.UTILITY_KIND_DISUTILITY.getDescription().equals(strType);
 			// Default value for utilities is 1; 0 for disutilities
 			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(utilityName, isDisutility ? "0.0" : "1.0");
-			// Assumes a default calculation method specified in Constants if not specified
-			final String strCalcMethod = OSDiNames.DataProperty.HAS_CALCULATION_METHOD.getValue(utilityName, Constants.UTILITY_DEFAULT_CALCULATION_METHOD);
 			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 			if (probDistribution == null)
 				throw new TranspilerException(OSDiNames.Class.UTILITY, utilityName, OSDiNames.DataProperty.HAS_VALUE, strValue);
-			secParams.addUtilityParam(disease, 
-					OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(utilityName, "Utility for " + disease.name() + " calculated using " + strCalcMethod),  
-					OSDiNames.getSource(utilityName), 
-					probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isDisutility);			
+			if (isDisutility) {
+				UtilityParamDescriptions.DISUTILITY.addParameter(secParams, disease,  
+						OSDiNames.getSource(utilityName), 
+						probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
+			}
+			else {
+				UtilityParamDescriptions.UTILITY.addParameter(secParams, disease,  
+						OSDiNames.getSource(utilityName), 
+						probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
+			}
 		}
 	}
 

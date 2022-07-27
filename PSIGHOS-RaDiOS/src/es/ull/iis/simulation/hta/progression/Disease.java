@@ -248,7 +248,8 @@ public abstract class Disease implements NamedAndDescribed, CreatesSecondOrderPa
 	}
 	
 	/**
-	 * Returns the annualized treatment and follow up costs for this disease during the defined period. These costs should only be applied to diagnosed patients 
+	 * Returns the annualized treatment and follow up costs for this disease during the defined period. These costs should only be applied to diagnosed patients.
+	 * Applies the punctual discount corresponding to each year to all the costs within such year. 
 	 * @param pat A patient
 	 * @param initT Starting time of the period (in years)
 	 * @param endT Ending time of the period
