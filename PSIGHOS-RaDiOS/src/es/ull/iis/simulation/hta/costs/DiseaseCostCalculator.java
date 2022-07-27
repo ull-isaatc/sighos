@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -33,17 +34,19 @@ public class DiseaseCostCalculator implements CostCalculator {
 	}
 
 	@Override
-	public double getCostUponIncidence(Patient pat, Manifestation newEvent, Discount discountRate) {
-		return secParams.getCostsForManifestation(newEvent, pat.getSimulation().getIdentifier())[1];
+	public double getCostUponIncidence(Patient pat, Manifestation newEvent, double time, Discount discountRate) {
+		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(secParams, newEvent, pat.getSimulation()), time);
 	}
 
 	@Override
 	public double getInterventionCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		// TODO: Review whether the discount should be applied here, or maybe change the method in intervention
 		return pat.getIntervention().getAnnualCost(pat);
 	}
 
 	@Override
 	public double getCostForIntervention(Patient pat, Discount discountRate) {
+		// TODO: Review whether the discount should be applied here, or maybe change the method in intervention
 		return pat.getIntervention().getStartingCost(pat);
 	}
 
@@ -52,8 +55,8 @@ public class DiseaseCostCalculator implements CostCalculator {
 			Discount discountRate) {
 		final TreeMap<Manifestation, Double> results = new TreeMap<>(); 
 		final Collection<Manifestation> state = pat.getState();
-		for (Manifestation st : state) {
-			results.put(st, secParams.getCostsForManifestation(st, pat.getSimulation().getIdentifier())[0]);
+		for (Manifestation manifestation : state) {
+			results.put(manifestation, discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manifestation, pat.getSimulation()), initT, endT));
 		}
 		return results;
 	}

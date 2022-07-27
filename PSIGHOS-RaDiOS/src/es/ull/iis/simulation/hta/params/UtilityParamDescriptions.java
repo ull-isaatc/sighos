@@ -12,6 +12,7 @@ import simkit.random.RandomVariate;
  *
  */
 public enum UtilityParamDescriptions implements DescribesParameter {
+	BASE_UTILITY("BASE_U", "Base utility for", 1.0),
 	DISUTILITY("DU", "Disutility for", 0.0),
 	ONE_TIME_DISUTILITY("TDU", "One-time disutility for", 0.0),
 	ONE_TIME_UTILITY("TU", "One-time utility for", 1.0),
@@ -55,7 +56,6 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 		return secParams.getUtilityParam(getParameterName(name), simul);
 	}
 
-	
 	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue) {
 		this.addParameter(secParams, instance.name(), instance.getDescription(), source, detValue);
 	}

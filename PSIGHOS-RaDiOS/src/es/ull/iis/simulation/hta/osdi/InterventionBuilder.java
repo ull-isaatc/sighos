@@ -95,13 +95,13 @@ public interface InterventionBuilder {
 		String strSensitivity = DataProperty.HAS_SENSITIVITY.getValue(intervention.name(), "1.0");
 		final ProbabilityDistribution probSensitivity = ValueParser.splitProbabilityDistribution(strSensitivity);
 		if (probSensitivity == null)
-			throw new TranspilerException("Error parsing regular expression \"" + strSensitivity + "\" for instance \"" + intervention.name() + "\"");
+			throw new TranspilerException(OSDiNames.Class.INTERVENTION, intervention.name(), OSDiNames.DataProperty.HAS_SENSITIVITY, strSensitivity);
 		ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, "",  
 				probSensitivity.getDeterministicValue(), probSensitivity.getProbabilisticValue());
 		String strSpecificity = DataProperty.HAS_SPECIFICITY.getValue(intervention.name(), "1.0");
 		final ProbabilityDistribution probSpecificity = ValueParser.splitProbabilityDistribution(strSpecificity);
 		if (probSpecificity == null)
-			throw new TranspilerException("Error parsing regular expression \"" + strSpecificity + "\" for instance \"" + intervention.name() + "\"");
+			throw new TranspilerException(OSDiNames.Class.INTERVENTION, intervention.name(), OSDiNames.DataProperty.HAS_SPECIFICITY, strSpecificity);
 		ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, intervention, "",  
 				probSpecificity.getDeterministicValue(), probSpecificity.getProbabilisticValue());
 	}
@@ -117,7 +117,7 @@ public interface InterventionBuilder {
 			try {
 				kind = Modification.Type.valueOf(strKind);
 			} catch(IllegalArgumentException ex) {
-				throw new TranspilerException("Error parsing modification kind. Unexpected value: " + strKind); 				
+				throw new TranspilerException(OSDiNames.Class.MODIFICATION, modificationName, OSDiNames.DataProperty.HAS_MODIFICATION_KIND, strKind);
 			}
 			// Get the source, if specified
 			final String strSource = OSDiNames.DataProperty.HAS_SOURCE.getValue(modificationName, "");
@@ -125,13 +125,13 @@ public interface InterventionBuilder {
 			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(modificationName);
 			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 			if (probDistribution == null)
-				throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for data property 'has_value' in instance \"" + modificationName + "\"");
+				throw new TranspilerException(OSDiNames.Class.MODIFICATION, modificationName, OSDiNames.DataProperty.HAS_VALUE, strValue);
 			// Parse the property which is modified
 			final List<String> strProperties = OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED.getValues(modificationName);
 			for (String strProperty : strProperties) {
 				final OSDiNames.DataProperty property = OSDiNames.DATA_PROPERTY_MAP.get(strProperty);
 				if (property == null) {
-					throw new TranspilerException("Error parsing the name of the modified property. Unexpected value: " + strProperty); 				
+					throw new TranspilerException(OSDiNames.Class.MODIFICATION, modificationName, OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED, strProperty);
 				}
 				// Process modifications that affect the development
 				List<String> modifiedItems = OSDiNames.ObjectProperty.MODIFIES_DEVELOPMENT.getValues(modificationName);

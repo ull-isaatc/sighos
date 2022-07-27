@@ -111,7 +111,7 @@ public interface PopulationBuilder {
 				final String strCalcMethod = OSDiNames.DataProperty.HAS_CALCULATION_METHOD.getValue(utilityName, Constants.UTILITY_DEFAULT_CALCULATION_METHOD);
 				final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 				if (probDistribution == null)
-					throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for instance \"" + populationName + "\"");
+					throw new TranspilerException(OSDiNames.Class.UTILITY, utilityName, OSDiNames.DataProperty.HAS_VALUE, strValue);
 				secParams.addBaseUtilityParam(OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(utilityName, "Utility for " + populationName + " calculated using " + strCalcMethod),  
 						OSDiNames.getSource(utilityName), probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
 			}

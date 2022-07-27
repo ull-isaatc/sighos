@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diab.manifestations;
 
+import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
@@ -32,8 +33,8 @@ public class EndStageRenalDisease extends ChronicManifestation {
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addCostParam(this, "Cost for " + this, "Ray (2005)", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
-		secParams.addCostParam(this, "Transition cost for " + this, "Ray (2005)", COSTYEAR, TCOST, SecondOrderParamsRepository.getRandomVariateForCost(TCOST), true);
+		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Ray (2005)", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
+		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "Ray (2005)", COSTYEAR, TCOST, SecondOrderParamsRepository.getRandomVariateForCost(TCOST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
 		secParams.addUtilityParam(this, "Disutility for " + this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]), true);
 		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addParameter(secParams, this,  

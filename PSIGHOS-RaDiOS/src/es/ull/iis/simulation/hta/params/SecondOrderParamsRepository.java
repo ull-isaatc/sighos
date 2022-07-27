@@ -378,48 +378,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	}
 	
 	/**
-	 * Adds a cost parameter associated to a chronic manifestation
-	 * @param manifestation A chronic manifestation
-	 * @param description Full description of the parameter
-	 * @param source The reference from which this parameter was estimated/taken
-	 * @param year Year when the cost was originally estimated
-	 * @param detValue Deterministic/expected value
-	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
-	 * @param oneTime If true, the cost is applied only upon incidence of the manifestation; otherwise, it is considered to be annual
-	 */
-	public void addCostParam(ChronicManifestation manifestation, String description, String source, int year, double detValue, RandomVariate rnd, boolean oneTime) {
-		final String paramName = oneTime ? ProbabilityParamDescriptions.ONE_TIME_COST.getParameterName(manifestation) : ProbabilityParamDescriptions.COST.getParameterName(manifestation);
-		addCostParam(new SecondOrderCostParam(this, paramName, description, source, SecondOrderCostParam.TemporalBehavior.ANNUAL, year, detValue, rnd));
-	}
-	
-	/**
-	 * Adds an annual cost parameter associated to a chronic manifestation
-	 * @param manifestation A chronic manifestation
-	 * @param description Full description of the parameter
-	 * @param source The reference from which this parameter was estimated/taken
-	 * @param year Year when the cost was originally estimated
-	 * @param detValue Deterministic/expected value
-	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
-	 */
-	public void addCostParam(ChronicManifestation manifestation, String description, String source, int year, double detValue, RandomVariate rnd) {
-		addCostParam(manifestation, description, source, year, detValue, rnd, false);
-	}
-	
-	/**
-	 * Adds a one time cost parameter associated to an acute manifestation
-	 * @param manifestation An acute manifestation
-	 * @param description Full description of the parameter
-	 * @param source The reference from which this parameter was estimated/taken
-	 * @param year Year when the cost was originally estimated
-	 * @param detValue Deterministic/expected value to be applied each year
-	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
-	 */
-	public void addCostParam(AcuteManifestation manifestation, String description, String source, int year, double detValue, RandomVariate rnd) {
-		final String paramName = ProbabilityParamDescriptions.ONE_TIME_COST.getParameterName(manifestation);
-		addCostParam(new SecondOrderCostParam(this, paramName, description, source, SecondOrderCostParam.TemporalBehavior.ONE_TIME, year, detValue, rnd));
-	}
-	
-	/**
 	 * Adds a utility or disutility parameter
 	 * @param param Utility parameter
 	 */
@@ -599,23 +557,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 			return defaultValue;
 		final Modification modif = modificationParams.get(getModificationString(simul.getIntervention(), name));
 		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
-	}
-
-	/**
-	 * Returns the cost for a manifestation &ltannual cost, cost at incidence&gt; &lt0, 0&gt
-	 * if not defined
-	 * @param manifestation Complication or complication stage
-	 * @param id Simulation identifier
-	 * @return the cost for a manifestation &ltannual cost, cost at incidence&gt; &lt0, 0&gt
-	 * if not defined 
-	 */
-	public double[] getCostsForManifestation(Manifestation manifestation, int id) {
-		final double[] costs = new double[2];
-		final SecondOrderParam annualCost = costParams.get(ProbabilityParamDescriptions.COST.getParameterName(manifestation));
-		final SecondOrderParam oneTimeCost = costParams.get(ProbabilityParamDescriptions. ONE_TIME_COST.getParameterName(manifestation));
-		costs[0] = (annualCost == null) ? 0.0 : annualCost.getValue(id);
-		costs[1] = (oneTimeCost == null) ? 0.0 : oneTimeCost.getValue(id);
-		return costs;
 	}
 	
 	/**
