@@ -390,7 +390,7 @@ public class RadiosScreeningIntervention extends ScreeningIntervention {
 	}
 
 	@Override
-	public double getAnnualCost(Patient pat) {
+	public double getCostWithinPeriod(Patient pat) {
 		Boolean calculateCummulativeCost = false;
 		Double cummulativeCost = 0.0;
 		if (calculateCummulativeCost) {

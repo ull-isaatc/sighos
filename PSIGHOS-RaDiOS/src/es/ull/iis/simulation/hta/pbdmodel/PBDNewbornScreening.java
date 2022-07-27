@@ -6,6 +6,8 @@ package es.ull.iis.simulation.hta.pbdmodel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.CostParamDescriptions;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
@@ -29,8 +31,7 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addCostParam(new SecondOrderCostParam(secParams, SecondOrderParamsRepository.STR_COST_PREFIX + this, 
-				"Cost of screening", "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5)));
+		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
 		ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, this, "", 1.0);
 		ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, this, "", 0.999935);
 		for (Manifestation manif : secParams.getRegisteredManifestations())
@@ -38,13 +39,13 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 	}
 
 	@Override
-	public double getAnnualCost(Patient pat) {
+	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		return 0.0;
 	}
 
 	@Override
-	public double getStartingCost(Patient pat) {
-		return secParams.getCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + this.name(), pat.getSimulation());
+	public double getStartingCost(Patient pat, double time, Discount discountRate) {
+		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(secParams, this, pat.getSimulation()), time);
 	}
 
 }

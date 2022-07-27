@@ -14,6 +14,7 @@ import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.AcuteManifestation;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -162,25 +163,26 @@ public interface ManifestationBuilder {
 			final boolean isDisutility = OSDiNames.DataPropertyRange.UTILITY_KIND_DISUTILITY.getDescription().equals(strType);
 			// Default value for utilities is 1; 0 for disutilities
 			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(utilityName, isDisutility ? "0.0" : "1.0");
-			// Assumes a default calculation method specified in Constants if not specified
-			final String strCalcMethod = OSDiNames.DataProperty.HAS_CALCULATION_METHOD.getValue(utilityName, Constants.UTILITY_DEFAULT_CALCULATION_METHOD);
 			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 			if (probDistribution == null)
 				throw new TranspilerException(OSDiNames.Class.MANIFESTATION, manifestation.name(), OSDiNames.DataProperty.HAS_VALUE, strValue);
+			UtilityParamDescriptions paramUtility = null;
 			if (acute) {
-					secParams.addUtilityParam((AcuteManifestation)manifestation, 
-							OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(utilityName, "Utility for " + manifestation.name() + " calculated using " + strCalcMethod),  
-							OSDiNames.getSource(utilityName), 
-							probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isDisutility);
+				paramUtility = isDisutility ? UtilityParamDescriptions.ONE_TIME_DISUTILITY : UtilityParamDescriptions.ONE_TIME_UTILITY;
 			}
 			else {
 				// If defined to be applied one time
 				final boolean isOneTime = OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME.getDescription().equals(strTempBehavior);
-				secParams.addUtilityParam((ChronicManifestation)manifestation, 
-						OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(utilityName, "Utility for " + manifestation.name() + " calculated using " + strCalcMethod),  
-						OSDiNames.getSource(utilityName), 
-						probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isDisutility, isOneTime);			
+				if (isOneTime) {
+					paramUtility = isDisutility ? UtilityParamDescriptions.ONE_TIME_DISUTILITY : UtilityParamDescriptions.ONE_TIME_UTILITY;
+				}
+				else {
+					paramUtility = isDisutility ? UtilityParamDescriptions.DISUTILITY : UtilityParamDescriptions.UTILITY;
+				}
 			}
+			paramUtility.addParameter(secParams, manifestation,	OSDiNames.getSource(utilityName), 
+					probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
+
 		}
 	}
 	

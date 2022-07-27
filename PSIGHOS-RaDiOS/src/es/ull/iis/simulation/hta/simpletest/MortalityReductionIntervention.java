@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
@@ -46,12 +47,12 @@ public class MortalityReductionIntervention extends Intervention {
 	}
 
 	@Override
-	public double getAnnualCost(Patient pat) {
-		return ANNUAL_COST;
+	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		return discountRate.applyDiscount(ANNUAL_COST, initT, endT);
 	}
 
 	@Override
-	public double getStartingCost(Patient pat) {
+	public double getStartingCost(Patient pat, double time, Discount discountRate) {
 		return 0;
 	}
 
