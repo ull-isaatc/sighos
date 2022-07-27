@@ -14,6 +14,7 @@ import es.ull.iis.simulation.hta.diab.manifestations.ProliferativeRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.ClinicalParameter;
 import es.ull.iis.simulation.hta.populations.InitiallySetClinicalParameter;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
@@ -62,7 +63,7 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	 * @param disease
 	 */
 	public T1DMGoldDiamondPopulation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, disease);
+		super(secParams, "GOLD_DIAM_POP", "Population for T1DM according to GOLD and Diamond studies", disease);
 	}
 
 	@Override
@@ -82,7 +83,7 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addBaseUtilityParam("Default utility for general population", "From adult Spanish population but those with DM", DEF_U_GENERAL_POP, RandomVariateFactory.getInstance("ConstantVariate", DEF_U_GENERAL_POP));
+		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);
 		ProbabilityParamDescriptions.INITIAL_PROBABILITY.addParameter(secParams, disease.getManifestation(ProliferativeRetinopathy.NAME), 
 				"GOLD", P_INI_PRET_BETA[0] / (P_INI_PRET_BETA[0] + P_INI_PRET_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_PRET_BETA[0], P_INI_PRET_BETA[1]));
 		ProbabilityParamDescriptions.INITIAL_PROBABILITY.addParameter(secParams, disease.getManifestation(LowExtremityAmputation.NAME), 

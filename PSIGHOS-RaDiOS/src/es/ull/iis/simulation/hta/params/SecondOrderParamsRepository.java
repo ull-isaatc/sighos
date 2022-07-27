@@ -444,19 +444,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	}
 
 	/**
-	 * Adds the base utility parameter to the registered population
-	 * @param type A population
-	 * @param description Full description of the parameter
-	 * @param source The reference from which this parameter was estimated/taken
-	 * @param detValue Deterministic/expected value
-	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
-	 */
-	public void addBaseUtilityParam(String description, String source, double detValue, RandomVariate rnd) {
-		final String paramName = ProbabilityParamDescriptions.UTILITY.getParameterName("POPULATION");
-		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
-	}
-
-	/**
 	 * Adds a miscellaneous parameter
 	 * @param param Miscellanous parameter
 	 */
@@ -557,69 +544,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 			return defaultValue;
 		final Modification modif = modificationParams.get(getModificationString(simul.getIntervention(), name));
 		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
-	}
-	
-	/**
-	 * Returns the disutility for a manifestation &ltannual disutility, disutility at incidence&gt. If it is not defined as disutility, 
-	 * looks for a utility value and uses the population utility to compute a disutility. If not defined neither, returns &lt0, 0&gt.
-	 * @param manif Manifestation
-	 * @param id Identifier of the simulation
-	 * @return the disutility for a manifestation; 0.0 if not defined 
-	 */
-	public double[] getDisutilitiesForManifestation(Manifestation manif, int id) {
-		final double[] utils = new double[2];
-		final double refUtility = getBaseUtility(id);
-//		utils[0] = UtilityParamDescriptions.DISUTILITY.getValueIfExists(this, manif, null)
-		SecondOrderParam annualParam = utilParams.get(ProbabilityParamDescriptions.DISUTILITY.getParameterName(manif));
-		if (annualParam != null) {
-			utils[0] = annualParam.getValue(id);
-		}
-		else {
-			annualParam = utilParams.get(ProbabilityParamDescriptions.UTILITY.getParameterName(manif));
-			// Do not allow "negative" disutilities
-			utils[0] = (annualParam == null) ? 0.0 : Math.max(0.0, refUtility - annualParam.getValue(id));
-		}
-		SecondOrderParam oneTimeParam = utilParams.get(ProbabilityParamDescriptions.ONE_TIME_DISUTILITY.getParameterName(manif));
-		if (oneTimeParam != null) {
-			utils[1] = oneTimeParam.getValue(id);
-		}
-		else {
-			oneTimeParam = utilParams.get(ProbabilityParamDescriptions.ONE_TIME_UTILITY.getParameterName(manif));
-			// Do not allow "negative" disutilities
-			utils[1] = (oneTimeParam == null) ? 0.0 : Math.max(0.0, refUtility - oneTimeParam.getValue(id));
-		}
-		return utils;		
-	}
-	
-	/**
-	 * Returns the base disutility for a disease. If it is not defined as disutility, looks for a utility
-	 * value and uses the utility of the registered population to compute a disutility. If not defined neither, returns 0.0.
-	 * @param disease Disease
-	 * @param id Identifier of the simulation
-	 * @return the base disutility for a disease; 0.0 if not defined 
-	 */
-	public double getDisutilityForDisease(Disease disease, int id) {
-		double value = 0.0;
-		SecondOrderParam param = utilParams.get(ProbabilityParamDescriptions.DISUTILITY.getParameterName(disease));
-		if (param == null) {
-			param = utilParams.get(ProbabilityParamDescriptions.UTILITY.getParameterName(disease));
-			if (param != null)
-				value = getBaseUtility(id) - param.getValue(id);
-		}
-		else {
-			value = param.getValue(id);
-		}
-		return value;		
-	}
-	
-	/**
-	 * Returns the base utility for the registered population. If not defined, returns 1.0.
-	 * @param id Identifier of the simulation
-	 * @return the base utility for the registered population; 1.0 if not defined 
-	 */
-	public double getBaseUtility(int id) {
-		final SecondOrderParam param = utilParams.get(ProbabilityParamDescriptions.UTILITY.getParameterName("POPULATION"));
-		return (param == null) ? 1.0 : param.getValue(id);		
 	}
 	
 	/**
