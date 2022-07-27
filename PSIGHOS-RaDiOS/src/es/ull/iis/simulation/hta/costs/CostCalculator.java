@@ -27,13 +27,14 @@ public interface CostCalculator {
 	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate);
 	
 	/**
-	 * Returns the cost of a complication upon incidence.
+	 * Returns the cost of a manifestation upon incidence.
 	 * @param pat A patient
 	 * @param newEvent A new complication for the patient
+	 * @param time Time (in years) when the manifestation appears
 	 * @param discountRate The discount rate to apply to the cost
-	 * @return the cost of a complication upon incidence
+	 * @return the cost of a manifestation upon incidence
 	 */
-	public double getCostUponIncidence(Patient pat, Manifestation newEvent, Discount discountRate);
+	public double getCostUponIncidence(Patient pat, Manifestation newEvent, double time, Discount discountRate);
 
 	/**
 	 * Returns the costs incurred by the intervention alone

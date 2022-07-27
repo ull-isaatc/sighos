@@ -16,7 +16,6 @@ import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -157,7 +156,7 @@ public interface ManifestationPathwayBuilder {
 				if (strPropManif != null) {
 					final ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPropManif);
 					if (probabilityDistribution == null) {
-						throw new TranspilerException("Error parsing regular expression \"" + strPropManif + "\" for data property 'hasProportion' of instance \"" + pathwayName + "\"");
+						throw new TranspilerException(OSDiNames.Class.MANIFESTATION_PATHWAY, pathwayName, OSDiNames.DataProperty.HAS_PROPORTION, strPropManif);
 					}
 					ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, getProbString(manifestation, pathwayName), "patients developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING,
 							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
@@ -167,7 +166,7 @@ public interface ManifestationPathwayBuilder {
 					if (strPManif != null) {
 						ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPManif);
 						if (probabilityDistribution == null) {
-							throw new TranspilerException("Error parsing regular expression \"" + strPManif + "\" for data property 'hasProbability' of instance \"" + pathwayName + "\"");
+							throw new TranspilerException(OSDiNames.Class.MANIFESTATION_PATHWAY, pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY, strPManif);
 						} 
 						ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, getProbString(manifestation, pathwayName), "developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING,
 								probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());

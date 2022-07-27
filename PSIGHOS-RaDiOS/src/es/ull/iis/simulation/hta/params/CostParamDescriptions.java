@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.params;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import simkit.random.RandomVariate;
 
@@ -66,18 +67,83 @@ public enum CostParamDescriptions implements DescribesParameter {
 		return secParams.getCostParam(getParameterName(name), simul);
 	}
 
+	/**
+	 * Adds a cost parameter to the repository with only deterministic value. The name and description of the parameter are filled according to the enum item.
+	 * @param secParams Common parameters repository
+	 * @param instance The item this cost is associated to. Must implement {@link NamedAndDescribed}
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param year Year when the cost was originally estimated
+	 * @param detValue Deterministic (constant) value of the parameter
+	 */
 	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, int year, double detValue) {
 		this.addParameter(secParams, instance.name(), instance.getDescription(), source, year, detValue);
 	}
+
+	/**
+	 * Adds a cost parameter to the repository with only deterministic value. The name of the parameter if filled according to the enum item; the description is 
+	 * defined ad hoc
+	 * @param secParams Common parameters repository
+	 * @param instance The item this cost is associated to. Must implement {@link Named}
+	 * @param description Full description of the parameter
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param year Year when the cost was originally estimated
+	 * @param detValue Deterministic (constant) value of the parameter
+	 */
+	public void addParameter(SecondOrderParamsRepository secParams, Named instance, String description, String source, int year, double detValue) {
+		secParams.addCostParam(new SecondOrderCostParam(secParams, getParameterName(instance.name()), description, source, this, year, detValue));
+	}
 	
+	/**
+	 * Adds a cost parameter to the repository with only deterministic value. The name and description of the parameter are filled according to the enum item.
+	 * @param secParams Common parameters repository
+	 * @param name Name of the parameter to be appended after the predefined prefix
+	 * @param description Full description of the parameter to be appended after the predefined prefix
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param year Year when the cost was originally estimated
+	 * @param detValue Deterministic (constant) value of the parameter
+	 */
 	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue) {
 		secParams.addCostParam(new SecondOrderCostParam(secParams, getParameterName(name), getParameterDescription(description), source, this, year, detValue));
 	}
 
+	/**
+	 * Adds a cost parameter to the repository with both deterministic and probabilistic values. The name and description of the parameter are filled according to the enum item.
+	 * @param secParams Common parameters repository
+	 * @param instance The item this cost is associated to. Must implement {@link NamedAndDescribed}
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param year Year when the cost was originally estimated
+	 * @param detValue Deterministic (constant) value of the parameter
+	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 */
 	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, int year, double detValue, RandomVariate rnd) {
 		this.addParameter(secParams, instance.name(), instance.getDescription(), source, year, detValue, rnd);
 	}
+
+	/**
+	 * Adds a cost parameter to the repository with both deterministic and probabilistic values. The name of the parameter if filled according to the enum item; the description is 
+	 * defined ad hoc
+	 * @param secParams Common parameters repository
+	 * @param instance The item this cost is associated to. Must implement {@link Named}
+	 * @param description Full description of the parameter
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param year Year when the cost was originally estimated
+	 * @param detValue Deterministic (constant) value of the parameter
+	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 */
+	public void addParameter(SecondOrderParamsRepository secParams, Named instance, String description, String source, int year, double detValue, RandomVariate rnd) {
+		secParams.addCostParam(new SecondOrderCostParam(secParams, getParameterName(instance.name()), description, source, this, year, detValue, rnd));
+	}
 	
+	/**
+	 * Adds a cost parameter to the repository with both deterministic and probabilistic values. The name and description of the parameter are filled according to the enum item.
+	 * @param secParams Common parameters repository
+	 * @param name Name of the parameter to be appended after the predefined prefix
+	 * @param description Full description of the parameter to be appended after the predefined prefix
+	 * @param source The reference from which this parameter was estimated/taken
+	 * @param year Year when the cost was originally estimated
+	 * @param detValue Deterministic (constant) value of the parameter
+	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 */
 	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
 		secParams.addCostParam(new SecondOrderCostParam(secParams, getParameterName(name), getParameterDescription(description), source, this, year, detValue, rnd));
 	}

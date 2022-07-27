@@ -10,6 +10,7 @@ import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.Constants;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -66,7 +67,7 @@ public interface ManifestationBuilder {
 		if (strAge != null) {
 			ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strAge);
 			if (probDistribution == null)
-				throw new TranspilerException("Error parsing regular expression \"" + strAge + "\" for data property 'hasOnsetAge' in instance \"" + manifestation.name() + "\"");
+				throw new TranspilerException(OSDiNames.Class.MANIFESTATION, manifestation.name(), OSDiNames.DataProperty.HAS_ONSET_AGE, strAge);
 			OtherParamDescriptions.ONSET_AGE.addParameter(secParams, manifestation, "", probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue());			
 		}
 		
@@ -74,7 +75,7 @@ public interface ManifestationBuilder {
 		if (strAge != null) {
 			ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strAge);
 			if (probDistribution == null)
-				throw new TranspilerException("Error parsing regular expression \"" + strAge + "\" for data property 'hasEndAge' in instance \"" + manifestation.name() + "\"");
+				throw new TranspilerException(OSDiNames.Class.MANIFESTATION, manifestation.name(), OSDiNames.DataProperty.HAS_END_AGE, strAge);
 			OtherParamDescriptions.END_AGE.addParameter(secParams, manifestation, "", probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue());			
 		}
 		
@@ -108,20 +109,28 @@ public interface ManifestationBuilder {
 			final String strTempBehavior = OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(costName, OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
 			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 			if (probDistribution == null)
-				throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for instance \"" + manifestation.name() + "\"");
+				throw new TranspilerException(OSDiNames.Class.MANIFESTATION, manifestation.name(), OSDiNames.DataProperty.HAS_VALUE, strValue);
+			CostParamDescriptions param = null;
 			if (acute) {
-					secParams.addCostParam((AcuteManifestation)manifestation, 
-							OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(costName, ""),  
-							OSDiNames.getSource(costName), 
-							year, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
+				param = CostParamDescriptions.ONE_TIME_COST;
 			}
-			else {
+			else {				
 				// If defined to be applied one time
-				final boolean isOneTime = OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME.getDescription().equals(strTempBehavior);
-				secParams.addCostParam((ChronicManifestation)manifestation, 
+				if (OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME.getDescription().equals(strTempBehavior)) {
+					param = CostParamDescriptions.ONE_TIME_COST;
+				}
+				else if (OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription().equals(strTempBehavior)) {
+					param = CostParamDescriptions.ANNUAL_COST;
+				}
+			}
+			if (param != null) {
+				param.addParameter(secParams, manifestation, 
 						OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(costName, ""),  
 						OSDiNames.getSource(costName), 
-						year, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost(), isOneTime);			
+						year, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
+			}
+			else {
+				throw new TranspilerException(OSDiNames.Class.COST, costName, OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR, strTempBehavior);
 			}
 		}
 	}
@@ -157,7 +166,7 @@ public interface ManifestationBuilder {
 			final String strCalcMethod = OSDiNames.DataProperty.HAS_CALCULATION_METHOD.getValue(utilityName, Constants.UTILITY_DEFAULT_CALCULATION_METHOD);
 			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
 			if (probDistribution == null)
-				throw new TranspilerException("Error parsing regular expression \"" + strValue + "\" for instance \"" + manifestation.name() + "\"");
+				throw new TranspilerException(OSDiNames.Class.MANIFESTATION, manifestation.name(), OSDiNames.DataProperty.HAS_VALUE, strValue);
 			if (acute) {
 					secParams.addUtilityParam((AcuteManifestation)manifestation, 
 							OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(utilityName, "Utility for " + manifestation.name() + " calculated using " + strCalcMethod),  
