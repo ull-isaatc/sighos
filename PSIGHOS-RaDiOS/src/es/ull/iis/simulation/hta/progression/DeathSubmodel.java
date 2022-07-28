@@ -14,7 +14,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  */
 public abstract class DeathSubmodel implements CreatesSecondOrderParameters {
 	/** Common parameters repository */
-	protected final SecondOrderParamsRepository secParams;
+	private final SecondOrderParamsRepository secParams;
 	/**
 	 * Creates a submodel for death
 	 * @param secParams Common parameters repository
@@ -29,4 +29,9 @@ public abstract class DeathSubmodel implements CreatesSecondOrderParameters {
 	 * @return the time to death of the specified patient
 	 */
 	public abstract long getTimeToDeath(Patient pat);
+	
+	@Override
+	public SecondOrderParamsRepository getRepository() {
+		return secParams;
+	}
 }

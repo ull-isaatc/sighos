@@ -7,7 +7,6 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
@@ -25,7 +24,7 @@ public class BasicNewbornScreening extends ScreeningIntervention {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, this, "", 0.9);
 		ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, this, "", 0.9);
 	}

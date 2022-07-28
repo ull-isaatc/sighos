@@ -35,7 +35,7 @@ public class SevereHypoglycemiaEvent extends AcuteManifestation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "severe hypoglycemic episode", 
 			"https://doi.org/10.1007/s13300-017-0285-0", COSTYEAR, COST_HYPO_EPISODE, SecondOrderParamsRepository.getRandomVariateForCost(COST_HYPO_EPISODE));
 		UtilityParamDescriptions.ONE_TIME_DISUTILITY.addParameter(secParams, this, "Walters et al. 10.1016/s1098-3015(10)63316-5", 

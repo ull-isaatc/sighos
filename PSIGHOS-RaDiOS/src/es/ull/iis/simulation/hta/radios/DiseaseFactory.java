@@ -32,11 +32,11 @@ public class DiseaseFactory {
 	private DiseaseFactory() {		
 	}
 	
-	public static StandardDisease getDiseaseInstance(SecondOrderParamsRepository secParams, es.ull.iis.ontology.radios.json.schema4simulation.Disease diseaseJSON, Integer timeHorizon) throws TransformException, JAXBException {
-		StandardDisease disease = new StandardDisease(secParams, diseaseJSON.getName(), Constants.CONSTANT_EMPTY_STRING) {
+	public static Disease getDiseaseInstance(SecondOrderParamsRepository secParams, es.ull.iis.ontology.radios.json.schema4simulation.Disease diseaseJSON, Integer timeHorizon) throws TransformException, JAXBException {
+		Disease disease = new Disease(secParams, diseaseJSON.getName(), Constants.CONSTANT_EMPTY_STRING) {
 			
 			@Override
-			public void registerSecondOrderParameters() {
+			public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 				final es.ull.iis.ontology.radios.json.schema4simulation.Disease diseaseJSON = mappings.get(this); 
 				String diseaseName = diseaseJSON.getName();
 				if (CollectionUtils.notIsEmptyAndOnlyOneElement(diseaseJSON.getClinicalDiagnosisStrategies())) {

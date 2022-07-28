@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.StandardDisease;
+import es.ull.iis.simulation.hta.progression.Disease;
 
 /**
  * Allows the creation of a {@link StandardDisease} based on the information stored in the ontology
@@ -15,12 +15,12 @@ import es.ull.iis.simulation.hta.progression.StandardDisease;
  * @author David Prieto González
  */
 public interface DiseaseBuilder {
-	public static StandardDisease getDiseaseInstance(SecondOrderParamsRepository secParams, String diseaseName) throws TranspilerException {
+	public static Disease getDiseaseInstance(SecondOrderParamsRepository secParams, String diseaseName) throws TranspilerException {
 		
-		StandardDisease disease = new StandardDisease(secParams, diseaseName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(diseaseName, "")) {
+		Disease disease = new Disease(secParams, diseaseName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(diseaseName, "")) {
 
 			@Override
-			public void registerSecondOrderParameters() {
+			public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 				try {
 					createUtilityParam(secParams, this);
 				} catch (TranspilerException e) {
@@ -62,7 +62,7 @@ public interface DiseaseBuilder {
 	 * @param disease A disease
 	 * @throws TranspilerException When there was a problem parsing the ontology
 	 */
-	public static void createUtilityParam(SecondOrderParamsRepository secParams, StandardDisease disease) throws TranspilerException {
+	public static void createUtilityParam(SecondOrderParamsRepository secParams, Disease disease) throws TranspilerException {
 		List<String> utilities = OSDiNames.ObjectProperty.HAS_UTILITY.getValues(disease.name());
 		if (utilities.size() > 1)
 			throw new TranspilerException("A maximum of one annual (dis)utility should be associated to the disease \"" + disease.name() + "\". Instead, " + utilities.size() + " found");

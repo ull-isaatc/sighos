@@ -14,7 +14,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  * @author masbe
  *
  */
-public class StrategyBasedDisease extends StandardDisease {
+public class StrategyBasedDisease extends Disease {
 	private Strategy diagnosisStrategy = null;
 	private Strategy screeningStrategy = null;
 	private Strategy treatmentStrategy = null;
@@ -31,7 +31,7 @@ public class StrategyBasedDisease extends StandardDisease {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		// TODO Auto-generated method stub
 
 	}

@@ -45,7 +45,7 @@ public class CGM_Intervention extends Intervention {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		double mode = Statistics.betaModeFromMeanSD(USE_STRIPS[0], USE_STRIPS[1]);
 		double[] betaParams = Statistics.betaParametersFromEmpiricData(USE_STRIPS[0], mode, MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[1]);
 		RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);
@@ -69,6 +69,7 @@ public class CGM_Intervention extends Intervention {
 
 	@Override
 	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		final SecondOrderParamsRepository secParams = getRepository();
 		return discountRate.applyDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getOtherParam(STR_USE_STRIPS, 0.0, pat.getSimulation()) +
 				C_SENSOR_G5 * secParams.getOtherParam(STR_USE_SENSOR_G5, 0.0, pat.getSimulation())) * 365, initT, endT);
 	}

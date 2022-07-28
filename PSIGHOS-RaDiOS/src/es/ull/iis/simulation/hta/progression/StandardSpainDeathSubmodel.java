@@ -43,7 +43,7 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	}
 	
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 	}
 
 	/**
@@ -54,6 +54,8 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	 */
 	@Override
 	public long getTimeToDeath(Patient pat) {
+		final SecondOrderParamsRepository secParams = getRepository();
+		
 		final DiseaseProgressionSimulation simul = pat.getSimulation();
 		final int simulId = simul.getIdentifier();
 		final double age = pat.getAge();

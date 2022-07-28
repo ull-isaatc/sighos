@@ -27,8 +27,8 @@ import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombi
 import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
+import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
-import es.ull.iis.simulation.hta.progression.StandardDisease;
 import es.ull.iis.simulation.hta.radios.exceptions.TransformException;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
@@ -85,7 +85,7 @@ public class RadiosRepository extends SecondOrderParamsRepository {
 		
 		final es.ull.iis.ontology.radios.json.schema4simulation.Disease diseaseJSON = radiosDiseaseInstance.getDisease(); 
 
-		StandardDisease disease = null;
+		Disease disease = null;
 		String naturalDevelopmentName = null;
 
 		if (diseaseJSON.getDevelopments() != null) {

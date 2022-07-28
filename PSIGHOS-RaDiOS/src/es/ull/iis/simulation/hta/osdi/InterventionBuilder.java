@@ -12,10 +12,9 @@ import es.ull.iis.simulation.hta.osdi.OSDiNames.DataProperty;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
-import es.ull.iis.simulation.hta.params.SecondOrderParam;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
@@ -34,7 +33,7 @@ public interface InterventionBuilder {
 			intervention = new ScreeningIntervention(secParams, interventionName, description) {
 				
 				@Override
-				public void registerSecondOrderParameters() {
+				public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 					createParamsForScreening(secParams, this);										
 				}
 				
@@ -54,7 +53,7 @@ public interface InterventionBuilder {
 			intervention = new Intervention(secParams, interventionName, description) {
 
 				@Override
-				public void registerSecondOrderParameters() {
+				public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 					createParams(secParams, this);					
 				}
 

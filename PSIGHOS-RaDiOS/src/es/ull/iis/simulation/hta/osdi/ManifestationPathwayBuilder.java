@@ -148,7 +148,7 @@ public interface ManifestationPathwayBuilder {
 		}
 		
 		@Override
-		public void registerSecondOrderParameters() {
+		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			final Manifestation manifestation = this.getDestManifestation();
 			try {
 				// TODO: Check the order to process these parameters or think in a different solution

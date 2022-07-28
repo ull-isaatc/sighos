@@ -17,8 +17,8 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.AcuteManifestation;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
+import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.StandardDisease;
 
 /**
  * @author David Prieto González
@@ -26,14 +26,14 @@ import es.ull.iis.simulation.hta.progression.StandardDisease;
  */
 public interface ManifestationBuilder {
 
-	public static Manifestation getManifestationInstance(SecondOrderParamsRepository secParams, StandardDisease disease, String manifestationName) {
+	public static Manifestation getManifestationInstance(SecondOrderParamsRepository secParams, Disease disease, String manifestationName) {
 		Manifestation manifestation = null;
 		final String type = OSDiNames.DataProperty.HAS_MANIFESTATION_KIND.getValue(manifestationName, OSDiNames.DataPropertyRange.MANIFESTATION_KIND_CHRONIC.getDescription());
 		final String description = OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(manifestationName, "");
 		if (OSDiNames.DataPropertyRange.MANIFESTATION_KIND_CHRONIC.getDescription().equals(type)) {
 			manifestation = new ChronicManifestation(secParams, manifestationName, description,	disease) {
 					@Override
-					public void registerSecondOrderParameters() {
+					public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 						createParams(secParams, this);
 					}
 			};
@@ -41,7 +41,7 @@ public interface ManifestationBuilder {
 		else {
 			manifestation = new AcuteManifestation(secParams, manifestationName, description, disease) {
 					@Override
-					public void registerSecondOrderParameters() {
+					public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 						createParams(secParams, this);
 					}
 			};			
@@ -204,7 +204,7 @@ public interface ManifestationBuilder {
 					}
 				// Acute manifestations involve a probability of death
 				} else if (Manifestation.Type.ACUTE == manifestation.getType()) {
-					ProbabilityParamDescriptions.PROBABILITY_DEATH.addParameter(manifestation.getParamsRepository(), manifestation, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+					ProbabilityParamDescriptions.PROBABILITY_DEATH.addParameter(manifestation.getRepository(), manifestation, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 				}
 			}
 		}
@@ -217,7 +217,7 @@ public interface ManifestationBuilder {
 		final String pDiagnosis = OSDiNames.DataProperty.HAS_PROBABILITY_OF_DIAGNOSIS.getValue(manifestation.name());
 		if (pDiagnosis != null) {
 			ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(pDiagnosis);
-			ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(manifestation.getParamsRepository(), manifestation, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+			ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(manifestation.getRepository(), manifestation, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 		}
 	}
 }

@@ -118,7 +118,7 @@ public class Strategy implements PartOfStrategy {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 	}
 
 	@Override

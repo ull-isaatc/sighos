@@ -32,9 +32,9 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SingleSelectorParam;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
-import es.ull.iis.simulation.hta.progression.StandardDisease;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
 import es.ull.iis.util.Statistics;
@@ -44,7 +44,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla
  *
  */
-public class T1DMDisease extends StandardDisease {
+public class T1DMDisease extends Disease {
 	public enum GroupOfManifestations implements Named {
 		NEU,
 		NPH,
@@ -310,6 +310,8 @@ public class T1DMDisease extends StandardDisease {
 	}
 
 	private void addProgression(Manifestation fromManif, Manifestation toManif, boolean useSheffieldRR) {
+		final SecondOrderParamsRepository secParams = getRepository();
+		
 		TimeToEventCalculator tte;
 		if (useSheffieldRR)
 			tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(fromManif, toManif), secParams, toManif, new SheffieldComplicationRR(secParams, toManif.name()));
@@ -320,6 +322,8 @@ public class T1DMDisease extends StandardDisease {
 	}
 
 	private void addProgression(Manifestation toManif, boolean useSheffieldRR) {
+		final SecondOrderParamsRepository secParams = getRepository();
+		
 		TimeToEventCalculator tte;
 		if (useSheffieldRR)
 			tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(toManif), secParams, toManif, new SheffieldComplicationRR(secParams, toManif.name()));
@@ -329,7 +333,8 @@ public class T1DMDisease extends StandardDisease {
 	}
 	
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+		
 		// Set asymptomatic follow-up cost and disutility. Treatment cost for asymptomatics is assumed to be 0 
 		CostParamDescriptions.FOLLOW_UP_COST.addParameter(secParams, "DNC", "Diabetes with no complications", 
 				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, DEF_C_DNC.VALUE, SecondOrderParamsRepository.getRandomVariateForCost(DEF_C_DNC.VALUE));
@@ -342,13 +347,13 @@ public class T1DMDisease extends StandardDisease {
 					"GOLD", P_HYPO, RandomVariateFactory.getInstance("BetaVariate", P_HYPO_BETA[0], P_HYPO_BETA[1]));
 		}
 		
-		registerNPHParameters();
-		registerNEUParameters();
-		registerRETParameters();
-		registerCHDParameters();
+		registerNPHParameters(secParams);
+		registerNEUParameters(secParams);
+		registerRETParameters(secParams);
+		registerCHDParameters(secParams);
 	}
 
-	private void registerNPHParameters() {
+	private void registerNPHParameters(SecondOrderParamsRepository secParams) {
 		if (!DISABLE_NPH) {
 			// Adds parameters to compute HbA1c-dependent progressions for nephropathy-related complications 
 			OtherParamDescriptions.RELATIVE_RISK.addParameter(secParams, alb1, "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", BETA_ALB1); 
@@ -376,7 +381,7 @@ public class T1DMDisease extends StandardDisease {
 		
 	}
 
-	private void registerNEUParameters() {
+	private void registerNEUParameters(SecondOrderParamsRepository secParams) {
 		if (!DISABLE_NEU) {
 			// Adds parameters to compute HbA1c-dependent progressions for neuropathy-related complications 
 			OtherParamDescriptions.RELATIVE_RISK.addParameter(secParams, neu, 
@@ -402,7 +407,7 @@ public class T1DMDisease extends StandardDisease {
 		}
 	}
 	
-	private void registerRETParameters() {
+	private void registerRETParameters(SecondOrderParamsRepository secParams) {
 		if (!DISABLE_RET) {
 			// Adds parameters to compute HbA1c-dependent progressions for retinopathy-related complications 
 			OtherParamDescriptions.RELATIVE_RISK.addParameter(secParams, bgret,	"WESDR XXII, as adapted by Sheffield", BETA_BGRET);
@@ -431,7 +436,7 @@ public class T1DMDisease extends StandardDisease {
 		}
 	}
 	
-	private void registerCHDParameters() {
+	private void registerCHDParameters(SecondOrderParamsRepository secParams) {
 		if (!DISABLE_CHD) {
 			final double[] paramsDNC_CHD = Statistics.betaParametersFromNormal(P_DNC_CHD, Statistics.sdFrom95CI(CI_DNC_CHD));
 			final double[] paramsNEU_CHD = Statistics.betaParametersFromNormal(P_NEU_CHD, Statistics.sdFrom95CI(CI_NEU_CHD));
@@ -464,6 +469,7 @@ public class T1DMDisease extends StandardDisease {
 	}
 
 	public int getCHDComplication(Patient pat) {
+		final SecondOrderParamsRepository secParams = getRepository();
 		final int id = pat.getSimulation().getIdentifier();
 		if (selectorsCHD[id] == null) {
 			final double [] coef = new double[4];

@@ -35,7 +35,7 @@ public class PBDPopulation extends StdPopulation {
 
 	@Override
 	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
-		final double birthPrev = allAffected ? 1.0 : ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(secParams, disease, simul);
+		final double birthPrev = allAffected ? 1.0 : ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(getRepository(), disease, simul);
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), birthPrev);
 	}
 
@@ -50,7 +50,7 @@ public class PBDPopulation extends StdPopulation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "Utility for Spanish general population", 0.8861);
 		if (!allAffected)
 			ProbabilityParamDescriptions.BIRTH_PREVALENCE.addParameter(secParams, disease, "", 

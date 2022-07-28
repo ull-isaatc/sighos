@@ -46,7 +46,7 @@ public class DCCTPopulation1 extends StdPopulation {
 
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		ProbabilityParamDescriptions.INITIAL_PROBABILITY.addParameter(secParams, disease.getManifestation(Neuropathy.NAME), 
 				"DCCT", P_INI_NEU_BETA[0] / (P_INI_NEU_BETA[0] + P_INI_NEU_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_NEU_BETA[0], P_INI_NEU_BETA[1]));
 	}

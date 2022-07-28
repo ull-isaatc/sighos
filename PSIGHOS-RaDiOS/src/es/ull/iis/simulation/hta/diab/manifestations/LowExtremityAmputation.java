@@ -34,7 +34,7 @@ public class LowExtremityAmputation extends ChronicManifestation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "del Pino et al", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
 		final double[] tcParams = Statistics.gammaParametersFromNormal(TC[0], TC[1]);
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "amputation", 

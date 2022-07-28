@@ -31,7 +31,7 @@ public class Neuropathy extends ChronicManifestation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Ray (2015)", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
 		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));

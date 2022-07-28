@@ -28,7 +28,7 @@ public class HypotoniaManifestation extends ChronicManifestation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		OtherParamDescriptions.ONSET_AGE.addParameter(secParams, this, "", 0.0);			
 		OtherParamDescriptions.END_AGE.addParameter(secParams, this, "", 1.0);			
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "Test", COST_YEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));		

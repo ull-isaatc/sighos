@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.StandardDisease;
+import es.ull.iis.simulation.hta.progression.Disease;
 
 /**
  * A template for test diseases
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class TemplateTestRareDisease extends StandardDisease {
+public abstract class TemplateTestRareDisease extends Disease {
 	
 	/**
 	 * @param secParams Repository with common information about the disease 
@@ -25,7 +25,7 @@ public abstract class TemplateTestRareDisease extends StandardDisease {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 	}
 
 	@Override

@@ -33,7 +33,7 @@ public class TestRareDisease2 extends TemplateTestRareDisease {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, acuteManif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
 	}
 

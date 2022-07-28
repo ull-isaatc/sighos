@@ -35,7 +35,7 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 		CHRONIC
 	}
 	/** Common parameters repository */
-	protected final SecondOrderParamsRepository secParams;
+	private final SecondOrderParamsRepository secParams;
 	/** Short name of the complication stage */
 	private final String name;
 	/** Full description of the complication stage */
@@ -283,11 +283,8 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 		return pathways;
 	}
 
-	/**
-	 * Returns the related repository for parameters
-	 * @return the related repository for parameters
-	 */
-	public SecondOrderParamsRepository getParamsRepository() {
+	@Override
+	public SecondOrderParamsRepository getRepository() {
 		return secParams;
 	}
 	

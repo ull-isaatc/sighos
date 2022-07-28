@@ -8,17 +8,17 @@ import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
 import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
-import es.ull.iis.simulation.hta.progression.StandardDisease;
 import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class PBDDisease extends StandardDisease {
+public class PBDDisease extends Disease {
 	final private static double DIAGNOSIS_COST = 509.65;
 	final private static double TREATMENT_COST = 66.2475;
 	final private static double FOLLOW_UP_COST = 616.75672;
@@ -36,25 +36,25 @@ public class PBDDisease extends StandardDisease {
 	public PBDDisease(SecondOrderParamsRepository secParams) {
 		super(secParams, "PBD", "Profound Biotidinase Deficiency");
 		skinProblems = new SkinProblemsManifestation(secParams, this);
-		registerBasicManifestation(skinProblems);
+		registerBasicManifestation(secParams, skinProblems);
 		hypotonia = new HypotoniaManifestation(secParams, this);
-		registerBasicManifestation(hypotonia);
+		registerBasicManifestation(secParams, hypotonia);
 		seizures = new SeizuresManifestation(secParams, this);
-		registerBasicManifestation(seizures);
+		registerBasicManifestation(secParams, seizures);
 		visionLoss = new VisionLossManifestation(secParams, this);
-		registerBasicManifestation(visionLoss);
+		registerBasicManifestation(secParams, visionLoss);
 		hearingProblems = new HearingProblemsManifestation(secParams, this);
-		registerBasicManifestation(hearingProblems);
+		registerBasicManifestation(secParams, hearingProblems);
 		mentalDelay = new MentalDelayManifestation(secParams, this);
-		registerBasicManifestation(mentalDelay);
+		registerBasicManifestation(secParams, mentalDelay);
 	}
 
-	private void registerBasicManifestation(Manifestation manif) {
+	private void registerBasicManifestation(SecondOrderParamsRepository secParams, Manifestation manif) {
 		new ManifestationPathway(secParams, manif, new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif), secParams, manif));
 	}
 	
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, skinProblems, "Test", 0.41, RandomVariateFactory.getInstance("BetaVariate", 24, 34));
 		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, hypotonia, "Test", 0.457, RandomVariateFactory.getInstance("BetaVariate", 17, 20));
 		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, seizures, "Test", 0.564, RandomVariateFactory.getInstance("BetaVariate", 65, 50));

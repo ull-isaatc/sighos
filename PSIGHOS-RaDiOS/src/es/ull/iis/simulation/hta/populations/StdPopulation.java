@@ -26,7 +26,7 @@ public abstract class StdPopulation implements Population {
 	private final String name;
 	private final String description;
 	protected final Disease disease;
-	protected final SecondOrderParamsRepository secParams;
+	private final SecondOrderParamsRepository secParams;
 	private final List<ClinicalParameter> parameters;
 	private final RandomVariate[] rndBaselineAge;
 	private final DiscreteRandomVariate[] rndSex;

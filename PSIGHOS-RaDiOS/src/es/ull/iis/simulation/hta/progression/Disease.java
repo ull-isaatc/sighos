@@ -19,16 +19,19 @@ import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 
 /**
  * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other.
  * The disease also defines whether the onset of a chronic manifestation excludes other manifestations. By default, any chronic manifestation
- * excludes the "asymptomatic" chronic manifestation. 
+ * excludes the "asymptomatic" chronic manifestation.
+ * By default, the progression is driven by @link {@link ManifestationPathway manifestation pathways}, but it can be changed by modifying the
+ * {@link #getProgression(Patient)} method. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable {
+public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable {
 	/** Common parameters repository */
-	protected final SecondOrderParamsRepository secParams;
+	private final SecondOrderParamsRepository secParams;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
 	 * diseases defined to be used within a simulation */ 
 	private int ord = -1;
@@ -184,7 +187,26 @@ public abstract class Disease implements NamedAndDescribed, CreatesSecondOrderPa
 	 * @return how this patient will progress from its current state with regards to this
 	 * chronic complication
 	 */
-	public abstract DiseaseProgression getProgression(Patient pat);
+	public DiseaseProgression getProgression(Patient pat) {
+		final DiseaseProgression prog = new DiseaseProgression();
+		long limit = pat.getTimeToDeath();
+		final TreeSet<Manifestation> state = pat.getState();  
+		for (final Manifestation destManif : secParams.getRegisteredManifestations()) {
+			if (!state.contains(destManif)) {
+				long prevTime = pat.getTimeToNextManifestation(destManif);
+				long newTime = destManif.getTimeTo(pat, limit);
+				// TODO: This condition requires further thinking. This condition works as long as we assume that the state of the patient can only get worse during the simulation
+				// OLD COMMENT: We are working with competitive risks. Hence, if the new time to event is lower than the previously scheduled, we rescheduled
+				if (newTime < prevTime) {
+					// If there was a former pending event
+					if (prevTime != Long.MAX_VALUE)
+						prog.addCancelEvent(destManif);
+					prog.addNewEvent(destManif, newTime);
+				}
+			}
+		}
+		return prog;
+	}
 	
 	/**
 	 * Adds progression actions in case they are needed. First checks if the new time to event is valid. Then checks
@@ -234,7 +256,15 @@ public abstract class Disease implements NamedAndDescribed, CreatesSecondOrderPa
 	 * @param discountRate The discount rate to apply to the cost
 	 * @return the annual cost associated to the current state of the patient and during the defined period
 	 */
-	public abstract double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate);
+	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		double cost =  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initT, endT);;
+		for (final Manifestation manif : pat.getState()) {
+			cost +=  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initT, endT);
+		}
+		if (pat.isDiagnosed())
+			cost += getTreatmentAndFollowUpCosts(pat, initT, endT, discountRate);
+		return cost;
+	}
 	
 	/**
 	 * Returns the diagnosis cost for this disease
@@ -256,7 +286,11 @@ public abstract class Disease implements NamedAndDescribed, CreatesSecondOrderPa
 	 * @param discountRate The discount rate to apply to the cost
 	 * @return The treatment and follow up costs for each natural year within the specified period for this disease
 	 */
-	public abstract double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate);
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+			Discount discountRate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	/**
 	 * Returns the treatment and follow up costs for this disease during the defined period. These costs should only be applied to diagnosed patients 
@@ -279,7 +313,15 @@ public abstract class Disease implements NamedAndDescribed, CreatesSecondOrderPa
 	 * than one commorbility
 	 * @return The disutility value associated to the current stage of this disease
 	 */
-	public abstract double getDisutility(Patient pat, DisutilityCombinationMethod method);
+	public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
+		final TreeSet<Manifestation> state = pat.getState();
+		// Uses the base disutility for the disease if available 
+		double du = UtilityParamDescriptions.getDisutilityValue(secParams, this.name(), pat, false);
+		for (final Manifestation manif : state) {
+			du = method.combine(du, UtilityParamDescriptions.getDisutilityValue(secParams, manif.name(), pat, false));
+		}
+		return du;
+	}
 	
 	/** 
 	 * Returns the number of stages used to model this complication
@@ -360,5 +402,14 @@ public abstract class Disease implements NamedAndDescribed, CreatesSecondOrderPa
 			}
 		}
 		return str.toString();
+	}
+
+	@Override
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+	}
+
+	@Override
+	public SecondOrderParamsRepository getRepository() {
+		return secParams;
 	}
 }
