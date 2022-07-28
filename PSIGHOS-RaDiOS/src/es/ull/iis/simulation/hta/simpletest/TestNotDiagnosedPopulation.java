@@ -46,7 +46,7 @@ public class TestNotDiagnosedPopulation extends StdPopulation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 	}
 
 	@Override

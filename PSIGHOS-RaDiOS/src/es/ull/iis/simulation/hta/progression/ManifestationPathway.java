@@ -23,7 +23,7 @@ public class ManifestationPathway implements CreatesSecondOrderParameters {
 	/** Calculator of the time to event if the condition is met */
 	private final TimeToEventCalculator timeToEvent;
 	/** Common parameters repository */
-	protected final SecondOrderParamsRepository secParams;
+	private final SecondOrderParamsRepository secParams;
 
 	/**
 	 * Creates a new pathway to a manifestation
@@ -77,6 +77,11 @@ public class ManifestationPathway implements CreatesSecondOrderParameters {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+	}
+
+	@Override
+	public SecondOrderParamsRepository getRepository() {
+		return secParams;
 	}
 }

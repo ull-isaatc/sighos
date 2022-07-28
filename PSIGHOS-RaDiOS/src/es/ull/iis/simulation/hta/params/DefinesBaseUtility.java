@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.params;
 
+import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 
@@ -10,7 +11,7 @@ import es.ull.iis.simulation.hta.Patient;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface DefinesBaseUtility extends CanDefineSecondOrderParameter, Named {
+public interface DefinesBaseUtility extends CreatesSecondOrderParameters, Named {
 	/**
 	 * Returns the base utility for the specified patient 
 	 * @param pat A patient

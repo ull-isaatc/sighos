@@ -5,12 +5,10 @@ package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
-import es.ull.iis.simulation.hta.params.SecondOrderCostParam;
-import es.ull.iis.simulation.hta.params.SecondOrderParam;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import simkit.random.RandomVariateFactory;
@@ -30,7 +28,7 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
 		ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, this, "", 1.0);
 		ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, this, "", 0.999935);
@@ -45,7 +43,7 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 
 	@Override
 	public double getStartingCost(Patient pat, double time, Discount discountRate) {
-		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(secParams, this, pat.getSimulation()), time);
+		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(getRepository(), this, pat.getSimulation()), time);
 	}
 
 }

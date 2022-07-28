@@ -122,7 +122,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 			}
 
 			@Override
-			public void registerSecondOrderParameters() {
+			public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			}
 
 			@Override
@@ -166,18 +166,18 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * previously included in this repository. This method must be invoked after all these components have been created. 
 	 */
 	public void registerAllSecondOrderParams() {
-		registeredPopulation.registerSecondOrderParameters();
-		registeredDeathSubmodel.registerSecondOrderParameters();
+		registeredPopulation.registerSecondOrderParameters(this);
+		registeredDeathSubmodel.registerSecondOrderParameters(this);
 		for (Disease disease : registeredDiseases)
-			disease.registerSecondOrderParameters();
+			disease.registerSecondOrderParameters(this);
 		for (Manifestation manif : registeredManifestations) {
-			manif.registerSecondOrderParameters();
+			manif.registerSecondOrderParameters(this);
 			for (ManifestationPathway pathway : manif.getPathways()) {
-				pathway.registerSecondOrderParameters();
+				pathway.registerSecondOrderParameters(this);
 			}
 		}
 		for (Intervention intervention : registeredInterventions)
-			intervention.registerSecondOrderParameters();
+			intervention.registerSecondOrderParameters(this);
 	}
 	
 	/**

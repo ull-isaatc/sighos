@@ -28,7 +28,7 @@ public class TestManifestationStage1 extends ChronicManifestation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addParameter(secParams, this, "Test", 1.5, RandomVariateFactory.getInstance("UniformVariate", 1.3, 1.7));
 		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Test", 2020, ANNUAL_COST, SecondOrderParamsRepository.getRandomVariateForCost(ANNUAL_COST));
 		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));

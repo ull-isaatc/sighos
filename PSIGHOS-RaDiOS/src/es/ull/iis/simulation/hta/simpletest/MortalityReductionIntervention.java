@@ -42,7 +42,7 @@ public class MortalityReductionIntervention extends Intervention {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 
 	}
 

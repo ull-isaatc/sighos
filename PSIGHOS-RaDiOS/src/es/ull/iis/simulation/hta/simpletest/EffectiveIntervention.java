@@ -25,7 +25,7 @@ public class EffectiveIntervention extends Intervention {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		for (String paramName : modifiedParams) {
 			secParams.addModificationParam(this, Modification.Type.RR, paramName,  
 					"Test", RR, RandomVariateFactory.getInstance("UniformVariate", RR * 0.8, RR * 1.2));

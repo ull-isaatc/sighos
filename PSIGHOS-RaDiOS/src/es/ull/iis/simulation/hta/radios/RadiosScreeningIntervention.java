@@ -403,7 +403,7 @@ public class RadiosScreeningIntervention extends ScreeningIntervention {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		if (CollectionUtils.notIsEmptyAndOnlyOneElement(this.intervention.getScreeningStrategies())) {
 			Object[] calculatedCost = CostUtils.calculateOnetimeCostFromMatrix(this.costScreenings);
 			RandomVariate distribution = RandomVariateFactory.getInstance("ConstantVariate", (Double) calculatedCost[1]);

@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.hta.inforeceiver;
 
 import es.ull.iis.simulation.hta.info.PatientInfo;
-import es.ull.iis.simulation.hta.interventions.ScreeningIntervention.ScreeningResult;
+import es.ull.iis.simulation.hta.interventions.DetectionTestResult;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -21,7 +21,7 @@ public class ScreeningTestPerformanceView extends Listener implements Structured
 	 */
 	public ScreeningTestPerformanceView(SecondOrderParamsRepository secParams) {
 		super("Screening test performance");
-		nResults = new int[ScreeningResult.values().length];
+		nResults = new int[DetectionTestResult.values().length];
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 	}
@@ -31,7 +31,7 @@ public class ScreeningTestPerformanceView extends Listener implements Structured
 		if (info instanceof PatientInfo) {
 			final PatientInfo pInfo = (PatientInfo) info;
 			if (PatientInfo.Type.SCREEN.equals(pInfo.getType())) {
-				nResults[((ScreeningResult)pInfo.getCause()).ordinal()]++;
+				nResults[((DetectionTestResult)pInfo.getCause()).ordinal()]++;
 			}
 		}
 
@@ -39,7 +39,7 @@ public class ScreeningTestPerformanceView extends Listener implements Structured
 
 	public static String getStrHeader(String intervention) {
 		final StringBuilder str = new StringBuilder();
-		for (ScreeningResult res : ScreeningResult.values())
+		for (DetectionTestResult res : DetectionTestResult.values())
 			str.append(res + "_" + intervention + "\t");
 		return str.toString();
 	}

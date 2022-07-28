@@ -33,7 +33,7 @@ public class HealthTechnology implements PartOfStrategy {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 	}
 
 	@Override

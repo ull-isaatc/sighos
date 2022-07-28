@@ -33,7 +33,7 @@ public class EndStageRenalDisease extends ChronicManifestation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Ray (2005)", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "Ray (2005)", COSTYEAR, TCOST, SecondOrderParamsRepository.getRandomVariateForCost(TCOST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);

@@ -47,7 +47,7 @@ public class TestPopulation extends StdPopulation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "Assumption", BasicConfigParams.DEF_U_GENERAL_POP);
 	}
 

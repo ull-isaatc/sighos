@@ -29,7 +29,7 @@ public class DCCT_IntensiveIntervention extends Intervention {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		addClinicalParameterModification(T1DMRepository.STR_HBA1C, new Modification(secParams, Type.DIFF, SecondOrderParamsRepository.getModificationString(this, T1DMRepository.STR_HBA1C + "_REDUX"), T1DMRepository.STR_HBA1C + " reduction",
 				"DCCT Intensive", HBA1C_REDUCTION, RandomVariateFactory.getInstance("NormalVariate", HBA1C_REDUCTION, HBA1C_REDUCTION_SD)));
 	}

@@ -28,6 +28,7 @@ public class BudgetImpactView implements ExperimentListener {
 	private final double[][] cost;
 	private final Intervention[] interventions;
 	private final double coefExperiments;
+	private final CostCalculator calc;
 
 	/**
 	 * 
@@ -39,12 +40,12 @@ public class BudgetImpactView implements ExperimentListener {
 		this.secParams = secParams;
 		this.nYears = nYears;
 		this.cost = new double[interventions.length][nYears+1];
+		this.calc = secParams.getCostCalculator();
 	}
 
 	@Override
 	public void addListener(DiseaseProgressionSimulation simul) {
-		final CostCalculator calc = secParams.getCostCalculator();
-		simul.addInfoReceiver(new InnerInstanceView(calc));
+		simul.addInfoReceiver(new InnerInstanceView());
 	}
 
 	@Override
@@ -67,16 +68,14 @@ public class BudgetImpactView implements ExperimentListener {
 	
 	public class InnerInstanceView extends Listener implements ExperimentListener.InnerListener {
 		private final double[] cost;
-		private final CostCalculator calc;
 		private final double[]lastAge;
 		private boolean finish;
 	
 		/**
 		 * @param simUnit The time unit used within the simulation
 		 */
-		public InnerInstanceView(CostCalculator calc) {
+		public InnerInstanceView() {
 			super("Budget impact");
-			this.calc = calc;
 			this.lastAge = new double[nPatients];
 			cost = new double[nYears+1];
 			finish = false;

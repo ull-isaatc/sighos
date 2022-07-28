@@ -21,9 +21,9 @@ import es.ull.iis.ontology.radios.json.schema4simulation.ManifestationModificati
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
-import es.ull.iis.simulation.hta.progression.StandardDisease;
 import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
 import es.ull.iis.simulation.hta.radios.utils.CostUtils;
@@ -50,10 +50,10 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 	private Matrix costFollowUps;
 	private Matrix costScreenings;
 	private Matrix costClinicalDiagnosis;
-	private StandardDisease disease;
+	private Disease disease;
 
 	public RadiosBasicIntervention(SecondOrderParamsRepository secParams, Intervention intervention, String naturalDevelopmentName, Integer timeHorizont, 
-			Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis, StandardDisease disease) {
+			Matrix baseCostTreatments, Matrix baseCostFollowUps, Matrix baseCostScreenings, Matrix baseCostClinicalDiagnosis, Disease disease) {
 		super(secParams, intervention.getName(), Constants.CONSTANT_EMPTY_STRING);
 		this.intervention = intervention; 
 		this.naturalDevelopmentName = naturalDevelopmentName;
@@ -335,7 +335,7 @@ public class RadiosBasicIntervention extends es.ull.iis.simulation.hta.intervent
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		// Register the modifications of the manifestations caused by the intervention		
 		if (this.intervention.getManifestationModifications() != null) {
 			for (ManifestationModification manifestationModification : this.intervention.getManifestationModifications()) {

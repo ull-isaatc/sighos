@@ -49,7 +49,7 @@ public class ManifestationFactory {
 						ValueTransform.toDoubleValue(manifJSON.getOnSetAge()), ValueTransform.toDoubleValue(manifJSON.getEndAge())) {
 					
 					@Override
-					public void registerSecondOrderParameters() {
+					public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 						addParametersToRepository(this);
 					}
 				};
@@ -59,7 +59,7 @@ public class ManifestationFactory {
 						ValueTransform.toDoubleValue(manifJSON.getOnSetAge()), ValueTransform.toDoubleValue(manifJSON.getEndAge())) {
 					
 					@Override
-					public void registerSecondOrderParameters() {
+					public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 						addParametersToRepository(this);
 					}
 				};
@@ -71,7 +71,7 @@ public class ManifestationFactory {
 					ValueTransform.toDoubleValue(manifJSON.getOnSetAge()), ValueTransform.toDoubleValue(manifJSON.getEndAge())) {
 				
 				@Override
-				public void registerSecondOrderParameters() {
+				public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 					addParametersToRepository(this);
 				}
 			};
@@ -95,7 +95,7 @@ public class ManifestationFactory {
 	 */
 	private static void addParamProbabilities(Manifestation manif) throws JAXBException {
 		final es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifJSON = mappings.get(manif);
-		final SecondOrderParamsRepository secParams = manif.getParamsRepository();
+		final SecondOrderParamsRepository secParams = manif.getRepository();
 		String manifestationProbability = manifJSON.getProbability();
 		if (manifestationProbability != null) {
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifestationProbability);
@@ -148,12 +148,12 @@ public class ManifestationFactory {
 			if (probabilityDistribution != null) {
 				if (Manifestation.Type.CHRONIC == manif.getType()) { // Se debe interpretar el valor como que aumenta tu riesgo de muerte * mortalityFactor
 					if (probabilityDistribution.getDeterministicValue() > 0) {
-						manif.getParamsRepository().addIMRParam(manif, "Mortality factor for " + manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+						manif.getRepository().addIMRParam(manif, "Mortality factor for " + manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 					} else {
-						manif.getParamsRepository().addLERParam(manif, "Life expectancy reduction for " + manif, Constants.CONSTANT_EMPTY_STRING, Math.abs(probabilityDistribution.getDeterministicValue()), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+						manif.getRepository().addLERParam(manif, "Life expectancy reduction for " + manif, Constants.CONSTANT_EMPTY_STRING, Math.abs(probabilityDistribution.getDeterministicValue()), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 					}
 				} else if (Manifestation.Type.ACUTE == manif.getType()) { // Se debe interpretar el valor de mortalityFactor como la probabilidad de muerte
-					ProbabilityParamDescriptions.PROBABILITY_DEATH.addParameter(manif.getParamsRepository(), manif, manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+					ProbabilityParamDescriptions.PROBABILITY_DEATH.addParameter(manif.getRepository(), manif, manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 				}
 			}
 		}
@@ -183,7 +183,7 @@ public class ManifestationFactory {
 			if (annualCost != null) {
 				ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(annualCost);
 				if (probabilityDistribution != null) {
-					manif.getParamsRepository().addCostParam(manif, "Cost for " + manif, Constants.CONSTANT_EMPTY_STRING, yearAnnualCost, 
+					manif.getRepository().addCostParam(manif, "Cost for " + manif, Constants.CONSTANT_EMPTY_STRING, yearAnnualCost, 
 							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForCost());
 				}
 			}
@@ -191,7 +191,7 @@ public class ManifestationFactory {
 			if (onetimeCost != null) {
 				ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(onetimeCost);
 				if (probabilityDistribution != null) {
-					manif.getParamsRepository().addTransitionCostParam(manif, "Punctual cost for " + manif, Constants.CONSTANT_EMPTY_STRING, yearOnetimeCost, probabilityDistribution.getDeterministicValue(),
+					manif.getRepository().addTransitionCostParam(manif, "Punctual cost for " + manif, Constants.CONSTANT_EMPTY_STRING, yearOnetimeCost, probabilityDistribution.getDeterministicValue(),
 							probabilityDistribution.getProbabilisticValueInitializedForCost());
 				}
 			}
@@ -206,7 +206,7 @@ public class ManifestationFactory {
 		if (manifJSON.getProbabilityOfDiagnosis() != null) {
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifJSON.getProbabilityOfDiagnosis());
 			if (probabilityDistribution != null) {
-				manif.getParamsRepository().addDiagnosisProbParam(manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+				manif.getRepository().addDiagnosisProbParam(manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 			}
 		}
 	}
@@ -235,9 +235,9 @@ public class ManifestationFactory {
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(value);
 			if (probabilityDistribution != null) {
 				if (isDisutility) {
-					manif.getParamsRepository().addDisutilityParam(manif, "Disutility for " + manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+					manif.getRepository().addDisutilityParam(manif, "Disutility for " + manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
 				} else {
-					manif.getParamsRepository().addUtilityParam(manif, "Utility for " + manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+					manif.getRepository().addUtilityParam(manif, "Utility for " + manif, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
 				}
 			}
 		}

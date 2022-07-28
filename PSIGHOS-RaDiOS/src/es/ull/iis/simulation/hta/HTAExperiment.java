@@ -31,8 +31,6 @@ import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.StdDiscount;
-import es.ull.iis.simulation.hta.params.ZeroDiscount;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
@@ -203,17 +201,17 @@ public abstract class HTAExperiment {
 		if (discounts != null) {
 			if (discounts.size() == 0) {
 				// Use default discount
-				result[0] = new StdDiscount(BasicConfigParams.DEF_DISCOUNT_RATE);
-				result[1] = new StdDiscount(BasicConfigParams.DEF_DISCOUNT_RATE);
+				result[0] = new Discount(BasicConfigParams.DEF_DISCOUNT_RATE);
+				result[1] = new Discount(BasicConfigParams.DEF_DISCOUNT_RATE);
 			} else if (discounts.size() == 1) {
 				final double value = discounts.get(0);
-				result[0] = (value == 0.0) ? new ZeroDiscount() : new StdDiscount(value);
-				result[1] = (value == 0.0) ? new ZeroDiscount() : new StdDiscount(value);
+				result[0] = (value == 0.0) ? Discount.ZERO_DISCOUNT : new Discount(value);
+				result[1] = (value == 0.0) ? Discount.ZERO_DISCOUNT : new Discount(value);
 			} else {
 				final double valueCost = discounts.get(0);
 				final double valueEffect = discounts.get(1);
-				result[0] = (valueCost == 0.0) ? new ZeroDiscount() : new StdDiscount(valueCost);
-				result[1] = (valueEffect == 0.0) ? new ZeroDiscount() : new StdDiscount(valueEffect);
+				result[0] = (valueCost == 0.0) ? Discount.ZERO_DISCOUNT : new Discount(valueCost);
+				result[1] = (valueEffect == 0.0) ? Discount.ZERO_DISCOUNT : new Discount(valueEffect);
 			}
 		}
 		return result;

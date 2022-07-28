@@ -82,7 +82,7 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);
 		ProbabilityParamDescriptions.INITIAL_PROBABILITY.addParameter(secParams, disease.getManifestation(ProliferativeRetinopathy.NAME), 
 				"GOLD", P_INI_PRET_BETA[0] / (P_INI_PRET_BETA[0] + P_INI_PRET_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_PRET_BETA[0], P_INI_PRET_BETA[1]));

@@ -23,7 +23,7 @@ public class DCCT_ConventionalIntervention extends Intervention {
 	}
 
 	@Override
-	public void registerSecondOrderParameters() {
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 	}
 
 	@Override

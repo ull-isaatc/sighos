@@ -10,6 +10,7 @@ import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
+import es.ull.iis.simulation.hta.costs.Strategy;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -30,11 +31,12 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	 * interventions defined to be used within a simulation */ 
 	private int ord = -1;
 	/** Common parameters repository */
-	protected final SecondOrderParamsRepository secParams;
+	private final SecondOrderParamsRepository secParams;
 
 	private Modification lifeExpectancyModification;
 	private Modification allParameterModification;
 	private final TreeMap<String, Modification> clinicalParameterModifications;
+	private final Strategy strategy;
 	
 	/**
 	 * Creates a second order characterization of an intervention
@@ -42,12 +44,22 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	 * @param description Full description
 	 */
 	public Intervention(final SecondOrderParamsRepository secParams, final String name, final String description) {
+		this(secParams, name, description, null);
+	}
+	
+	/**
+	 * Creates a second order characterization of an intervention
+	 * @param name Short name
+	 * @param description Full description
+	 */
+	public Intervention(final SecondOrderParamsRepository secParams, final String name, final String description, Strategy strategy) {
 		this.secParams = secParams;
 		this.name = name;
 		this.description = description;
 		lifeExpectancyModification = secParams.NO_MODIF;
 		allParameterModification = secParams.NO_MODIF;
 		clinicalParameterModifications = new TreeMap<>();
+		this.strategy = strategy;
 		secParams.addIntervention(this);
 	}
 
@@ -178,6 +190,18 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 			return clinicalParameterModifications.get(clinicalParameterName);
 		return secParams.NO_MODIF;
 	}
+	/**
+	 * @return the strategy
+	 */
+	public Strategy getStrategy() {
+		return strategy;
+	}
+
+	@Override
+	public SecondOrderParamsRepository getRepository() {
+		return secParams;
+	}
+	
 	/**
 	 * Returns a collection of events that happens to patients that are treated with this intervention
 	 * @param pat A patient

@@ -59,7 +59,7 @@ public interface PopulationBuilder {
 		}
 		
 		@Override
-		public void registerSecondOrderParameters() {
+		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			final String strPFemale = OSDiNames.DataProperty.HAS_FEMALE_PROPORTION.getValue(populationName, "0.5");
 			final ProbabilityDistribution pFemale = ValueParser.splitProbabilityDistribution(strPFemale);
 			if (pFemale != null) {
@@ -71,17 +71,17 @@ public interface PopulationBuilder {
 			for (String paramName : epidemParams) {
 				final String type = OSDiNames.DataProperty.HAS_EPIDEMIOLOGICAL_PARAMETER_KIND.getValue(paramName);
 				if (OSDiNames.DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_PREVALENCE.getDescription().equals(type)) {
-					registerEpidemParam(paramName, ProbabilityParamDescriptions.PREVALENCE);
+					registerEpidemParam(secParams, paramName, ProbabilityParamDescriptions.PREVALENCE);
 					hasPrevalence = true;
 				}
 				else if (OSDiNames.DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_BIRTH_PREVALENCE.getDescription().equals(type)) {
-					registerEpidemParam(paramName, ProbabilityParamDescriptions.BIRTH_PREVALENCE);
+					registerEpidemParam(secParams, paramName, ProbabilityParamDescriptions.BIRTH_PREVALENCE);
 					hasBirthPrevalence = true;
 				}
 
 			}
 			try {
-				registerUtilityParam();
+				registerUtilityParam(secParams);
 			} catch(TranspilerException ex) {
 				System.err.println(ex.getMessage());
 			}
@@ -91,7 +91,7 @@ public interface PopulationBuilder {
 		 * Registers the base utility associated to the population by extracting the information from the ontology. 
 		 * @throws TranspilerException When there was a problem parsing the ontology
 		 */
-		private void registerUtilityParam() throws TranspilerException {
+		private void registerUtilityParam(SecondOrderParamsRepository secParams) throws TranspilerException {
 			List<String> utilities = OSDiNames.Class.UTILITY.getDescendantsOf(populationName);
 			if (utilities.size() > 1)
 				throw new TranspilerException("Only one base utility should be associated to the population \"" + populationName + "\". Instead, " + utilities.size() + " found");
@@ -118,7 +118,7 @@ public interface PopulationBuilder {
 			}
 		}
 		
-		private void registerEpidemParam(String paramName, ProbabilityParamDescriptions secondOrderParam) {
+		private void registerEpidemParam(SecondOrderParamsRepository secParams, String paramName, ProbabilityParamDescriptions secondOrderParam) {
 			// Check if the prevalence is related to the objective disease
 			final List<String> strDiseases = OSDiNames.ObjectProperty.IS_PARAMETER_OF_DISEASE.getValues(paramName);
 			boolean found = false;
@@ -139,15 +139,15 @@ public interface PopulationBuilder {
 		
 		@Override
 		protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
-			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.PROPORTION.getValue(secParams, strFemaleParamName, simul));
+			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.PROPORTION.getValue(getRepository(), strFemaleParamName, simul));
 		}
 		
 		@Override
 		protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
 			if (hasBirthPrevalence)
-				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(secParams, populationName, simul));
+				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(getRepository(), populationName, simul));
 			else if (hasPrevalence)
-				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.PREVALENCE.getValue(secParams, populationName, simul));
+				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.PREVALENCE.getValue(getRepository(), populationName, simul));
 			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 		}
 		

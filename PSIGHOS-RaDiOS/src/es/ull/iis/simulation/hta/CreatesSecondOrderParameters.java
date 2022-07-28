@@ -14,6 +14,12 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 public interface CreatesSecondOrderParameters {
 	/**
 	 * This method should register {@link SecondOrderParam second order parameters} into a {@link SecondOrderParamsRepository repository}
+	 * @param secParams Repository
 	 */
-	void registerSecondOrderParameters();
+	void registerSecondOrderParameters(SecondOrderParamsRepository secParams);
+	/**
+	 * Returns the related repository for parameters
+	 * @return the related repository for parameters
+	 */
+	public SecondOrderParamsRepository getRepository();
 }

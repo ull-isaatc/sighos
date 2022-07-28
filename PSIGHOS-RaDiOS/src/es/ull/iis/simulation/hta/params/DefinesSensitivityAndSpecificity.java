@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.params;
 
+import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 
@@ -10,7 +11,7 @@ import es.ull.iis.simulation.hta.Patient;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface DefinesSensitivityAndSpecificity extends CanDefineSecondOrderParameter, Named {
+public interface DefinesSensitivityAndSpecificity extends CreatesSecondOrderParameters, Named {
 	/**
 	 * @return the specificity
 	 */
