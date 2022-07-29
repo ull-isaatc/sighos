@@ -12,8 +12,11 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.Strategy;
+import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
@@ -22,7 +25,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Intervention implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Intervention>, PrettyPrintable, CostProducer {
+public abstract class Intervention implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Intervention>, PrettyPrintable, CostProducer, UtilityProducer {
 	/** A short name for the intervention */
 	final private String name;
 	/** A full description of the intervention */
@@ -76,15 +79,6 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	public String name() {
 		return name;
 	}
-	
-	/**
-	 * Returns a disutility value inherent to the intervention. A negative value represents an intervention that improves the utility
-	 * @param pat A patient
-	 * @return a disutility value inherent to the intervention. A negative value represents an intervention that improves the utility
-	 */
-	public double getDisutility(Patient pat) {
-		return 0.0;
-	}
 
 	/**
 	 * Returns the order assigned to this stage in a simulation.
@@ -118,6 +112,42 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 		return name;
 	}
 
+	@Override
+	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		return 0;
+	}
+
+	@Override
+	public double getStartingCost(Patient pat, double time, Discount discountRate) {
+		return 0;
+	}
+
+	@Override
+	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		return discountRate.applyAnnualDiscount(0.0, initT, endT);
+	}
+
+	@Override
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
+		return 0;
+	}
+
+	@Override
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+			Discount discountRate) {
+		return discountRate.applyAnnualDiscount(0.0, initT, endT);
+	}
+
+	@Override
+	public double getAnnualDisutility(Patient pat) {
+		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat.getSimulation());
+	}
+	
+	@Override
+	public double getStartingDisutility(Patient pat) {
+		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat.getSimulation());
+	}
+	
 	/**
 	 * @return the lifeExpectancyModification
 	 */

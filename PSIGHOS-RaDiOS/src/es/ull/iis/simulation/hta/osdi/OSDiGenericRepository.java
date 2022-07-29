@@ -11,12 +11,10 @@ import javax.xml.bind.JAXBException;
 
 import org.w3c.xsd.owl2.Ontology;
 
-import es.ull.iis.simulation.hta.effectiveness.DiseaseUtilityCalculator;
-import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator;
-import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.utils.OntologyUtils;
 import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
+import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
@@ -26,7 +24,6 @@ import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
  *
  */
 public class OSDiGenericRepository extends SecondOrderParamsRepository {
-	private final UtilityCalculator utilCalc;
 
 	/**
 	 * 
@@ -45,7 +42,7 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		super(nRuns, nPatients);
 		Ontology testOntology = OntologyUtils.loadOntology(path);
 		OwlHelper.initilize(testOntology);
-		utilCalc = new DiseaseUtilityCalculator(this, method);
+		setDisutilityCombinationMethod(method);
 
 		Disease disease = DiseaseBuilder.getDiseaseInstance(this, diseaseId);
 		setPopulation(PopulationBuilder.getPopulationInstance(this, disease, populationId));
@@ -59,11 +56,6 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 			InterventionBuilder.getInterventionInstance(this, interventionName);
 		}
 		
-	}
-
-	@Override
-	public UtilityCalculator getUtilityCalculator() {
-		return utilCalc;
 	}
 
 }

@@ -330,7 +330,7 @@ public abstract class HTAExperiment {
 		for (int i = 0; i < nInterventions; i++) {
 			costListeners[i] = new CostListener(discountCost, nPatients);
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
-			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), discountEffect, nPatients);
+			qalyListeners[i] = new QALYListener(secParams.getDisutilityCombinationMethod(), discountEffect, nPatients);
 			screenListeners[i] = (interventions[i] instanceof ScreeningIntervention) ? new ScreeningTestPerformanceView(secParams) : null;
 		}
 		simul.addInfoReceiver(costListeners[0]);

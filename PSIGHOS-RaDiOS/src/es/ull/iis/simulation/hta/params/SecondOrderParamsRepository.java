@@ -11,9 +11,8 @@ import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
-import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator;
-import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Development;
@@ -91,6 +90,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public final Disease HEALTHY;
 	/** A dummy modification that do not modify anything */
 	public final Modification NO_MODIF;
+	/** The method to combine different disutilities. {@link DisutilityCombinationMethod#ADD} by default */
+	private DisutilityCombinationMethod method = DisutilityCombinationMethod.ADD;
 	
 	/**
 	 * Creates a repository of second order parameters. By default, generates the base case values.
@@ -113,11 +114,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 			@Override
 			public DiseaseProgression getProgression(Patient pat) {
 				return NULL_PROGRESSION;
-			}
-
-			@Override
-			public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
-				return 0;
 			}
 		};
 		this.NO_MODIF = new Modification(this, Modification.Type.DIFF, "NOMOD", "Null modification", "", 0.0);
@@ -489,13 +485,23 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public static void setRNG_FIRST_ORDER(RandomNumber rngFirstOrder) {
 		RNG_FIRST_ORDER = rngFirstOrder;
 	}
-	
+
 	/**
-	 * Returns the class that computes utilities 
-	 * @return the class that computes utilities 
+	 * Returns the combination method used to combine different disutilities
+	 * @return the combination method used to combine different disutilities
 	 */
-	public abstract UtilityCalculator getUtilityCalculator();
-	
+	public DisutilityCombinationMethod getDisutilityCombinationMethod() {
+		return method;
+	}
+
+	/**
+	 * Sets a different combination method for disutilities
+	 * @param method Combination method for disutilities
+	 */
+	public void setDisutilityCombinationMethod(DisutilityCombinationMethod method) {
+		this.method = method;
+	}
+
 	public static String getModificationString(Intervention interv, Named from, Named to) {
 		return getModificationString(interv, ProbabilityParamDescriptions.PROBABILITY.getParameterName(from, to));
 	}
