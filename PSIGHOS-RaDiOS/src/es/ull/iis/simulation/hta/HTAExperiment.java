@@ -328,7 +328,7 @@ public abstract class HTAExperiment {
 		final ScreeningTestPerformanceView[] screenListeners = new ScreeningTestPerformanceView[nInterventions];
 
 		for (int i = 0; i < nInterventions; i++) {
-			costListeners[i] = new CostListener(secParams.getCostCalculator(), discountCost, nPatients);
+			costListeners[i] = new CostListener(discountCost, nPatients);
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), discountEffect, nPatients);
 			screenListeners[i] = (interventions[i] instanceof ScreeningIntervention) ? new ScreeningTestPerformanceView(secParams) : null;

@@ -7,10 +7,10 @@ import java.util.Locale;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.costs.CostCalculator;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
@@ -24,11 +24,9 @@ import es.ull.iis.simulation.model.TimeUnit;
 public class BudgetImpactView implements ExperimentListener {
 	private final int nPatients;
 	private final int nYears;
-	private final SecondOrderParamsRepository secParams;
 	private final double[][] cost;
 	private final Intervention[] interventions;
 	private final double coefExperiments;
-	private final CostCalculator calc;
 
 	/**
 	 * 
@@ -37,10 +35,8 @@ public class BudgetImpactView implements ExperimentListener {
 		this.coefExperiments = 1.0 / (double)nExperiments;
 		this.interventions = secParams.getRegisteredInterventions();
 		this.nPatients = secParams.getNPatients();
-		this.secParams = secParams;
 		this.nYears = nYears;
 		this.cost = new double[interventions.length][nYears+1];
-		this.calc = secParams.getCostCalculator();
 	}
 
 	@Override
@@ -68,7 +64,7 @@ public class BudgetImpactView implements ExperimentListener {
 	
 	public class InnerInstanceView extends Listener implements ExperimentListener.InnerListener {
 		private final double[] cost;
-		private final double[]lastAge;
+		private final double[]lastYear;
 		private boolean finish;
 	
 		/**
@@ -76,7 +72,7 @@ public class BudgetImpactView implements ExperimentListener {
 		 */
 		public InnerInstanceView() {
 			super("Budget impact");
-			this.lastAge = new double[nPatients];
+			this.lastYear = new double[nPatients];
 			cost = new double[nYears+1];
 			finish = false;
 			addGenerated(PatientInfo.class);
@@ -93,14 +89,14 @@ public class BudgetImpactView implements ExperimentListener {
 						final long ts = tInfo.getTs();
 						final DiseaseProgressionSimulation simul = (DiseaseProgressionSimulation)tInfo.getSimul();
 						final TimeUnit simUnit = simul.getTimeUnit();
-						final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
-						for (int i = 0; i < lastAge.length; i++) {
+						final double endYear = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+						for (int i = 0; i < lastYear.length; i++) {
 							final Patient pat = (Patient)simul.getGeneratedPatient(i);
 							if (!pat.isDead()) {
-								final double initAge = lastAge[pat.getIdentifier()]; 
-								if (endAge > initAge) {
-									final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
-									update(pat, periodCost, initAge, endAge);							
+								final double initYear = lastYear[pat.getIdentifier()]; 
+								if (endYear > initYear) {
+									update(pat.getDisease().getAnnualizedCostWithinPeriod(pat, initYear, endYear, Discount.ZERO_DISCOUNT), initYear);
+									update(pat.getIntervention().getAnnualizedCostWithinPeriod(pat, initYear, endYear, Discount.ZERO_DISCOUNT), initYear);
 								}						
 							}
 						}
@@ -110,15 +106,15 @@ public class BudgetImpactView implements ExperimentListener {
 				else if (info instanceof PatientInfo) {
 					final PatientInfo pInfo = (PatientInfo) info;
 					final DiseaseProgressionSimulation simul = (DiseaseProgressionSimulation)pInfo.getSimul();
-					final double endAge = TimeUnit.DAY.convert(pInfo.getTs(), simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
-					if (endAge > nYears) {
+					final double endYear = TimeUnit.DAY.convert(pInfo.getTs(), simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
+					if (endYear > nYears) {
 						for (int i = 0; i < nPatients; i++) {
 							final Patient pat = simul.getGeneratedPatient(i);
 							if (!pat.isDead()) {
-								final double initAge = lastAge[pat.getIdentifier()]; 
-								if (nYears > initAge) {
-									final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, nYears);
-									update(pat, periodCost, initAge, nYears);
+								final double initYear = lastYear[pat.getIdentifier()]; 
+								if (nYears > initYear) {
+									update(pat.getDisease().getAnnualizedCostWithinPeriod(pat, initYear, nYears, Discount.ZERO_DISCOUNT), initYear);
+									update(pat.getIntervention().getAnnualizedCostWithinPeriod(pat, initYear, nYears, Discount.ZERO_DISCOUNT), initYear);
 								}
 							}
 						}
@@ -127,16 +123,16 @@ public class BudgetImpactView implements ExperimentListener {
 					}
 					else {
 						final Patient pat = pInfo.getPatient();
-						final double initAge = lastAge[pat.getIdentifier()]; 
+						final double initYear = lastYear[pat.getIdentifier()]; 
 						switch(pInfo.getType()) {
 						case DIAGNOSIS:
-							update(pat.getDisease().getDiagnosisCost(pat), endAge);
+							update(pat.getDisease().getStartingCost(pat, endYear, Discount.ZERO_DISCOUNT), endYear);
 							break;
 						case SCREEN:
-							update(calc.getCostForIntervention(pat), endAge);
+							update(pat.getIntervention().getStartingCost(pat, endYear, Discount.ZERO_DISCOUNT), endYear);
 							break;
 						case START_MANIF:
-							update(calc.getCostUponIncidence(pat, pInfo.getManifestation()), endAge);
+							update(pInfo.getManifestation().getStartingCost(pat, endYear, Discount.ZERO_DISCOUNT), endYear);
 						case DEATH:
 						case START:
 							break;
@@ -146,13 +142,13 @@ public class BudgetImpactView implements ExperimentListener {
 						}
 						if (!PatientInfo.Type.START.equals(pInfo.getType())) {
 							// Update outcomes
-							if (endAge > initAge) {
-								final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
-								update(pat, periodCost, initAge, endAge);
+							if (endYear > initYear) {
+								update(pat.getDisease().getAnnualizedCostWithinPeriod(pat, initYear, nYears, Discount.ZERO_DISCOUNT), initYear);
+								update(pat.getIntervention().getAnnualizedCostWithinPeriod(pat, initYear, nYears, Discount.ZERO_DISCOUNT), initYear);
 							}
 						}
-						// Update lastTs
-						lastAge[pat.getIdentifier()] = endAge;
+						// Update lastYears
+						lastYear[pat.getIdentifier()] = endYear;
 					}
 				}
 			}
@@ -160,20 +156,16 @@ public class BudgetImpactView implements ExperimentListener {
 	
 		/**
 		 * Updates the value of this outcome for a specified period
-		 * @param value A constant value during the period
-		 * @param initAge Initial age when the value is applied
-		 * @param endAge End age when the value is applied
+		 * @param values An array with the values to be applied each time interval during the period
+		 * @param index The first interval when it will be applied
 		 */
-		private void update(Patient pat, double value, double initAge, double endAge) {
-			final int firstInterval = (int)initAge;
-			final int lastInterval = (int)endAge;
-			if ((int)initAge < (int)endAge)
-				cost[firstInterval] += value * ((int)(initAge+1) - initAge);
-			for (int i = firstInterval + 1; i < lastInterval; i++) {
-				cost[i] += value;
+		private void update(double[] values, double initYear) {
+			final int index = (int) initYear;
+			for (int i = 0; i < values.length; i++) {
+				cost[i + index] += values[i];
 			}
-			cost[lastInterval] += value * (endAge - Math.max((int)endAge, initAge)); 
 		}
+		
 		/**
 		 * Updates the value of this outcome at a specified age
 		 * @param value The value to update

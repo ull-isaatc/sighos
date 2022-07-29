@@ -56,4 +56,20 @@ public class MortalityReductionIntervention extends Intervention {
 		return 0;
 	}
 
+	@Override
+	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		return discountRate.applyAnnualDiscount(ANNUAL_COST, initT, endT);
+	}
+
+	@Override
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
+		return 0;
+	}
+
+	@Override
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+			Discount discountRate) {
+		return discountRate.applyAnnualDiscount(0.0, initT, endT);
+	}
+
 }

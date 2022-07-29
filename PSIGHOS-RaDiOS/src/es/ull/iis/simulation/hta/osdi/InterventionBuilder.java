@@ -45,7 +45,29 @@ public interface InterventionBuilder {
 				
 				@Override
 				public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+					// TODO Auto-generated method stub
 					return 0;
+				}
+
+				@Override
+				public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT,
+						Discount discountRate) {
+					// TODO Auto-generated method stub
+					return discountRate.applyAnnualDiscount(0.0, initT, endT);
+				}
+
+				@Override
+				public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+						Discount discountRate) {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+
+				@Override
+				public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+						Discount discountRate) {
+					// TODO Auto-generated method stub
+					return discountRate.applyAnnualDiscount(0.0, initT, endT);
 				}
 			};
 		}
@@ -67,6 +89,27 @@ public interface InterventionBuilder {
 				public double getStartingCost(Patient pat, double time, Discount discountRate) {
 					// TODO Auto-generated method stub
 					return 0;
+				}
+
+				@Override
+				public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT,
+						Discount discountRate) {
+					// TODO Auto-generated method stub
+					return discountRate.applyAnnualDiscount(0.0, initT, endT);
+				}
+
+				@Override
+				public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+						Discount discountRate) {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+
+				@Override
+				public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+						Discount discountRate) {
+					// TODO Auto-generated method stub
+					return discountRate.applyAnnualDiscount(0.0, initT, endT);
 				}
 			};
 		}

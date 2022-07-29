@@ -11,8 +11,6 @@ import javax.xml.bind.JAXBException;
 
 import org.w3c.xsd.owl2.Ontology;
 
-import es.ull.iis.simulation.hta.costs.CostCalculator;
-import es.ull.iis.simulation.hta.costs.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.effectiveness.DiseaseUtilityCalculator;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
@@ -28,7 +26,6 @@ import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
  *
  */
 public class OSDiGenericRepository extends SecondOrderParamsRepository {
-	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
 
 	/**
@@ -48,7 +45,6 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		super(nRuns, nPatients);
 		Ontology testOntology = OntologyUtils.loadOntology(path);
 		OwlHelper.initilize(testOntology);
-		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, method);
 
 		Disease disease = DiseaseBuilder.getDiseaseInstance(this, diseaseId);
@@ -63,11 +59,6 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 			InterventionBuilder.getInterventionInstance(this, interventionName);
 		}
 		
-	}
-
-	@Override
-	public CostCalculator getCostCalculator() {
-		return costCalc; 
 	}
 
 	@Override

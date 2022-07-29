@@ -11,7 +11,6 @@ import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
-import es.ull.iis.simulation.hta.costs.CostCalculator;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -118,26 +117,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 
 			@Override
 			public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
-				return 0;
-			}
-
-			@Override
-			public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-			}
-
-			@Override
-			public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
-				double [] results = new double[(int)endT - (int)initT + 1];
-				return results;
-			}
-
-			@Override
-			public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-				return 0;
-			}
-
-			@Override
-			public double getDiagnosisCost(Patient pat, double time, Discount discountRate) {
 				return 0;
 			}
 		};
@@ -510,12 +489,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public static void setRNG_FIRST_ORDER(RandomNumber rngFirstOrder) {
 		RNG_FIRST_ORDER = rngFirstOrder;
 	}
-
-	/**
-	 * Returns the class that computes costs 
-	 * @return the class that computes costs 
-	 */
-	public abstract CostCalculator getCostCalculator();
 	
 	/**
 	 * Returns the class that computes utilities 

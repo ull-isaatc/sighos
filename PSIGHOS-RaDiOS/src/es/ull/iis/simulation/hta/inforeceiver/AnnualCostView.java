@@ -8,7 +8,6 @@ import java.util.Locale;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.costs.CostCalculator;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
@@ -59,8 +58,7 @@ public class AnnualCostView implements ExperimentListener {
 
 	@Override
 	public void addListener(DiseaseProgressionSimulation simul) {
-		final CostCalculator calc = secParams.getCostCalculator();
-		simul.addInfoReceiver(new InnerListenerInstance(calc));
+		simul.addInfoReceiver(new InnerListenerInstance());
 	}
 
 	@Override
@@ -116,8 +114,7 @@ public class AnnualCostView implements ExperimentListener {
 		private final double[][] diseaseCost;
 		private final double[] interventionCost;
 		private final double[] managementCost;
-		private final double[]lastAge;
-		private final CostCalculator calc;
+		private final double[]lastYear;
 
 		/**
 		 * 
@@ -126,11 +123,10 @@ public class AnnualCostView implements ExperimentListener {
 		 * @param minAge
 		 * @param maxAge
 		 */
-		public InnerListenerInstance(CostCalculator calc) {
+		public InnerListenerInstance() {
 			super("Standard patient viewer");
-			this.calc = calc;
-			this.lastAge = new double[nPatients];
-			Arrays.fill(lastAge, 0.0);
+			this.lastYear = new double[nPatients];
+			Arrays.fill(lastYear, 0.0);
 			diseaseCost = new double[secParams.getRegisteredDiseases().length][maxAge-minAge+1];
 			interventionCost = new double[maxAge-minAge+1];
 			managementCost = new double[maxAge-minAge+1];
@@ -147,12 +143,12 @@ public class AnnualCostView implements ExperimentListener {
 					final long ts = tInfo.getTs();
 					final DiseaseProgressionSimulation simul = (DiseaseProgressionSimulation)tInfo.getSimul();
 					final TimeUnit simUnit = simul.getTimeUnit();
-					for (int i = 0; i < lastAge.length; i++) {
+					for (int i = 0; i < lastYear.length; i++) {
 						final Patient pat = (Patient)simul.getGeneratedPatient(i);
 						if (!pat.isDead()) {
-							final double initAge = lastAge[pat.getIdentifier()]; 
-							final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
-							updateAll(pat, initAge, endAge);
+							final double initYear = lastYear[pat.getIdentifier()]; 
+							final double endYear = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+							updateAll(pat, initYear, endYear);
 						}
 					}
 					updateExperiment(simul);
@@ -163,17 +159,17 @@ public class AnnualCostView implements ExperimentListener {
 				final Patient pat = pInfo.getPatient();
 				final long ts = pInfo.getTs();
 				final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
-				final double initAge = lastAge[pat.getIdentifier()]; 
-				final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+				final double initYear = lastYear[pat.getIdentifier()]; 
+				final double endYear = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
 				switch(pInfo.getType()) {
 				case DIAGNOSIS:
-					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endAge] += discount.applyPunctualDiscount(pat.getDisease().getDiagnosisCost(pat), endAge);
+					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endYear] += pat.getDisease().getStartingCost(pat, endYear, discount);
 					break;
 				case SCREEN:
-					interventionCost[(int) endAge] += discount.applyPunctualDiscount(calc.getCostForIntervention(pat), endAge);
+					interventionCost[(int) endYear] += pat.getIntervention().getStartingCost(pat, endYear, discount);
 					break;
 				case START_MANIF:
-					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostUponIncidence(pat, pInfo.getManifestation()), endAge);
+					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endYear] += pInfo.getManifestation().getStartingCost(pat, endYear, discount);
 				case DEATH:
 				case START:
 					break;
@@ -183,10 +179,10 @@ public class AnnualCostView implements ExperimentListener {
 				}
 				if (!PatientInfo.Type.START.equals(pInfo.getType())) {
 					// Update outcomes
-					updateAll(pat, initAge, endAge);
+					updateAll(pat, initYear, endYear);
 				}
 				// Update lastTs
-				lastAge[pat.getIdentifier()] = endAge;
+				lastYear[pat.getIdentifier()] = endYear;
 			}
 		}
 
@@ -200,34 +196,28 @@ public class AnnualCostView implements ExperimentListener {
 				}
 			}			
 		}
-		private void updateAll(Patient pat, double initAge, double endAge) {
-			if (endAge > initAge) {
-				update(interventionCost, calc.getAnnualInterventionCostWithinPeriod(pat, initAge, endAge), initAge, endAge);
-				update(managementCost, calc.getStdManagementCostWithinPeriod(pat, initAge, endAge), initAge, endAge);
+		private void updateAll(Patient pat, double initYear, double endYear) {
+			if (endYear > initYear) {
+				update(interventionCost, pat.getIntervention().getAnnualizedCostWithinPeriod(pat, initYear, endYear, discount), initYear);
+				update(managementCost, pat.getDisease().getAnnualizedTreatmentAndFollowUpCosts(pat, initYear, endYear, discount), initYear);
 				// Assuming each patient may have at most one disease
 				if (!pat.isHealthy())
-					update(diseaseCost[pat.getDisease().ordinal()], calc.getAnnualDiseaseCostWithinPeriod(pat, initAge, endAge), initAge, endAge);
+					update(diseaseCost[pat.getDisease().ordinal()], pat.getDisease().getAnnualizedCostWithinPeriod(pat, initYear, endYear, discount), initYear);
 			}
 		}
+
 		
 		/**
 		 * Updates the value of this outcome for a specified period
-		 * @param value A constant value during the period
-		 * @param initAge Initial age when the value is applied
-		 * @param endAge End age when the value is applied
+		 * @param values An array with the values to be applied each time interval during the period
+		 * @param index The first interval when it will be applied
 		 */
-		private void update(double []result, double value, double initAge, double endAge) {
-			final int firstInterval = (int)initAge;
-			final int lastInterval = (int)endAge;
-			if ((int)initAge < (int)endAge)
-				result[firstInterval] += discount.applyDiscount(value, initAge, (int)(initAge+1));
-//			result[firstInterval] += value * ((int)(initAge+1) - initAge);
-			for (int i = firstInterval + 1; i < lastInterval; i++) {
-				result[i] += discount.applyDiscount(value, i, i + 1);
+		private void update(double[]outcome, double[] values, double initYear) {
+			final int index = (int) initYear;
+			for (int i = 0; i < values.length; i++) {
+				outcome[i + index] += values[i];
 			}
-			result[lastInterval] += discount.applyDiscount(value, Math.max((int)endAge, initAge), endAge); 
-//			result[lastInterval] += value * (endAge - Math.max((int)endAge, initAge)); 
-		}	
+		}
 		
 	}
 }
