@@ -10,10 +10,10 @@ import es.ull.iis.simulation.condition.AndCondition;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.costs.Guideline;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.RangeWrapper;
+import es.ull.iis.simulation.hta.outcomes.Guideline;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**

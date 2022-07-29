@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta.params;
 
-import es.ull.iis.simulation.hta.costs.CostProducer;
+import es.ull.iis.simulation.hta.outcomes.OutcomeProducer;
 
 /**
  * A class to represent a discount rate >= 0 and <= 1, applied to cost and effects during the simulation.
@@ -71,7 +71,7 @@ public class Discount {
 	 * @return An array where each position represents the discounted value for each natural year in the specified period
 	 */
 	public double[] applyAnnualDiscount(double value, double initT, double endT) {
-		final double[] result = CostProducer.getIntervalsForPeriod(initT, endT);
+		final double[] result = OutcomeProducer.getIntervalsForPeriod(initT, endT);
 		double annualDiscRate = 1 / Math.pow(1 + discountRate, (int) initT);
 		for (int i = 0; i < result.length; i++) {
 			result[i] *= value * annualDiscRate;
