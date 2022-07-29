@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -246,6 +247,20 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		return profile.getSex();
 	}
 
+	/**
+	 * Returns the utility currently associated to this patient
+	 * @param method Method used to compute the combined disutility of the items that contribute to the final QALE for this period
+	 * @return the utility currently associated to this patient
+	 */
+	public double getUtilityValue(DisutilityCombinationMethod method) {
+		// Uses the base disutility for the disease if available 
+		double du = getDisease().getAnnualDisutility(this);
+		for (final Manifestation manif : state) {
+			du = method.combine(du, manif.getAnnualDisutility(this));
+		}
+		return method.combine(du, intervention.getAnnualDisutility(this));		
+	}
+	
 	/**
 	 * Returns the predicted age at death of the patient. If not yet predicted, returns Double.MAX_VALUE.
 	 * This age is susceptible to change during the simulation. 

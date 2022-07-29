@@ -16,9 +16,9 @@ import com.beust.jcommander.Parameter;
 
 import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.simulation.hta.diab.T1DMRepository;
-import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
+import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.pbdmodel.PBDRepository;
