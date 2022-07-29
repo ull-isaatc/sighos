@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.costs;
+package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.Patient;
@@ -12,14 +12,14 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  * @author masbe
  *
  */
-public class ScreeningStrategy extends Strategy implements DefinesSensitivityAndSpecificity {
+public class DiagnosisStrategy extends Strategy implements DefinesSensitivityAndSpecificity {
 
 	/**
 	 * @param secParams
 	 * @param name
 	 * @param description
 	 */
-	public ScreeningStrategy(SecondOrderParamsRepository secParams, String name, String description) {
+	public DiagnosisStrategy(SecondOrderParamsRepository secParams, String name, String description) {
 		super(secParams, name, description);
 	}
 
@@ -29,12 +29,11 @@ public class ScreeningStrategy extends Strategy implements DefinesSensitivityAnd
 	 * @param description
 	 * @param cond
 	 */
-	public ScreeningStrategy(SecondOrderParamsRepository secParams, String name, String description,
+	public DiagnosisStrategy(SecondOrderParamsRepository secParams, String name, String description,
 			Condition<Patient> cond) {
 		super(secParams, name, description, cond);
 	}
 
-	@Override
 	public double getSensitivity(Patient pat) {
 		double sens = DefinesSensitivityAndSpecificity.super.getSensitivity(pat);
 		if (!Double.isNaN(sens))
@@ -55,7 +54,6 @@ public class ScreeningStrategy extends Strategy implements DefinesSensitivityAnd
 		return 0.0;
 	}
 
-	@Override
 	public double getSpecificity(Patient pat) {
 		double sens = DefinesSensitivityAndSpecificity.super.getSpecificity(pat);
 		if (!Double.isNaN(sens))

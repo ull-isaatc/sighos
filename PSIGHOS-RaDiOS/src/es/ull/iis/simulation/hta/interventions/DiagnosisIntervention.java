@@ -8,9 +8,9 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.costs.DiagnosisStrategy;
-import es.ull.iis.simulation.hta.costs.Strategy;
 import es.ull.iis.simulation.hta.info.PatientInfo;
+import es.ull.iis.simulation.hta.outcomes.DiagnosisStrategy;
+import es.ull.iis.simulation.hta.outcomes.Strategy;
 import es.ull.iis.simulation.hta.params.DefinesSensitivityAndSpecificity;
 import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;

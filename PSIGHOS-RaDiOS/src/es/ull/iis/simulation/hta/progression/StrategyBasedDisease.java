@@ -4,9 +4,9 @@
 package es.ull.iis.simulation.hta.progression;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.costs.Strategy;
 import es.ull.iis.simulation.hta.interventions.DiagnosisIntervention;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.outcomes.Strategy;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
