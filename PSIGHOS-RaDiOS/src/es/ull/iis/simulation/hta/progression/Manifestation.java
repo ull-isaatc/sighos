@@ -13,7 +13,10 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
+import es.ull.iis.simulation.hta.costs.CostProducer;
 import es.ull.iis.simulation.hta.params.BernoulliParam;
+import es.ull.iis.simulation.hta.params.CostParamDescriptions;
+import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.MultipleBernoulliParam;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
@@ -25,7 +28,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, PrettyPrintable {
+public abstract class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, PrettyPrintable, CostProducer {
 	/**
 	 * The type of the manifestation. Currently distinguishes among chronic and acute manifestations
 	 * @author Iván Castilla
@@ -286,6 +289,37 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 	@Override
 	public SecondOrderParamsRepository getRepository() {
 		return secParams;
+	}
+
+
+	@Override
+	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		return discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initT, endT);
+	}
+
+	@Override
+	public double getStartingCost(Patient pat, double time, Discount discountRate) {
+		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(secParams, this, pat.getSimulation()), time);
+	}
+
+	@Override
+	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT,
+			Discount discountRate) {
+		return discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initT, endT);
+	}
+
+	@Override
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+			Discount discountRate) {
+		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
+		return discountRate.applyDiscount(annualCost, initT, endT);
+	}
+
+	@Override
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+			Discount discountRate) {
+		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
+		return discountRate.applyAnnualDiscount(annualCost, initT, endT);
 	}
 	
 	@Override

@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.costs.CostCalculator;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
@@ -22,7 +21,6 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class CostListener extends Listener implements StructuredOutputListener {
-	private final CostCalculator calc;
 	protected final Discount discountRate;
 	protected final int nPatients;
 	protected double aggregated;
@@ -31,9 +29,8 @@ public class CostListener extends Listener implements StructuredOutputListener {
 	/**
 	 * @param description
 	 */
-	public CostListener(CostCalculator calc, Discount discountRate, int nPatients) {
+	public CostListener(Discount discountRate, int nPatients) {
 		super("Cost listener");
-		this.calc = calc;
 		this.discountRate = discountRate;
 		this.nPatients = nPatients;
 		this.values = new double[nPatients];
@@ -57,10 +54,11 @@ public class CostListener extends Listener implements StructuredOutputListener {
 				for (int i = 0; i < lastTs.length; i++) {
 					final Patient pat = (Patient)simul.getGeneratedPatient(i);
 					if (!pat.isDead()) {
-						final double initAge = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
-						final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
-						if (endAge > initAge) {
-							final double periodCost = calc.getCostWithinPeriod(pat, initAge, endAge, discountRate);
+						final double initT = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
+						final double endT = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+						if (endT > initT) {
+							final double periodCost = pat.getIntervention().getCostWithinPeriod(pat, initT, endT, discountRate) +
+									pat.getDisease().getCostWithinPeriod(pat, initT, endT, discountRate);
 							update(pat, periodCost);							
 						}						
 					}
@@ -72,19 +70,19 @@ public class CostListener extends Listener implements StructuredOutputListener {
 			final Patient pat = pInfo.getPatient();
 			final long ts = pInfo.getTs();
 			final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
-			final double initAge = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
-			final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+			final double initT = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
+			final double endT = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
 			// Update lastTs
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {
 			case DIAGNOSIS:
-				update(pat, pat.getDisease().getDiagnosisCost(pat, endAge, discountRate));
+				update(pat, pat.getDisease().getStartingCost(pat, endT, discountRate));
 				break;
 			case SCREEN:
-				update(pat, calc.getCostForIntervention(pat, endAge, discountRate));
+				update(pat, pat.getIntervention().getStartingCost(pat, endT, discountRate));
 				break;
 			case START_MANIF:
-				update(pat, calc.getCostUponIncidence(pat, pInfo.getManifestation(), endAge, discountRate));
+				update(pat, pInfo.getManifestation().getStartingCost(pat, endT, discountRate));
 			case DEATH:
 			case START:
 				break;
@@ -94,8 +92,9 @@ public class CostListener extends Listener implements StructuredOutputListener {
 			
 			if (!PatientInfo.Type.START.equals(pInfo.getType())) {
 				// Update outcomes
-				if (endAge > initAge) {
-					final double periodCost = calc.getCostWithinPeriod(pat, initAge, endAge, discountRate);
+				if (endT > initT) {
+					final double periodCost = pat.getIntervention().getCostWithinPeriod(pat, initT, endT, discountRate) +
+							pat.getDisease().getCostWithinPeriod(pat, initT, endT, discountRate);
 					update(pat, periodCost);
 				}
 			}

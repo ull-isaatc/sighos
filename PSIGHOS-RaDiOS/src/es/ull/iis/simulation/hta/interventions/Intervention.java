@@ -10,8 +10,8 @@ import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
+import es.ull.iis.simulation.hta.costs.CostProducer;
 import es.ull.iis.simulation.hta.costs.Strategy;
-import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.DiscreteEvent;
@@ -22,7 +22,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Intervention implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Intervention>, PrettyPrintable {
+public abstract class Intervention implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Intervention>, PrettyPrintable, CostProducer {
 	/** A short name for the intervention */
 	final private String name;
 	/** A full description of the intervention */
@@ -76,25 +76,6 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	public String name() {
 		return name;
 	}
-	
-	/**
-	 * Returns the annual cost of this intervention
-	 * @param pat A patient
-	 * @param initT Starting time of the period (in years)
-	 * @param endT Ending time of the period
-	 * @param discountRate The discount rate to apply to the cost
-	 * @return the annual cost of this intervention
-	 */
-	public abstract double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate);
-
-	/**
-	 * Returns the initial cost of this intervention
-	 * @param pat A patient
-	 * @param time Specific time when the cost is applied (in years)
-	 * @param discountRate The discount rate to apply to the cost
-	 * @return the initial cost of this intervention
-	 */
-	public abstract double getStartingCost(Patient pat, double time, Discount discountRate);
 	
 	/**
 	 * Returns a disutility value inherent to the intervention. A negative value represents an intervention that improves the utility

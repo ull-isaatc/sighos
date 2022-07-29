@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
-import es.ull.iis.simulation.hta.costs.CostCalculator;
-import es.ull.iis.simulation.hta.costs.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.effectiveness.DiseaseUtilityCalculator;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
@@ -20,7 +18,6 @@ import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 	private final static int TEST_POPULATION = 1;
 	private final static int TEST_INTERVENTIONS = 1;
-	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
 	
 	/**
@@ -31,7 +28,6 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 	public TestSimpleRareDiseaseRepository(int nRuns, int nPatients, int disease) {
 		super(nRuns, nPatients);
 
-		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD);
 
 		TemplateTestRareDisease testDisease = null;
@@ -85,11 +81,6 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 			break;
 		}
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
-	}
-
-	@Override
-	public CostCalculator getCostCalculator() {
-		return costCalc;
 	}
 
 	@Override

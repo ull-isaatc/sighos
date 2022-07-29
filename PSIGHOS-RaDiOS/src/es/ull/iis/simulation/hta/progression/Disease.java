@@ -13,6 +13,7 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
+import es.ull.iis.simulation.hta.costs.CostProducer;
 import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
@@ -29,7 +30,7 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
  * {@link #getProgression(Patient)} method. 
  * @author Iván Castilla Rodríguez
  */
-public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable {
+public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable, CostProducer {
 	/** Common parameters repository */
 	private final SecondOrderParamsRepository secParams;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
@@ -266,6 +267,22 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 		return cost;
 	}
 	
+	@Override
+	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		final double []result = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initT, endT);;
+		for (final Manifestation manif : pat.getState()) {
+			final double[] partial = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initT, endT);
+			for (int i = 0; i < result.length; i++)
+				result[i] += partial[i];
+		}
+		if (pat.isDiagnosed()) {
+			final double[] partial = getAnnualizedTreatmentAndFollowUpCosts(pat, initT, endT, discountRate);
+			for (int i = 0; i < result.length; i++)
+				result[i] += partial[i];
+		}
+		return result;
+	}
+
 	/**
 	 * Returns the diagnosis cost for this disease
 	 * @param pat A patient
@@ -273,37 +290,23 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @param discountRate The discount rate to apply to the cost
 	 * @return the diagnosis cost for this disease
 	 */
-	public double getDiagnosisCost(Patient pat, double time, Discount discountRate) {
+	@Override
+	public double getStartingCost(Patient pat, double time, Discount discountRate) {
 		return discountRate.applyPunctualDiscount(CostParamDescriptions.DIAGNOSIS_COST.getValue(secParams, this, pat.getSimulation()), time);
 	}
-	
-	/**
-	 * Returns the annualized treatment and follow up costs for this disease during the defined period. These costs should only be applied to diagnosed patients.
-	 * Applies the punctual discount corresponding to each year to all the costs within such year. 
-	 * @param pat A patient
-	 * @param initT Starting time of the period (in years)
-	 * @param endT Ending time of the period
-	 * @param discountRate The discount rate to apply to the cost
-	 * @return The treatment and follow up costs for each natural year within the specified period for this disease
-	 */
-	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
-			Discount discountRate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/**
-	 * Returns the treatment and follow up costs for this disease during the defined period. These costs should only be applied to diagnosed patients 
-	 * @param pat A patient
-	 * @param initT Starting time of the period (in years)
-	 * @param endT Ending time of the period
-	 * @param discountRate The discount rate to apply to the cost
-	 * @return the first element of the array contains the total cost; the rest of elements contains the treatment and follow up costs for each natural year this disease
-	 */
+
+	@Override
 	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
 		// If common costs are defined, uses them
 		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
 		return discountRate.applyDiscount(annualCost, initT, endT);
+	}
+
+	@Override
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+			Discount discountRate) {
+		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
+		return discountRate.applyAnnualDiscount(annualCost, initT, endT);
 	}
 	
 	/**

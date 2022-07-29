@@ -480,11 +480,6 @@ public class T1DMDisease extends Disease {
 		}
 		return selectorsCHD[id].getValue(pat);
 	}
-	
-	@Override
-	public double getDiagnosisCost(Patient pat, double age, Discount discountRate) {
-		return 0;
-	}
 
 	@Override
 	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {

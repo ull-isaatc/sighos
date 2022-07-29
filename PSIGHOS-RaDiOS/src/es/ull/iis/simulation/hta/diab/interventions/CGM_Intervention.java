@@ -79,4 +79,22 @@ public class CGM_Intervention extends Intervention {
 		return 0.0;
 	}
 
+	@Override
+	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
+		final SecondOrderParamsRepository secParams = getRepository();
+		return discountRate.applyAnnualDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getOtherParam(STR_USE_STRIPS, 0.0, pat.getSimulation()) +
+				C_SENSOR_G5 * secParams.getOtherParam(STR_USE_SENSOR_G5, 0.0, pat.getSimulation())) * 365, initT, endT);
+	}
+
+	@Override
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
+		return 0;
+	}
+
+	@Override
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+			Discount discountRate) {
+		return discountRate.applyAnnualDiscount(0.0, initT, endT);
+	}
+
 }
