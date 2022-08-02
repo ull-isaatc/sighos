@@ -13,6 +13,7 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
+import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
@@ -30,7 +31,7 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
  * {@link #getProgression(Patient)} method. 
  * @author Iván Castilla Rodríguez
  */
-public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable, CostProducer, UtilityProducer {
+public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, Reseteable, PrettyPrintable, CostProducer, UtilityProducer {
 	/** Common parameters repository */
 	private final SecondOrderParamsRepository secParams;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
@@ -104,6 +105,7 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 		return 0;
 	}
 	
+	@Override
 	public void reset(int id) {
 		for (final Manifestation manif : manifestations.values()) {
 			manif.reset(id);

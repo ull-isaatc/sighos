@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.outcomes.DiagnosisStrategy;
 import es.ull.iis.simulation.hta.outcomes.Strategy;
@@ -23,7 +24,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class DiagnosisIntervention extends Intervention implements DefinesSensitivityAndSpecificity {
+public abstract class DiagnosisIntervention extends Intervention implements DefinesSensitivityAndSpecificity, Reseteable {
 	public final static String STR_DIAGNOSIS = "tDiagnosis";
 	private final RandomSeedForPatients[] randomSeeds;
 	private final int nPatients;
@@ -45,6 +46,7 @@ public abstract class DiagnosisIntervention extends Intervention implements Defi
 		nPatients = secParams.getNPatients();
 	}
 	
+	@Override
 	public void reset(int id) {
 		randomSeeds[id].reset();
 	}

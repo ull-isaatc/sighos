@@ -12,7 +12,6 @@ import javax.xml.bind.JAXBException;
 import org.w3c.xsd.owl2.Ontology;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.utils.OntologyUtils;
 import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -40,7 +39,7 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	 */
 	public OSDiGenericRepository(int nRuns, int nPatients, String path, String diseaseId, String populationId, DisutilityCombinationMethod method) throws FileNotFoundException, JAXBException, IOException, TranspilerException {
 		super(nRuns, nPatients);
-		Ontology testOntology = OntologyUtils.loadOntology(path);
+		Ontology testOntology = OwlHelper.loadOntology(path);
 		OwlHelper.initilize(testOntology);
 		setDisutilityCombinationMethod(method);
 

@@ -13,6 +13,7 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
+import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.BernoulliParam;
@@ -30,7 +31,7 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, PrettyPrintable, CostProducer, UtilityProducer {
+public abstract class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, Reseteable, PrettyPrintable, CostProducer, UtilityProducer {
 	/**
 	 * The type of the manifestation. Currently distinguishes among chronic and acute manifestations
 	 * @author Iván Castilla
@@ -193,6 +194,7 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 	 * previously generated and thus make easier the comparison among interventions (common random numbers).
 	 * @param id Identifier of the simulation to reset
 	 */
+	@Override
 	public void reset(int id) {
 		if (associatedDeath[id] != null)
 			associatedDeath[id].reset();

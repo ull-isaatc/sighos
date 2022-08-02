@@ -11,6 +11,7 @@ import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
+import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.populations.Population;
@@ -49,7 +50,7 @@ import simkit.random.RandomVariateFactory;
  * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
  * @author Iván Castilla Rodríguez
  */
-public abstract class SecondOrderParamsRepository implements PrettyPrintable {
+public abstract class SecondOrderParamsRepository implements PrettyPrintable, Reseteable {
 	public static final String STR_MOD_PREFIX = "MOD_";
 	/** A null relative risk, i.e., RR = 1.0 */
 	public static final RRCalculator NO_RR = new StdComplicationRR(1.0);
@@ -622,11 +623,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		return str.toString();
 	}
 
-	/**
-	 * Restarts the parameters among interventions. Useful to reuse already computed values for a previous intervention and
-	 * preserve common random numbers
-	 * @param id Identifier of the simulation to reset
-	 */
+	@Override
 	public void reset(int id) {
 		for (Disease dis : registeredDiseases)
 			dis.reset(id);

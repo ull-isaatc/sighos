@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.outcomes.ScreeningStrategy;
 import es.ull.iis.simulation.hta.outcomes.Strategy;
@@ -22,7 +23,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class ScreeningIntervention extends Intervention implements DefinesSensitivityAndSpecificity {
+public abstract class ScreeningIntervention extends Intervention implements DefinesSensitivityAndSpecificity, Reseteable {
 	public final static String STR_SCREENING = "tScreening";
 	private final RandomSeedForPatients[] randomSeeds;
 	private final int nPatients;
@@ -44,6 +45,7 @@ public abstract class ScreeningIntervention extends Intervention implements Defi
 		this.nPatients = secParams.getNPatients();
 	}
 	
+	@Override
 	public void reset(int id) {
 		randomSeeds[id].reset();
 	}
