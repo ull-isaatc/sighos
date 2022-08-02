@@ -1,9 +1,19 @@
 package es.ull.iis.simulation.hta.osdi.utils;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.xsd.owl2.Ontology;
 
@@ -132,5 +142,40 @@ public class OwlHelper {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * @param path
+	 * @return
+	 * @throws JAXBException
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static Ontology loadOntology(String path) throws JAXBException, FileNotFoundException, IOException {
+		Ontology ontology = null;
+	
+		try (InputStream xmlOwl = new FileInputStream(path)) {
+			ontology = OwlHelper.loadOntology(xmlOwl);
+		}
+		return ontology;
+	}
+
+	/**
+	 * @param xmlOwl
+	 * @return
+	 * @throws JAXBException
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static Ontology loadOntology(InputStream xmlOwl) throws JAXBException, FileNotFoundException, IOException {
+		Ontology ontology = null;
+	
+		JAXBContext jc = JAXBContext.newInstance("org.w3c.xsd.owl2");
+		Unmarshaller unmarshaller = jc.createUnmarshaller();
+	
+		JAXBElement<Ontology> jaxbOntology = unmarshaller.unmarshal(new StreamSource(xmlOwl), Ontology.class);
+		ontology = jaxbOntology.getValue();
+	
+		return ontology;
 	}
 }
