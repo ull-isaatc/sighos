@@ -216,7 +216,7 @@ public interface InterventionBuilder {
 					case HAS_PROBABILITY:
 						for (String manifestationName : manifestationNames) {
 							final Manifestation manif = secParams.getManifestationByName(manifestationName);
-							secParams.addModificationParam(intervention, kind, ManifestationPathwayBuilder.getProbString(manif, manifPathwayName), strSource, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue());
+							secParams.addModificationParam(intervention, kind, ProbabilityParamDescriptions.PROBABILITY.getParameterName(ManifestationPathwayBuilder.getProbString(manif, manifPathwayName)), strSource, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue());
 						}
 						break;
 					case HAS_RELATIVE_RISK:

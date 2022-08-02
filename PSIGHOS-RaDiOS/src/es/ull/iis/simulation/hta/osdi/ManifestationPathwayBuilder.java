@@ -94,14 +94,14 @@ public interface ManifestationPathwayBuilder {
 		// First check if the pathway is defined as a proportion
 		final String strPropManif = OSDiNames.DataProperty.HAS_PROPORTION.getValue(pathwayName);
 		if (strPropManif != null) {
-			return new ProportionBasedTimeToEventCalculator(getProbString(manifestation, pathwayName), secParams, manifestation);
+			return new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROPORTION.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
 		}
 		final String strPManif = OSDiNames.DataProperty.HAS_PROBABILITY.getValue(pathwayName);
 		// FIXME: Assuming that the time to event is described always as an annual risk
 		if (strPManif != null) {
 				// FIXME: Still not capable of processing RR 
 				final String strRRManif = OSDiNames.DataProperty.HAS_RELATIVE_RISK.getValue(pathwayName);
-				return new AnnualRiskBasedTimeToEventCalculator(getProbString(manifestation, pathwayName), secParams, manifestation);
+				return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
 		}			
 		// FIXME: Currently not using time to
 		// final String strTimeTo = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_TIME_TO.getDescription());

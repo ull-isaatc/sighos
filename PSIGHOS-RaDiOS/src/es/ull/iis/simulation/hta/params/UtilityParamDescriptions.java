@@ -26,7 +26,7 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 			double value = getValueIfExists(secParams, name, simul);
 			if (!Double.isNaN(value))
 				return value;
-			value = UTILITY.getValue(secParams, name, simul);
+			value = UTILITY.getValueIfExists(secParams, name, simul);
 			if (!Double.isNaN(value)) {
 				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), simul) - value;
 			}
@@ -39,7 +39,7 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 			double value = getValueIfExists(secParams, name, simul);
 			if (!Double.isNaN(value))
 				return value;
-			value = ONE_TIME_UTILITY.getValue(secParams, name, simul);
+			value = ONE_TIME_UTILITY.getValueIfExists(secParams, name, simul);
 			if (!Double.isNaN(value)) {
 				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), simul) - value;
 			}
@@ -52,7 +52,7 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 			double value = getValueIfExists(secParams, name, simul);
 			if (!Double.isNaN(value))
 				return value;
-			value = ONE_TIME_DISUTILITY.getValue(secParams, name, simul);
+			value = ONE_TIME_DISUTILITY.getValueIfExists(secParams, name, simul);
 			if (!Double.isNaN(value)) {
 				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), simul) - value;
 			}
