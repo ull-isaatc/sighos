@@ -57,11 +57,14 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	private final TreeMap<Manifestation, ManifestationEvent> nextManifestationEvents;
 	/** Death event */ 
 	protected DeathEvent deathEvent = null;
+	/** Population this patient belongs to */
+	private final Population population;
 
 	/**
 	 * Creates a new patient
 	 * @param simul Simulation this patient belongs to
 	 * @param intervention Intervention assigned to this patient
+	 * @param population Population this patient belongs to
 	 */
 	public Patient(final DiseaseProgressionSimulation simul, final Intervention intervention, final Population population) {
 		super(simul, simul.getPatientCounter(), OBJ_TYPE_ID);
@@ -72,6 +75,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.diagnosed = profile.isDiagnosedFromStart();
 		this.state = new TreeSet<>();
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
+		this.population = population;
 		manifestationEvents = new TreeMap<>();
 		nextManifestationEvents = new TreeMap<>();
 	}
@@ -91,6 +95,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.profile = original.profile;
 		this.diagnosed = profile.isDiagnosedFromStart();
 		this.initAge = original.initAge;
+		this.population = original.population;
 		manifestationEvents = new TreeMap<>();
 		nextManifestationEvents = new TreeMap<>();
 	}
@@ -258,7 +263,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		for (final Manifestation manif : state) {
 			du = method.combine(du, manif.getAnnualDisutility(this));
 		}
-		return method.combine(du, intervention.getAnnualDisutility(this));		
+		du = method.combine(du, intervention.getAnnualDisutility(this));
+		return population.getBaseUtility(this) - du;		
 	}
 	
 	/**

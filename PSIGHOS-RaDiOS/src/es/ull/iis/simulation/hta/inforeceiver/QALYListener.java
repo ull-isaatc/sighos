@@ -60,8 +60,8 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 						final double initYear = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
 						final double endYear = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
 						if (endYear > initYear) {
-							final double periodCost = pat.getUtilityValue(method);
-							update(pat, periodCost, initYear, endYear);							
+							final double periodUtility = pat.getUtilityValue(method);
+							update(pat, periodUtility, initYear, endYear);							
 						}						
 					}
 				}
@@ -82,8 +82,8 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 			case DEATH:
 				// Update outcomes
 				if (endYear > initYear) {
-					final double periodCost = pat.getUtilityValue(method);
-					update(pat, periodCost, initYear, endYear);
+					final double periodUtility = pat.getUtilityValue(method);
+					update(pat, periodUtility, initYear, endYear);
 				}
 				break;
 			case START:
