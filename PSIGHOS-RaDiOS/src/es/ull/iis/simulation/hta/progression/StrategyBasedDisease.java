@@ -3,16 +3,12 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
-import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.interventions.DiagnosisIntervention;
-import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.Strategy;
-import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
- * @author masbe
- *
+ * @author Iván Castilla Rodríguez
+ * TODO Either implement here or in the Disease class
  */
 public class StrategyBasedDisease extends Disease {
 	private Strategy diagnosisStrategy = null;
@@ -28,33 +24,6 @@ public class StrategyBasedDisease extends Disease {
 	 */
 	public StrategyBasedDisease(SecondOrderParamsRepository secParams, String name, String description) {
 		super(secParams, name, description);
-	}
-
-	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
-			Discount discountRate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getDiagnosisCost(Patient pat, double time, Discount discountRate) {
-		final Intervention interv = pat.getIntervention();
-		// If the intervention is a diagnosis itself, the cost is computed within the intervention and not from the disease 
-		if (interv instanceof DiagnosisIntervention)
-			return 0.0;
 	}
 
 }
