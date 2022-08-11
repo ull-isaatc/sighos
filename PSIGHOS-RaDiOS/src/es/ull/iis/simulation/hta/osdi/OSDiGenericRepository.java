@@ -11,8 +11,8 @@ import javax.xml.bind.JAXBException;
 
 import org.w3c.xsd.owl2.Ontology;
 
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -56,5 +56,33 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		}
 		
 	}
+
+	/**
+	 * For testing (currently not working in the test package for unknown reasons)
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		try {
+//			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
+			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#T1DM_Disease", "#T1DM_DCCTPopulation1", DisutilityCombinationMethod.ADD);
+			secParams.registerAllSecondOrderParams();
+			for (Disease disease : secParams.getRegisteredDiseases()) {
+				System.out.println(disease.prettyPrint(""));
+			}
+			for (Intervention interv : secParams.getRegisteredInterventions()) {
+				System.out.println(interv.prettyPrint(""));
+			}
+			System.out.println(secParams.prettyPrint(""));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (TranspilerException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 }

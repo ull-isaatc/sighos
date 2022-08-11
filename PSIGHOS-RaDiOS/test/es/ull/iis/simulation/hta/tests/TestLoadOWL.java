@@ -32,7 +32,8 @@ public class TestLoadOWL {
 	 */
 	public static void main(String[] args) {
 		try {
-			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
+//			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
+			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#T1DM_Disease", "#T1DM_DCCTPopulation1", DisutilityCombinationMethod.ADD);
 			secParams.registerAllSecondOrderParams();
 			for (Disease disease : secParams.getRegisteredDiseases()) {
 				System.out.println(disease.prettyPrint(""));

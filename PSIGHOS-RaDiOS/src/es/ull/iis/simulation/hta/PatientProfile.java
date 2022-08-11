@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -149,6 +150,18 @@ public class PatientProfile {
 	public PatientProfile addProperty(String property, Number value) {
 		properties.put(property, value);
 		return this;
+	}
+
+	/**
+	 * Returns the list of properties 	
+	 * @return
+	 */
+	public Collection<String> getPropertyNames() {
+		return properties.keySet();
+	}
+
+	public Collection<String> getListPropertyNames() {
+		return listProperties.keySet();
 	}
 
 }

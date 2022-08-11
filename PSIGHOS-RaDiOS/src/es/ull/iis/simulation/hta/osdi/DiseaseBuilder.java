@@ -3,7 +3,6 @@ package es.ull.iis.simulation.hta.osdi;
 import java.util.List;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
@@ -55,7 +54,7 @@ public interface DiseaseBuilder {
 
 		return disease;
 	}
-
+	
 	/**
 	 * Creates the utilities associated to a specific disease by extracting the information from the ontology. Only one annual (dis)utility should be defined.
 	 * @param secParams Repository
@@ -76,18 +75,20 @@ public interface DiseaseBuilder {
 			final boolean isDisutility = OSDiNames.DataPropertyRange.UTILITY_KIND_DISUTILITY.getDescription().equals(strType);
 			// Default value for utilities is 1; 0 for disutilities
 			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(utilityName, isDisutility ? "0.0" : "1.0");
-			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
-			if (probDistribution == null)
+			try {
+				final ProbabilityDistribution probDistribution = new ProbabilityDistribution(strValue);
+				if (isDisutility) {
+					UtilityParamDescriptions.DISUTILITY.addParameter(secParams, disease,  
+							OSDiNames.getSource(utilityName), 
+							probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
+				}
+				else {
+					UtilityParamDescriptions.UTILITY.addParameter(secParams, disease,  
+							OSDiNames.getSource(utilityName), 
+							probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
+				}
+			} catch(TranspilerException ex) {
 				throw new TranspilerException(OSDiNames.Class.UTILITY, utilityName, OSDiNames.DataProperty.HAS_VALUE, strValue);
-			if (isDisutility) {
-				UtilityParamDescriptions.DISUTILITY.addParameter(secParams, disease,  
-						OSDiNames.getSource(utilityName), 
-						probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
-			}
-			else {
-				UtilityParamDescriptions.UTILITY.addParameter(secParams, disease,  
-						OSDiNames.getSource(utilityName), 
-						probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
 			}
 		}
 	}

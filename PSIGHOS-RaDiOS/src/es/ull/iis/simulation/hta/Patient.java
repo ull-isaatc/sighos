@@ -4,8 +4,11 @@
 package es.ull.iis.simulation.hta;
 
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import org.apache.commons.jexl3.MapContext;
 
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -265,6 +268,29 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		}
 		du = method.combine(du, intervention.getAnnualDisutility(this));
 		return population.getBaseUtility(this) - du;		
+	}
+
+	/**
+	 * Creates a context to be used by Java expression language parser. The context contains the state and adhoc defined properties of the patient.
+	 * @return a context to be used by Java expression language parser
+	 */
+	public MapContext createJEXLContext() {
+		final MapContext jc = new MapContext();
+		jc.set("age", getAge());
+		jc.set("sex", getSex());
+		jc.set("disease", getDisease().name());
+		jc.set("intervention", getIntervention().name());
+		for (Manifestation manif : getState()) {
+			jc.set(manif.name(), getTimeToManifestation(manif));
+
+		}
+		final Collection<String> propNames = profile.getPropertyNames();
+		for (String propName : propNames)
+			jc.set(propName, profile.getPropertyValue(propName, this));
+		final Collection<String> propLists = profile.getListPropertyNames();
+		for (String propName : propLists)
+			jc.set(propName, profile.getListProperty(propName));
+		return jc;
 	}
 	
 	/**

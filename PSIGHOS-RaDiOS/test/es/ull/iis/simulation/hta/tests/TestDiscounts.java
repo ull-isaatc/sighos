@@ -15,20 +15,20 @@ public class TestDiscounts {
 	
 	public static void testPeriod(Discount disc, double value, double[] testArray) {
 		double total = disc.applyDiscount(value, testArray[0], testArray[1]);
-		if (String.format("%.5g%n", total).equals(String.format("%.5g%n", testArray[2])))
-			System.out.println("CHECKED!\tCONTINUOUS:\t\t" + testArray[0] + "-" + testArray[1] + ":\t" + total);
+		if (TestUtils.checkDouble(testArray[2], total))
+			TestUtils.printCheckedMessage("CONTINUOUS:\t\t" + testArray[0] + "-" + testArray[1] + ":\t" + total);
 		else
-			System.err.println("FAILED! \tCONTINUOUS:\t\t" + testArray[0] + "-" + testArray[1] + ":\t" + total + " should be " + testArray[2]);
+			TestUtils.printErrorMessage("CONTINUOUS:\t\t" + testArray[0] + "-" + testArray[1] + ":\t" + total + " should be " + testArray[2]);
 			
 		double [] result = disc.applyAnnualDiscount(value, testArray[0], testArray[1]);
 		total = 0.0;
 		for (double val : result)
 			total += val;
-		if (String.format("%.5g%n", total).equals(String.format("%.5g%n", testArray[3]))) {
-			System.out.println("CHECKED!\tANNUAL:\t\t\t" + testArray[0] + "-" + testArray[1] + ":\t" + total);
+		if (TestUtils.checkDouble(testArray[3], total)) {
+			TestUtils.printCheckedMessage("ANNUAL:\t\t\t" + testArray[0] + "-" + testArray[1] + ":\t" + total);
 		}
 		else {
-			System.err.println("FAILED! \tANNUAL:\t\t\t" + testArray[0] + "-" + testArray[1] + ":\t" + total + " should be " + testArray[3]);
+			TestUtils.printErrorMessage("ANNUAL:\t\t\t" + testArray[0] + "-" + testArray[1] + ":\t" + total + " should be " + testArray[3]);
 		}
 		System.out.println("\t\tANNUAL (per year):\t" + testArray[0] + "-" + testArray[1] + ":\t" + Arrays.toString(result)); 
 		System.out.println();

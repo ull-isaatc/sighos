@@ -16,7 +16,6 @@ import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
-import es.ull.iis.ontology.radios.Constants;
 import es.ull.iis.simulation.hta.diab.T1DMRepository;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
@@ -33,6 +32,8 @@ import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
  *
  */
 public class DiseaseMain extends HTAExperiment {
+	public static String INTERVENTION_DO_NOTHING = "DO_NOTHING";
+	
 	private final static int TEST_RARE_DISEASE1 = 1; 
 	private final static int TEST_RARE_DISEASE2 = 2; 
 	private final static int TEST_RARE_DISEASE3 = 3; 
@@ -43,8 +44,8 @@ public class DiseaseMain extends HTAExperiment {
 	private final static int TEST_SCD = 10;
 	private final static boolean REPLACE_DOT_WITH_COLON = false;
 	private final static boolean ALL_AFFECTED = true;
-	private final static String PARAMS = "-n 10000 -r 0 -t 1 -dis 11 -y 2019 -dr 0 -q -ep ia"; // Testing OSDi PBD
-//	private final static String PARAMS = "-n 20000 -r 0 -t 0 -dis 12 -y 2019 -q -ep cr"; // Testing diabetes
+//	private final static String PARAMS = "-n 10000 -r 0 -t 1 -dis 11 -y 2019 -dr 0 -q -ep ia"; // Testing OSDi PBD
+	private final static String PARAMS = "-n 20000 -r 0 -t 0 -dis 12 -y 2019 -q -ep cr"; // Testing diabetes
 //	private final static String PARAMS = "-n 5000 -r 0 -t 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
 //	private final static String PARAMS = "-n 100 -r 0 -dr 0 -q -t 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 //	private final static String PARAMS = "-n 1000 -r 0 -dr 0 -q -t 1 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
@@ -99,7 +100,7 @@ public class DiseaseMain extends HTAExperiment {
 			case TEST_PBD:
 			default:
 				System.out.println(String.format("\n\nExecuting the OSDi test for the rare disease PBD \n\n"));
-				interventionsToCompare.add(Constants.CONSTANT_DO_NOTHING);
+				interventionsToCompare.add(INTERVENTION_DO_NOTHING);
 				interventionsToCompare.add("#PBD_InterventionScreening");
 				path = System.getProperty("user.dir") + "\\resources\\OSDi.owl";
 				break;				
@@ -158,11 +159,11 @@ public class DiseaseMain extends HTAExperiment {
 
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
 			final DiseaseMain experiment = new DiseaseMain(arguments, baos);
-			experiment.run();
-
 			System.out.println("=====================================================================================================");
 			System.out.println(experiment.getRepository().prettyPrint(""));
 			System.out.println();
+			experiment.run();
+
 			if (REPLACE_DOT_WITH_COLON) {
 				System.out.println((new String (baos.toByteArray())).replace(".", ","));
 			} else {
