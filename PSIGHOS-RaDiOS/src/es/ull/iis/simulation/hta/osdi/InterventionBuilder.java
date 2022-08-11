@@ -10,7 +10,6 @@ import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.osdi.OSDiNames.DataProperty;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
@@ -135,17 +134,22 @@ public interface InterventionBuilder {
 	
 	private static void createSpecificityAndSensitivity(SecondOrderParamsRepository secParams, ScreeningIntervention intervention) throws TranspilerException {
 		String strSensitivity = DataProperty.HAS_SENSITIVITY.getValue(intervention.name(), "1.0");
-		final ProbabilityDistribution probSensitivity = ValueParser.splitProbabilityDistribution(strSensitivity);
-		if (probSensitivity == null)
-			throw new TranspilerException(OSDiNames.Class.INTERVENTION, intervention.name(), OSDiNames.DataProperty.HAS_SENSITIVITY, strSensitivity);
-		ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, "",  
-				probSensitivity.getDeterministicValue(), probSensitivity.getProbabilisticValue());
+		try {
+			final ProbabilityDistribution probSensitivity = new ProbabilityDistribution(strSensitivity);
+			ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, "",  
+					probSensitivity.getDeterministicValue(), probSensitivity.getProbabilisticValue());
+		} catch(TranspilerException ex) {
+			throw new TranspilerException(OSDiNames.Class.INTERVENTION, intervention.name(), OSDiNames.DataProperty.HAS_SENSITIVITY, strSensitivity, ex);
+		}
+
 		String strSpecificity = DataProperty.HAS_SPECIFICITY.getValue(intervention.name(), "1.0");
-		final ProbabilityDistribution probSpecificity = ValueParser.splitProbabilityDistribution(strSpecificity);
-		if (probSpecificity == null)
-			throw new TranspilerException(OSDiNames.Class.INTERVENTION, intervention.name(), OSDiNames.DataProperty.HAS_SPECIFICITY, strSpecificity);
-		ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, intervention, "",  
-				probSpecificity.getDeterministicValue(), probSpecificity.getProbabilisticValue());
+		try {
+			final ProbabilityDistribution probSpecificity = new ProbabilityDistribution(strSpecificity);
+			ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, intervention, "",  
+					probSpecificity.getDeterministicValue(), probSpecificity.getProbabilisticValue());
+		} catch(TranspilerException ex) {
+			throw new TranspilerException(OSDiNames.Class.INTERVENTION, intervention.name(), OSDiNames.DataProperty.HAS_SPECIFICITY, strSpecificity, ex);
+		}
 	}
 	
 	private static void createModificationParams(SecondOrderParamsRepository secParams, Intervention intervention) throws TranspilerException {
@@ -165,9 +169,13 @@ public interface InterventionBuilder {
 			final String strSource = OSDiNames.DataProperty.HAS_SOURCE.getValue(modificationName, "");
 			// Parse the value
 			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(modificationName);
-			final ProbabilityDistribution probDistribution = ValueParser.splitProbabilityDistribution(strValue);
-			if (probDistribution == null)
-				throw new TranspilerException(OSDiNames.Class.MODIFICATION, modificationName, OSDiNames.DataProperty.HAS_VALUE, strValue);
+			ProbabilityDistribution probDistribution;
+			try {
+				probDistribution = new ProbabilityDistribution(strValue);
+			} catch(TranspilerException ex) {
+				throw new TranspilerException(OSDiNames.Class.MODIFICATION, modificationName, OSDiNames.DataProperty.HAS_VALUE, strValue, ex);
+			}
+			
 			// Parse the property which is modified
 			final List<String> strProperties = OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED.getValues(modificationName);
 			for (String strProperty : strProperties) {

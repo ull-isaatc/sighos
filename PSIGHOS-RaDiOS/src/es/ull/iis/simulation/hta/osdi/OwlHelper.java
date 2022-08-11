@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.hta.osdi.utils;
+package es.ull.iis.simulation.hta.osdi;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,20 +15,24 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
+import org.w3c.xsd.owl2.Axiom;
+import org.w3c.xsd.owl2.ClassAssertion;
+import org.w3c.xsd.owl2.DataPropertyAssertion;
+import org.w3c.xsd.owl2.NamedIndividual;
+import org.w3c.xsd.owl2.ObjectProperty;
+import org.w3c.xsd.owl2.ObjectPropertyAssertion;
 import org.w3c.xsd.owl2.Ontology;
-
-import es.ull.iis.simulation.hta.osdi.service.DataStoreService;
 
 
 public class OwlHelper {
-	private static Map<String, Map<String, List<PropertyData>>> dataPropertyValues = null;
+	private static Map<String, Map<String, List<String>>> dataPropertyValues = null;
 	private static Map<String, Map<String, List<String>>> objectPropertyValues = null;
 	private static Map<String, String> instanceToClazz = new HashMap<String, String>();
 	
 	public static void initilize (Ontology radios) {
-		DataStoreService.eTLClassIndividuals(radios, null, instanceToClazz, "#Disease");
-		dataPropertyValues = DataStoreService.eTLDataPropertyValues(radios);
-		objectPropertyValues = DataStoreService.eTLObjectProperties(radios);
+		eTLClassIndividuals(radios, null, instanceToClazz, "#Disease");
+		dataPropertyValues = eTLDataPropertyValues(radios);
+		objectPropertyValues = eTLObjectProperties(radios);
 	}
 
 	/**
@@ -42,12 +46,12 @@ public class OwlHelper {
 	 * @return the string corresponding to the specified data property defined in the specified instance in the ontology.
 	 */
 	public static String getDataPropertyValue (String instanceName, String propertyName, String defaultValue) {
-		final Map<String, List<PropertyData>> data = dataPropertyValues.get(instanceName);
+		final Map<String, List<String>> data = dataPropertyValues.get(instanceName);
 		if (data == null)
 			return defaultValue;
 		if (data.get(propertyName) == null)
 			return defaultValue;
-		return data.get(propertyName).get(0).getValue();
+		return data.get(propertyName).get(0);
 	}
 	
 	/**
@@ -58,13 +62,13 @@ public class OwlHelper {
 	 * @return the string values corresponding to the specified data property defined in the specified instance in the ontology.
 	 */
 	public static List<String> getDataPropertyValues(String instanceName, String propertyName) {
-		final Map<String, List<PropertyData>> data = dataPropertyValues.get(instanceName);
+		final Map<String, List<String>> data = dataPropertyValues.get(instanceName);
 		if (data == null)
 			return null;
 		final ArrayList<String> values = new ArrayList<>();
 		if (data.get(propertyName) != null)
-			for (PropertyData dataItem : data.get(propertyName)) {
-				values.add(dataItem.getValue());
+			for (String dataItem : data.get(propertyName)) {
+				values.add(dataItem);
 			}
 		return values;
 	}
@@ -178,4 +182,94 @@ public class OwlHelper {
 	
 		return ontology;
 	}
+
+
+	/**
+	 * @param ontology
+	 * @return
+	 */
+	public static Map<String, Map<String, List<String>>> eTLObjectProperties(Ontology ontology) {
+		Map<String, Map<String, List<String>>> result = new HashMap<String, Map<String, List<String>>>();
+		for (Axiom axiom : ontology.getAxiom()) {
+			if (axiom instanceof ObjectPropertyAssertion) {
+				ObjectPropertyAssertion assertion = (ObjectPropertyAssertion) axiom;
+				String assertionLink = ((ObjectProperty) assertion.getRest().get(0).getValue()).getIRI();
+				String assertionLeftSide = ((NamedIndividual) assertion.getRest().get(1).getValue()).getIRI();
+				String assertionRightSide = ((NamedIndividual) assertion.getRest().get(2).getValue()).getIRI();
+
+				if (result.get(assertionLeftSide) == null) {
+					result.put(assertionLeftSide, new HashMap<String, List<String>>());
+				}
+				if (result.get(assertionLeftSide).get(assertionLink) == null) {
+					result.get(assertionLeftSide).put(assertionLink, new ArrayList<String>());
+				}
+				result.get(assertionLeftSide).get(assertionLink).add(assertionRightSide);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @param ontology
+	 * @return
+	 */
+	public static Map<String, Map<String, List<String>>> eTLDataPropertyValues(Ontology ontology) {
+		Map<String, Map<String, List<String>>> result = new HashMap<>();
+		for (Axiom axiom : ontology.getAxiom()) {
+			if (axiom instanceof DataPropertyAssertion) {
+				DataPropertyAssertion dataPropertyAssertion = (DataPropertyAssertion) axiom;
+				String clazzName = dataPropertyAssertion.getNamedIndividual().getIRI();
+				Map<String, List<String>> dataProperties = result.get(clazzName);
+				if (dataProperties == null) {
+					dataProperties = new HashMap<>();
+				}
+				
+				String dataPropertyName = dataPropertyAssertion.getDataProperty().getIRI();
+				if (!dataProperties.containsKey(dataPropertyName))
+					dataProperties.put(dataPropertyName, new ArrayList<>());
+				
+				String dataPropertyValue = dataPropertyAssertion.getLiteral().getValue();
+				dataProperties.get(dataPropertyName).add(dataPropertyValue);
+
+				result.put(clazzName, dataProperties);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @param instancesByClazz
+	 * @param instanceToClazz
+	 * @param radios
+	 */
+	public static List<ClassAssertion> eTLClassIndividuals(Ontology ontology, Map<String, List<String>> instancesByClazz, Map<String, String> instanceToClazz, String rootClassType) {
+		List<ClassAssertion> result = new ArrayList<>();
+		for (Axiom axiom : ontology.getAxiom()) {
+			if (axiom instanceof ClassAssertion) {
+				ClassAssertion classAssertion = (ClassAssertion) axiom;
+				String clazzName = classAssertion.getNamedIndividual().getIRI();
+				String clazzType = classAssertion.getClazz().getIRI();
+
+				if (rootClassType.equals(clazzType)) {
+					result.add(classAssertion);
+				}
+
+				if (instancesByClazz != null) {
+					if (instancesByClazz.get(clazzType) != null && !instancesByClazz.get(clazzType).isEmpty()) {
+						instancesByClazz.get(clazzType).add(clazzName);
+					} else {
+						List<String> tmp = new ArrayList<>();
+						tmp.add(clazzName);
+						instancesByClazz.put(clazzType, tmp);
+					}
+				}
+
+				if (instanceToClazz != null) {
+					instanceToClazz.put(clazzName, clazzType);
+				}
+			}
+		}
+		return result;
+	}
+	
 }

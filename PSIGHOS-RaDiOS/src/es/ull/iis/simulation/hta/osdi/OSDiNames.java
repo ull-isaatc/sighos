@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.model.Describable;
 
 /**
@@ -16,18 +15,21 @@ import es.ull.iis.simulation.model.Describable;
  *
  */
 public interface OSDiNames {
-
+	String STR_SOURCE_UNKNOWN = "Not specified";
+	
 	/**
 	 * Names of the classes defined in the ontology
 	 * @author Iván Castilla
 	 *
 	 */
 	public static enum Class implements Describable {
+		COST("#Cost"),
 		DEVELOPMENT("#Development"),
 		DIAGNOSIS_STRATEGY("#DiagnosisStrategy"),	
 		DIAGNOSIS_TEST("#DiagnosisTest"),	
 		DISEASE("#Disease"),
 		DRUG("#Drug"),
+		EPIDEMIOLOGICAL_PARAMETER("#EpidemiologicalParameter"),
 		FOLLOW_UP_STRATEGY("#FollowUpStrategy"),
 		FOLLOW_UP_TEST("#FollowUpTest"),
 		GUIDELINE("#Guideline"),
@@ -40,14 +42,12 @@ public interface OSDiNames {
 		MANIFESTATION_PATHWAY("#ManifestationPathway"),
 		MODIFICATION("#Modification"),
 		PARAMETER("#Parameter"),
-		EPIDEMIOLOGICAL_PARAMETER("#EpidemiologicalParameter"),
-		COST("#Cost"),
-		UTILITY("#Utility"),
 		POPULATION("#Population"),
 		SCREENING_STRATEGY("#ScreeningStrategy"),
 		SCREENING_TEST("#ScreeningTest"),
 		STRATEGY("#Strategy"),
-		TREATMENT("#Treatment");
+		TREATMENT("#Treatment"),
+		UTILITY("#Utility");
 
 		private final String description;
 		private Class(String description) {
@@ -167,6 +167,7 @@ public interface OSDiNames {
 	 *
 	 */
 	public static enum ObjectProperty implements Describable {
+		DEFINES_INDIVIDUAL_PARAMETER_VALUE("#definesIndividualParameterValue"),
 		EXCLUDES_MANIFESTATION("#excludesManifestation"),
 		HAS_DEVELOPMENT("#hasDevelopment"),
 		HAS_DIAGNOSIS_STRATEGY("#hasDiagnosisStrategy"),
@@ -193,6 +194,7 @@ public interface OSDiNames {
 		IS_PARAMETER_OF_POPULATION("#isParameterOfPopulation"),
 		IS_PATHWAY_TO("#isPathwayTo"),
 		IS_SUBPOPULATION_OF("#isSubpopulationOf"),
+		IS_VALUE_OF_INDIVIDUAL_PARAMETER("#isValueOfIndividualParameter"),
 		MODIFIES("#modifies"),
 		MODIFIES_DEVELOPMENT("#modifiesDevelopment"),
 		MODIFIES_MANIFESTATION("#modifiesManifestation"),
@@ -215,10 +217,21 @@ public interface OSDiNames {
 			return description;
 		}
 		
+		/**
+		 * Returns the object associated to another object by means of the specified object property. If there are more than 
+		 * one, returns the first one.  
+		 * @param instanceName Name of the original instance
+		 * @return the object associated to another object by means of the specified object property
+		 */
 		public String getValue(String instanceName) {
 			return OwlHelper.getObjectPropertyByName(instanceName, description);
 		}
 		
+		/**
+		 * Returns the list of objects associated to another object by means of the specified object property  
+		 * @param instanceName Name of the original instance
+		 * @return the list of objects associated to another object by means of the specified object property
+		 */
 		public List<String> getValues(String instanceName) {
 			return OwlHelper.getObjectPropertiesByName(instanceName, description);
 		}

@@ -11,8 +11,6 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.utils.Constants;
-import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
@@ -154,22 +152,24 @@ public interface ManifestationPathwayBuilder {
 				// TODO: Check the order to process these parameters or think in a different solution
 				final String strPropManif = OSDiNames.DataProperty.HAS_PROPORTION.getValue(pathwayName);
 				if (strPropManif != null) {
-					final ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPropManif);
-					if (probabilityDistribution == null) {
-						throw new TranspilerException(OSDiNames.Class.MANIFESTATION_PATHWAY, pathwayName, OSDiNames.DataProperty.HAS_PROPORTION, strPropManif);
+					try {
+						final ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(strPropManif);
+						ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, getProbString(manifestation, pathwayName), "patients developing " + manifestation + " due to " + pathwayName, OSDiNames.STR_SOURCE_UNKNOWN,
+								probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+					} catch(TranspilerException ex) {
+						throw new TranspilerException(OSDiNames.Class.MANIFESTATION_PATHWAY, pathwayName, OSDiNames.DataProperty.HAS_PROPORTION, strPropManif, ex);
 					}
-					ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, getProbString(manifestation, pathwayName), "patients developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING,
-							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 				}
 				else {
 					final String strPManif = OSDiNames.DataProperty.HAS_PROBABILITY.getValue(pathwayName);
 					if (strPManif != null) {
-						ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPManif);
-						if (probabilityDistribution == null) {
-							throw new TranspilerException(OSDiNames.Class.MANIFESTATION_PATHWAY, pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY, strPManif);
-						} 
-						ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, getProbString(manifestation, pathwayName), "developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING,
-								probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+						try {
+							ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(strPManif);
+							ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, getProbString(manifestation, pathwayName), "developing " + manifestation + " due to " + pathwayName, OSDiNames.STR_SOURCE_UNKNOWN,
+									probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+						} catch(TranspilerException ex) {
+							throw new TranspilerException(OSDiNames.Class.MANIFESTATION_PATHWAY, pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY, strPManif, ex);
+						}
 					}
 				}
 			} catch(TranspilerException ex) {

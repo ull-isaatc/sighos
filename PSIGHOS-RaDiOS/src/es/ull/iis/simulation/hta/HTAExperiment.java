@@ -135,7 +135,7 @@ public abstract class HTAExperiment {
 		PrintWriter[] result = new PrintWriter[2];
 		if (filename == null && os == null) {
 			result[0] = new PrintWriter(System.out);
-			result[1] = new PrintWriter(System.out);
+			result[1] = result[0];
 		} else if (filename != null) {
 			try {
 				result[0] = new PrintWriter(new BufferedWriter(new FileWriter(filename)));
@@ -155,7 +155,7 @@ public abstract class HTAExperiment {
 			}
 		} else if (os != null) {
 			result[0] = new PrintWriter(os);
-			result[1] = new PrintWriter(os);
+			result[1] = result[0];
 		} 
 		return result;
 		
