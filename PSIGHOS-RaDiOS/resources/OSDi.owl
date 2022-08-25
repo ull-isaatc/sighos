@@ -269,7 +269,7 @@
         <ObjectProperty IRI="#modifiesDevelopment"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#modifiesIndividualParameterValue"/>
+        <ObjectProperty IRI="#modifiesIndividualParameter"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#modifiesManifestation"/>
@@ -584,34 +584,127 @@
         <NamedIndividual IRI="#PBD_UtilityManifestationSeizure"/>
     </Declaration>
     <Declaration>
+        <NamedIndividual IRI="#ParameterAge"/>
+    </Declaration>
+    <Declaration>
         <NamedIndividual IRI="#ParameterDurationOfDiabetes"/>
     </Declaration>
     <Declaration>
         <NamedIndividual IRI="#ParameterHbA1c"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1"/>
+        <NamedIndividual IRI="#ParameterSex"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_Duration"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_HbA1c"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_DevelopmentStandard"/>
     </Declaration>
     <Declaration>
         <NamedIndividual IRI="#T1DM_Disease"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="#T1DM_ManifestationNeuropathy"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="#T1DM_ManifestationPathwayNeuropathy"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="#T1DM_StandardDevelopment"/>
+        <NamedIndividual IRI="#T1DM_InterventionDCCTIntensive"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ALB2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ESRD"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2_ESRD"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayESRD"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA_ALB1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_ALB1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_LEA"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_U_General"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_U_ManifestationALB2"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_U_ManifestationESRD"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_U_ManifestationLEA"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
     </Declaration>
     <Declaration>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
@@ -979,6 +1072,13 @@
             <DataProperty IRI="#hasTimeTo"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ManifestationPathway"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasSource"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Modification"/>
@@ -1406,39 +1506,159 @@
     </ClassAssertion>
     <ClassAssertion>
         <Class IRI="#IndividualParameter"/>
+        <NamedIndividual IRI="#ParameterAge"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#IndividualParameter"/>
         <NamedIndividual IRI="#ParameterHbA1c"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#Population"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1"/>
+        <Class IRI="#Cost"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#IndividualParameterValue"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_Duration"/>
+        <Class IRI="#Cost"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#IndividualParameterValue"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_HbA1c"/>
+        <Class IRI="#Cost"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#EpidemiologicalParameter"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
+        <Class IRI="#Development"/>
+        <NamedIndividual IRI="#T1DM_DevelopmentStandard"/>
     </ClassAssertion>
     <ClassAssertion>
         <Class IRI="#Disease"/>
         <NamedIndividual IRI="#T1DM_Disease"/>
     </ClassAssertion>
     <ClassAssertion>
+        <Class IRI="#Disease"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Disease"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Intervention"/>
+        <NamedIndividual IRI="#T1DM_InterventionDCCTIntensive"/>
+    </ClassAssertion>
+    <ClassAssertion>
         <Class IRI="#Manifestation"/>
-        <NamedIndividual IRI="#T1DM_ManifestationNeuropathy"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Manifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Manifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Manifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Manifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
     </ClassAssertion>
     <ClassAssertion>
         <Class IRI="#ManifestationPathway"/>
-        <NamedIndividual IRI="#T1DM_ManifestationPathwayNeuropathy"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#Development"/>
-        <NamedIndividual IRI="#T1DM_StandardDevelopment"/>
+        <Class IRI="#ManifestationPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ALB2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#ManifestationPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ESRD"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#ManifestationPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#ManifestationPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2_ESRD"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#ManifestationPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayESRD"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#ManifestationPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#ManifestationPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA_ALB1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#ManifestationPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#ManifestationPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_ALB1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#ManifestationPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_LEA"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Modification"/>
+        <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Population"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#IndividualParameterValue"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#IndividualParameterValue"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#EpidemiologicalParameter"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#EpidemiologicalParameter"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Cost"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Cost"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Utility"/>
+        <NamedIndividual IRI="#T1DM_U_General"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Utility"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationALB2"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Utility"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationESRD"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Utility"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationLEA"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Utility"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
     </ClassAssertion>
     <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasGuidelineRange"/>
@@ -1746,59 +1966,354 @@
         <NamedIndividual IRI="#GuidelineLifetimeAnual"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#definesIndividualParameterValue"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_Duration"/>
-    </ObjectPropertyAssertion>
-    <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#definesIndividualParameterValue"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_HbA1c"/>
-    </ObjectPropertyAssertion>
-    <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#hasParameter"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
-    </ObjectPropertyAssertion>
-    <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#isValueOfIndividualParameter"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_Duration"/>
-        <NamedIndividual IRI="#ParameterDurationOfDiabetes"/>
-    </ObjectPropertyAssertion>
-    <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#isValueOfIndividualParameter"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_HbA1c"/>
-        <NamedIndividual IRI="#ParameterHbA1c"/>
-    </ObjectPropertyAssertion>
-    <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#isParameterOfManifestation"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
-        <NamedIndividual IRI="#T1DM_ManifestationNeuropathy"/>
-    </ObjectPropertyAssertion>
-    <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#isParameterOfPopulation"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1"/>
+        <ObjectProperty IRI="#hasManifestation"/>
+        <NamedIndividual IRI="#T1DM_Disease"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasManifestation"/>
         <NamedIndividual IRI="#T1DM_Disease"/>
-        <NamedIndividual IRI="#T1DM_ManifestationNeuropathy"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasManifestation"/>
+        <NamedIndividual IRI="#T1DM_Disease"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasManifestation"/>
+        <NamedIndividual IRI="#T1DM_Disease"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasManifestation"/>
+        <NamedIndividual IRI="#T1DM_Disease"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasNaturalDevelopment"/>
         <NamedIndividual IRI="#T1DM_Disease"/>
-        <NamedIndividual IRI="#T1DM_StandardDevelopment"/>
+        <NamedIndividual IRI="#T1DM_DevelopmentStandard"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasDevelopment"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
+        <NamedIndividual IRI="#T1DM_DevelopmentStandard"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasManifestation"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasManifestation"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasDevelopment"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
+        <NamedIndividual IRI="#T1DM_DevelopmentStandard"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasManifestation"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasManifestation"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasManifestation"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#involvesModification"/>
+        <NamedIndividual IRI="#T1DM_InterventionDCCTIntensive"/>
+        <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasPathway"/>
-        <NamedIndividual IRI="#T1DM_ManifestationNeuropathy"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
         <ObjectProperty IRI="#hasPathway"/>
-        <NamedIndividual IRI="#T1DM_ManifestationNeuropathy"/>
-        <NamedIndividual IRI="#T1DM_ManifestationPathwayNeuropathy"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA_ALB1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_ALB1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#excludesManifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ALB2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasUtility"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationALB2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#excludesManifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#excludesManifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasCost"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasCost"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2_ESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasUtility"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#excludesManifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasCost"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasCost"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_LEA"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasUtility"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationLEA"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasCost"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasPathway"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasUtility"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ALB2"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#requiresPreviousManifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ALB2"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ESRD"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#requiresPreviousManifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ESRD"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2_ESRD"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#requiresPreviousManifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2_ESRD"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayESRD"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA_ALB1"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#requiresPreviousManifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA_ALB1"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_ALB1"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#requiresPreviousManifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_ALB1"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isPathwayTo"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_LEA"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#requiresPreviousManifestation"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_LEA"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#modifiesIndividualParameter"/>
+        <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
+        <NamedIndividual IRI="#ParameterHbA1c"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#definesIndividualParameterValue"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#definesIndividualParameterValue"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasParameter"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasParameter"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#hasUtility"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+        <NamedIndividual IRI="#T1DM_U_General"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isValueOfIndividualParameter"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
+        <NamedIndividual IRI="#ParameterDurationOfDiabetes"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isValueOfIndividualParameter"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
+        <NamedIndividual IRI="#ParameterHbA1c"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isParameterOfManifestation"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isParameterOfPopulation"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isParameterOfDisease"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+        <NamedIndividual IRI="#T1DM_Disease"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isParameterOfDisease"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isParameterOfDisease"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="#isParameterOfPopulation"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
     </ObjectPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasFrequency"/>
@@ -1853,7 +2368,7 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasValue"/>
         <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
-        <Literal>1.47884E-05#BETA(8, 540955)</Literal>
+        <Literal>1.47884E-05#Beta(8, 540955)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSensitivity"/>
@@ -2363,7 +2878,7 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasMortalityFactor"/>
         <NamedIndividual IRI="#PBD_ManifestationMentalDelay"/>
-        <Literal>-9.6#GAMMA(25,0.38)</Literal>
+        <Literal>-9.6#Gamma(25,0.38)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasOnsetAge"/>
@@ -2378,32 +2893,32 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwayHearingProblems"/>
-        <Literal>0.515#BETA(24.0,34.0)</Literal>
+        <Literal>0.515#Beta(24.0,34.0)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwayHypotonia"/>
-        <Literal>0.457#BETA(17,20)</Literal>
+        <Literal>0.457#Beta(17,20)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwayMentalDelay"/>
-        <Literal>0.557#BETA(14,6)</Literal>
+        <Literal>0.557#Beta(14,6)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwaySeizure"/>
-        <Literal>0.564#BETA(65,50)</Literal>
+        <Literal>0.564#Beta(65,50)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwaySkinProblems"/>
-        <Literal>0.41#BETA(24,34)</Literal>
+        <Literal>0.41#Beta(24,34)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasProportion"/>
         <NamedIndividual IRI="#PBD_ManifestationPathwayVisionLoss"/>
-        <Literal>0.175#BETA(19,91)</Literal>
+        <Literal>0.175#Beta(19,91)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasEndAge"/>
@@ -2493,7 +3008,7 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasLifeExpectancy"/>
         <NamedIndividual IRI="#PBD_NaturalDevelopment"/>
-        <Literal>82.272854#GAMMA(25, 3.29)</Literal>
+        <Literal>82.272854#Gamma(25, 3.29)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToDO"/>
@@ -2538,7 +3053,7 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSpecificity"/>
         <NamedIndividual IRI="#PBD_ScreeningTechnique"/>
-        <Literal>0.999935#BETA(540904,35)</Literal>
+        <Literal>0.999935#Beta(540904,35)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasTemporaryThreshold"/>
@@ -2627,6 +3142,21 @@
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#ParameterAge"/>
+        <Literal>The age of an individual (in years)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasName"/>
+        <NamedIndividual IRI="#ParameterAge"/>
+        <Literal>AGE</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRefToSNOMED"/>
+        <NamedIndividual IRI="#ParameterAge"/>
+        <Literal>https://browser.ihtsdotools.org/?perspective=full&amp;conceptId1=397669002&amp;edition=MAIN/2022-07-31&amp;release=&amp;languages=en</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasDescription"/>
         <NamedIndividual IRI="#ParameterDurationOfDiabetes"/>
         <Literal>Time (in years) from diagnosis of diabetes</Literal>
     </DataPropertyAssertion>
@@ -2638,7 +3168,7 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToSNOMED"/>
         <NamedIndividual IRI="#ParameterDurationOfDiabetes"/>
-        <Literal>http://purl.bioontology.org/ontology/SNOMEDCT/762636008</Literal>
+        <Literal>https://browser.ihtsdotools.org/?perspective=full&amp;conceptId1=762636008&amp;edition=MAIN/2022-07-31&amp;release=&amp;languages=en</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
@@ -2656,69 +3186,94 @@
         <Literal>http://purl.bioontology.org/ontology/SNOMEDCT/313835008</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasAge"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1"/>
-        <Literal>26.47933884#13+27*BETA(0.7623456790123456,0.8209876543209875)</Literal>
+        <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#ParameterSex"/>
+        <Literal>Sex (0 for male; 1 for female)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasFemaleProportion"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.483966942</Literal>
+        <DataProperty IRI="#hasName"/>
+        <NamedIndividual IRI="#ParameterSex"/>
+        <Literal>SEX</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasMaxAge"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">40</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasMinAge"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">13</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasSource"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_Duration"/>
-        <Literal>DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_Duration"/>
-        <Literal>2.6#NORMAL(2.6,1.4)</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasSource"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_HbA1c"/>
-        <Literal>Own calculation from: Design of DCCT (http://diabetes.diabetesjournals.org/content/35/5/530) and DCCT (https://www.nejm.org/doi/10.1056/NEJM199309303291401)</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_HbA1c"/>
-        <Literal>8.8#6.6+GAMMA(1.6747404844290676,1.3136363636363628)</Literal>
+        <DataProperty IRI="#hasRefToSNOMED"/>
+        <NamedIndividual IRI="#ParameterSex"/>
+        <Literal>https://browser.ihtsdotools.org/?perspective=full&amp;conceptId1=734000001&amp;edition=MAIN/2022-07-31&amp;release=&amp;languages=en</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
-        <Literal>Initial proportion of Neuropathy among the DCCT</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
-        <Literal>PREVALENCE</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
-        <Literal>TRUE</Literal>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
+        <Literal>Annual cost for treatment of End Stage Renal Disease</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
-        <Literal>DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401</Literal>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
+        <Literal>Ray (2005)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
+        <Literal>ANNUAL</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_DCCTPopulation1_InitNeuropathy"/>
-        <Literal>0.034435262#BETA(25,701)</Literal>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
+        <Literal>34259.48#Gamma(24.999999999999996,1370.3792000000003)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasYear"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2015</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
+        <Literal>Annual cost after amputation of low extremity</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
+        <Literal>del Pino et al.</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
+        <Literal>ANNUAL</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">918.01</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasYear"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2017</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
+        <Literal>Annual cost of neuropathy</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
+        <Literal>Ray (2015)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
+        <Literal>ANNUAL</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">3108.86</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasYear"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2015</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToDO"/>
@@ -2741,24 +3296,477 @@
         <Literal>http://purl.bioontology.org/ontology/SNOMEDCT/46635009</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasRefToDO"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
+        <Literal>DOID:9744</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRefToICD"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
+        <Literal>ICD10CM:E10</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRefToOMIM"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
+        <Literal>http://purl.bioontology.org/ontology/SNOMEDCT/46635009</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRefToOMIM"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
+        <Literal>http://www.omim.org/entry/222100</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRefToDO"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
+        <Literal>DOID:9744</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRefToICD"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
+        <Literal>ICD10CM:E10</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRefToOMIM"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
+        <Literal>http://purl.bioontology.org/ontology/SNOMEDCT/46635009</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRefToOMIM"/>
+        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
+        <Literal>http://www.omim.org/entry/222100</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasInterventionKind"/>
+        <NamedIndividual IRI="#T1DM_InterventionDCCTIntensive"/>
+        <Literal>GENERAL</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasManifestationKind"/>
-        <NamedIndividual IRI="#T1DM_ManifestationNeuropathy"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB1"/>
         <Literal>CHRONIC</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasManifestationKind"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+        <Literal>CHRONIC</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasMortalityFactor"/>
+        <NamedIndividual IRI="#T1DM_ManifestationALB2"/>
+        <Literal>2.23#RRFromLnCI(2.23, 1.11, 4.49, 1.0)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasManifestationKind"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+        <Literal>CHRONIC</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasMortalityFactor"/>
+        <NamedIndividual IRI="#T1DM_ManifestationESRD"/>
+        <Literal>4.53#RRFromLnCI(4.53, 2.64, 7.77, 1)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasManifestationKind"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+        <Literal>CHRONIC</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasMortalityFactor"/>
+        <NamedIndividual IRI="#T1DM_ManifestationLEA"/>
+        <Literal>3.98#RRFromLnCI(3.98, 1.84, 8.59, 1.0)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasManifestationKind"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+        <Literal>CHRONIC</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasMortalityFactor"/>
+        <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
+        <Literal>1.51#RRFromLnCI(1.51, 1.0, 2.28, 1.0)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasProbability"/>
-        <NamedIndividual IRI="#T1DM_ManifestationPathwayNeuropathy"/>
-        <Literal>0.0354#BETA(15.127763817983997,412.2101971420159)</Literal>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1"/>
+        <Literal>0.0436#Beta(7.7167655533226664,169.273270073344)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRelativeRisk"/>
-        <NamedIndividual IRI="#T1DM_ManifestationPathwayNeuropathy"/>
-        <Literal>Math.pow(HBA1C/10, 5.3)</Literal>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1"/>
+        <Literal>(HBA1C/10)^3.25</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
-        <NamedIndividual IRI="#T1DM_ManifestationPathwayNeuropathy"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1"/>
+        <Literal>https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasProbability"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ALB2"/>
+        <Literal>0.1565#Uniform(0.08157743930149453,0.22531057005081057)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRelativeRisk"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ALB2"/>
+        <Literal>(HBA1C/10)^7.95</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ALB2"/>
+        <Literal>https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasProbability"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ESRD"/>
+        <Literal>0.0133#Beta(94.74936800000008,7029.263263578953)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB1_ESRD"/>
+        <Literal>https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasProbability"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2"/>
+        <Literal>0.0037#Uniform(0.0018517144231524618,0.005544863079786855)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRelativeRisk"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2"/>
+        <Literal>(HBA1C/10)^7.95</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2"/>
+        <Literal>https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasProbability"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2_ESRD"/>
+        <Literal>0.1579#Uniform(0.08233993221890712,0.22723845692154176)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayALB2_ESRD"/>
+        <Literal>https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasProbability"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayESRD"/>
+        <Literal>0.0002#Uniform(0.0001,0.0003)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayESRD"/>
         <Literal>DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasProbability"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA"/>
+        <Literal>0.0003#Uniform(0.0,0.0006)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA"/>
+        <Literal>DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasProbability"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA_ALB1"/>
+        <Literal>0.097#Beta (14.678685741602536, 136.64797138832049)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayLEA_ALB1"/>
+        <Literal>Unknown</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasProbability"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU"/>
+        <Literal>0.0354#Beta(15.127763817983997,412.2101971420159)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasRelativeRisk"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU"/>
+        <Literal>(HBA1C/10)^5.3</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU"/>
+        <Literal>DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasProbability"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_ALB1"/>
+        <Literal>0.097#Beta (14.678685741602536, 136.64797138832049)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_ALB1"/>
+        <Literal>Unknown</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasProbability"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_LEA"/>
+        <Literal>0.0154#Beta (94.545584, 6044.778052363637)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_LEA"/>
+        <Literal>Klein et al. 2004 (also Sheffield)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
+        <Literal>Reduces HbA1c level of the individual</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasModificationKind"/>
+        <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
+        <Literal>DIFF</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
+        <Literal>1.5#Normal(1.5,1.1)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <Annotation>
+            <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+            <Literal>26.47933884#13+27*Beta(0.7623456790123456,0.8209876543209875)</Literal>
+        </Annotation>
+        <DataProperty IRI="#hasAge"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">26.47933884</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasFemaleProportion"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.483966942</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasMaxAge"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">40</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasMinAge"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">13</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
+        <Literal>DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
+        <Literal>2.6#Normal(2.6,1.4)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
+        <Literal>Own calculation from: Design of DCCT (http://diabetes.diabetesjournals.org/content/35/5/530) and DCCT (https://www.nejm.org/doi/10.1056/NEJM199309303291401)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <Annotation>
+            <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+            <Literal>8.8#6.6+Gamma(1.6747404844290676,1.3136363636363628)</Literal>
+        </Annotation>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">8.8</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+        <Literal>Initial proportion of Neuropathy among the DCCT</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+        <Literal>PREVALENCE</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+        <Literal>TRUE</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+        <Literal>DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
+        <Literal>0.034435262#Beta(25,701)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+        <Literal>A convenient 100% prevalence. Useful for populations where everyone has a disease</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+        <Literal>PREVALENCE</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+        <Literal>TRUE</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">1.0</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
+        <Literal>Cost for treatment upon diagnosis of End Stage Renal Disease</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
+        <Literal>Ray (2005)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
+        <Literal>ONETIME</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
+        <Literal>3250.73#Gamma(24.999999999999996, 130.02920000000003)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasYear"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2015</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasDescription"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
+        <Literal>Cost of the amputation of the low extremity</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
+        <Literal>Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
+        <Literal>ONETIME</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
+        <Literal>11333.04#Gamma(45.81313114605552, 247.37536414766024)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasYear"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2017</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#T1DM_U_General"/>
+        <Literal>ANNUAL</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasUtilityKind"/>
+        <NamedIndividual IRI="#T1DM_U_General"/>
+        <Literal>UTILITY</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_U_General"/>
+        <Literal>0.785#Beta (46.271891771449724,12.673193287721896)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationALB2"/>
+        <Literal>Bagust and Beale</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationALB2"/>
+        <Literal>ANNUAL</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasUtilityKind"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationALB2"/>
+        <Literal>DISUTILITY</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationALB2"/>
+        <Literal>0.048#Beta(4.509163965819362, 89.43175198875068)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationESRD"/>
+        <Literal>Bagust and Beale</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationESRD"/>
+        <Literal>ANNUAL</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasUtilityKind"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationESRD"/>
+        <Literal>DISUTILITY</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationESRD"/>
+        <Literal>0.204#Beta(6.4783215909262735, 25.278156795967227)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationLEA"/>
+        <Literal>Bagust and Beale</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationLEA"/>
+        <Literal>ANNUAL</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasUtilityKind"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationLEA"/>
+        <Literal>DISUTILITY</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationLEA"/>
+        <Literal>0.28#Beta(17.80558093450929, 45.78577954588103)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
+        <Literal>Bagust and Beale</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasTemporalBehavior"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
+        <Literal>ANNUAL</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasUtilityKind"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
+        <Literal>DISUTILITY</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasValue"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
+        <Literal>0.084#Beta(33.975530745679016, 370.4950733695473)</Literal>
     </DataPropertyAssertion>
     <SubObjectPropertyOf>
         <ObjectProperty IRI="#hasCost"/>
@@ -2805,7 +3813,7 @@
         <ObjectProperty IRI="#modifies"/>
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
-        <ObjectProperty IRI="#modifiesIndividualParameterValue"/>
+        <ObjectProperty IRI="#modifiesIndividualParameter"/>
         <ObjectProperty IRI="#modifies"/>
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
@@ -3114,8 +4122,8 @@
         <Class IRI="#Development"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#modifiesIndividualParameterValue"/>
-        <Class IRI="#IndividualParameterValue"/>
+        <ObjectProperty IRI="#modifiesIndividualParameter"/>
+        <Class IRI="#IndividualParameter"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#modifiesManifestation"/>

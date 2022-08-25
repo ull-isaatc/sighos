@@ -3,8 +3,6 @@ package es.ull.iis.simulation.hta.osdi.wrappers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.text.WordUtils;
-
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import simkit.random.RandomVariate;
@@ -24,14 +22,18 @@ public class ProbabilityDistribution {
 	private static final String DIST_OFFSET = "DISTOFFSET";
 	private static final String DIST_PARAM1 = "DISTPARAM1";
 	private static final String DIST_PARAM2 = "DISTPARAM2";
+	private static final String DIST_PARAM3 = "DISTPARAM3";
+	private static final String DIST_PARAM4 = "DISTPARAM4";
 	private static final String REG_EXP = 
 			"^(?<"+ DET_VALUE + ">[0-9\\.,E-]+)?(#?(?<" + 
 					DIST_OFFSET + ">[+-]?[0-9]+\\.?[0-9]*)?(?<" +
 					DIST_SCALE_SIGN + ">[+-])?((?<" + 
 					DIST_SCALE + ">[0-9]+\\.?[0-9]*)\\*)?(?<" + 
-					DIST_NAME +">[A-Z]+)\\((?<" + 
+					DIST_NAME +">[A-Za-z]+)\\((?<" + 
 					DIST_PARAM1 + ">[+-]?[0-9]+\\.?[0-9]*)(,(?<" + 
-					DIST_PARAM2 + ">[+-]?[0-9]+\\.?[0-9]*))?\\))?$";
+					DIST_PARAM2 + ">[+-]?[0-9]+\\.?[0-9]*))?(,(?<" + 
+					DIST_PARAM3 + ">[+-]?[0-9]+\\.?[0-9]*))?(,(?<" + 
+					DIST_PARAM4 + ">[+-]?[0-9]+\\.?[0-9]*))?\\))?$";
 
 	private static final String DISTRIBUTION_NAME_SUFFIX = "Variate";
 	private static final Pattern PATTERN = Pattern.compile(REG_EXP);
@@ -55,7 +57,7 @@ public class ProbabilityDistribution {
 	 * @param text
 	 */
 	public ProbabilityDistribution(String text) throws TranspilerException {
-		String valueNormalized = text.toUpperCase().replace(" ", "");
+		String valueNormalized = text.replace(" ", "");
 		Matcher matcher = PATTERN.matcher(valueNormalized);
 		try {
 			if (matcher.find()) {	
@@ -65,9 +67,12 @@ public class ProbabilityDistribution {
 				if (distributionName == null)
 					probabilisticValue = RandomVariateFactory.getInstance("ConstantVariate", deterministicValue);
 				else {
-					final String firstParameter = matcher.group(DIST_PARAM1);
-					final String secondParameter = matcher.group(DIST_PARAM2);
-					final RandomVariate rnd = buildDistributionVariate(distributionName, firstParameter, secondParameter);
+					final String[] parameters = new String[4];
+					parameters[0] = matcher.group(DIST_PARAM1);
+					parameters[1] = matcher.group(DIST_PARAM2);
+					parameters[2] = matcher.group(DIST_PARAM3);
+					parameters[3] = matcher.group(DIST_PARAM4);
+					final RandomVariate rnd = buildDistributionVariate(distributionName, parameters);
 					final String strScale = matcher.group(DIST_SCALE);
 					final String strOffset = matcher.group(DIST_OFFSET);					
 					if (strScale != null || strOffset != null) {
@@ -97,15 +102,20 @@ public class ProbabilityDistribution {
 	 * @return
 	 * @throws TranspilerException
 	 */
-	private static RandomVariate buildDistributionVariate(String distributionName, String firstParameter, String secondParameter) {
-		if (distributionName.contains("EXP")) {
-			distributionName = "Exponential";
-		}
-	   	if (secondParameter != null) {
-	   		return RandomVariateFactory.getInstance(WordUtils.capitalizeFully(distributionName) + DISTRIBUTION_NAME_SUFFIX, Double.parseDouble(firstParameter), Double.parseDouble(secondParameter));
-	   	} else {
-	   		return RandomVariateFactory.getInstance(WordUtils.capitalizeFully(distributionName) + DISTRIBUTION_NAME_SUFFIX, Double.parseDouble(firstParameter));
-	   	}
+	private static RandomVariate buildDistributionVariate(String distributionName, String[] parameters) {
+		int validParams = 3;
+		while ((validParams > 0) && parameters[validParams] == null)
+			validParams--;
+		double []numParams = new double[validParams + 1];
+		for (int i = 0; i <= validParams; i++)
+			numParams[i] = Double.parseDouble(parameters[i]);
+		if (validParams == 3)
+			return RandomVariateFactory.getInstance(distributionName + DISTRIBUTION_NAME_SUFFIX, numParams[0], numParams[1], numParams[2], numParams[3]);
+		if (validParams == 2)
+			return RandomVariateFactory.getInstance(distributionName + DISTRIBUTION_NAME_SUFFIX, numParams[0], numParams[1], numParams[2]);
+		if (validParams == 1)
+			return RandomVariateFactory.getInstance(distributionName + DISTRIBUTION_NAME_SUFFIX, numParams[0], numParams[1]);
+		return RandomVariateFactory.getInstance(distributionName + DISTRIBUTION_NAME_SUFFIX, numParams[0]);
 	}
 	
 	

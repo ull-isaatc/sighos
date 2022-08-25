@@ -60,8 +60,8 @@ public interface OSDiNames {
 		public String getDescription() {
 			return description;
 		}
-		public List<String> getDescendantsOf(String instanceName) {
-			return OwlHelper.getChildsByClassName(instanceName, description);
+		public List<String> getDescendantsOf(OwlHelper helper, String instanceName) {
+			return helper.getChildsByClassName(instanceName, description);
 		}
 	}
 
@@ -147,16 +147,16 @@ public interface OSDiNames {
 			return range;
 		}
 		
-		public String getValue(String instanceName) {
-			return OwlHelper.getDataPropertyValue(instanceName, description);
+		public String getValue(OwlHelper helper, String instanceName) {
+			return helper.getDataPropertyValue(instanceName, description);
 		}
 		
-		public String getValue(String instanceName, String defaultValue) {
-			return OwlHelper.getDataPropertyValue(instanceName, description, defaultValue);
+		public String getValue(OwlHelper helper, String instanceName, String defaultValue) {
+			return helper.getDataPropertyValue(instanceName, description, defaultValue);
 		}
 		
-		public List<String> getValues(String instanceName) {
-			return OwlHelper.getDataPropertyValues(instanceName, description);
+		public List<String> getValues(OwlHelper helper, String instanceName) {
+			return helper.getDataPropertyValues(instanceName, description);
 		}
 	}
 	
@@ -197,6 +197,7 @@ public interface OSDiNames {
 		IS_VALUE_OF_INDIVIDUAL_PARAMETER("#isValueOfIndividualParameter"),
 		MODIFIES("#modifies"),
 		MODIFIES_DEVELOPMENT("#modifiesDevelopment"),
+		MODIFIES_INDIVIDUAL_PARAMETER("#modifiesIndividualParameter"),
 		MODIFIES_MANIFESTATION("#modifiesManifestation"),
 		MODIFIES_MANIFESTATION_PATHWAY("#modifiesManifestationPathway"),
 		REQUIRES_DEVELOPMENT("#requiresDevelopment"),
@@ -223,8 +224,8 @@ public interface OSDiNames {
 		 * @param instanceName Name of the original instance
 		 * @return the object associated to another object by means of the specified object property
 		 */
-		public String getValue(String instanceName) {
-			return OwlHelper.getObjectPropertyByName(instanceName, description);
+		public String getValue(OwlHelper helper, String instanceName) {
+			return helper.getObjectPropertyByName(instanceName, description);
 		}
 		
 		/**
@@ -232,8 +233,8 @@ public interface OSDiNames {
 		 * @param instanceName Name of the original instance
 		 * @return the list of objects associated to another object by means of the specified object property
 		 */
-		public List<String> getValues(String instanceName) {
-			return OwlHelper.getObjectPropertiesByName(instanceName, description);
+		public List<String> getValues(OwlHelper helper, String instanceName) {
+			return helper.getObjectPropertiesByName(instanceName, description);
 		}
 	}
 
@@ -271,7 +272,7 @@ public interface OSDiNames {
 		}
 	}
 
-	public static String getSource(String instanceName) {
-		return DataProperty.HAS_SOURCE.getValue(instanceName, "Unknown");
+	public static String getSource(OwlHelper helper, String instanceName) {
+		return DataProperty.HAS_SOURCE.getValue(helper, instanceName, "Unknown");
 	}
 }

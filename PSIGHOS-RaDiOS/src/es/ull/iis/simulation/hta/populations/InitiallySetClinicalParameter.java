@@ -4,7 +4,8 @@
 package es.ull.iis.simulation.hta.populations;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
-import es.ull.iis.simulation.hta.PatientProfile;
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.Patient;
 import simkit.random.RandomVariate;
 
 /**
@@ -18,14 +19,15 @@ public class InitiallySetClinicalParameter extends ClinicalParameter {
 	/**
 	 * @param name
 	 * @param firstOrderValue
+	 * @throws MalformedSimulationModelException 
 	 */
-	public InitiallySetClinicalParameter(String name, RandomVariate firstOrderValue) {
+	public InitiallySetClinicalParameter(String name, RandomVariate firstOrderValue) throws MalformedSimulationModelException {
 		super(name);
 		this.firstOrderValue = firstOrderValue;
 	}
 	
 	@Override
-	public double getInitialValue(PatientProfile profile, DiseaseProgressionSimulation simul) {
+	public double getInitialValue(Patient pat, DiseaseProgressionSimulation simul) {
 		return firstOrderValue.generate();
 	}
 }

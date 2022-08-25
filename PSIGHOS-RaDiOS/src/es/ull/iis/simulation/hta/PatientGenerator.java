@@ -17,7 +17,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla
  *
  */
-public class PatientGenerator extends TimeDrivenGenerator<PatientGenerator.PatientGenerationInfo> {
+public class PatientGenerator extends TimeDrivenGenerator<Population> {
 	/** Associated simulation */
 	private final DiseaseProgressionSimulation simul;
 	/** Original patients that this generator reproduces */
@@ -40,7 +40,7 @@ public class PatientGenerator extends TimeDrivenGenerator<PatientGenerator.Patie
 		this.copyOf = null;
 		this.intervention = intervention;
 		this.population = population;
-		add(new PatientGenerationInfo());
+		add(population);
 	}
 	
 	/**
@@ -50,17 +50,17 @@ public class PatientGenerator extends TimeDrivenGenerator<PatientGenerator.Patie
 	 * @param copyOf An original set of patients created for a previous simulation (and already simulated)
 	 * @param intervention Numerical identifier of the intervention
 	 */
-	public PatientGenerator(DiseaseProgressionSimulation simul, Patient[] copyOf, Intervention intervention) {
+	public PatientGenerator(DiseaseProgressionSimulation simul, Patient[] copyOf, Intervention intervention, Population population) {
 		super(simul, copyOf.length, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 		this.simul = simul;
 		this.copyOf = copyOf;
 		this.intervention = intervention;
-		this.population = null;
-		add(new PatientGenerationInfo());
+		this.population = population;
+		add(population);
 	}
 
 	@Override
-	public EventSource createEventSource(int ind, PatientGenerationInfo info) {
+	public EventSource createEventSource(int ind, Population info) {
 		Patient p = null;
 		if (copyOf == null) {
 			p = new Patient(simul, intervention, population);
@@ -70,12 +70,5 @@ public class PatientGenerator extends TimeDrivenGenerator<PatientGenerator.Patie
 		}
 		simul.addGeneratedPatient(p, ind);
 		return p;
-	}
-
-	protected static class PatientGenerationInfo extends es.ull.iis.simulation.model.Generator.GenerationInfo {
-
-		public PatientGenerationInfo() {
-			super(1.0);
-		}
 	}
 }

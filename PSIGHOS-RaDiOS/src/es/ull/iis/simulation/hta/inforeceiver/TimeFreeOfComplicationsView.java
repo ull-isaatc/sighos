@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.inforeceiver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.Patient;
@@ -90,7 +89,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		if (printFirstOrderVariance) {
 			for (Intervention inter : secParams.getRegisteredInterventions()) {
 				for (Manifestation manif : secParams.getRegisteredManifestations()) {
-					final String suf = manif.name() + "_" + inter.name() + "\t";
+					final String suf = manif.name() + "_" + inter.name() + SEP;
 					if (Manifestation.Type.CHRONIC.equals(manif.getType())) {
 						str.append(STR_INC).append(suf).append(STR_PREV).append(suf).append(STR_AVG_TIME).append(suf).append(STR_LCI_TIME).append(suf).append(STR_UCI_TIME).append(suf);
 					}
@@ -103,7 +102,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		else {
 			for (Intervention inter : secParams.getRegisteredInterventions()) {
 				for (Manifestation manif : secParams.getRegisteredManifestations()) {
-					final String suf = manif.name() + "_" + inter.name() + "\t";
+					final String suf = manif.name() + "_" + inter.name() + SEP;
 					if (Manifestation.Type.CHRONIC.equals(manif.getType())) {
 						str.append(STR_INC).append(suf).append(STR_PREV).append(suf).append(STR_AVG_TIME).append(suf);
 					}
@@ -122,29 +121,27 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		for (int i = 0; i < nInterventions; i++) {
 			for (int j = 0; j < availableManifestations.length; j++) {
 				if (Manifestation.Type.CHRONIC.equals(availableManifestations[j].getType())) {
-					str.append(incidence[i][j]).append("\t").append(prevalence[i][j]).append("\t");
+					str.append(incidence[i][j]).append(SEP).append(prevalence[i][j]).append(SEP);
 					final ArrayList<Long> validValues = getValidValues(timeToEvents.get(availableManifestations[j])[i]);
 					if (validValues.size() == 0) {
-						str.append(Double.NaN).append("\t");						
+						str.append(Double.NaN).append(SEP);						
 						if (printFirstOrderVariance)
-							str.append(Double.NaN).append("\t").append(Double.NaN).append("\t");						
+							str.append(Double.NaN).append(SEP).append(Double.NaN).append(SEP);						
 					}
 					else {
 						final double avg = Statistics.average(validValues);
-						str.append(avg / BasicConfigParams.YEAR_CONVERSION).append("\t");
+						str.append(avg / BasicConfigParams.YEAR_CONVERSION).append(SEP);
 						if (printFirstOrderVariance) {
 							final double[] ci = Statistics.normal95CI(avg, Statistics.stdDev(validValues, avg), validValues.size());
-							str.append(ci[0] /BasicConfigParams.YEAR_CONVERSION).append("\t").append(ci[1]/BasicConfigParams.YEAR_CONVERSION).append("\t");
+							str.append(ci[0] /BasicConfigParams.YEAR_CONVERSION).append(SEP).append(ci[1]/BasicConfigParams.YEAR_CONVERSION).append(SEP);
 						}
 					}
 				}
 				else {
-					str.append((double)incidence[i][j] / nPatients).append("\t");
+					str.append((double)incidence[i][j] / nPatients).append(SEP);
 					if (printFirstOrderVariance) {
-						final int[] ordered = Arrays.copyOf(nEvents.get(availableManifestations[j])[i], nPatients);
-						Arrays.sort(ordered);
-						final int index = (int)Math.ceil(nPatients * 0.025);
-						str.append(ordered[index - 1]).append("\t").append(ordered[nPatients - index]).append("\t");
+						final int[] cip = Statistics.getPercentile95CI(nEvents.get(availableManifestations[j])[i]);
+						str.append(cip[0]).append(SEP).append(cip[1]).append(SEP);
 					}
 				}
 			}

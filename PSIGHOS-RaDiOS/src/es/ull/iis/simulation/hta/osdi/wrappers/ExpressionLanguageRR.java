@@ -7,30 +7,29 @@ import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
 
-import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.params.RRCalculator;
 
 /**
- * @author Iván Castilla
+ * @author Iván Castilla Rodríguez
  *
  */
-public class ExpressionLanguageCondition extends Condition<Patient> {
-	
+public class ExpressionLanguageRR implements RRCalculator {
 	private final JexlExpression exprToEvaluate;
 	/**
 	 * 
 	 */
-	public ExpressionLanguageCondition(String expression) {
+	public ExpressionLanguageRR(String expression) {
 		exprToEvaluate = OSDiGenericRepository.JEXL.createExpression(expression);
 	}
-	
+
 	@Override
-	public boolean check(Patient pat) {
+	public double getRR(Patient pat) {
 		final MapContext jc = new ExpressionLanguagePatient(pat);
-		boolean result = false;
+		double result = 1.0;
 		try {
-			result = (boolean) exprToEvaluate.evaluate(jc);
+			result = (double) exprToEvaluate.evaluate(jc);
 		} catch (JexlException ex) {
 			System.err.println(ex.getMessage());
 		}

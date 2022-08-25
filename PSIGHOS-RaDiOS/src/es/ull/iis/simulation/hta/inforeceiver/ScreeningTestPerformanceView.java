@@ -40,7 +40,7 @@ public class ScreeningTestPerformanceView extends Listener implements Structured
 	public static String getStrHeader(String intervention) {
 		final StringBuilder str = new StringBuilder();
 		for (DetectionTestResult res : DetectionTestResult.values())
-			str.append(res + "_" + intervention + "\t");
+			str.append(res + "_" + intervention + SEP);
 		return str.toString();
 	}
 	
@@ -48,7 +48,7 @@ public class ScreeningTestPerformanceView extends Listener implements Structured
 	public String toString() {
 		final StringBuilder str = new StringBuilder();
 		for (int res : nResults)
-			str.append(res + "\t");
+			str.append(res + SEP);
 		return str.toString();
 	}
 }

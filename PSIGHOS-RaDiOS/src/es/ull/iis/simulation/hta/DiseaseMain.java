@@ -17,6 +17,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
 import es.ull.iis.simulation.hta.diab.T1DMRepository;
+import es.ull.iis.simulation.hta.osdi.InterventionBuilder;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
@@ -32,7 +33,6 @@ import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
  *
  */
 public class DiseaseMain extends HTAExperiment {
-	public static String INTERVENTION_DO_NOTHING = "DO_NOTHING";
 	
 	private final static int TEST_RARE_DISEASE1 = 1; 
 	private final static int TEST_RARE_DISEASE2 = 2; 
@@ -45,7 +45,8 @@ public class DiseaseMain extends HTAExperiment {
 	private final static boolean REPLACE_DOT_WITH_COLON = false;
 	private final static boolean ALL_AFFECTED = true;
 //	private final static String PARAMS = "-n 10000 -r 0 -t 1 -dis 11 -y 2019 -dr 0 -q -ep ia"; // Testing OSDi PBD
-	private final static String PARAMS = "-n 20000 -r 0 -t 0 -dis 12 -y 2019 -q -ep cr"; // Testing diabetes
+//	private final static String PARAMS = "-n 20000 -r 0 -t 0 -dis 12 -y 2019 -q -ep cr"; // Testing diabetes
+	private final static String PARAMS = "-n 1000 -r 0 -t 1 -dis 12 -y 2019 -q -dr 0 -ep ca -po -ps 13"; // Testing OSDi diabetes
 //	private final static String PARAMS = "-n 5000 -r 0 -t 0 -dis 4 -dr 0 -ep ia -q"; // Testing test diseases
 //	private final static String PARAMS = "-n 100 -r 0 -dr 0 -q -t 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 //	private final static String PARAMS = "-n 1000 -r 0 -dr 0 -q -t 1 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
@@ -55,10 +56,6 @@ public class DiseaseMain extends HTAExperiment {
 	}
 	
 	public static class Arguments extends CommonArguments {
-		/*
-		 * -n 100 -r 5 -dr 0 -q -pop 1 -ps 3 -po -dis 1: 100 pacientes, 5 ejecuciones probabilisticas, sin descuento, sin mostrar el progreso de ejecución, para RaDiOS, con el progreso para el tercer
-		 * paciente, habilitada la salida individual por paciente y para la enfermedad test1
-		 */
 		@Parameter(names = { "--type", "-t" }, description = "Selects an alternative scenario (0: Programmatic; 1: OSDi)", order = 8)
 		public int type = 0;
 		@Parameter(names = { "--disease", "-dis" }, description = "Disease to test with (1-4: Synthetic diseases; 10:SCD; 11: PBD; 12: T1DM)", order = 3)
@@ -70,11 +67,12 @@ public class DiseaseMain extends HTAExperiment {
 	@Override
 	public SecondOrderParamsRepository createRepository(CommonArguments arguments) throws MalformedSimulationModelException {
 		SecondOrderParamsRepository secParams = null;
-		List<String> interventionsToCompare = new ArrayList<>();
+		final List<String> interventionsToCompare = new ArrayList<>();
 		final int disease = ((Arguments)arguments).disease;
 		final int nRuns = ((Arguments)arguments).nRuns;
 		final int nPatients = ((Arguments)arguments).nPatients;
-		final int timeHorizon = ((Arguments)arguments).timeHorizon;
+		String strDisease = "";
+		String strPopulation = "";
 		switch (((Arguments)arguments).type) {			
 		case 1:
 			String path = "";
@@ -95,18 +93,25 @@ public class DiseaseMain extends HTAExperiment {
 //				path = "resources/radios-test_disease" + disease + ".json";
 				break;
 			case TEST_T1DM:
-				System.out.println("No OSDi test available for T1DM\n\n");
+				System.out.println(String.format("\n\nExecuting the OSDi test for the T1DM \n\n"));
+				interventionsToCompare.add(InterventionBuilder.DO_NOTHING);
+				interventionsToCompare.add("#T1DM_InterventionDCCTIntensive");
+				strDisease = "#T1DM_Disease";
+				strPopulation = "#T1DM_PopulationDCCT1";
+				path = System.getProperty("user.dir") + "\\resources\\OSDi.owl";
 				break;
 			case TEST_PBD:
 			default:
 				System.out.println(String.format("\n\nExecuting the OSDi test for the rare disease PBD \n\n"));
-				interventionsToCompare.add(INTERVENTION_DO_NOTHING);
+				interventionsToCompare.add("#PBD_InterventionNoScreening");
 				interventionsToCompare.add("#PBD_InterventionScreening");
+				strDisease = "#PBD_ProfoundBiotinidaseDeficiency";
+				strPopulation = "#PBD_FakePopulation";
 				path = System.getProperty("user.dir") + "\\resources\\OSDi.owl";
 				break;				
 			}
 			try {
-				secParams = new OSDiGenericRepository(nRuns, nPatients, path, "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_FakePopulation", DisutilityCombinationMethod.ADD);
+				secParams = new OSDiGenericRepository(nRuns, nPatients, path, strDisease, strPopulation, interventionsToCompare, DisutilityCombinationMethod.ADD);
 			} catch (IOException | TranspilerException | JAXBException e) {
 				MalformedSimulationModelException ex = new MalformedSimulationModelException("");
 				ex.initCause(e);

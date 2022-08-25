@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diab;
 
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.diab.interventions.DCCT_ConventionalIntervention;
 import es.ull.iis.simulation.hta.diab.interventions.DCCT_IntensiveIntervention;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -23,10 +24,14 @@ public class T1DMRepository extends SecondOrderParamsRepository {
 //		setPopulation(new T1DMSimpleTestPopulation(this, dis));
 //		new SMBG_Intervention(this);
 //		new CGM_Intervention(this);
-		setPopulation(new DCCTPopulation1(this, dis));
-		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
-		new DCCT_ConventionalIntervention(this);
-		new DCCT_IntensiveIntervention(this);
+		try {
+			setPopulation(new DCCTPopulation1(this, dis));
+			setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+			new DCCT_ConventionalIntervention(this);
+			new DCCT_IntensiveIntervention(this);
+		} catch (MalformedSimulationModelException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

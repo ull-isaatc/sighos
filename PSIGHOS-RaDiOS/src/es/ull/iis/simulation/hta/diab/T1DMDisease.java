@@ -142,11 +142,14 @@ public class T1DMDisease extends Disease {
 	final private Manifestation hf;
 	final private Manifestation mi;
 
-	private static final boolean DISABLE_CHD = false;
-	private static final boolean DISABLE_RET = false;
+	// Flags for validation and comparison
+	private static final boolean DISABLE_CHD = true;
+	private static final boolean DISABLE_RET = true;
 	private static final boolean DISABLE_NEU = false;
 	private static final boolean DISABLE_NPH = false;
-	private static final boolean DISABLE_SHE = false;
+	private static final boolean DISABLE_SHE = true;
+	/** Uses fix values for initial age, HbA1c level and duration of diabetes */
+	public static final boolean FIXED_BASE_VALUES = true;
 
 	/** A selector for each simulation run */
 	private final SingleSelectorParam[] selectorsCHD;
@@ -336,7 +339,7 @@ public class T1DMDisease extends Disease {
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		
 		// Set asymptomatic follow-up cost and disutility. Treatment cost for asymptomatics is assumed to be 0 
-		CostParamDescriptions.FOLLOW_UP_COST.addParameter(secParams, "DNC", "Diabetes with no complications", 
+		CostParamDescriptions.FOLLOW_UP_COST.addParameter(secParams, this, "Diabetes with no complications", 
 				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, DEF_C_DNC.VALUE, SecondOrderParamsRepository.getRandomVariateForCost(DEF_C_DNC.VALUE));
 
 		final double[] paramsU_DNC = Statistics.betaParametersFromNormal(DEF_U_DNC[0], DEF_U_DNC[1]);
@@ -511,7 +514,7 @@ public class T1DMDisease extends Disease {
 		@Override
 		public double getRR(Patient pat) {
 			final double beta = OtherParamDescriptions.RELATIVE_RISK.getValue(secParams, paramName, pat.getSimulation());
-			return Math.pow(pat.getProfile().getPropertyValue(T1DMRepository.STR_HBA1C, pat).doubleValue()/10.0, beta);
+			return Math.pow(pat.getPropertyValue(T1DMRepository.STR_HBA1C).doubleValue()/10.0, beta);
 		}
 	}
 	
@@ -543,7 +546,7 @@ public class T1DMDisease extends Disease {
 		public double getRR(Patient pat) {
 			// Gets The relative risk of the complication, associated to a 1 PP increment of HbA1c
 			final double referenceRR = OtherParamDescriptions.RELATIVE_RISK.getValue(secParams, "CHD", pat.getSimulation());
-			final double diff = pat.getProfile().getPropertyValue(T1DMRepository.STR_HBA1C, pat).doubleValue() - REF_HBA1C;
+			final double diff = pat.getPropertyValue(T1DMRepository.STR_HBA1C).doubleValue() - REF_HBA1C;
 			return Math.pow(referenceRR, diff);
 		}
 		
