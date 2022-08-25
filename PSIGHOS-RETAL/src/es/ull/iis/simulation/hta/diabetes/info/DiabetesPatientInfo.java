@@ -152,6 +152,6 @@ public class DiabetesPatientInfo extends AsynchronousInfo {
 		default:
 			break;
 		}
-		return "" + simul.long2SimulationTime(getTs()) + "\t" + patient.toString() + " \t" + description;
+		return "" + simul.long2SimulationTime(getTs()) + "\t[PAT" + patient.getIdentifier() + "]\t" + description;
 	}
 }
