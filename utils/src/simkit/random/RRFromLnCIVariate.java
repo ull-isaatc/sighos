@@ -54,10 +54,18 @@ public class RRFromLnCIVariate extends NormalVariate {
         }
     }
 
+	@Override
+	public String toString() {
+		return "RRFromLnCI (" + getMean() + ", " + getStandardDeviation() + ")";
+	}
 //	public static void main(String[] args) {
+//		NormalVariate original = new NormalVariate();
+//		original.setParameters(Math.log(1.51), (Math.log(2.28) - Math.log(1)) / 3.92);
+//		ExponentialTransform exp = new ExponentialTransform();
+//		exp.setParameters(original);
 //		NormalVariate rnd = new RRFromLnCIVariate();
 //		rnd.setParameters(1.51, 1.00, 2.28, 1);
 //		for (int i = 0; i < 1000; i++)
-//			System.out.println(rnd.generate());
+//			System.out.println(rnd.generate() + "\t" + exp.generate());
 //	}
 }
