@@ -260,10 +260,13 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @return the annual cost associated to the current state of the patient and during the defined period
 	 */
 	public double getCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
+		// The disease may involve a non-specific cost
 		double cost =  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);;
+		// ... plus costs related to each manifestation
 		for (final Manifestation manif : pat.getState()) {
 			cost +=  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initYear, endYear);
 		}
+		// ... plus specific treatment or follow-up costs 
 		if (pat.isDiagnosed())
 			cost += getTreatmentAndFollowUpCosts(pat, initYear, endYear, discountRate);
 		return cost;
