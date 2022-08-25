@@ -19,8 +19,8 @@ public interface DevelopmentBuilder {
 	 * @param disease {@link Disease} this {@link Development} is related to
 	 * @return a {@link Development} based on the information stored in the ontology
 	 */
-	public static Development getDevelopmentInstance(String developmentName, Disease disease) {
-		final Development develop = new Development(developmentName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(developmentName, ""), disease);
+	public static Development getDevelopmentInstance(OSDiGenericRepository secParams, String developmentName, Disease disease) {
+		final Development develop = new Development(developmentName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(secParams.getOwlHelper(), developmentName, ""), disease);
 		return develop;
 	}
 }

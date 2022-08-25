@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.diab.manifestations.HeartFailure;
 import es.ull.iis.simulation.hta.diab.manifestations.LowExtremityAmputation;
 import es.ull.iis.simulation.hta.diab.manifestations.MyocardialInfarction;
@@ -62,7 +63,7 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	 * @param secParams
 	 * @param disease
 	 */
-	public T1DMGoldDiamondPopulation(SecondOrderParamsRepository secParams, Disease disease) {
+	public T1DMGoldDiamondPopulation(SecondOrderParamsRepository secParams, Disease disease) throws MalformedSimulationModelException {
 		super(secParams, "GOLD_DIAM_POP", "Population for T1DM according to GOLD and Diamond studies", disease);
 	}
 
@@ -97,7 +98,7 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	}
 
 	@Override
-	protected List<ClinicalParameter> getPatientParameterList() {
+	protected List<ClinicalParameter> initializePatientParameterList() throws MalformedSimulationModelException {
 		final ArrayList<ClinicalParameter> paramList = new ArrayList<>();
 		final double mode = Statistics.betaModeFromMeanSD(BASELINE_HBA1C[0], BASELINE_HBA1C[1]);
 		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_HBA1C[0], mode, MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[1]);

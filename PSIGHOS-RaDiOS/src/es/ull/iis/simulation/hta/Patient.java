@@ -8,12 +8,12 @@ import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.commons.jexl3.MapContext;
-
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.Modification;
+import es.ull.iis.simulation.hta.populations.ClinicalParameter;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -48,10 +48,16 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	private boolean diagnosed;
 	/** The detailed state of the patient */
 	private final TreeSet<Manifestation> state;
-	/** Patient profile */
-	private final PatientProfile profile;
+	/** Sex of the patient: 0 for men, 1 for women */
+	private final int sex;
+	/** Initial age of the patient (stored as years) */
+	private final double initAge;	
 	/** Initial age of the patient (stored as simulation time units) */
-	private final long initAge;
+	private final long simulInitAge;
+	/** {@link Disease} of the patient or {@link Disease.HEALTHY} in case the patient is healthy */ 
+	private final Disease disease;
+	/** A collection of properties */
+	private final TreeMap<String, Number> properties;
 	
 	// Events
 	/** Events that this patient has suffered related to each manifestation */
@@ -74,11 +80,16 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.intervention = intervention;
 		this.clonedFrom = null;
 		this.dead = false;
-		this.profile = population.getPatientProfile(simul);
-		this.diagnosed = profile.isDiagnosedFromStart();
-		this.state = new TreeSet<>();
-		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
 		this.population = population;
+		this.diagnosed = population.isDiagnosedFromStart(this);
+		this.state = new TreeSet<>();
+		this.sex = population.getSex(this);
+		this.initAge = population.getInitAge(this);
+		this.simulInitAge = BasicConfigParams.SIMUNIT.convert(initAge, TimeUnit.YEAR);
+		this.disease = population.getDisease(this);
+		properties = new TreeMap<>();
+		for (ClinicalParameter param : population.getPatientParameters())
+			addProperty(param.name(), param.getInitialValue(this, simul));
 		manifestationEvents = new TreeMap<>();
 		nextManifestationEvents = new TreeMap<>();
 	}
@@ -95,10 +106,13 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.clonedFrom = original;		
 		this.dead = false;
 		this.state = new TreeSet<>();
-		this.profile = original.profile;
-		this.diagnosed = profile.isDiagnosedFromStart();
-		this.initAge = original.initAge;
 		this.population = original.population;
+		this.diagnosed = population.isDiagnosedFromStart(this);
+		this.sex = original.sex;
+		this.initAge = original.initAge;
+		this.simulInitAge = original.simulInitAge;
+		this.disease = original.disease;
+		properties = original.properties;
 		manifestationEvents = new TreeMap<>();
 		nextManifestationEvents = new TreeMap<>();
 	}
@@ -112,7 +126,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return the disease of the patient
 	 */
 	public Disease getDisease() {
-		return profile.getDisease();
+		return disease;
 	}
 
 	/**
@@ -223,19 +237,11 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 
 	/**
-	 * Returns the patient's profile
-	 * @return the profile
-	 */
-	public PatientProfile getProfile() {
-		return profile;
-	}
-
-	/**
 	 * Returns the initial age assigned to the patient
 	 * @return The initial age assigned to the patient
 	 */
 	public double getInitAge() {
-		return profile.getInitAge();
+		return initAge;
 	}
 
 	/**
@@ -243,7 +249,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return The current age of the patient
 	 */
 	public double getAge() {
-		return ((double)(initAge + simul.getSimulationEngine().getTs() - startTs)) / BasicConfigParams.YEAR_CONVERSION;
+		return ((double)(simulInitAge + simul.getSimulationEngine().getTs() - startTs)) / BasicConfigParams.YEAR_CONVERSION;
 	}
 	
 	
@@ -252,7 +258,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return The sex assigned to the patient (0: male; 1: female)
 	 */
 	public int getSex() {
-		return profile.getSex();
+		return sex;
 	}
 
 	/**
@@ -269,29 +275,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		du = method.combine(du, intervention.getAnnualDisutility(this));
 		return population.getBaseUtility(this) - du;		
 	}
-
-	/**
-	 * Creates a context to be used by Java expression language parser. The context contains the state and adhoc defined properties of the patient.
-	 * @return a context to be used by Java expression language parser
-	 */
-	public MapContext createJEXLContext() {
-		final MapContext jc = new MapContext();
-		jc.set("age", getAge());
-		jc.set("sex", getSex());
-		jc.set("disease", getDisease().name());
-		jc.set("intervention", getIntervention().name());
-		for (Manifestation manif : getState()) {
-			jc.set(manif.name(), getTimeToManifestation(manif));
-
-		}
-		final Collection<String> propNames = profile.getPropertyNames();
-		for (String propName : propNames)
-			jc.set(propName, profile.getPropertyValue(propName, this));
-		final Collection<String> propLists = profile.getListPropertyNames();
-		for (String propName : propLists)
-			jc.set(propName, profile.getListProperty(propName));
-		return jc;
-	}
 	
 	/**
 	 * Returns the predicted age at death of the patient. If not yet predicted, returns Double.MAX_VALUE.
@@ -300,7 +283,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 */
 	public double getAgeAtDeath() {
 		final long timeToDeath = getTimeToDeath();
-		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : (((double)(initAge + timeToDeath)) / BasicConfigParams.YEAR_CONVERSION);
+		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : (((double)(simulInitAge + timeToDeath)) / BasicConfigParams.YEAR_CONVERSION);
 	}
 	
 	/**
@@ -422,7 +405,51 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			simul.addEvent(ev);
 		}
 	}
-	
+
+	/**
+	 * Returns the value associated to the specified property modified depending on the patient
+	 * @param property The name of the property
+	 * @return the value associated to the specified property
+	 */
+	public Number getPropertyValue(String property) {
+		final int id = getSimulation().getIdentifier();
+		final Modification modif = getSimulation().getIntervention().getClinicalParameterModification(property);
+		double value = properties.get(property).doubleValue(); 
+		switch(modif.getType()) {
+		case DIFF:
+			value -= modif.getValue(id);
+			break;
+		case RR:
+			value *= modif.getValue(id);
+			break;
+		case SET:
+			value = modif.getValue(id);
+			break;
+		default:
+			break;
+		}
+		return value;
+	}
+
+	/**
+	 * Sets the value of the specified property. Replaces the property if already exists.
+	 * @param property The name of the property
+	 * @param value The new value of the property
+	 * @return This profile, so you can concatenate calls to this method 
+	 */
+	public Patient addProperty(String property, Number value) {
+		properties.put(property, value);
+		return this;
+	}
+
+	/**
+	 * Returns the list of properties 	
+	 * @return
+	 */
+	public Collection<String> getPropertyNames() {
+		return properties.keySet();
+	}
+
 	/**
 	 * The first event of the patient that initializes everything and computes initial time to events.
 	 * @author Iván Castilla Rodríguez

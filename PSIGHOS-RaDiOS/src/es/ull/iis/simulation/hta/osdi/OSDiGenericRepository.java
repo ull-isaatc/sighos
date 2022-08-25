@@ -5,12 +5,15 @@ package es.ull.iis.simulation.hta.osdi;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
-import org.w3c.xsd.owl2.Ontology;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlEngine;
 
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
@@ -19,10 +22,12 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
- * @author masbe
+ * @author Iván Castilla Rodríguez
  *
  */
 public class OSDiGenericRepository extends SecondOrderParamsRepository {
+	public static final JexlEngine JEXL = new JexlBuilder().create();
+	private final OwlHelper helper; 
 
 	/**
 	 * 
@@ -37,10 +42,9 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	 * @throws IOException
 	 * @throws TranspilerException 
 	 */
-	public OSDiGenericRepository(int nRuns, int nPatients, String path, String diseaseId, String populationId, DisutilityCombinationMethod method) throws FileNotFoundException, JAXBException, IOException, TranspilerException {
+	public OSDiGenericRepository(int nRuns, int nPatients, String path, String diseaseId, String populationId, List<String> interventionsToCompare, DisutilityCombinationMethod method) throws FileNotFoundException, JAXBException, IOException, TranspilerException, MalformedSimulationModelException {
 		super(nRuns, nPatients);
-		Ontology testOntology = OwlHelper.loadOntology(path);
-		OwlHelper.initilize(testOntology);
+		helper = new OwlHelper(path);
 		setDisutilityCombinationMethod(method);
 
 		Disease disease = DiseaseBuilder.getDiseaseInstance(this, diseaseId);
@@ -50,11 +54,14 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 		
 		// Build interventions
-		List<String> interventions = OSDiNames.Class.INTERVENTION.getDescendantsOf(disease.name());
-		for (String interventionName : interventions) {
+		for (String interventionName : interventionsToCompare) {
 			InterventionBuilder.getInterventionInstance(this, interventionName);
 		}
 		
+	}
+
+	public OwlHelper getOwlHelper() {
+		return helper;
 	}
 
 	/**
@@ -63,8 +70,11 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	 */
 	public static void main(String[] args) {
 		try {
+			final List<String> interventionsToCompare = new ArrayList<>();
+			interventionsToCompare.add(InterventionBuilder.DO_NOTHING);
+
 //			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
-			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#T1DM_Disease", "#T1DM_DCCTPopulation1", DisutilityCombinationMethod.ADD);
+			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#T1DM_Disease", "#T1DM_DCCTPopulation1", interventionsToCompare, DisutilityCombinationMethod.ADD);
 			secParams.registerAllSecondOrderParams();
 			for (Disease disease : secParams.getRegisteredDiseases()) {
 				System.out.println(disease.prettyPrint(""));
@@ -80,6 +90,8 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (TranspilerException e) {
+			e.printStackTrace();
+		} catch (MalformedSimulationModelException e) {
 			e.printStackTrace();
 		}
 	}

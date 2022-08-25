@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
@@ -23,7 +24,7 @@ public class PBDPopulation extends StdPopulation {
 	/**
 	 * @param disease
 	 */
-	public PBDPopulation(SecondOrderParamsRepository secParams, Disease disease, boolean allAffected) {
+	public PBDPopulation(SecondOrderParamsRepository secParams, Disease disease, boolean allAffected) throws MalformedSimulationModelException {
 		super(secParams, "PBD_POP", "Population for PBD", disease);
 		this.allAffected = allAffected;
 	}

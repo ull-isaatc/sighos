@@ -62,7 +62,7 @@ public class DiseaseProgressionSimulation extends Simulation {
 		this.generatedPatients = new Patient[nPatients];
 		this.commonParams = original.commonParams;
 		commonParams.reset(original.id);
-		new PatientGenerator(this, original.generatedPatients, intervention);
+		new PatientGenerator(this, original.generatedPatients, intervention, commonParams.getPopulation());
 	}
 
 	/**

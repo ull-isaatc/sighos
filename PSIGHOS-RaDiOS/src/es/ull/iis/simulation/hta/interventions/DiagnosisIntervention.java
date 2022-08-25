@@ -80,7 +80,6 @@ public abstract class DiagnosisIntervention extends Intervention implements Defi
 		@Override
 		public void event() {
 			final DiseaseProgressionSimulation simul = pat.getSimulation();
-			pat.getProfile().addElementToListProperty(STR_DIAGNOSIS, ts);
 			// If the patient is already diagnosed, no sense in performing screening
 			if (!pat.isDiagnosed()) {
 				final int id = simul.getIdentifier();
@@ -123,7 +122,6 @@ public abstract class DiagnosisIntervention extends Intervention implements Defi
 		@Override
 		public void event() {
 			final DiseaseProgressionSimulation simul = pat.getSimulation();
-			pat.getProfile().addElementToListProperty(STR_DIAGNOSIS, ts);
 			// If the patient is already diagnosed, no sense in performing screening
 			if (!pat.isDiagnosed() && strategyStage.getCondition().check(pat)) {
 				final int id = simul.getIdentifier();
