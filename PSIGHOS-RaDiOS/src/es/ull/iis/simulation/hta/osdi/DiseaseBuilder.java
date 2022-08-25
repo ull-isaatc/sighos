@@ -1,9 +1,11 @@
 package es.ull.iis.simulation.hta.osdi;
 
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -24,6 +26,7 @@ public interface DiseaseBuilder {
 			public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 				try {
 					createUtilityParam((OSDiGenericRepository) secParams, this);
+					createCostParams((OSDiGenericRepository) secParams, this);
 				} catch (TranspilerException e) {
 					System.err.println(e.getMessage());
 				}
@@ -53,15 +56,64 @@ public interface DiseaseBuilder {
 				disease.addExclusion(manif, disease.getManifestation(excludedManif));
 			}
 		}
-		
-		// TODO: Process costs related to follow-up or treatment strategies 
-//		disease.setScreeningStrategies(ScreeningBuilder.getScreeningStrategies(diseaseName));
-//		disease.setClinicalDiagnosisStrategies(ClinicalDiagnosisBuilder.getClinicalDiagnosisStrategies(diseaseName));
-//		disease.setInterventions(InterventionBuilder.getInterventions(diseaseName));
-//		disease.setFollowUpStrategies(FollowUpBuilder.getFollowUpStrategies(diseaseName));				
-//		disease.setTreatmentStrategies(TreatmentBuilder.getTreatmentStrategies(diseaseName));
-
 		return disease;
+	}
+	
+	private static void createCostParam(OwlHelper helper, String costName, CostParamDescriptions paramType, OSDiGenericRepository secParams, Disease disease) throws TranspilerException {
+		// Assumes annual behavior if not specified
+		final String strTempBehavior = OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(helper, costName, OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
+		if (CostParamDescriptions.DIAGNOSIS_COST.equals(paramType)) {
+			if (!OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME.getDescription().equals(strTempBehavior))
+				throw new TranspilerException("Diagnosis costs directly associated to the disease \"" + disease.name() + "\" should be ONE_TIME. Instead, " + strTempBehavior + " found");
+		}
+		else {
+			if (!OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription().equals(strTempBehavior))
+				throw new TranspilerException("Follow-up, treatment and non specific costs directly associated to the disease \"" + disease.name() + "\" should be ANNUAL. Instead, " + strTempBehavior + " found");
+		}
+		// Default value for utilities is 1; 0 for disutilities
+		final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, costName, "0.0");
+		// Assumes current year if not specified
+		final int year = Integer.parseInt(OSDiNames.DataProperty.HAS_YEAR.getValue(helper, costName, "" + (new GregorianCalendar()).get(GregorianCalendar.YEAR)));
+		try {
+			final ProbabilityDistribution probDistribution = new ProbabilityDistribution(strValue);
+			paramType.addParameter(secParams, disease,  
+					OSDiNames.getSource(helper, costName), year, 
+					probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
+		} catch(TranspilerException ex) {
+			throw new TranspilerException(OSDiNames.Class.UTILITY, costName, OSDiNames.DataProperty.HAS_VALUE, strValue);
+		}
+		
+	}
+	/**
+	 * Creates the costs associated to a specific disease by extracting the information from the ontology. 
+	 * TODO: Process strategies and not only costs directly defined
+	 * @param secParams Repository
+	 * @param disease A disease
+	 * @throws TranspilerException When there was a problem parsing the ontology
+	 */
+	private static void createCostParams(OSDiGenericRepository secParams, Disease disease) throws TranspilerException {
+		final OwlHelper helper = secParams.getOwlHelper();		
+		List<String> costs = OSDiNames.ObjectProperty.HAS_COST.getValues(helper, disease.name());
+		if (costs.size() == 1)
+			createCostParam(helper, costs.get(0), CostParamDescriptions.ANNUAL_COST, secParams, disease);
+		else if (costs.size() > 1)
+			throw new TranspilerException("A maximum of one non specific cost should be directly associated to the disease \"" + disease.name() + "\". Instead, " + costs.size() + " found");
+		costs = OSDiNames.ObjectProperty.HAS_FOLLOWUP_COST.getValues(helper, disease.name());
+		if (costs.size() == 1)
+			createCostParam(helper, costs.get(0), CostParamDescriptions.FOLLOW_UP_COST, secParams, disease);
+		else if (costs.size() > 1)
+			throw new TranspilerException("A maximum of one follow-up cost should be directly associated to the disease \"" + disease.name() + "\". Instead, " + costs.size() + " found");
+		costs = OSDiNames.ObjectProperty.HAS_TREATMENT_COST.getValues(helper, disease.name());
+		if (costs.size() == 1)
+			createCostParam(helper, costs.get(0), CostParamDescriptions.TREATMENT_COST, secParams, disease);
+		else if (costs.size() > 1)
+			throw new TranspilerException("A maximum of one treatment cost should be directly associated to the disease \"" + disease.name() + "\". Instead, " + costs.size() + " found");
+		costs = OSDiNames.ObjectProperty.HAS_DIAGNOSIS_COST.getValues(helper, disease.name());
+		if (costs.size() == 1)
+			createCostParam(helper, costs.get(0), CostParamDescriptions.DIAGNOSIS_COST, secParams, disease);
+		else if (costs.size() > 1)
+			throw new TranspilerException("A maximum of one diagnosis cost should be directly associated to the disease \"" + disease.name() + "\". Instead, " + costs.size() + " found");
+		
 	}
 	
 	/**
@@ -70,7 +122,7 @@ public interface DiseaseBuilder {
 	 * @param disease A disease
 	 * @throws TranspilerException When there was a problem parsing the ontology
 	 */
-	public static void createUtilityParam(OSDiGenericRepository secParams, Disease disease) throws TranspilerException {
+	private static void createUtilityParam(OSDiGenericRepository secParams, Disease disease) throws TranspilerException {
 		final OwlHelper helper = secParams.getOwlHelper();		
 		List<String> utilities = OSDiNames.ObjectProperty.HAS_UTILITY.getValues(helper, disease.name());
 		if (utilities.size() > 1)
