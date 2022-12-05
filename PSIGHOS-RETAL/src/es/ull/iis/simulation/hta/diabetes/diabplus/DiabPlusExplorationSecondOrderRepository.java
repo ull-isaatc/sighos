@@ -81,6 +81,7 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
  */
 package es.ull.iis.simulation.hta.diabetes.diabplus;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
@@ -111,7 +112,7 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 	/** Lower and upper limits for severe hypoglycemia event rates. Source: Frier BM. The incidence and impact of hypoglycemia in type 1 and type 2 diabetes. International Diabetes Monitor 2009;21:210–218 */
 	private static final double[] SHE_LIMITS = new double[] {1.0, 1.7};  
 
-	protected DiabPlusExplorationSecondOrderRepository(int nPatients, DiabPlusStdPopulation population, int[] hba1cLimits) {
+	protected DiabPlusExplorationSecondOrderRepository(int nPatients, DiabPlusStdPopulation population, ArrayList<Double> hba1cLevels) {
 		super(nPatients, population);
 
 		registerComplication(new SheffieldRETSubmodel());
@@ -127,8 +128,8 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 				EnumSet.of(DiabetesType.T1), true);
 		registerComplication(hypoEvent);
 		
-		for (int i = hba1cLimits[0]; i <= hba1cLimits[1]; i++)
-			registerIntervention(new DiabPlusExplorationStdIntervention(0.0, i, true));
+		for (double hba1cLevel : hba1cLevels)
+			registerIntervention(new DiabPlusExplorationStdIntervention(0.0, hba1cLevel));
 
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of Diabetes with no complications", 
 				BasicConfigParams.DEF_C_DNC.SOURCE, BasicConfigParams.DEF_C_DNC.YEAR, 

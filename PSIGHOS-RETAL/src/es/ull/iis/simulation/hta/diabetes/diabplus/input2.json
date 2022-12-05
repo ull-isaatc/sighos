@@ -1,0 +1,29 @@
+{
+  "profile":{
+    "id":"nuevo2",
+    "dateOfBirth":"1984",
+    "dateOfDiabetes":"2011",
+    "gender":"M",
+    "baseHbA1cLevel":"9",
+    "hypoRate":"2",
+    "BGRET":true,
+    "objHbA1cLevel":"6",
+    "hypoRateRR":"1",
+    "annualCost":"1000"
+  },
+  "patient":{
+    "man":"true",
+    "age":"38",
+    "dateOfDiabetes":"2011",
+    "durationOfDiabetes":"11",
+    "hypoRate":"2",
+    "hypoRateRR":"1",
+    "hypoglycemic":"undefined",
+    "baseHbA1cLevel":"9",
+    "objHbA1cLevel":"6",
+    "annualCost":"1000",
+    "manifestations":[
+      "BGRET"
+    ]
+  }
+}

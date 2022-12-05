@@ -48,7 +48,7 @@ public class DiabPlusStdPopulation implements DiabetesPopulation {
 
 	@Override
 	public int getMinAge() {
-		return BasicConfigParams.DEF_MIN_AGE;
+		return (int) age;
 	}
 	
 	@Override

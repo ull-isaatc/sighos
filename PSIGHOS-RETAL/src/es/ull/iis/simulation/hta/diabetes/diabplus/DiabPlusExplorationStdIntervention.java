@@ -19,7 +19,7 @@ public class DiabPlusExplorationStdIntervention extends SecondOrderDiabetesInter
 	 * @param shortName
 	 * @param description
 	 */
-	public DiabPlusExplorationStdIntervention(double annualCost, double hba1cLevel, boolean base) {
+	public DiabPlusExplorationStdIntervention(double annualCost, double hba1cLevel) {
 		super("DIAB+EXPLORE_" + hba1cLevel, "No intervention with level of HbA1c = " + hba1cLevel);
 		this.annualCost = annualCost;
 		this.hba1cLevel = hba1cLevel;
