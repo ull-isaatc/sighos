@@ -3,16 +3,13 @@
  */
 package es.ull.iis.simulation.hta.populations;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
-import es.ull.iis.simulation.hta.PatientProfile;
+import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.DiscreteRandomVariate;
-import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
 
 /**
@@ -20,14 +17,8 @@ import simkit.random.RandomVariate;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class StdPopulation implements Population {
-	/** Random number generator */
-	private final RandomNumber rng;
-	private final String name;
-	private final String description;
+public abstract class StdPopulation extends Population {
 	protected final Disease disease;
-	private final SecondOrderParamsRepository secParams;
-	private final List<ClinicalParameter> parameters;
 	private final RandomVariate[] rndBaselineAge;
 	private final DiscreteRandomVariate[] rndSex;
 	private final DiscreteRandomVariate[] rndDisease;
@@ -36,59 +27,47 @@ public abstract class StdPopulation implements Population {
 	/**
 	 * Creates a standard population
 	 */
-	public StdPopulation(SecondOrderParamsRepository secParams, String name, String description, Disease disease) {
+	public StdPopulation(SecondOrderParamsRepository secParams, String name, String description, Disease disease) throws MalformedSimulationModelException {
+		super(name, description, secParams);
 		this.disease = disease;
-		this.name = name;
-		this.description = description;
-		this.secParams = secParams;
-		this.parameters = getPatientParameterList();
-		rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 		rndBaselineAge = new RandomVariate[secParams.getNRuns() + 1];
 		rndSex = new DiscreteRandomVariate[secParams.getNRuns() + 1];
 		rndDiagnosed = new DiscreteRandomVariate[secParams.getNRuns() + 1];
 		rndDisease = new DiscreteRandomVariate[secParams.getNRuns() + 1];
 	}
-
-	@Override
-	public String name() {
-		return name;
-	}
 	
 	@Override
-	public String getDescription() {
-		return description;
-	}
-	
-	@Override
-	public PatientProfile getPatientProfile(DiseaseProgressionSimulation simul) {
-		final int id = simul.getIdentifier();
+	public int getSex(Patient pat) {
+		final int id = pat.getSimulation().getIdentifier();
 		if (rndSex[id] == null)
-			rndSex[id] = getSexVariate(simul);
-		if (rndBaselineAge[id] == null)
-			rndBaselineAge[id] = getBaselineAgeVariate(simul);
-		if (rndDisease[id] == null)
-			rndDisease[id] = getDiseaseVariate(simul);
-		if (rndDiagnosed[id] == null)
-			rndDiagnosed[id] = getDiagnosedVariate(simul);
-		final int sex = rndSex[id].generateInt();
-		final double initAge = Math.min(Math.max(rndBaselineAge[id].generate(), getMinAge()), getMaxAge());
-		final Disease dis = (rndDisease[id].generateInt() == 1) ? disease : secParams.HEALTHY;
-		final PatientProfile prof = new PatientProfile(initAge, sex, dis, rndDiagnosed[id].generateInt() == 1);
-		for (ClinicalParameter param : parameters)
-			prof.addProperty(param.getName(), param.getInitialValue(prof, simul));
-		return prof;
+			rndSex[id] = getSexVariate(pat.getSimulation());
+		return rndSex[id].generateInt();
 	}
 
 	@Override
-	public int getMinAge() {
-		return BasicConfigParams.DEF_MIN_AGE;
+	public double getInitAge(Patient pat) {
+		final int id = pat.getSimulation().getIdentifier();
+		if (rndBaselineAge[id] == null)
+			rndBaselineAge[id] = getBaselineAgeVariate(pat.getSimulation());
+		return Math.min(Math.max(rndBaselineAge[id].generate(), getMinAge()), getMaxAge());
+	}
+
+	@Override
+	public Disease getDisease(Patient pat) {
+		final int id = pat.getSimulation().getIdentifier();
+		if (rndDisease[id] == null)
+			rndDisease[id] = getDiseaseVariate(pat.getSimulation());
+		return (rndDisease[id].generateInt() == 1) ? disease : getRepository().HEALTHY;
+	}
+
+	@Override
+	public boolean isDiagnosedFromStart(Patient pat) {
+		final int id = pat.getSimulation().getIdentifier();
+		if (rndDiagnosed[id] == null)
+			rndDiagnosed[id] = getDiagnosedVariate(pat.getSimulation());
+		return rndDiagnosed[id].generateInt() == 1;
 	}
 	
-	@Override
-	public int getMaxAge() {
-		return BasicConfigParams.DEF_MAX_AGE;
-	}
-
 	/**
 	 * Creates and returns a distribution that represents the probability of having a disease according to the population characteristics.
 	 * TODO: Should be changed to a "time to disease" distribution to fully connect with the concepts of prevalence and incidence. If prevalence were
@@ -122,20 +101,4 @@ public abstract class StdPopulation implements Population {
 	 * @return a function to assign the baseline age
 	 */
 	protected abstract RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul);
-	
-	protected List<ClinicalParameter> getPatientParameterList() {
-		return new ArrayList<>();
-	}
-
-	/**
-	 * @return the common random number generator for random variates used within this class
-	 */
-	public RandomNumber getCommonRandomNumber() {
-		return rng;
-	}
-	
-	@Override
-	public SecondOrderParamsRepository getRepository() {
-		return secParams;
-	}
 }

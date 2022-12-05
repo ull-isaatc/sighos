@@ -13,7 +13,9 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
+import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
+import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.BernoulliParam;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
@@ -22,13 +24,14 @@ import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 
 /**
  * A manifestation of a {@link Disease} defined in the model. Manifestations may be chronic or acute. 
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, PrettyPrintable, CostProducer {
+public abstract class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, Reseteable, PrettyPrintable, CostProducer, UtilityProducer {
 	/**
 	 * The type of the manifestation. Currently distinguishes among chronic and acute manifestations
 	 * @author Iván Castilla
@@ -191,6 +194,7 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 	 * previously generated and thus make easier the comparison among interventions (common random numbers).
 	 * @param id Identifier of the simulation to reset
 	 */
+	@Override
 	public void reset(int id) {
 		if (associatedDeath[id] != null)
 			associatedDeath[id].reset();
@@ -293,8 +297,8 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 
 
 	@Override
-	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-		return discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initT, endT);
+	public double getCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
+		return discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);
 	}
 
 	@Override
@@ -303,25 +307,32 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 	}
 
 	@Override
-	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT,
-			Discount discountRate) {
-		return discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initT, endT);
+	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
+		return discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);
 	}
 
 	@Override
-	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
-			Discount discountRate) {
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
 		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
-		return discountRate.applyDiscount(annualCost, initT, endT);
+		return discountRate.applyDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
-	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
-			Discount discountRate) {
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
 		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
-		return discountRate.applyAnnualDiscount(annualCost, initT, endT);
+		return discountRate.applyAnnualDiscount(annualCost, initYear, endYear);
+	}
+
+	@Override
+	public double getAnnualDisutility(Patient pat) {
+		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat.getSimulation());
 	}
 	
+	@Override
+	public double getStartingDisutility(Patient pat) {
+		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat.getSimulation());
+	}
+
 	@Override
 	public String prettyPrint(String linePrefix) {
 		

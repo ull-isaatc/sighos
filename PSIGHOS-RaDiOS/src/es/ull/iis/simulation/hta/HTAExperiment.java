@@ -19,6 +19,7 @@ import es.ull.iis.simulation.hta.inforeceiver.CostListener;
 import es.ull.iis.simulation.hta.inforeceiver.CumulativeIncidenceView;
 import es.ull.iis.simulation.hta.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.inforeceiver.IncidenceView;
+import es.ull.iis.simulation.hta.inforeceiver.IndividualParameterListener;
 import es.ull.iis.simulation.hta.inforeceiver.IndividualTime2ManifestationView;
 import es.ull.iis.simulation.hta.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.inforeceiver.PatientInfoView;
@@ -135,7 +136,7 @@ public abstract class HTAExperiment {
 		PrintWriter[] result = new PrintWriter[2];
 		if (filename == null && os == null) {
 			result[0] = new PrintWriter(System.out);
-			result[1] = new PrintWriter(System.out);
+			result[1] = result[0];
 		} else if (filename != null) {
 			try {
 				result[0] = new PrintWriter(new BufferedWriter(new FileWriter(filename)));
@@ -155,7 +156,7 @@ public abstract class HTAExperiment {
 			}
 		} else if (os != null) {
 			result[0] = new PrintWriter(os);
-			result[1] = new PrintWriter(os);
+			result[1] = result[0];
 		} 
 		return result;
 		
@@ -288,6 +289,7 @@ public abstract class HTAExperiment {
 			str.append(CostListener.getStrHeader(shortName));
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
+			str.append(IndividualParameterListener.getStrHeader(shortName, secParams.getPopulation().getPatientParameters()));
 			if (interventions[i] instanceof ScreeningIntervention)
 				str.append(ScreeningTestPerformanceView.getStrHeader(shortName));
 		}
@@ -296,7 +298,7 @@ public abstract class HTAExperiment {
 		return str.toString();
 	}
 
-	private String print(DiseaseProgressionSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, TimeFreeOfComplicationsView timeFreeListener,
+	private String print(DiseaseProgressionSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, IndividualParameterListener[] paramListeners, TimeFreeOfComplicationsView timeFreeListener,
 			ScreeningTestPerformanceView[] screenListeners) {
 		final StringBuilder str = new StringBuilder();
 		str.append(simul.getIdentifier()).append("\t").append(nPatients).append("\t");
@@ -304,6 +306,7 @@ public abstract class HTAExperiment {
 			str.append(costListeners[i]);
 			str.append(lyListeners[i]);
 			str.append(qalyListeners[i]);
+			str.append(paramListeners[i]);
 			if (interventions[i] instanceof ScreeningIntervention)
 				str.append(screenListeners[i]);
 		}
@@ -322,6 +325,7 @@ public abstract class HTAExperiment {
 		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], secParams, timeHorizon);
 		
 		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(secParams, false);
+		final IndividualParameterListener[] paramListeners = new IndividualParameterListener[nInterventions];
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
@@ -329,11 +333,13 @@ public abstract class HTAExperiment {
 
 		for (int i = 0; i < nInterventions; i++) {
 			costListeners[i] = new CostListener(discountCost, nPatients);
+			paramListeners[i] = new IndividualParameterListener(nPatients, secParams.getPopulation().getPatientParameters());
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
-			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), discountEffect, nPatients);
+			qalyListeners[i] = new QALYListener(secParams.getDisutilityCombinationMethod(), discountEffect, nPatients);
 			screenListeners[i] = (interventions[i] instanceof ScreeningIntervention) ? new ScreeningTestPerformanceView(secParams) : null;
 		}
 		simul.addInfoReceiver(costListeners[0]);
+		simul.addInfoReceiver(paramListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
 		simul.addInfoReceiver(timeFreeListener);
@@ -359,6 +365,7 @@ public abstract class HTAExperiment {
 		for (int i = 1; i < nInterventions; i++) {
 			simul = new DiseaseProgressionSimulation(simul, interventions[i]);
 			simul.addInfoReceiver(costListeners[i]);
+			simul.addInfoReceiver(paramListeners[i]);
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
 			simul.addInfoReceiver(timeFreeListener);
@@ -411,7 +418,7 @@ public abstract class HTAExperiment {
 				System.out.println();
 			}
 		}
-		out.println(print(simul, costListeners, lyListeners, qalyListeners, timeFreeListener, screenListeners));
+		out.println(print(simul, costListeners, lyListeners, qalyListeners, paramListeners, timeFreeListener, screenListeners));
 	}
 
 	public enum Outputs {

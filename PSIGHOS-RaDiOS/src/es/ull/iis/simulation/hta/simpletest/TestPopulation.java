@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
@@ -22,7 +23,7 @@ public class TestPopulation extends StdPopulation {
 	/**
 	 * @param disease
 	 */
-	public TestPopulation(SecondOrderParamsRepository secParams, Disease disease) {
+	public TestPopulation(SecondOrderParamsRepository secParams, Disease disease) throws MalformedSimulationModelException {
 		super(secParams, "TEST_POP", "Test population", disease);
 	}
 

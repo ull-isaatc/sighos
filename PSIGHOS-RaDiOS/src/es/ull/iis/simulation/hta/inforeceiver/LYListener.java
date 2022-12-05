@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.hta.inforeceiver;
 
-import java.util.Arrays;
-
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
@@ -21,6 +19,7 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class LYListener extends Listener implements StructuredOutputListener {
+	private final static String PREFIX = "LY_";
 	protected final Discount discountRate;
 	protected final int nPatients;
 	protected double aggregated;
@@ -103,30 +102,24 @@ public class LYListener extends Listener implements StructuredOutputListener {
 		final double avg = aggregated / nPatients;
 		final double sd = Statistics.stdDev(values, avg);
 		final double[] ci = Statistics.normal95CI(avg, sd, nPatients);
-		final double[] cip = getPercentile95CI();
+		final double[] cip = Statistics.getPercentile95CI(values);
 		return new double[] {avg, sd, ci[0], ci[1], cip[0], cip[1]};
 	}
 	
 	public static String getStrHeader(String intervention) {
 		final StringBuilder str = new StringBuilder();
-		str.append("AVG_LY_" + intervention + "\t");
-		str.append("L95CI_LY_" + intervention + "\t");
-		str.append("U95CI_LY_" + intervention + "\t");
+		str.append(STR_AVG_PREFIX + PREFIX + intervention + SEP);
+		str.append(STR_L95CI_PREFIX + PREFIX + intervention + SEP);
+		str.append(STR_U95CI_PREFIX + PREFIX + intervention + SEP);
 		return str.toString();
 	}
+	
 	@Override
 	public String toString() {
-		final double[] cip = getPercentile95CI();
-		return (aggregated / nPatients) + "\t" + cip[0] + "\t" + cip[1] + "\t";
+		final double[] cip = Statistics.getPercentile95CI(values);
+		return (aggregated / nPatients) + SEP + cip[0] + SEP + cip[1] + SEP;
 	}
 	
-	private double[] getPercentile95CI() {
-		final double[] ordered = Arrays.copyOf(values, nPatients);
-		Arrays.sort(ordered);
-		final int index = (int)Math.ceil(nPatients * 0.025);
-		return new double[] {ordered[index - 1], ordered[nPatients - index]}; 
-	}
-
 	/**
 	 * @return the values
 	 */

@@ -54,15 +54,15 @@ public class IndividualTime2ManifestationView extends Listener implements Struct
 		final StringBuilder str = new StringBuilder("PAT\t");
 		for (Intervention inter : interventions) {
 			for (Manifestation comp : availableChronicManifestations) {
-				str.append(comp.name()).append("_").append(inter.name()).append("\t");
+				str.append(comp.name()).append("_").append(inter.name()).append(SEP);
 			}			
 		}
 		str.append(System.lineSeparator());
 		for (int i = 0; i < nPatients; i++) {
-			str.append(i).append("\t");
+			str.append(i).append(SEP);
 			for (int j = 0; j < interventions.length; j++) {
 				for (int k = 0; k < availableChronicManifestations.length; k++) {
-					str.append(innerTimeTo[i][j][k]).append("\t");
+					str.append(innerTimeTo[i][j][k]).append(SEP);
 				}
 			}
 			str.append(System.lineSeparator());

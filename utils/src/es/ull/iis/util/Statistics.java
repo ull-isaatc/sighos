@@ -4,6 +4,7 @@
 package es.ull.iis.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A simple package to get some basic statistics.
@@ -212,6 +213,34 @@ public class Statistics {
 			return sortedValues[sortedValues.length - 1];
 		return sortedValues[pos] + dif * (sortedValues[pos + 1] - sortedValues[pos]);
 	}
+
+	/**
+	 * Returns the 2.5% and 97.5% percentiles of the array. The array does not need to be previously ordered
+	 * @param values An array of values
+	 * @return the 2.5% and 97.5% percentiles of the array
+	 */
+	public static double[] getPercentile95CI(double[] values) {
+		int n = values.length;
+		final double[] ordered = Arrays.copyOf(values, n);
+		Arrays.sort(ordered);
+		final int index = (int)Math.ceil(n * 0.025);
+		return new double[] {ordered[index - 1], ordered[n - index]}; 
+	}
+
+	/**
+	 * Returns the 2.5% and 97.5% percentiles of the array. The array does not need to be previously ordered
+	 * @param values An array of values
+	 * @return the 2.5% and 97.5% percentiles of the array
+	 */
+	public static int[] getPercentile95CI(int[] values) {
+		int n = values.length;
+		final int[] ordered = Arrays.copyOf(values, n);
+		Arrays.sort(ordered);
+		final int index = (int)Math.ceil(n * 0.025);
+		return new int[] {ordered[index - 1], ordered[n - index]}; 
+	}
+
+	
 	/**
 	 * Generates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event.  
 	 * @param p Annual risk of the event

@@ -20,6 +20,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 import es.ull.iis.simulation.hta.diabetes.DCCT.DCCTSecondOrderParams;
+import es.ull.iis.simulation.hta.diabetes.DCCT.DCCTSecondOrderParams1;
 import es.ull.iis.simulation.hta.diabetes.canada.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.htaReportCGM.UnawareMonitoSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.htaReportCGM.UncontrolledMonitoSecondOrderParams;
@@ -33,6 +34,7 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.DiabetesPatientInfoView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.EpidemiologicView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.HbA1cListener;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.InitAgeListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.TimeFreeOfComplicationsView;
@@ -206,6 +208,7 @@ public class DiabetesMain {
 		for (int i = 0; i < interventions.size(); i++) {
 			final String shortName = interventions.get(i).getShortName();
 			str.append(HbA1cListener.getStrHeader(shortName));
+			str.append(InitAgeListener.getStrHeader(shortName));
 			str.append(CostListener.getStrHeader(shortName));
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
@@ -216,11 +219,12 @@ public class DiabetesMain {
 		return str.toString();
 	}
 	
-	private String print(DiabetesSimulation simul, HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, AcuteComplicationCounterListener[] acuteListeners, TimeFreeOfComplicationsView timeFreeListener) {
+	private String print(DiabetesSimulation simul, HbA1cListener[] hba1cListeners, InitAgeListener[] initAgeListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, AcuteComplicationCounterListener[] acuteListeners, TimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		str.append("" +  simul.getIdentifier() + "\t");
 		for (int i = 0; i < interventions.size(); i++) {
 			str.append(hba1cListeners[i]);
+			str.append(initAgeListeners[i]);
 			str.append(costListeners[i]);
 			str.append(lyListeners[i]);
 			str.append(qalyListeners[i]);
@@ -240,6 +244,7 @@ public class DiabetesMain {
 		final int nInterventions = interventions.size();
 		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(nPatients, nInterventions, false, secParams.getRegisteredComplicationStages());
 		final HbA1cListener[] hba1cListeners = new HbA1cListener[nInterventions];
+		final InitAgeListener[] initAgeListeners = new InitAgeListener[nInterventions];
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
@@ -247,6 +252,7 @@ public class DiabetesMain {
 
 		for (int i = 0; i < nInterventions; i++) {
 			hba1cListeners[i] = new HbA1cListener(nPatients);
+			initAgeListeners[i] = new InitAgeListener(nPatients);
 			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discountCost, nPatients);
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discountEffect, nPatients);
@@ -255,6 +261,7 @@ public class DiabetesMain {
 		final DiabetesIntervention[] intInstances = common.getInterventions();
 		DiabetesSimulation simul = new DiabetesSimulation(id, intInstances[0], nPatients, common, secParams.getPopulation(), timeHorizon);
 		simul.addInfoReceiver(hba1cListeners[0]);
+		simul.addInfoReceiver(initAgeListeners[0]);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
@@ -276,6 +283,7 @@ public class DiabetesMain {
 		for (int i = 1; i < nInterventions; i++) {
 			simul = new DiabetesSimulation(simul, intInstances[i]);
 			simul.addInfoReceiver(hba1cListeners[i]);
+			simul.addInfoReceiver(initAgeListeners[i]);
 			simul.addInfoReceiver(costListeners[i]);
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
@@ -310,7 +318,7 @@ public class DiabetesMain {
 				System.out.println();
 			}
 		}
-		out.println(print(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, acuteListeners, timeFreeListener));	
+		out.println(print(simul, hba1cListeners, initAgeListeners, costListeners, lyListeners, qalyListeners, acuteListeners, timeFreeListener));	
 	}
 	
 	/**
@@ -416,6 +424,9 @@ public class DiabetesMain {
 	        	case 10:
 	        		secParams = new UnawareMonitoSecondOrderParams(args1.nPatients);
 	        		break;
+	        	case 11:
+	        		secParams = new DCCTSecondOrderParams1(args1.nPatients);
+	        		break;
 	        	default:
 	        		secParams = new UnconsciousSecondOrderParams(args1.nPatients);
 	        		break;
@@ -495,7 +506,7 @@ public class DiabetesMain {
 				PrintWriter outListeners;
 		        if (args1.outputFileName == null) {
 		        	out = new PrintWriter(System.out);
-		        	outListeners = new PrintWriter(System.out);
+		        	outListeners = out;
 		        }
 		        else  {
 		        	try {

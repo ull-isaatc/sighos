@@ -3,12 +3,10 @@
  */
 package es.ull.iis.simulation.hta.inforeceiver;
 
-import java.util.Arrays;
-
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator;
 import es.ull.iis.simulation.hta.info.PatientInfo;
+import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.info.SimulationInfo;
@@ -22,8 +20,9 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class QALYListener extends Listener implements StructuredOutputListener {
-	private final UtilityCalculator calc;
+	private final static String PREFIX = "QALY_";
 	protected final Discount discountRate;
+	protected final DisutilityCombinationMethod method;
 	protected final int nPatients;
 	protected double aggregated;
 	protected final double[]values;
@@ -31,9 +30,9 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 	/**
 	 * @param description
 	 */
-	public QALYListener(UtilityCalculator calc, Discount discountRate, int nPatients) {
+	public QALYListener(DisutilityCombinationMethod method, Discount discountRate, int nPatients) {
 		super("Quality adjusted life expectancy listener");
-		this.calc = calc;
+		this.method = method;
 		this.discountRate = discountRate;
 		this.nPatients = nPatients;
 		this.values = new double[nPatients];
@@ -57,11 +56,11 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 				for (int i = 0; i < lastTs.length; i++) {
 					final Patient pat = (Patient)simul.getGeneratedPatient(i);
 					if (!pat.isDead()) {
-						final double initAge = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
-						final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
-						if (endAge > initAge) {
-							final double periodCost = calc.getUtilityValue(pat);
-							update(pat, periodCost, initAge, endAge);							
+						final double initYear = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
+						final double endYear = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+						if (endYear > initYear) {
+							final double periodUtility = pat.getUtilityValue(method);
+							update(pat, periodUtility, initYear, endYear);							
 						}						
 					}
 				}
@@ -72,18 +71,18 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 			final Patient pat = pInfo.getPatient();
 			final long ts = pInfo.getTs();
 			final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
-			final double initAge = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
-			final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+			final double initYear = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
+			final double endYear = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
 			// Update lastTs
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {
 			case START_MANIF:
-				update(pat, -calc.getDisutilityValueUponIncidence(pat, pInfo.getManifestation()), endAge);
+				update(pat, -pInfo.getManifestation().getStartingDisutility(pat), endYear);
 			case DEATH:
 				// Update outcomes
-				if (endAge > initAge) {
-					final double periodCost = calc.getUtilityValue(pat);
-					update(pat, periodCost, initAge, endAge);
+				if (endYear > initYear) {
+					final double periodUtility = pat.getUtilityValue(method);
+					update(pat, periodUtility, initYear, endYear);
 				}
 				break;
 			case START:
@@ -99,11 +98,11 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 	 * Updates the value of this outcome for a specified period
 	 * @param pat A patient
 	 * @param value A constant value during the period
-	 * @param initAge Initial age when the value is applied
-	 * @param endAge End age when the value is applied
+	 * @param initYear Initial age when the value is applied
+	 * @param endYear End age when the value is applied
 	 */
-	private void update(Patient pat, double value, double initAge, double endAge) {
-		value = discountRate.applyDiscount(value, initAge, endAge);
+	private void update(Patient pat, double value, double initYear, double endYear) {
+		value = discountRate.applyDiscount(value, initYear, endYear);
 		values[pat.getIdentifier()] += value;
 		aggregated += value;
 	}
@@ -128,28 +127,21 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 		final double avg = aggregated / nPatients;
 		final double sd = Statistics.stdDev(values, avg);
 		final double[] ci = Statistics.normal95CI(avg, sd, nPatients);
-		final double[] cip = getPercentile95CI();
+		final double[] cip = Statistics.getPercentile95CI(values);
 		return new double[] {avg, sd, ci[0], ci[1], cip[0], cip[1]};
 	}
 	
 	public static String getStrHeader(String intervention) {
 		final StringBuilder str = new StringBuilder();
-		str.append("AVG_QALY_" + intervention + "\t");
-		str.append("L95CI_QALY_" + intervention + "\t");
-		str.append("U95CI_QALY_" + intervention + "\t");
+		str.append(STR_AVG_PREFIX + PREFIX + intervention + SEP);
+		str.append(STR_L95CI_PREFIX + PREFIX + intervention + SEP);
+		str.append(STR_U95CI_PREFIX + PREFIX + intervention + SEP);
 		return str.toString();
 	}
 	@Override
 	public String toString() {
-		final double[] cip = getPercentile95CI();
-		return (aggregated / nPatients) + "\t" + cip[0] + "\t" + cip[1] + "\t";
-	}
-	
-	private double[] getPercentile95CI() {
-		final double[] ordered = Arrays.copyOf(values, nPatients);
-		Arrays.sort(ordered);
-		final int index = (int)Math.ceil(nPatients * 0.025);
-		return new double[] {ordered[index - 1], ordered[nPatients - index]}; 
+		final double[] cip = Statistics.getPercentile95CI(values);
+		return (aggregated / nPatients) + SEP + cip[0] + SEP + cip[1] + SEP;
 	}
 
 	/**

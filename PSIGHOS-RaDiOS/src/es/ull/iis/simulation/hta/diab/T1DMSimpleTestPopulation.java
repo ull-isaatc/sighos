@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.ClinicalParameter;
@@ -41,7 +42,7 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	 * @param secParams
 	 * @param disease
 	 */
-	public T1DMSimpleTestPopulation(SecondOrderParamsRepository secParams, Disease disease) {
+	public T1DMSimpleTestPopulation(SecondOrderParamsRepository secParams, Disease disease) throws MalformedSimulationModelException {
 		super(secParams, "T1DMPop", "Simple test population for T1DM", disease);
 	}
 
@@ -51,7 +52,7 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	}
 
 	@Override
-	protected List<ClinicalParameter> getPatientParameterList() {
+	protected List<ClinicalParameter> initializePatientParameterList() throws MalformedSimulationModelException {
 		final ArrayList<ClinicalParameter> paramList = new ArrayList<>();
 
 		paramList.add(new InitiallySetClinicalParameter(T1DMRepository.STR_HBA1C, RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C)));

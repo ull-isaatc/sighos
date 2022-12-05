@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
 import es.ull.iis.simulation.model.Describable;
 
 /**
@@ -16,18 +15,21 @@ import es.ull.iis.simulation.model.Describable;
  *
  */
 public interface OSDiNames {
-
+	String STR_SOURCE_UNKNOWN = "Not specified";
+	
 	/**
 	 * Names of the classes defined in the ontology
 	 * @author Iván Castilla
 	 *
 	 */
 	public static enum Class implements Describable {
+		COST("#Cost"),
 		DEVELOPMENT("#Development"),
 		DIAGNOSIS_STRATEGY("#DiagnosisStrategy"),	
 		DIAGNOSIS_TEST("#DiagnosisTest"),	
 		DISEASE("#Disease"),
 		DRUG("#Drug"),
+		EPIDEMIOLOGICAL_PARAMETER("#EpidemiologicalParameter"),
 		FOLLOW_UP_STRATEGY("#FollowUpStrategy"),
 		FOLLOW_UP_TEST("#FollowUpTest"),
 		GUIDELINE("#Guideline"),
@@ -40,14 +42,12 @@ public interface OSDiNames {
 		MANIFESTATION_PATHWAY("#ManifestationPathway"),
 		MODIFICATION("#Modification"),
 		PARAMETER("#Parameter"),
-		EPIDEMIOLOGICAL_PARAMETER("#EpidemiologicalParameter"),
-		COST("#Cost"),
-		UTILITY("#Utility"),
 		POPULATION("#Population"),
 		SCREENING_STRATEGY("#ScreeningStrategy"),
 		SCREENING_TEST("#ScreeningTest"),
 		STRATEGY("#Strategy"),
-		TREATMENT("#Treatment");
+		TREATMENT("#Treatment"),
+		UTILITY("#Utility");
 
 		private final String description;
 		private Class(String description) {
@@ -60,8 +60,8 @@ public interface OSDiNames {
 		public String getDescription() {
 			return description;
 		}
-		public List<String> getDescendantsOf(String instanceName) {
-			return OwlHelper.getChildsByClassName(instanceName, description);
+		public List<String> getDescendantsOf(OwlHelper helper, String instanceName) {
+			return helper.getChildsByClassName(instanceName, description);
 		}
 	}
 
@@ -147,16 +147,16 @@ public interface OSDiNames {
 			return range;
 		}
 		
-		public String getValue(String instanceName) {
-			return OwlHelper.getDataPropertyValue(instanceName, description);
+		public String getValue(OwlHelper helper, String instanceName) {
+			return helper.getDataPropertyValue(instanceName, description);
 		}
 		
-		public String getValue(String instanceName, String defaultValue) {
-			return OwlHelper.getDataPropertyValue(instanceName, description, defaultValue);
+		public String getValue(OwlHelper helper, String instanceName, String defaultValue) {
+			return helper.getDataPropertyValue(instanceName, description, defaultValue);
 		}
 		
-		public List<String> getValues(String instanceName) {
-			return OwlHelper.getDataPropertyValues(instanceName, description);
+		public List<String> getValues(OwlHelper helper, String instanceName) {
+			return helper.getDataPropertyValues(instanceName, description);
 		}
 	}
 	
@@ -167,10 +167,13 @@ public interface OSDiNames {
 	 *
 	 */
 	public static enum ObjectProperty implements Describable {
+		DEFINES_INDIVIDUAL_PARAMETER_VALUE("#definesIndividualParameterValue"),
 		EXCLUDES_MANIFESTATION("#excludesManifestation"),
 		HAS_DEVELOPMENT("#hasDevelopment"),
+		HAS_DIAGNOSIS_COST("#hasDiagnosisCost"),
 		HAS_DIAGNOSIS_STRATEGY("#hasDiagnosisStrategy"),
 		HAS_COST("#hasCost"),
+		HAS_FOLLOWUP_COST("#hasFollowUpCost"),
 		HAS_FOLLOWUP_STRATEGY("#hasFollowUpStrategy"),
 		HAS_GUIDELINE("#hasGuideline"),
 		HAS_GUIDELINE_RANGE("#hasGuidelineRange"),
@@ -180,9 +183,11 @@ public interface OSDiNames {
 		HAS_NATURAL_DEVELOPMENT("#hasNaturalDevelopment"),
 		HAS_PARAMETER("#hasParameter"),
 		HAS_PATHWAY("#hasPathway"),
+		HAS_SCREENING_COST("#hasScreeningCost"),
 		HAS_SCREENING_STRATEGY("#hasScreeningStrategy"),
 		HAS_STRATEGY("#hasStrategy"),
 		HAS_SUBPOPULATION("#hasSubpopulation"),
+		HAS_TREATMENT_COST("#hasTreatmentCost"),
 		HAS_TREATMENT_STRATEGY("#hasTreatmentStrategy"),
 		HAS_UTILITY("#hasUtility"),
 		INVOLVES_MODIFICATION("#involvesModification"),
@@ -193,8 +198,10 @@ public interface OSDiNames {
 		IS_PARAMETER_OF_POPULATION("#isParameterOfPopulation"),
 		IS_PATHWAY_TO("#isPathwayTo"),
 		IS_SUBPOPULATION_OF("#isSubpopulationOf"),
+		IS_VALUE_OF_INDIVIDUAL_PARAMETER("#isValueOfIndividualParameter"),
 		MODIFIES("#modifies"),
 		MODIFIES_DEVELOPMENT("#modifiesDevelopment"),
+		MODIFIES_INDIVIDUAL_PARAMETER("#modifiesIndividualParameter"),
 		MODIFIES_MANIFESTATION("#modifiesManifestation"),
 		MODIFIES_MANIFESTATION_PATHWAY("#modifiesManifestationPathway"),
 		REQUIRES_DEVELOPMENT("#requiresDevelopment"),
@@ -215,12 +222,23 @@ public interface OSDiNames {
 			return description;
 		}
 		
-		public String getValue(String instanceName) {
-			return OwlHelper.getObjectPropertyByName(instanceName, description);
+		/**
+		 * Returns the object associated to another object by means of the specified object property. If there are more than 
+		 * one, returns the first one.  
+		 * @param instanceName Name of the original instance
+		 * @return the object associated to another object by means of the specified object property
+		 */
+		public String getValue(OwlHelper helper, String instanceName) {
+			return helper.getObjectPropertyByName(instanceName, description);
 		}
 		
-		public List<String> getValues(String instanceName) {
-			return OwlHelper.getObjectPropertiesByName(instanceName, description);
+		/**
+		 * Returns the list of objects associated to another object by means of the specified object property  
+		 * @param instanceName Name of the original instance
+		 * @return the list of objects associated to another object by means of the specified object property
+		 */
+		public List<String> getValues(OwlHelper helper, String instanceName) {
+			return helper.getObjectPropertiesByName(instanceName, description);
 		}
 	}
 
@@ -258,7 +276,7 @@ public interface OSDiNames {
 		}
 	}
 
-	public static String getSource(String instanceName) {
-		return DataProperty.HAS_SOURCE.getValue(instanceName, "Unknown");
+	public static String getSource(OwlHelper helper, String instanceName) {
+		return DataProperty.HAS_SOURCE.getValue(helper, instanceName, "Unknown");
 	}
 }

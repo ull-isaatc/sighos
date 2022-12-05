@@ -11,9 +11,8 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.utils.Constants;
-import es.ull.iis.simulation.hta.osdi.utils.ValueParser;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
+import es.ull.iis.simulation.hta.osdi.wrappers.JavaluatorRR;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -43,7 +42,7 @@ public interface ManifestationPathwayBuilder {
 	 * @return
 	 * @throws TranspilerException 
 	 */
-	public static ManifestationPathway getManifestationPathwayInstance(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) throws TranspilerException {
+	public static ManifestationPathway getManifestationPathwayInstance(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName) throws TranspilerException {
 		final Disease disease = manifestation.getDisease();
 		final Condition<Patient> cond = createCondition(secParams, disease, pathwayName);
 		final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, manifestation, pathwayName);
@@ -58,9 +57,10 @@ public interface ManifestationPathwayBuilder {
 	 * @param pathwayName The name of the pathway instance in the ontology
 	 * @return A condition for the pathway
 	 */
-	private static Condition<Patient> createCondition(SecondOrderParamsRepository secParams, Disease disease, String pathwayName) {
-		final List<String> strConditions = OSDiNames.DataProperty.HAS_CONDITION.getValues(pathwayName);
-		final List<String> strPrevManifestations = OSDiNames.ObjectProperty.REQUIRES_PREVIOUS_MANIFESTATION.getValues(pathwayName);
+	private static Condition<Patient> createCondition(OSDiGenericRepository secParams, Disease disease, String pathwayName) {
+		final OwlHelper helper = secParams.getOwlHelper();		
+		final List<String> strConditions = OSDiNames.DataProperty.HAS_CONDITION.getValues(helper, pathwayName);
+		final List<String> strPrevManifestations = OSDiNames.ObjectProperty.REQUIRES_PREVIOUS_MANIFESTATION.getValues(helper, pathwayName);
 		final ArrayList<Condition<Patient>> condList = new ArrayList<>();
 		if (strPrevManifestations.size() > 0) {
 			final List<Manifestation> manifList = new ArrayList<>();
@@ -89,19 +89,22 @@ public interface ManifestationPathwayBuilder {
 	 * @return
 	 * @throws TranspilerException 
 	 */
-	private static TimeToEventCalculator createTimeToEventCalculator(SecondOrderParamsRepository secParams, Manifestation manifestation, String pathwayName) throws TranspilerException {
+	private static TimeToEventCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName) throws TranspilerException {
+		final OwlHelper helper = secParams.getOwlHelper();		
 		// TODO: Check the order to process these parameters or think in a different solution
 		// First check if the pathway is defined as a proportion
-		final String strPropManif = OSDiNames.DataProperty.HAS_PROPORTION.getValue(pathwayName);
+		final String strPropManif = OSDiNames.DataProperty.HAS_PROPORTION.getValue(helper, pathwayName);
 		if (strPropManif != null) {
-			return new ProportionBasedTimeToEventCalculator(getProbString(manifestation, pathwayName), secParams, manifestation);
+			return new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROPORTION.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
 		}
-		final String strPManif = OSDiNames.DataProperty.HAS_PROBABILITY.getValue(pathwayName);
+		final String strPManif = OSDiNames.DataProperty.HAS_PROBABILITY.getValue(helper, pathwayName);
 		// FIXME: Assuming that the time to event is described always as an annual risk
 		if (strPManif != null) {
-				// FIXME: Still not capable of processing RR 
-				final String strRRManif = OSDiNames.DataProperty.HAS_RELATIVE_RISK.getValue(pathwayName);
-				return new AnnualRiskBasedTimeToEventCalculator(getProbString(manifestation, pathwayName), secParams, manifestation);
+				// We assume that RR in pathways are always expressions 
+				final String strRRManif = OSDiNames.DataProperty.HAS_RELATIVE_RISK.getValue(helper, pathwayName);
+				if (strRRManif == null)
+					return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
+				return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation, new JavaluatorRR(strRRManif));				
 		}			
 		// FIXME: Currently not using time to
 		// final String strTimeTo = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_TIME_TO.getDescription());
@@ -149,27 +152,31 @@ public interface ManifestationPathwayBuilder {
 		
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+			final OwlHelper helper = ((OSDiGenericRepository) secParams).getOwlHelper();		
+			
 			final Manifestation manifestation = this.getDestManifestation();
 			try {
 				// TODO: Check the order to process these parameters or think in a different solution
-				final String strPropManif = OSDiNames.DataProperty.HAS_PROPORTION.getValue(pathwayName);
+				final String strPropManif = OSDiNames.DataProperty.HAS_PROPORTION.getValue(helper, pathwayName);
 				if (strPropManif != null) {
-					final ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPropManif);
-					if (probabilityDistribution == null) {
-						throw new TranspilerException(OSDiNames.Class.MANIFESTATION_PATHWAY, pathwayName, OSDiNames.DataProperty.HAS_PROPORTION, strPropManif);
+					try {
+						final ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(strPropManif);
+						ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, getProbString(manifestation, pathwayName), "patients developing " + manifestation + " due to " + pathwayName, OSDiNames.STR_SOURCE_UNKNOWN,
+								probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+					} catch(TranspilerException ex) {
+						throw new TranspilerException(OSDiNames.Class.MANIFESTATION_PATHWAY, pathwayName, OSDiNames.DataProperty.HAS_PROPORTION, strPropManif, ex);
 					}
-					ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, getProbString(manifestation, pathwayName), "patients developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING,
-							probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
 				}
 				else {
-					final String strPManif = OSDiNames.DataProperty.HAS_PROBABILITY.getValue(pathwayName);
+					final String strPManif = OSDiNames.DataProperty.HAS_PROBABILITY.getValue(helper, pathwayName);
 					if (strPManif != null) {
-						ProbabilityDistribution probabilityDistribution = ValueParser.splitProbabilityDistribution(strPManif);
-						if (probabilityDistribution == null) {
-							throw new TranspilerException(OSDiNames.Class.MANIFESTATION_PATHWAY, pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY, strPManif);
-						} 
-						ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, getProbString(manifestation, pathwayName), "developing " + manifestation + " due to " + pathwayName, Constants.CONSTANT_EMPTY_STRING,
-								probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+						try {
+							ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(strPManif);
+							ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, getProbString(manifestation, pathwayName), "developing " + manifestation + " due to " + pathwayName, OSDiNames.STR_SOURCE_UNKNOWN,
+									probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
+						} catch(TranspilerException ex) {
+							throw new TranspilerException(OSDiNames.Class.MANIFESTATION_PATHWAY, pathwayName, OSDiNames.DataProperty.HAS_PROBABILITY, strPManif, ex);
+						}
 					}
 				}
 			} catch(TranspilerException ex) {

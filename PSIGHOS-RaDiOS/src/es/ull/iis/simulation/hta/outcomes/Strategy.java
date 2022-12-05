@@ -9,6 +9,7 @@ import java.util.Arrays;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
@@ -24,7 +25,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  * @author Iván Castilla Rodríguez
  *
  */
-public class Strategy implements PartOfStrategy {
+public class Strategy implements PartOfStrategy, Reseteable {
 	private final Condition<Patient> condition;
 	private final String description;
 	private final String name;
@@ -53,6 +54,7 @@ public class Strategy implements PartOfStrategy {
 		Arrays.fill(randomSeeds, null);
 	}
 
+	@Override
 	public void reset(int id) {
 		randomSeeds[id].reset();
 	}

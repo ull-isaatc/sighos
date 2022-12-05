@@ -13,8 +13,9 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
-import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
+import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
@@ -30,7 +31,7 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
  * {@link #getProgression(Patient)} method. 
  * @author Iván Castilla Rodríguez
  */
-public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable, CostProducer {
+public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, Reseteable, PrettyPrintable, CostProducer, UtilityProducer {
 	/** Common parameters repository */
 	private final SecondOrderParamsRepository secParams;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
@@ -104,6 +105,7 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 		return 0;
 	}
 	
+	@Override
 	public void reset(int id) {
 		for (final Manifestation manif : manifestations.values()) {
 			manif.reset(id);
@@ -252,31 +254,34 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	/**
 	 * Returns the cost associated to the current state of the patient and during the defined period
 	 * @param pat A patient
-	 * @param initT Starting time of the period (in years)
-	 * @param endT Ending time of the period
+	 * @param initYear Starting time of the period (in years)
+	 * @param endYear Ending time of the period
 	 * @param discountRate The discount rate to apply to the cost
 	 * @return the annual cost associated to the current state of the patient and during the defined period
 	 */
-	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-		double cost =  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initT, endT);;
+	public double getCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
+		// The disease may involve a non-specific cost
+		double cost =  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);;
+		// ... plus costs related to each manifestation
 		for (final Manifestation manif : pat.getState()) {
-			cost +=  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initT, endT);
+			cost +=  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initYear, endYear);
 		}
+		// ... plus specific treatment or follow-up costs 
 		if (pat.isDiagnosed())
-			cost += getTreatmentAndFollowUpCosts(pat, initT, endT, discountRate);
+			cost += getTreatmentAndFollowUpCosts(pat, initYear, endYear, discountRate);
 		return cost;
 	}
 	
 	@Override
-	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-		final double []result = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initT, endT);;
+	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
+		final double []result = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);;
 		for (final Manifestation manif : pat.getState()) {
-			final double[] partial = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initT, endT);
+			final double[] partial = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initYear, endYear);
 			for (int i = 0; i < result.length; i++)
 				result[i] += partial[i];
 		}
 		if (pat.isDiagnosed()) {
-			final double[] partial = getAnnualizedTreatmentAndFollowUpCosts(pat, initT, endT, discountRate);
+			final double[] partial = getAnnualizedTreatmentAndFollowUpCosts(pat, initYear, endYear, discountRate);
 			for (int i = 0; i < result.length; i++)
 				result[i] += partial[i];
 		}
@@ -296,34 +301,27 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	}
 
 	@Override
-	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
 		// If common costs are defined, uses them
 		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
-		return discountRate.applyDiscount(annualCost, initT, endT);
+		return discountRate.applyDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
-	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear,
 			Discount discountRate) {
 		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
-		return discountRate.applyAnnualDiscount(annualCost, initT, endT);
+		return discountRate.applyAnnualDiscount(annualCost, initYear, endYear);
 	}
-	
-	/**
-	 * Returns the disutility value associated to the current stage of this disease
-	 * @param pat A patient
-	 * @param method Method used to compute the disutility of this disease in case there are more 
-	 * than one commorbility
-	 * @return The disutility value associated to the current stage of this disease
-	 */
-	public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
-		final TreeSet<Manifestation> state = pat.getState();
-		// Uses the base disutility for the disease if available 
-		double du = UtilityParamDescriptions.getDisutilityValue(secParams, this.name(), pat, false);
-		for (final Manifestation manif : state) {
-			du = method.combine(du, UtilityParamDescriptions.getDisutilityValue(secParams, manif.name(), pat, false));
-		}
-		return du;
+
+	@Override
+	public double getAnnualDisutility(Patient pat) {
+		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat.getSimulation());
+	}
+
+	@Override
+	public double getStartingDisutility(Patient pat) {
+		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat.getSimulation());
 	}
 	
 	/** 

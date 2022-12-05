@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.diab.manifestations.BackgroundRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
@@ -42,7 +43,7 @@ public class DCCTPopulation2 extends StdPopulation {
 	 * @param secParams
 	 * @param disease
 	 */
-	public DCCTPopulation2(SecondOrderParamsRepository secParams, Disease disease) {
+	public DCCTPopulation2(SecondOrderParamsRepository secParams, Disease disease) throws MalformedSimulationModelException {
 		super(secParams, "DCCTPop", "Secondary prevention cohort of DCCT", disease);
 	}
 
@@ -61,7 +62,7 @@ public class DCCTPopulation2 extends StdPopulation {
 	}
 
 	@Override
-	protected List<ClinicalParameter> getPatientParameterList() {
+	protected List<ClinicalParameter> initializePatientParameterList() throws MalformedSimulationModelException {
 		final ArrayList<ClinicalParameter> paramList = new ArrayList<>();
 		
 		final double alfaHbA1c = ((BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN) / BASELINE_HBA1C_SD) * ((BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN) / BASELINE_HBA1C_SD);

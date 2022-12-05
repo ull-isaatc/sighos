@@ -5,28 +5,29 @@ package es.ull.iis.simulation.hta.osdi;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
-import org.w3c.xsd.owl2.Ontology;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlEngine;
 
-import es.ull.iis.simulation.hta.effectiveness.DiseaseUtilityCalculator;
-import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator;
-import es.ull.iis.simulation.hta.effectiveness.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.utils.OntologyUtils;
-import es.ull.iis.simulation.hta.osdi.utils.OwlHelper;
+import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
- * @author masbe
+ * @author Iván Castilla Rodríguez
  *
  */
 public class OSDiGenericRepository extends SecondOrderParamsRepository {
-	private final UtilityCalculator utilCalc;
+	public static final JexlEngine JEXL = new JexlBuilder().create();
+	private final OwlHelper helper; 
 
 	/**
 	 * 
@@ -41,11 +42,10 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	 * @throws IOException
 	 * @throws TranspilerException 
 	 */
-	public OSDiGenericRepository(int nRuns, int nPatients, String path, String diseaseId, String populationId, DisutilityCombinationMethod method) throws FileNotFoundException, JAXBException, IOException, TranspilerException {
+	public OSDiGenericRepository(int nRuns, int nPatients, String path, String diseaseId, String populationId, List<String> interventionsToCompare, DisutilityCombinationMethod method) throws FileNotFoundException, JAXBException, IOException, TranspilerException, MalformedSimulationModelException {
 		super(nRuns, nPatients);
-		Ontology testOntology = OntologyUtils.loadOntology(path);
-		OwlHelper.initilize(testOntology);
-		utilCalc = new DiseaseUtilityCalculator(this, method);
+		helper = new OwlHelper(path);
+		setDisutilityCombinationMethod(method);
 
 		Disease disease = DiseaseBuilder.getDiseaseInstance(this, diseaseId);
 		setPopulation(PopulationBuilder.getPopulationInstance(this, disease, populationId));
@@ -54,16 +54,47 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 		
 		// Build interventions
-		List<String> interventions = OSDiNames.Class.INTERVENTION.getDescendantsOf(disease.name());
-		for (String interventionName : interventions) {
+		for (String interventionName : interventionsToCompare) {
 			InterventionBuilder.getInterventionInstance(this, interventionName);
 		}
 		
 	}
 
-	@Override
-	public UtilityCalculator getUtilityCalculator() {
-		return utilCalc;
+	public OwlHelper getOwlHelper() {
+		return helper;
 	}
+
+	/**
+	 * For testing (currently not working in the test package for unknown reasons)
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		try {
+			final List<String> interventionsToCompare = new ArrayList<>();
+			interventionsToCompare.add(InterventionBuilder.DO_NOTHING);
+
+//			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
+			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#T1DM_Disease", "#T1DM_DCCTPopulation1", interventionsToCompare, DisutilityCombinationMethod.ADD);
+			secParams.registerAllSecondOrderParams();
+			for (Disease disease : secParams.getRegisteredDiseases()) {
+				System.out.println(disease.prettyPrint(""));
+			}
+			for (Intervention interv : secParams.getRegisteredInterventions()) {
+				System.out.println(interv.prettyPrint(""));
+			}
+			System.out.println(secParams.prettyPrint(""));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (TranspilerException e) {
+			e.printStackTrace();
+		} catch (MalformedSimulationModelException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 }
