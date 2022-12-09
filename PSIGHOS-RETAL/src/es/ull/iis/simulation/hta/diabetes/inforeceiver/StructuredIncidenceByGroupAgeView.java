@@ -42,10 +42,16 @@ public class StructuredIncidenceByGroupAgeView extends Listener implements Struc
 		for (int i = 0; i < nIntervals; i++) {
 			final String name = intervention + "_UPTO_" + (minAge + intervalLength * (i + 1));
 			str.append("N_DEATH_" + name + "\t");
-			for (DiabetesComplicationStage comp : secParams.getRegisteredComplicationStages()) {
+		}
+		for (DiabetesComplicationStage comp : secParams.getRegisteredComplicationStages()) {
+			for (int i = 0; i < nIntervals; i++) {
+				final String name = intervention + "_UPTO_" + (minAge + intervalLength * (i + 1));
 				str.append("N_" + comp.name() + "_" + name + "\t");
 			}
-			for (DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+		}
+		for (DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+			for (int i = 0; i < nIntervals; i++) {
+				final String name = intervention + "_UPTO_" + (minAge + intervalLength * (i + 1));
 				str.append("N_" + comp.name() + "_" + name + "\t");
 			}			
 		}
@@ -57,13 +63,17 @@ public class StructuredIncidenceByGroupAgeView extends Listener implements Struc
 		final StringBuilder str = new StringBuilder();
 		for (int year = 0; year < nIntervals; year++) {
 			str.append(nDeaths[year]).append("\t");
-			for (int j = 0; j < nChronic.length; j++) {
+		}
+		for (int j = 0; j < nChronic.length; j++) {
+			for (int year = 0; year < nIntervals; year++) {
 				str.append(nChronic[j][year]).append("\t");
 			}
-			for (int j = 0; j < nAcute.length; j++) {
-				str.append(nAcute[j][year]).append("\t");
-			}	
 		}
+		for (int j = 0; j < nAcute.length; j++) {
+			for (int year = 0; year < nIntervals; year++) {
+				str.append(nAcute[j][year]).append("\t");
+			}
+		}	
 		return str.toString();
 	}
 
