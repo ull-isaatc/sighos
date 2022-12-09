@@ -11,10 +11,10 @@ package es.ull.iis.simulation.hta.params;
  */
 public class SpanishCPIUpdate {
 	/** Last year that we have collected data */
-	final static private int LAST_YEAR = 2021;
+	final static private int LAST_YEAR = 2022;
 	/** General indexes for the Spanish CPI, taken from January. The last value corresponds to the last (most updated) year */
-	final static private double[] GENERAL_INDEX = {74.585, 77.354, 79.137, 81.575, 84.994, 87.027, 90.749, 91.481, 92.422, 95.444, 97.351, 99.963, 100.162, 98.841, 98.556, 101.488, 102.071, 103.071, 104.202, 104.678};
-	final static private double[] HEALTHCARE_INDEX = {88.844, 90.976, 92.757, 92.986, 93.613, 95.127, 93.327, 93.392, 92.168, 90.855, 88.212, 98.848, 100.124, 100.025, 99.668, 100.411, 100.718, 101.588, 102.056, 102.503};
+	final static private double[] GENERAL_INDEX = {69.53, 72.111, 73.773, 76.046, 79.234, 81.129, 84.598, 85.281, 86.158, 88.975, 90.753, 93.188, 93.373, 92.141, 91.876, 94.609, 95.153, 96.085, 97.139, 97.583, 103.567};
+	final static private double[] HEALTHCARE_INDEX = {86.313, 88.385, 90.115, 90.337, 90.946, 92.417, 90.668, 90.732, 89.542, 88.267, 85.699, 96.032, 97.271, 97.175, 96.828, 97.551, 97.848, 98.694, 99.149, 99.62, 100.5};
 	/** First year that we have collected data */
 	final static private int FIRST_YEAR = LAST_YEAR - GENERAL_INDEX.length + 1;
 	/**
