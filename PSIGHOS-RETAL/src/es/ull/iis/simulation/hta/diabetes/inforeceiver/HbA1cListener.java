@@ -59,9 +59,9 @@ public class HbA1cListener extends Listener implements StructuredOutputListener 
 	
 	public static String getStrHeader(String intervention) {
 		final StringBuilder str = new StringBuilder();
-		str.append("AVG_HbA1c_" + intervention + "\t");
-		str.append("L95CI_HbA1c_" + intervention + "\t");
-		str.append("U95CI_HbA1c_" + intervention + "\t");
+		str.append("AVG_HBA1C_" + intervention + "\t");
+		str.append("L95CI_HBA1C_" + intervention + "\t");
+		str.append("U95CI_HBA1C_" + intervention + "\t");
 		return str.toString();
 	}
 	@Override

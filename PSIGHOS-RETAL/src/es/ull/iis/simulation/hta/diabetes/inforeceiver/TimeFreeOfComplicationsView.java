@@ -100,7 +100,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 			for (SecondOrderDiabetesIntervention inter : interventions) {
 				for (DiabetesComplicationStage comp : availableHealthStates) {
 					final String suf = comp.name() + "_" + inter.getShortName() + "\t";
-					str.append("PREV_").append(suf).append("INC_").append(suf).append("AVG_TIME_TO_").append(suf).append("\tL95CI_TIME_TO_").append(suf).append("\tU95CI_TIME_TO_").append(suf);
+					str.append("PREV_").append(suf).append("INC_").append(suf).append("AVG_TIMETO_").append(suf).append("\tL95CI_TIMETO_").append(suf).append("\tU95CI_TIMETO_").append(suf);
 				}			
 			}
 		}
@@ -108,7 +108,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 			for (SecondOrderDiabetesIntervention inter : interventions) {
 				for (DiabetesComplicationStage comp : availableHealthStates) {
 					final String suf = comp.name() + "_" + inter.getShortName() + "\t";
-					str.append("PREV_").append(suf).append("INC_").append(suf).append("AVG_TIME_TO_").append(suf);
+					str.append("PREV_").append(suf).append("INC_").append(suf).append("AVG_TIMETO_").append(suf);
 				}
 			}
 		}
