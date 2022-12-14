@@ -8,9 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
+import es.ull.iis.util.Statistics;
 
 /**
  * @author Iván Castilla
@@ -19,7 +21,6 @@ import java.util.TreeMap;
 public class PostProcessor {
 	private final static String ITEM_SEP = "\t";
 	private final static String STR_SEP = "_";
-	private final static String STR_INTERVENTION = "DIAB\\+EXPLORE_";
 	private final static String STR_SIM = "SIM";
 	private final static String STR_AGE = "AGE";
 	private final static String STR_DURATION = "DURATION";
@@ -31,52 +32,31 @@ public class PostProcessor {
 	private final static String STR_PREV = "PREV";
 	private final static String STR_INC = "INC";
 	private final static String STR_TIME_TO = "TIMETO";
-	private final static String STR_UP_TO = "UPTO";
-	private final static String STR_COST = "C";
-	private final static String STR_LY = "LY";
-	private final static String STR_QALY = "QALY";
 	/** Lines to skip to get to the results' header */
 	private static final int N_SKIP_LINES = 23;
 	/** Columns to skip to get to the results */
-	private static final int N_SKIP_COLS = 6;
+	private static final int N_SKIP_COLS = 3;
 	
 	private PrintWriter out;
 	private BufferedReader in;
 	private final int nExp;
-	private final TreeMap<String, TreeMap<String, double[]>> avgMeasures;
-	private final TreeMap<String, ExperimentItems> items;
-	private final TreeMap<Integer, ExperimentItems> orderedItems;
+	private final TreeMap<String, ExperimentItem> items;
+	private final TreeMap<Integer, ExperimentItem> orderedItems;
+	private final ArrayList<String> orderedAgeDurations;
+	private final TreeSet<String> ageDurations;
 
 	public PostProcessor(String inputFileName, String outputFileName, int nExp) {
 		this.nExp = nExp;
-		avgMeasures = new TreeMap<>();
 		items = new TreeMap<>();
 		orderedItems = new TreeMap<>();
+		orderedAgeDurations = new ArrayList<>();
+		ageDurations = new TreeSet<>();
 		try {
 			in = new BufferedReader(new FileReader(inputFileName));
 			out = new PrintWriter(outputFileName);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	private String createIdentifier(String age, String duration, String hba1c) {
-		return age + "_" + duration + "_" + hba1c;
-	}
-	
-	private void error(String message) {
-		System.err.println("Error parseando " + message);
-		System.exit(-1);
-	}
-
-	private String checkedRead(Scanner scan, String reference) {
-		String token = "";
-		try {
-			token = scan.next(reference);
-		} catch(NoSuchElementException ex) {
-			error(ex.getMessage());
-		}
-		return token;
 	}
 	
 	private void processHeaders(String[] headers) {
@@ -88,26 +68,33 @@ public class PostProcessor {
 			if (STR_AVG.equals(parsedToken[0])) {
 				// Timeto columns are different from other average columns
 				if (STR_TIME_TO.equals(parsedToken[1])) {
-				}
-				else {
-					final String id = parsedToken[1];
-					ExperimentItems exp = items.get(id);
+					final String id = parsedToken[1] + STR_SEP + parsedToken[2];
+					ExperimentItem exp = items.get(id);
 					if (exp == null) {
-						exp = new ExperimentItems(id, ExperimentItems.Type.AVG);
+						exp = new ExperimentItem(id, ExperimentItem.Type.TIMETO);
 						items.put(id, exp);
 						orderedItems.put(index, exp);
 					}
 					exp.addHbA1cLevel(parsedToken[3], index);
-					avgMeasures.put(parsedToken[1], new TreeMap<>());
+				}
+				else {
+					final String id = parsedToken[1];
+					ExperimentItem exp = items.get(id);
+					if (exp == null) {
+						exp = new ExperimentItem(id, ExperimentItem.Type.AVG);
+						items.put(id, exp);
+						orderedItems.put(index, exp);
+					}
+					exp.addHbA1cLevel(parsedToken[3], index);
 					
 					index += 2;
 				}
 			}
 			else if (STR_N.equals(parsedToken[0])) {
 				final String id = parsedToken[1] + STR_SEP + parsedToken[4] + STR_SEP + parsedToken[5];
-				ExperimentItems exp = items.get(id);
+				ExperimentItem exp = items.get(id);
 				if (exp == null) {
-					exp = new ExperimentItems(id, ExperimentItems.Type.N);
+					exp = new ExperimentItem(id, ExperimentItem.Type.N);
 					items.put(id, exp);
 					orderedItems.put(index, exp);
 				}
@@ -116,9 +103,9 @@ public class PostProcessor {
 			}
 			else if (STR_PREV.equals(parsedToken[0]) || STR_INC.equals(parsedToken[0])) {
 				final String id = parsedToken[0] + STR_SEP + parsedToken[1];
-				ExperimentItems exp = items.get(id);
+				ExperimentItem exp = items.get(id);
 				if (exp == null) {
-					exp = new ExperimentItems(id, ExperimentItems.Type.AVG);
+					exp = new ExperimentItem(id, ExperimentItem.Type.AVG);
 					items.put(id, exp);
 					orderedItems.put(index, exp);
 				}
@@ -140,8 +127,14 @@ public class PostProcessor {
 			while (line != null) {
 				String[] values = line.split(ITEM_SEP);
 				if (!STR_SIM.equals(values[0])) {
-					String id = values[1] + ITEM_SEP + values[2] + ITEM_SEP;
-					// Por aquí
+					final String key = values[1] + ITEM_SEP + values[2];
+					if (!ageDurations.contains(key)) {
+						ageDurations.add(key);
+						orderedAgeDurations.add(key);
+					}
+					for (ExperimentItem exp : items.values()) {
+						exp.addValues(key, values);
+					}
 				}
 				line = in.readLine();
 			}
@@ -153,33 +146,74 @@ public class PostProcessor {
 	public void writeFile() {
 		// Write the header
 		out.write(STR_AGE + ITEM_SEP + STR_DURATION + ITEM_SEP + STR_HBA1C + ITEM_SEP);
-		for (ExperimentItems item : orderedItems.values()) {
+		for (ExperimentItem item : orderedItems.values()) {
 			out.write(item.getHeader());
 		}
+		out.write(System.lineSeparator());
+		for (String keyAgeDur : orderedAgeDurations) {
+			out.write(keyAgeDur + ITEM_SEP);
+			for (ExperimentItem item : orderedItems.values()) {
+				// TODO: Conseguir imprimir las cosas en orden. Seguramente requiera calcular previamente un array de resultados (incluso el tamaño de ese array mientras se construye) 
+			}
+			out.write(System.lineSeparator());
+		}
+			
 		out.flush();
 		out.close();
 	}
 
-	private class ExperimentItems {
+	private class HbA1cLevelItem {
+		private final int srcCol;
+		private final TreeMap<String, double[]> values;
+		private final TreeMap<String, Integer> counters;
+
+		public HbA1cLevelItem(int srcCol) {
+			this.srcCol = srcCol;
+			values = new TreeMap<>();
+			counters = new TreeMap<>();
+		}
+		
+		public void addValue(String key, String[] line) {
+			if (!values.containsKey(key)) {
+				values.put(key,  new double[nExp]);
+				counters.put(key, 0);
+			}
+			values.get(key)[counters.get(key)] = Double.parseDouble(line[srcCol]);
+			counters.put(key, counters.get(key) + 1);
+		}
+		
+		public double[] getValues(String key) {
+			return values.get(key);
+		}
+		
+	}
+	private class ExperimentItem {
 		public enum Type {
 			AVG,
 			N,
 			TIMETO
 		}
-		private final TreeMap<String, Integer> srcColPerHbA1c;
+		private final TreeMap<String, HbA1cLevelItem> hba1cLevels;
 		private final Type type;
 		private final String name;
-		private final TreeMap<String, double[]> values;
 		
-		public ExperimentItems(String name, Type type) {
+		public ExperimentItem(String name, Type type) {
 			this.type = type;
 			this.name = name;
-			this.values = new TreeMap<>();
-			srcColPerHbA1c = new TreeMap<>();
+			hba1cLevels = new TreeMap<>();
 		}
 		
 		public void addHbA1cLevel(String level, int srcCol) {
-			srcColPerHbA1c.put(level, srcCol);
+			hba1cLevels.put(level, new HbA1cLevelItem(srcCol));
+		}
+		
+		public void addValues(String key, String[] line) {
+			for (HbA1cLevelItem item : hba1cLevels.values()) {
+				item.addValue(key, line);
+			}
+		}
+		public double getValue(String keyAgeDur, String hba1cLevel) {
+			return Statistics.average(hba1cLevels.get(hba1cLevel).getValues(keyAgeDur));
 		}
 
 		public String getHeader() {
@@ -187,13 +221,20 @@ public class PostProcessor {
 			switch (type) {
 			case AVG:
 			case N:
-				return STR_AVG + str + STR_L95CI + str + STR_U95CI + str;
 			case TIMETO:
-				return "";
+				return STR_AVG + str + STR_L95CI + str + STR_U95CI + str;
 			default:
 				return "";
 			
 			}
+		}
+		
+		public void print(String keyAgeDur, String hba1cLevel) {
+			System.out.println("Values for " + keyAgeDur + ITEM_SEP + hba1cLevel);
+			double[] values = hba1cLevels.get(hba1cLevel).getValues(keyAgeDur);
+			for (double val : values) {
+				System.out.println(val);
+			}			
 		}
 	}
 	
@@ -218,8 +259,9 @@ public class PostProcessor {
 //			System.out.println("NOT FOUND " + token);
 //			
 //		}
-		final PostProcessor proc = new PostProcessor(System.getProperty("user.home") + "\\Downloads\\results.txt", System.getProperty("user.home") + "\\Downloads\\post.txt", 100);
+		final PostProcessor proc = new PostProcessor(System.getProperty("user.home") + "\\Downloads\\results.txt", System.getProperty("user.home") + "\\Downloads\\post.txt", 11);
 		proc.readFile();
 		proc.writeFile();
+		
 	}
 }
