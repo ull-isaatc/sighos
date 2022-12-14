@@ -105,13 +105,9 @@ public class DiabPlusExplorationMain {
 		str.append("SIM\tAGE\tDURATION\t");
 		for (int i = 0; i < interventions.size(); i++) {
 			final String shortName = interventions.get(i).getShortName();
-			str.append(HbA1cListener.getStrHeader(shortName));
 			str.append(CostListener.getStrHeader(shortName));
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
-			str.append(CostListener.getStrHeader(shortName + "_d0"));
-			str.append(LYListener.getStrHeader(shortName + "_d0"));
-			str.append(QALYListener.getStrHeader(shortName + "_d0"));
 			str.append(AcuteComplicationCounterListener.getStrHeader(shortName));
 			str.append(StructuredIncidenceByGroupAgeView.getStrHeader(shortName, secParams, intervalLength));
 		}
@@ -123,29 +119,21 @@ public class DiabPlusExplorationMain {
 	/**
 	 * Prints a detailed output for each simulation, aggregating the results for all the individuals
 	 * @param simul Current simulation
-	 * @param hba1cListeners Results in terms of HbA1c
 	 * @param costListeners Results in terms of costs
 	 * @param lyListeners Results in terms of life expectancy
 	 * @param qalyListeners Results in terms of quality-adjusted life expectancy
-	 * @param costListeners0 Results in terms of undiscounted costs
-	 * @param lyListeners0 Results in terms of undiscounted life expectancy
-	 * @param qalyListeners0 Results in terms of undiscounted quality-adjusted life expectancy
 	 * @param acuteListeners Results in terms of acute complications
 	 * @param timeFreeListener Results in terms of time until a chronic manifestation appears
 	 * @return
 	 */
-	private String print(DiabetesSimulation simul, HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, CostListener[] costListeners0, LYListener[] lyListeners0, QALYListener[] qalyListeners0, AcuteComplicationCounterListener[] acuteListeners,  StructuredIncidenceByGroupAgeView[] aggrIncidenceListeners, TimeFreeOfComplicationsView timeFreeListener) {
+	private String print(DiabetesSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, AcuteComplicationCounterListener[] acuteListeners,  StructuredIncidenceByGroupAgeView[] aggrIncidenceListeners, TimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		str.append("" +  simul.getIdentifier() + "\t");
 		str.append("" + initAge + "\t" + duration + "\t");
 		for (int i = 0; i < interventions.size(); i++) {
-			str.append(hba1cListeners[i]);
 			str.append(costListeners[i]);
 			str.append(lyListeners[i]);
 			str.append(qalyListeners[i]);
-			str.append(costListeners0[i]);
-			str.append(lyListeners0[i]);
-			str.append(qalyListeners0[i]);
 			str.append(acuteListeners[i]);
 			str.append(aggrIncidenceListeners[i]);
 		}
@@ -162,55 +150,39 @@ public class DiabPlusExplorationMain {
 		final RepositoryInstance common = secParams.getInstance();
 		final int nInterventions = interventions.size();
 		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(nPatients, nInterventions, false, secParams.getRegisteredComplicationStages());
-		final HbA1cListener[] hba1cListeners = new HbA1cListener[nInterventions];
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
-		final CostListener[] costListeners0 = new CostListener[nInterventions];
-		final LYListener[] lyListeners0 = new LYListener[nInterventions];
-		final QALYListener[] qalyListeners0 = new QALYListener[nInterventions];
 		final AcuteComplicationCounterListener[] acuteListeners = new AcuteComplicationCounterListener[nInterventions];
 		final StructuredIncidenceByGroupAgeView[] aggrIncidenceListeners = new StructuredIncidenceByGroupAgeView[nInterventions];
 
 		for (int i = 0; i < nInterventions; i++) {
-			hba1cListeners[i] = new HbA1cListener(nPatients);
 			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discountCost, nPatients);
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discountEffect, nPatients);
-			costListeners0[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), Discount.zeroDiscount, nPatients);
-			lyListeners0[i] = new LYListener(Discount.zeroDiscount, nPatients);
-			qalyListeners0[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), Discount.zeroDiscount, nPatients);
 			acuteListeners[i] = new AcuteComplicationCounterListener(nPatients);
 			aggrIncidenceListeners[i] = new StructuredIncidenceByGroupAgeView(secParams, intervalLength);
 		}
 		final DiabetesIntervention[] intInstances = common.getInterventions();
 		DiabetesSimulation simul = new DiabetesSimulation(id, intInstances[0], nPatients, common, secParams.getPopulation(), timeHorizon);
-		simul.addInfoReceiver(hba1cListeners[0]);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
-		simul.addInfoReceiver(costListeners0[0]);
-		simul.addInfoReceiver(lyListeners0[0]);
-		simul.addInfoReceiver(qalyListeners0[0]);
 		simul.addInfoReceiver(acuteListeners[0]);
 		simul.addInfoReceiver(aggrIncidenceListeners[0]);
 		simul.addInfoReceiver(timeFreeListener);
 		simul.run();
 		for (int i = 1; i < nInterventions; i++) {
 			simul = new DiabetesSimulation(simul, intInstances[i]);
-			simul.addInfoReceiver(hba1cListeners[i]);
 			simul.addInfoReceiver(costListeners[i]);
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
-			simul.addInfoReceiver(costListeners0[i]);
-			simul.addInfoReceiver(lyListeners0[i]);
-			simul.addInfoReceiver(qalyListeners0[i]);
 			simul.addInfoReceiver(acuteListeners[i]);
 			simul.addInfoReceiver(aggrIncidenceListeners[i]);
 			simul.addInfoReceiver(timeFreeListener);
 			simul.run();
 		}
-		out.println(print(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, costListeners0, lyListeners0, qalyListeners0, acuteListeners, aggrIncidenceListeners, timeFreeListener));
+		out.println(print(simul, costListeners, lyListeners, qalyListeners, acuteListeners, aggrIncidenceListeners, timeFreeListener));
 	}
 	
 	/**
@@ -261,9 +233,10 @@ public class DiabPlusExplorationMain {
 
     		final Discount discountCost;
     		final Discount discountEffect;
+    		// Zero discount by default
     		if (args1.discount.size() == 0) {
-	    		discountCost = new StdDiscount(BasicConfigParams.DEF_DISCOUNT_RATE);
-	    		discountEffect = new StdDiscount(BasicConfigParams.DEF_DISCOUNT_RATE);
+	    		discountCost = Discount.zeroDiscount;
+	    		discountEffect = Discount.zeroDiscount;
     		}
     		else if (args1.discount.size() == 1) {
     			final double value = args1.discount.get(0);
@@ -348,7 +321,6 @@ public class DiabPlusExplorationMain {
 		    	    		}
 		    	    	}
 		    	    	if (validity == null) {
-	//	    	    		System.out.println(StructuredIncidenceByGroupAgeView.getStrHeader("HH", secParams, 15));
 		    	    		final DiabPlusExplorationMain experiment = new DiabPlusExplorationMain(out, secParams, args1.nRuns, timeHorizon, args1.interval, discountCost, discountEffect, args1.parallel, args1.quiet, age, duration);
 		    		        experiment.run();
 		    	    	}
@@ -471,5 +443,4 @@ public class DiabPlusExplorationMain {
 			}
 		}
 	}
-
 }
