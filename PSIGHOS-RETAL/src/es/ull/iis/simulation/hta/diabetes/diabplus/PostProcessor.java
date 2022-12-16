@@ -11,7 +11,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
 import es.ull.iis.util.Statistics;
 
 /**
@@ -43,14 +42,14 @@ public class PostProcessor {
 	private final TreeMap<String, ExperimentItem> items;
 	private final TreeMap<Integer, ExperimentItem> orderedItems;
 	private final ArrayList<String> orderedAgeDurations;
-	private final TreeSet<String> ageDurations;
+	private final ArrayList<String> orderedHbA1c;
 
 	public PostProcessor(String inputFileName, String outputFileName, int nExp) {
 		this.nExp = nExp;
 		items = new TreeMap<>();
 		orderedItems = new TreeMap<>();
 		orderedAgeDurations = new ArrayList<>();
-		ageDurations = new TreeSet<>();
+		orderedHbA1c = new ArrayList<>();
 		try {
 			in = new BufferedReader(new FileReader(inputFileName));
 			out = new PrintWriter(outputFileName);
@@ -59,7 +58,13 @@ public class PostProcessor {
 		}
 	}
 	
+	/**
+	 * Processes the headers of the original file to create the structure for results.
+	 * @param headers Headers of the original results
+	 */
 	private void processHeaders(String[] headers) {
+		final TreeSet<String> foundLevels = new TreeSet<>();
+		
 		// Here it should start the first result column
 		int index = N_SKIP_COLS;
 		while (index < headers.length) {
@@ -69,53 +74,59 @@ public class PostProcessor {
 				// Timeto columns are different from other average columns
 				if (STR_TIME_TO.equals(parsedToken[1])) {
 					final String id = parsedToken[1] + STR_SEP + parsedToken[2];
-					ExperimentItem exp = items.get(id);
-					if (exp == null) {
-						exp = new ExperimentItem(id, ExperimentItem.Type.TIMETO);
-						items.put(id, exp);
-						orderedItems.put(index, exp);
+					final String hba1cLevel = parsedToken[4];
+					addExperiment(id, index, ExperimentItem.Type.TIMETO, hba1cLevel);
+					if (!foundLevels.contains(hba1cLevel)) {
+						foundLevels.add(hba1cLevel);
+						orderedHbA1c.add(hba1cLevel);
 					}
-					exp.addHbA1cLevel(parsedToken[3], index);
 				}
 				else {
 					final String id = parsedToken[1];
-					ExperimentItem exp = items.get(id);
-					if (exp == null) {
-						exp = new ExperimentItem(id, ExperimentItem.Type.AVG);
-						items.put(id, exp);
-						orderedItems.put(index, exp);
+					final String hba1cLevel = parsedToken[3];
+					addExperiment(id, index, ExperimentItem.Type.AVG, hba1cLevel);				
+					if (!foundLevels.contains(hba1cLevel)) {
+						foundLevels.add(hba1cLevel);
+						orderedHbA1c.add(hba1cLevel);
 					}
-					exp.addHbA1cLevel(parsedToken[3], index);
-					
 					index += 2;
 				}
 			}
 			else if (STR_N.equals(parsedToken[0])) {
 				final String id = parsedToken[1] + STR_SEP + parsedToken[4] + STR_SEP + parsedToken[5];
-				ExperimentItem exp = items.get(id);
-				if (exp == null) {
-					exp = new ExperimentItem(id, ExperimentItem.Type.N);
-					items.put(id, exp);
-					orderedItems.put(index, exp);
+				final String hba1cLevel = parsedToken[3];
+				addExperiment(id, index, ExperimentItem.Type.N, hba1cLevel);				
+				if (!foundLevels.contains(hba1cLevel)) {
+					foundLevels.add(hba1cLevel);
+					orderedHbA1c.add(hba1cLevel);
 				}
-				exp.addHbA1cLevel(parsedToken[3], index);
-				
 			}
 			else if (STR_PREV.equals(parsedToken[0]) || STR_INC.equals(parsedToken[0])) {
 				final String id = parsedToken[0] + STR_SEP + parsedToken[1];
-				ExperimentItem exp = items.get(id);
-				if (exp == null) {
-					exp = new ExperimentItem(id, ExperimentItem.Type.AVG);
-					items.put(id, exp);
-					orderedItems.put(index, exp);
+				final String hba1cLevel = parsedToken[3];
+				addExperiment(id, index, ExperimentItem.Type.AVG, hba1cLevel);				
+				if (!foundLevels.contains(hba1cLevel)) {
+					foundLevels.add(hba1cLevel);
+					orderedHbA1c.add(hba1cLevel);
 				}
-				exp.addHbA1cLevel(parsedToken[3], index);					
 			}
 			index++;
 		}		
 	}
 	
+	private void addExperiment(String id, int index, ExperimentItem.Type type, String hba1cLevel) {
+		ExperimentItem exp = items.get(id);
+		if (exp == null) {
+			exp = new ExperimentItem(id, type);
+			items.put(id, exp);
+			orderedItems.put(index, exp);
+		}
+		exp.addHbA1cLevel(hba1cLevel, index);							
+	}
+	
 	public void readFile() {
+		final TreeSet<String> ageDurations = new TreeSet<>();
+		
 		try {
 			// Skip general info
 			for (int i = 0; i < N_SKIP_LINES; i++) {
@@ -151,11 +162,15 @@ public class PostProcessor {
 		}
 		out.write(System.lineSeparator());
 		for (String keyAgeDur : orderedAgeDurations) {
-			out.write(keyAgeDur + ITEM_SEP);
-			for (ExperimentItem item : orderedItems.values()) {
-				// TODO: Conseguir imprimir las cosas en orden. Seguramente requiera calcular previamente un array de resultados (incluso el tamaño de ese array mientras se construye) 
+			for (String hba1cLevel : orderedHbA1c) {
+				out.write(keyAgeDur + ITEM_SEP + hba1cLevel + ITEM_SEP);
+				for (ExperimentItem item : orderedItems.values()) {
+					final double[] results = item.getValues(keyAgeDur, hba1cLevel);
+					for (double val : results)
+						out.write(val + ITEM_SEP);
+				}
+				out.write(System.lineSeparator());
 			}
-			out.write(System.lineSeparator());
 		}
 			
 		out.flush();
@@ -212,8 +227,19 @@ public class PostProcessor {
 				item.addValue(key, line);
 			}
 		}
-		public double getValue(String keyAgeDur, String hba1cLevel) {
-			return Statistics.average(hba1cLevels.get(hba1cLevel).getValues(keyAgeDur));
+		public double[] getValues(String keyAgeDur, String hba1cLevel) {
+			switch (type) {
+			case AVG:
+			case N:
+				final double avg = Statistics.average(hba1cLevels.get(hba1cLevel).getValues(keyAgeDur));
+				final double[] ci = Statistics.getPercentile95CI(hba1cLevels.get(hba1cLevel).getValues(keyAgeDur));
+				return new double[] {avg, ci[0], ci[1]};
+			case TIMETO: // TODO
+				return new double[] {0.0, 0.0, 0.0};
+			default:
+				return null;
+			
+			}
 		}
 
 		public String getHeader() {
