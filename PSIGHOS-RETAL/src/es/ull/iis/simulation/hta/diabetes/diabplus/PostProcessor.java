@@ -41,6 +41,7 @@ public class PostProcessor {
 	private final int nExp;
 	private final TreeMap<String, ExperimentItem> items;
 	private final TreeMap<Integer, ExperimentItem> orderedItems;
+	private final TreeMap<String, ExperimentItem> expByManifestation;
 	private final ArrayList<String> orderedAgeDurations;
 	private final ArrayList<String> orderedHbA1c;
 
@@ -50,6 +51,7 @@ public class PostProcessor {
 		orderedItems = new TreeMap<>();
 		orderedAgeDurations = new ArrayList<>();
 		orderedHbA1c = new ArrayList<>();
+		expByManifestation = new TreeMap<>(); 
 		try {
 			in = new BufferedReader(new FileReader(inputFileName));
 			out = new PrintWriter(outputFileName);
@@ -58,6 +60,10 @@ public class PostProcessor {
 		}
 	}
 	
+	private void addManifestation(String manifName, ExperimentItem exp) {
+		final ExperimentItem incidenceExp = items.get(STR_INC + STR_SEP + manifName);
+		expByManifestation.put(exp.name, incidenceExp);
+	}
 	/**
 	 * Processes the headers of the original file to create the structure for results.
 	 * @param headers Headers of the original results
@@ -75,11 +81,12 @@ public class PostProcessor {
 				if (STR_TIME_TO.equals(parsedToken[1])) {
 					final String id = parsedToken[1] + STR_SEP + parsedToken[2];
 					final String hba1cLevel = parsedToken[4];
-					addExperiment(id, index, ExperimentItem.Type.TIMETO, hba1cLevel);
+					final ExperimentItem exp = addExperiment(id, index, ExperimentItem.Type.TIMETO, hba1cLevel);
 					if (!foundLevels.contains(hba1cLevel)) {
 						foundLevels.add(hba1cLevel);
 						orderedHbA1c.add(hba1cLevel);
 					}
+					addManifestation(parsedToken[2], exp);
 				}
 				else {
 					final String id = parsedToken[1];
@@ -114,14 +121,15 @@ public class PostProcessor {
 		}		
 	}
 	
-	private void addExperiment(String id, int index, ExperimentItem.Type type, String hba1cLevel) {
+	private ExperimentItem addExperiment(String id, int index, ExperimentItem.Type type, String hba1cLevel) {
 		ExperimentItem exp = items.get(id);
 		if (exp == null) {
 			exp = new ExperimentItem(id, type);
 			items.put(id, exp);
 			orderedItems.put(index, exp);
 		}
-		exp.addHbA1cLevel(hba1cLevel, index);							
+		exp.addHbA1cLevel(hba1cLevel, index);
+		return exp;
 	}
 	
 	public void readFile() {
@@ -235,7 +243,9 @@ public class PostProcessor {
 				final double[] ci = Statistics.getPercentile95CI(hba1cLevels.get(hba1cLevel).getValues(keyAgeDur));
 				return new double[] {avg, ci[0], ci[1]};
 			case TIMETO: // TODO
-				return new double[] {0.0, 0.0, 0.0};
+				final ExperimentItem incidenceExperiment = expByManifestation.get(this.name);
+				final double wAvg = Statistics.weightedAverage(incidenceExperiment.hba1cLevels.get(hba1cLevel).getValues(keyAgeDur), hba1cLevels.get(hba1cLevel).getValues(keyAgeDur));
+				return new double[] {wAvg, 0.0, 0.0};
 			default:
 				return null;
 			
@@ -285,6 +295,9 @@ public class PostProcessor {
 //			System.out.println("NOT FOUND " + token);
 //			
 //		}
+//		double[] w = new double[] {1, 2, 3, 4};
+//		double[] v = new double[] {20, 10, 5, 2};
+//		System.out.println(Statistics.weightedAverage(w, v));
 		final PostProcessor proc = new PostProcessor(System.getProperty("user.home") + "\\Downloads\\results.txt", System.getProperty("user.home") + "\\Downloads\\post.txt", 11);
 		proc.readFile();
 		proc.writeFile();

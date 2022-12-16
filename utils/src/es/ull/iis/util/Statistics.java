@@ -333,4 +333,20 @@ public class Statistics {
 		final double variance = sd * sd;
 		return variance * k * (initBetaParams[0] - 1) / (initBetaParams[0] - 3 * variance * k);		
 	}
+	
+	public static double weightedAverage(double[] weights, double[] values) {
+		if (values.length == 0)
+			return Double.NaN;
+		if (values.length != weights.length)
+			return Double.NaN;
+		double acc = 0.0;
+		double accWeights = 0.0;
+		for (int i = 0; i < values.length; i++) {
+			if (weights[i] > 0) {
+				acc += values[i] * weights[i];
+				accWeights += weights[i];
+			}
+		}
+		return acc / accWeights;		
+	}
 }
