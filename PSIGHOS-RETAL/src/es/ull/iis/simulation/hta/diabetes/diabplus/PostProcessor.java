@@ -242,10 +242,11 @@ public class PostProcessor {
 				final double avg = Statistics.average(hba1cLevels.get(hba1cLevel).getValues(keyAgeDur));
 				final double[] ci = Statistics.getPercentile95CI(hba1cLevels.get(hba1cLevel).getValues(keyAgeDur));
 				return new double[] {avg, ci[0], ci[1]};
-			case TIMETO: // TODO
+			case TIMETO:
 				final ExperimentItem incidenceExperiment = expByManifestation.get(this.name);
-				final double wAvg = Statistics.weightedAverage(incidenceExperiment.hba1cLevels.get(hba1cLevel).getValues(keyAgeDur), hba1cLevels.get(hba1cLevel).getValues(keyAgeDur));
-				return new double[] {wAvg, 0.0, 0.0};
+				return new double[] {Statistics.weightedAverage(incidenceExperiment.hba1cLevels.get(hba1cLevel).getValues(keyAgeDur), hba1cLevels.get(hba1cLevel).getValues(keyAgeDur)), 
+						Statistics.weightedPercentile(incidenceExperiment.hba1cLevels.get(hba1cLevel).getValues(keyAgeDur), hba1cLevels.get(hba1cLevel).getValues(keyAgeDur), 0.025, false), 
+						Statistics.weightedPercentile(incidenceExperiment.hba1cLevels.get(hba1cLevel).getValues(keyAgeDur), hba1cLevels.get(hba1cLevel).getValues(keyAgeDur), 0.975, false)};
 			default:
 				return null;
 			
