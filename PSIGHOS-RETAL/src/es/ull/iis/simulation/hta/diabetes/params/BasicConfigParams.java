@@ -28,9 +28,9 @@ public class BasicConfigParams {
 	public final static long MIN_TIME_TO_EVENT = SIMUNIT.convert(TimeStamp.getMonth());
 
 	/** Default number of runs for each simulation experiment */
-	public final static int N_RUNS = 100;
+	public static int N_RUNS = 100;
 	/** Default number of patients that will be created during a simulation */
-	public final static int DEF_N_PATIENTS = 5000;
+	public static int N_PATIENTS = 5000;
 	/** Year of the assessment: useful for updating costs */
 	public static int STUDY_YEAR = 2019;
 	/** Default minimum age of patients */
@@ -105,7 +105,7 @@ public class BasicConfigParams {
 		str.append(System.lineSeparator()).append("SIMUNIT:\t").append(SIMUNIT).append(System.lineSeparator());
 		str.append("MIN_TIME_TO_EVENT:\t").append(MIN_TIME_TO_EVENT).append(System.lineSeparator());
 		str.append("N_RUNS:\t").append(N_RUNS).append(System.lineSeparator());
-		str.append("N_PATIENTS:\t").append(DEF_N_PATIENTS).append(System.lineSeparator());
+		str.append("N_PATIENTS:\t").append(N_PATIENTS).append(System.lineSeparator());
 		str.append("STUDY_YEAR:\t").append(STUDY_YEAR).append(System.lineSeparator());
 		str.append("MIN_AGE:\t").append(DEF_MIN_AGE).append(System.lineSeparator());
 		str.append("MAX_AGE:\t").append(DEF_MAX_AGE).append(System.lineSeparator());

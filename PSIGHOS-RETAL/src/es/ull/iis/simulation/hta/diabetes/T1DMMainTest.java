@@ -45,7 +45,7 @@ import es.ull.iis.util.Statistics;
  */
 public class T1DMMainTest extends SecondOrderParamsRepository {
 	public final static boolean BASIC_TEST_ONE_PATIENT = false;
-	private final static int N_PATIENTS = BASIC_TEST_ONE_PATIENT ? 1 : BasicConfigParams.DEF_N_PATIENTS;
+	private final static int N_PATIENTS = BASIC_TEST_ONE_PATIENT ? 1 : BasicConfigParams.N_PATIENTS;
 
 	private static final PrintStream out = System.out;
 
