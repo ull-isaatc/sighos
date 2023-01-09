@@ -512,6 +512,8 @@ public class DiabPlusMain {
 	        BasicConfigParams.USE_SIMPLE_MODELS = args1.basic;
 	        BasicConfigParams.USE_REVIEW_UTILITIES = args1.altUtils;
 	        BasicConfigParams.STUDY_YEAR = args1.year;
+	        BasicConfigParams.N_RUNS = args1.nRuns;
+	        BasicConfigParams.N_PATIENTS = args1.nPatients;
 
 	        for (final Map.Entry<String, String> pInit : args1.initProportions.entrySet()) {
 	        	BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
@@ -637,7 +639,7 @@ public class DiabPlusMain {
 		@Parameter(names ={"--output", "-o"}, description = "Name of the output file name", order = 1)
 		private String outputFileName = null;
 		@Parameter(names ={"--patients", "-n"}, description = "Number of patients to test", order = 2)
-		private int nPatients = BasicConfigParams.DEF_N_PATIENTS;
+		private int nPatients = BasicConfigParams.N_PATIENTS;
 		@Parameter(names ={"--runs", "-r"}, description = "Number of probabilistic runs", order = 3)
 		private int nRuns = BasicConfigParams.N_RUNS;
 		@Parameter(names ={"--horizon", "-h"}, description = "Time horizon for the simulation (years)", order = 3)

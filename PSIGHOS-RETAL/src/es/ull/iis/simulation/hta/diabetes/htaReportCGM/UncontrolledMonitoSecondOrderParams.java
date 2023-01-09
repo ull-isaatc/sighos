@@ -193,7 +193,7 @@ public class UncontrolledMonitoSecondOrderParams extends SecondOrderParamsReposi
 		// Simulate all scenarios
 		for (Scenario sce : Scenario.values()) {
 			SCENARIO = sce;
-			final SecondOrderParamsRepository secParams = new UncontrolledMonitoSecondOrderParams(BasicConfigParams.DEF_N_PATIENTS);
+			final SecondOrderParamsRepository secParams = new UncontrolledMonitoSecondOrderParams(BasicConfigParams.N_PATIENTS);
 
 			final int timeHorizon = BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1;
 			final int nInterventions = secParams.getRegisteredInterventions().size();
@@ -205,14 +205,14 @@ public class UncontrolledMonitoSecondOrderParams extends SecondOrderParamsReposi
 			final AcuteComplicationCounterListener[] acuteListeners = new AcuteComplicationCounterListener[nInterventions];
 
 			for (int i = 0; i < nInterventions; i++) {
-				hba1cListeners[i] = new HbA1cListener(BasicConfigParams.DEF_N_PATIENTS);
-				costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discount, BasicConfigParams.DEF_N_PATIENTS);
-				lyListeners[i] = new LYListener(discount, BasicConfigParams.DEF_N_PATIENTS);
-				qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discount, BasicConfigParams.DEF_N_PATIENTS);
-				acuteListeners[i] = new AcuteComplicationCounterListener(BasicConfigParams.DEF_N_PATIENTS);
+				hba1cListeners[i] = new HbA1cListener(BasicConfigParams.N_PATIENTS);
+				costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discount, BasicConfigParams.N_PATIENTS);
+				lyListeners[i] = new LYListener(discount, BasicConfigParams.N_PATIENTS);
+				qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discount, BasicConfigParams.N_PATIENTS);
+				acuteListeners[i] = new AcuteComplicationCounterListener(BasicConfigParams.N_PATIENTS);
 			}
 			final DiabetesIntervention[] intInstances = common.getInterventions();
-			DiabetesSimulation simul = new DiabetesSimulation(0, intInstances[0], BasicConfigParams.DEF_N_PATIENTS, common, secParams.getPopulation(), timeHorizon);
+			DiabetesSimulation simul = new DiabetesSimulation(0, intInstances[0], BasicConfigParams.N_PATIENTS, common, secParams.getPopulation(), timeHorizon);
 			simul.addInfoReceiver(hba1cListeners[0]);
 			simul.addInfoReceiver(costListeners[0]);
 			simul.addInfoReceiver(lyListeners[0]);

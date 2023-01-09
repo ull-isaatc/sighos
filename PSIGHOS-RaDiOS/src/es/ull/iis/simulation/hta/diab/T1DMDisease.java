@@ -147,7 +147,7 @@ public class T1DMDisease extends Disease {
 	private static final boolean DISABLE_RET = true;
 	private static final boolean DISABLE_NEU = false;
 	private static final boolean DISABLE_NPH = false;
-	private static final boolean DISABLE_SHE = true;
+	private static final boolean DISABLE_SHE = false;
 	/** Uses fix values for initial age, HbA1c level and duration of diabetes */
 	public static final boolean FIXED_BASE_VALUES = true;
 

@@ -61,7 +61,7 @@ public class T2DMInnerValidation extends SecondOrderParamsRepository {
 //	private final RandomVariate pInitRet;
 //	private static final String STR_SOURCE_KLEIN = "Klein et al. 10.1016/S0161-6420(98)91020-X"; 
 	private static final String STR_SOURCE_ADLER = "Adler et al. 10.1046/j.1523-1755.2003.00712.x";
-	private static final int N_PATIENTS = BasicConfigParams.DEF_N_PATIENTS;
+	private static final int N_PATIENTS = BasicConfigParams.N_PATIENTS;
 	
 	/**
 	 * @param nPatients Number of patients to create
