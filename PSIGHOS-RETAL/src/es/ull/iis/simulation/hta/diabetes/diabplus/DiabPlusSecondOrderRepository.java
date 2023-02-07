@@ -36,7 +36,7 @@ import es.ull.iis.util.Statistics;
  */
 public class DiabPlusSecondOrderRepository extends SecondOrderParamsRepository {
 
-	protected DiabPlusSecondOrderRepository(int nPatients, DiabPlusStdPopulation population, double objHbA1cLevel, double annualCost) {
+	protected DiabPlusSecondOrderRepository(int nPatients, DiabPlusStdPopulation population, double objHbA1cLevel, double hypoRateRR, double annualCost) {
 		super(nPatients, population);
 
 		registerComplication(new SheffieldRETSubmodel());
@@ -46,7 +46,7 @@ public class DiabPlusSecondOrderRepository extends SecondOrderParamsRepository {
 		
 		final StandardSevereHypoglycemiaEvent hypoEvent = new StandardSevereHypoglycemiaEvent(
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_P_HYPO, "Annual rate of severe hypoglycemia events", "Assumption", population.getHypoRate()), 
-				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_RR_HYPO, "No RR", "Assumption", 1.0), 
+				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_RR_HYPO, "No RR", "Assumption", hypoRateRR), 
 				EnumSet.of(DiabetesType.T1), true);
 		registerComplication(hypoEvent);
 		

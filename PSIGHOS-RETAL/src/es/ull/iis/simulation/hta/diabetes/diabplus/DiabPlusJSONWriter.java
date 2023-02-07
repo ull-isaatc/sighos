@@ -13,6 +13,7 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AcuteComplicationCounterListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.CostListener;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.EpidemiologicView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.HbA1cListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.QALYListener;
@@ -37,6 +38,7 @@ public class DiabPlusJSONWriter {
 	final private static String STR_TIME_TO = "time to event";
 	final private static String STR_N_EVENTS = "number of events";
 	final private static String STR_INCIDENCE = "incidence";	
+	final private static String STR_ANNUAL_RISK = "annual risk";		
 	final private static String STR_NAME = "name";
 	final private static String STR_BASE = "base";
 	final private static String STR_AVG = "avg";
@@ -77,11 +79,13 @@ public class DiabPlusJSONWriter {
 		json.put(STR_INTERVENTIONS, new JSONArray());
 	}
 	
-	public void notifyEndBaseCase(DiabetesSimulation simul, HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, CostListener[] costListeners0, LYListener[] lyListeners0, QALYListener[] qalyListeners0, AcuteComplicationCounterListener[] acuteListeners, TimeFreeOfComplicationsView timeFreeListener) {
+	public void notifyEndBaseCase(DiabetesSimulation simul, HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, CostListener[] costListeners0, LYListener[] lyListeners0, QALYListener[] qalyListeners0, AcuteComplicationCounterListener[] acuteListeners, TimeFreeOfComplicationsView timeFreeListener, EpidemiologicView epListener) {
 		final JSONArray jintervs = json.getJSONArray(STR_INTERVENTIONS);
 		
 		final double[][] timeTo = timeFreeListener.getAvgTimeToComplications();
 		final double[][] incidence = timeFreeListener.getIncidence();
+		final double[][][] nChronic = epListener.getnChronic();
+		final double[][][] nACute = epListener.getnAcute();
 		for (int i = 0; i < interventions.size(); i++) {
 			final JSONObject jinterv = new JSONObject();
 			jinterv.put(STR_NAME, interventions.get(i).getShortName());
@@ -107,6 +111,11 @@ public class DiabPlusJSONWriter {
 				jincidence.put(STR_BASE, incidence[i][j]);
 				jmanif.put(STR_TIME_TO, jtimeto);
 				jmanif.put(STR_INCIDENCE, jincidence);
+				final JSONArray jannualRisk = new JSONArray();
+				for (int year = 0; year < epListener.getnIntervals(); year++) {
+					jannualRisk.put(nChronic[i][j][year]);
+				}
+				jmanif.put(STR_ANNUAL_RISK, jannualRisk);
 				jmanifestations.put(j, jmanif);
 			}
 			jinterv.put(STR_CHRONIC_MANIFESTATIONS, jmanifestations);
@@ -177,7 +186,7 @@ public class DiabPlusJSONWriter {
 		dest.put(STR_UCI, Double.isNaN(cis[1]) ? null : cis[1]);
 	}
 	
-	public void notifyEndProbabilisticExperiments() {
+	public void notifyEndProbabilisticExperiments(EpidemiologicView epListener) {
 		
 		for (int i = 0; i < interventions.size(); i++) {
 			final JSONObject jinterv = json.getJSONArray(STR_INTERVENTIONS).getJSONObject(i);
