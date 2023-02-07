@@ -165,28 +165,6 @@ public class DiabPlusJSONWriter {
 		cis[1] = Statistics.percentile(sortedCopy, percentiles[1]);		
 		dest.put(STR_LCI, Double.isNaN(cis[0]) ? null : cis[0]);
 		dest.put(STR_UCI, Double.isNaN(cis[1]) ? null : cis[1]);
-<<<<<<< Upstream, based on origin/master
-=======
-	}
-	
-	private void setWeightedProbValues(JSONObject dest, double[] values, double[] weights) {
-		double totalWeight = 0.0;
-		double avg = 0.0;
-		for (int i = 0; i < values.length; i++) {
-			avg += values[i] * weights[i];
-			totalWeight += weights[i];
-		}
-		avg = avg / totalWeight;
-		dest.put(STR_AVG, Double.isNaN(avg) ? null : avg);
-		// TODO: Compute CIs more precisely
-		double[] sortedCopy = Arrays.copyOf(values, values.length);
-		Arrays.sort(sortedCopy);
-		double[] cis = new double[2];
-		cis[0] = Statistics.percentile(sortedCopy, percentiles[0]);
-		cis[1] = Statistics.percentile(sortedCopy, percentiles[1]);		
-		dest.put(STR_LCI, Double.isNaN(cis[0]) ? null : cis[0]);
-		dest.put(STR_UCI, Double.isNaN(cis[1]) ? null : cis[1]);
->>>>>>> dd194fd Synchronized changes in HTA with master (changed JSON output of diab+)
 	}
 	
 	private void setWeightedProbValues(JSONObject dest, double[] values, double[] weights) {

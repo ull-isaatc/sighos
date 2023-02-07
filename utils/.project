@@ -6,14 +6,11 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-<<<<<<< Upstream, based on origin/master
-=======
 			<name>org.eclipse.jdt.core.javabuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
->>>>>>> 99978c5 Adapting PSIGHOS-RaDiOS to deal with common diseases such as diabetes
 			<name>org.eclipse.m2e.core.maven2Builder</name>
 			<arguments>
 			</arguments>
