@@ -38,10 +38,7 @@ public class DiabPlusJSONWriter {
 	final private static String STR_TIME_TO = "time to event";
 	final private static String STR_N_EVENTS = "number of events";
 	final private static String STR_INCIDENCE = "incidence";	
-<<<<<<< Upstream, based on origin/master
 	final private static String STR_ANNUAL_RISK = "annual risk";		
-=======
->>>>>>> dd194fd Synchronized changes in HTA with master (changed JSON output of diab+)
 	final private static String STR_NAME = "name";
 	final private static String STR_BASE = "base";
 	final private static String STR_AVG = "avg";
@@ -87,11 +84,8 @@ public class DiabPlusJSONWriter {
 		
 		final double[][] timeTo = timeFreeListener.getAvgTimeToComplications();
 		final double[][] incidence = timeFreeListener.getIncidence();
-<<<<<<< Upstream, based on origin/master
 		final double[][][] nChronic = epListener.getnChronic();
 		final double[][][] nACute = epListener.getnAcute();
-=======
->>>>>>> dd194fd Synchronized changes in HTA with master (changed JSON output of diab+)
 		for (int i = 0; i < interventions.size(); i++) {
 			final JSONObject jinterv = new JSONObject();
 			jinterv.put(STR_NAME, interventions.get(i).getShortName());
@@ -117,14 +111,11 @@ public class DiabPlusJSONWriter {
 				jincidence.put(STR_BASE, incidence[i][j]);
 				jmanif.put(STR_TIME_TO, jtimeto);
 				jmanif.put(STR_INCIDENCE, jincidence);
-<<<<<<< Upstream, based on origin/master
 				final JSONArray jannualRisk = new JSONArray();
 				for (int year = 0; year < epListener.getnIntervals(); year++) {
 					jannualRisk.put(nChronic[i][j][year]);
 				}
 				jmanif.put(STR_ANNUAL_RISK, jannualRisk);
-=======
->>>>>>> dd194fd Synchronized changes in HTA with master (changed JSON output of diab+)
 				jmanifestations.put(j, jmanif);
 			}
 			jinterv.put(STR_CHRONIC_MANIFESTATIONS, jmanifestations);

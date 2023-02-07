@@ -211,14 +211,11 @@ public class DiabPlusMain {
 			expListeners.add(new EpidemiologicView(nRuns, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 			baseCaseExpListeners.add(new EpidemiologicView(1, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 		}
-<<<<<<< Upstream, based on origin/master
 		baseCaseEpView = new EpidemiologicView(1, secParams, 1, EpidemiologicView.Type.CUMUL_INCIDENCE, false, false);
 		if (nRuns > 0)
 			expEpView = new EpidemiologicView(nRuns, secParams, 1, EpidemiologicView.Type.CUMUL_INCIDENCE, false, false);
 		else
 			expEpView = null;
-=======
->>>>>>> dd194fd Synchronized changes in HTA with master (changed JSON output of diab+)
 		this.jsonWriter = new DiabPlusJSONWriter(nRuns, interventions, secParams);
 	}
 	
