@@ -199,10 +199,6 @@ public class EpidemiologicView implements ExperimentListener {
 		return aux;
 	}
 	
-<<<<<<< HEAD
-
-=======
->>>>>>> branch 'diabRaDiOS' of https://github.com/ull-isaatc/sighos
 	/**
 	 * @author Iván Castilla
 	 *
