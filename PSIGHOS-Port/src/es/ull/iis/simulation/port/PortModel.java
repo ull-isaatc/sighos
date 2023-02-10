@@ -91,7 +91,7 @@ public class PortModel extends Simulation {
 		final ActivityFlow aUnload = new ActivityFlow(this, ACT_UNLOAD); 
 		for (int i = 0; i < N_BERTHS; i++) {
 			final int berthId = i;
-			aUnload.newWorkGroupAdder(wgUnload[i]).withCondition(new Condition() {
+			aUnload.newWorkGroupAdder(wgUnload[i]).withCondition(new Condition<ElementInstance>() {
 				@Override
 				public boolean check(ElementInstance fe) {
 					return (((Container)fe.getElement()).getBerth() == berthId);
@@ -102,7 +102,7 @@ public class PortModel extends Simulation {
 		final ActivityFlow aPlace = new ActivityFlow(this, ACT_PLACE);
 		for (int i = 0; i < N_BLOCKS; i++) {
 			final int blockId = i;
-			aPlace.newWorkGroupAdder(wgPlace[i]).withCondition(new Condition() {
+			aPlace.newWorkGroupAdder(wgPlace[i]).withCondition(new Condition<ElementInstance>() {
 				@Override
 				public boolean check(ElementInstance fe) {
 					return (((Container)fe.getElement()).getBlock() == blockId);
