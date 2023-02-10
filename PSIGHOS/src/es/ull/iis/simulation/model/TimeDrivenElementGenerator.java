@@ -114,12 +114,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param info Information required to create the element  
 	 */
 	public EventSource createEventSource(final int ind, final GenerationInfo info) {
-		final int size = (int)info.getSize().getValue(this);
-		final Location initLocation = info.getInitLocation();
-		Element elem = (initLocation == null) ? new Element(simul, info.getElementType(), info.getFlow()) : 
-			new Element(simul, info.getElementType(), info.getFlow(), size, initLocation);
-		elem.initializeElementVars(info.getElementType().getElementValues());
-		return elem;			
+		return new Element(simul, info);
 	}
 
 	/**
