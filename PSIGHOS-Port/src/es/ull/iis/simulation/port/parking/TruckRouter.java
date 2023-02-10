@@ -5,7 +5,7 @@ package es.ull.iis.simulation.port.parking;
 
 import java.util.ArrayList;
 
-import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.model.location.Location;
 import es.ull.iis.simulation.model.location.Movable;
 import es.ull.iis.simulation.model.location.Node;
@@ -17,52 +17,41 @@ import es.ull.iis.simulation.model.location.Router;
  *
  */
 public class TruckRouter implements Router {
-	private final Node starting;
-	private final Node ending;
+	private final Node portEntrance;
+	private final Node portExit;
 	private final Node parking;
-	private final ArrayList<Path> pathToParking;
-	private final ArrayList<Path> pathFromParking;
 	
 
 	/**
 	 * 
 	 */
-	public TruckRouter(int parkingCapacity, ArrayList<Double> pathTimes) {
+	public TruckRouter(int parkingCapacity, TimeFunction timeFromEntranceToParking, TimeFunction timeFromParkingToExit) {
 		parking = new Node("Parking for trucks", parkingCapacity);
-		starting = new Node("Starting spot for trucks");
-		ending = new Node("Ending spot for trucks");
-		pathToParking = new ArrayList<>();
-		pathFromParking = new ArrayList<>();
-		int pathCount = 0;
-		for (double time : pathTimes) {
-			pathToParking.add(new Path("Path " + pathCount, TimeFunctionFactory.getInstance("ConstantVariate", time), 1, 1));
-			pathFromParking.add(0, new Path("Return path " + pathCount, TimeFunctionFactory.getInstance("ConstantVariate", time), 1, 1));
-			pathCount++;
-		}
-		if (pathTimes.size() > 0) {
-			starting.linkTo(pathToParking.get(0));
-			pathToParking.get(pathCount - 1).linkTo(parking);
-			parking.linkTo(pathFromParking.get(0));
-			pathFromParking.get(pathCount - 1).linkTo(ending);
-			for (int i = 1; i < pathTimes.size(); i++) {
-				pathToParking.get(i - 1).linkTo(pathToParking.get(i));
-				pathFromParking.get(i - 1).linkTo(pathFromParking.get(i));
-			}
+		portEntrance = new Node("Port entrance");
+		portExit = new Node("Port exit");
+		final Path pathToParking = new Path("Path to parking", timeFromEntranceToParking);
+		final Path pathFromParking = new Path("Path from parking", timeFromParkingToExit);
+		portEntrance.linkTo(pathToParking).linkTo(parking);
+		parking.linkTo(pathFromParking).linkTo(portExit);
+		for (TruckCompany co : TruckCompany.values()) {
+			final Path pathToEntrance = new Path("Path to entrance " + co.name(), co.getTimeToPortEntrance());
+			co.getInitialLocation().linkTo(pathToEntrance).linkTo(portEntrance);
+			portExit.linkTo(co.getInitialLocation());
 		}
 	}
 
 	/**
 	 * @return the starting
 	 */
-	public Node getStarting() {
-		return starting;
+	public Node getPortEntrance() {
+		return portEntrance;
 	}
 
 	/**
 	 * @return the ending
 	 */
-	public Node getEnding() {
-		return ending;
+	public Node getPortExit() {
+		return portExit;
 	}
 
 	/**

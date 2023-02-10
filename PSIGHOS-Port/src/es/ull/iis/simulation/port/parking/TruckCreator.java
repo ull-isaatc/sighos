@@ -7,10 +7,8 @@ import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
-import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
-import es.ull.iis.simulation.model.location.Location;
 
 /**
  * @author Iván Castilla
@@ -18,7 +16,6 @@ import es.ull.iis.simulation.model.location.Location;
  */
 public class TruckCreator extends TimeDrivenElementGenerator {
 	private static final int N_TRUCKS_PER_SPAWN = 1;
-	private static final long INTERARRIVAL_TIME = 10;
 
 	/**
 	 * @param model
@@ -27,10 +24,11 @@ public class TruckCreator extends TimeDrivenElementGenerator {
 	 * @param flow
 	 * @param cycle
 	 */
-	public TruckCreator(Simulation model, InitializerFlow flow, Location location) {
-		super(model, N_TRUCKS_PER_SPAWN, new SimulationPeriodicCycle(model.getTimeUnit(), 0L, new SimulationTimeFunction(model.getTimeUnit(), "ConstantVariate", INTERARRIVAL_TIME), model.getEndTs()));
-		final ElementType etTruck = new ElementType(model, "Trucks");
-		add(new TruckGenerationInfo(etTruck, flow, Truck.SIZE, location, 1.0));
+	public TruckCreator(Simulation model, InitializerFlow flow, TruckCompany co) {
+		super(model, N_TRUCKS_PER_SPAWN, new SimulationPeriodicCycle(PortParkingModel.TIME_UNIT, 0L, 
+				co.getInterarrivalTime(), model.getEndTs()));
+		final ElementType etTruck = new ElementType(model, "Trucks from " + co.getDescription());
+		add(new TruckGenerationInfo(etTruck, flow, co));
 	}
 
 	
@@ -41,9 +39,8 @@ public class TruckCreator extends TimeDrivenElementGenerator {
 	
 	public class TruckGenerationInfo extends GenerationInfo {
 
-		protected TruckGenerationInfo(ElementType et, InitializerFlow flow, int size, Location initLocation,
-				double prop) {
-			super(et, flow, size, initLocation, prop);
+		protected TruckGenerationInfo(ElementType et, InitializerFlow flow, TruckCompany co) {
+			super(et, flow, Truck.SIZE, co.getInitialLocation(), 1.0);
 		}
 		
 	}
