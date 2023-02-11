@@ -24,10 +24,9 @@ public class TruckCreator extends TimeDrivenElementGenerator {
 	 * @param flow
 	 * @param cycle
 	 */
-	public TruckCreator(Simulation model, InitializerFlow flow, TruckCompany co) {
-		super(model, N_TRUCKS_PER_SPAWN, new SimulationPeriodicCycle(PortParkingModel.TIME_UNIT, 0L, 
+	public TruckCreator(Simulation model, ElementType etTruck, InitializerFlow flow, TruckCompany co) {
+		super(model, N_TRUCKS_PER_SPAWN, new SimulationPeriodicCycle(PortParkingModel.TIME_UNIT, co.getFirstArrivalTime(), 
 				co.getInterarrivalTime(), model.getEndTs()));
-		final ElementType etTruck = new ElementType(model, "Trucks from " + co.getDescription());
 		add(new TruckGenerationInfo(etTruck, flow, co));
 	}
 

@@ -36,7 +36,8 @@ public class TruckRouter implements Router {
 		for (TruckCompany co : TruckCompany.values()) {
 			final Path pathToEntrance = new Path("Path to entrance " + co.name(), co.getTimeToPortEntrance());
 			co.getInitialLocation().linkTo(pathToEntrance).linkTo(portEntrance);
-			portExit.linkTo(co.getInitialLocation());
+			final Path pathFromExit = new Path("Path from exit " + co.name(), co.getTimeToPortEntrance());
+			portExit.linkTo(pathFromExit).linkTo(co.getInitialLocation());
 		}
 	}
 

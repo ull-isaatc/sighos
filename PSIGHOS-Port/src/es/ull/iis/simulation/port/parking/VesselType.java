@@ -5,20 +5,20 @@ import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.location.Node;
 
-public enum TruckCompany {
-	TYPE1("Test Company 1", new Node("Location of company 1"), 
+public enum VesselType {
+	VTYPE1("Test Vessel Type 1", new Node("Source of vessel type 1"), 
 			TimeFunctionFactory.getInstance("ConstantVariate", 10),
-			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 10), 0L),
-	TYPE2("Test Company 2", new Node("Location of company 2"), 
+			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 1440), 0L),
+	VTYPE2("Test Vessel Type 2", new Node("Source of vessel type 2"), 
 			TimeFunctionFactory.getInstance("ConstantVariate", 15),
-			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 10), 12L),
-	TYPE3("Test Company 3", new Node("Location of company 3"), 
+			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 220), 100L),
+	VTYPE3("Test Vessel Type 3", new Node("Source of vessel type 3"), 
 			TimeFunctionFactory.getInstance("ConstantVariate", 5),
-			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 10), 11L);
+			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 600), 200L);
 	
 	private final String description;
 	private final Node initialLocation;
-	private final TimeFunction timeToPortEntrance;
+	private final TimeFunction timeToAnchorage;
 	private final SimulationTimeFunction interarrivalTime; 
 	private final long firstArrivalTime;
 	
@@ -27,10 +27,10 @@ public enum TruckCompany {
 	 * @param initialLocation
 	 * @param timeToPortEntrance
 	 */
-	private TruckCompany(String description, Node initialLocation, TimeFunction timeToPortEntrance, SimulationTimeFunction interarrivalTime, long firstArrivalTime) {
+	private VesselType(String description, Node initialLocation, TimeFunction timeToAnchorage, SimulationTimeFunction interarrivalTime, long firstArrivalTime) {
 		this.description = description;
 		this.initialLocation = initialLocation;
-		this.timeToPortEntrance = timeToPortEntrance;
+		this.timeToAnchorage = timeToAnchorage;
 		this.interarrivalTime = interarrivalTime;
 		this.firstArrivalTime = firstArrivalTime;
 	}
@@ -53,7 +53,7 @@ public enum TruckCompany {
 	 * @return the timeToPortEntrance
 	 */
 	public TimeFunction getTimeToPortEntrance() {
-		return timeToPortEntrance;
+		return timeToAnchorage;
 	}
 
 	/**
@@ -62,8 +62,8 @@ public enum TruckCompany {
 	public SimulationTimeFunction getInterarrivalTime() {
 		return interarrivalTime;
 	}
-
+	
 	public long getFirstArrivalTime() {
 		return firstArrivalTime;
-	}
+	}	
 }

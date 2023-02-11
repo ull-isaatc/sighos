@@ -17,63 +17,40 @@ import es.ull.iis.simulation.model.location.Router;
  *
  */
 public class VesselRouter implements Router {
-	private final Node starting;
-	private final Node ending;
+	private final Node anchorage;
 	private final Node[] quays;
-	private final ArrayList<ArrayList<Path>> pathToQuay;
-	private final ArrayList<ArrayList<Path>> pathFromQuay;
+	private final Path[] pathToQuay;
+	private final Path[] pathFromQuay;
 	
 
 	/**
 	 * 
 	 */
-	public VesselRouter(ArrayList<ArrayList<Double>> pathTimesPerQuay) {
-		starting = new Node("Starting spot for vessels");
-		ending = new Node("Ending spot for vessels");
-		pathToQuay = new ArrayList<>();
-		pathFromQuay = new ArrayList<>();
+	public VesselRouter(ArrayList<Double> pathTimesPerQuay) {
+		anchorage = new Node("Anchorage for vessels");
+		pathToQuay = new Path[pathTimesPerQuay.size()];
+		pathFromQuay = new Path[pathTimesPerQuay.size()];
 		quays = new Node[pathTimesPerQuay.size()];
 		for (int i = 0; i < pathTimesPerQuay.size(); i++) {
 			quays[i] = new Node("Quay " + i, Vessel.SIZE);
-			final ArrayList<Path> pathsTo = new ArrayList<>();  
-			final ArrayList<Path> pathsFrom = new ArrayList<>();
-			final ArrayList<Double> pathTimes = pathTimesPerQuay.get(i);
-
-			int pathCount = 0;
-			final int totalPaths = pathTimes.size();
-			for (double time : pathTimes) {
-				pathsTo.add(new Path("TO_QUAY_" + i + "-Path " + pathCount + "/" + totalPaths, TimeFunctionFactory.getInstance("ConstantVariate", time), 1, 1));
-				pathsFrom.add(0, new Path("FROM_QUAY_" + i + "-Path " + pathCount + "/" + totalPaths, TimeFunctionFactory.getInstance("ConstantVariate", time), 1, 1));
-				pathCount++;
-			}
-			pathToQuay.add(pathsTo);
-			pathFromQuay.add(pathsFrom);
-			
-			if (totalPaths > 0) {
-				starting.linkTo(pathsTo.get(0));
-				pathsTo.get(totalPaths - 1).linkTo(quays[i]);
-				quays[i].linkTo(pathsFrom.get(0));
-				pathsFrom.get(totalPaths - 1).linkTo(ending);
-				for (int j = 1; j < totalPaths; j++) {
-					pathsTo.get(j - 1).linkTo(pathsTo.get(j));
-					pathsFrom.get(j - 1).linkTo(pathsFrom.get(j));
-				}
-			}
+			final Path pathTo = new Path("TO_QUAY_" + i + "-Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", pathTimesPerQuay.get(i)), 1, 1);  
+			final Path pathFrom = new Path("FROM_QUAY_" + i + "-Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", pathTimesPerQuay.get(i)), 1, 1);
+			pathToQuay[i] = pathTo;
+			pathFromQuay[i] = pathFrom;
+			anchorage.linkTo(pathTo).linkTo(quays[i]);
+			quays[i].linkTo(pathFrom).linkTo(anchorage);
+		}
+		for (VesselType type: VesselType.values()) {
+			type.getInitialLocation().linkTo(anchorage);
+			anchorage.linkTo(type.getInitialLocation());
 		}
 	}
 
 	/**
 	 * @return the starting
 	 */
-	public Node getStarting() {
-		return starting;
-	}
-
-	/**
-	 * @return the ending
-	 */
-	public Node getEnding() {
-		return ending;
+	public Node getAnchorage() {
+		return anchorage;
 	}
 
 	/**
@@ -86,8 +63,14 @@ public class VesselRouter implements Router {
 	@Override
 	public Location getNextLocationTo(Movable entity, Location destination) {
 		final ArrayList<Location> links = entity.getLocation().getLinkedTo();
-		if (links.size() > 0)
+		if (links.size() > 0) {
+			for (int i = 0; i < quays.length; i++) {
+				if (quays[i].equals(destination)) {
+					
+				}
+			}
 			return links.get(0);
+		}
 		return Router.UNREACHABLE_LOCATION;
 	}
 
