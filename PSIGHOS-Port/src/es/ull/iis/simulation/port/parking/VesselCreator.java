@@ -10,7 +10,6 @@ import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
-import es.ull.iis.simulation.model.location.Location;
 
 /**
  * @author Iván Castilla
@@ -27,10 +26,9 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	 * @param flow
 	 * @param cycle
 	 */
-	public VesselCreator(Simulation model, InitializerFlow flow, Location location) {
+	public VesselCreator(Simulation model,  ElementType etVessel, InitializerFlow flow, VesselType vType) {
 		super(model, N_VESSELS_PER_SPAWN, new SimulationPeriodicCycle(model.getTimeUnit(), 0L, new SimulationTimeFunction(model.getTimeUnit(), "ConstantVariate", INTERARRIVAL_TIME), model.getEndTs()));
-		final ElementType etVessel = new ElementType(model, "Vessels");
-		add(new VesselGenerationInfo(etVessel, flow, Truck.SIZE, location, 1.0));
+		add(new VesselGenerationInfo(etVessel, flow, vType));
 	}
 
 	
@@ -41,9 +39,8 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	
 	public class VesselGenerationInfo extends GenerationInfo {
 
-		protected VesselGenerationInfo(ElementType et, InitializerFlow flow, int size, Location initLocation,
-				double prop) {
-			super(et, flow, size, initLocation, prop);
+		protected VesselGenerationInfo(ElementType et, InitializerFlow flow, VesselType vType) {
+			super(et, flow, Vessel.SIZE, vType.getInitialLocation(), 1.0);
 		}
 		
 	}

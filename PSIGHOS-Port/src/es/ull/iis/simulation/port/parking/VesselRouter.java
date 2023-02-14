@@ -5,7 +5,7 @@ package es.ull.iis.simulation.port.parking;
 
 import java.util.ArrayList;
 
-import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.model.location.Location;
 import es.ull.iis.simulation.model.location.Movable;
 import es.ull.iis.simulation.model.location.Node;
@@ -26,15 +26,15 @@ public class VesselRouter implements Router {
 	/**
 	 * 
 	 */
-	public VesselRouter(ArrayList<Double> pathTimesPerQuay) {
+	public VesselRouter(TimeFunction []pathTimesPerQuay) {
 		anchorage = new Node("Anchorage for vessels");
-		pathToQuay = new Path[pathTimesPerQuay.size()];
-		pathFromQuay = new Path[pathTimesPerQuay.size()];
-		quays = new Node[pathTimesPerQuay.size()];
-		for (int i = 0; i < pathTimesPerQuay.size(); i++) {
+		pathToQuay = new Path[pathTimesPerQuay.length];
+		pathFromQuay = new Path[pathTimesPerQuay.length];
+		quays = new Node[pathTimesPerQuay.length];
+		for (int i = 0; i < pathTimesPerQuay.length; i++) {
 			quays[i] = new Node("Quay " + i, Vessel.SIZE);
-			final Path pathTo = new Path("TO_QUAY_" + i + "-Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", pathTimesPerQuay.get(i)), 1, 1);  
-			final Path pathFrom = new Path("FROM_QUAY_" + i + "-Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", pathTimesPerQuay.get(i)), 1, 1);
+			final Path pathTo = new Path("TO_QUAY_" + i + "-Path " + i, pathTimesPerQuay[i], 1, 1);  
+			final Path pathFrom = new Path("FROM_QUAY_" + i + "-Path " + i, pathTimesPerQuay[i], 1, 1);
 			pathToQuay[i] = pathTo;
 			pathFromQuay[i] = pathFrom;
 			anchorage.linkTo(pathTo).linkTo(quays[i]);

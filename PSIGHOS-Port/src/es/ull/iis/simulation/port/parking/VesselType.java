@@ -7,13 +7,13 @@ import es.ull.iis.simulation.model.location.Node;
 
 public enum VesselType {
 	VTYPE1("Test Vessel Type 1", new Node("Source of vessel type 1"), 
-			TimeFunctionFactory.getInstance("ConstantVariate", 10),
+			TimeFunctionFactory.getInstance("ConstantVariate", 100),
 			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 1440), 0L),
 	VTYPE2("Test Vessel Type 2", new Node("Source of vessel type 2"), 
-			TimeFunctionFactory.getInstance("ConstantVariate", 15),
+			TimeFunctionFactory.getInstance("ConstantVariate", 150),
 			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 220), 100L),
 	VTYPE3("Test Vessel Type 3", new Node("Source of vessel type 3"), 
-			TimeFunctionFactory.getInstance("ConstantVariate", 5),
+			TimeFunctionFactory.getInstance("ConstantVariate", 500),
 			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 600), 200L);
 	
 	private final String description;

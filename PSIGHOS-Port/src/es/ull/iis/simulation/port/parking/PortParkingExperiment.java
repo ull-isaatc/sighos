@@ -5,6 +5,8 @@ package es.ull.iis.simulation.port.parking;
 
 import java.util.ArrayList;
 
+import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
 
@@ -16,14 +18,12 @@ public class PortParkingExperiment extends Experiment {
 	private static final int NEXP = 1;
 	private static final long ENDTS = 200;
 	private static final int PARKING_CAPACITY = 5;
-	private static final ArrayList<Double> PATH_TIMES;
-	private static final int NQUAYS = 1;
-	
-	static {
-		PATH_TIMES = new ArrayList<>();
-		PATH_TIMES.add(2.0);
-		PATH_TIMES.add(3.0);	
-	}
+	private static final TimeFunction[] T_TO_QUAY = {
+			TimeFunctionFactory.getInstance("ConstantVariate", 50),	
+			TimeFunctionFactory.getInstance("ConstantVariate", 60),	
+			TimeFunctionFactory.getInstance("ConstantVariate", 70),	
+			TimeFunctionFactory.getInstance("ConstantVariate", 80)	
+	};
 	
 	/**
 	 */
@@ -34,7 +34,7 @@ public class PortParkingExperiment extends Experiment {
 	public Simulation getSimulation(int ind) {
 		// int id, long endTs, int parkingCapacity, ArrayList<Double> pathTimes
 		
-		final PortParkingModel sim =  new PortParkingModel(ind, ENDTS, PARKING_CAPACITY, PATH_TIMES, NQUAYS);
+		final PortParkingModel sim =  new PortParkingModel(ind, ENDTS, PARKING_CAPACITY, T_TO_QUAY);
 		sim.addInfoReceiver(new PortParkingListener());
 		return sim;
 	}
