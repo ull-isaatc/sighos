@@ -27,22 +27,24 @@ public class VesselRouter implements Router {
 	 * 
 	 */
 	public VesselRouter(TimeFunction []pathTimesPerQuay) {
-		anchorage = new Node("Anchorage for vessels");
+		anchorage = new Node("ANCHORAGE");
 		pathToQuay = new Path[pathTimesPerQuay.length];
 		pathFromQuay = new Path[pathTimesPerQuay.length];
 		quays = new Node[pathTimesPerQuay.length];
 		for (int i = 0; i < pathTimesPerQuay.length; i++) {
-			quays[i] = new Node("Quay " + i, Vessel.SIZE);
-			final Path pathTo = new Path("TO_QUAY_" + i + "-Path " + i, pathTimesPerQuay[i], 1, 1);  
-			final Path pathFrom = new Path("FROM_QUAY_" + i + "-Path " + i, pathTimesPerQuay[i], 1, 1);
+			quays[i] = new Node("QUAY_" + i, Vessel.SIZE);
+			final Path pathTo = new Path("PATH_TO_QUAY_" + i, pathTimesPerQuay[i], 1, 1);  
+			final Path pathFrom = new Path("PATH_FROM_QUAY_" + i, pathTimesPerQuay[i], 1, 1);
 			pathToQuay[i] = pathTo;
 			pathFromQuay[i] = pathFrom;
 			anchorage.linkTo(pathTo).linkTo(quays[i]);
 			quays[i].linkTo(pathFrom).linkTo(anchorage);
 		}
 		for (VesselType type: VesselType.values()) {
-			type.getInitialLocation().linkTo(anchorage);
-			anchorage.linkTo(type.getInitialLocation());
+			final Path pathTo = new Path("PATH_TO_ANCHORAGE_" + type, type.getTimeToAnchorage(), 1, 1);  
+			final Path pathFrom = new Path("PATH_FROM_ANCHORAGE_" + type, type.getTimeToAnchorage(), 1, 1);  
+			type.getInitialLocation().linkTo(pathTo).linkTo(anchorage);
+			anchorage.linkTo(pathFrom).linkTo(type.getInitialLocation());
 		}
 	}
 
@@ -63,10 +65,18 @@ public class VesselRouter implements Router {
 	@Override
 	public Location getNextLocationTo(Movable entity, Location destination) {
 		final ArrayList<Location> links = entity.getLocation().getLinkedTo();
-		if (links.size() > 0) {
+		if (links.size() == 1) {
+			return links.get(0);
+		}
+		else if (links.size() > 1) {
 			for (int i = 0; i < quays.length; i++) {
 				if (quays[i].equals(destination)) {
-					
+					return links.get(i);
+				}
+			}
+			for (int i = 0; i < VesselType.values().length; i++) {
+				if (VesselType.values()[i].getInitialLocation().equals(destination)) {
+					return links.get(i + quays.length);
 				}
 			}
 			return links.get(0);

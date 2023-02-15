@@ -6,13 +6,13 @@ import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.location.Node;
 
 public enum VesselType {
-	VTYPE1("Test Vessel Type 1", new Node("Source of vessel type 1"), 
+	VTYPE1("Test Vessel Type 1", new Node("SOURCE_VESSEL_VTYPE1"), 
 			TimeFunctionFactory.getInstance("ConstantVariate", 100),
 			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 1440), 0L),
-	VTYPE2("Test Vessel Type 2", new Node("Source of vessel type 2"), 
+	VTYPE2("Test Vessel Type 2", new Node("SOURCE_VESSEL_VTYPE2"), 
 			TimeFunctionFactory.getInstance("ConstantVariate", 150),
 			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 220), 100L),
-	VTYPE3("Test Vessel Type 3", new Node("Source of vessel type 3"), 
+	VTYPE3("Test Vessel Type 3", new Node("SOURCE_VESSEL_VTYPE3"), 
 			TimeFunctionFactory.getInstance("ConstantVariate", 500),
 			new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 600), 200L);
 	
@@ -52,7 +52,7 @@ public enum VesselType {
 	/**
 	 * @return the timeToPortEntrance
 	 */
-	public TimeFunction getTimeToPortEntrance() {
+	public TimeFunction getTimeToAnchorage() {
 		return timeToAnchorage;
 	}
 

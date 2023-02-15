@@ -17,7 +17,6 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
  */
 public class VesselCreator extends TimeDrivenElementGenerator {
 	private static final int N_VESSELS_PER_SPAWN = 1;
-	private static final long INTERARRIVAL_TIME = 10;
 
 	/**
 	 * @param model
@@ -27,7 +26,7 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	 * @param cycle
 	 */
 	public VesselCreator(Simulation model,  ElementType etVessel, InitializerFlow flow, VesselType vType) {
-		super(model, N_VESSELS_PER_SPAWN, new SimulationPeriodicCycle(model.getTimeUnit(), 0L, new SimulationTimeFunction(model.getTimeUnit(), "ConstantVariate", INTERARRIVAL_TIME), model.getEndTs()));
+		super(model, N_VESSELS_PER_SPAWN, new SimulationPeriodicCycle(model.getTimeUnit(), vType.getFirstArrivalTime(), vType.getInterarrivalTime(), model.getEndTs()));
 		add(new VesselGenerationInfo(etVessel, flow, vType));
 	}
 

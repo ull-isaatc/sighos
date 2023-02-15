@@ -51,6 +51,10 @@ public class PortParkingModel extends Simulation {
 		final ExclusiveChoiceFlow choiceQuayFlow = new ExclusiveChoiceFlow(this);
 
 		toAnchorageFlow.link(reqQuayFlow).link(choiceQuayFlow);
+		
+		// TODO: Change by a logic that creates trucks
+		final DelayFlow atQuayFlow = new DelayFlow(this, "Unloading at quay", LOAD_TIME * 20);
+		
 		// Modeling quays as resources to handle the arrival of vessels in advance
 		final ResourceType[] rtQuays = new ResourceType[nQuays];
 		final WorkGroup[] wgQuays = new WorkGroup[nQuays];
@@ -62,12 +66,17 @@ public class PortParkingModel extends Simulation {
 			reqQuayFlow.newWorkGroupAdder(wgQuays[i]).add();
 			choiceQuayFlow.link(
 					new MoveFlow(this, "To Quay " + i, vesselRouter.getQuay(i), vesselRouter), 
-					new QuayCondition(rtQuays[i]));
+					new QuayCondition(rtQuays[i])).link(atQuayFlow);
 		}
 		
+		final ExclusiveChoiceFlow choiceReturnSpotFlow = new ExclusiveChoiceFlow(this);
+		atQuayFlow.link(choiceReturnSpotFlow);
 		for (VesselType vType : VesselType.values()) {
+			final MoveFlow returnFlow = new MoveFlow(this, "Return from Quay", vType.getInitialLocation(), vesselRouter);
+			
 			final ElementType etVessel = new ElementType(this, "Vessels from " + vType.getDescription());
 			new VesselCreator(this, etVessel, toAnchorageFlow, vType);
+			choiceReturnSpotFlow.link(returnFlow, new ElementTypeCondition(etVessel));
 		}
 	}
 
