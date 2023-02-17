@@ -13,6 +13,7 @@ import es.ull.iis.simulation.port.parking.VesselCreator.VesselGenerationInfo;
  */
 public class Vessel extends Element {
 	public static final int SIZE = 1;
+	// TODO: Falta asociarle un origen (está hecho indirectamente), y el tipo y cantidad de mercancía
 
 	/**
 	 * @param simul

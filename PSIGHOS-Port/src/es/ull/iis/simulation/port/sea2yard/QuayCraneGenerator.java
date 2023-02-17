@@ -5,6 +5,7 @@ package es.ull.iis.simulation.port.sea2yard;
 
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.EventSource;
+import es.ull.iis.simulation.model.StandardElementGenerationInfo;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
@@ -33,7 +34,7 @@ public class QuayCraneGenerator extends TimeDrivenElementGenerator {
 	}
 
 	@Override
-	public EventSource createEventSource(int ind, GenerationInfo info) {
+	public EventSource createEventSource(int ind, StandardElementGenerationInfo info) {
 		return new QuayCrane(simul, info.getElementType(), info.getFlow(), initPosition, lastTask);
 	}
 }

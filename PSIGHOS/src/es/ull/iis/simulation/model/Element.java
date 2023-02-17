@@ -9,7 +9,6 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.EntityLocationInfo;
-import es.ull.iis.simulation.model.TimeDrivenElementGenerator.GenerationInfo;
 import es.ull.iis.simulation.model.engine.ElementEngine;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.model.flow.Flow;
@@ -85,7 +84,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param simul Simulation model this element belongs to
 	 * @param info Information required to create the element  
 	 */
-	public Element(final Simulation simul, final GenerationInfo info, String objectTypeId) {
+	public Element(final Simulation simul, final StandardElementGenerationInfo info, String objectTypeId) {
 		super(simul, simul.getNewElementId(), objectTypeId);
 		this.elementType = info.getElementType();
 		this.initialFlow = info.getFlow();
@@ -100,7 +99,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param simul Simulation model this element belongs to
 	 * @param info Information required to create the element  
 	 */
-	public Element(final Simulation simul, final GenerationInfo info) {
+	public Element(final Simulation simul, final StandardElementGenerationInfo info) {
 		this(simul, info, "E");
 	}
 	

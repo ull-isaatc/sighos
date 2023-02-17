@@ -15,6 +15,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.ExclusiveChoiceFlow;
+import es.ull.iis.simulation.model.flow.GeneratorFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.location.MoveFlow;
@@ -44,15 +45,20 @@ public class PortParkingModel extends Simulation {
 	
 	private void createModelForVessels(TimeFunction []pathTimesPerQuay) {
 		final int nQuays = pathTimesPerQuay.length;
-		
+		// Ok
 		final VesselRouter vesselRouter = new VesselRouter(pathTimesPerQuay);
 		final MoveFlow toAnchorageFlow = new MoveFlow(this, "Go to anchorage", vesselRouter.getAnchorage(), vesselRouter);
+		// TODO: La eleeción del muelle tiene una lógica asociada
 		final RequestResourcesFlow reqQuayFlow = new RequestResourcesFlow(this, "Check for quay available", 0);
+		// Ok: Cada barco tiene su propio "tipo" de mercancía y de camiones
+		//final GeneratorFlow genTrucksFlow = new GeneratorFlow(this, "Create trucks to serve vessel", new Truck)
+		// TODO: La eleeción del muelle tiene una lógica asociada
 		final ExclusiveChoiceFlow choiceQuayFlow = new ExclusiveChoiceFlow(this);
 
 		toAnchorageFlow.link(reqQuayFlow).link(choiceQuayFlow);
 		
-		// TODO: Change by a logic that creates trucks
+		// TODO: Añadir un pequeño retardo para el papeleo al llegar al muelle (y otro antes de irse)
+		// TODO: Sustituir por la interacción con los camiones
 		final DelayFlow atQuayFlow = new DelayFlow(this, "Unloading at quay", LOAD_TIME * 20);
 		
 		// Modeling quays as resources to handle the arrival of vessels in advance
@@ -89,12 +95,14 @@ public class PortParkingModel extends Simulation {
 		
 		final TruckRouter truckRouter = new TruckRouter(parkingCapacity * Truck.SIZE, T_ENTRANCE_PARKING, T_PARKING_EXIT);
 		
+		// TODO: Al crearse, deben esperar un tiempo aleatorio antes de aparecer en el punto de origen
 		final MoveFlow toEntranceFlow = new MoveFlow(this, "Go to the port entrance", truckRouter.getPortEntrance(), truckRouter);
 		
 		final RequestResourcesFlow reqParkingFlow = new RequestResourcesFlow(this, "Check whether there is a parking slot available", 0);
 		reqParkingFlow.newWorkGroupAdder(wgParkSlot).add();
 		
 		final MoveFlow toParkingFlow = new MoveFlow(this, "Go to the parking", truckRouter.getParking(), truckRouter);
+		// TODO: Relacionar con la carga a descargar y que esté el barco
 		final DelayFlow parkedFlow = new DelayFlow(this, "Load tasks at the parking", LOAD_TIME);
 		final MoveFlow fromParkingFlow = new MoveFlow(this, "Depart from the parking", truckRouter.getPortExit(), truckRouter);
 		final ReleaseResourcesFlow relParkingFlow = new ReleaseResourcesFlow(this, "Free parking slot", wgParkSlot);
@@ -107,6 +115,7 @@ public class PortParkingModel extends Simulation {
 			new TruckCreator(this, etTruck, toEntranceFlow, co);
 			final MoveFlow returnFlow = new MoveFlow(this, "Return to warehouse", co.getInitialLocation(), truckRouter);
 			choiceDestinationFlow.link(returnFlow, new ElementTypeCondition(etTruck));
+			// TODO: En este momento, el camión debe "desaparecer" de la localización física, esperar un rato que simula la ruta ida y vuelta a su almacén; y volver, pero solo en caso de que haya que descargar más.
 		}		
 	}
 	

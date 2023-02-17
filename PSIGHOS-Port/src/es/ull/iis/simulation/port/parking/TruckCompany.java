@@ -5,6 +5,7 @@ import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.location.Node;
 
+// TODO: Añadir una capacidad de 20 Toneladas += algo
 public enum TruckCompany {
 	TYPE1("Test Company 1", new Node("Location of company 1"), 
 			TimeFunctionFactory.getInstance("ConstantVariate", 10),

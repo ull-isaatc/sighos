@@ -5,6 +5,7 @@ import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.location.Node;
 
+// TODO: El tipo y cantidad de mercancía lo voy a definir por otro lado, y lo asignaré a cada tipo de barco
 public enum VesselType {
 	VTYPE1("Test Vessel Type 1", new Node("SOURCE_VESSEL_VTYPE1"), 
 			TimeFunctionFactory.getInstance("ConstantVariate", 100),

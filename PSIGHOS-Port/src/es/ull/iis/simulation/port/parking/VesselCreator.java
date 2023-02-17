@@ -7,7 +7,7 @@ import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
-import es.ull.iis.simulation.model.SimulationTimeFunction;
+import es.ull.iis.simulation.model.StandardElementGenerationInfo;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 
@@ -32,11 +32,11 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 
 	
 	@Override
-	public EventSource createEventSource(int ind, GenerationInfo info) {
+	public EventSource createEventSource(int ind, StandardElementGenerationInfo info) {
 		return new Vessel(simul, (VesselGenerationInfo) info);
 	}
 	
-	public class VesselGenerationInfo extends GenerationInfo {
+	public class VesselGenerationInfo extends StandardElementGenerationInfo {
 
 		protected VesselGenerationInfo(ElementType et, InitializerFlow flow, VesselType vType) {
 			super(et, flow, Vessel.SIZE, vType.getInitialLocation(), 1.0);
