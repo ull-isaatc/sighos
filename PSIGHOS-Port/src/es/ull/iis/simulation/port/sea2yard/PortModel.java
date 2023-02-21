@@ -14,7 +14,7 @@ import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
-import es.ull.iis.simulation.model.flow.DelayFlow;
+import es.ull.iis.simulation.model.flow.TimeFunctionDelayFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
@@ -422,7 +422,7 @@ public class PortModel extends Simulation {
 			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay + extraBays][0]);
 			final RequestResourcesFlow reqBay =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + (currentBay + 1));
 			reqBay.newWorkGroupAdder(wgPositions[currentBay + 1 + extraBays][1]).add();	
-			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, times.getMoveTime(craneId, currentBay));
+			final TimeFunctionDelayFlow delayBay = new TimeFunctionDelayFlow(this, ACT_MOVING, times.getMoveTime(craneId, currentBay));
 			flow = flow.link(reqBay).link(relBay).link(delayBay);
 			currentBay++;
 		}
@@ -431,7 +431,7 @@ public class PortModel extends Simulation {
 			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay + extraBays][1]);
 			final RequestResourcesFlow reqBay =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + (currentBay - 1));
 			reqBay.newWorkGroupAdder(wgPositions[currentBay - 1 + extraBays][0]).add();	
-			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, times.getMoveTime(craneId, currentBay));
+			final TimeFunctionDelayFlow delayBay = new TimeFunctionDelayFlow(this, ACT_MOVING, times.getMoveTime(craneId, currentBay));
 			flow = flow.link(reqBay).link(relBay).link(delayBay);
 			currentBay--;
 		}

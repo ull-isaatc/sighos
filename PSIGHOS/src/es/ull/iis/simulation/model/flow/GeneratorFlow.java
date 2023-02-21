@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.ElementInstance;
-import es.ull.iis.simulation.model.Generator;
 import es.ull.iis.simulation.model.Simulation;
 
 /**
@@ -14,16 +13,13 @@ import es.ull.iis.simulation.model.Simulation;
 public class GeneratorFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlow {
     /** A brief description of the kind of generation performed */
     private final String description;
-    /** Generador de elementos */
-    private final Generator<? extends Generator.GenerationInfo> generator;
 
 	/**
 	 * @param model
 	 */
-	public GeneratorFlow(Simulation model, String description, Generator<? extends Generator.GenerationInfo> generator) {
+	public GeneratorFlow(Simulation model, String description) {
 		super(model);
 		this.description = description;
-		this.generator = generator;
 	}
 
 	@Override
@@ -35,12 +31,15 @@ public class GeneratorFlow extends SingleSuccessorFlow implements TaskFlow, Acti
 	public void addPredecessor(Flow predecessor) {
 	}
 
+	public void create(ElementInstance ei) {		
+	}
+	
 	@Override
 	public void request(ElementInstance ei) {
 		if (!ei.wasVisited(this)) {
 			if (ei.isExecutable()) {
 				if (beforeRequest(ei)) {
-					generator.create();
+					create(ei);
 					finish(ei);
 				}
 				else {

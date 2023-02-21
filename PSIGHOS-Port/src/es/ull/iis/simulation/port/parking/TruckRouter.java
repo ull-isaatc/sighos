@@ -33,11 +33,11 @@ public class TruckRouter implements Router {
 		final Path pathFromParking = new Path("Path from parking", timeFromParkingToExit);
 		portEntrance.linkTo(pathToParking).linkTo(parking);
 		parking.linkTo(pathFromParking).linkTo(portExit);
-		for (TruckCompany co : TruckCompany.values()) {
-			final Path pathToEntrance = new Path("Path to entrance " + co.name(), co.getTimeToPortEntrance());
-			co.getInitialLocation().linkTo(pathToEntrance).linkTo(portEntrance);
-			final Path pathFromExit = new Path("Path from exit " + co.name(), co.getTimeToPortEntrance());
-			portExit.linkTo(pathFromExit).linkTo(co.getInitialLocation());
+		for (TruckSource source : TruckSource.values()) {
+			final Path pathToEntrance = new Path("Path to entrance " + source.name(), source.getTimeToPortEntrance());
+			source.getInitialLocation().linkTo(pathToEntrance).linkTo(portEntrance);
+			final Path pathFromExit = new Path("Path from exit " + source.name(), source.getTimeToPortEntrance());
+			portExit.linkTo(pathFromExit).linkTo(source.getInitialLocation());
 		}
 	}
 
@@ -65,8 +65,16 @@ public class TruckRouter implements Router {
 	@Override
 	public Location getNextLocationTo(Movable entity, Location destination) {
 		final ArrayList<Location> links = entity.getLocation().getLinkedTo();
-		if (links.size() > 0)
+		if (links.size() == 1) {
 			return links.get(0);
+		}
+		else if (links.size() > 1) {
+			for (TruckSource source : TruckSource.values()) {
+				if (source.getInitialLocation().equals(destination))
+					return links.get(source.ordinal());
+			}
+			return links.get(0);
+		}
 		return Router.UNREACHABLE_LOCATION;
 	}
 

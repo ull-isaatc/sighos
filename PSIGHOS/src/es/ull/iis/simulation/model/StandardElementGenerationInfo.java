@@ -67,8 +67,8 @@ public class StandardElementGenerationInfo extends Generator.GenerationInfo {
 	 * Returns the function that determines the size of the generated elements 
 	 * @return the function that determines the size of the generated elements
 	 */
-	public TimeFunction getSize() {
-		return size;
+	public int getSize(Element e) {
+		return (size == null) ? 0 : (int)size.getValue(e);
 	}
 
 	/**

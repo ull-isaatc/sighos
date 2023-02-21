@@ -16,7 +16,7 @@ import es.ull.iis.simulation.model.SimulationObject;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
-import es.ull.iis.simulation.model.flow.DelayFlow;
+import es.ull.iis.simulation.model.flow.TimeFunctionDelayFlow;
 import es.ull.iis.simulation.model.flow.WaitForSignalFlow;
 
 /**
@@ -53,7 +53,7 @@ public class TestWaitForSignalFlow extends Experiment {
 		public TestSimulation() {
 			super(0, "Test wait for signal simulation", 0L, ENDTS);
 			final ElementType et = new ElementType(this, "Message");
-			final DelayFlow delayFlow = new DelayFlow(this, "Little delay", DELAY) {
+			final TimeFunctionDelayFlow delayFlow = new TimeFunctionDelayFlow(this, "Little delay", DELAY) {
 				@Override
 				public void afterFinalize(ElementInstance ei) {
 					super.afterFinalize(ei);

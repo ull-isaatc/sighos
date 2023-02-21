@@ -11,7 +11,7 @@ import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
-import es.ull.iis.simulation.model.flow.DelayFlow;
+import es.ull.iis.simulation.model.flow.TimeFunctionDelayFlow;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
@@ -98,7 +98,7 @@ public class PortModel extends Simulation {
 				}
 			}).withDelay(TIME_TO_UNLOAD[i]).add();
 		}
-		final DelayFlow aToYard = new DelayFlow(this, ACT_TO_YARD, new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK));
+		final TimeFunctionDelayFlow aToYard = new TimeFunctionDelayFlow(this, ACT_TO_YARD, new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK));
 		final ActivityFlow aPlace = new ActivityFlow(this, ACT_PLACE);
 		for (int i = 0; i < N_BLOCKS; i++) {
 			final int blockId = i;

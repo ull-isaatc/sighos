@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.function.TimeFunction;
-import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
@@ -15,56 +13,31 @@ import es.ull.iis.simulation.model.Simulation;
  * @author Iván Castilla
  *
  */
-public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlow {
+public abstract class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlow {
     /** A brief description of the delay */
     private final String description;
-	/** Duration of the delay */
-    private final TimeFunction duration;
 
     /**
      * Creates a delay flow
      * @param model The simulation model this flow belongs to
      * @param description A short text describing this flow
-     * @param duration The duration of the delay
      */
-	public DelayFlow(final Simulation model, final String description, final TimeFunction duration) {
+	public DelayFlow(final Simulation model, final String description) {
 		super(model);
 		this.description = description;
-		this.duration = duration;
-	}
-
-    /**
-     * Creates a delay flow
-     * @param model The simulation model this flow belongs to
-     * @param description A short text describing this flow
-     * @param duration The duration of the delay
-     */
-	public DelayFlow(final Simulation model, final String description, final long duration) {
-		this(model, description, TimeFunctionFactory.getInstance("ConstantVariate", duration));
 	}
 
 	@Override
 	public String getDescription() {
 		return description;
 	}
-    
-	/**
-	 * Returns the time function that characterizes the duration of the delay
-	 * @return the time function that characterizes the duration of the delay
-	 */
-	public TimeFunction getDuration() {
-		return duration;
-	}
 
     /**
      * Returns the duration of the delay
-     * The value returned by the random number function could be negative. In this case, it returns 0.
      * @param elem The element delaying
      * @return The duration of the delay
      */
-    public long getDurationSample(final Element elem) {
-    	return Math.max(0, Math.round(getDuration().getValue(elem)));
-    }
+    public abstract long getDurationSample(final Element elem);
 
 	@Override
 	public void addPredecessor(final Flow predecessor) {

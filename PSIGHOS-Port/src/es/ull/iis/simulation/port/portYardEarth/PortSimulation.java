@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.port.portYardEarth;
 
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.model.flow.DelayFlow;
+import es.ull.iis.simulation.model.flow.TimeFunctionDelayFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.Resource;
@@ -155,13 +155,13 @@ public class PortSimulation extends Simulation {
 		
 // SE DEFINEN LOS TIEMPOS QUE TARDARA EL PROCESO EN PASAR POR LOS TRAMOS DEL PATIO Y EN REALIZAR
 // LAS ACTIVIDADES DE LOCALIZACION,DESCARGA, TRANSFERENCIA, ETC
-		DelayFlow treqPatio1 = new DelayFlow(this, "Tiempo Tramo 1", TimeFunctionFactory.getInstance("GammaVariate", ALFA_TRAMO_PATIO, BETA_TRAMO_PATIO));
-		DelayFlow treqCentro1 = new DelayFlow(this, "Tiempo Tramo 2", TimeFunctionFactory.getInstance("GammaVariate", ALFA_TRAMO_CENTRO, BETA_TRAMO_CENTRO));
-		DelayFlow tDescargar = new DelayFlow(this, DESCARGA, TimeFunctionFactory.getInstance("GammaVariate", ALFA_DESCARGA_CONTENEDOR, BETA_DESCARGA_CONTENEDOR));
-		DelayFlow treqTierra1 = new DelayFlow(this, "Tiempo Tramo 3", TimeFunctionFactory.getInstance("GammaVariate", ALFA_TRAMO_TIERRA, BETA_TRAMO_TIERRA));
-		DelayFlow tTransferencia = new DelayFlow(this,TRANSFERENCIA,TimeFunctionFactory.getInstance("GammaVariate", ALFA_TRANSFERENCIA, BETA_TRANSFERENCIA ));
-		DelayFlow treqCentro2 = new DelayFlow(this,"Tiempo Tramo 4", TimeFunctionFactory.getInstance("GammaVariate", ALFA_CENTRO_VUELTA, BETA_CENTRO_VUELTA));
-		DelayFlow tTramopatio1vuelta = new DelayFlow(this, "Tiempo Tramo 1 vuelta", TimeFunctionFactory.getInstance("GammaVariate", ALFA_VUELTA_PATIO1, BETA_VUELTA_PATIO1));
+		TimeFunctionDelayFlow treqPatio1 = new TimeFunctionDelayFlow(this, "Tiempo Tramo 1", TimeFunctionFactory.getInstance("GammaVariate", ALFA_TRAMO_PATIO, BETA_TRAMO_PATIO));
+		TimeFunctionDelayFlow treqCentro1 = new TimeFunctionDelayFlow(this, "Tiempo Tramo 2", TimeFunctionFactory.getInstance("GammaVariate", ALFA_TRAMO_CENTRO, BETA_TRAMO_CENTRO));
+		TimeFunctionDelayFlow tDescargar = new TimeFunctionDelayFlow(this, DESCARGA, TimeFunctionFactory.getInstance("GammaVariate", ALFA_DESCARGA_CONTENEDOR, BETA_DESCARGA_CONTENEDOR));
+		TimeFunctionDelayFlow treqTierra1 = new TimeFunctionDelayFlow(this, "Tiempo Tramo 3", TimeFunctionFactory.getInstance("GammaVariate", ALFA_TRAMO_TIERRA, BETA_TRAMO_TIERRA));
+		TimeFunctionDelayFlow tTransferencia = new TimeFunctionDelayFlow(this,TRANSFERENCIA,TimeFunctionFactory.getInstance("GammaVariate", ALFA_TRANSFERENCIA, BETA_TRANSFERENCIA ));
+		TimeFunctionDelayFlow treqCentro2 = new TimeFunctionDelayFlow(this,"Tiempo Tramo 4", TimeFunctionFactory.getInstance("GammaVariate", ALFA_CENTRO_VUELTA, BETA_CENTRO_VUELTA));
+		TimeFunctionDelayFlow tTramopatio1vuelta = new TimeFunctionDelayFlow(this, "Tiempo Tramo 1 vuelta", TimeFunctionFactory.getInstance("GammaVariate", ALFA_VUELTA_PATIO1, BETA_VUELTA_PATIO1));
 		
 //ACTIVIDADES LINKEADAS DE NUESTRO PROCESO. AQUI PODEMOS VER COMO FLUIRA NUESTRO PROCESO
 		// Primero enlazo las acciones desde que se inicia el pedido hasta que la grúa llega al tramo central			

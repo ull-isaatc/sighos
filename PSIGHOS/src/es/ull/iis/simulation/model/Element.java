@@ -58,7 +58,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param initialFlow First step of the flow of the element
 	 */
 	public Element(final Simulation simul, final ElementType elementType, final InitializerFlow initialFlow) {
-		this(simul, elementType, initialFlow, 0, null);
+		this(simul, "E", elementType, initialFlow, 0, null);
 	}
 	
 	/**
@@ -69,8 +69,8 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param size The size of the element
      * @param initLocation The initial location of the element
 	 */
-	public Element(final Simulation simul, final ElementType elementType, final InitializerFlow initialFlow, final int size, final Location initLocation) {
-		super(simul, simul.getNewElementId(), "E");
+	public Element(final Simulation simul, String objectTypeId, final ElementType elementType, final InitializerFlow initialFlow, final int size, final Location initLocation) {
+		super(simul, simul.getNewElementId(), objectTypeId);
 		this.elementType = elementType;
 		this.initialFlow = initialFlow;
         this.seizedResources = new SeizedResourcesCollection();
@@ -84,13 +84,13 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param simul Simulation model this element belongs to
 	 * @param info Information required to create the element  
 	 */
-	public Element(final Simulation simul, final StandardElementGenerationInfo info, String objectTypeId) {
+	public Element(final Simulation simul, String objectTypeId, final StandardElementGenerationInfo info) {
 		super(simul, simul.getNewElementId(), objectTypeId);
 		this.elementType = info.getElementType();
 		this.initialFlow = info.getFlow();
         this.seizedResources = new SeizedResourcesCollection();
         this.initLocation = info.getInitLocation();
-        this.size = (this.initLocation == null) ? 0 : (int) info.getSize().getValue(this);
+        this.size = info.getSize(this);
 		initializeElementVars(this.elementType.getElementValues());
 	}
 	
@@ -100,7 +100,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param info Information required to create the element  
 	 */
 	public Element(final Simulation simul, final StandardElementGenerationInfo info) {
-		this(simul, info, "E");
+		this(simul, "E", info);
 	}
 	
 	/**

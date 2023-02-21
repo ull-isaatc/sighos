@@ -11,6 +11,8 @@ class PortParkingListener extends Listener {
 		super("Port parking listener");
 		addEntrance(EntityLocationInfo.class);
 		addEntrance(ElementActionInfo.class);
+		addGenerated(PortInfo.class);
+		addEntrance(PortInfo.class);
 	}
 
 	@Override
