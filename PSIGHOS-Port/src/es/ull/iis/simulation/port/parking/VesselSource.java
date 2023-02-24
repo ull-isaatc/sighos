@@ -4,7 +4,7 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.location.Node;
 
-public enum VesselSource {
+public enum VesselSource { // TODO: Esto no es relevante. Quedarse con un solo punto
 	VSOURCE1("Vessel Source 1", new Node("VESSEL_SOURCE_1"), 
 			TimeFunctionFactory.getInstance("ConstantVariate", 100), 0.5),
 	VSOURCE2("Vessel Source 2", new Node("VESSEL_SOURCE_2"), 

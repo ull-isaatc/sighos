@@ -18,6 +18,8 @@ public class Vessel extends Element {
 	private final WaresType wares;
 	private final double initLoad;
 	private double currentLoad;
+	/** The amount of load not yet assigned to the vessel */
+	private double notAssignedLoad;
 
 	/**
 	 * @param simul

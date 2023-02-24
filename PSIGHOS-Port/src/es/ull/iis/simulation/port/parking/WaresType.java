@@ -12,15 +12,16 @@ import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
- *
+ * TODO: Un barco debe llevar más de un tipo de mercancía
  */
 public enum WaresType {
-	TYPE1("Cereal", RandomVariateFactory.getInstance("UniformVariate", 20, 25), 
+	TYPE1("Cereal", RandomVariateFactory.getInstance("UniformVariate", 20, 25), // TODO: Dejar las toneladas por camión fijo en 20 independientemente del tipo de mercancía 
 			RandomVariateFactory.getInstance("UniformVariate", 6000, 7000), 200.0, 0.5,
-			TimeFunctionFactory.getInstance("UniformVariate", 30, 40),
-			TimeFunctionFactory.getInstance("UniformVariate", 20, 30),
+			TimeFunctionFactory.getInstance("UniformVariate", 30, 40), // TODO: No relacionar estos tiempos con el tipo de mercancía 
+			TimeFunctionFactory.getInstance("UniformVariate", 20, 30), // TODO: No relacionar estos tiempos con el tipo de mercancía
+			// TODO: Sacar los muelles de la hoja "Analisis_DistribucionMercancias, pestaña "CARGA (TOTAL MERCANCÍA)
 			EnumSet.of(QuayType.QUAY1, QuayType.QUAY2),
-			new double[] {0.2, 0.3, 0.5}),
+			new double[] {0.2, 0.3, 0.5}), // TODO: No relacionar estos tiempos con el tipo de mercancía
 	TYPE2("Carbon", RandomVariateFactory.getInstance("UniformVariate", 20, 25),
 			RandomVariateFactory.getInstance("UniformVariate", 6000, 7000), 200.0, 0.5,
 			TimeFunctionFactory.getInstance("UniformVariate", 30, 40),

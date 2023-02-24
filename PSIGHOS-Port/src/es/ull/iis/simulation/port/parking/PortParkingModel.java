@@ -25,11 +25,12 @@ import es.ull.iis.simulation.model.location.MoveFlow;
 
 /**
  * @author Iván Castilla
- *
+ * TODO: Añadir al listener un mapeo entre Nodes y coordenadas (me lo pasarán)
+ * TODO: SAcar datos concretos de los barcos históricos de los datos en "Escalas y mercancías 2020-2021" y generar los barcos por bootstrap  
  */
 public class PortParkingModel extends Simulation {
 	public static final TimeUnit TIME_UNIT = TimeUnit.MINUTE;
-	private static final TimeFunction LOAD_TIME =  TimeFunctionFactory.getInstance("UniformVariate", 10, 15);
+	private static final TimeFunction LOAD_TIME =  TimeFunctionFactory.getInstance("UniformVariate", 25, 35); // TODO: Debería ser media 30
 	private static final TimeFunction T_ENTRANCE_PARKING = TimeFunctionFactory.getInstance("ConstantVariate", 10);
 	private static final TimeFunction T_PARKING_EXIT = TimeFunctionFactory.getInstance("ConstantVariate", 10);
 	private static final long T_FIRST_ARRIVAL = 0L;
@@ -171,6 +172,7 @@ public class PortParkingModel extends Simulation {
 			truckSources[source.ordinal()] = new ElementType(this, "Type for truck source " + source.ordinal());
 			final MoveFlow returnFlow = new MoveFlow(this, "Return to warehouse", source.getInitialLocation(), truckRouter);
 			choiceDestinationFlow.link(returnFlow, new ElementTypeCondition(truckSources[source.ordinal()]));
+//			final DelayFlow goAndBackFlow 
 			// TODO: En este momento, el camión debe "desaparecer" de la localización física, esperar un rato que simula la ruta ida y vuelta a su almacén; y volver, pero solo en caso de que haya que descargar más.
 		}	
 		

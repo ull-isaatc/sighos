@@ -9,7 +9,7 @@ import es.ull.iis.simulation.model.location.Node;
 
 /**
  * @author Iván Castilla Rodríguez
- *
+ * TODO: Añadir capacidad para cada muelle
  */
 public enum QuayType {
 	QUAY1("QUAY_1", new Node("QUAY_1", Vessel.SIZE), TimeFunctionFactory.getInstance("ConstantVariate", 50)),

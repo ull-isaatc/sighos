@@ -10,7 +10,7 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
 
 /**
  * @author Iván Castilla Rodríguez
- *
+ * 
  */
 public class Truck extends Element {
 	public static final int SIZE = 1;
