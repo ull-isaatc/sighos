@@ -26,18 +26,22 @@ public class TruckRouter implements Router {
 	 * 
 	 */
 	public TruckRouter(int parkingCapacity, TimeFunction timeFromEntranceToParking, TimeFunction timeFromParkingToExit) {
-		parking = new Node("Parking for trucks", parkingCapacity);
-		portEntrance = new Node("Port entrance");
-		portExit = new Node("Port exit");
-		final Path pathToParking = new Path("Path to parking", timeFromEntranceToParking);
-		final Path pathFromParking = new Path("Path from parking", timeFromParkingToExit);
+		parking = new Node("PARKING", parkingCapacity);
+		portEntrance = new Node("PORT_ENTRANCE");
+		portExit = new Node("PORT_EXIT");
+		final Path pathToParking = new Path("PATH_TO_PARKING", timeFromEntranceToParking);
+		final Path pathFromParking = new Path("PATH_FROM_PARKING", timeFromParkingToExit);
 		portEntrance.linkTo(pathToParking).linkTo(parking);
 		parking.linkTo(pathFromParking).linkTo(portExit);
 		for (TruckSource source : TruckSource.values()) {
-			final Path pathToEntrance = new Path("Path to entrance " + source.name(), source.getTimeToPortEntrance());
-			source.getInitialLocation().linkTo(pathToEntrance).linkTo(portEntrance);
-			final Path pathFromExit = new Path("Path from exit " + source.name(), source.getTimeToPortEntrance());
-			portExit.linkTo(pathFromExit).linkTo(source.getInitialLocation());
+			final Path pathToEntrance = new Path("PATH_TO_ENTRANCE_" + source.name(), source.getTimeToPortEntrance());
+			source.getSpawnLocation().linkTo(pathToEntrance).linkTo(portEntrance);
+			final Path pathFromExit = new Path("PATH_FROM_EXIT_" + source.name(), source.getTimeToPortEntrance());
+			portExit.linkTo(pathFromExit).linkTo(source.getSpawnLocation());
+			final Path pathToWarehouse = new Path("PATH_TO_WAREHOUSE", source.getTimeToWarehouse());
+			final Path pathFromWarehouse = new Path("PATH_FROM_WAREHOUSE", source.getTimeToWarehouse());
+			source.getSpawnLocation().linkTo(pathToWarehouse).linkTo(source.getWarehouseLocation());
+			source.getWarehouseLocation().linkTo(pathFromWarehouse).linkTo(source.getSpawnLocation());
 		}
 	}
 
@@ -69,9 +73,15 @@ public class TruckRouter implements Router {
 			return links.get(0);
 		}
 		else if (links.size() > 1) {
-			for (TruckSource source : TruckSource.values()) {
-				if (source.getInitialLocation().equals(destination))
-					return links.get(source.ordinal());
+			if (!portEntrance.equals(destination)) {
+				for (TruckSource source : TruckSource.values()) {
+					if (source.getWarehouseLocation().equals(destination)) {
+						return links.get(1);
+					}
+					if (source.getSpawnLocation().equals(destination)) {
+						return links.get(source.ordinal());
+					}
+				}
 			}
 			return links.get(0);
 		}

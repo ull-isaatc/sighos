@@ -26,8 +26,11 @@ public class TruckWaitingManager implements Listener {
 	}
 	
 	public void letTrucksStart(Vessel vessel) {
-		for (ElementInstance ei : waitingTrucks.get(vessel))
-			this.truckFlow.signal(ei);
+		// TODO: Chequear que esta condición está bien puesta
+		if (waitingTrucks.get(vessel) != null) {
+			for (ElementInstance ei : waitingTrucks.get(vessel))
+				this.truckFlow.signal(ei);
+		}
 	}
 
 	@Override

@@ -36,8 +36,8 @@ public class TruckCreatorFlow extends GeneratorFlow {
 		super.create(ei);
 		final Vessel vessel = (Vessel)ei.getElement();
 		final WaresType wares = vessel.getWares();
-//		final int nTrucks = (int) (vessel.getInitLoad() / wares.getTonesPerTruck());
-		final int nTrucks = 1;
+		final int nTrucks = (int) (vessel.getInitLoad() / wares.getTonesPerTruck());
+//		final int nTrucks = 1;
 		final EventSource[] elems = new EventSource[nTrucks];
         for (int i = 0; i < nTrucks; i++) {
             double p = Math.random();

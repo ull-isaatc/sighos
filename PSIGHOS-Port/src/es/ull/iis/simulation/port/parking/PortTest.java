@@ -18,12 +18,14 @@ import es.ull.iis.simulation.model.location.MoveFlow;
 public class PortTest extends Simulation {
 	private static final TimeFunction T_ENTRANCE_PARKING = TimeFunctionFactory.getInstance("ConstantVariate", 10);
 	private static final TimeFunction T_PARKING_EXIT = TimeFunctionFactory.getInstance("ConstantVariate", 10);
-	
+	private static final TimeFunction T_FROM_SOURCE_TO_ANCHORAGE = TimeFunctionFactory.getInstance("ConstantVariate", 100);
+
 	private final TruckWaitingManager truckManager;
 	private final MoveFlow moveVesselFlow;
 	private final ElementType etTestVessel;
 	private final WaitForSignalFlow waitForVesselFlow;
 	private final ElementType etTestTruck;
+	private final VesselRouter vRouter;
 
 	/**
 	 * 
@@ -32,7 +34,7 @@ public class PortTest extends Simulation {
 		super(id, "Santander Port simulation " + id, PortParkingModel.TIME_UNIT, 0, endTs);
 
 		truckManager = new TruckWaitingManager();
-		final VesselRouter vRouter = new VesselRouter(this);
+		vRouter = new VesselRouter(this, T_FROM_SOURCE_TO_ANCHORAGE);
 		moveVesselFlow = new MoveFlow(this, "Move to anchorage", vRouter.getAnchorage(), vRouter) {
 			@Override
 			public void afterFinalize(ElementInstance fe) {
@@ -47,7 +49,7 @@ public class PortTest extends Simulation {
 		final MoveFlow moveToEntranceFlow = new MoveFlow(this, "move to entrance", tRouter.getPortEntrance(), tRouter) {
 			@Override
 			public boolean beforeRequest(ElementInstance ei) {
-				TruckSource.TYPE1.getInitialLocation().enter(ei.getElement());
+				TruckSource.TYPE1.getSpawnLocation().enter(ei.getElement());
 				return super.beforeRequest(ei);
 			}
 		};
@@ -58,7 +60,7 @@ public class PortTest extends Simulation {
 	@Override
 	public void init() {
 		super.init();
-		final Vessel myTestVessel = new Vessel(this, WaresType.TYPE1, etTestVessel, moveVesselFlow, VesselSource.VSOURCE1);
+		final Vessel myTestVessel = new Vessel(this, WaresType.TYPE1, etTestVessel, moveVesselFlow, vRouter.getInitialLocation());
 		final Truck myTestTruck = new Truck(this, etTestTruck, waitForVesselFlow, myTestVessel, TruckSource.TYPE1);
 		addEvent(myTestVessel.onCreate(getTs()));
 		addEvent(myTestTruck.onCreate(getTs()));

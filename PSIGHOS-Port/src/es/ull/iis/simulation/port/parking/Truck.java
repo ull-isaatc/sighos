@@ -66,7 +66,18 @@ public class Truck extends Element {
 		return currentLoad;
 	}
 
-	public void load() {
-		currentLoad = servingVessel.unload(maxLoad);
+	/**
+	 * Returns true if the truck is required for a transshipment operation; false otherwise
+	 * @return True if the truck is required for a transshipment operation; false otherwise
+	 */
+	public boolean requiresTransshipmentOperation() {
+		return servingVessel.bookTransshipmentOperation(maxLoad);
+	}
+	
+	/**
+	 * Performs a transshipment operation with the assigned vessel, trying to load/unload its maximum load
+	 */
+	public void performTransshipmentOperation() {
+		currentLoad = servingVessel.performTransshipmentOperation(maxLoad);
 	}
 }

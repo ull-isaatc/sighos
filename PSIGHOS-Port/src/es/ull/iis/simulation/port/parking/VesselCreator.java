@@ -11,6 +11,7 @@ import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.StandardElementGenerationInfo;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.location.Node;
 import simkit.random.RandomIntegerSelector;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
@@ -35,11 +36,9 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	 * @param flow
 	 * @param cycle
 	 */
-	public VesselCreator(Simulation model, ElementType[] vesselSources, InitializerFlow flow, SimulationTimeFunction interarrivalTime, long firstArrivalTime) {
+	public VesselCreator(Simulation model, Node initialLocation, InitializerFlow flow, SimulationTimeFunction interarrivalTime, long firstArrivalTime) {
 		super(model, N_VESSELS_PER_SPAWN, new SimulationPeriodicCycle(model.getTimeUnit(), firstArrivalTime, interarrivalTime, model.getEndTs()));
-		for (int i = 0; i < vesselSources.length; i++) {
-			add(new VesselGenerationInfo(vesselSources[i], flow, VesselSource.values()[i]));
-		}
+		add(new VesselGenerationInfo(new ElementType(model, "Vessel"), flow, initialLocation));
 		final double[] freqs = new double[WaresType.values().length];
 		for (int i = 0; i < freqs.length; i++) {
 			freqs[i] = WaresType.values()[i].getProportion();
@@ -56,8 +55,8 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	
 	public class VesselGenerationInfo extends StandardElementGenerationInfo {
 
-		protected VesselGenerationInfo(ElementType et, InitializerFlow flow, VesselSource vType) {
-			super(et, flow, Vessel.SIZE, vType.getInitialLocation(), vType.getProportion());
+		protected VesselGenerationInfo(ElementType et, InitializerFlow flow, Node initialLocation) {
+			super(et, flow, Vessel.SIZE, initialLocation, 1.0);
 		}
 		
 	}

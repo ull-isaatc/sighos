@@ -22,6 +22,7 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.flow.TimeFunctionDelayFlow;
 import es.ull.iis.simulation.model.flow.WaitForSignalFlow;
 import es.ull.iis.simulation.model.location.MoveFlow;
+import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla
@@ -29,10 +30,15 @@ import es.ull.iis.simulation.model.location.MoveFlow;
  * TODO: SAcar datos concretos de los barcos históricos de los datos en "Escalas y mercancías 2020-2021" y generar los barcos por bootstrap  
  */
 public class PortParkingModel extends Simulation {
+	/** Time unit of the model */
 	public static final TimeUnit TIME_UNIT = TimeUnit.MINUTE;
-	private static final TimeFunction LOAD_TIME =  TimeFunctionFactory.getInstance("UniformVariate", 25, 35); // TODO: Debería ser media 30
+	/** The minimum amount of load that is considered significant. Useful for avoid rounding error */
+	public static final double MIN_LOAD = 0.001;
+	/** Time to load/unload a container, 30 minutes +- 10 minutes, characterized by a beta distribution */
+	private static final TimeFunction TRANSSHIPMENT_OP_TIME =  TimeFunctionFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("BetaVariate", 10.0, 10.0), 10, 25);
 	private static final TimeFunction T_ENTRANCE_PARKING = TimeFunctionFactory.getInstance("ConstantVariate", 10);
 	private static final TimeFunction T_PARKING_EXIT = TimeFunctionFactory.getInstance("ConstantVariate", 10);
+	private static final TimeFunction T_FROM_SOURCE_TO_ANCHORAGE = TimeFunctionFactory.getInstance("ConstantVariate", 100);
 	private static final long T_FIRST_ARRIVAL = 0L;
 	private static final SimulationTimeFunction T_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 220);
 	private final TruckWaitingManager truckWaitingManager;
@@ -59,7 +65,7 @@ public class PortParkingModel extends Simulation {
 	 * goes to the quay, do some paperwork, and starts unloading its wares. 
 	 */
 	private void createModelForVessels(TruckCreatorFlow tCreator) {
-		final VesselRouter vesselRouter = new VesselRouter(this);
+		final VesselRouter vesselRouter = new VesselRouter(this, T_FROM_SOURCE_TO_ANCHORAGE);
 		final int nQuays = QuayType.values().length;
 		final MoveFlow toAnchorageFlow = new MoveFlow(this, "Go to anchorage", vesselRouter.getAnchorage(), vesselRouter);
 		final RequestResourcesFlow reqQuayFlow = new RequestResourcesFlow(this, "Check for quay available", 0);
@@ -104,16 +110,9 @@ public class PortParkingModel extends Simulation {
 					new BookedQuayCondition(rtQuays[i])).link(paperWorkInDelayFlow);
 		}
 		
-		final ExclusiveChoiceFlow choiceReturnSpotFlow = new ExclusiveChoiceFlow(this);
-		paperWorkInDelayFlow.link(atQuayFlow).link(paperWorkOutDelayFlow).link(choiceReturnSpotFlow);
-		// There is one element type per source (useful for flows)
-		final ElementType[] vesselSources = new ElementType[VesselSource.values().length];
-		for (int i = 0; i < VesselSource.values().length; i++) {
-			vesselSources[i] = new ElementType(this, "Type for vessel source " + i);
-			final MoveFlow returnFlow = new MoveFlow(this, "Return from Quay", VesselSource.values()[i].getInitialLocation(), vesselRouter);			
-			choiceReturnSpotFlow.link(returnFlow, new ElementTypeCondition(vesselSources[i]));
-		}
-		new VesselCreator(this, vesselSources, toAnchorageFlow, T_INTERARRIVAL, T_FIRST_ARRIVAL);
+		final MoveFlow returnFlow = new MoveFlow(this, "Return from Quay", vesselRouter.getInitialLocation(), vesselRouter);			
+		paperWorkInDelayFlow.link(atQuayFlow).link(paperWorkOutDelayFlow).link(returnFlow);
+		new VesselCreator(this, vesselRouter.getInitialLocation(), toAnchorageFlow, T_INTERARRIVAL, T_FIRST_ARRIVAL);
 	}
 
 	private TruckCreatorFlow createModelForTrucks(int parkingCapacity) {
@@ -122,14 +121,15 @@ public class PortParkingModel extends Simulation {
 			
 			@Override
 			public long getDurationSample(Element elem) {
-		    	return Math.max(0, Math.round(((Truck)elem).getSource().getTimeToInitialLocation().getValue(elem)));
+		    	return Math.max(0, Math.round(((Truck)elem).getSource().getInitialDelay().getValue(elem)));
 			}
 			
 			@Override
 			public void afterFinalize(ElementInstance ei) {
 				super.afterFinalize(ei);
 				Truck truck = (Truck)ei.getElement(); 
-				truck.getSource().getInitialLocation().enter(truck);
+				// First makes the truck spawn
+				truck.getSource().getSpawnLocation().enter(truck);
 			}
 		};
 
@@ -148,12 +148,12 @@ public class PortParkingModel extends Simulation {
 		final MoveFlow toParkingFlow = new MoveFlow(this, "Go to the parking", truckRouter.getParking(), truckRouter);
 		// TODO: Relacionar con la carga a descargar y que esté el barco
 		final WaitForSignalFlow waitForVessel = new WaitForSignalFlow(this, "Wait for the vessel to arrive", truckWaitingManager);
-		final TimeFunctionDelayFlow parkedFlow = new TimeFunctionDelayFlow(this, "Load tasks at the parking", LOAD_TIME) {
+		final TimeFunctionDelayFlow performTransshipmentFlow = new TimeFunctionDelayFlow(this, "Transshipment operation", TRANSSHIPMENT_OP_TIME) {
 			@Override
 			public void afterFinalize(ElementInstance ei) {
 				super.afterFinalize(ei);
 				Truck truck = ((Truck)ei.getElement());
-				truck.load();
+				truck.performTransshipmentOperation();
 				if (truck.getServingVessel().isEmpty())
 					vesselWaitingManager.letVesselGo(truck.getServingVessel());
 				simul.notifyInfo(new PortInfo(simul, PortInfo.Type.TRUCK_LOADED, truck, truck.getTs()));
@@ -162,18 +162,21 @@ public class PortParkingModel extends Simulation {
 		final MoveFlow fromParkingFlow = new MoveFlow(this, "Depart from the parking", truckRouter.getPortExit(), truckRouter);
 		final ReleaseResourcesFlow relParkingFlow = new ReleaseResourcesFlow(this, "Free parking slot", wgParkSlot);
 		final ExclusiveChoiceFlow choiceDestinationFlow = new ExclusiveChoiceFlow(this);
-		truckCreationDelayFlow.link(toEntranceFlow).link(reqParkingFlow).link(toParkingFlow).link(waitForVessel).link(parkedFlow);
-		parkedFlow.link(fromParkingFlow).link(relParkingFlow).link(choiceDestinationFlow);
+		truckCreationDelayFlow.link(toEntranceFlow).link(reqParkingFlow).link(toParkingFlow).link(waitForVessel).link(performTransshipmentFlow);
+		performTransshipmentFlow.link(fromParkingFlow).link(relParkingFlow).link(choiceDestinationFlow);
 		
 		// There is one element type per source (useful for flows)
 		final ElementType[] truckSources = new ElementType[TruckSource.values().length];
+		final TransshipmentPendingCondition trCond = new TransshipmentPendingCondition();
 		
 		for (TruckSource source : TruckSource.values()) {
 			truckSources[source.ordinal()] = new ElementType(this, "Type for truck source " + source.ordinal());
-			final MoveFlow returnFlow = new MoveFlow(this, "Return to warehouse", source.getInitialLocation(), truckRouter);
-			choiceDestinationFlow.link(returnFlow, new ElementTypeCondition(truckSources[source.ordinal()]));
-//			final DelayFlow goAndBackFlow 
-			// TODO: En este momento, el camión debe "desaparecer" de la localización física, esperar un rato que simula la ruta ida y vuelta a su almacén; y volver, pero solo en caso de que haya que descargar más.
+			final MoveFlow toExitFlow = new MoveFlow(this, "Return to exit point", source.getSpawnLocation(), truckRouter);
+			choiceDestinationFlow.link(toExitFlow, new ElementTypeCondition(truckSources[source.ordinal()]));
+			final MoveFlow toWarehouseFlow = new MoveFlow(this, "Return to warehouse", source.getWarehouseLocation(), truckRouter);
+			final ExclusiveChoiceFlow mustOperateAgainFlow = new ExclusiveChoiceFlow(this);
+			toExitFlow.link(toWarehouseFlow).link(mustOperateAgainFlow);
+			mustOperateAgainFlow.link(toEntranceFlow, trCond);
 		}	
 		
 		final TruckCreatorFlow tCreator = new TruckCreatorFlow(this, truckSources, truckCreationDelayFlow);
@@ -192,7 +195,18 @@ public class PortParkingModel extends Simulation {
 		}
 		
 	}
-	
+
+	class TransshipmentPendingCondition extends Condition<ElementInstance> {
+		public TransshipmentPendingCondition() {
+		}
+
+		@Override
+		public boolean check(ElementInstance fe) {
+			final Truck truck = (Truck) fe.getElement();
+			return truck.requiresTransshipmentOperation();
+		}
+		
+	}
 	class BookedQuayCondition extends Condition<ElementInstance> {
 		private final ResourceType rtQuay;
 		public BookedQuayCondition(ResourceType rtQuay) {
