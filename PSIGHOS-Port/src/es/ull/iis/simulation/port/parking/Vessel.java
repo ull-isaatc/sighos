@@ -21,34 +21,56 @@ public class Vessel extends Element {
 	private double currentLoad;
 	/** The amount of load not yet assigned to the vessel */
 	private double notAssignedLoad;
+	private final int vesselId;
 
 	/**
 	 * @param simul
 	 * @param elementType
 	 * @param initialFlow
 	 */
-	public Vessel(Simulation simul, WaresType wares, VesselGenerationInfo info) {
+	public Vessel(Simulation simul, int vesselId, WaresType wares, VesselGenerationInfo info) {
 		super(simul, "VESSEL", info);
+		this.vesselId = vesselId;
 		this.wares = wares;
 		this.initLoad = wares.getTypicalVesselLoad().generate();
 		this.currentLoad = initLoad;
 		this.notAssignedLoad = initLoad;
 	}
 
-	public Vessel(Simulation simul, WaresType wares, ElementType elementType, InitializerFlow initialFlow, Node initialLocation) {
+	public Vessel(Simulation simul, int vesselId, WaresType wares, ElementType elementType, InitializerFlow initialFlow, Node initialLocation) {
 		super(simul, "VESSEL", elementType, initialFlow, SIZE, initialLocation);
+		this.vesselId = vesselId;
 		this.wares = wares;
 		this.initLoad = wares.getTypicalVesselLoad().generate();
 		this.currentLoad = initLoad;
 		this.notAssignedLoad = initLoad;
 	}
 	
+	@Override
+	public String toString() {
+		return "[VESSEL" + vesselId + "]";
+	}
+	
+	/**
+	 * @return the vesselId
+	 */
+	public int getVesselId() {
+		return vesselId;
+	}
+
 	public WaresType getWares() {
 		return wares;
 	}
 
 	public double getInitLoad() {
 		return initLoad;
+	}
+
+	/**
+	 * @return the currentLoad
+	 */
+	public double getCurrentLoad() {
+		return currentLoad;
 	}
 
 	/**
@@ -74,7 +96,21 @@ public class Vessel extends Element {
 		return actual;
 	}
 	
+	/**
+	 * Returns true if the vessel is empty, i.e., if there is no more load to move
+	 * @return True if the vessel is empty, i.e., if there is no more load to move
+	 */
 	public boolean isEmpty() {
 		return (currentLoad < PortParkingModel.MIN_LOAD);
+	}
+	
+	/**
+	 * Returns true if the vessel is ready to start transshipment operations, i.e., if the vessel is at a quay
+	 * @return True if the vessel is ready to start transshipment operations, i.e., if the vessel is at a quay
+	 */
+	public boolean isReadyForTransshipment() {
+		for (QuayType quay : QuayType.values())
+			return (quay.getLocation().equals(getLocation()));
+		return false;
 	}
 }

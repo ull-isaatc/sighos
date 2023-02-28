@@ -34,8 +34,8 @@ public class VesselRouter implements Router {
 		anchorage.linkTo(pathFrom).linkTo(initialLocation);
 		nQuays = QuayType.values().length;
 		for (QuayType quay : QuayType.values()) {
-			pathTo = new Path("PATH_TO_QUAY_" + quay, quay.getTimeFromAnchorage(), 1, 1);  
-			pathFrom = new Path("PATH_FROM_QUAY_" + quay, quay.getTimeFromAnchorage(), 1, 1);
+			pathTo = new Path("PATH_TO_" + quay, quay.getTimeFromAnchorage(), 1, 1);  
+			pathFrom = new Path("PATH_FROM_" + quay, quay.getTimeFromAnchorage(), 1, 1);
 			anchorage.linkTo(pathTo).linkTo(quay.getLocation());
 			quay.getLocation().linkTo(pathFrom).linkTo(anchorage);
 		}

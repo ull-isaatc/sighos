@@ -19,14 +19,16 @@ public class Truck extends Element {
 	private final double maxLoad;
 	private double currentLoad;
 	private final Vessel servingVessel;
+	private final int truckId;
 
 	/**
 	 * @param simul
 	 * @param elementType
 	 * @param initialFlow
 	 */
-	public Truck(final Simulation simul, final ElementType et, final InitializerFlow initialFlow, final Vessel servingVessel, final TruckSource source) {
+	public Truck(final Simulation simul, int truckId, final ElementType et, final InitializerFlow initialFlow, final Vessel servingVessel, final TruckSource source) {
 		super(simul, "TRUCK", et, initialFlow, Truck.SIZE, null);
+		this.truckId = truckId;
 		this.servingVessel = servingVessel;
 		this.source = source;
 		this.wares = servingVessel.getWares();
@@ -34,6 +36,11 @@ public class Truck extends Element {
 		this.currentLoad = maxLoad;		
 	}
 
+	@Override
+	public String toString() {
+		return "[TRUCK" + servingVessel.getVesselId() + "_" + truckId + "]";
+	}
+	
 	/**
 	 * @return the servingVessel
 	 */

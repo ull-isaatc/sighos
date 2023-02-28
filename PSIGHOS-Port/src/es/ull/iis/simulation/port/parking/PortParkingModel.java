@@ -22,6 +22,8 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.flow.TimeFunctionDelayFlow;
 import es.ull.iis.simulation.model.flow.WaitForSignalFlow;
 import es.ull.iis.simulation.model.location.MoveFlow;
+import es.ull.iis.simulation.port.parking.TruckWaitingManager.NotifyTrucksFlow;
+import es.ull.iis.simulation.port.parking.TruckWaitingManager.WaitForVesselFlow;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -40,7 +42,7 @@ public class PortParkingModel extends Simulation {
 	private static final TimeFunction T_PARKING_EXIT = TimeFunctionFactory.getInstance("ConstantVariate", 10);
 	private static final TimeFunction T_FROM_SOURCE_TO_ANCHORAGE = TimeFunctionFactory.getInstance("ConstantVariate", 100);
 	private static final long T_FIRST_ARRIVAL = 0L;
-	private static final SimulationTimeFunction T_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 220);
+	private static final SimulationTimeFunction T_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 770);
 	private final TruckWaitingManager truckWaitingManager;
 	private final VesselWaitingManager vesselWaitingManager;
 	
@@ -53,7 +55,7 @@ public class PortParkingModel extends Simulation {
 	public PortParkingModel(int id, long endTs, int parkingCapacity) {
 		super(id, "Santander Port simulation " + id, TIME_UNIT, 0, endTs);
 		
-		truckWaitingManager = new TruckWaitingManager();
+		truckWaitingManager = new TruckWaitingManager(this);
 		vesselWaitingManager = new VesselWaitingManager();
 		final TruckCreatorFlow tCreator = createModelForTrucks(parkingCapacity);		
 		createModelForVessels(tCreator);
@@ -82,13 +84,8 @@ public class PortParkingModel extends Simulation {
 			public long getDurationSample(Element elem) {
 		    	return Math.max(0, Math.round(((Vessel)elem).getWares().getPaperWorkIn().getValue(elem)));
 			}
-			
-			@Override
-			public void afterFinalize(ElementInstance ei) {
-				super.afterFinalize(ei);
-				truckWaitingManager.letTrucksStart((Vessel)ei.getElement());
-			}
 		}; 
+		final NotifyTrucksFlow notifyTrucksFlow = truckWaitingManager.getVesselFlow();
 		final DelayFlow paperWorkOutDelayFlow = new DelayFlow(this, "Delay due to paper work at undocking") {
 			
 			@Override
@@ -111,7 +108,7 @@ public class PortParkingModel extends Simulation {
 		}
 		
 		final MoveFlow returnFlow = new MoveFlow(this, "Return from Quay", vesselRouter.getInitialLocation(), vesselRouter);			
-		paperWorkInDelayFlow.link(atQuayFlow).link(paperWorkOutDelayFlow).link(returnFlow);
+		paperWorkInDelayFlow.link(notifyTrucksFlow).link(atQuayFlow).link(paperWorkOutDelayFlow).link(returnFlow);
 		new VesselCreator(this, vesselRouter.getInitialLocation(), toAnchorageFlow, T_INTERARRIVAL, T_FIRST_ARRIVAL);
 	}
 
@@ -146,8 +143,7 @@ public class PortParkingModel extends Simulation {
 		reqParkingFlow.newWorkGroupAdder(wgParkSlot).add();
 		
 		final MoveFlow toParkingFlow = new MoveFlow(this, "Go to the parking", truckRouter.getParking(), truckRouter);
-		// TODO: Relacionar con la carga a descargar y que esté el barco
-		final WaitForSignalFlow waitForVessel = new WaitForSignalFlow(this, "Wait for the vessel to arrive", truckWaitingManager);
+		final WaitForVesselFlow waitForVessel = truckWaitingManager.getTruckFlow();
 		final TimeFunctionDelayFlow performTransshipmentFlow = new TimeFunctionDelayFlow(this, "Transshipment operation", TRANSSHIPMENT_OP_TIME) {
 			@Override
 			public void afterFinalize(ElementInstance ei) {

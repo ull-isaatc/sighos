@@ -54,7 +54,8 @@ public class PortInfo extends AsynchronousInfo {
 
 	@Override
 	public String toString() {
-		return "" + simul.long2SimulationTime(getTs()) + "\t" + truck.toString() + "\t" + type.getDescription() + (Type.TRUCK_LOADED.equals(type) ? "\t" + String.format(Locale.US, "%.2f", truck.getCurrentLoad()) : "");
+		return "" + simul.long2SimulationTime(getTs()) + "\t" + truck.toString() + "\t" + type.getDescription() + (Type.TRUCK_LOADED.equals(type) ? 
+				"\t" + String.format(Locale.US, "%.2f", truck.getCurrentLoad()) + "/" + String.format(Locale.US, "%.2f", truck.getServingVessel().getCurrentLoad()) : "");
 	}
 }
 

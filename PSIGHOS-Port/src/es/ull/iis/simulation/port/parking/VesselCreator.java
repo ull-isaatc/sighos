@@ -25,7 +25,8 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	/** Selector to choose the wares type */
 	private final RandomIntegerSelector selector;
 	/** Random number generator */
-	private final RandomNumber rnd; 
+	private final RandomNumber rnd;
+	private int vesselCounter = 0;
 
 	// TODO: Hacer que sea un único creador de barcos, que decida con cierta lógica de qué tipo, dónde y cuándo se genera el siguiente
 	// Esto es así porque no sabemos exactamente cuándo llegan los barcos ni de dónde
@@ -50,7 +51,7 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	@Override
 	public EventSource createEventSource(int ind, StandardElementGenerationInfo info) {
 		final WaresType wares = WaresType.values()[selector.generate(rnd.draw())];
-		return new Vessel(simul, wares, (VesselGenerationInfo) info);
+		return new Vessel(simul, vesselCounter++, wares, (VesselGenerationInfo) info);
 	}
 	
 	public class VesselGenerationInfo extends StandardElementGenerationInfo {

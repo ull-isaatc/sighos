@@ -60,8 +60,8 @@ public class PortTest extends Simulation {
 	@Override
 	public void init() {
 		super.init();
-		final Vessel myTestVessel = new Vessel(this, WaresType.TYPE1, etTestVessel, moveVesselFlow, vRouter.getInitialLocation());
-		final Truck myTestTruck = new Truck(this, etTestTruck, waitForVesselFlow, myTestVessel, TruckSource.TYPE1);
+		final Vessel myTestVessel = new Vessel(this, 0, WaresType.TYPE1, etTestVessel, moveVesselFlow, vRouter.getInitialLocation());
+		final Truck myTestTruck = new Truck(this, 0, etTestTruck, waitForVesselFlow, myTestVessel, TruckSource.TYPE1);
 		addEvent(myTestVessel.onCreate(getTs()));
 		addEvent(myTestTruck.onCreate(getTs()));
 	}
