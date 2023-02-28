@@ -157,7 +157,7 @@ public class TruckWaitingManager {
 
 		@Override
 		public String getDescription() {
-			return "Wait for the vessel to arrive";
+			return "Notify trucks of arrival of vessel";
 		}
 	}
 	

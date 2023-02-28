@@ -12,7 +12,7 @@ import es.ull.iis.simulation.model.Simulation;
  */
 public class PortParkingExperiment extends Experiment {
 	private static final int NEXP = 1;
-	private static final long ENDTS = 1440;
+	private static final long ENDTS = 3440;
 	private static final int PARKING_CAPACITY = 5;
 	
 	/**

@@ -42,9 +42,9 @@ public class PortParkingModel extends Simulation {
 	private static final TimeFunction T_PARKING_EXIT = TimeFunctionFactory.getInstance("ConstantVariate", 10);
 	private static final TimeFunction T_FROM_SOURCE_TO_ANCHORAGE = TimeFunctionFactory.getInstance("ConstantVariate", 100);
 	private static final long T_FIRST_ARRIVAL = 0L;
-	private static final SimulationTimeFunction T_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 770);
+	private static final SimulationTimeFunction T_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 7700);
 	private final TruckWaitingManager truckWaitingManager;
-	private final VesselWaitingManager vesselWaitingManager;
+	private final TransshipmentOperationsVesselFlow transVesselFlow;
 	
 	/**
 	 * @param id
@@ -56,7 +56,7 @@ public class PortParkingModel extends Simulation {
 		super(id, "Santander Port simulation " + id, TIME_UNIT, 0, endTs);
 		
 		truckWaitingManager = new TruckWaitingManager(this);
-		vesselWaitingManager = new VesselWaitingManager();
+		transVesselFlow = new TransshipmentOperationsVesselFlow(this);
 		final TruckCreatorFlow tCreator = createModelForTrucks(parkingCapacity);		
 		createModelForVessels(tCreator);
 	}
@@ -75,9 +75,6 @@ public class PortParkingModel extends Simulation {
 
 		toAnchorageFlow.link(tCreator).link(reqQuayFlow).link(choiceQuayFlow);
 		
-		// TODO: Sustituir por la interacción con los camiones
-//		final DelayFlow atQuayFlow = new TimeFunctionDelayFlow(this, "Unloading at quay", LOAD_TIME * 20);
-		final WaitForSignalFlow atQuayFlow = new WaitForSignalFlow(this, "Wait for complete unloading tasks", vesselWaitingManager);
 		final DelayFlow paperWorkInDelayFlow = new DelayFlow(this, "Delay due to paper work at docking") {
 			
 			@Override
@@ -108,7 +105,7 @@ public class PortParkingModel extends Simulation {
 		}
 		
 		final MoveFlow returnFlow = new MoveFlow(this, "Return from Quay", vesselRouter.getInitialLocation(), vesselRouter);			
-		paperWorkInDelayFlow.link(notifyTrucksFlow).link(atQuayFlow).link(paperWorkOutDelayFlow).link(returnFlow);
+		paperWorkInDelayFlow.link(notifyTrucksFlow).link(transVesselFlow).link(paperWorkOutDelayFlow).link(returnFlow);
 		new VesselCreator(this, vesselRouter.getInitialLocation(), toAnchorageFlow, T_INTERARRIVAL, T_FIRST_ARRIVAL);
 	}
 
@@ -125,6 +122,7 @@ public class PortParkingModel extends Simulation {
 			public void afterFinalize(ElementInstance ei) {
 				super.afterFinalize(ei);
 				Truck truck = (Truck)ei.getElement(); 
+				truck.requiresTransshipmentOperation();
 				// First makes the truck spawn
 				truck.getSource().getSpawnLocation().enter(truck);
 			}
@@ -150,9 +148,9 @@ public class PortParkingModel extends Simulation {
 				super.afterFinalize(ei);
 				Truck truck = ((Truck)ei.getElement());
 				truck.performTransshipmentOperation();
-				if (truck.getServingVessel().isEmpty())
-					vesselWaitingManager.letVesselGo(truck.getServingVessel());
+				transVesselFlow.signal(truck.getServingVessel());
 				simul.notifyInfo(new PortInfo(simul, PortInfo.Type.TRUCK_LOADED, truck, truck.getTs()));
+				simul.notifyInfo(new PortInfo(simul, PortInfo.Type.VESSEL_UNLOADED, truck.getServingVessel(), truck.getTs()));
 			}
 		};
 		final MoveFlow fromParkingFlow = new MoveFlow(this, "Depart from the parking", truckRouter.getPortExit(), truckRouter);

@@ -82,6 +82,7 @@ public class Vessel extends Element {
 	public boolean bookTransshipmentOperation(double quantity) {
 		final double actual = (quantity > notAssignedLoad) ? notAssignedLoad : quantity;
 		notAssignedLoad -= actual;
+//		System.out.println(getTs() + "\tBOOKED\t" + actual + "/" + notAssignedLoad);
 		return (actual > PortParkingModel.MIN_LOAD);
 	}
 	
@@ -93,6 +94,7 @@ public class Vessel extends Element {
 	public double performTransshipmentOperation(double quantity) {
 		final double actual = (quantity > currentLoad) ? currentLoad : quantity;
 		currentLoad -= actual;
+//		System.out.println(getTs() + "\tUNLOADED\t" + actual + "/" + currentLoad);
 		return actual;
 	}
 	
@@ -110,7 +112,8 @@ public class Vessel extends Element {
 	 */
 	public boolean isReadyForTransshipment() {
 		for (QuayType quay : QuayType.values())
-			return (quay.getLocation().equals(getLocation()));
+			if (quay.getLocation().equals(getLocation()))
+				return true;
 		return false;
 	}
 }

@@ -268,7 +268,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		}
 		if (initialFlow != null) {
 			mainInstance = ElementInstance.getMainElementInstance(this);
-			return (new RequestFlowEvent(getTs(), initialFlow, mainInstance.getDescendantElementInstance(initialFlow)));
+			return (new RequestFlowEvent(ts, initialFlow, mainInstance.getDescendantElementInstance(initialFlow)));
 		}
 		else
 			return onDestroy(ts);

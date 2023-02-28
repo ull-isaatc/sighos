@@ -14,7 +14,8 @@ import es.ull.iis.simulation.model.Simulation;
  */
 public class PortInfo extends AsynchronousInfo {
 	public enum Type {
-		TRUCK_LOADED("TRUCK LOADED");
+		TRUCK_LOADED("TRUCK LOADED"),
+		VESSEL_UNLOADED("VESSEL UNLOADED");
 		
 		private final String description;
 		
@@ -29,6 +30,8 @@ public class PortInfo extends AsynchronousInfo {
 
 	private final Type type;
 	private final Truck truck; 
+	private final Vessel vessel;
+	
 	/**
 	 * @param simul
 	 */
@@ -36,6 +39,17 @@ public class PortInfo extends AsynchronousInfo {
 		super(simul, ts);
 		this.type = type;
 		this.truck = truck;
+		this.vessel = null;
+	}
+	
+	/**
+	 * @param simul
+	 */
+	public PortInfo(Simulation simul, Type type, Vessel vessel, long ts) {
+		super(simul, ts);
+		this.type = type;
+		this.truck = null;
+		this.vessel = vessel;
 	}
 	
 	/**
@@ -52,10 +66,27 @@ public class PortInfo extends AsynchronousInfo {
 		return truck;
 	}
 
+	/**
+	 * @return the vessel
+	 */
+	public Vessel getVessel() {
+		return vessel;
+	}
+
 	@Override
 	public String toString() {
-		return "" + simul.long2SimulationTime(getTs()) + "\t" + truck.toString() + "\t" + type.getDescription() + (Type.TRUCK_LOADED.equals(type) ? 
-				"\t" + String.format(Locale.US, "%.2f", truck.getCurrentLoad()) + "/" + String.format(Locale.US, "%.2f", truck.getServingVessel().getCurrentLoad()) : "");
+		String msg = "" + simul.long2SimulationTime(getTs()) + "\t";
+		switch (type) {
+		case TRUCK_LOADED:
+			msg += truck.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", truck.getCurrentLoad()) + "/" + String.format(Locale.US, "%.2f", truck.getMaxLoad());
+			break;
+		case VESSEL_UNLOADED:
+			msg += vessel.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", vessel.getCurrentLoad()) + "/" + String.format(Locale.US, "%.2f", vessel.getInitLoad());
+			break;
+		default:
+			break;
+		}		
+		return msg;
 	}
 }
 

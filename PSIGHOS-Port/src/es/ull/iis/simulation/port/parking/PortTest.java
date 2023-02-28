@@ -8,8 +8,9 @@ import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.model.flow.WaitForSignalFlow;
 import es.ull.iis.simulation.model.location.MoveFlow;
+import es.ull.iis.simulation.port.parking.TruckWaitingManager.NotifyTrucksFlow;
+import es.ull.iis.simulation.port.parking.TruckWaitingManager.WaitForVesselFlow;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -23,7 +24,7 @@ public class PortTest extends Simulation {
 	private final TruckWaitingManager truckManager;
 	private final MoveFlow moveVesselFlow;
 	private final ElementType etTestVessel;
-	private final WaitForSignalFlow waitForVesselFlow;
+	private final WaitForVesselFlow waitForVesselFlow;
 	private final ElementType etTestTruck;
 	private final VesselRouter vRouter;
 
@@ -33,19 +34,16 @@ public class PortTest extends Simulation {
 	public PortTest(int id, long endTs, int parkingCapacity) {
 		super(id, "Santander Port simulation " + id, PortParkingModel.TIME_UNIT, 0, endTs);
 
-		truckManager = new TruckWaitingManager();
+		truckManager = new TruckWaitingManager(this);
 		vRouter = new VesselRouter(this, T_FROM_SOURCE_TO_ANCHORAGE);
-		moveVesselFlow = new MoveFlow(this, "Move to anchorage", vRouter.getAnchorage(), vRouter) {
-			@Override
-			public void afterFinalize(ElementInstance fe) {
-				super.afterFinalize(fe);
-				truckManager.letTrucksStart((Vessel) fe.getElement());
-			}
-		}; 
+		moveVesselFlow = new MoveFlow(this, "Move to quay", QuayType.QUAY1.getLocation(), vRouter);
+		final NotifyTrucksFlow notifyTrucksFlow = truckManager.getVesselFlow();
+		moveVesselFlow.link(notifyTrucksFlow);
+		
 		etTestVessel = new ElementType(this, "Test vessel");
 		
 		final TruckRouter tRouter = new TruckRouter(parkingCapacity * Truck.SIZE, T_ENTRANCE_PARKING, T_PARKING_EXIT);
-		waitForVesselFlow = new WaitForSignalFlow(this, "wait for vessel", truckManager);
+		waitForVesselFlow = truckManager.getTruckFlow();
 		final MoveFlow moveToEntranceFlow = new MoveFlow(this, "move to entrance", tRouter.getPortEntrance(), tRouter) {
 			@Override
 			public boolean beforeRequest(ElementInstance ei) {
@@ -63,6 +61,6 @@ public class PortTest extends Simulation {
 		final Vessel myTestVessel = new Vessel(this, 0, WaresType.TYPE1, etTestVessel, moveVesselFlow, vRouter.getInitialLocation());
 		final Truck myTestTruck = new Truck(this, 0, etTestTruck, waitForVesselFlow, myTestVessel, TruckSource.TYPE1);
 		addEvent(myTestVessel.onCreate(getTs()));
-		addEvent(myTestTruck.onCreate(getTs()));
+		addEvent(myTestTruck.onCreate(200));
 	}
 }
