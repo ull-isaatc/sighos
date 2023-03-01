@@ -7,17 +7,12 @@ import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
-import simkit.random.RandomVariate;
-import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
  * 
  */
 public class Truck extends Element {
-	/** Maximum load of trucks */
-	private static final RandomVariate MAX_LOAD = RandomVariateFactory.getInstance("ConstantVariate", 20);	
-	public static final int SIZE = 1;
 	private final WaresType wares;
 	private final TruckSource source;
 	private final double maxLoad;
@@ -31,12 +26,12 @@ public class Truck extends Element {
 	 * @param initialFlow
 	 */
 	public Truck(final Simulation simul, int truckId, final ElementType et, final InitializerFlow initialFlow, final Vessel servingVessel, final TruckSource source) {
-		super(simul, "TRUCK", et, initialFlow, Truck.SIZE, null);
+		super(simul, "TRUCK", et, initialFlow, PortParkingModel.TRUCK_SIZE, null);
 		this.truckId = truckId;
 		this.servingVessel = servingVessel;
 		this.source = source;
 		this.wares = servingVessel.getWares();
-		this.maxLoad = MAX_LOAD.generate();
+		this.maxLoad = PortParkingModel.TRUCK_MAX_LOAD.generate();
 		this.currentLoad = maxLoad;		
 	}
 

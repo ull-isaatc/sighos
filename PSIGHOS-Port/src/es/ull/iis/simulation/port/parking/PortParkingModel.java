@@ -23,6 +23,7 @@ import es.ull.iis.simulation.model.flow.TimeFunctionDelayFlow;
 import es.ull.iis.simulation.model.location.MoveFlow;
 import es.ull.iis.simulation.port.parking.TruckWaitingManager.NotifyTrucksFlow;
 import es.ull.iis.simulation.port.parking.TruckWaitingManager.WaitForVesselFlow;
+import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -31,6 +32,15 @@ import simkit.random.RandomVariateFactory;
  * TODO: SAcar datos concretos de los barcos históricos de los datos en "Escalas y mercancías 2020-2021" y generar los barcos por bootstrap  
  */
 public class PortParkingModel extends Simulation {
+	/** Maximum load of trucks */
+	public static final RandomVariate TRUCK_MAX_LOAD = RandomVariateFactory.getInstance("ConstantVariate", 20);
+	/** Size of trucks (for locations) */
+	public static final int TRUCK_SIZE = 1;
+	/** Size of vessels (for locations) */
+	public static final int VESSEL_SIZE = 1;
+	public static final TimeFunction T_VESSEL_PAPERWORK_IN = TimeFunctionFactory.getInstance("UniformVariate", 30, 40);
+	public static final TimeFunction T_VESSEL_PAPERWORK_OUT = TimeFunctionFactory.getInstance("UniformVariate", 20, 30);
+	
 	/** Time unit of the model */
 	public static final TimeUnit TIME_UNIT = TimeUnit.MINUTE;
 	/** The minimum amount of load that is considered significant. Useful for avoid rounding error */
@@ -78,7 +88,7 @@ public class PortParkingModel extends Simulation {
 			
 			@Override
 			public long getDurationSample(Element elem) {
-		    	return Math.max(0, Math.round(Vessel.T_PAPERWORK_IN.getValue(elem)));
+		    	return Math.max(0, Math.round(T_VESSEL_PAPERWORK_IN.getValue(elem)));
 			}
 		}; 
 		final NotifyTrucksFlow notifyTrucksFlow = truckWaitingManager.getVesselFlow();
@@ -86,7 +96,7 @@ public class PortParkingModel extends Simulation {
 			
 			@Override
 			public long getDurationSample(Element elem) {
-		    	return Math.max(0, Math.round(Vessel.T_PAPERWORK_OUT.getValue(elem)));
+		    	return Math.max(0, Math.round(T_VESSEL_PAPERWORK_OUT.getValue(elem)));
 			}
 		}; 
 		// Modeling quays as resources to handle the arrival of vessels in advance
@@ -131,7 +141,7 @@ public class PortParkingModel extends Simulation {
 		rtParkSpace.addGenericResources(parkingCapacity);
 		final WorkGroup wgParkSlot = new WorkGroup(this, rtParkSpace, 1);
 		
-		final TruckRouter truckRouter = new TruckRouter(parkingCapacity * Truck.SIZE, T_ENTRANCE_PARKING, T_PARKING_EXIT);
+		final TruckRouter truckRouter = new TruckRouter(parkingCapacity * TRUCK_SIZE, T_ENTRANCE_PARKING, T_PARKING_EXIT);
 		
 		final MoveFlow toEntranceFlow = new MoveFlow(this, "Go to the port entrance", truckRouter.getPortEntrance(), truckRouter);
 		

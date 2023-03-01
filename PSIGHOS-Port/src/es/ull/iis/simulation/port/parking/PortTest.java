@@ -42,7 +42,7 @@ public class PortTest extends Simulation {
 		
 		etTestVessel = new ElementType(this, "Test vessel");
 		
-		final TruckRouter tRouter = new TruckRouter(parkingCapacity * Truck.SIZE, T_ENTRANCE_PARKING, T_PARKING_EXIT);
+		final TruckRouter tRouter = new TruckRouter(parkingCapacity * PortParkingModel.TRUCK_SIZE, T_ENTRANCE_PARKING, T_PARKING_EXIT);
 		waitForVesselFlow = truckManager.getTruckFlow();
 		final MoveFlow moveToEntranceFlow = new MoveFlow(this, "move to entrance", tRouter.getPortEntrance(), tRouter) {
 			@Override

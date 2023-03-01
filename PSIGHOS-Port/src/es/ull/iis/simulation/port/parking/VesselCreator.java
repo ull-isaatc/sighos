@@ -57,7 +57,7 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	public class VesselGenerationInfo extends StandardElementGenerationInfo {
 
 		protected VesselGenerationInfo(ElementType et, InitializerFlow flow, Node initialLocation) {
-			super(et, flow, Vessel.SIZE, initialLocation, 1.0);
+			super(et, flow, PortParkingModel.VESSEL_SIZE, initialLocation, 1.0);
 		}
 		
 	}

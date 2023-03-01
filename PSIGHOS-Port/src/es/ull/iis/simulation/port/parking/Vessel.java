@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.port.parking;
 
-import es.ull.iis.function.TimeFunction;
-import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Simulation;
@@ -17,9 +15,6 @@ import es.ull.iis.simulation.port.parking.VesselCreator.VesselGenerationInfo;
  *
  */
 public class Vessel extends Element {
-	public static final TimeFunction T_PAPERWORK_IN = TimeFunctionFactory.getInstance("UniformVariate", 30, 40);
-	public static final TimeFunction T_PAPERWORK_OUT = TimeFunctionFactory.getInstance("UniformVariate", 20, 30);
-	public static final int SIZE = 1;
 	private final WaresType wares;
 	private final double initLoad;
 	private double currentLoad;
@@ -42,7 +37,7 @@ public class Vessel extends Element {
 	}
 
 	public Vessel(Simulation simul, int vesselId, WaresType wares, ElementType elementType, InitializerFlow initialFlow, Node initialLocation) {
-		super(simul, "VESSEL", elementType, initialFlow, SIZE, initialLocation);
+		super(simul, "VESSEL", elementType, initialFlow, PortParkingModel.VESSEL_SIZE, initialLocation);
 		this.vesselId = vesselId;
 		this.wares = wares;
 		this.initLoad = wares.getTypicalVesselLoad().generate();
@@ -116,7 +111,7 @@ public class Vessel extends Element {
 	 */
 	public boolean isReadyForTransshipment() {
 		for (QuayType quay : QuayType.values())
-			if (quay.getLocation().equals(getLocation()))
+			if (quay.getLocation().getNode().equals(getLocation()))
 				return true;
 		return false;
 	}
