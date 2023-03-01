@@ -20,7 +20,6 @@ import es.ull.iis.simulation.model.flow.ExclusiveChoiceFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.flow.TimeFunctionDelayFlow;
-import es.ull.iis.simulation.model.flow.WaitForSignalFlow;
 import es.ull.iis.simulation.model.location.MoveFlow;
 import es.ull.iis.simulation.port.parking.TruckWaitingManager.NotifyTrucksFlow;
 import es.ull.iis.simulation.port.parking.TruckWaitingManager.WaitForVesselFlow;
@@ -79,7 +78,7 @@ public class PortParkingModel extends Simulation {
 			
 			@Override
 			public long getDurationSample(Element elem) {
-		    	return Math.max(0, Math.round(((Vessel)elem).getWares().getPaperWorkIn().getValue(elem)));
+		    	return Math.max(0, Math.round(Vessel.T_PAPERWORK_IN.getValue(elem)));
 			}
 		}; 
 		final NotifyTrucksFlow notifyTrucksFlow = truckWaitingManager.getVesselFlow();
@@ -87,7 +86,7 @@ public class PortParkingModel extends Simulation {
 			
 			@Override
 			public long getDurationSample(Element elem) {
-		    	return Math.max(0, Math.round(((Vessel)elem).getWares().getPaperWorkOut().getValue(elem)));
+		    	return Math.max(0, Math.round(Vessel.T_PAPERWORK_OUT.getValue(elem)));
 			}
 		}; 
 		// Modeling quays as resources to handle the arrival of vessels in advance
@@ -95,12 +94,11 @@ public class PortParkingModel extends Simulation {
 		final WorkGroup[] wgQuays = new WorkGroup[nQuays];
 		for (int i = 0; i < nQuays; i++) {
 			rtQuays[i] = new ResourceType(this, "Quay " + i);
-			// Assuming 1 vessel per quay
-			rtQuays[i].addGenericResources(1);
+			rtQuays[i].addGenericResources(QuayType.values()[i].getCapacity());
 			wgQuays[i] = new WorkGroup(this, rtQuays[i], 1);
 			reqQuayFlow.newWorkGroupAdder(wgQuays[i]).withCondition(new QuayCondition(QuayType.values()[i])).add();
 			choiceQuayFlow.link(
-					new MoveFlow(this, "To Quay " + i, QuayType.values()[i].getLocation(), vesselRouter), 
+					new MoveFlow(this, "To Quay " + i, QuayType.values()[i].getLocation().getNode(), vesselRouter), 
 					new BookedQuayCondition(rtQuays[i])).link(paperWorkInDelayFlow);
 		}
 		
@@ -124,7 +122,7 @@ public class PortParkingModel extends Simulation {
 				Truck truck = (Truck)ei.getElement(); 
 				truck.requiresTransshipmentOperation();
 				// First makes the truck spawn
-				truck.getSource().getSpawnLocation().enter(truck);
+				truck.getSource().getSpawnLocation().getNode().enter(truck);
 			}
 		};
 
@@ -165,7 +163,7 @@ public class PortParkingModel extends Simulation {
 		
 		for (TruckSource source : TruckSource.values()) {
 			truckSources[source.ordinal()] = new ElementType(this, "Type for truck source " + source.ordinal());
-			final MoveFlow toExitFlow = new MoveFlow(this, "Return to exit point", source.getSpawnLocation(), truckRouter);
+			final MoveFlow toExitFlow = new MoveFlow(this, "Return to exit point", source.getSpawnLocation().getNode(), truckRouter);
 			choiceDestinationFlow.link(toExitFlow, new ElementTypeCondition(truckSources[source.ordinal()]));
 			final MoveFlow toWarehouseFlow = new MoveFlow(this, "Return to warehouse", source.getWarehouseLocation(), truckRouter);
 			final ExclusiveChoiceFlow mustOperateAgainFlow = new ExclusiveChoiceFlow(this);

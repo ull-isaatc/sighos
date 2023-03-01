@@ -36,7 +36,7 @@ public class PortTest extends Simulation {
 
 		truckManager = new TruckWaitingManager(this);
 		vRouter = new VesselRouter(this, T_FROM_SOURCE_TO_ANCHORAGE);
-		moveVesselFlow = new MoveFlow(this, "Move to quay", QuayType.QUAY1.getLocation(), vRouter);
+		moveVesselFlow = new MoveFlow(this, "Move to quay", QuayType.QUAY1.getLocation().getNode(), vRouter);
 		final NotifyTrucksFlow notifyTrucksFlow = truckManager.getVesselFlow();
 		moveVesselFlow.link(notifyTrucksFlow);
 		
@@ -47,7 +47,7 @@ public class PortTest extends Simulation {
 		final MoveFlow moveToEntranceFlow = new MoveFlow(this, "move to entrance", tRouter.getPortEntrance(), tRouter) {
 			@Override
 			public boolean beforeRequest(ElementInstance ei) {
-				TruckSource.TYPE1.getSpawnLocation().enter(ei.getElement());
+				TruckSource.TYPE1.getSpawnLocation().getNode().enter(ei.getElement());
 				return super.beforeRequest(ei);
 			}
 		};

@@ -26,8 +26,8 @@ public class VesselRouter implements Router {
 	 * 
 	 */
 	public VesselRouter(Simulation model, TimeFunction fromSourceToAnchorage) {
-		initialLocation = new Node("VESSEL_SOURCE");
-		anchorage = new Node("ANCHORAGE");
+		initialLocation = Locations.VESSEL_SRC.getNode();
+		anchorage = Locations.VESSEL_ANCHORAGE.getNode();
 		Path pathTo = new Path("PATH_TO_ANCHORAGE_FROM_SOURCE", fromSourceToAnchorage, 1, 1);  
 		Path pathFrom = new Path("PATH_FROM_ANCHORAGE_TO_SOURCE", fromSourceToAnchorage, 1, 1);
 		initialLocation.linkTo(pathTo).linkTo(anchorage);
@@ -36,8 +36,8 @@ public class VesselRouter implements Router {
 		for (QuayType quay : QuayType.values()) {
 			pathTo = new Path("PATH_TO_" + quay, quay.getTimeFromAnchorage(), 1, 1);  
 			pathFrom = new Path("PATH_FROM_" + quay, quay.getTimeFromAnchorage(), 1, 1);
-			anchorage.linkTo(pathTo).linkTo(quay.getLocation());
-			quay.getLocation().linkTo(pathFrom).linkTo(anchorage);
+			anchorage.linkTo(pathTo).linkTo(quay.getLocation().getNode());
+			quay.getLocation().getNode().linkTo(pathFrom).linkTo(anchorage);
 		}
 	}
 
@@ -63,7 +63,7 @@ public class VesselRouter implements Router {
 		}
 		else if (links.size() > 1) {
 			for (int i = 0; i < nQuays; i++) {
-				if (QuayType.values()[i].getLocation().equals(destination)) {
+				if (QuayType.values()[i].getLocation().getNode().equals(destination)) {
 					return links.get(i + 1);
 				}
 			}

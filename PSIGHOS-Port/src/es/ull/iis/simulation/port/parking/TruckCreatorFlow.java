@@ -42,7 +42,7 @@ public class TruckCreatorFlow extends GeneratorFlow {
         for (int i = 0; i < nTrucks; i++) {
             double p = Math.random();
             for (TruckSource source : TruckSource.values()) {
-            	p -= wares.getProportionPerTruckSource()[source.ordinal()];
+            	p -= source.getProportion();
             	if (p <= 0.0){
             		elems[i] = new Truck(getSimulation(), i, truckSources[source.ordinal()], initialFlow, vessel, source);
             		// Some generators may not create the element for some reason

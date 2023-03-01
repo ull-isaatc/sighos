@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.port.parking;
 
+import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Simulation;
@@ -15,6 +17,8 @@ import es.ull.iis.simulation.port.parking.VesselCreator.VesselGenerationInfo;
  *
  */
 public class Vessel extends Element {
+	public static final TimeFunction T_PAPERWORK_IN = TimeFunctionFactory.getInstance("UniformVariate", 30, 40);
+	public static final TimeFunction T_PAPERWORK_OUT = TimeFunctionFactory.getInstance("UniformVariate", 20, 30);
 	public static final int SIZE = 1;
 	private final WaresType wares;
 	private final double initLoad;

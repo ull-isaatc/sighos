@@ -17,31 +17,31 @@ import es.ull.iis.simulation.model.location.Router;
  *
  */
 public class TruckRouter implements Router {
-	private final Node portEntrance;
+	private final Node waitingArea;
 	private final Node portExit;
-	private final Node parking;
+	private final Node transshipmentArea;
 	
 
 	/**
 	 * 
 	 */
 	public TruckRouter(int parkingCapacity, TimeFunction timeFromEntranceToParking, TimeFunction timeFromParkingToExit) {
-		parking = new Node("PARKING", parkingCapacity);
-		portEntrance = new Node("PORT_ENTRANCE");
-		portExit = new Node("PORT_EXIT");
+		transshipmentArea = Locations.TRUCK_TRANSSHIPMENT_AREA.getNode();
+		waitingArea = Locations.TRUCK_WAIT_AREA.getNode();
+		portExit = Locations.TRUCK_EXIT_POINT.getNode();
 		final Path pathToParking = new Path("PATH_TO_PARKING", timeFromEntranceToParking);
 		final Path pathFromParking = new Path("PATH_FROM_PARKING", timeFromParkingToExit);
-		portEntrance.linkTo(pathToParking).linkTo(parking);
-		parking.linkTo(pathFromParking).linkTo(portExit);
+		waitingArea.linkTo(pathToParking).linkTo(transshipmentArea);
+		transshipmentArea.linkTo(pathFromParking).linkTo(portExit);
 		for (TruckSource source : TruckSource.values()) {
 			final Path pathToEntrance = new Path("PATH_TO_ENTRANCE_" + source.name(), source.getTimeToPortEntrance());
-			source.getSpawnLocation().linkTo(pathToEntrance).linkTo(portEntrance);
+			source.getSpawnLocation().getNode().linkTo(pathToEntrance).linkTo(waitingArea);
 			final Path pathFromExit = new Path("PATH_FROM_EXIT_" + source.name(), source.getTimeToPortEntrance());
-			portExit.linkTo(pathFromExit).linkTo(source.getSpawnLocation());
+			portExit.linkTo(pathFromExit).linkTo(source.getSpawnLocation().getNode());
 			final Path pathToWarehouse = new Path("PATH_TO_WAREHOUSE", source.getTimeToWarehouse());
 			final Path pathFromWarehouse = new Path("PATH_FROM_WAREHOUSE", source.getTimeToWarehouse());
-			source.getSpawnLocation().linkTo(pathToWarehouse).linkTo(source.getWarehouseLocation());
-			source.getWarehouseLocation().linkTo(pathFromWarehouse).linkTo(source.getSpawnLocation());
+			source.getSpawnLocation().getNode().linkTo(pathToWarehouse).linkTo(source.getWarehouseLocation());
+			source.getWarehouseLocation().linkTo(pathFromWarehouse).linkTo(source.getSpawnLocation().getNode());
 		}
 	}
 
@@ -49,7 +49,7 @@ public class TruckRouter implements Router {
 	 * @return the starting
 	 */
 	public Node getPortEntrance() {
-		return portEntrance;
+		return waitingArea;
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class TruckRouter implements Router {
 	 * @return the parking
 	 */
 	public Node getParking() {
-		return parking;
+		return transshipmentArea;
 	}
 
 	@Override
@@ -73,12 +73,12 @@ public class TruckRouter implements Router {
 			return links.get(0);
 		}
 		else if (links.size() > 1) {
-			if (!portEntrance.equals(destination)) {
+			if (!waitingArea.equals(destination)) {
 				for (TruckSource source : TruckSource.values()) {
 					if (source.getWarehouseLocation().equals(destination)) {
 						return links.get(1);
 					}
-					if (source.getSpawnLocation().equals(destination)) {
+					if (source.getSpawnLocation().getNode().equals(destination)) {
 						return links.get(source.ordinal());
 					}
 				}
