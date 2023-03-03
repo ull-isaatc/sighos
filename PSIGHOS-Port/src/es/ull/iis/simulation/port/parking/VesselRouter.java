@@ -41,20 +41,6 @@ public class VesselRouter implements Router {
 		}
 	}
 
-	/**
-	 * @return the initialLocation
-	 */
-	public Node getInitialLocation() {
-		return initialLocation;
-	}
-
-	/**
-	 * @return the starting
-	 */
-	public Node getAnchorage() {
-		return anchorage;
-	}
-
 	@Override
 	public Location getNextLocationTo(Movable entity, Location destination) {
 		final ArrayList<Location> links = entity.getLocation().getLinkedTo();

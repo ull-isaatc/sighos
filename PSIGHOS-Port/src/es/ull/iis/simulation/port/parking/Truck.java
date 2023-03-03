@@ -30,7 +30,8 @@ public class Truck extends Element {
 		this.truckId = truckId;
 		this.servingVessel = servingVessel;
 		this.source = source;
-		this.wares = servingVessel.getWares();
+		// FIXME: Currently, we assign the first wares of the vessel. Later on, we may do a finer grain approach by explicitly assigning specific wares to each truck  
+		this.wares = servingVessel.getWares().firstKey();
 		this.maxLoad = PortParkingModel.TRUCK_MAX_LOAD.generate();
 		this.currentLoad = maxLoad;		
 	}

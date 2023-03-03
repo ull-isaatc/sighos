@@ -30,6 +30,10 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla
  * TODO: Añadir al listener un mapeo entre Nodes y coordenadas (me lo pasarán)
  * TODO: SAcar datos concretos de los barcos históricos de los datos en "Escalas y mercancías 2020-2021" y generar los barcos por bootstrap  
+ * TODO: Los barcos deben poder hacer operaciones de carga y descarga. Para la descarga, el camión debe estar ahí (como funciona ahora el modelo); para la carga, los camiones empiezan a 
+ * llegar antes, y van descargando en el muelle. Después, el barco cargará cuando llegue. Este cambio implica: 1. Distinguir cargas y descargas por tipo de mercancía; 2. crear entidades para 
+ * cada tipo de operación, de forma que las órdenes de carga se generen ANTES de la llegada física del barco (2-3 días), y las de descarga, al llegar el barco al anchorage (como ahora); 
+ * 3. crear flujos diferentes para cada tipo de orden, incluyendo el de carga del barco dos pasos (descarga de la mercancía en el muelle, carga en el barco).  
  */
 public class PortParkingModel extends Simulation {
 	/** Maximum load of trucks */
@@ -40,7 +44,7 @@ public class PortParkingModel extends Simulation {
 	public static final int VESSEL_SIZE = 1;
 	public static final TimeFunction T_VESSEL_PAPERWORK_IN = TimeFunctionFactory.getInstance("UniformVariate", 30, 40);
 	public static final TimeFunction T_VESSEL_PAPERWORK_OUT = TimeFunctionFactory.getInstance("UniformVariate", 20, 30);
-	
+	public static final double TONES_PER_TRUCK = 200.0;
 	/** Time unit of the model */
 	public static final TimeUnit TIME_UNIT = TimeUnit.MINUTE;
 	/** The minimum amount of load that is considered significant. Useful for avoid rounding error */
@@ -78,7 +82,7 @@ public class PortParkingModel extends Simulation {
 	private void createModelForVessels(TruckCreatorFlow tCreator) {
 		final VesselRouter vesselRouter = new VesselRouter(this, T_FROM_SOURCE_TO_ANCHORAGE);
 		final int nQuays = QuayType.values().length;
-		final MoveFlow toAnchorageFlow = new MoveFlow(this, "Go to anchorage", vesselRouter.getAnchorage(), vesselRouter);
+		final MoveFlow toAnchorageFlow = new MoveFlow(this, "Go to anchorage", Locations.VESSEL_ANCHORAGE.getNode(), vesselRouter);
 		final RequestResourcesFlow reqQuayFlow = new RequestResourcesFlow(this, "Check for quay available", 0);
 		final ExclusiveChoiceFlow choiceQuayFlow = new ExclusiveChoiceFlow(this);
 
@@ -112,9 +116,9 @@ public class PortParkingModel extends Simulation {
 					new BookedQuayCondition(rtQuays[i])).link(paperWorkInDelayFlow);
 		}
 		
-		final MoveFlow returnFlow = new MoveFlow(this, "Return from Quay", vesselRouter.getInitialLocation(), vesselRouter);			
+		final MoveFlow returnFlow = new MoveFlow(this, "Return from Quay", Locations.VESSEL_SRC.getNode(), vesselRouter);			
 		paperWorkInDelayFlow.link(notifyTrucksFlow).link(transVesselFlow).link(paperWorkOutDelayFlow).link(returnFlow);
-		new VesselCreator(this, vesselRouter.getInitialLocation(), toAnchorageFlow, T_INTERARRIVAL, T_FIRST_ARRIVAL);
+		new VesselCreator(this, toAnchorageFlow, T_INTERARRIVAL, T_FIRST_ARRIVAL);
 	}
 
 	private TruckCreatorFlow createModelForTrucks(int parkingCapacity) {
@@ -193,7 +197,7 @@ public class PortParkingModel extends Simulation {
 		}
 		@Override
 		public boolean check(ElementInstance fe) {
-			return ((Vessel) fe.getElement()).getWares().getPotentialQuays().contains(quay);
+			return ((Vessel) fe.getElement()).getPotentialQuays().contains(quay);
 		}
 		
 	}

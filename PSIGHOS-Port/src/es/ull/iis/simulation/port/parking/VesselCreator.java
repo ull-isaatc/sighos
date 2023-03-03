@@ -37,9 +37,9 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	 * @param flow
 	 * @param cycle
 	 */
-	public VesselCreator(Simulation model, Node initialLocation, InitializerFlow flow, SimulationTimeFunction interarrivalTime, long firstArrivalTime) {
+	public VesselCreator(Simulation model, InitializerFlow flow, SimulationTimeFunction interarrivalTime, long firstArrivalTime) {
 		super(model, N_VESSELS_PER_SPAWN, new SimulationPeriodicCycle(model.getTimeUnit(), firstArrivalTime, interarrivalTime, model.getEndTs()));
-		add(new VesselGenerationInfo(new ElementType(model, "Vessel"), flow, initialLocation));
+		add(new VesselGenerationInfo(new ElementType(model, "Vessel"), flow, Locations.VESSEL_SRC.getNode()));
 		final double[] freqs = new double[WaresType.values().length];
 		for (int i = 0; i < freqs.length; i++) {
 			freqs[i] = WaresType.values()[i].getProportion();

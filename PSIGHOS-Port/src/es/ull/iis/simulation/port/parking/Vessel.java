@@ -3,6 +3,9 @@
  */
 package es.ull.iis.simulation.port.parking;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Simulation;
@@ -15,39 +18,59 @@ import es.ull.iis.simulation.port.parking.VesselCreator.VesselGenerationInfo;
  *
  */
 public class Vessel extends Element {
-	private final WaresType wares;
+	/** A collection of different orders to load/unload certain amount of wares */
+	private final ArrayList<TransshipmentOrder> orders;	
+	/** The sum of wares load */
 	private final double initLoad;
+	/** The current load of the vesel */
 	private double currentLoad;
-	/** The amount of load not yet assigned to the vessel */
+	/** The amount of load not yet assigned to trucks */
 	private double notAssignedLoad;
+	/** An identifier for vessels */ 
 	private final int vesselId;
+	/** Potential quays for this vessel to dock */
+	private final EnumSet<QuayType> potentialQuays;
 
 	/**
 	 * @param simul
 	 * @param elementType
 	 * @param initialFlow
 	 */
-	public Vessel(Simulation simul, int vesselId, WaresType wares, VesselGenerationInfo info) {
+	public Vessel(Simulation simul, int vesselId, double initLoad, ArrayList<TransshipmentOrder> orders, VesselGenerationInfo info) {
 		super(simul, "VESSEL", info);
 		this.vesselId = vesselId;
-		this.wares = wares;
-		this.initLoad = wares.getTypicalVesselLoad().generate();
-		this.currentLoad = initLoad;
-		this.notAssignedLoad = initLoad;
+		this.orders = orders;
+		this.potentialQuays = precomputePotentialQuaysAndLoad();
+		this.initLoad = currentLoad;
 	}
 
-	public Vessel(Simulation simul, int vesselId, WaresType wares, ElementType elementType, InitializerFlow initialFlow, Node initialLocation) {
+	public Vessel(Simulation simul, int vesselId, double initLoad, ArrayList<TransshipmentOrder> orders, ElementType elementType, InitializerFlow initialFlow, Node initialLocation) {
 		super(simul, "VESSEL", elementType, initialFlow, PortParkingModel.VESSEL_SIZE, initialLocation);
 		this.vesselId = vesselId;
-		this.wares = wares;
-		this.initLoad = wares.getTypicalVesselLoad().generate();
-		this.currentLoad = initLoad;
-		this.notAssignedLoad = initLoad;
+		this.orders = orders;
+		this.potentialQuays = precomputePotentialQuaysAndLoad();
+		this.initLoad = currentLoad;
 	}
 	
 	@Override
 	public String toString() {
 		return "[VESSEL" + vesselId + "]";
+	}
+	
+	private EnumSet<QuayType> precomputePotentialQuaysAndLoad() {		
+		double maxOp = 0.0;
+		WaresType major = null;
+		this.currentLoad  = 0.0;
+		for (TransshipmentOrder order : orders) {
+			this.currentLoad += order.getTones(); 
+			if (order.getTones() > maxOp) {
+				maxOp = order.getTones();
+				major = order.getWares();
+			}
+		}
+		this.notAssignedLoad = currentLoad;
+		
+		return major.getPotentialQuays();
 	}
 	
 	/**
@@ -57,8 +80,8 @@ public class Vessel extends Element {
 		return vesselId;
 	}
 
-	public WaresType getWares() {
-		return wares;
+	public ArrayList<TransshipmentOrder> getOrders() {
+		return orders;
 	}
 
 	public double getInitLoad() {
@@ -114,5 +137,16 @@ public class Vessel extends Element {
 			if (quay.getLocation().getNode().equals(getLocation()))
 				return true;
 		return false;
+	}
+
+	
+	/**
+	 * TODO: Para elegir muelle, de momento, solo se tiene en cuenta su relación con la mercancía mayoritaria del barco, pero hay
+	 * claras diferencias en los datos según el tipo de operación, también. 
+	 * 
+	 * @return
+	 */
+	public EnumSet<QuayType> getPotentialQuays() {
+		return potentialQuays;
 	}
 }

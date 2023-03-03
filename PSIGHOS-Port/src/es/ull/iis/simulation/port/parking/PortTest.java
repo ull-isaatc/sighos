@@ -36,7 +36,7 @@ public class PortTest extends Simulation {
 
 		truckManager = new TruckWaitingManager(this);
 		vRouter = new VesselRouter(this, T_FROM_SOURCE_TO_ANCHORAGE);
-		moveVesselFlow = new MoveFlow(this, "Move to quay", QuayType.QUAY1.getLocation().getNode(), vRouter);
+		moveVesselFlow = new MoveFlow(this, "Move to quay", QuayType.RAOS1.getLocation().getNode(), vRouter);
 		final NotifyTrucksFlow notifyTrucksFlow = truckManager.getVesselFlow();
 		moveVesselFlow.link(notifyTrucksFlow);
 		
@@ -58,7 +58,7 @@ public class PortTest extends Simulation {
 	@Override
 	public void init() {
 		super.init();
-		final Vessel myTestVessel = new Vessel(this, 0, WaresType.TYPE1, etTestVessel, moveVesselFlow, vRouter.getInitialLocation());
+		final Vessel myTestVessel = new Vessel(this, 0, WaresType.CONSTRUCTION, etTestVessel, moveVesselFlow, Locations.VESSEL_SRC.getNode());
 		final Truck myTestTruck = new Truck(this, 0, etTestTruck, waitForVesselFlow, myTestVessel, TruckSource.TYPE1);
 		addEvent(myTestVessel.onCreate(getTs()));
 		addEvent(myTestTruck.onCreate(200));
