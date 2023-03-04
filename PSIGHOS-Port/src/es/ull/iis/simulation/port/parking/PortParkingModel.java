@@ -82,7 +82,14 @@ public class PortParkingModel extends Simulation {
 	private void createModelForVessels(TruckCreatorFlow tCreator, String fileName) {
 		final VesselRouter vesselRouter = new VesselRouter(this, T_FROM_SOURCE_TO_ANCHORAGE);
 		final int nQuays = QuayType.values().length;
-		final MoveFlow toAnchorageFlow = new MoveFlow(this, "Go to anchorage", Locations.VESSEL_ANCHORAGE.getNode(), vesselRouter);
+		final MoveFlow toAnchorageFlow = new MoveFlow(this, "Go to anchorage", Locations.VESSEL_ANCHORAGE.getNode(), vesselRouter) {
+			@Override
+			public void afterFinalize(ElementInstance fe) {
+				super.afterFinalize(fe);
+				final Vessel vessel = (Vessel) fe.getElement();
+				simul.notifyInfo(new PortInfo(simul, PortInfo.Type.VESSEL_CREATED, vessel, vessel.getTs()));
+			}
+		};
 		final RequestResourcesFlow reqQuayFlow = new RequestResourcesFlow(this, "Check for quay available", 0);
 		final ExclusiveChoiceFlow choiceQuayFlow = new ExclusiveChoiceFlow(this);
 

@@ -19,13 +19,11 @@ import es.ull.iis.simulation.port.parking.VesselCreator.VesselGenerationInfo;
  */
 public class Vessel extends Element {
 	/** A collection of different orders to load/unload certain amount of wares */
-	private final ArrayList<TransshipmentOrder> orders;	
+	private final ArrayList<VesselTransshipmentOrder> orders;	
 	/** The sum of wares load */
 	private final double initLoad;
 	/** The current load of the vesel */
 	private double currentLoad;
-	/** The amount of load not yet assigned to trucks */
-	private double notAssignedLoad;
 	/** An identifier for vessels */ 
 	private final int vesselId;
 	/** Potential quays for this vessel to dock */
@@ -37,7 +35,7 @@ public class Vessel extends Element {
 	 * @param elementType
 	 * @param initialFlow
 	 */
-	public Vessel(Simulation simul, int vesselId, ArrayList<TransshipmentOrder> orders, VesselGenerationInfo info) {
+	public Vessel(Simulation simul, int vesselId, ArrayList<VesselTransshipmentOrder> orders, VesselGenerationInfo info) {
 		super(simul, "VESSEL", info);
 		this.vesselId = vesselId;
 		this.orders = orders;
@@ -46,7 +44,7 @@ public class Vessel extends Element {
 		this.initLoad = currentLoad;
 	}
 
-	public Vessel(Simulation simul, int vesselId, ArrayList<TransshipmentOrder> orders, ElementType elementType, InitializerFlow initialFlow, Node initialLocation) {
+	public Vessel(Simulation simul, int vesselId, ArrayList<VesselTransshipmentOrder> orders, ElementType elementType, InitializerFlow initialFlow, Node initialLocation) {
 		super(simul, "VESSEL", elementType, initialFlow, PortParkingModel.VESSEL_SIZE, initialLocation);
 		this.vesselId = vesselId;
 		this.orders = orders;
@@ -71,7 +69,6 @@ public class Vessel extends Element {
 				major = order.getWares();
 			}
 		}
-		this.notAssignedLoad = currentLoad;
 		return major;
 	}
 	
@@ -82,7 +79,7 @@ public class Vessel extends Element {
 		return vesselId;
 	}
 
-	public ArrayList<TransshipmentOrder> getOrders() {
+	public ArrayList<VesselTransshipmentOrder> getOrders() {
 		return orders;
 	}
 
@@ -106,11 +103,14 @@ public class Vessel extends Element {
 	 * @param quantity Amount of load to move from vessel to truck or viceversa
 	 * @return True if there is remaining load to work with; false otherwise
 	 */
-	public boolean bookTransshipmentOperation(double quantity) {
-		final double actual = (quantity > notAssignedLoad) ? notAssignedLoad : quantity;
-		notAssignedLoad -= actual;
+	public TransshipmentOrder getTransshipmentOrderForTruck(Truck truck) {
+		for (VesselTransshipmentOrder order : orders) {
+			TransshipmentOrder orderForTruck = order.getTransshipmentOrderForTruck(truck);
+			if (orderForTruck != null)
+				return orderForTruck;
+		}
 //		System.out.println(getTs() + "\tBOOKED\t" + actual + "/" + notAssignedLoad);
-		return (actual > PortParkingModel.MIN_LOAD);
+		return null;
 	}
 	
 	/**
@@ -118,11 +118,15 @@ public class Vessel extends Element {
 	 * @param quantity Amount of load to move from vessel to truck or viceversa
 	 * @return The actual amount that can be moved (in case the vessel has not enough remaining load)
 	 */
-	public double performTransshipmentOperation(double quantity) {
-		final double actual = (quantity > currentLoad) ? currentLoad : quantity;
-		currentLoad -= actual;
+	public boolean performTransshipmentOperation(TransshipmentOrder truckOrder) {
+		for (VesselTransshipmentOrder order : orders) {
+			if (order.performTransshipmentOrder(truckOrder)) {
+				currentLoad -= truckOrder.getTones();
+				return true;
+			}
+		}
 //		System.out.println(getTs() + "\tUNLOADED\t" + actual + "/" + currentLoad);
-		return actual;
+		return false;
 	}
 	
 	/**

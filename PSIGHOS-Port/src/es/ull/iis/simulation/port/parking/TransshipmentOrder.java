@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.port.parking;
 
+import java.util.Locale;
+
 /**
  * @author Iván Castilla
  *
@@ -46,4 +48,8 @@ public class TransshipmentOrder {
 		return tones;
 	}
 
+	@Override
+	public String toString() {
+		return opType + "(" + wares.getDescription() + ", " + String.format(Locale.US, "%.2f", tones) + ")";
+	}
 }

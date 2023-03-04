@@ -32,8 +32,6 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	private int vesselCounter = 0;
 	private final ArrayList<PredefinedVessel> predefinedVessels;
 
-	// TODO: Hacer que sea un único creador de barcos, que decida con cierta lógica de qué tipo, dónde y cuándo se genera el siguiente
-	// Esto es así porque no sabemos exactamente cuándo llegan los barcos ni de dónde
 	/**
 	 * @param model
 	 * @param nElem
@@ -74,7 +72,7 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 	
 	private class PredefinedVessel {
 		private final String scaleId;
-		private final ArrayList<TransshipmentOrder> orders;
+		private final ArrayList<VesselTransshipmentOrder> orders;
 		
 		/**
 		 * Creates a vessel from the information stored in an array of strings
@@ -89,10 +87,10 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 				// Load order
 				double tones = Double.parseDouble(items[index + 1]);
 				if (tones > 0.0)
-					orders.add(new TransshipmentOrder(OperationType.LOAD, wares, tones));
+					orders.add(new VesselTransshipmentOrder(OperationType.LOAD, wares, tones));
 				tones = Double.parseDouble(items[index + WaresType.values().length + 1]);
 				if (tones > 0.0)
-					orders.add(new TransshipmentOrder(OperationType.UNLOAD, wares, tones));
+					orders.add(new VesselTransshipmentOrder(OperationType.UNLOAD, wares, tones));
 			}
 		}
 
@@ -106,7 +104,7 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 		/**
 		 * @return the orders
 		 */
-		public ArrayList<TransshipmentOrder> getOrders() {
+		public ArrayList<VesselTransshipmentOrder> getOrders() {
 			return orders;
 		}
 	}

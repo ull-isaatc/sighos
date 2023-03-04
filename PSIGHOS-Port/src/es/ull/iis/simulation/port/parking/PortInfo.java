@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.port.parking;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 import es.ull.iis.simulation.info.AsynchronousInfo;
@@ -14,6 +15,7 @@ import es.ull.iis.simulation.model.Simulation;
  */
 public class PortInfo extends AsynchronousInfo {
 	public enum Type {
+		VESSEL_CREATED("VESSEL CREATED"),
 		TRUCK_LOADED("TRUCK LOADED"),
 		VESSEL_UNLOADED("VESSEL UNLOADED");
 		
@@ -31,6 +33,7 @@ public class PortInfo extends AsynchronousInfo {
 	private final Type type;
 	private final Truck truck; 
 	private final Vessel vessel;
+	private final TransshipmentOrder order;
 	
 	/**
 	 * @param simul
@@ -40,6 +43,7 @@ public class PortInfo extends AsynchronousInfo {
 		this.type = type;
 		this.truck = truck;
 		this.vessel = null;
+		this.order = truck.getOrder();
 	}
 	
 	/**
@@ -50,6 +54,7 @@ public class PortInfo extends AsynchronousInfo {
 		this.type = type;
 		this.truck = null;
 		this.vessel = vessel;
+		this.order = null;
 	}
 	
 	/**
@@ -78,11 +83,18 @@ public class PortInfo extends AsynchronousInfo {
 		String msg = "" + simul.long2SimulationTime(getTs()) + "\t";
 		switch (type) {
 		case TRUCK_LOADED:
-			msg += truck.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", truck.getCurrentLoad()) + "/" + String.format(Locale.US, "%.2f", truck.getMaxLoad());
+			msg += truck.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", order.getTones()) + "/" + String.format(Locale.US, "%.2f", truck.getMaxLoad()) + 
+					"\t" + order.getWares().getDescription();
 			break;
 		case VESSEL_UNLOADED:
 			msg += vessel.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", vessel.getCurrentLoad()) + "/" + String.format(Locale.US, "%.2f", vessel.getInitLoad());
 			break;
+		case VESSEL_CREATED:
+			msg += vessel.toString() + "\t" + type.getDescription() + "\t";
+			for (VesselTransshipmentOrder vOrder : vessel.getOrders()) {
+				msg += vOrder + " ";
+			}
+			break;			
 		default:
 			break;
 		}		

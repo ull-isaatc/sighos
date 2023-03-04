@@ -61,8 +61,8 @@ public class PortTest extends Simulation {
 	@Override
 	public void init() {
 		super.init();
-		ArrayList<TransshipmentOrder> orders = new ArrayList<>();
-		orders.add(new TransshipmentOrder(OperationType.LOAD, WaresType.CONSTRUCTION, 100));
+		ArrayList<VesselTransshipmentOrder> orders = new ArrayList<>();
+		orders.add(new VesselTransshipmentOrder(OperationType.LOAD, WaresType.CONSTRUCTION, 100));
 		final Vessel myTestVessel = new Vessel(this, 0, orders, etTestVessel, moveVesselFlow, Locations.VESSEL_SRC.getNode());
 		final Truck myTestTruck = new Truck(this, 0, etTestTruck, waitForVesselFlow, myTestVessel, TruckSource.TYPE1);
 		addEvent(myTestVessel.onCreate(getTs()));

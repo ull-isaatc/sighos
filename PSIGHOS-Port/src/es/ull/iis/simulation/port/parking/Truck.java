@@ -13,12 +13,11 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
  * 
  */
 public class Truck extends Element {
-	private final WaresType wares;
 	private final TruckSource source;
 	private final double maxLoad;
-	private double currentLoad;
 	private final Vessel servingVessel;
 	private final int truckId;
+	private TransshipmentOrder order;
 
 	/**
 	 * @param simul
@@ -30,10 +29,7 @@ public class Truck extends Element {
 		this.truckId = truckId;
 		this.servingVessel = servingVessel;
 		this.source = source;
-		// FIXME: Currently, we assign the first wares of the vessel. Later on, we may do a finer grain approach by explicitly assigning specific wares to each truck  
-		this.wares = servingVessel.getMainWares();
 		this.maxLoad = PortParkingModel.TRUCK_MAX_LOAD.generate();
-		this.currentLoad = maxLoad;		
 	}
 
 	@Override
@@ -56,7 +52,14 @@ public class Truck extends Element {
 	}
 
 	public WaresType getWares() {
-		return wares;
+		return order.getWares();
+	}
+
+	/**
+	 * @return the order
+	 */
+	public TransshipmentOrder getOrder() {
+		return order;
 	}
 
 	/**
@@ -67,24 +70,19 @@ public class Truck extends Element {
 	}
 
 	/**
-	 * @return the currentLoad
-	 */
-	public double getCurrentLoad() {
-		return currentLoad;
-	}
-
-	/**
-	 * Returns true if the truck is required for a transshipment operation; false otherwise
+	 * Assigns the next transshipment order to perform. Returns true if the truck is required for a transshipment operation; false otherwise
 	 * @return True if the truck is required for a transshipment operation; false otherwise
 	 */
 	public boolean requiresTransshipmentOperation() {
-		return servingVessel.bookTransshipmentOperation(maxLoad);
+		order = servingVessel.getTransshipmentOrderForTruck(this);
+		return (order != null);
 	}
 	
 	/**
 	 * Performs a transshipment operation with the assigned vessel, trying to load/unload its maximum load
 	 */
 	public void performTransshipmentOperation() {
-		currentLoad = servingVessel.performTransshipmentOperation(maxLoad);
+		// TODO: Use boolean output of this method to detect errors
+		servingVessel.performTransshipmentOperation(order);
 	}
 }
