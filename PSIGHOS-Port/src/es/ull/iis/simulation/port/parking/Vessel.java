@@ -30,25 +30,28 @@ public class Vessel extends Element {
 	private final int vesselId;
 	/** Potential quays for this vessel to dock */
 	private final EnumSet<QuayType> potentialQuays;
+	private final WaresType mainWares;
 
 	/**
 	 * @param simul
 	 * @param elementType
 	 * @param initialFlow
 	 */
-	public Vessel(Simulation simul, int vesselId, double initLoad, ArrayList<TransshipmentOrder> orders, VesselGenerationInfo info) {
+	public Vessel(Simulation simul, int vesselId, ArrayList<TransshipmentOrder> orders, VesselGenerationInfo info) {
 		super(simul, "VESSEL", info);
 		this.vesselId = vesselId;
 		this.orders = orders;
-		this.potentialQuays = precomputePotentialQuaysAndLoad();
+		this.mainWares = precomputePotentialQuaysAndLoad(); 
+		this.potentialQuays = mainWares.getPotentialQuays(); 
 		this.initLoad = currentLoad;
 	}
 
-	public Vessel(Simulation simul, int vesselId, double initLoad, ArrayList<TransshipmentOrder> orders, ElementType elementType, InitializerFlow initialFlow, Node initialLocation) {
+	public Vessel(Simulation simul, int vesselId, ArrayList<TransshipmentOrder> orders, ElementType elementType, InitializerFlow initialFlow, Node initialLocation) {
 		super(simul, "VESSEL", elementType, initialFlow, PortParkingModel.VESSEL_SIZE, initialLocation);
 		this.vesselId = vesselId;
 		this.orders = orders;
-		this.potentialQuays = precomputePotentialQuaysAndLoad();
+		this.mainWares = precomputePotentialQuaysAndLoad(); 
+		this.potentialQuays = mainWares.getPotentialQuays(); 
 		this.initLoad = currentLoad;
 	}
 	
@@ -57,7 +60,7 @@ public class Vessel extends Element {
 		return "[VESSEL" + vesselId + "]";
 	}
 	
-	private EnumSet<QuayType> precomputePotentialQuaysAndLoad() {		
+	private WaresType precomputePotentialQuaysAndLoad() {		
 		double maxOp = 0.0;
 		WaresType major = null;
 		this.currentLoad  = 0.0;
@@ -69,8 +72,7 @@ public class Vessel extends Element {
 			}
 		}
 		this.notAssignedLoad = currentLoad;
-		
-		return major.getPotentialQuays();
+		return major;
 	}
 	
 	/**
@@ -84,6 +86,9 @@ public class Vessel extends Element {
 		return orders;
 	}
 
+	public WaresType getMainWares() {
+		return mainWares;
+	}
 	public double getInitLoad() {
 		return initLoad;
 	}

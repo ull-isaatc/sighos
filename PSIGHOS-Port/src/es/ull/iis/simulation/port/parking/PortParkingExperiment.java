@@ -13,7 +13,7 @@ import es.ull.iis.simulation.model.Simulation;
 public class PortParkingExperiment extends Experiment {
 	private static final int NEXP = 1;
 	private static final long ENDTS = 3440;
-	private static final int PARKING_CAPACITY = 5;
+	private static final String FILE_NAME = System.getProperty("user.dir") + "\\resources\\bootstrap_data.csv";
 	
 	/**
 	 */
@@ -22,7 +22,7 @@ public class PortParkingExperiment extends Experiment {
 	}
 	@Override
 	public Simulation getSimulation(int ind) {
-		final PortParkingModel sim =  new PortParkingModel(ind, ENDTS, PARKING_CAPACITY);
+		final PortParkingModel sim =  new PortParkingModel(ind, ENDTS, FILE_NAME);
 //		final PortTest sim =  new PortTest(ind, ENDTS, PARKING_CAPACITY);
 		sim.addInfoReceiver(new PortParkingListener());
 		return sim;

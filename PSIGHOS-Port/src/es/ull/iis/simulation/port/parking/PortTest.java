@@ -3,12 +3,15 @@
  */
 package es.ull.iis.simulation.port.parking;
 
+import java.util.ArrayList;
+
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.location.MoveFlow;
+import es.ull.iis.simulation.port.parking.TransshipmentOrder.OperationType;
 import es.ull.iis.simulation.port.parking.TruckWaitingManager.NotifyTrucksFlow;
 import es.ull.iis.simulation.port.parking.TruckWaitingManager.WaitForVesselFlow;
 
@@ -58,7 +61,9 @@ public class PortTest extends Simulation {
 	@Override
 	public void init() {
 		super.init();
-		final Vessel myTestVessel = new Vessel(this, 0, WaresType.CONSTRUCTION, etTestVessel, moveVesselFlow, Locations.VESSEL_SRC.getNode());
+		ArrayList<TransshipmentOrder> orders = new ArrayList<>();
+		orders.add(new TransshipmentOrder(OperationType.LOAD, WaresType.CONSTRUCTION, 100));
+		final Vessel myTestVessel = new Vessel(this, 0, orders, etTestVessel, moveVesselFlow, Locations.VESSEL_SRC.getNode());
 		final Truck myTestTruck = new Truck(this, 0, etTestTruck, waitForVesselFlow, myTestVessel, TruckSource.TYPE1);
 		addEvent(myTestVessel.onCreate(getTs()));
 		addEvent(myTestTruck.onCreate(200));
