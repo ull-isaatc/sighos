@@ -16,7 +16,6 @@ import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.StandardElementGenerationInfo;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
-import es.ull.iis.simulation.model.location.Node;
 import es.ull.iis.simulation.port.parking.TransshipmentOrder.OperationType;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
@@ -52,27 +51,19 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		add(new VesselGenerationInfo(new ElementType(model, "Vessel"), flow, Locations.VESSEL_SRC.getNode()));
+		add(new StandardElementGenerationInfo(new ElementType(model, "Vessel"), flow, PortParkingModel.VESSEL_SIZE, null, 1.0));
 		rnd = RandomNumberFactory.getInstance();
 	}
 	
 	@Override
 	public EventSource createEventSource(int ind, StandardElementGenerationInfo info) {
 		final PredefinedVessel data = predefinedVessels.get((int) (rnd.draw() * predefinedVessels.size()));
-		return new Vessel(simul, vesselCounter++, data.getOrders(), (VesselGenerationInfo) info);
-	}
-	
-	public class VesselGenerationInfo extends StandardElementGenerationInfo {
-
-		protected VesselGenerationInfo(ElementType et, InitializerFlow flow, Node initialLocation) {
-			super(et, flow, PortParkingModel.VESSEL_SIZE, initialLocation, 1.0);
-		}
-		
+		return new Vessel(simul, vesselCounter++, data.getOperations(), info.getElementType(), info.getFlow(), null);
 	}
 	
 	private class PredefinedVessel {
 		private final String scaleId;
-		private final ArrayList<VesselTransshipmentOrder> orders;
+		private final ArrayList<VesselTransshipmentOrder> operations;
 		
 		/**
 		 * Creates a vessel from the information stored in an array of strings
@@ -81,16 +72,16 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 		 */
 		public PredefinedVessel(String []items) {
 			scaleId = items[0];
-			orders = new ArrayList<>();
+			operations = new ArrayList<>();
 			for (WaresType wares : WaresType.values()) {
 				final int index = wares.ordinal();
 				// Load order
 				double tones = Double.parseDouble(items[index + 1]);
 				if (tones > 0.0)
-					orders.add(new VesselTransshipmentOrder(OperationType.LOAD, wares, tones));
+					operations.add(new VesselTransshipmentOrder(OperationType.LOAD, wares, tones));
 				tones = Double.parseDouble(items[index + WaresType.values().length + 1]);
 				if (tones > 0.0)
-					orders.add(new VesselTransshipmentOrder(OperationType.UNLOAD, wares, tones));
+					operations.add(new VesselTransshipmentOrder(OperationType.UNLOAD, wares, tones));
 			}
 		}
 
@@ -104,8 +95,8 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 		/**
 		 * @return the orders
 		 */
-		public ArrayList<VesselTransshipmentOrder> getOrders() {
-			return orders;
+		public ArrayList<VesselTransshipmentOrder> getOperations() {
+			return operations;
 		}
 	}
 }

@@ -17,6 +17,8 @@ public class PortInfo extends AsynchronousInfo {
 	public enum Type {
 		VESSEL_CREATED("VESSEL CREATED"),
 		TRUCK_LOADED("TRUCK LOADED"),
+		TRUCK_UNLOADED("TRUCK LOADED"),
+		VESSEL_LOADED("VESSEL UNLOADED"),
 		VESSEL_UNLOADED("VESSEL UNLOADED");
 		
 		private final String description;
@@ -83,15 +85,20 @@ public class PortInfo extends AsynchronousInfo {
 		String msg = "" + simul.long2SimulationTime(getTs()) + "\t";
 		switch (type) {
 		case TRUCK_LOADED:
+		case TRUCK_UNLOADED:
 			msg += truck.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", order.getTones()) + "/" + String.format(Locale.US, "%.2f", truck.getMaxLoad()) + 
 					"\t" + order.getWares().getDescription();
 			break;
+		case VESSEL_LOADED:
 		case VESSEL_UNLOADED:
-			msg += vessel.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", vessel.getCurrentLoad()) + "/" + String.format(Locale.US, "%.2f", vessel.getInitLoad());
+			msg += vessel.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", vessel.getPendingWorkload()) + "/" + String.format(Locale.US, "%.2f", vessel.getInitWorkload());
 			break;
 		case VESSEL_CREATED:
 			msg += vessel.toString() + "\t" + type.getDescription() + "\t";
-			for (VesselTransshipmentOrder vOrder : vessel.getOrders()) {
+			for (VesselTransshipmentOrder vOrder : vessel.getUnloadOperations()) {
+				msg += vOrder + " ";
+			}
+			for (VesselTransshipmentOrder vOrder : vessel.getLoadOperations()) {
 				msg += vOrder + " ";
 			}
 			break;			

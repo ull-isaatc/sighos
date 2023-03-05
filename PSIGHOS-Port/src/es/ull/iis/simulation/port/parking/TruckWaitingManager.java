@@ -19,7 +19,6 @@ import es.ull.iis.simulation.model.flow.WaitForSignalFlow.Listener;
  *
  */
 public class TruckWaitingManager {
-	private final WaitForVesselFlow truckFlow;
 	private final NotifyTrucksFlow vesselFlow;
 	private final TreeMap<Vessel, ArrayList<ElementInstance>> waitingTrucks;
 
@@ -28,18 +27,31 @@ public class TruckWaitingManager {
 	 */
 	public TruckWaitingManager(Simulation model) {
 		waitingTrucks = new TreeMap<>();
-		truckFlow = new WaitForVesselFlow(model);
 		vesselFlow = new NotifyTrucksFlow(model);
 	}
 	
-	public WaitForVesselFlow getTruckFlow() {
-		return truckFlow;
+	public WaitForVesselFlow getTruckFlow(Simulation model) {
+		return new WaitForVesselFlow(model);
 	}
 
 	public NotifyTrucksFlow getVesselFlow() {
 		return vesselFlow;
 	}
 	
+	/**
+	 * Notifies the flow that the specified {@link ElementInstance} can continue to the next step.
+	 * @param ei Element instance that must continue
+	 * @return True if the flow contained the specified element instance; false otherwise 
+	 */
+	public void signal(Vessel vessel) {
+		ArrayList<ElementInstance> waiting = waitingTrucks.get(vessel);
+		if (waiting != null) {
+			for (ElementInstance ei : waiting)
+				ei.getCurrentFlow().next(ei);
+			waitingTrucks.remove(vessel);
+		}
+	}
+
 	/**
 	 * An element that requests this flow has to wait until a special class (implementing the {@link Listener} interface) sends a signal. Useful for implementing
 	 * conditional waitings.  
@@ -90,20 +102,6 @@ public class TruckWaitingManager {
 				ei.notifyEnd();
 		}
 
-		/**
-		 * Notifies the flow that the specified {@link ElementInstance} can continue to the next step.
-		 * @param ei Element instance that must continue
-		 * @return True if the flow contained the specified element instance; false otherwise 
-		 */
-		public void signal(Vessel vessel) {
-			ArrayList<ElementInstance> waiting = waitingTrucks.get(vessel);
-			if (waiting != null) {
-				for (ElementInstance ei : waiting)
-					next(ei);
-				waitingTrucks.remove(vessel);
-			}
-		}
-
 		@Override
 		public String getDescription() {
 			return "Wait for the vessel to arrive";
@@ -138,7 +136,7 @@ public class TruckWaitingManager {
 					if (beforeRequest(ei)) {
 						final Vessel vessel = (Vessel) ei.getElement();
 						if (vessel.isReadyForTransshipment()) { // FIXME: This condition should be unnecessary
-							truckFlow.signal(vessel);
+							signal(vessel);
 						}
 						next(ei);
 					}

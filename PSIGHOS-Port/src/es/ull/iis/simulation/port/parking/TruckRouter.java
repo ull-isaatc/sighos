@@ -48,7 +48,7 @@ public class TruckRouter implements Router {
 	/**
 	 * @return the starting
 	 */
-	public Node getPortEntrance() {
+	public Node getWaitingArea() {
 		return waitingArea;
 	}
 
@@ -62,7 +62,7 @@ public class TruckRouter implements Router {
 	/**
 	 * @return the parking
 	 */
-	public Node getParking() {
+	public Node getTransshipmentArea() {
 		return transshipmentArea;
 	}
 

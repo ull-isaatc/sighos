@@ -33,4 +33,8 @@ public class VesselTransshipmentOrder extends TransshipmentOrder {
 		}
 		return false;
 	}
+	
+	public boolean isPending() {
+		return (notAssignedTones > PortParkingModel.MIN_LOAD);
+	}
 }
