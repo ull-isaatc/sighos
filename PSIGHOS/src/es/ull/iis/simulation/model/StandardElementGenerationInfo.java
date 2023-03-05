@@ -27,7 +27,7 @@ public class StandardElementGenerationInfo extends Generator.GenerationInfo {
 	 * @param initLocation The initial {@link Location} where the elements appear
 	 * @param prop Proportion of elements corresponding to this flow.
 	 */
-	protected StandardElementGenerationInfo(final ElementType et, final InitializerFlow flow, final int size, final Location initLocation, final double prop) {
+	public StandardElementGenerationInfo(final ElementType et, final InitializerFlow flow, final int size, final Location initLocation, final double prop) {
 		this(et, flow, TimeFunctionFactory.getInstance("ConstantVariate", size), initLocation, prop);
 	}
 	
@@ -39,7 +39,7 @@ public class StandardElementGenerationInfo extends Generator.GenerationInfo {
 	 * @param initLocation The initial {@link Location} where the elements appear
 	 * @param prop Proportion of elements corresponding to this flow.
 	 */
-	protected StandardElementGenerationInfo(final ElementType et, final InitializerFlow flow, final TimeFunction size, final Location initLocation, final double prop) {
+	public StandardElementGenerationInfo(final ElementType et, final InitializerFlow flow, final TimeFunction size, final Location initLocation, final double prop) {
 		super(prop);
 		this.et = et;
 		this.flow = flow;
