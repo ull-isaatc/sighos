@@ -237,6 +237,8 @@ public abstract class Location implements Located, Identifiable, Comparable<Loca
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
 		return ((Location)obj).id == id;
 	}
 	
