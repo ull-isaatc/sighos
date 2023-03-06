@@ -123,14 +123,14 @@ public class Vessel extends Element {
 	 * @return True if there is remaining load to work with; false otherwise
 	 */
 	public TransshipmentOrder getTransshipmentOrderForTruck(Truck truck) {
-		// First try to assign an unload operation
-		for (VesselTransshipmentOrder order : unloadOperations) {
+		// First try to assign a load operation
+		for (VesselTransshipmentOrder order : loadOperations) {
 			TransshipmentOrder orderForTruck = order.getTransshipmentOrderForTruck(truck);
 			if (orderForTruck != null)
 				return orderForTruck;
 		}
-		// If no pending unload operations, then go for a load operation
-		for (VesselTransshipmentOrder order : loadOperations) {
+		// If no pending load operations, then go for unload operations
+		for (VesselTransshipmentOrder order : unloadOperations) {
 			TransshipmentOrder orderForTruck = order.getTransshipmentOrderForTruck(truck);
 			if (orderForTruck != null)
 				return orderForTruck;

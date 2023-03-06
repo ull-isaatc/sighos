@@ -15,6 +15,7 @@ import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.ExclusiveChoiceFlow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
@@ -64,6 +65,7 @@ public class PortParkingModel extends Simulation {
 	private static final long T_FIRST_ARRIVAL = 0L;
 	private static final SimulationTimeFunction T_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 7700);
 	private static final int PARKING_CAPACITY = 5;
+	private static final int MAX_SIMULTANEOUS_LOADS = 5;
 	private final TruckWaitingManager truckWaitingForVesselAtQuayManager;
 	private final TruckWaitingManager truckWaitingForVesselAtAnchorageManager;
 	private final TransshipmentOperationsVesselFlow transVesselFlow;
@@ -159,21 +161,26 @@ public class PortParkingModel extends Simulation {
 				return super.beforeRequest(ei);
 			}
 		};
-		
+
+		// Modeling parking slots as resources to handle the arrival of trucks in advance
+		final ResourceType rtParkSpace = new ResourceType(this, "Park slot");
+		rtParkSpace.addGenericResources(PARKING_CAPACITY);
+		final WorkGroup wgParkSlot = new WorkGroup(this, rtParkSpace, 1);
+
 		// There is one element type per source (useful for flows)
 		final ElementType[] truckSources = new ElementType[TruckSource.values().length];
 		
 		for (TruckSource source : TruckSource.values()) {
 			truckSources[source.ordinal()] = new ElementType(this, "Type for truck source " + source.ordinal());
 		}
-		selectTranssType.link(createFlowForUnloadOperations(truckRouter, truckSources), new SpecificOperationCondition(OperationType.UNLOAD));
-		selectTranssType.link(createFlowForLoadOperations(truckRouter, truckSources), new SpecificOperationCondition(OperationType.LOAD));
+		selectTranssType.link(createFlowForUnloadOperations(truckRouter, truckSources, wgParkSlot), new SpecificOperationCondition(OperationType.UNLOAD));
+		selectTranssType.link(createFlowForLoadOperations(truckRouter, truckSources, wgParkSlot), new SpecificOperationCondition(OperationType.LOAD));
 		
 		final TruckCreatorFlow tCreator = new TruckCreatorFlow(this, truckSources, selectTranssType);
 		return tCreator;
 	}
 
-	private InitializerFlow createFlowForLoadOperations(TruckRouter truckRouter, ElementType[] truckSources) {
+	private InitializerFlow createFlowForLoadOperations(final TruckRouter truckRouter, final ElementType[] truckSources, final WorkGroup wgParkSlot) {
 		// Performs a brief delay until it effectively arrives at the initial location
 		final DelayFlow initialDelayFlow = new DelayFlow(this, "Delay when the trucks appear") {
 			
@@ -192,10 +199,6 @@ public class PortParkingModel extends Simulation {
 		};
 		final WaitForVesselFlow waitForVesselAtQuayFlow = truckWaitingForVesselAtQuayManager.getTruckFlow(this);
 		
-		// Modeling parking slots as resources to handle the arrival of trucks in advance
-		final ResourceType rtParkSpace = new ResourceType(this, "Park slot");
-		rtParkSpace.addGenericResources(PARKING_CAPACITY);
-		final WorkGroup wgParkSlot = new WorkGroup(this, rtParkSpace, 1);
 		
 		final MoveFlow toWaitingAreaFlow = new MoveFlow(this, "Go to the waiting area", truckRouter.getWaitingArea(), truckRouter);
 		
@@ -211,8 +214,14 @@ public class PortParkingModel extends Simulation {
 				truck.unloadOperation();
 			}
 		};
+		
+		// Modeling parking slots as resources to handle the arrival of trucks in advance
+		final ResourceType rtLoadResource = new ResourceType(this, "Resource for loading operations");
+		rtLoadResource.addGenericResources(MAX_SIMULTANEOUS_LOADS);
+		final WorkGroup wgLoadResource = new WorkGroup(this, rtLoadResource, 1);
+		
 		// TODO: Ahora mismo todas las cargas pueden ser simultáneas. Habría que limitarlo
-		final TimeFunctionDelayFlow performLoadVesselFlow = new TimeFunctionDelayFlow(this, "Load vessel operation", LOAD_TIME) {
+		final ActivityFlow performLoadVesselFlow = new ActivityFlow(this, "Load vessel operation") {
 			@Override
 			public void afterFinalize(ElementInstance ei) {
 				super.afterFinalize(ei);
@@ -221,6 +230,8 @@ public class PortParkingModel extends Simulation {
 				transVesselFlow.signal(truck.getServingVessel());
 			}
 		};
+		performLoadVesselFlow.newWorkGroupAdder(wgLoadResource).withDelay(LOAD_TIME).add();
+		
 		final MoveFlow fromParkingFlow = new MoveFlow(this, "Depart from the parking", truckRouter.getPortExit(), truckRouter);
 		final ReleaseResourcesFlow relParkingFlow = new ReleaseResourcesFlow(this, "Free parking slot", wgParkSlot);
 		final ParallelFlow parFlow = new ParallelFlow(this);
@@ -243,7 +254,7 @@ public class PortParkingModel extends Simulation {
 		
 	}
 	
-	private InitializerFlow createFlowForUnloadOperations(TruckRouter truckRouter, ElementType[] truckSources) {
+	private InitializerFlow createFlowForUnloadOperations(final TruckRouter truckRouter, final ElementType[] truckSources, final WorkGroup wgParkSlot) {
 		// Performs a brief delay until it effectively arrives at the initial location
 		final DelayFlow initialDelayFlow = new DelayFlow(this, "Delay when the trucks appear") {
 			
@@ -263,11 +274,6 @@ public class PortParkingModel extends Simulation {
 		final WaitForVesselFlow waitForVesselAtAnchorageFlow = truckWaitingForVesselAtAnchorageManager.getTruckFlow(this);
 		final WaitForVesselFlow waitForVesselAtQuayFlow = truckWaitingForVesselAtQuayManager.getTruckFlow(this);
 		waitForVesselAtAnchorageFlow.link(initialDelayFlow);
-		
-		// Modeling parking slots as resources to handle the arrival of trucks in advance
-		final ResourceType rtParkSpace = new ResourceType(this, "Park slot");
-		rtParkSpace.addGenericResources(PARKING_CAPACITY);
-		final WorkGroup wgParkSlot = new WorkGroup(this, rtParkSpace, 1);
 		
 		final MoveFlow toWaitingAreaFlow = new MoveFlow(this, "Go to the waiting area", truckRouter.getWaitingArea(), truckRouter);
 		
