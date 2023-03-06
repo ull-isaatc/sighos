@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.port.parking;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
@@ -30,6 +31,7 @@ public class Vessel extends Element {
 	private final int vesselId;
 	/** Potential quays for this vessel to dock */
 	private final EnumSet<QuayType> potentialQuays;
+	private final ArrayDeque<TransshipmentOrder> pendingLoadOperations;
 	private final WaresType mainWares;
 
 	public Vessel(Simulation simul, int vesselId, ArrayList<VesselTransshipmentOrder> operations, ElementType elementType, InitializerFlow initialFlow, Node initialLocation) {
@@ -40,7 +42,8 @@ public class Vessel extends Element {
 		this.pendingTones = new double[2];
 		this.initTones = new double[2];
 		this.mainWares = precomputePotentialQuaysAndLoad(operations); 
-		this.potentialQuays = mainWares.getPotentialQuays(); 
+		this.potentialQuays = mainWares.getPotentialQuays();
+		this.pendingLoadOperations = new ArrayDeque<>();
 	}
 	
 	@Override
@@ -137,22 +140,50 @@ public class Vessel extends Element {
 	}
 	
 	/**
+	 * Performs a load operation
+	 * @param quantity Amount of load to move from vessel to truck
+	 * @return The actual amount that can be moved (in case the vessel has not enough remaining load)
+	 */
+	public boolean performLoadOperation() {
+		final TransshipmentOrder truckOrder = pendingLoadOperations.poll();
+		if (truckOrder != null)
+			for (VesselTransshipmentOrder order : loadOperations) {
+				if (order.performTransshipmentOrder(truckOrder)) {
+					pendingTones[OperationType.LOAD.ordinal()] -= truckOrder.getTones();
+					return true;
+				}
+			}
+//		System.out.println(getTs() + "\tUNLOADED\t" + actual + "/" + currentLoad);
+		return false;
+	}
+	
+	/**
 	 * Performs a transshipment operation (either a load or unload)
 	 * @param quantity Amount of load to move from vessel to truck or viceversa
 	 * @return The actual amount that can be moved (in case the vessel has not enough remaining load)
 	 */
-	public boolean performTransshipmentOperation(TransshipmentOrder truckOrder) {
+	public boolean notifyPendingLoadOperation(TransshipmentOrder truckOrder) {
+		if (OperationType.LOAD.equals(truckOrder.getOpType()))
+			for (VesselTransshipmentOrder order : loadOperations) {
+				if (order.getWares().equals(truckOrder.getWares())) {
+					pendingLoadOperations.add(truckOrder);
+					return true;
+				}
+			}
+//		System.out.println(getTs() + "\tUNLOADED\t" + actual + "/" + currentLoad);
+		return false;
+	}
+	
+	/**
+	 * Performs an unload operation
+	 * @param quantity Amount of load to move from vessel to truck
+	 * @return The actual amount that can be moved (in case the vessel has not enough remaining load)
+	 */
+	public boolean performUnloadOperation(TransshipmentOrder truckOrder) {
 		if (OperationType.UNLOAD.equals(truckOrder.getOpType()))
 			for (VesselTransshipmentOrder order : unloadOperations) {
 				if (order.performTransshipmentOrder(truckOrder)) {
 					pendingTones[OperationType.UNLOAD.ordinal()] -= truckOrder.getTones();
-					return true;
-				}
-			}
-		else
-			for (VesselTransshipmentOrder order : loadOperations) {
-				if (order.performTransshipmentOrder(truckOrder)) {
-					pendingTones[OperationType.LOAD.ordinal()] -= truckOrder.getTones();
 					return true;
 				}
 			}

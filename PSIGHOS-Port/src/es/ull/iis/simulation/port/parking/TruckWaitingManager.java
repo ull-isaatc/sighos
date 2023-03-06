@@ -134,10 +134,7 @@ public class TruckWaitingManager {
 			if (!ei.wasVisited(this)) {
 				if (ei.isExecutable()) {
 					if (beforeRequest(ei)) {
-						final Vessel vessel = (Vessel) ei.getElement();
-						if (vessel.isReadyForTransshipment()) { // FIXME: This condition should be unnecessary
-							signal(vessel);
-						}
+						signal((Vessel) ei.getElement());
 						next(ei);
 					}
 					else {

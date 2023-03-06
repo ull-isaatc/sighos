@@ -79,10 +79,30 @@ public class Truck extends Element {
 	}
 	
 	/**
-	 * Performs a transshipment operation with the assigned vessel, trying to load/unload its maximum load
+	 * Performs an unload operation with the assigned vessel
 	 */
-	public void performTransshipmentOperation() {
+	public void unloadVesselOperation() {
 		// TODO: Use boolean output of this method to detect errors
-		servingVessel.performTransshipmentOperation(order);
+		servingVessel.performUnloadOperation(order);
+		simul.notifyInfo(new PortInfo(simul, PortInfo.Type.VESSEL_UNLOADED, servingVessel, getTs()));
+		simul.notifyInfo(new PortInfo(simul, PortInfo.Type.TRUCK_LOADED, this, getTs()));
+	}
+	
+	/**
+	 * Performs an unload operation with the assigned vessel
+	 */
+	public void loadVesselOperation() {
+		// TODO: Use boolean output of this method to detect errors
+		servingVessel.performLoadOperation();
+		simul.notifyInfo(new PortInfo(simul, PortInfo.Type.VESSEL_LOADED, servingVessel, getTs()));
+	}
+
+	/**
+	 * Performs an unload operation from the truck to the quay. Notifies the vessel that there are wares waiting to be loaded 
+	 */
+	public void unloadOperation() {
+		// TODO: Use boolean output of this method to detect errors
+		servingVessel.notifyPendingLoadOperation(order);
+		simul.notifyInfo(new PortInfo(simul, PortInfo.Type.TRUCK_UNLOADED, this, getTs()));
 	}
 }

@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.port.parking;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
 import es.ull.iis.simulation.info.AsynchronousInfo;
@@ -17,9 +16,9 @@ public class PortInfo extends AsynchronousInfo {
 	public enum Type {
 		VESSEL_CREATED("VESSEL CREATED"),
 		TRUCK_LOADED("TRUCK LOADED"),
-		TRUCK_UNLOADED("TRUCK LOADED"),
+		TRUCK_UNLOADED("TRUCK UNLOADED"),
 		VESSEL_LOADED("VESSEL UNLOADED"),
-		VESSEL_UNLOADED("VESSEL UNLOADED");
+		VESSEL_UNLOADED("VESSEL LOADED");
 		
 		private final String description;
 		
