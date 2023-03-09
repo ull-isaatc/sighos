@@ -84,17 +84,15 @@ public class Truck extends Element {
 	public void unloadVesselOperation() {
 		// TODO: Use boolean output of this method to detect errors
 		servingVessel.performUnloadOperation(order);
-		simul.notifyInfo(new PortInfo(simul, PortInfo.Type.VESSEL_UNLOADED, servingVessel, getTs()));
 		simul.notifyInfo(new PortInfo(simul, PortInfo.Type.TRUCK_LOADED, this, getTs()));
 	}
 	
 	/**
-	 * Performs an unload operation with the assigned vessel
+	 * Performs a load operation with the assigned vessel
 	 */
 	public void loadVesselOperation() {
 		// TODO: Use boolean output of this method to detect errors
 		servingVessel.performLoadOperation();
-		simul.notifyInfo(new PortInfo(simul, PortInfo.Type.VESSEL_LOADED, servingVessel, getTs()));
 	}
 
 	/**

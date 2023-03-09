@@ -7,7 +7,6 @@ import java.util.EnumSet;
 
 /**
  * @author Iván Castilla Rodríguez
- * TODO: Un barco debe llevar más de un tipo de mercancía y distinguir entre carga y descarga
  */
 public enum WaresType {
 	FERTILIZER("Abonos",

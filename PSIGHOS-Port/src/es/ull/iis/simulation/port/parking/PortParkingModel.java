@@ -10,9 +10,11 @@ import es.ull.iis.simulation.condition.ElementTypeCondition;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
+import es.ull.iis.simulation.model.SimulationWeeklyPeriodicCycle;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -27,16 +29,13 @@ import es.ull.iis.simulation.model.location.MoveFlow;
 import es.ull.iis.simulation.port.parking.TransshipmentOrder.OperationType;
 import es.ull.iis.simulation.port.parking.TruckWaitingManager.NotifyTrucksFlow;
 import es.ull.iis.simulation.port.parking.TruckWaitingManager.WaitForVesselFlow;
+import es.ull.iis.util.cycle.WeeklyPeriodicCycle;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla
  * TODO: Añadir al listener un mapeo entre Nodes y coordenadas (me lo pasarán)
- * TODO: Los barcos deben poder hacer operaciones de carga y descarga. Para la descarga, el camión debe estar ahí (como funciona ahora el modelo); para la carga, los camiones empiezan a 
- * llegar antes, y van descargando en el muelle. Después, el barco cargará cuando llegue. Este cambio implica: 1. Distinguir cargas y descargas por tipo de mercancía; 2. crear entidades para 
- * cada tipo de operación, de forma que las órdenes de carga se generen ANTES de la llegada física del barco (2-3 días), y las de descarga, al llegar el barco al anchorage (como ahora); 
- * 3. crear flujos diferentes para cada tipo de orden, incluyendo el de carga del barco dos pasos (descarga de la mercancía en el muelle, carga en el barco).  
  */
 public class PortParkingModel extends Simulation {
 	/** Time unit of the model */
@@ -60,11 +59,11 @@ public class PortParkingModel extends Simulation {
 	/** Time to unload wares from a {@link Truck} to the quay: 10 minutes +- 2 minutes, characterized by a beta distribution */
 	private static final TimeFunction UNLOAD_TRUCK_TIME =  TimeFunctionFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("BetaVariate", 10.0, 10.0), 4, 8);
 	private static final TimeFunction T_ENTRANCE_PARKING = TimeFunctionFactory.getInstance("ConstantVariate", 10);
-	private static final TimeFunction T_PARKING_EXIT = TimeFunctionFactory.getInstance("ConstantVariate", 10);
+	private static final TimeFunction T_TRANSS_AREA_EXIT = TimeFunctionFactory.getInstance("ConstantVariate", 10);
 	private static final TimeFunction T_FROM_SOURCE_TO_ANCHORAGE = TimeFunctionFactory.getInstance("ConstantVariate", 100);
 	private static final long T_FIRST_ARRIVAL = 0L;
 	private static final SimulationTimeFunction T_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 7700);
-	private static final int PARKING_CAPACITY = 5;
+	private static final int TRANSS_AREA_CAPACITY = 5;
 	private static final int MAX_SIMULTANEOUS_LOADS = 5;
 	private final TruckWaitingManager truckWaitingForVesselAtQuayManager;
 	private final TruckWaitingManager truckWaitingForVesselAtAnchorageManager;
@@ -98,6 +97,12 @@ public class PortParkingModel extends Simulation {
 		final DelayFlow vesselCreationDelayFlow = new DelayFlow(this, "Delay before the vessel effectively appears") {
 			
 			@Override
+			public boolean beforeRequest(ElementInstance ei) {
+				final Vessel vessel = (Vessel) ei.getElement();
+				simul.notifyInfo(new PortInfo(simul, vessel, vessel.getTs()));
+				return super.beforeRequest(ei);
+			}
+			@Override
 			public long getDurationSample(Element elem) {
 				final Vessel vessel = (Vessel)elem;
 				// There is no delay if the vessel does not include any load operation
@@ -115,14 +120,7 @@ public class PortParkingModel extends Simulation {
 			}
 		};
 		
-		final MoveFlow toAnchorageFlow = new MoveFlow(this, "Go to anchorage", Locations.VESSEL_ANCHORAGE.getNode(), vesselRouter) {
-			@Override
-			public void afterFinalize(ElementInstance fe) {
-				super.afterFinalize(fe);
-				final Vessel vessel = (Vessel) fe.getElement();
-				simul.notifyInfo(new PortInfo(simul, PortInfo.Type.VESSEL_CREATED, vessel, vessel.getTs()));
-			}
-		};
+		final MoveFlow toAnchorageFlow = new MoveFlow(this, "Go to anchorage", Locations.VESSEL_ANCHORAGE.getNode(), vesselRouter);
 		final RequestResourcesFlow reqQuayFlow = new RequestResourcesFlow(this, "Check for quay available", 0);
 		final ExclusiveChoiceFlow choiceQuayFlow = new ExclusiveChoiceFlow(this);
 		final NotifyTrucksFlow notifyTrucksAtAnchorageFlow = truckWaitingForVesselAtAnchorageManager.getVesselFlow();
@@ -151,9 +149,9 @@ public class PortParkingModel extends Simulation {
 	}
 
 	private TruckCreatorFlow createModelForTrucks() {
-		final TruckRouter truckRouter = new TruckRouter(PARKING_CAPACITY * TRUCK_SIZE, T_ENTRANCE_PARKING, T_PARKING_EXIT);
+		final TruckRouter truckRouter = new TruckRouter(TRANSS_AREA_CAPACITY * TRUCK_SIZE, T_ENTRANCE_PARKING, T_TRANSS_AREA_EXIT);
 		
-		final ExclusiveChoiceFlow selectTranssType = new ExclusiveChoiceFlow(this) {
+		final ExclusiveChoiceFlow selectInitTranssType = new ExclusiveChoiceFlow(this) {
 			@Override
 			public boolean beforeRequest(ElementInstance ei) {
 				Truck truck = (Truck)ei.getElement(); 
@@ -162,25 +160,33 @@ public class PortParkingModel extends Simulation {
 			}
 		};
 
-		// Modeling parking slots as resources to handle the arrival of trucks in advance
-		final ResourceType rtParkSpace = new ResourceType(this, "Park slot");
-		rtParkSpace.addGenericResources(PARKING_CAPACITY);
+		// Modeling transshipment area slots as resources to handle the arrival of trucks in advance
+		final ResourceType rtParkSpace = new ResourceType(this, "Transshipment area slot");
+		// Transshipment area is only available from 8:00 to 20:00
+		for (int i = 0; i < TRANSS_AREA_CAPACITY; i++) {
+			final Resource resParkSpace = new Resource(this, "Transshipment area slot #" + i);
+			resParkSpace.newTimeTableOrCancelEntriesAdder(rtParkSpace).withDuration(new SimulationWeeklyPeriodicCycle(TIME_UNIT, WeeklyPeriodicCycle.WEEKDAYS, 480, getEndTs()), 720).addTimeTableEntry();
+		}
+//		rtParkSpace.addGenericResources(PARKING_CAPACITY);
 		final WorkGroup wgParkSlot = new WorkGroup(this, rtParkSpace, 1);
 
 		// There is one element type per source (useful for flows)
 		final ElementType[] truckSources = new ElementType[TruckSource.values().length];
 		
-		for (TruckSource source : TruckSource.values()) {
-			truckSources[source.ordinal()] = new ElementType(this, "Type for truck source " + source.ordinal());
-		}
-		selectTranssType.link(createFlowForUnloadOperations(truckRouter, truckSources, wgParkSlot), new SpecificOperationCondition(OperationType.UNLOAD));
-		selectTranssType.link(createFlowForLoadOperations(truckRouter, truckSources, wgParkSlot), new SpecificOperationCondition(OperationType.LOAD));
+		final ExclusiveChoiceFlow mustOperateAgainFlow = new ExclusiveChoiceFlow(this);
+		final TransshipmentPendingCondition trCond = new TransshipmentPendingCondition();
+		final ExclusiveChoiceFlow choiceDestinationFlow = new ExclusiveChoiceFlow(this);
+		final MoveFlow[] toWarehouseFlow = new MoveFlow[TruckSource.values().length];
 		
-		final TruckCreatorFlow tCreator = new TruckCreatorFlow(this, truckSources, selectTranssType);
-		return tCreator;
-	}
-
-	private InitializerFlow createFlowForLoadOperations(final TruckRouter truckRouter, final ElementType[] truckSources, final WorkGroup wgParkSlot) {
+		for (TruckSource source : TruckSource.values()) {
+			int index = source.ordinal();
+			truckSources[index] = new ElementType(this, "Type for truck source " + index);
+			final MoveFlow toExitFlow = new MoveFlow(this, "Return to exit point", source.getSpawnLocation().getNode(), truckRouter);
+			choiceDestinationFlow.link(toExitFlow, new ElementTypeCondition(truckSources[index]));
+			toWarehouseFlow[index] = new MoveFlow(this, "Return to warehouse", source.getWarehouseLocation(), truckRouter);
+			toExitFlow.link(toWarehouseFlow[index]).link(mustOperateAgainFlow);
+		}
+		
 		// Performs a brief delay until it effectively arrives at the initial location
 		final DelayFlow initialDelayFlow = new DelayFlow(this, "Delay when the trucks appear") {
 			
@@ -197,6 +203,24 @@ public class PortParkingModel extends Simulation {
 				truck.getSource().getSpawnLocation().getNode().enter(truck);
 			}
 		};
+		
+		final WaitForVesselFlow waitForVesselAtAnchorageFlow = truckWaitingForVesselAtAnchorageManager.getTruckFlow(this);
+		waitForVesselAtAnchorageFlow.link(initialDelayFlow);
+
+		selectInitTranssType.link(waitForVesselAtAnchorageFlow, new SpecificOperationCondition(OperationType.UNLOAD));
+		selectInitTranssType.link(initialDelayFlow);
+
+		final ExclusiveChoiceFlow selectTranssType = new ExclusiveChoiceFlow(this);
+
+		selectTranssType.link(createFlowForUnloadOperations(truckRouter, truckSources, wgParkSlot, choiceDestinationFlow), new SpecificOperationCondition(OperationType.UNLOAD));
+		selectTranssType.link(createFlowForLoadOperations(truckRouter, truckSources, wgParkSlot, choiceDestinationFlow), new SpecificOperationCondition(OperationType.LOAD));
+		
+		mustOperateAgainFlow.link(selectTranssType, trCond);
+		final TruckCreatorFlow tCreator = new TruckCreatorFlow(this, truckSources, selectInitTranssType);
+		return tCreator;
+	}
+
+	private InitializerFlow createFlowForLoadOperations(final TruckRouter truckRouter, final ElementType[] truckSources, final WorkGroup wgParkSlot, ExclusiveChoiceFlow choiceDestinationFlow) {
 		final WaitForVesselFlow waitForVesselAtQuayFlow = truckWaitingForVesselAtQuayManager.getTruckFlow(this);
 		
 		
@@ -220,7 +244,6 @@ public class PortParkingModel extends Simulation {
 		rtLoadResource.addGenericResources(MAX_SIMULTANEOUS_LOADS);
 		final WorkGroup wgLoadResource = new WorkGroup(this, rtLoadResource, 1);
 		
-		// TODO: Ahora mismo todas las cargas pueden ser simultáneas. Habría que limitarlo
 		final ActivityFlow performLoadVesselFlow = new ActivityFlow(this, "Load vessel operation") {
 			@Override
 			public void afterFinalize(ElementInstance ei) {
@@ -235,45 +258,16 @@ public class PortParkingModel extends Simulation {
 		final MoveFlow fromParkingFlow = new MoveFlow(this, "Depart from the parking", truckRouter.getPortExit(), truckRouter);
 		final ReleaseResourcesFlow relParkingFlow = new ReleaseResourcesFlow(this, "Free parking slot", wgParkSlot);
 		final ParallelFlow parFlow = new ParallelFlow(this);
-		initialDelayFlow.link(toWaitingAreaFlow).link(reqParkingFlow).link(toTransshipmentAreaFlow).link(performUnloadFlow).link(parFlow);
+		toWaitingAreaFlow.link(reqParkingFlow).link(toTransshipmentAreaFlow).link(performUnloadFlow).link(parFlow);
 		parFlow.link(waitForVesselAtQuayFlow).link(performLoadVesselFlow);
-		final ExclusiveChoiceFlow choiceDestinationFlow = new ExclusiveChoiceFlow(this);
 		parFlow.link(fromParkingFlow).link(relParkingFlow).link(choiceDestinationFlow);
 		
-		final TransshipmentPendingCondition trCond = new TransshipmentPendingCondition();
-		
-		for (TruckSource source : TruckSource.values()) {
-			final MoveFlow toExitFlow = new MoveFlow(this, "Return to exit point", source.getSpawnLocation().getNode(), truckRouter);
-			choiceDestinationFlow.link(toExitFlow, new ElementTypeCondition(truckSources[source.ordinal()]));
-			final MoveFlow toWarehouseFlow = new MoveFlow(this, "Return to warehouse", source.getWarehouseLocation(), truckRouter);
-			final ExclusiveChoiceFlow mustOperateAgainFlow = new ExclusiveChoiceFlow(this);
-			toExitFlow.link(toWarehouseFlow).link(mustOperateAgainFlow);
-			mustOperateAgainFlow.link(toWaitingAreaFlow, trCond);
-		}		
-		return initialDelayFlow;
+		return toWaitingAreaFlow;
 		
 	}
 	
-	private InitializerFlow createFlowForUnloadOperations(final TruckRouter truckRouter, final ElementType[] truckSources, final WorkGroup wgParkSlot) {
-		// Performs a brief delay until it effectively arrives at the initial location
-		final DelayFlow initialDelayFlow = new DelayFlow(this, "Delay when the trucks appear") {
-			
-			@Override
-			public long getDurationSample(Element elem) {
-		    	return Math.max(0, Math.round(((Truck)elem).getSource().getInitialDelay().getValue(elem)));
-			}
-			
-			@Override
-			public void afterFinalize(ElementInstance ei) {
-				super.afterFinalize(ei);
-				Truck truck = (Truck)ei.getElement(); 
-				// First makes the truck spawn
-				truck.getSource().getSpawnLocation().getNode().enter(truck);
-			}
-		};
-		final WaitForVesselFlow waitForVesselAtAnchorageFlow = truckWaitingForVesselAtAnchorageManager.getTruckFlow(this);
+	private InitializerFlow createFlowForUnloadOperations(final TruckRouter truckRouter, final ElementType[] truckSources, final WorkGroup wgParkSlot, ExclusiveChoiceFlow choiceDestinationFlow) {
 		final WaitForVesselFlow waitForVesselAtQuayFlow = truckWaitingForVesselAtQuayManager.getTruckFlow(this);
-		waitForVesselAtAnchorageFlow.link(initialDelayFlow);
 		
 		final MoveFlow toWaitingAreaFlow = new MoveFlow(this, "Go to the waiting area", truckRouter.getWaitingArea(), truckRouter);
 		
@@ -288,27 +282,14 @@ public class PortParkingModel extends Simulation {
 				Truck truck = ((Truck)ei.getElement());
 				truck.unloadVesselOperation();
 				transVesselFlow.signal(truck.getServingVessel());
-				simul.notifyInfo(new PortInfo(simul, PortInfo.Type.VESSEL_UNLOADED, truck.getServingVessel(), truck.getTs()));
-				simul.notifyInfo(new PortInfo(simul, PortInfo.Type.TRUCK_LOADED, truck, truck.getTs()));
 			}
 		};
 		final MoveFlow fromParkingFlow = new MoveFlow(this, "Depart from the parking", truckRouter.getPortExit(), truckRouter);
 		final ReleaseResourcesFlow relParkingFlow = new ReleaseResourcesFlow(this, "Free parking slot", wgParkSlot);
-		final ExclusiveChoiceFlow choiceDestinationFlow = new ExclusiveChoiceFlow(this);
-		initialDelayFlow.link(toWaitingAreaFlow).link(reqParkingFlow).link(toTransshipmentAreaFlow).link(waitForVesselAtQuayFlow).link(performTransshipmentFlow);
+		toWaitingAreaFlow.link(reqParkingFlow).link(toTransshipmentAreaFlow).link(waitForVesselAtQuayFlow).link(performTransshipmentFlow);
 		performTransshipmentFlow.link(fromParkingFlow).link(relParkingFlow).link(choiceDestinationFlow);
 		
-		final TransshipmentPendingCondition trCond = new TransshipmentPendingCondition();
-		
-		for (TruckSource source : TruckSource.values()) {
-			final MoveFlow toExitFlow = new MoveFlow(this, "Return to exit point", source.getSpawnLocation().getNode(), truckRouter);
-			choiceDestinationFlow.link(toExitFlow, new ElementTypeCondition(truckSources[source.ordinal()]));
-			final MoveFlow toWarehouseFlow = new MoveFlow(this, "Return to warehouse", source.getWarehouseLocation(), truckRouter);
-			final ExclusiveChoiceFlow mustOperateAgainFlow = new ExclusiveChoiceFlow(this);
-			toExitFlow.link(toWarehouseFlow).link(mustOperateAgainFlow);
-			mustOperateAgainFlow.link(toWaitingAreaFlow, trCond);
-		}		
-		return waitForVesselAtAnchorageFlow;
+		return toWaitingAreaFlow;
 	}
 	
 	class QuayCondition extends Condition<ElementInstance> {

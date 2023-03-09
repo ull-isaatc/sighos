@@ -12,7 +12,7 @@ import es.ull.iis.simulation.model.Simulation;
  */
 public class PortParkingExperiment extends Experiment {
 	private static final int NEXP = 1;
-	private static final long ENDTS = 5440;
+	private static final long ENDTS = 6440;
 	private static final String FILE_NAME = System.getProperty("user.dir") + "\\resources\\bootstrap_data.csv";
 	
 	/**

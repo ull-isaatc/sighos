@@ -150,6 +150,7 @@ public class Vessel extends Element {
 			for (VesselTransshipmentOrder order : loadOperations) {
 				if (order.performTransshipmentOrder(truckOrder)) {
 					pendingTones[OperationType.LOAD.ordinal()] -= truckOrder.getTones();
+					simul.notifyInfo(new PortInfo(simul, PortInfo.Type.VESSEL_LOADED, this, truckOrder, getTs()));
 					return true;
 				}
 			}
@@ -184,6 +185,7 @@ public class Vessel extends Element {
 			for (VesselTransshipmentOrder order : unloadOperations) {
 				if (order.performTransshipmentOrder(truckOrder)) {
 					pendingTones[OperationType.UNLOAD.ordinal()] -= truckOrder.getTones();
+					simul.notifyInfo(new PortInfo(simul, PortInfo.Type.VESSEL_UNLOADED, this, truckOrder, getTs()));
 					return true;
 				}
 			}

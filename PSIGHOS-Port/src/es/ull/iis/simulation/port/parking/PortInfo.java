@@ -50,9 +50,17 @@ public class PortInfo extends AsynchronousInfo {
 	/**
 	 * @param simul
 	 */
-	public PortInfo(Simulation simul, Type type, Vessel vessel, long ts) {
+	public PortInfo(Simulation simul, Type type, Vessel vessel, TransshipmentOrder order, long ts) {
 		super(simul, ts);
 		this.type = type;
+		this.truck = null;
+		this.vessel = vessel;
+		this.order = order;
+	}
+	
+	public PortInfo(Simulation simul, Vessel vessel, long ts) {
+		super(simul, ts);
+		this.type = Type.VESSEL_CREATED;
 		this.truck = null;
 		this.vessel = vessel;
 		this.order = null;
@@ -85,20 +93,21 @@ public class PortInfo extends AsynchronousInfo {
 		switch (type) {
 		case TRUCK_LOADED:
 		case TRUCK_UNLOADED:
-			msg += truck.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", order.getTones()) + "/" + String.format(Locale.US, "%.2f", truck.getMaxLoad()) + 
-					"\t" + order.getWares().getDescription();
+			msg += truck.toString() + "\t" + type.getDescription() + "\t" + order.getWares().getDescription() + "\t" + String.format(Locale.US, "%.2f", order.getTones());
 			break;
 		case VESSEL_LOADED:
 		case VESSEL_UNLOADED:
-			msg += vessel.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", vessel.getPendingWorkload()) + "/" + String.format(Locale.US, "%.2f", vessel.getInitWorkload());
+			msg += vessel.toString() + "\t" + type.getDescription() + "\t" + order.getWares().getDescription() + "\t" + String.format(Locale.US, "%.2f", order.getTones());
+//			msg += vessel.toString() + "\t" + type.getDescription() + "\t" + String.format(Locale.US, "%.2f", vessel.getPendingWorkload()) + "/" + String.format(Locale.US, "%.2f", vessel.getInitWorkload());
 			break;
 		case VESSEL_CREATED:
-			msg += vessel.toString() + "\t" + type.getDescription() + "\t";
+			final String baseMsg = msg + vessel.toString() + "\t";
+			msg += vessel.toString() + "\t" + type.getDescription() + System.lineSeparator();
 			for (VesselTransshipmentOrder vOrder : vessel.getUnloadOperations()) {
-				msg += vOrder + " ";
+				msg += baseMsg + "WITH INITIAL " + vOrder.getOpType() + "\t" + vOrder.getWares().getDescription() + "\t" + vOrder.getTones() + System.lineSeparator();
 			}
 			for (VesselTransshipmentOrder vOrder : vessel.getLoadOperations()) {
-				msg += vOrder + " ";
+				msg += baseMsg + "WITH INITIAL " + vOrder.getOpType() + "\t" + vOrder.getWares().getDescription() + "\t" + vOrder.getTones() + System.lineSeparator();
 			}
 			break;			
 		default:
