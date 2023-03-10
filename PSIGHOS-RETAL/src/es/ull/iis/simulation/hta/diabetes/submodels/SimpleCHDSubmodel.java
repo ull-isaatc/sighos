@@ -19,6 +19,7 @@ import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomIntegerSelector;
 import simkit.random.RandomNumber;
@@ -116,10 +117,10 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_MI_MAN, 
 				"Probability of sudden death after MI for men",	"Core Model", 
-				P_DEATH_MI[BasicConfigParams.MAN], SecondOrderParamsRepository.getRandomVariateForProbability(P_DEATH_MI[BasicConfigParams.MAN])));
+				P_DEATH_MI[0], SecondOrderParamsRepository.getRandomVariateForProbability(P_DEATH_MI[0])));
 		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_MI_WOMAN, 
 				"Probability of sudden death after MI for women", "Core Model", 
-				P_DEATH_MI[BasicConfigParams.WOMAN], SecondOrderParamsRepository.getRandomVariateForProbability(P_DEATH_MI[BasicConfigParams.WOMAN])));
+				P_DEATH_MI[1], SecondOrderParamsRepository.getRandomVariateForProbability(P_DEATH_MI[1])));
 		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_STROKE, 
 				"Probability of death after stroke", "Core Model", 
 				P_DEATH_STROKE, SecondOrderParamsRepository.getRandomVariateForProbability(P_DEATH_STROKE)));
@@ -304,7 +305,8 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 						final DiabetesComplicationStage stCHD = CHDSubstates[pCHDComplication.generate(rnd[id][1])];
 						if (BasicConfigParams.USE_CHD_DEATH_MODEL) {
 							if (MI.equals(stCHD)) {
-								prog.addNewEvent(stCHD, timeToCHD, (rndDeath[id] <= pDeathMI[pat.getSex()]));
+								final int sex = Sex.MAN.equals(pat.getSex()) ? 0 : 1;
+								prog.addNewEvent(stCHD, timeToCHD, (rndDeath[id] <= pDeathMI[sex]));
 							}
 							else if (STROKE.equals(stCHD)) {
 								prog.addNewEvent(stCHD, timeToCHD, (rndDeath[id] <= pDeathStroke));							

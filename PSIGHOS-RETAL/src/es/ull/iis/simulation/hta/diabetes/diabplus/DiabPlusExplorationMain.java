@@ -32,6 +32,7 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.TimeFreeOfComplicationsVi
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.simulation.hta.diabetes.params.Discount;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
@@ -56,6 +57,9 @@ public class DiabPlusExplorationMain {
 	private static final double DEF_MIN_HBA1C = 6.0;
 	private static final double DEF_MAX_HBA1C = 14.0;
 	private static final double DEF_INT_HBA1C = 1.0;
+	private static final double DEF_MIN_SHE = 0.0;
+	private static final double DEF_MAX_SHE = 4.0;
+	private static final double DEF_INT_SHE = 2.0;
 	/** How many replications have to be run to show a new progression percentage message */
 	private static final int N_PROGRESS = 20;
 	private final PrintWriter out;
@@ -281,59 +285,65 @@ public class DiabPlusExplorationMain {
 	        if (args1.expHbA1c.size() == 0)
 	        	hba1cLevels = generateExperimentalNumbers(DEF_MIN_HBA1C, DEF_MAX_HBA1C, DEF_INT_HBA1C);
 	        else
-	        	hba1cLevels = generateExperimentalNumbers(args1.expHbA1c.get(0), args1.expHbA1c.get(1), args1.expHbA1c.get(2));
-	    	final boolean man = true;
-	    	final double hypoRate = 0.1;
+	        	hba1cLevels = generateExperimentalNumbers(args1.expHbA1c.get(0), args1.expHbA1c.get(1), args1.expHbA1c.get(2));	        
+	        ArrayList<Double> sheRates = null;
+	        if (args1.expSHEs.size() == 0)
+	        	sheRates = generateExperimentalNumbers(DEF_MIN_SHE, DEF_MAX_SHE, DEF_INT_SHE);
+	        else
+	        	sheRates = generateExperimentalNumbers(args1.expSHEs.get(0), args1.expSHEs.get(1), args1.expSHEs.get(2));
 	    	
 			if (!args1.quiet)
 				out.println(BasicConfigParams.printOptions());
 	        
-			long t = System.currentTimeMillis();	    	
-	    	for (final double age : ages) {
-	    		for (final double onset : onsets) {
-	    			// Only test with valid onset (when the onset age is lower or equal than the current age)
-	    			if (age >= onset) {
-	    				final double duration = age - onset;
-		    	        if (!args1.quiet)
-		    	        	System.out.println("Experiment for age=" + age + "-duration=" + duration);
-		    	    	final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man, hba1cLevels.get(0), age, duration, hypoRate);
-		    	        final SecondOrderParamsRepository secParams = new DiabPlusExplorationSecondOrderRepository(args1.nPatients, population, hba1cLevels);
-		    	    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
-		    	    	final String validity = secParams.checkValidity();
-		    	    	final SecondOrderChronicComplicationSubmodel[] chronicSubmodels = secParams.getRegisteredChronicComplications();
-		    	    	final SecondOrderAcuteComplicationSubmodel[] acuteSubmodels = secParams.getRegisteredAcuteComplications();
-		    	    	for (final String compName : args1.disable) {
-		    	    		boolean found = false;
-		    	    		for (final DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
-		    	    			if (comp.name().equals(compName)) {
-		    	    				found = true;
-		    	    				chronicSubmodels[comp.ordinal()].disable();
-		    	    			}
-		    	    		}
-		    	    		if (!found) {
-		    		    		for (final DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
-		    		    			if (comp.name().equals(compName)) {
-		    		    				found = true;
-		    		    				acuteSubmodels[comp.ordinal()].disable();
-		    		    			}
-		    		    		}
-		    	    		}
-		    	    		if (!found) {
-		    	    			throw new ParameterException("Error using the disable submodel option: could not find complication \"" + compName + "\".");
-		    	    		}
-		    	    	}
-		    	    	if (validity == null) {
-		    	    		final DiabPlusExplorationMain experiment = new DiabPlusExplorationMain(out, secParams, args1.nRuns, timeHorizon, args1.interval, discountCost, discountEffect, args1.parallel, args1.quiet, age, duration);
-		    		        experiment.run();
-		    	    	}
-		    	    	else {
-		    	    		System.err.println("Could not validate model");
-		    	    		System.err.println(validity);
-		    	    	}	    			
+			long t = System.currentTimeMillis();
+			for (Sex sex : Sex.values()) {
+		    	for (final double age : ages) {
+		    		for (final double onset : onsets) {
+		    			// Only test with valid onset (when the onset age is lower or equal than the current age)
+		    			if (age >= onset) {
+		    				for (double hypoRate : sheRates) {
+			    				final double duration = age - onset;
+				    	        if (!args1.quiet)
+				    	        	System.out.println("Experiment for age=" + age + "-duration=" + duration);
+				    	    	final DiabPlusStdPopulation population = new DiabPlusStdPopulation(sex, hba1cLevels.get(0), age, duration, hypoRate);
+				    	        final SecondOrderParamsRepository secParams = new DiabPlusExplorationSecondOrderRepository(args1.nPatients, population, hba1cLevels);
+				    	    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
+				    	    	final String validity = secParams.checkValidity();
+				    	    	final SecondOrderChronicComplicationSubmodel[] chronicSubmodels = secParams.getRegisteredChronicComplications();
+				    	    	final SecondOrderAcuteComplicationSubmodel[] acuteSubmodels = secParams.getRegisteredAcuteComplications();
+				    	    	for (final String compName : args1.disable) {
+				    	    		boolean found = false;
+				    	    		for (final DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+				    	    			if (comp.name().equals(compName)) {
+				    	    				found = true;
+				    	    				chronicSubmodels[comp.ordinal()].disable();
+				    	    			}
+				    	    		}
+				    	    		if (!found) {
+				    		    		for (final DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+				    		    			if (comp.name().equals(compName)) {
+				    		    				found = true;
+				    		    				acuteSubmodels[comp.ordinal()].disable();
+				    		    			}
+				    		    		}
+				    	    		}
+				    	    		if (!found) {
+				    	    			throw new ParameterException("Error using the disable submodel option: could not find complication \"" + compName + "\".");
+				    	    		}
+				    	    	}
+				    	    	if (validity == null) {
+				    	    		final DiabPlusExplorationMain experiment = new DiabPlusExplorationMain(out, secParams, args1.nRuns, timeHorizon, args1.interval, discountCost, discountEffect, args1.parallel, args1.quiet, age, duration);
+				    		        experiment.run();
+				    	    	}
+				    	    	else {
+				    	    		System.err.println("Could not validate model");
+				    	    		System.err.println(validity);
+				    	    	}	    			
+				    		}
+		    			}
 		    		}
-	    		}
-	    	}
-			
+		    	}
+			}
 	        if (!args1.quiet)
 	        	System.out.println("Execution time: " + ((System.currentTimeMillis() - t) / 1000) + " sec");
 	        out.close();
@@ -380,6 +390,9 @@ public class DiabPlusExplorationMain {
 		@Parameter(names = {"--exp_hba1c", "-Eh"}, arity = 3, 
 				description = "The experimental starting HbA1c level to test, expressed as MIN MAX GAP. Default values are: " + DEF_MIN_HBA1C + " " + DEF_MAX_HBA1C + " " + DEF_INT_HBA1C, order = 7)
 		public List<Double> expHbA1c = new ArrayList<>();
+		@Parameter(names = {"--exp_she", "-Es"}, arity = 3, 
+				description = "The experimental severe hypoglycemia rates to test, expressed as MIN MAX GAP. Default values are: " + DEF_MIN_SHE + " " + DEF_MAX_SHE + " " + DEF_INT_SHE, order = 7)
+		public List<Double> expSHEs = new ArrayList<>();
 		
 		@Parameter(names ={"--parallel", "-p"}, description = "Enables parallel execution", order = 5)
 		private boolean parallel = false;

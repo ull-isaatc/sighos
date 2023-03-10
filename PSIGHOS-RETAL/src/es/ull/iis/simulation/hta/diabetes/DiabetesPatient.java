@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
@@ -266,7 +267,7 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	 * Returns the sex assigned to the patient (0: male; 1: female)
 	 * @return The sex assigned to the patient (0: male; 1: female)
 	 */
-	public int getSex() {
+	public Sex getSex() {
 		return profile.getSex();
 	}
 	

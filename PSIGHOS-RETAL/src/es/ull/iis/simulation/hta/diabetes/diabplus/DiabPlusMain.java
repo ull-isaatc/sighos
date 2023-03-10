@@ -44,6 +44,7 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.TimeFreeOfComplicationsVi
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.simulation.hta.diabetes.params.Discount;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
@@ -510,7 +511,7 @@ public class DiabPlusMain {
 			final String manif = jmanif.getString(i);
 			BasicConfigParams.INIT_PROP.put(manif, 1.0);
 		}
-		final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man, baseHbA1cLevel, age, durationOfDiabetes, hypoRate);
+		final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man ? Sex.MAN : Sex.WOMAN, baseHbA1cLevel, age, durationOfDiabetes, hypoRate);
         return new DiabPlusSecondOrderRepository(nPatients, population, objHbA1cLevel, hypoRateRR, annualCost);		
 	}
 	

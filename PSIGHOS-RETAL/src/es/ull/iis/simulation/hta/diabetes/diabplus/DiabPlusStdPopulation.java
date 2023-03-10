@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diabetes.diabplus;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatientProfile;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 
 /**
@@ -14,23 +15,23 @@ import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
  *
  */
 public class DiabPlusStdPopulation implements DiabetesPopulation {
-	final private boolean man;
+	final private Sex sex;
 	final private double hba1c;
 	final private double age;
 	final private double durationOfDiabetes;
 	final private double hypoRate;
 	
-	public DiabPlusStdPopulation(boolean man, double hba1c, double age, double durationOfDiabetes, double hypoRate) {
+	public DiabPlusStdPopulation(Sex sex, double hba1c, double age, double durationOfDiabetes, double hypoRate) {
 		this.age = age;
 		this.durationOfDiabetes = durationOfDiabetes;
 		this.hba1c = hba1c;
-		this.man = man;
+		this.sex = sex;
 		this.hypoRate = hypoRate;
 	}
 
 	@Override
 	public DiabetesPatientProfile getPatientProfile() {
-		return new DiabetesPatientProfile(age, man ? 1 : 0, durationOfDiabetes, hba1c, 
+		return new DiabetesPatientProfile(age, sex, durationOfDiabetes, hba1c, 
 				false, false, BasicConfigParams.DEFAULT_SBP, BasicConfigParams.DEFAULT_LIPID_RATIO);
 	}
 

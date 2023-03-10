@@ -21,6 +21,7 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.TimeToEventParam;
 import es.ull.iis.simulation.hta.diabetes.params.UniqueEventParam;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.ExtendedMath;
 import es.ull.iis.util.Statistics;
@@ -188,10 +189,10 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 				P_DEATH_STROKE));
 		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_MI_MAN, 
 				"Probability of sudden death after POST_MI for men",	"Core Model", 
-				P_DEATH_MI[BasicConfigParams.MAN]));
+				P_DEATH_MI[0]));
 		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_MI_WOMAN, 
 				"Probability of sudden death after POST_MI for women", "Core Model", 
-				P_DEATH_MI[BasicConfigParams.WOMAN]));
+				P_DEATH_MI[1]));
 
 		// TODO: They are HR, not RR, so revision is required
 		secParams.addIMRParam(DiabetesChronicComplications.CHD,  
@@ -234,7 +235,8 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 			final double duration = pat.getDurationOfDiabetes();
 			final int smoker = pat.isSmoker() ? 1 : 0;
 			final int af = pat.hasAtrialFibrillation() ? 1 : 0;
-			final double q = 0.00186 * Math.pow(1.092, age - duration - 55) * Math.pow(0.7, pat.getSex()) * Math.pow(1.547, smoker) * Math.pow(8.554, af) 
+			final int sex = Sex.MAN.equals(pat.getSex()) ? 0 : 1;
+			final double q = 0.00186 * Math.pow(1.092, age - duration - 55) * Math.pow(0.7, sex) * Math.pow(1.547, smoker) * Math.pow(8.554, af) 
 					* Math.pow(1.122,  (pat.getSbp() - 135.5) / 10) * Math.pow(1.138,  pat.getLipidRatio() - 5.11);
 			final double aux = q * Math.pow(K, duration) / ONE_MINUS_K;
 			
@@ -262,7 +264,8 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 			final double age = pat.getAge();
 			final double duration = pat.getDurationOfDiabetes();
 			final int smoker = pat.isSmoker() ? 1 : 0;
-			final double q = 0.0112 * Math.pow(1.059, age - duration - 55) * Math.pow(0.525, pat.getSex()) * Math.pow(1.350, smoker) 
+			final int sex = Sex.MAN.equals(pat.getSex()) ? 0 : 1;
+			final double q = 0.0112 * Math.pow(1.059, age - duration - 55) * Math.pow(0.525, sex) * Math.pow(1.350, smoker) 
 					* Math.pow(1.183,  pat.getHba1c() - 6.72) * Math.pow(1.088,  (pat.getSbp() - 135.7) / 10) * Math.pow(3.845,  Math.log(pat.getLipidRatio()) - 1.59);
 			
 			final double time = Math.log(1 + Math.log(1 - draw(pat)) * ONE_MINUS_D / q) / LN_D;
@@ -301,7 +304,7 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 		
 		@Override
 		public double getRR(DiabetesPatient pat) {
-			if (BasicConfigParams.WOMAN == pat.getSex()) {
+			if (Sex.WOMAN.equals(pat.getSex())) {
 				return (pat.getAge() < 70) ? rrFemale16 : rrFemale70;
 			}
 			return (pat.getAge() < 70) ? 1.0 : rrMale70;
@@ -436,8 +439,10 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 					if (previousTimeToMI < Long.MAX_VALUE) {
 						prog.addCancelEvent(POST_MI);
 					}
-					if (BasicConfigParams.USE_CHD_DEATH_MODEL)
-						prog.addNewEvent(POST_MI, timeToMI, rndDeathMI[id][0] <= pDeathMI[pat.getSex()]);
+					if (BasicConfigParams.USE_CHD_DEATH_MODEL) {
+						final int sex = Sex.MAN.equals(pat.getSex()) ? 0 : 1;
+						prog.addNewEvent(POST_MI, timeToMI, rndDeathMI[id][0] <= pDeathMI[sex]);
+					}
 					else
 						prog.addNewEvent(POST_MI, timeToMI);
 				}						

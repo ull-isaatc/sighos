@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diabetes.populations;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatientProfile;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
@@ -58,7 +59,7 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 
 	@Override
 	public DiabetesPatientProfile getPatientProfile() {
-		final int sex = (rng.draw() < pMan) ? BasicConfigParams.MAN : BasicConfigParams.WOMAN;
+		final Sex sex = (rng.draw() < pMan) ? Sex.MAN : Sex.WOMAN;
 		final double initAge = Math.min(Math.max(baselineAge.generate(), getMinAge()), getMaxAge());	
 		final double duration = Math.min(initAge, baselineDurationOfDiabetes.generate());
 		return new DiabetesPatientProfile(initAge, sex, duration, baselineHBA1c.generate(), 

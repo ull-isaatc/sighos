@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.diabetes;
 
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 
 /**
@@ -23,8 +24,8 @@ public class DiabetesPatientProfile {
 	private final TreeMap<String, Boolean> boolProperties;
 	/** Initial age of the patient (stored as years) */
 	private final double initAge;
-	/** Sex of the patient: 0 for men, 1 for women */
-	private final int sex;
+	/** Sex of the patient */
+	private final Sex sex;
 	/** Duration of diabetes at the creation of the patient (as years) */
 	private final double initDurationOfDiabetes; 
 	/** Initial level of HBA1c */
@@ -45,7 +46,7 @@ public class DiabetesPatientProfile {
 	 * @param initDurationOfDiabetes Duration of diabetes at the creation of the patient
 	 * @param initHbA1c HbA1c level at the creation of the patient
 	 */
-	public DiabetesPatientProfile(final double initAge, final int sex, final double initDurationOfDiabetes, final double initHbA1c, 
+	public DiabetesPatientProfile(final double initAge, final Sex sex, final double initDurationOfDiabetes, final double initHbA1c, 
 			boolean smoker, boolean atrialFib, double sbp, double lipidRatio) {
 		intProperties = new TreeMap<>();
 		doubleProperties = new TreeMap<>();
@@ -64,7 +65,7 @@ public class DiabetesPatientProfile {
 	 * Returns the sex assigned to the patient (0: male; 1: female)
 	 * @return The sex assigned to the patient (0: male; 1: female)
 	 */
-	public int getSex() {
+	public Sex getSex() {
 		return sex;
 	}
 

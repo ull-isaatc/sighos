@@ -12,6 +12,7 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.simulation.hta.retal.params.ModelParams;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
@@ -139,7 +140,7 @@ public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 				}
 			}
 			final double age = pat.getAge();
-			final int sex = pat.getSex();
+			final int sex = Sex.MAN.equals(pat.getSex()) ? 0 : 1;
 			final double rnd = this.rnd[pat.getIdentifier()];
 			
 			final double reference = INV_SURVIVAL[sex][100 - (int)age];
@@ -160,7 +161,8 @@ public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 					}
 				}
 			}
-			final double time = Math.min(ModelParams.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), rnd[pat.getIdentifier()] / imr), BasicConfigParams.DEF_MAX_AGE - pat.getAge());
+			final int sex = Sex.MAN.equals(pat.getSex()) ? 0 : 1;
+			final double time = Math.min(ModelParams.generateGompertz(ALPHA_DEATH[sex], BETA_DEATH[sex], pat.getAge(), rnd[pat.getIdentifier()] / imr), BasicConfigParams.DEF_MAX_AGE - pat.getAge());
 			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 		}
 	}

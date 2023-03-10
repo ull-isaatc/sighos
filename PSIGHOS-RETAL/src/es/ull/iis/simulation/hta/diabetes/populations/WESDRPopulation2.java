@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diabetes.populations;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatientProfile;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
@@ -103,7 +104,7 @@ public class WESDRPopulation2 implements DiabetesPopulation {
 
 	@Override
 	public DiabetesPatientProfile getPatientProfile() {
-		final int sex = (rng.draw() < P_MAN) ? BasicConfigParams.MAN : BasicConfigParams.WOMAN;
+		final Sex sex = (rng.draw() < P_MAN) ? Sex.MAN : Sex.WOMAN;
 	
 		final double p = (double)patientCounter / (double)nPatients;
 		int i = 0;

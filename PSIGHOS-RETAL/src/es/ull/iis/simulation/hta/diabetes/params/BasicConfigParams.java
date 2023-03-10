@@ -20,10 +20,10 @@ public class BasicConfigParams {
 	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
 	/** The factor to expressed a simulation timestamp in years */ 
 	public final static double YEAR_CONVERSION = SIMUNIT.convert(TimeStamp.getYear());
-	/** Identifier code for men */
-	public final static int MAN = 0;
-	/** Identifier code for women */
-	public final static int WOMAN = 1;
+	public enum Sex {
+		MAN,
+		WOMAN
+	}
 	/** Minimum time among consecutive events. */  
 	public final static long MIN_TIME_TO_EVENT = SIMUNIT.convert(TimeStamp.getMonth());
 
