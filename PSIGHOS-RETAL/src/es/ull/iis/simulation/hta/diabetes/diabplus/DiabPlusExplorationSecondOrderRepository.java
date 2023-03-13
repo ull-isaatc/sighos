@@ -35,33 +35,16 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsRepository {
-	final private TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> exclusions;
+	final private static TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> EXCLUSIONS;
+	final private static ArrayList<ArrayList<TreeSet<DiabetesComplicationStage>>> STAGE_COMBINATIONS;
 	final private static ArrayList<DiabetesComplicationStage> STAGES;
-	final private static ArrayList<DiabetesComplicationStage> RND_STAGES;
+	final private static int MAX_COMBINATION_SIZE = 3;
+	final private static int[] COMBINATION_COUNTER = new int[MAX_COMBINATION_SIZE];
 	static {
-		STAGES = new ArrayList<>();
-		int order = 0;
-		// Complications of retinopathy
-		for (DiabetesComplicationStage stage : SheffieldRETSubmodel.RETSubstates) {
-			STAGES.add(stage);
-			stage.setOrder(order++);
-		}
-		// Complications of nephropathy
-		for (DiabetesComplicationStage stage : SheffieldNPHSubmodel.STAGES) {
-			STAGES.add(stage);
-			stage.setOrder(order++);
-		}
-		// Complications of CHD
-		for (DiabetesComplicationStage stage : SimpleCHDSubmodel.CHDSubstates) {
-			STAGES.add(stage);
-			stage.setOrder(order++);
-		}
-		// Complications of neuropathy
-		for (DiabetesComplicationStage stage : SimpleNEUSubmodel.NEUSubstates) {
-			STAGES.add(stage);
-			stage.setOrder(order++);
-		}
-		RND_STAGES = new ArrayList<>(STAGES);
+		STAGES = initializeStages();
+		EXCLUSIONS = initializeExclusions();
+		STAGE_COMBINATIONS = initializeStageCombinations();		
+		shuffleCombinations();
 	}
 
 	protected DiabPlusExplorationSecondOrderRepository(int nPatients, DiabPlusStdPopulation population, ArrayList<Double> hba1cLevels) {
@@ -71,8 +54,6 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 		registerComplication(new SheffieldNPHSubmodel());
 		registerComplication(new SimpleCHDSubmodel());
 		registerComplication(new SimpleNEUSubmodel());
-		
-		this.exclusions = initializeExclusions();
 		
 		final StandardSevereHypoglycemiaEvent hypoEvent = new StandardSevereHypoglycemiaEvent(
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_P_HYPO, "Annual rate of severe hypoglycemia events", "Assumption", population.getHypoRate()), 
@@ -98,7 +79,7 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 	 * Initializes an exclusion list to take into account stages that should not affect a patient at the same time 
 	 * @return A map where each key is a stage of a chronic complication, and the values are those other stages that cannot affect the patient at the same time 
 	 */
-	private TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> initializeExclusions() {
+	private static TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> initializeExclusions() {
 		final TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> exclusions = new TreeMap<>();
 		TreeSet<DiabetesComplicationStage> excl;
 		
@@ -149,11 +130,85 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 		return exclusions;
 	}
 	
+	private static ArrayList<DiabetesComplicationStage> initializeStages() {
+		ArrayList<DiabetesComplicationStage> stages = new ArrayList<>();
+		int order = 0;
+		// Complications of retinopathy
+		for (DiabetesComplicationStage stage : SheffieldRETSubmodel.RETSubstates) {
+			stages.add(stage);
+			stage.setOrder(order++);
+		}
+		// Complications of nephropathy
+		for (DiabetesComplicationStage stage : SheffieldNPHSubmodel.STAGES) {
+			stages.add(stage);
+			stage.setOrder(order++);
+		}
+		// Complications of CHD
+		for (DiabetesComplicationStage stage : SimpleCHDSubmodel.CHDSubstates) {
+			stages.add(stage);
+			stage.setOrder(order++);
+		}
+		// Complications of neuropathy
+		for (DiabetesComplicationStage stage : SimpleNEUSubmodel.NEUSubstates) {
+			stages.add(stage);
+			stage.setOrder(order++);
+		}
+		return stages;
+	}
+	
+	private static ArrayList<ArrayList<TreeSet<DiabetesComplicationStage>>> initializeStageCombinations() {
+		ArrayList<ArrayList<TreeSet<DiabetesComplicationStage>>> combinations = new ArrayList<>();
+		// Create combinations up to three stages
+		for (int i = 0; i < MAX_COMBINATION_SIZE; i++) {
+			combinations.add(new ArrayList<>());
+		}
+		for (int i = 0; i < STAGES.size(); i++) {
+			// Create combinations of just one stage
+			final DiabetesComplicationStage stage1 = STAGES.get(i);
+			TreeSet<DiabetesComplicationStage> comb1 = new TreeSet<>();
+			comb1.add(stage1);
+			combinations.get(0).add(comb1);			
+			// Create combinations of two stages
+			for (int j = i + 1; j < STAGES.size(); j++) {
+				final DiabetesComplicationStage stage2 = STAGES.get(j);
+				if (!EXCLUSIONS.get(stage1).contains(stage2)) {
+					TreeSet<DiabetesComplicationStage> comb2 = new TreeSet<>(comb1);
+					comb2.add(stage2);
+					combinations.get(1).add(comb2);			
+					// Create combinations of three stages
+					for (int k = j + 1; k < STAGES.size(); k++) {
+						final DiabetesComplicationStage stage3 = STAGES.get(k);
+						if (!EXCLUSIONS.get(stage1).contains(stage3) && !EXCLUSIONS.get(stage2).contains(stage3)) {
+							TreeSet<DiabetesComplicationStage> comb3 = new TreeSet<>(comb2);
+							comb3.add(stage3);
+							combinations.get(2).add(comb3);			
+						}
+					}
+				}
+			}
+		}
+		return combinations;		
+	}
+	
+	private static void shuffleCombinations() {
+		for (int i = 0; i < MAX_COMBINATION_SIZE; i++) {
+			Collections.shuffle(STAGE_COMBINATIONS.get(i));
+			COMBINATION_COUNTER[i] = 0;
+		}
+	}
 	/**
 	 * @return the exclusions
 	 */
-	public TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> getExclusions() {
-		return exclusions;
+	public static TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> getExclusions() {
+		return EXCLUSIONS;
+	}
+	
+	public static ArrayList<TreeSet<DiabetesComplicationStage>> getStageCombinations(int size) {
+		if (size == 0) 
+			return new ArrayList<>();
+		if (size > MAX_COMBINATION_SIZE)
+			return null;
+		return STAGE_COMBINATIONS.get(size - 1);
 	}
 
 	/**
@@ -162,30 +217,17 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 	 * @param size Maximum size of the collection
 	 * @return A random collection of initial chronic complication stages for a patient
 	 */
-	public TreeSet<DiabetesComplicationStage> getRndCollectionOfStages(int size) {
-		// Orders the list randomly
-		Collections.shuffle(RND_STAGES);
-		final TreeSet<DiabetesComplicationStage> stages = new TreeSet<>();
-		final TreeSet<DiabetesComplicationStage> excl = new TreeSet<>();
-		if (size > 0) {
-			// Iterates to build the list of "compatible" stages
-			for (int i = 0; i < size; i++) {
-				int candidateIndex = i;
-				boolean found = false;
-				// Iterates over the random ordered list
-				while (!found && candidateIndex < size) {
-					final DiabetesComplicationStage candidate = RND_STAGES.get(candidateIndex);
-					if (!excl.contains(candidate)) {
-						stages.add(candidate);
-						excl.addAll(exclusions.get(candidate));
-						found = true;
-					}
-					candidateIndex++;
-				}
-			}
-		}
+	public static TreeSet<DiabetesComplicationStage> getRndCollectionOfStages(int size) {
+		final ArrayList<TreeSet<DiabetesComplicationStage>> combinations = getStageCombinations(size);
+		if (size > MAX_COMBINATION_SIZE)
+			return null;
+		if (combinations.size() == 0)
+			return new TreeSet<>();
+		final TreeSet<DiabetesComplicationStage> stages = combinations.get(COMBINATION_COUNTER[size - 1]);
+		COMBINATION_COUNTER[size - 1] = (COMBINATION_COUNTER[size - 1] + 1) % combinations.size();
 		return stages;
 	}
+	
 	@Override
 	public CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
 		return new SubmodelCostCalculator(cDNC, submodels, acuteSubmodels);
@@ -203,5 +245,33 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 			str += stage + ":";
 		}
 		return str;
+	}
+
+	public static void main(String[] args) {
+		for (int size = 0; size <= 3; size++) {
+			ArrayList<TreeSet<DiabetesComplicationStage>> comb = getStageCombinations(size);
+			Collections.shuffle(comb);
+			if (comb.size() == 0) {
+				System.out.println("No Combinations of level " + size);
+			}
+			else {
+				System.out.println("Combinations of level " + size);
+				for (TreeSet<DiabetesComplicationStage> stages : comb) {
+					System.out.println(print(stages));
+				}
+			}
+		}
+		System.out.println("Get random element of size 0");
+		System.out.println(print(getRndCollectionOfStages(0)));
+		System.out.println("Get random elements of size 1");
+		for (int i = 0; i < 15; i++)
+			System.out.println(print(getRndCollectionOfStages(1)));
+//		System.out.println(print(getRndCollectionOfStages(1)));
+		System.out.println("Get random elements of size 2");
+		System.out.println(print(getRndCollectionOfStages(2)));
+		System.out.println(print(getRndCollectionOfStages(2)));
+		System.out.println("Get random elements of size 3");
+		System.out.println(print(getRndCollectionOfStages(3)));
+		System.out.println(print(getRndCollectionOfStages(3)));
 	}
 }

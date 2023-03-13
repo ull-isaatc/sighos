@@ -62,9 +62,9 @@ public class DiabPlusExplorationMain {
 	private static final double DEF_MIN_SHE = 0.0;
 	private static final double DEF_MAX_SHE = 4.0;
 	private static final double DEF_INT_SHE = 2.0;
-	private static final int DEF_COMB1_INIT_MANIF = 2;
-	private static final int DEF_COMB2_INIT_MANIF = 2;
-	private static final int DEF_COMB3_INIT_MANIF = 0;
+	private static final int DEF_COMB1_INIT_MANIF = 3;
+	private static final int DEF_COMB2_INIT_MANIF = 3;
+	private static final int DEF_COMB3_INIT_MANIF = 3;
 	/** How many replications have to be run to show a new progression percentage message */
 	private static final int N_PROGRESS = 20;
 	private final PrintWriter out;
@@ -225,7 +225,7 @@ public class DiabPlusExplorationMain {
     	final DiabPlusStdPopulation population = new DiabPlusStdPopulation(sex, hba1cLevels.get(0), age, duration, hypoRate);
     	
         final DiabPlusExplorationSecondOrderRepository secParams = new DiabPlusExplorationSecondOrderRepository(args1.nPatients, population, hba1cLevels);
-		final TreeSet<DiabetesComplicationStage> initManifestations = secParams.getRndCollectionOfStages(combLevel); 
+		final TreeSet<DiabetesComplicationStage> initManifestations = DiabPlusExplorationSecondOrderRepository.getRndCollectionOfStages(combLevel); 
 		
 		// Hard-coded here, since the proper way of doing it is via BasicConfigParams, but only if the stages could be defined before the repository, and that's not possible
         for (final DiabetesComplicationStage stage : initManifestations) {
@@ -321,6 +321,7 @@ public class DiabPlusExplorationMain {
 			final PrintWriter outSummary = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName + STR_FILENAME_ROOT + "_" + expId + "_SUMMARY" + STR_FILENAME_EXT)));
 			outSummary.println(BasicConfigParams.printOptions());
 			long t = System.currentTimeMillis();
+			int nExp = 0;
 			for (Sex sex : Sex.values()) {
 		    	for (final double age : ages) {
 		    		for (final double onset : onsets) {
@@ -332,18 +333,21 @@ public class DiabPlusExplorationMain {
 		    				for (double hypoRate : sheRates) {
 		    					// First launch the experiments for no initial manifestations
 	    						launchExperiments(out, sex, age, duration, hypoRate, hba1cLevels, 0);
+	    						nExp++;
 	    						// then launches the experiments for each level of combination of initial manifestations
 		    					for (int manifCombLevel = 1; manifCombLevel <= 3; manifCombLevel++) {
 		    						for (int combId = 0; combId < initManif.get(manifCombLevel - 1); combId++) {
 		    							launchExperiments(out, sex, age, duration, hypoRate, hba1cLevels, manifCombLevel);
+			    						nExp++;
 		    						}
 					    		}
 		    				}
+		    				out.close();
 		    			}
 		    		}
 		    	}
 			}
-        	final String msg = "Execution time: " + ((System.currentTimeMillis() - t) / 1000) + " sec";
+        	final String msg = "NEXP=" +  nExp + "\tEXEC_TIME_SECONDS=" + ((System.currentTimeMillis() - t) / 1000);
         	if (!args1.quiet)
         		System.out.println(msg);
         	outSummary.println(msg);
