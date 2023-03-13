@@ -5,7 +5,10 @@ package es.ull.iis.simulation.hta.diabetes.diabplus;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.outcomes.SubmodelCostCalculator;
@@ -31,6 +34,7 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsRepository {
+	final private TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> exclusions;
 
 	protected DiabPlusExplorationSecondOrderRepository(int nPatients, DiabPlusStdPopulation population, ArrayList<Double> hba1cLevels) {
 		super(nPatients, population);
@@ -40,6 +44,7 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 		registerComplication(new SimpleCHDSubmodel());
 		registerComplication(new SimpleNEUSubmodel());
 		
+		exclusions = initializeExclusions();
 		final StandardSevereHypoglycemiaEvent hypoEvent = new StandardSevereHypoglycemiaEvent(
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_P_HYPO, "Annual rate of severe hypoglycemia events", "Assumption", population.getHypoRate()), 
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_RR_HYPO, "No RR", "Assumption", 1.0), 
@@ -60,6 +65,64 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
 
+	private TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> initializeExclusions() {
+		final TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> exclusions = new TreeMap<>();
+		TreeSet<DiabetesComplicationStage> excl;
+		// Complications of retinopathy
+		for (DiabetesComplicationStage stage : SheffieldRETSubmodel.RETSubstates) {
+			excl = new TreeSet<>();
+			// Exclude themselves
+			excl.add(stage);
+			exclusions.put(stage, excl);
+		}
+		excl = exclusions.get(SheffieldRETSubmodel.BGRET);
+		excl.add(SheffieldRETSubmodel.PRET);
+		excl.add(SheffieldRETSubmodel.BLI);
+		excl = exclusions.get(SheffieldRETSubmodel.PRET);
+		excl.add(SheffieldRETSubmodel.BGRET);
+		excl.add(SheffieldRETSubmodel.BLI);
+		excl = exclusions.get(SheffieldRETSubmodel.BLI);
+		excl.add(SheffieldRETSubmodel.BGRET);
+		excl.add(SheffieldRETSubmodel.PRET);
+		excl.add(SheffieldRETSubmodel.ME);
+		excl = exclusions.get(SheffieldRETSubmodel.ME);
+		excl.add(SheffieldRETSubmodel.BLI);
+		
+		// Complications of nephropathy
+		for (DiabetesComplicationStage stage : SheffieldNPHSubmodel.STAGES) {
+			excl = new TreeSet<>();
+			// Exclude everything else
+			for (DiabetesComplicationStage otherStage : SheffieldNPHSubmodel.STAGES)
+				excl.add(otherStage);
+			exclusions.put(stage, excl);
+		}
+
+		// Complications of neuropathy
+		for (DiabetesComplicationStage stage : SimpleNEUSubmodel.NEUSubstates) {
+			excl = new TreeSet<>();
+			// Exclude everything else
+			for (DiabetesComplicationStage otherStage : SimpleNEUSubmodel.NEUSubstates)
+				excl.add(otherStage);
+			exclusions.put(stage, excl);
+		}
+
+		// Complications of CHD
+		for (DiabetesComplicationStage stage : SimpleCHDSubmodel.CHDSubstates) {
+			excl = new TreeSet<>();
+			// Exclude everything else
+			for (DiabetesComplicationStage otherStage : SimpleCHDSubmodel.CHDSubstates)
+				excl.add(otherStage);
+			exclusions.put(stage, excl);
+		}
+		return exclusions;		
+	}
+	
+	/**
+	 * @return the exclusions
+	 */
+	public TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> getExclusions() {
+		return exclusions;
+	}
 
 	@Override
 	public CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
