@@ -4,23 +4,24 @@
 package es.ull.iis.simulation.hta.diabetes.diabplus;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.InvalidPathException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
-import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
+import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AcuteComplicationCounterListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.CostListener;
@@ -34,11 +35,10 @@ import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesInter
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.simulation.hta.diabetes.params.Discount;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.params.StdDiscount;
-import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderAcuteComplicationSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicationSubmodel;
 
 /**
  * Main class to launch exploratory simulation experiments
@@ -48,6 +48,8 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicati
  *
  */
 public class DiabPlusExplorationMain {
+	private static final String STR_FILENAME_ROOT = "\\res";
+	private static final String STR_FILENAME_EXT = ".txt";
 	private static final int DEF_MIN_AGE = 20;
 	private static final int DEF_MAX_AGE = 50;
 	private static final int DEF_INT_AGE = 5;
@@ -60,43 +62,42 @@ public class DiabPlusExplorationMain {
 	private static final double DEF_MIN_SHE = 0.0;
 	private static final double DEF_MAX_SHE = 4.0;
 	private static final double DEF_INT_SHE = 2.0;
+	private static final int DEF_COMB1_INIT_MANIF = 2;
+	private static final int DEF_COMB2_INIT_MANIF = 2;
+	private static final int DEF_COMB3_INIT_MANIF = 0;
 	/** How many replications have to be run to show a new progression percentage message */
 	private static final int N_PROGRESS = 20;
 	private final PrintWriter out;
 	private final ArrayList<SecondOrderDiabetesIntervention> interventions;
 	/** Number of simulations to run */
-	private final int nRuns;
+	private static int nRuns;
 	/** Number of patients to be generated during each simulation */
 	private final int nPatients;
 	private final SecondOrderParamsRepository secParams;
-	private final Discount discountCost;
-	private final Discount discountEffect;
+	private static Discount discountCost;
+	private static Discount discountEffect;
+	private static Arguments args1;
 	private final PrintProgress progress;
 	/** Enables parallel execution of simulations */
-	private final boolean parallel;
+	private static boolean parallel;
 	/** Disables most messages */
-	private final boolean quiet;
+	private static boolean quiet;
 	/** Time horizon for the simulation */
 	private final int timeHorizon;
 	private final double initAge;
 	private final double duration;
 	private final int intervalLength; 
 	
-	public DiabPlusExplorationMain(PrintWriter out, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, int intervalLength, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, double initAge, double duration) {
+	public DiabPlusExplorationMain(PrintWriter out, SecondOrderParamsRepository secParams, int timeHorizon, int intervalLength, double initAge, double duration) {
 		super();
 		this.initAge = initAge;
 		this.duration = duration;
 		this.timeHorizon = timeHorizon;
 		this.intervalLength = intervalLength;
 		this.out = out;
-		this.discountCost = discountCost;
-		this.discountEffect = discountEffect;
 		this.interventions = secParams.getRegisteredInterventions();
-		this.nRuns = nRuns;
 		this.nPatients = secParams.getnPatients();
 		this.secParams = secParams;
-		this.parallel = parallel;
-		this.quiet = quiet;
 		progress = new PrintProgress((nRuns > N_PROGRESS) ? nRuns/N_PROGRESS : 1, nRuns + 1);
 	}
 	
@@ -220,8 +221,35 @@ public class DiabPlusExplorationMain {
 		}
 	}
 	
+	private static void launchExperiments(PrintWriter out, Sex sex, double age, double duration, double hypoRate, ArrayList<Double> hba1cLevels, int combLevel) {
+    	final DiabPlusStdPopulation population = new DiabPlusStdPopulation(sex, hba1cLevels.get(0), age, duration, hypoRate);
+    	
+        final DiabPlusExplorationSecondOrderRepository secParams = new DiabPlusExplorationSecondOrderRepository(args1.nPatients, population, hba1cLevels);
+		final TreeSet<DiabetesComplicationStage> initManifestations = secParams.getRndCollectionOfStages(combLevel); 
+		
+		// Hard-coded here, since the proper way of doing it is via BasicConfigParams, but only if the stages could be defined before the repository, and that's not possible
+        for (final DiabetesComplicationStage stage : initManifestations) {
+			secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getInitProbString(stage), "Initial proportion of " + stage.name(), "", 1.0));
+        }
+		final String msg = "EXPERIMENT FOR SEX=" + sex + "\tAGE=" + age + "\tDURATION=" + duration + "\tHYPO_RATE=" + hypoRate + "\tINIT_MANIF=" + DiabPlusExplorationSecondOrderRepository.print(initManifestations);
+        if (!args1.quiet)
+        	System.out.println(msg);
+        out.println(msg);
+        
+    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
+    	final String validity = secParams.checkValidity();
+    	if (validity == null) {
+    		final DiabPlusExplorationMain experiment = new DiabPlusExplorationMain(out, secParams, timeHorizon, args1.interval, age, duration);
+	        experiment.run();
+    	}
+    	else {
+    		System.err.println("Could not validate model");
+    		System.err.println(validity);
+    	}	    			
+		
+	}
 	public static void main(String[] args) {
-		final Arguments args1 = new Arguments();
+		args1 = new Arguments();
 		try {
 			JCommander jc = JCommander.newBuilder()
 			  .addObject(args1)
@@ -233,12 +261,6 @@ public class DiabPlusExplorationMain {
 	        BasicConfigParams.N_RUNS = args1.nRuns;
 	        BasicConfigParams.N_PATIENTS = args1.nPatients;
 
-	        for (final Map.Entry<String, String> pInit : args1.initProportions.entrySet()) {
-	        	BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
-	        }
-
-    		final Discount discountCost;
-    		final Discount discountEffect;
     		// Zero discount by default
     		if (args1.discount.size() == 0) {
 	    		discountCost = Discount.zeroDiscount;
@@ -255,20 +277,12 @@ public class DiabPlusExplorationMain {
     			discountCost = (valueCost == 0.0) ? Discount.zeroDiscount : new StdDiscount(valueCost);
     			discountEffect = (valueEffect == 0.0) ? Discount.zeroDiscount : new StdDiscount(valueEffect);
     		}
-    		
-    		// Set outputs: different files for simulation outputs and for other outputs. If no file name is specified or an error arises, standard output is used
-			PrintWriter out;
-	        if (args1.outputFileName == null) {
-	        	out = new PrintWriter(System.out);
-	        }
-	        else  {
-	        	try {
-	        		out = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName)));
-				} catch (IOException e) {
-					e.printStackTrace();
-					out = new PrintWriter(System.out);
-				}
-
+    		parallel = args1.parallel;
+    		quiet = args1.quiet;
+    		// Checks the output: it must be a folder; otherwise, an InvalidPathException arise
+			File dir = new File(args1.outputFileName);
+			if (!dir.isDirectory()) {
+				throw new InvalidPathException(args1.outputFileName, "Output must be a folder");
 	        }
 	    	
 	        ArrayList<Double> onsets = null;
@@ -291,62 +305,49 @@ public class DiabPlusExplorationMain {
 	        	sheRates = generateExperimentalNumbers(DEF_MIN_SHE, DEF_MAX_SHE, DEF_INT_SHE);
 	        else
 	        	sheRates = generateExperimentalNumbers(args1.expSHEs.get(0), args1.expSHEs.get(1), args1.expSHEs.get(2));
+	        ArrayList<Integer> initManif = new ArrayList<>();
+	        if (args1.expInitManif.size() == 0) {
+	        	initManif.add(DEF_COMB1_INIT_MANIF);
+	        	initManif.add(DEF_COMB2_INIT_MANIF);
+	        	initManif.add(DEF_COMB3_INIT_MANIF);
+	        }
+	        else {
+	        	initManif.add(args1.expInitManif.get(0));
+	        	initManif.add(args1.expInitManif.get(1));
+	        	initManif.add(args1.expInitManif.get(2));
+	        }
 	    	
-			if (!args1.quiet)
-				out.println(BasicConfigParams.printOptions());
-	        
+	        final String expId = new SimpleDateFormat("yyyyMMdd").format(new Date());
+			final PrintWriter outSummary = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName + STR_FILENAME_ROOT + "_" + expId + "_SUMMARY" + STR_FILENAME_EXT)));
+			outSummary.println(BasicConfigParams.printOptions());
 			long t = System.currentTimeMillis();
 			for (Sex sex : Sex.values()) {
 		    	for (final double age : ages) {
 		    		for (final double onset : onsets) {
 		    			// Only test with valid onset (when the onset age is lower or equal than the current age)
 		    			if (age >= onset) {
+		    				final double duration = age - onset;
+		    				final String fileName = args1.outputFileName + STR_FILENAME_ROOT + "_" + expId + "_" + sex + "_" + age + "_" + duration + STR_FILENAME_EXT;
+		    				final PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
 		    				for (double hypoRate : sheRates) {
-			    				final double duration = age - onset;
-				    	        if (!args1.quiet)
-				    	        	System.out.println("Experiment for age=" + age + "-duration=" + duration);
-				    	    	final DiabPlusStdPopulation population = new DiabPlusStdPopulation(sex, hba1cLevels.get(0), age, duration, hypoRate);
-				    	        final SecondOrderParamsRepository secParams = new DiabPlusExplorationSecondOrderRepository(args1.nPatients, population, hba1cLevels);
-				    	    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
-				    	    	final String validity = secParams.checkValidity();
-				    	    	final SecondOrderChronicComplicationSubmodel[] chronicSubmodels = secParams.getRegisteredChronicComplications();
-				    	    	final SecondOrderAcuteComplicationSubmodel[] acuteSubmodels = secParams.getRegisteredAcuteComplications();
-				    	    	for (final String compName : args1.disable) {
-				    	    		boolean found = false;
-				    	    		for (final DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
-				    	    			if (comp.name().equals(compName)) {
-				    	    				found = true;
-				    	    				chronicSubmodels[comp.ordinal()].disable();
-				    	    			}
-				    	    		}
-				    	    		if (!found) {
-				    		    		for (final DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
-				    		    			if (comp.name().equals(compName)) {
-				    		    				found = true;
-				    		    				acuteSubmodels[comp.ordinal()].disable();
-				    		    			}
-				    		    		}
-				    	    		}
-				    	    		if (!found) {
-				    	    			throw new ParameterException("Error using the disable submodel option: could not find complication \"" + compName + "\".");
-				    	    		}
-				    	    	}
-				    	    	if (validity == null) {
-				    	    		final DiabPlusExplorationMain experiment = new DiabPlusExplorationMain(out, secParams, args1.nRuns, timeHorizon, args1.interval, discountCost, discountEffect, args1.parallel, args1.quiet, age, duration);
-				    		        experiment.run();
-				    	    	}
-				    	    	else {
-				    	    		System.err.println("Could not validate model");
-				    	    		System.err.println(validity);
-				    	    	}	    			
-				    		}
+		    					// First launch the experiments for no initial manifestations
+	    						launchExperiments(out, sex, age, duration, hypoRate, hba1cLevels, 0);
+	    						// then launches the experiments for each level of combination of initial manifestations
+		    					for (int manifCombLevel = 1; manifCombLevel <= 3; manifCombLevel++) {
+		    						for (int combId = 0; combId < initManif.get(manifCombLevel - 1); combId++) {
+		    							launchExperiments(out, sex, age, duration, hypoRate, hba1cLevels, manifCombLevel);
+		    						}
+					    		}
+		    				}
 		    			}
 		    		}
 		    	}
 			}
-	        if (!args1.quiet)
-	        	System.out.println("Execution time: " + ((System.currentTimeMillis() - t) / 1000) + " sec");
-	        out.close();
+        	final String msg = "Execution time: " + ((System.currentTimeMillis() - t) / 1000) + " sec";
+        	if (!args1.quiet)
+        		System.out.println(msg);
+        	outSummary.println(msg);
+	        outSummary.close();
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
 			ex.usage();
@@ -354,7 +355,14 @@ public class DiabPlusExplorationMain {
 		} catch (NumberFormatException ex) {
 			System.out.println(ex.getMessage());
 			System.exit(-1);
-		}
+		} catch(InvalidPathException ex) {
+			System.out.println(ex.getMessage());
+			System.exit(-1);
+		} catch (IOException ex) {
+			System.out.println(ex.getMessage());
+			System.exit(-1);
+		}		 
+
 	}
 	
 	private static ArrayList<Double> generateExperimentalNumbers(double min, double max, double gap) {
@@ -368,8 +376,8 @@ public class DiabPlusExplorationMain {
 	}
 	
 	private static class Arguments {
-		@Parameter(names ={"--output", "-o"}, description = "Name of the output file name", order = 1)
-		private String outputFileName = null;
+		@Parameter(names ={"--output", "-o"}, description = "Name of the output folder", order = 1)
+		private String outputFileName = System.getProperty("user.dir");
 		@Parameter(names ={"--patients", "-n"}, description = "Number of patients to test", order = 2)
 		private int nPatients = BasicConfigParams.N_PATIENTS;
 		@Parameter(names ={"--runs", "-r"}, description = "Number of probabilistic runs", order = 3)
@@ -393,6 +401,9 @@ public class DiabPlusExplorationMain {
 		@Parameter(names = {"--exp_she", "-Es"}, arity = 3, 
 				description = "The experimental severe hypoglycemia rates to test, expressed as MIN MAX GAP. Default values are: " + DEF_MIN_SHE + " " + DEF_MAX_SHE + " " + DEF_INT_SHE, order = 7)
 		public List<Double> expSHEs = new ArrayList<>();
+		@Parameter(names = {"--exp_initManif", "-Em"}, arity = 3, 
+				description = "The experimental initial manifestations to test, expressed as COMB1 COMB2 COMB3, i.e. how many combinations of 1, 2 or 3 initial manifestations to test. Default values are: " + DEF_COMB1_INIT_MANIF + " " + DEF_COMB2_INIT_MANIF + " " + DEF_COMB3_INIT_MANIF, order = 7)
+		public List<Integer> expInitManif = new ArrayList<>();
 		
 		@Parameter(names ={"--parallel", "-p"}, description = "Enables parallel execution", order = 5)
 		private boolean parallel = false;
@@ -404,10 +415,6 @@ public class DiabPlusExplorationMain {
 		private boolean altUtils = BasicConfigParams.USE_REVIEW_UTILITIES;
 		@Parameter(names ={"--year", "-y"}, description = "Modifies the year of the study (for cost updating))", order = 8)
 		private int year = Calendar.getInstance().get(Calendar.YEAR);
-		@DynamicParameter(names = {"--iniprop", "-I"}, description = "Initial proportion for complication stages")
-		private Map<String, String> initProportions = new TreeMap<String, String>();
-		@Parameter(names = {"--disable", "-D"}, description = "Disable a complication: any of CHD, NEU, NPH, RET, SHE", variableArity = true)
-		private List<String> disable = new ArrayList<String>();
 	}
 
 	/**

@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.diabetes.diabplus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -35,6 +36,33 @@ import es.ull.iis.util.Statistics;
  */
 public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsRepository {
 	final private TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> exclusions;
+	final private static ArrayList<DiabetesComplicationStage> STAGES;
+	final private static ArrayList<DiabetesComplicationStage> RND_STAGES;
+	static {
+		STAGES = new ArrayList<>();
+		int order = 0;
+		// Complications of retinopathy
+		for (DiabetesComplicationStage stage : SheffieldRETSubmodel.RETSubstates) {
+			STAGES.add(stage);
+			stage.setOrder(order++);
+		}
+		// Complications of nephropathy
+		for (DiabetesComplicationStage stage : SheffieldNPHSubmodel.STAGES) {
+			STAGES.add(stage);
+			stage.setOrder(order++);
+		}
+		// Complications of CHD
+		for (DiabetesComplicationStage stage : SimpleCHDSubmodel.CHDSubstates) {
+			STAGES.add(stage);
+			stage.setOrder(order++);
+		}
+		// Complications of neuropathy
+		for (DiabetesComplicationStage stage : SimpleNEUSubmodel.NEUSubstates) {
+			STAGES.add(stage);
+			stage.setOrder(order++);
+		}
+		RND_STAGES = new ArrayList<>(STAGES);
+	}
 
 	protected DiabPlusExplorationSecondOrderRepository(int nPatients, DiabPlusStdPopulation population, ArrayList<Double> hba1cLevels) {
 		super(nPatients, population);
@@ -44,7 +72,8 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 		registerComplication(new SimpleCHDSubmodel());
 		registerComplication(new SimpleNEUSubmodel());
 		
-		exclusions = initializeExclusions();
+		this.exclusions = initializeExclusions();
+		
 		final StandardSevereHypoglycemiaEvent hypoEvent = new StandardSevereHypoglycemiaEvent(
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_P_HYPO, "Annual rate of severe hypoglycemia events", "Assumption", population.getHypoRate()), 
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_RR_HYPO, "No RR", "Assumption", 1.0), 
@@ -64,10 +93,15 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 		
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
-
+	
+	/**
+	 * Initializes an exclusion list to take into account stages that should not affect a patient at the same time 
+	 * @return A map where each key is a stage of a chronic complication, and the values are those other stages that cannot affect the patient at the same time 
+	 */
 	private TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> initializeExclusions() {
 		final TreeMap<DiabetesComplicationStage, TreeSet<DiabetesComplicationStage>> exclusions = new TreeMap<>();
 		TreeSet<DiabetesComplicationStage> excl;
+		
 		// Complications of retinopathy
 		for (DiabetesComplicationStage stage : SheffieldRETSubmodel.RETSubstates) {
 			excl = new TreeSet<>();
@@ -96,16 +130,6 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 				excl.add(otherStage);
 			exclusions.put(stage, excl);
 		}
-
-		// Complications of neuropathy
-		for (DiabetesComplicationStage stage : SimpleNEUSubmodel.NEUSubstates) {
-			excl = new TreeSet<>();
-			// Exclude everything else
-			for (DiabetesComplicationStage otherStage : SimpleNEUSubmodel.NEUSubstates)
-				excl.add(otherStage);
-			exclusions.put(stage, excl);
-		}
-
 		// Complications of CHD
 		for (DiabetesComplicationStage stage : SimpleCHDSubmodel.CHDSubstates) {
 			excl = new TreeSet<>();
@@ -114,7 +138,15 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 				excl.add(otherStage);
 			exclusions.put(stage, excl);
 		}
-		return exclusions;		
+		// Complications of neuropathy
+		for (DiabetesComplicationStage stage : SimpleNEUSubmodel.NEUSubstates) {
+			excl = new TreeSet<>();
+			// Exclude everything else
+			for (DiabetesComplicationStage otherStage : SimpleNEUSubmodel.NEUSubstates)
+				excl.add(otherStage);
+			exclusions.put(stage, excl);
+		}
+		return exclusions;
 	}
 	
 	/**
@@ -124,6 +156,36 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 		return exclusions;
 	}
 
+	/**
+	 * Returns a random collection of initial chronic complication stages for a patient. The collection should fit to the specified size, but due to the way it 
+	 * is constructed, it may include less stages. If size is 0, returns a null collection; if size is 1, returns a single random stage.
+	 * @param size Maximum size of the collection
+	 * @return A random collection of initial chronic complication stages for a patient
+	 */
+	public TreeSet<DiabetesComplicationStage> getRndCollectionOfStages(int size) {
+		// Orders the list randomly
+		Collections.shuffle(RND_STAGES);
+		final TreeSet<DiabetesComplicationStage> stages = new TreeSet<>();
+		final TreeSet<DiabetesComplicationStage> excl = new TreeSet<>();
+		if (size > 0) {
+			// Iterates to build the list of "compatible" stages
+			for (int i = 0; i < size; i++) {
+				int candidateIndex = i;
+				boolean found = false;
+				// Iterates over the random ordered list
+				while (!found && candidateIndex < size) {
+					final DiabetesComplicationStage candidate = RND_STAGES.get(candidateIndex);
+					if (!excl.contains(candidate)) {
+						stages.add(candidate);
+						excl.addAll(exclusions.get(candidate));
+						found = true;
+					}
+					candidateIndex++;
+				}
+			}
+		}
+		return stages;
+	}
 	@Override
 	public CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
 		return new SubmodelCostCalculator(cDNC, submodels, acuteSubmodels);
@@ -132,5 +194,14 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 	@Override
 	public UtilityCalculator getUtilityCalculator(double duDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
 		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, duDNC, BasicConfigParams.DEF_U_GENERAL_POP, submodels, acuteSubmodels);
+	}
+	
+	// For testing only
+	public static String print(TreeSet<DiabetesComplicationStage> stages) {
+		String str = "";
+		for (DiabetesComplicationStage stage : stages) {
+			str += stage + ":";
+		}
+		return str;
 	}
 }
