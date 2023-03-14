@@ -11,7 +11,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -36,11 +35,14 @@ public class PostProcessor {
 	private final static String STR_FILE_FILTER1 = "res_";
 	private final static String STR_FILE_FILTER2 = "_[MW].*" + FILE_SUFFIX;
 	private final static String STR_FILE_FILTER2_SUMMARY = "_SUMMARY" + FILE_SUFFIX;
+	private final static String STR_FILE_OUTPUT_PREFIX = "out_";
 	private final static String ITEM_SEP = "\t";
 	private final static String STR_SEP = "_";
 	private final static String STR_SIM = "SIM";
 	private final static String STR_AGE = "AGE";
 	private final static String STR_DURATION = "DURATION";
+	private final static String STR_HYPO_RATE = "HYPO_RATE";	
+	private final static String STR_SEX = "SEX";
 	private final static String STR_HBA1C = "HBA1C";
 	private final static String STR_AVG = "AVG";
 	private final static String STR_L95CI = "L95CI";
@@ -49,33 +51,19 @@ public class PostProcessor {
 	private final static String STR_PREV = "PREV";
 	private final static String STR_INC = "INC";
 	private final static String STR_TIME_TO = "TIMETO";
-	/** Lines to skip to get to the results' header */
-	private static final int N_SKIP_LINES = 23;
 	/** Columns to skip to get to the results */
 	private static final int N_SKIP_COLS = 3;
 	
-	private PrintWriter out;
-	private BufferedReader in;
-	private final int nExp;
 	private final TreeMap<String, ExperimentItem> items;
 	private final TreeMap<Integer, ExperimentItem> orderedItems;
 	private final TreeMap<String, ExperimentItem> expByManifestation;
-	private final ArrayList<String> orderedAgeDurations;
-	private final ArrayList<String> orderedHbA1c;
+	private final SummaryParser summary;
 
-	public PostProcessor(File inputFile, String outputFileName, int nExp) {
-		this.nExp = nExp;
+	public PostProcessor(SummaryParser summary) {
+		this.summary = summary;
 		items = new TreeMap<>();
 		orderedItems = new TreeMap<>();
-		orderedAgeDurations = new ArrayList<>();
-		orderedHbA1c = new ArrayList<>();
 		expByManifestation = new TreeMap<>(); 
-		try {
-			in = new BufferedReader(new FileReader(inputFile));
-			out = new PrintWriter(outputFileName);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	/**
@@ -92,7 +80,6 @@ public class PostProcessor {
 	 * @param headers Headers of the original results
 	 */
 	private void processHeaders(String[] headers) {
-		final TreeSet<String> foundLevels = new TreeSet<>();
 		
 		// Here it should start the first result column
 		int index = N_SKIP_COLS;
@@ -105,20 +92,12 @@ public class PostProcessor {
 					final String id = parsedToken[1] + STR_SEP + parsedToken[2];
 					final String hba1cLevel = parsedToken[4];
 					final ExperimentItem exp = addExperiment(id, index, ExperimentItem.Type.TIMETO, hba1cLevel);
-					if (!foundLevels.contains(hba1cLevel)) {
-						foundLevels.add(hba1cLevel);
-						orderedHbA1c.add(hba1cLevel);
-					}
 					addManifestation(parsedToken[2], exp);
 				}
 				else {
 					final String id = parsedToken[1];
 					final String hba1cLevel = parsedToken[3];
 					addExperiment(id, index, ExperimentItem.Type.AVG, hba1cLevel);				
-					if (!foundLevels.contains(hba1cLevel)) {
-						foundLevels.add(hba1cLevel);
-						orderedHbA1c.add(hba1cLevel);
-					}
 					index += 2;
 				}
 			}
@@ -126,19 +105,11 @@ public class PostProcessor {
 				final String id = parsedToken[1] + STR_SEP + parsedToken[4] + STR_SEP + parsedToken[5];
 				final String hba1cLevel = parsedToken[3];
 				addExperiment(id, index, ExperimentItem.Type.N, hba1cLevel);				
-				if (!foundLevels.contains(hba1cLevel)) {
-					foundLevels.add(hba1cLevel);
-					orderedHbA1c.add(hba1cLevel);
-				}
 			}
 			else if (STR_PREV.equals(parsedToken[0]) || STR_INC.equals(parsedToken[0])) {
 				final String id = parsedToken[0] + STR_SEP + parsedToken[1];
 				final String hba1cLevel = parsedToken[3];
 				addExperiment(id, index, ExperimentItem.Type.AVG, hba1cLevel);				
-				if (!foundLevels.contains(hba1cLevel)) {
-					foundLevels.add(hba1cLevel);
-					orderedHbA1c.add(hba1cLevel);
-				}
 			}
 			index++;
 		}		
@@ -155,58 +126,67 @@ public class PostProcessor {
 		return exp;
 	}
 	
-	public void readFile() {
-		final TreeSet<String> ageDurations = new TreeSet<>();
-		
+	public ArrayList<ExperimentSet> readFile(File inputFile) {
+		final ArrayList<ExperimentSet> experiments = new ArrayList<>();
 		try {
+			final BufferedReader in = new BufferedReader(new FileReader(inputFile));
 			// Skip general info
-			for (int i = 0; i < N_SKIP_LINES; i++) {
-				in.readLine();
-			}
+			ExperimentSet f = new ExperimentSet(in.readLine(), summary);
+			experiments.add(f);
 			// Read first header and create basic structures
 			processHeaders(in.readLine().split(ITEM_SEP));
 			String line = in.readLine();
 			while (line != null) {
-				String[] values = line.split(ITEM_SEP);
-				if (!STR_SIM.equals(values[0])) {
-					// Creates a key consisting on the age + duration
-					final String key = values[1] + ITEM_SEP + values[2];
-					if (!ageDurations.contains(key)) {
-						ageDurations.add(key);
-						orderedAgeDurations.add(key);
-					}
-					for (ExperimentItem exp : items.values()) {
-						exp.addValues(key, values);
+				if (line.contains("EXPERIMENT")) {
+					f = new ExperimentSet(line, summary);
+					experiments.add(f);
+				}
+				else {
+					String[] values = line.split(ITEM_SEP);
+					if (!STR_SIM.equals(values[0])) {
+						for (ExperimentItem exp : items.values()) {
+							exp.addValues(f.toString(), values);
+						}
 					}
 				}
 				line = in.readLine();
 			}
+			in.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return experiments;
 	}
 	
-	public void writeFile() {
-		// Write the header
-		out.write(STR_AGE + ITEM_SEP + STR_DURATION + ITEM_SEP + STR_HBA1C + ITEM_SEP);
-		for (ExperimentItem item : orderedItems.values()) {
-			out.write(item.getHeader());
-		}
-		out.write(System.lineSeparator());
-		for (String keyAgeDur : orderedAgeDurations) {
-			for (String hba1cLevel : orderedHbA1c) {
-				out.write(keyAgeDur + ITEM_SEP + hba1cLevel + ITEM_SEP);
-				for (ExperimentItem item : orderedItems.values()) {
-					final double[] results = item.getValues(keyAgeDur, hba1cLevel);
-					for (double val : results)
-						out.write(val + ITEM_SEP);
-				}
-				out.write(System.lineSeparator());
+	public void writeFile(String outputFileName, ArrayList<ExperimentSet> experiments) {
+		PrintWriter out;
+		try {
+			out = new PrintWriter(outputFileName);
+			// Write the header
+			out.write(ExperimentSet.getHeader(summary));
+			out.write(STR_HBA1C + ITEM_SEP);
+			for (ExperimentItem item : orderedItems.values()) {
+				out.write(item.getHeader());
 			}
+			out.write(System.lineSeparator());
+			for (ExperimentSet exp : experiments) {
+				for (String hba1cLevel : summary.getHba1cLevels()) {
+					out.write(exp + hba1cLevel + ITEM_SEP);
+					for (ExperimentItem item : orderedItems.values()) {
+						final double[] results = item.getValues(exp.toString(), hba1cLevel);
+						for (double val : results)
+							out.write(val + ITEM_SEP);
+					}
+					out.write(System.lineSeparator());
+				}
+			}
+				
+			out.flush();
+			out.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-			
-		out.flush();
-		out.close();
 	}
 
 	private class HbA1cLevelItem {
@@ -222,7 +202,7 @@ public class PostProcessor {
 		
 		public void addValue(String key, String[] line) {
 			if (!values.containsKey(key)) {
-				values.put(key,  new double[nExp]);
+				values.put(key,  new double[summary.getnRuns()]);
 				counters.put(key, 0);
 			}
 			values.get(key)[counters.get(key)] = Double.parseDouble(line[srcCol]);
@@ -306,43 +286,62 @@ public class PostProcessor {
 		}
 	}
 	
-	private class ExperimentFile {
-		private final Sex sex;
-		private final double age;
-		private final double duration;
-		private final double hypoRate;
+	private class ExperimentSet {
+		private Sex sex;
+		private double age;
+		private double duration;
+		private double hypoRate;
+		private final TreeSet<String> initManif; 
+		private final SummaryParser summary;
 		
-		public ExperimentFile(String fileName) {
-			fileName = fileName.substring(0, fileName.length() - FILE_SUFFIX.length());
-			final Scanner scan = new Scanner(fileName);
-			scan.useDelimiter("_");
-			// Skips next token ("res")
-			String token = scan.next();
-			// Skips next token (experiment id)
-			token = scan.next();
-			this.sex = Sex.valueOf(scan.next());
-			token = scan.next();
-			this.age = Double.parseDouble(token.substring(1));
-			token = scan.next();
-			this.duration = Double.parseDouble(token.substring(1));
-			token = scan.next();
-			this.hypoRate = Double.parseDouble(token.substring(1));
-			scan.close();
+		public ExperimentSet(String title, SummaryParser summary) {
+			initManif = new TreeSet<>();
+			this.summary = summary;
+			final String []items = title.split(ITEM_SEP);
+			for (String item : items) {
+				final String [] key_value = item.split("=");
+				if ("EXPERIMENT FOR SEX".equals(key_value[0]))
+					this.sex = Sex.valueOf(key_value[1]);
+				else if (STR_AGE.equals(key_value[0]))
+					this.age = Double.parseDouble(key_value[1]);
+				else if (STR_DURATION.equals(key_value[0]))
+					this.duration = Double.parseDouble(key_value[1]);
+				else if (STR_HYPO_RATE.equals(key_value[0]))
+					this.hypoRate = Double.parseDouble(key_value[1]);
+				else if ("INIT_MANIF".equals(key_value[0])) {
+					if (key_value.length > 1) {
+						String []manifs = key_value[1].split(":");
+						for (String manif : manifs)
+							this.initManif.add(manif);
+					}
+				}
+			}
 		}
 		
-		public static String getHeader() {
-			return "SEX" + ITEM_SEP + "AGE" + ITEM_SEP + "DURATION" + ITEM_SEP + "HYPO_RATE" + ITEM_SEP;			
+		public static String getHeader(SummaryParser summary) {
+			String str = STR_SEX + ITEM_SEP + STR_AGE + ITEM_SEP + STR_DURATION + ITEM_SEP + 
+					STR_HYPO_RATE + ITEM_SEP;
+			final String[] chronicComplications = summary.getChronicCompNames();
+			for (String comp : chronicComplications)
+				str += comp + ITEM_SEP;
+			return str;
 		}
 		
 		@Override
 		public String toString() {
-			return sex + ITEM_SEP + age + ITEM_SEP + duration + ITEM_SEP + hypoRate + ITEM_SEP;
+			String str = sex + ITEM_SEP + age + ITEM_SEP + duration + ITEM_SEP + hypoRate + ITEM_SEP; 
+			final String[] chronicComplications = summary.getChronicCompNames();
+			for (String comp : chronicComplications)
+				str += (initManif.contains(comp) ? 1 : 0) + ITEM_SEP;
+			return str;
 		}
 	}
 	
-	private class SummaryParser {
+	private static class SummaryParser {
+		private static final String STR_NRUNS = "N_RUNS:"; 
+		private int nRuns;
 		private BufferedReader inputSummary;
-		private double[] hba1cLevels;
+		private String[] hba1cLevels;
 		private String[] chronicCompNames;
 		private String[] acuteCompNames;
 		
@@ -350,29 +349,41 @@ public class PostProcessor {
 			final String fileName = folderName + STR_FILE_FILTER1 + expId + STR_FILE_FILTER2_SUMMARY;
 			try {
 				inputSummary = new BufferedReader(new FileReader(fileName));
+				String[] line;
 				// Skip general info
-				for (int i = 0; i < N_SKIP_LINES; i++) {
-					inputSummary.readLine();
-				}
+				do {
+					line = inputSummary.readLine().split(ITEM_SEP);
+					if (STR_NRUNS.equals(line[0]))
+						nRuns = Integer.parseInt(line[1]) + 1;
+				} while (!"".equals(line[0]));
 				// Assumed next line contains tab separated chronic complication stages
 				chronicCompNames = inputSummary.readLine().split(ITEM_SEP);
 				// Assumed next line contains tab separated acute complications
 				acuteCompNames = inputSummary.readLine().split(ITEM_SEP);
 				// Assumed next line contains tab separated HbA1c levels
-				final String []strLevels = inputSummary.readLine().split(ITEM_SEP);
-				hba1cLevels = new double[strLevels.length];
-				for (int i = 0; i < hba1cLevels.length; i++) {
-					hba1cLevels[i] = Double.parseDouble(strLevels[i]);
-				}
+				hba1cLevels = inputSummary.readLine().split(ITEM_SEP);
 			} catch (IOException e) {
 				e.printStackTrace();
-			}			
+			}	finally {
+				try {
+					inputSummary.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		/**
+		 * @return the nRuns
+		 */
+		public int getnRuns() {
+			return nRuns;
 		}
 
 		/**
 		 * @return the hba1cLevels
 		 */
-		public double[] getHba1cLevels() {
+		public String[] getHba1cLevels() {
 			return hba1cLevels;
 		}
 
@@ -416,7 +427,7 @@ public class PostProcessor {
 //		double[] v = new double[] {20, 10, 5, 2};
 //		System.out.println(Statistics.weightedAverage(w, v));
 		final String folderName = System.getProperty("user.home") +"\\Downloads\\test\\";
-		final String expId = "20230313";
+		final String expId = "20230314";
 		final File folder = new File(folderName);
 		final File[] files = folder.listFiles(new FilenameFilter() {			
 			@Override
@@ -424,10 +435,11 @@ public class PostProcessor {
 				return name.matches(STR_FILE_FILTER1 + expId + STR_FILE_FILTER2);
 			}
 		});
+		SummaryParser summary = new SummaryParser(folderName, expId);
 		for (File inputFile : files) {
-			final PostProcessor proc = new PostProcessor(inputFile, System.getProperty("user.home") + "\\Downloads\\post.txt", 101);
-			proc.readFile();
-			proc.writeFile();
+			final PostProcessor proc = new PostProcessor(summary);
+			final ArrayList<ExperimentSet> experiments = proc.readFile(inputFile);
+			proc.writeFile(folderName + STR_FILE_OUTPUT_PREFIX + inputFile.getName(), experiments);
 		}
 		
 	}
