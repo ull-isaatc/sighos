@@ -9,6 +9,7 @@ import java.util.EnumSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
@@ -196,6 +197,17 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 			COMBINATION_COUNTER[i] = 0;
 		}
 	}
+	
+	public static ArrayList<DiabetesComplicationStage> getChronicComplicationStages() {
+		return STAGES;
+	}
+	
+	public static ArrayList<DiabetesAcuteComplications> getAcuteComplications() {
+		final ArrayList<DiabetesAcuteComplications> acuteComp = new ArrayList<>();
+		acuteComp.add(DiabetesAcuteComplications.SHE);
+		return acuteComp;
+	}
+	
 	/**
 	 * @return the exclusions
 	 */
@@ -238,7 +250,6 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, duDNC, BasicConfigParams.DEF_U_GENERAL_POP, submodels, acuteSubmodels);
 	}
 	
-	// For testing only
 	public static String print(TreeSet<DiabetesComplicationStage> stages) {
 		String str = "";
 		for (DiabetesComplicationStage stage : stages) {
@@ -247,6 +258,7 @@ public class DiabPlusExplorationSecondOrderRepository extends SecondOrderParamsR
 		return str;
 	}
 
+	// For testing only
 	public static void main(String[] args) {
 		for (int size = 0; size <= 3; size++) {
 			ArrayList<TreeSet<DiabetesComplicationStage>> comb = getStageCombinations(size);

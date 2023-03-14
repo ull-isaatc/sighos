@@ -21,6 +21,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AcuteComplicationCounterListener;
@@ -69,34 +70,30 @@ public class DiabPlusExplorationMain {
 	private static final int N_PROGRESS = 20;
 	private final PrintWriter out;
 	private final ArrayList<SecondOrderDiabetesIntervention> interventions;
-	/** Number of simulations to run */
-	private static int nRuns;
 	/** Number of patients to be generated during each simulation */
-	private final int nPatients;
+	private static int nPatients;
 	private final SecondOrderParamsRepository secParams;
 	private static Discount discountCost;
 	private static Discount discountEffect;
-	private static Arguments args1;
-	private final PrintProgress progress;
+	/** Number of simulations to run */
+	private static int nRuns;
 	/** Enables parallel execution of simulations */
 	private static boolean parallel;
 	/** Disables most messages */
 	private static boolean quiet;
 	/** Time horizon for the simulation */
-	private final int timeHorizon;
+	private static int timeHorizon;
 	private final double initAge;
 	private final double duration;
-	private final int intervalLength; 
+	private static int intervalLength; 
+	private final PrintProgress progress;
 	
-	public DiabPlusExplorationMain(PrintWriter out, SecondOrderParamsRepository secParams, int timeHorizon, int intervalLength, double initAge, double duration) {
+	public DiabPlusExplorationMain(PrintWriter out, SecondOrderParamsRepository secParams, double initAge, double duration) {
 		super();
 		this.initAge = initAge;
 		this.duration = duration;
-		this.timeHorizon = timeHorizon;
-		this.intervalLength = intervalLength;
 		this.out = out;
 		this.interventions = secParams.getRegisteredInterventions();
-		this.nPatients = secParams.getnPatients();
 		this.secParams = secParams;
 		progress = new PrintProgress((nRuns > N_PROGRESS) ? nRuns/N_PROGRESS : 1, nRuns + 1);
 	}
@@ -224,7 +221,7 @@ public class DiabPlusExplorationMain {
 	private static void launchExperiments(PrintWriter out, Sex sex, double age, double duration, double hypoRate, ArrayList<Double> hba1cLevels, int combLevel) {
     	final DiabPlusStdPopulation population = new DiabPlusStdPopulation(sex, hba1cLevels.get(0), age, duration, hypoRate);
     	
-        final DiabPlusExplorationSecondOrderRepository secParams = new DiabPlusExplorationSecondOrderRepository(args1.nPatients, population, hba1cLevels);
+        final DiabPlusExplorationSecondOrderRepository secParams = new DiabPlusExplorationSecondOrderRepository(nPatients, population, hba1cLevels);
 		final TreeSet<DiabetesComplicationStage> initManifestations = DiabPlusExplorationSecondOrderRepository.getRndCollectionOfStages(combLevel); 
 		
 		// Hard-coded here, since the proper way of doing it is via BasicConfigParams, but only if the stages could be defined before the repository, and that's not possible
@@ -232,14 +229,13 @@ public class DiabPlusExplorationMain {
 			secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getInitProbString(stage), "Initial proportion of " + stage.name(), "", 1.0));
         }
 		final String msg = "EXPERIMENT FOR SEX=" + sex + "\tAGE=" + age + "\tDURATION=" + duration + "\tHYPO_RATE=" + hypoRate + "\tINIT_MANIF=" + DiabPlusExplorationSecondOrderRepository.print(initManifestations);
-        if (!args1.quiet)
+        if (!quiet)
         	System.out.println(msg);
         out.println(msg);
         
-    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
     	final String validity = secParams.checkValidity();
     	if (validity == null) {
-    		final DiabPlusExplorationMain experiment = new DiabPlusExplorationMain(out, secParams, timeHorizon, args1.interval, age, duration);
+    		final DiabPlusExplorationMain experiment = new DiabPlusExplorationMain(out, secParams, age, duration);
 	        experiment.run();
     	}
     	else {
@@ -249,7 +245,7 @@ public class DiabPlusExplorationMain {
 		
 	}
 	public static void main(String[] args) {
-		args1 = new Arguments();
+		final Arguments args1 = new Arguments();
 		try {
 			JCommander jc = JCommander.newBuilder()
 			  .addObject(args1)
@@ -279,6 +275,13 @@ public class DiabPlusExplorationMain {
     		}
     		parallel = args1.parallel;
     		quiet = args1.quiet;
+    		nRuns = args1.nRuns;
+    		nPatients = args1.nPatients;
+    		// Be careful, since the min age used here is disconnected from that defined in the study population
+        	timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - BasicConfigParams.DEF_MIN_AGE + 1 : args1.timeHorizon;
+    		intervalLength = args1.interval;
+
+
     		// Checks the output: it must be a folder; otherwise, an InvalidPathException arise
 			File dir = new File(args1.outputFileName);
 			if (!dir.isDirectory()) {
@@ -320,6 +323,19 @@ public class DiabPlusExplorationMain {
 	        final String expId = new SimpleDateFormat("yyyyMMdd").format(new Date());
 			final PrintWriter outSummary = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName + STR_FILENAME_ROOT + "_" + expId + "_SUMMARY" + STR_FILENAME_EXT)));
 			outSummary.println(BasicConfigParams.printOptions());
+			// Print available manifestations
+			for (DiabetesComplicationStage stage : DiabPlusExplorationSecondOrderRepository.getChronicComplicationStages()) {
+				outSummary.print(stage + "\t");
+			}
+			outSummary.println();
+			for (DiabetesAcuteComplications acute : DiabPlusExplorationSecondOrderRepository.getAcuteComplications()) {
+				outSummary.print(acute + "\t");
+			}
+			outSummary.println();
+			for (double hba1cLevel : hba1cLevels) {
+				outSummary.print(hba1cLevel + "\t");				
+			}
+			outSummary.println();
 			long t = System.currentTimeMillis();
 			int nExp = 0;
 			for (Sex sex : Sex.values()) {
@@ -328,9 +344,9 @@ public class DiabPlusExplorationMain {
 		    			// Only test with valid onset (when the onset age is lower or equal than the current age)
 		    			if (age >= onset) {
 		    				final double duration = age - onset;
-		    				final String fileName = args1.outputFileName + STR_FILENAME_ROOT + "_" + expId + "_" + sex + "_" + age + "_" + duration + STR_FILENAME_EXT;
-		    				final PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
 		    				for (double hypoRate : sheRates) {
+			    				final String fileName = args1.outputFileName + STR_FILENAME_ROOT + "_" + expId + "_" + sex + "_A" + age + "_D" + duration + "_H" + hypoRate + STR_FILENAME_EXT;
+			    				final PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
 		    					// First launch the experiments for no initial manifestations
 	    						launchExperiments(out, sex, age, duration, hypoRate, hba1cLevels, 0);
 	    						nExp++;
@@ -341,8 +357,8 @@ public class DiabPlusExplorationMain {
 			    						nExp++;
 		    						}
 					    		}
+			    				out.close();
 		    				}
-		    				out.close();
 		    			}
 		    		}
 		    	}

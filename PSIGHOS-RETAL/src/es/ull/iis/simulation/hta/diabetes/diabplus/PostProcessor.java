@@ -4,13 +4,18 @@
 package es.ull.iis.simulation.hta.diabetes.diabplus;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams.Sex;
 import es.ull.iis.util.Statistics;
 
 /**
@@ -27,6 +32,10 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class PostProcessor {
+	private static final String FILE_SUFFIX = ".txt";
+	private final static String STR_FILE_FILTER1 = "res_";
+	private final static String STR_FILE_FILTER2 = "_[MW].*" + FILE_SUFFIX;
+	private final static String STR_FILE_FILTER2_SUMMARY = "_SUMMARY" + FILE_SUFFIX;
 	private final static String ITEM_SEP = "\t";
 	private final static String STR_SEP = "_";
 	private final static String STR_SIM = "SIM";
@@ -54,7 +63,7 @@ public class PostProcessor {
 	private final ArrayList<String> orderedAgeDurations;
 	private final ArrayList<String> orderedHbA1c;
 
-	public PostProcessor(String inputFileName, String outputFileName, int nExp) {
+	public PostProcessor(File inputFile, String outputFileName, int nExp) {
 		this.nExp = nExp;
 		items = new TreeMap<>();
 		orderedItems = new TreeMap<>();
@@ -62,7 +71,7 @@ public class PostProcessor {
 		orderedHbA1c = new ArrayList<>();
 		expByManifestation = new TreeMap<>(); 
 		try {
-			in = new BufferedReader(new FileReader(inputFileName));
+			in = new BufferedReader(new FileReader(inputFile));
 			out = new PrintWriter(outputFileName);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -297,6 +306,91 @@ public class PostProcessor {
 		}
 	}
 	
+	private class ExperimentFile {
+		private final Sex sex;
+		private final double age;
+		private final double duration;
+		private final double hypoRate;
+		
+		public ExperimentFile(String fileName) {
+			fileName = fileName.substring(0, fileName.length() - FILE_SUFFIX.length());
+			final Scanner scan = new Scanner(fileName);
+			scan.useDelimiter("_");
+			// Skips next token ("res")
+			String token = scan.next();
+			// Skips next token (experiment id)
+			token = scan.next();
+			this.sex = Sex.valueOf(scan.next());
+			token = scan.next();
+			this.age = Double.parseDouble(token.substring(1));
+			token = scan.next();
+			this.duration = Double.parseDouble(token.substring(1));
+			token = scan.next();
+			this.hypoRate = Double.parseDouble(token.substring(1));
+			scan.close();
+		}
+		
+		public static String getHeader() {
+			return "SEX" + ITEM_SEP + "AGE" + ITEM_SEP + "DURATION" + ITEM_SEP + "HYPO_RATE" + ITEM_SEP;			
+		}
+		
+		@Override
+		public String toString() {
+			return sex + ITEM_SEP + age + ITEM_SEP + duration + ITEM_SEP + hypoRate + ITEM_SEP;
+		}
+	}
+	
+	private class SummaryParser {
+		private BufferedReader inputSummary;
+		private double[] hba1cLevels;
+		private String[] chronicCompNames;
+		private String[] acuteCompNames;
+		
+		public SummaryParser(String folderName, String expId) {
+			final String fileName = folderName + STR_FILE_FILTER1 + expId + STR_FILE_FILTER2_SUMMARY;
+			try {
+				inputSummary = new BufferedReader(new FileReader(fileName));
+				// Skip general info
+				for (int i = 0; i < N_SKIP_LINES; i++) {
+					inputSummary.readLine();
+				}
+				// Assumed next line contains tab separated chronic complication stages
+				chronicCompNames = inputSummary.readLine().split(ITEM_SEP);
+				// Assumed next line contains tab separated acute complications
+				acuteCompNames = inputSummary.readLine().split(ITEM_SEP);
+				// Assumed next line contains tab separated HbA1c levels
+				final String []strLevels = inputSummary.readLine().split(ITEM_SEP);
+				hba1cLevels = new double[strLevels.length];
+				for (int i = 0; i < hba1cLevels.length; i++) {
+					hba1cLevels[i] = Double.parseDouble(strLevels[i]);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
+		}
+
+		/**
+		 * @return the hba1cLevels
+		 */
+		public double[] getHba1cLevels() {
+			return hba1cLevels;
+		}
+
+		/**
+		 * @return the chronicCompNames
+		 */
+		public String[] getChronicCompNames() {
+			return chronicCompNames;
+		}
+
+		/**
+		 * @return the acuteCompNames
+		 */
+		public String[] getAcuteCompNames() {
+			return acuteCompNames;
+		}
+	}
+	
 	public static void main(String[] args) {
 //		Scanner scan = new Scanner("AVG_C_DIAB+EXPLORE_6.0\tL95CI_C_DIAB+EXPLORE_6.0");
 //		scan.useDelimiter("\t");
@@ -321,9 +415,20 @@ public class PostProcessor {
 //		double[] w = new double[] {1, 2, 3, 4};
 //		double[] v = new double[] {20, 10, 5, 2};
 //		System.out.println(Statistics.weightedAverage(w, v));
-		final PostProcessor proc = new PostProcessor(System.getProperty("user.home") + "\\Downloads\\results.txt", System.getProperty("user.home") + "\\Downloads\\post.txt", 101);
-		proc.readFile();
-		proc.writeFile();
+		final String folderName = System.getProperty("user.home") +"\\Downloads\\test\\";
+		final String expId = "20230313";
+		final File folder = new File(folderName);
+		final File[] files = folder.listFiles(new FilenameFilter() {			
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.matches(STR_FILE_FILTER1 + expId + STR_FILE_FILTER2);
+			}
+		});
+		for (File inputFile : files) {
+			final PostProcessor proc = new PostProcessor(inputFile, System.getProperty("user.home") + "\\Downloads\\post.txt", 101);
+			proc.readFile();
+			proc.writeFile();
+		}
 		
 	}
 }
