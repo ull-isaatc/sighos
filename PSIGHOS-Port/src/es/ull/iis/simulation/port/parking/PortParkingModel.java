@@ -211,7 +211,7 @@ public class PortParkingModel extends Simulation {
 		selectInitTranssType.link(initialDelayFlow);
 
 		final ExclusiveChoiceFlow selectTranssType = new ExclusiveChoiceFlow(this);
-
+		initialDelayFlow.link(selectTranssType);
 		selectTranssType.link(createFlowForUnloadOperations(truckRouter, truckSources, wgParkSlot, choiceDestinationFlow), new SpecificOperationCondition(OperationType.UNLOAD));
 		selectTranssType.link(createFlowForLoadOperations(truckRouter, truckSources, wgParkSlot, choiceDestinationFlow), new SpecificOperationCondition(OperationType.LOAD));
 		
