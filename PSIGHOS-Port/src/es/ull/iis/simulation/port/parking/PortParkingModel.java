@@ -46,10 +46,12 @@ public class PortParkingModel extends Simulation {
 	public static final int TRUCK_SIZE = 1;
 	/** Size of vessels (for locations) */
 	public static final int VESSEL_SIZE = 1;
-	public static final TimeFunction T_VESSEL_ADVANCE_ARRIVAL = TimeFunctionFactory.getInstance("UniformVariate", TIME_UNIT.convert(2, TimeUnit.DAY), TIME_UNIT.convert(3, TimeUnit.DAY));
+	public static final TimeFunction T_VESSEL_ADVANCE_ARRIVAL = TimeFunctionFactory.getInstance("UniformVariate", TIME_UNIT.convert(1.5, TimeUnit.DAY), TIME_UNIT.convert(2, TimeUnit.DAY));
 	public static final TimeFunction T_VESSEL_PAPERWORK_IN = TimeFunctionFactory.getInstance("UniformVariate", 30, 40);
 	public static final TimeFunction T_VESSEL_PAPERWORK_OUT = TimeFunctionFactory.getInstance("UniformVariate", 20, 30);
 	public static final double TONES_PER_TRUCK = 200.0;
+	/** The percentage variation of times when there is uncertainty on their value */
+	public static final double TIME_UNCERTAINTY = 0.05;
 	/** The minimum amount of load that is considered significant. Useful for avoid rounding error */
 	public static final double MIN_LOAD = 0.001;
 	/** Time to unload wares from the {@link Vessel} to a {@link Truck}: 30 minutes +- 5 minutes, characterized by a beta distribution */
@@ -58,13 +60,15 @@ public class PortParkingModel extends Simulation {
 	private static final TimeFunction LOAD_TIME =  TimeFunctionFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("BetaVariate", 10.0, 10.0), 10, 20);
 	/** Time to unload wares from a {@link Truck} to the quay: 10 minutes +- 2 minutes, characterized by a beta distribution */
 	private static final TimeFunction UNLOAD_TRUCK_TIME =  TimeFunctionFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("BetaVariate", 10.0, 10.0), 4, 8);
-	private static final TimeFunction T_ENTRANCE_PARKING = TimeFunctionFactory.getInstance("ConstantVariate", 10);
-	private static final TimeFunction T_TRANSS_AREA_EXIT = TimeFunctionFactory.getInstance("ConstantVariate", 10);
-	private static final TimeFunction T_FROM_SOURCE_TO_ANCHORAGE = TimeFunctionFactory.getInstance("ConstantVariate", 100);
+	private static final TimeFunction T_WAITING_TO_TRANSSHIPMENT_AREA = TimeFunctionFactory.getInstance("UniformVariate", 10*(1-PortParkingModel.TIME_UNCERTAINTY), 10*(1+PortParkingModel.TIME_UNCERTAINTY));
+	private static final TimeFunction T_TRANSSHIPMENT_TO_EXIT_AREA = TimeFunctionFactory.getInstance("UniformVariate", 10*(1-PortParkingModel.TIME_UNCERTAINTY), 10*(1+PortParkingModel.TIME_UNCERTAINTY));
+	private static final TimeFunction T_FROM_SOURCE_TO_ANCHORAGE = TimeFunctionFactory.getInstance("UniformVariate", 6*60*(1-PortParkingModel.TIME_UNCERTAINTY), 6*60*(1+PortParkingModel.TIME_UNCERTAINTY));
 	private static final long T_FIRST_ARRIVAL = 0L;
 	private static final SimulationTimeFunction T_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 7700);
 	private static final int TRANSS_AREA_CAPACITY = 5;
 	private static final int MAX_SIMULTANEOUS_LOADS = 5;
+	/** The random seed to generate vessels. E.g. use "21" to select a vessel with only load operations; use "31" to select a vessel with only unload operations; use "47" to select a vessel with load and unload operations */
+	public static final int RND_SEED_VESSELS = 31;
 	private final TruckWaitingManager truckWaitingForVesselAtQuayManager;
 	private final TruckWaitingManager truckWaitingForVesselAtAnchorageManager;
 	private final TransshipmentOperationsVesselFlow transVesselFlow;
@@ -149,7 +153,7 @@ public class PortParkingModel extends Simulation {
 	}
 
 	private TruckCreatorFlow createModelForTrucks() {
-		final TruckRouter truckRouter = new TruckRouter(TRANSS_AREA_CAPACITY * TRUCK_SIZE, T_ENTRANCE_PARKING, T_TRANSS_AREA_EXIT);
+		final TruckRouter truckRouter = new TruckRouter(TRANSS_AREA_CAPACITY * TRUCK_SIZE, T_WAITING_TO_TRANSSHIPMENT_AREA, T_TRANSSHIPMENT_TO_EXIT_AREA);
 		
 		final ExclusiveChoiceFlow selectInitTranssType = new ExclusiveChoiceFlow(this) {
 			@Override

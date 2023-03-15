@@ -52,7 +52,7 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 			e.printStackTrace();
 		}
 		add(new StandardElementGenerationInfo(new ElementType(model, "Vessel"), flow, PortParkingModel.VESSEL_SIZE, null, 1.0));
-		rnd = RandomNumberFactory.getInstance(47); // By default, generates a vessel with only unload operations; use "21" to select a vessel with only load operations; use "47" to select a vessel with load and unload operations
+		rnd = RandomNumberFactory.getInstance(PortParkingModel.RND_SEED_VESSELS); 
 	}
 	
 	@Override

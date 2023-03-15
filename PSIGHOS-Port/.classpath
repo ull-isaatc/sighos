@@ -19,6 +19,7 @@
 	<classpathentry kind="lib" path="jar/jcommander-1.69.jar"/>
 	<classpathentry kind="lib" path="jar/jcommon-1.0.23.jar"/>
 	<classpathentry kind="lib" path="jar/jfreechart-1.0.19.jar"/>
+	<classpathentry kind="lib" path="jar/json.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sp-qcsp"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

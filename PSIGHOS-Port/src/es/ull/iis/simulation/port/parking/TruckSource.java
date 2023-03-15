@@ -7,20 +7,20 @@ import es.ull.iis.simulation.model.location.Node;
 public enum TruckSource {
 	TYPE1(Locations.TRUCK_SRC_SOUTH1, new Node("WAREHOUSE#1"),
 			TimeFunctionFactory.getInstance("UniformVariate", 10, 15),
-			TimeFunctionFactory.getInstance("ConstantVariate", 10), 
-			TimeFunctionFactory.getInstance("UniformVariate", 30, 60), 0.2),
+			TimeFunctionFactory.getInstance("UniformVariate", 8, 12), 
+			TimeFunctionFactory.getInstance("UniformVariate", 6*60*(1-PortParkingModel.TIME_UNCERTAINTY), 6*60*(1+PortParkingModel.TIME_UNCERTAINTY)), 0.2),
 	TYPE2(Locations.TRUCK_SRC_SOUTH2, new Node("WAREHOUSE#2"), 
 			TimeFunctionFactory.getInstance("UniformVariate", 15, 20), 
-			TimeFunctionFactory.getInstance("ConstantVariate", 15), 
-			TimeFunctionFactory.getInstance("UniformVariate", 60, 90), 0.3),
+			TimeFunctionFactory.getInstance("UniformVariate", 8, 12), 
+			TimeFunctionFactory.getInstance("UniformVariate", 8*60*(1-PortParkingModel.TIME_UNCERTAINTY), 8*60*(1+PortParkingModel.TIME_UNCERTAINTY)), 0.3),
 	TYPE3(Locations.TRUCK_SRC_SOUTH3, new Node("WAREHOUSE#3"), 
 			TimeFunctionFactory.getInstance("UniformVariate", 5, 10), 
-			TimeFunctionFactory.getInstance("ConstantVariate", 5), 
-			TimeFunctionFactory.getInstance("UniformVariate", 50, 70), 0.5),
+			TimeFunctionFactory.getInstance("UniformVariate", 8, 12), 
+			TimeFunctionFactory.getInstance("UniformVariate", 2*60*(1-PortParkingModel.TIME_UNCERTAINTY), 2*60*(1+PortParkingModel.TIME_UNCERTAINTY)), 0.5),
 	TYPE4(Locations.TRUCK_SRC_NORTH1, new Node("WAREHOUSE#4"), 
 			TimeFunctionFactory.getInstance("UniformVariate", 5, 10), 
-			TimeFunctionFactory.getInstance("ConstantVariate", 5), 
-			TimeFunctionFactory.getInstance("UniformVariate", 50, 70), 0.5);
+			TimeFunctionFactory.getInstance("UniformVariate", 8, 12), 
+			TimeFunctionFactory.getInstance("UniformVariate", 30*(1-PortParkingModel.TIME_UNCERTAINTY), 30*(1+PortParkingModel.TIME_UNCERTAINTY)), 0.5);
 	
 	private final Locations spawnLocation;
 	private final Node warehouseLocation;
@@ -32,13 +32,13 @@ public enum TruckSource {
 	/**
 	 * @param description
 	 * @param spawnLocation
-	 * @param timeToPortEntrance
+	 * @param timeToWaitingArea
 	 */
-	private TruckSource(Locations spawnLocation, Node warehouseLocation, TimeFunction initialDelay, TimeFunction timeToPortEntrance, TimeFunction timeToWarehouseAndBack, double proportion) {
+	private TruckSource(Locations spawnLocation, Node warehouseLocation, TimeFunction initialDelay, TimeFunction timeToWaitingArea, TimeFunction timeToWarehouseAndBack, double proportion) {
 		this.spawnLocation = spawnLocation;
 		this.warehouseLocation = warehouseLocation;
 		this.initialDelay = initialDelay;
-		this.timeToPortEntrance = timeToPortEntrance;
+		this.timeToPortEntrance = timeToWaitingArea;
 		this.timeToWarehouse = timeToWarehouseAndBack;
 		this.proportion = proportion;
 	}
@@ -60,7 +60,7 @@ public enum TruckSource {
 	/**
 	 * @return the timeToPortEntrance
 	 */
-	public TimeFunction getTimeToPortEntrance() {
+	public TimeFunction getTimeToWaitingArea() {
 		return timeToPortEntrance;
 	}
 
