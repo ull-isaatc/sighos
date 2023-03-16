@@ -43,6 +43,6 @@ public class ElementInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		return "" + simul.long2SimulationTime(getTs()) + "\t" + elem.toString() + " \t" + type.getDescription() + "\tET: " + et.getDescription();
+		return "" + simul.long2SimulationTime(getTs()) + "\t" + elem.toString() + "\t" + type.getDescription() + "\tET: " + et.getDescription();
 	}
 }

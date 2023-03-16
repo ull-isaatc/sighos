@@ -76,7 +76,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 	
 	public String toString() {
 		String message = "" + simul.long2SimulationTime(getTs()) + "\t";
-		message += elem.toString() + " \t" + type.getDescription();
+		message += elem.toString() + "\t" + type.getDescription();
 		message += "\tACT: " + act.getDescription();
 		if (wg != null) {
 			message += "\tWG: " + wg.getDescription();

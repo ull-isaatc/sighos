@@ -63,7 +63,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 		String message = "" + simul.long2SimulationTime(getTs()) + "\t" + elem.toString() + "\t";
 		message += type.getDescription() + "\t" + res.toString() + "\t" + res.getDescription() + "\t";
 		message += "ROLE: " + rt.getDescription() + "\t";	
-		message += "ACT: " + act.getDescription() + " \t";
+		message += "ACT: " + act.getDescription() + "\t";
 		return message;
 	}
 
