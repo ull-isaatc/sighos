@@ -14,6 +14,7 @@ import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.info.SynchronousInfo;
+import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.info.UserInfo;
 import es.ull.iis.simulation.info.VarViewValueRequestInfo;
 
@@ -37,6 +38,7 @@ public class SimulationInfoHandler implements InfoHandler {
 		definedInfos.add(ResourceInfo.class);
 		definedInfos.add(ResourceUsageInfo.class);
 		definedInfos.add(EntityLocationInfo.class);
+		definedInfos.add(TimeChangeInfo.class);
 	}
 		
 	private boolean isUserInfo(Type type) {
