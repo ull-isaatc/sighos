@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.EventSource;
@@ -55,6 +56,14 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 		rnd = RandomNumberFactory.getInstance(PortParkingModel.RND_SEED_VESSELS); 
 	}
 	
+	public VesselCreator(Simulation model, InitializerFlow flow, SimulationTimeFunction interarrivalTime, long firstArrivalTime, ArrayList<VesselTransshipmentOrder> operations) {
+		super(model, N_VESSELS_PER_SPAWN, new SimulationPeriodicCycle(model.getTimeUnit(), firstArrivalTime, interarrivalTime, model.getEndTs()));
+		predefinedVessels = new ArrayList<>();
+		predefinedVessels.add(new PredefinedVessel("0", operations));
+		add(new StandardElementGenerationInfo(new ElementType(model, "Vessel"), flow, PortParkingModel.VESSEL_SIZE, null, 1.0));
+		rnd = RandomNumberFactory.getInstance(PortParkingModel.RND_SEED_VESSELS); 		
+	}
+	
 	@Override
 	public EventSource createEventSource(int ind, StandardElementGenerationInfo info) {
 		final PredefinedVessel data = predefinedVessels.get((int) (rnd.draw() * predefinedVessels.size()));
@@ -85,6 +94,16 @@ public class VesselCreator extends TimeDrivenElementGenerator {
 			}
 		}
 
+		/**
+		 * Creates a vessel from the information stored in an array of strings
+		 * @param items An array of Strings that contains the scale id in the first position; the load orders and the unload orders. 
+		 * Both load and unload orders are in the same order as in the {@link WaresType} class.
+		 */
+		public PredefinedVessel(String scaleId, ArrayList<VesselTransshipmentOrder> operations) {
+			this.scaleId = scaleId;
+			this.operations = operations;			
+		}
+		
 		/**
 		 * @return the scaleId
 		 */

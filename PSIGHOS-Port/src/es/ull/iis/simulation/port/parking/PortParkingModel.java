@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.port.parking;
 
+import java.util.ArrayList;
+
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
@@ -64,7 +66,8 @@ public class PortParkingModel extends Simulation {
 	private static final TimeFunction T_VESSEL_FROM_SOURCE_TO_ANCHORAGE = TimeFunctionFactory.getInstance("UniformVariate", 6*60*(1-PortParkingModel.TIME_UNCERTAINTY), 6*60*(1+PortParkingModel.TIME_UNCERTAINTY));
 	private static final long T_VESSEL_FIRST_ARRIVAL = 0L;
 	private static final SimulationTimeFunction T_VESSEL_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 9900);
-	private static final int TRANSS_AREA_CAPACITY = 5;
+	private static final SimulationTimeFunction T_VESSEL_TEST_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 99000);
+	private static final int TRANSS_AREA_CAPACITY = 10;
 	private static final int MAX_SIMULTANEOUS_LOADS = 5;
 	/** The random seed to generate vessels. E.g. use "21" to select a vessel with only load operations; use "31" to select a vessel with only unload operations; use "47" to select a vessel with load and unload operations */
 	public static final int RND_SEED_VESSELS = 31;
@@ -84,15 +87,32 @@ public class PortParkingModel extends Simulation {
 		truckWaitingForVesselAtAnchorageManager = new TruckWaitingManager(this);
 		transVesselFlow = new TransshipmentOperationsVesselFlow(this);
 		final TruckCreatorFlow tCreator = createModelForTrucks();		
-		createModelForVessels(tCreator, fileName);
+		createModelForVessels(tCreator);
+		new VesselCreator(this, tCreator, T_VESSEL_INTERARRIVAL, T_VESSEL_FIRST_ARRIVAL, fileName);
 	}
 
+	/**
+	 * @param id
+	 * @param description
+	 * @param startTs
+	 * @param endTs
+	 */
+	public PortParkingModel(int id, long endTs, ArrayList<VesselTransshipmentOrder> operations) {
+		super(id, "Santander Port simulation " + id, TIME_UNIT, 0, endTs);
+		truckWaitingForVesselAtQuayManager = new TruckWaitingManager(this);
+		truckWaitingForVesselAtAnchorageManager = new TruckWaitingManager(this);
+		transVesselFlow = new TransshipmentOperationsVesselFlow(this);
+		final TruckCreatorFlow tCreator = createModelForTrucks();		
+		createModelForVessels(tCreator);
+		new VesselCreator(this, tCreator, T_VESSEL_TEST_INTERARRIVAL, T_VESSEL_FIRST_ARRIVAL, operations);
+	}
+	
 	/**
 	 * Creates the wokflow for vessels. Each vessel may start from a different source, then goes to the anchorage.
 	 * Once in the anchorage, it waits there until there is a free quay that fits its wares. Afterwards, the vessel
 	 * goes to the quay, do some paperwork, and starts unloading its wares. 
 	 */
-	private void createModelForVessels(TruckCreatorFlow tCreator, String fileName) {
+	private void createModelForVessels(TruckCreatorFlow tCreator) {
 		final VesselRouter vesselRouter = new VesselRouter(this, T_VESSEL_FROM_SOURCE_TO_ANCHORAGE);
 		final int nQuays = QuayType.values().length;
 
@@ -148,8 +168,6 @@ public class PortParkingModel extends Simulation {
 		
 		final MoveFlow returnFlow = new MoveFlow(this, "Return from Quay", Locations.VESSEL_SRC.getNode(), vesselRouter);			
 		paperWorkInDelayFlow.link(notifyTrucksAtQuayFlow).link(transVesselFlow).link(paperWorkOutDelayFlow).link(returnFlow);
-		// TODO: Modificar para permitir la creación adhoc de un único barco para testeo
-		new VesselCreator(this, tCreator, T_VESSEL_INTERARRIVAL, T_VESSEL_FIRST_ARRIVAL, fileName);
 	}
 
 	private TruckCreatorFlow createModelForTrucks() {
