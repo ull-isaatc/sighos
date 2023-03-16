@@ -5,6 +5,7 @@ package es.ull.iis.simulation.port.parking;
 
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.port.parking.json.PortParkingJSONListener;
 
 /**
  * @author Iván Castilla
@@ -12,7 +13,7 @@ import es.ull.iis.simulation.model.Simulation;
  */
 public class PortParkingExperiment extends Experiment {
 	private static final int NEXP = 1;
-	private static final long ENDTS = 6440;
+	private static final long ENDTS = 9400;
 	private static final String FILE_NAME = System.getProperty("user.dir") + "\\resources\\bootstrap_data.csv";
 	
 	/**
@@ -25,6 +26,7 @@ public class PortParkingExperiment extends Experiment {
 		final PortParkingModel sim =  new PortParkingModel(ind, ENDTS, FILE_NAME);
 //		final PortTest sim =  new PortTest(ind, ENDTS, PARKING_CAPACITY);
 		sim.addInfoReceiver(new PortParkingListener());
+//		sim.addInfoReceiver(new PortParkingJSONListener());
 		return sim;
 	}
 

@@ -1,54 +1,54 @@
 package es.ull.iis.simulation.port.parking.json;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class DataMessage {
+public class DataMessage implements JSONable {
 
-    private String time;
-    private List<NewEvent> newEvents;
-    private List<UpdateEvent> updateEvents;
-    private List<DeleteEvent> deleteEvents;
+    private final String time;
+    private final List<NewEvent> newEvents;
+    private final List<UpdateEvent> updateEvents;
+    private final List<DeleteEvent> deleteEvents;
 
-    public DataMessage(String time, List<NewEvent> newEvents, List<UpdateEvent> updateEvents,
-            List<DeleteEvent> deleteEvents) {
+    public DataMessage(String time) {
         this.time = time;
-        this.newEvents = newEvents;
-        this.updateEvents = updateEvents;
-        this.deleteEvents = deleteEvents;
+        this.newEvents = new ArrayList<>();
+        this.updateEvents = new ArrayList<>();
+        this.deleteEvents = new ArrayList<>();
     }
 
     public String getTime() {
         return this.time;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void addEvent(NewEvent ev) {
+    	newEvents.add(ev);
     }
-
+    
     public List<NewEvent> getNewEvents() {
         return this.newEvents;
     }
 
-    public void setNewEvents(List<NewEvent> newEvents) {
-        this.newEvents = newEvents;
+    public void addEvent(UpdateEvent ev) {
+    	updateEvents.add(ev);
     }
-
+    
     public List<UpdateEvent> getUpdateEvents() {
         return this.updateEvents;
     }
 
-    public void setUpdateEvents(List<UpdateEvent> updateEvents) {
-        this.updateEvents = updateEvents;
+    public void addEvent(DeleteEvent ev) {
+    	deleteEvents.add(ev);
     }
-
+    
     public List<DeleteEvent> getDeleteEvents() {
         return this.deleteEvents;
     }
-
-    public void setDeleteEvents(List<DeleteEvent> deleteEvents) {
-        this.deleteEvents = deleteEvents;
+    
+    public boolean hasEvents() {
+    	return (newEvents.size() > 0 || updateEvents.size() > 0 || deleteEvents.size() > 0);
     }
 
     public JSONObject toJson() {

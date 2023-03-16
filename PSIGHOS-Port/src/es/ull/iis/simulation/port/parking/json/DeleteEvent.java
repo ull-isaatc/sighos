@@ -2,9 +2,9 @@ package es.ull.iis.simulation.port.parking.json;
 
 import org.json.JSONObject;
 
-public class DeleteEvent {
+public class DeleteEvent implements JSONable {
     
-    private int id;
+    private final  int id;
 
     public DeleteEvent(int id) {
         this.id = id;
@@ -12,10 +12,6 @@ public class DeleteEvent {
 
     public int getId() {
         return this.id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public JSONObject toJson() {

@@ -2,42 +2,36 @@ package es.ull.iis.simulation.port.parking.json;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
+
 import org.json.JSONObject;
 
-public class NewEvent {
+public class NewEvent implements JSONable {
     
-    private int id;
-    private String type;
-    private Map<String, Object> properties;
+    private final int id;
+    private final String type;
+    private final Map<String, Object> properties;
 
-    public NewEvent(int id, String type, Map<String, Object> properties) {
+    public NewEvent(int id, String type) {
         this.id = id;
         this.type = type;
-        this.properties = properties;
+        this.properties = new TreeMap<>();
     }
 
     public int getId() {
         return this.id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
     
     public String getType() {
         return this.type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public Map<String, Object> getProperties() {
         return this.properties;
     }
 
-    public void setProperties(Map<String, Object> properties) {
-        this.properties = properties;
+    public void addProperty(String key, Object property) {
+        this.properties.put(key, property);
     }
 
     public JSONObject toJson() {

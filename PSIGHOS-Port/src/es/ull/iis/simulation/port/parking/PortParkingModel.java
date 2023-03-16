@@ -35,7 +35,6 @@ import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla
- * TODO: Añadir al listener un mapeo entre Nodes y coordenadas (me lo pasarán)
  */
 public class PortParkingModel extends Simulation {
 	/** Time unit of the model */
@@ -62,9 +61,9 @@ public class PortParkingModel extends Simulation {
 	private static final TimeFunction UNLOAD_TRUCK_TIME =  TimeFunctionFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("BetaVariate", 10.0, 10.0), 4, 8);
 	private static final TimeFunction T_WAITING_TO_TRANSSHIPMENT_AREA = TimeFunctionFactory.getInstance("UniformVariate", 10*(1-PortParkingModel.TIME_UNCERTAINTY), 10*(1+PortParkingModel.TIME_UNCERTAINTY));
 	private static final TimeFunction T_TRANSSHIPMENT_TO_EXIT_AREA = TimeFunctionFactory.getInstance("UniformVariate", 10*(1-PortParkingModel.TIME_UNCERTAINTY), 10*(1+PortParkingModel.TIME_UNCERTAINTY));
-	private static final TimeFunction T_FROM_SOURCE_TO_ANCHORAGE = TimeFunctionFactory.getInstance("UniformVariate", 6*60*(1-PortParkingModel.TIME_UNCERTAINTY), 6*60*(1+PortParkingModel.TIME_UNCERTAINTY));
-	private static final long T_FIRST_ARRIVAL = 0L;
-	private static final SimulationTimeFunction T_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 7700);
+	private static final TimeFunction T_VESSEL_FROM_SOURCE_TO_ANCHORAGE = TimeFunctionFactory.getInstance("UniformVariate", 6*60*(1-PortParkingModel.TIME_UNCERTAINTY), 6*60*(1+PortParkingModel.TIME_UNCERTAINTY));
+	private static final long T_VESSEL_FIRST_ARRIVAL = 0L;
+	private static final SimulationTimeFunction T_VESSEL_INTERARRIVAL = new SimulationTimeFunction(PortParkingModel.TIME_UNIT, "ConstantVariate", 9900);
 	private static final int TRANSS_AREA_CAPACITY = 5;
 	private static final int MAX_SIMULTANEOUS_LOADS = 5;
 	/** The random seed to generate vessels. E.g. use "21" to select a vessel with only load operations; use "31" to select a vessel with only unload operations; use "47" to select a vessel with load and unload operations */
@@ -94,7 +93,7 @@ public class PortParkingModel extends Simulation {
 	 * goes to the quay, do some paperwork, and starts unloading its wares. 
 	 */
 	private void createModelForVessels(TruckCreatorFlow tCreator, String fileName) {
-		final VesselRouter vesselRouter = new VesselRouter(this, T_FROM_SOURCE_TO_ANCHORAGE);
+		final VesselRouter vesselRouter = new VesselRouter(this, T_VESSEL_FROM_SOURCE_TO_ANCHORAGE);
 		final int nQuays = QuayType.values().length;
 
 		// Performs a brief delay until it effectively arrives at the initial location
@@ -149,7 +148,8 @@ public class PortParkingModel extends Simulation {
 		
 		final MoveFlow returnFlow = new MoveFlow(this, "Return from Quay", Locations.VESSEL_SRC.getNode(), vesselRouter);			
 		paperWorkInDelayFlow.link(notifyTrucksAtQuayFlow).link(transVesselFlow).link(paperWorkOutDelayFlow).link(returnFlow);
-		new VesselCreator(this, tCreator, T_INTERARRIVAL, T_FIRST_ARRIVAL, fileName);
+		// TODO: Modificar para permitir la creación adhoc de un único barco para testeo
+		new VesselCreator(this, tCreator, T_VESSEL_INTERARRIVAL, T_VESSEL_FIRST_ARRIVAL, fileName);
 	}
 
 	private TruckCreatorFlow createModelForTrucks() {
