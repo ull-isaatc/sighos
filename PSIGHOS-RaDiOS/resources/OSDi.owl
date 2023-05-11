@@ -15,79 +15,79 @@
     <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483687"/>
+        <AnonymousIndividual nodeID="_:genid2147484681"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483688"/>
+        <AnonymousIndividual nodeID="_:genid2147484682"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483689"/>
+        <AnonymousIndividual nodeID="_:genid2147484683"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483690"/>
+        <AnonymousIndividual nodeID="_:genid2147484684"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483691"/>
+        <AnonymousIndividual nodeID="_:genid2147484685"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483692"/>
+        <AnonymousIndividual nodeID="_:genid2147484686"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483693"/>
+        <AnonymousIndividual nodeID="_:genid2147484687"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483694"/>
+        <AnonymousIndividual nodeID="_:genid2147484688"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483695"/>
+        <AnonymousIndividual nodeID="_:genid2147484689"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483696"/>
+        <AnonymousIndividual nodeID="_:genid2147484690"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483697"/>
+        <AnonymousIndividual nodeID="_:genid2147484691"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483698"/>
+        <AnonymousIndividual nodeID="_:genid2147484692"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483699"/>
+        <AnonymousIndividual nodeID="_:genid2147484693"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483700"/>
+        <AnonymousIndividual nodeID="_:genid2147484694"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483701"/>
+        <AnonymousIndividual nodeID="_:genid2147484695"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483702"/>
+        <AnonymousIndividual nodeID="_:genid2147484696"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483703"/>
+        <AnonymousIndividual nodeID="_:genid2147484697"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483704"/>
+        <AnonymousIndividual nodeID="_:genid2147484698"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147483705"/>
+        <AnonymousIndividual nodeID="_:genid2147484699"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
@@ -100,6 +100,12 @@
     orcid: https://orcid.org/0000-0003-1411-129X
 }</Literal>
     </Annotation>
+    <Declaration>
+        <Class IRI="#Characteristic"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#CharacteristicValue"/>
+    </Declaration>
     <Declaration>
         <Class IRI="#Cost"/>
     </Declaration>
@@ -135,12 +141,6 @@
     </Declaration>
     <Declaration>
         <Class IRI="#HealthTechnology"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#IndividualParameter"/>
-    </Declaration>
-    <Declaration>
-        <Class IRI="#IndividualParameterValue"/>
     </Declaration>
     <Declaration>
         <Class IRI="#Intervention"/>
@@ -182,7 +182,10 @@
         <Class IRI="#Utility"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#definesIndividualParameterValue"/>
+        <Class IRI="#Valuable"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#definesCharacteristicValue"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#excludesManifestation"/>
@@ -272,16 +275,16 @@
         <ObjectProperty IRI="#isSubpopulationOf"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#isValueOfIndividualParameter"/>
+        <ObjectProperty IRI="#isValueOfCharacteristic"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#modifies"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#modifiesDevelopment"/>
+        <ObjectProperty IRI="#modifiesCharacteristic"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#modifiesIndividualParameter"/>
+        <ObjectProperty IRI="#modifiesDevelopment"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#modifiesManifestation"/>
@@ -350,6 +353,9 @@
         <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
     </Declaration>
     <Declaration>
+        <DataProperty IRI="#hasExpectedValue"/>
+    </Declaration>
+    <Declaration>
         <DataProperty IRI="#hasFemaleProportion"/>
     </Declaration>
     <Declaration>
@@ -357,6 +363,9 @@
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasGeographicalContext"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasHeterogeneity"/>
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasHoursInterval"/>
@@ -390,6 +399,9 @@
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasOnsetAge"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasParameterUncertainty"/>
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasProbability"/>
@@ -438,6 +450,9 @@
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasStepOrder"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasStochasticUncertainty"/>
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasTemporalBehavior"/>
@@ -725,6 +740,31 @@
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
     </Declaration>
     <SubClassOf>
+        <Class IRI="#Characteristic"/>
+        <DataSomeValuesFrom>
+            <DataProperty IRI="#hasRefToSNOMED"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Characteristic"/>
+        <DataExactCardinality cardinality="1">
+            <DataProperty IRI="#hasName"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Characteristic"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasDescription"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#CharacteristicValue"/>
+        <Class IRI="#Valuable"/>
+    </SubClassOf>
+    <SubClassOf>
         <Class IRI="#Cost"/>
         <Class IRI="#Parameter"/>
     </SubClassOf>
@@ -924,41 +964,6 @@
         </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#IndividualParameter"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasRefToSNOMED"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#IndividualParameter"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasName"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataExactCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#IndividualParameter"/>
-        <DataMaxCardinality cardinality="1">
-            <DataProperty IRI="#hasDescription"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataMaxCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#IndividualParameterValue"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasValue"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataExactCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#IndividualParameterValue"/>
-        <DataMaxCardinality cardinality="1">
-            <DataProperty IRI="#hasSource"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataMaxCardinality>
-    </SubClassOf>
-    <SubClassOf>
         <Class IRI="#Intervention"/>
         <DataExactCardinality cardinality="1">
             <DataProperty IRI="#hasInterventionKind"/>
@@ -1136,15 +1141,12 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Parameter"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasGeographicalContext"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
+        <Class IRI="#Valuable"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Parameter"/>
         <DataSomeValuesFrom>
-            <DataProperty IRI="#hasSource"/>
+            <DataProperty IRI="#hasGeographicalContext"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
     </SubClassOf>
@@ -1166,6 +1168,13 @@
         <Class IRI="#Parameter"/>
         <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasDescription"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Parameter"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasParameterUncertainty"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
     </SubClassOf>
@@ -1334,6 +1343,34 @@
                 <Literal>UTILITY</Literal>
             </DataOneOf>
         </DataSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Valuable"/>
+        <DataExactCardinality cardinality="1">
+            <DataProperty IRI="#hasExpectedValue"/>
+            <Datatype abbreviatedIRI="xsd:double"/>
+        </DataExactCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Valuable"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasHeterogeneity"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Valuable"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasSource"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Valuable"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasStochasticUncertainty"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
     </SubClassOf>
     <ClassAssertion>
         <Class IRI="#Guideline"/>
@@ -1520,11 +1557,11 @@
         <NamedIndividual IRI="#PBD_UtilityManifestationSeizure"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#IndividualParameter"/>
+        <Class IRI="#Characteristic"/>
         <NamedIndividual IRI="#ParameterAge"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#IndividualParameter"/>
+        <Class IRI="#Characteristic"/>
         <NamedIndividual IRI="#ParameterHbA1c"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -1636,11 +1673,11 @@
         <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#IndividualParameterValue"/>
+        <Class IRI="#CharacteristicValue"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#IndividualParameterValue"/>
+        <Class IRI="#CharacteristicValue"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -2270,17 +2307,17 @@
         <NamedIndividual IRI="#T1DM_ManifestationNEU"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#modifiesIndividualParameter"/>
+        <ObjectProperty IRI="#modifiesCharacteristic"/>
         <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
         <NamedIndividual IRI="#ParameterHbA1c"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#definesIndividualParameterValue"/>
+        <ObjectProperty IRI="#definesCharacteristicValue"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#definesIndividualParameterValue"/>
+        <ObjectProperty IRI="#definesCharacteristicValue"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
     </ObjectPropertyAssertion>
@@ -2300,12 +2337,12 @@
         <NamedIndividual IRI="#T1DM_U_General"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#isValueOfIndividualParameter"/>
+        <ObjectProperty IRI="#isValueOfCharacteristic"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
         <NamedIndividual IRI="#ParameterDurationOfDiabetes"/>
     </ObjectPropertyAssertion>
     <ObjectPropertyAssertion>
-        <ObjectProperty IRI="#isValueOfIndividualParameter"/>
+        <ObjectProperty IRI="#isValueOfCharacteristic"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
         <NamedIndividual IRI="#ParameterHbA1c"/>
     </ObjectPropertyAssertion>
@@ -2380,6 +2417,11 @@
         <Literal>BIRTH PREVALENCE</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">1.47884E-5</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2390,9 +2432,9 @@
         <Literal>APPARENT</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
+        <DataProperty IRI="#hasParameterUncertainty"/>
         <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
-        <Literal>1.47884E-05#Beta(8, 540955)</Literal>
+        <Literal>Beta(8, 540955)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSensitivity"/>
@@ -3604,28 +3646,28 @@
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">13</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasSource"/>
-        <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
-        <Literal>DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
+        <DataProperty IRI="#hasExpectedValue"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
         <Literal>2.6#Normal(2.6,1.4)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
-        <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
-        <Literal>Own calculation from: Design of DCCT (http://diabetes.diabetesjournals.org/content/35/5/530) and DCCT (https://www.nejm.org/doi/10.1056/NEJM199309303291401)</Literal>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_Duration"/>
+        <Literal>DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <Annotation>
             <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
             <Literal>8.8#6.6+Gamma(1.6747404844290676,1.3136363636363628)</Literal>
         </Annotation>
-        <DataProperty IRI="#hasValue"/>
+        <DataProperty IRI="#hasExpectedValue"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">8.8</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasSource"/>
+        <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
+        <Literal>Own calculation from: Design of DCCT (http://diabetes.diabetesjournals.org/content/35/5/530) and DCCT (https://www.nejm.org/doi/10.1056/NEJM199309303291401)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
@@ -3874,11 +3916,11 @@
         <ObjectProperty IRI="#isParameterOf"/>
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
-        <ObjectProperty IRI="#modifiesDevelopment"/>
+        <ObjectProperty IRI="#modifiesCharacteristic"/>
         <ObjectProperty IRI="#modifies"/>
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
-        <ObjectProperty IRI="#modifiesIndividualParameter"/>
+        <ObjectProperty IRI="#modifiesDevelopment"/>
         <ObjectProperty IRI="#modifies"/>
     </SubObjectPropertyOf>
     <SubObjectPropertyOf>
@@ -3926,7 +3968,7 @@
         <ObjectProperty IRI="#modifies"/>
     </InverseObjectProperties>
     <ObjectPropertyDomain>
-        <ObjectProperty IRI="#definesIndividualParameterValue"/>
+        <ObjectProperty IRI="#definesCharacteristicValue"/>
         <ObjectUnionOf>
             <Class IRI="#Development"/>
             <Class IRI="#Disease"/>
@@ -4083,8 +4125,8 @@
         <Class IRI="#Population"/>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
-        <ObjectProperty IRI="#isValueOfIndividualParameter"/>
-        <Class IRI="#IndividualParameterValue"/>
+        <ObjectProperty IRI="#isValueOfCharacteristic"/>
+        <Class IRI="#CharacteristicValue"/>
     </ObjectPropertyDomain>
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#modifies"/>
@@ -4119,8 +4161,8 @@
         <Class IRI="#LineOfTherapy"/>
     </ObjectPropertyDomain>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#definesIndividualParameterValue"/>
-        <Class IRI="#IndividualParameterValue"/>
+        <ObjectProperty IRI="#definesCharacteristicValue"/>
+        <Class IRI="#CharacteristicValue"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#excludesManifestation"/>
@@ -4219,25 +4261,25 @@
         <Class IRI="#Population"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#isValueOfIndividualParameter"/>
-        <Class IRI="#IndividualParameter"/>
+        <ObjectProperty IRI="#isValueOfCharacteristic"/>
+        <Class IRI="#Characteristic"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#modifies"/>
         <ObjectUnionOf>
+            <Class IRI="#Characteristic"/>
             <Class IRI="#Development"/>
-            <Class IRI="#IndividualParameter"/>
             <Class IRI="#Manifestation"/>
             <Class IRI="#ManifestationPathway"/>
         </ObjectUnionOf>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#modifiesDevelopment"/>
-        <Class IRI="#Development"/>
+        <ObjectProperty IRI="#modifiesCharacteristic"/>
+        <Class IRI="#Characteristic"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
-        <ObjectProperty IRI="#modifiesIndividualParameter"/>
-        <Class IRI="#IndividualParameter"/>
+        <ObjectProperty IRI="#modifiesDevelopment"/>
+        <Class IRI="#Development"/>
     </ObjectPropertyRange>
     <ObjectPropertyRange>
         <ObjectProperty IRI="#modifiesManifestation"/>
@@ -4282,6 +4324,10 @@
     <SubDataPropertyOf>
         <DataProperty IRI="#hasEndAge"/>
         <DataProperty IRI="#hasAge"/>
+    </SubDataPropertyOf>
+    <SubDataPropertyOf>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <DataProperty abbreviatedIRI="owl:topDataProperty"/>
     </SubDataPropertyOf>
     <SubDataPropertyOf>
         <DataProperty IRI="#hasMaxAge"/>
@@ -4353,6 +4399,16 @@
     </DataPropertyRange>
     <AnnotationAssertion>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Characteristic</IRI>
+        <Literal>Clinical parameters that define the state of a patient and whose value may modify the evolution of the Disease and/or specific manifestations</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#CharacteristicValue</IRI>
+        <Literal>The value of an individual parameter for a specific class, such as a Disease, Development or Population</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
         <IRI>#Cost</IRI>
         <Literal>Cost related to any class</Literal>
     </AnnotationAssertion>
@@ -4400,16 +4456,6 @@
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
         <IRI>#HealthTechnology</IRI>
         <Literal>Any treatment, drug, test... that may be applied to a patient</Literal>
-    </AnnotationAssertion>
-    <AnnotationAssertion>
-        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
-        <IRI>#IndividualParameter</IRI>
-        <Literal>Clinical parameters that define the state of a patient and whose value may modify the evolution of the Disease and/or specific manifestations</Literal>
-    </AnnotationAssertion>
-    <AnnotationAssertion>
-        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
-        <IRI>#IndividualParameterValue</IRI>
-        <Literal>The value of an individual parameter for a specific class, such as a Disease, Development or Population</Literal>
     </AnnotationAssertion>
     <AnnotationAssertion>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
