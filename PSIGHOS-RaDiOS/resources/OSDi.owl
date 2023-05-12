@@ -7,87 +7,93 @@
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      ontologyIRI="http://www.ull.es/iis/simulation/ontologies/disease-simulation"
      versionIRI="http://www.ull.es/iis/simulation/ontologies/disease-simulation/1.0">
-    <Prefix name="" IRI="http://www.ull.es/iis/simulation/ontologies/disease-simulation"/>
+    <Prefix name="do" IRI="https://disease-ontology.org/?id=DOID:"/>
+    <Prefix name="icd" IRI="https://icd.who.int/browse10/2019/en#/"/>
     <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
     <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
     <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
     <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="omim" IRI="https://omim.org/entry/"/>
+    <Prefix name="ordo" IRI="http://www.orpha.net/ORDO/Orphanet_"/>
+    <Prefix name="osdi" IRI="http://www.ull.es/iis/simulation/ontologies/disease-simulation"/>
     <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Prefix name="stato" IRI="http://purl.obolibrary.org/obo/STATO_"/>
+    <Prefix name="snomed" IRI="http://purl.bioontology.org/ontology/SNOMEDCT/"/>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484681"/>
+        <AnonymousIndividual nodeID="_:genid2147483648"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484682"/>
+        <AnonymousIndividual nodeID="_:genid2147483649"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484683"/>
+        <AnonymousIndividual nodeID="_:genid2147483650"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484684"/>
+        <AnonymousIndividual nodeID="_:genid2147483651"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484685"/>
+        <AnonymousIndividual nodeID="_:genid2147483652"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484686"/>
+        <AnonymousIndividual nodeID="_:genid2147483653"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484687"/>
+        <AnonymousIndividual nodeID="_:genid2147483654"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484688"/>
+        <AnonymousIndividual nodeID="_:genid2147483655"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484689"/>
+        <AnonymousIndividual nodeID="_:genid2147483656"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484690"/>
+        <AnonymousIndividual nodeID="_:genid2147483657"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484691"/>
+        <AnonymousIndividual nodeID="_:genid2147483658"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484692"/>
+        <AnonymousIndividual nodeID="_:genid2147483659"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484693"/>
+        <AnonymousIndividual nodeID="_:genid2147483660"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484694"/>
+        <AnonymousIndividual nodeID="_:genid2147483661"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484695"/>
+        <AnonymousIndividual nodeID="_:genid2147483662"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484696"/>
+        <AnonymousIndividual nodeID="_:genid2147483663"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484697"/>
+        <AnonymousIndividual nodeID="_:genid2147483664"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484698"/>
+        <AnonymousIndividual nodeID="_:genid2147483665"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
-        <AnonymousIndividual nodeID="_:genid2147484699"/>
+        <AnonymousIndividual nodeID="_:genid2147483666"/>
     </Annotation>
     <Annotation>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
@@ -101,10 +107,16 @@
 }</Literal>
     </Annotation>
     <Declaration>
+        <Class IRI="#BirthPrevalence"/>
+    </Declaration>
+    <Declaration>
         <Class IRI="#Characteristic"/>
     </Declaration>
     <Declaration>
         <Class IRI="#CharacteristicValue"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#CharacteristicValueModification"/>
     </Declaration>
     <Declaration>
         <Class IRI="#Cost"/>
@@ -120,6 +132,9 @@
     </Declaration>
     <Declaration>
         <Class IRI="#Disease"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DiseaseProgressionParameter"/>
     </Declaration>
     <Declaration>
         <Class IRI="#Drug"/>
@@ -143,6 +158,9 @@
         <Class IRI="#HealthTechnology"/>
     </Declaration>
     <Declaration>
+        <Class IRI="#Incidence"/>
+    </Declaration>
+    <Declaration>
         <Class IRI="#Intervention"/>
     </Declaration>
     <Declaration>
@@ -158,13 +176,31 @@
         <Class IRI="#Modification"/>
     </Declaration>
     <Declaration>
+        <Class IRI="#OddRatio"/>
+    </Declaration>
+    <Declaration>
         <Class IRI="#Parameter"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#ParameterModification"/>
     </Declaration>
     <Declaration>
         <Class IRI="#Population"/>
     </Declaration>
     <Declaration>
+        <Class IRI="#Prevalence"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Probability"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Proportion"/>
+    </Declaration>
+    <Declaration>
         <Class IRI="#RareDisease"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#RelativeRisk"/>
     </Declaration>
     <Declaration>
         <Class IRI="#ScreeningStrategy"/>
@@ -183,6 +219,9 @@
     </Declaration>
     <Declaration>
         <Class IRI="#Valuable"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#timeToEvent"/>
     </Declaration>
     <Declaration>
         <ObjectProperty IRI="#definesCharacteristicValue"/>
@@ -350,9 +389,6 @@
         <DataProperty IRI="#hasEndAge"/>
     </Declaration>
     <Declaration>
-        <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
-    </Declaration>
-    <Declaration>
         <DataProperty IRI="#hasExpectedValue"/>
     </Declaration>
     <Declaration>
@@ -395,9 +431,6 @@
         <DataProperty IRI="#hasName"/>
     </Declaration>
     <Declaration>
-        <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
-    </Declaration>
-    <Declaration>
         <DataProperty IRI="#hasOnsetAge"/>
     </Declaration>
     <Declaration>
@@ -416,6 +449,9 @@
         <DataProperty IRI="#hasRange"/>
     </Declaration>
     <Declaration>
+        <DataProperty IRI="#hasRefTo"/>
+    </Declaration>
+    <Declaration>
         <DataProperty IRI="#hasRefToDO"/>
     </Declaration>
     <Declaration>
@@ -432,6 +468,9 @@
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasRefToSNOMED"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#hasRefToSTATO"/>
     </Declaration>
     <Declaration>
         <DataProperty IRI="#hasRelativeRisk"/>
@@ -467,10 +506,10 @@
         <DataProperty IRI="#hasUtilityKind"/>
     </Declaration>
     <Declaration>
-        <DataProperty IRI="#hasValue"/>
+        <DataProperty IRI="#hasYear"/>
     </Declaration>
     <Declaration>
-        <DataProperty IRI="#hasYear"/>
+        <DataProperty IRI="#isTrueEpidemiologicalParameterEstimate"/>
     </Declaration>
     <Declaration>
         <NamedIndividual IRI="#GuidelineLifetimeAnual"/>
@@ -740,6 +779,10 @@
         <AnnotationProperty IRI="http://ainf.aau.at/ontodebug#testCase"/>
     </Declaration>
     <SubClassOf>
+        <Class IRI="#BirthPrevalence"/>
+        <Class IRI="#EpidemiologicalParameter"/>
+    </SubClassOf>
+    <SubClassOf>
         <Class IRI="#Characteristic"/>
         <DataSomeValuesFrom>
             <DataProperty IRI="#hasRefToSNOMED"/>
@@ -762,6 +805,14 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#CharacteristicValue"/>
+        <Class IRI="#Valuable"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#CharacteristicValueModification"/>
+        <Class IRI="#Modification"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#CharacteristicValueModification"/>
         <Class IRI="#Valuable"/>
     </SubClassOf>
     <SubClassOf>
@@ -878,6 +929,10 @@
         </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
+        <Class IRI="#DiseaseProgressionParameter"/>
+        <Class IRI="#Parameter"/>
+    </SubClassOf>
+    <SubClassOf>
         <Class IRI="#Drug"/>
         <Class IRI="#HealthTechnology"/>
     </SubClassOf>
@@ -887,24 +942,10 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#EpidemiologicalParameter"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
-            <DataOneOf>
-                <Literal>BIRTH PREVALENCE</Literal>
-                <Literal>INCIDENCE</Literal>
-                <Literal>PREVALENCE</Literal>
-            </DataOneOf>
-        </DataExactCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#EpidemiologicalParameter"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
-            <DataOneOf>
-                <Literal>APPARENT</Literal>
-                <Literal>TRUE</Literal>
-            </DataOneOf>
-        </DataExactCardinality>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#isTrueEpidemiologicalParameterEstimate"/>
+            <Datatype abbreviatedIRI="xsd:boolean"/>
+        </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#FollowUpStrategy"/>
@@ -962,6 +1003,10 @@
             <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Incidence"/>
+        <Class IRI="#EpidemiologicalParameter"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Intervention"/>
@@ -1120,24 +1165,14 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Modification"/>
-        <DataExactCardinality cardinality="1">
-            <DataProperty IRI="#hasValue"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataExactCardinality>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Modification"/>
         <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasDescription"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="#Modification"/>
-        <DataMaxCardinality cardinality="1">
-            <DataProperty IRI="#hasSource"/>
-            <Datatype abbreviatedIRI="xsd:string"/>
-        </DataMaxCardinality>
+        <Class IRI="#OddRatio"/>
+        <Class IRI="#DiseaseProgressionParameter"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Parameter"/>
@@ -1148,13 +1183,6 @@
         <DataSomeValuesFrom>
             <DataProperty IRI="#hasGeographicalContext"/>
             <Datatype abbreviatedIRI="xsd:string"/>
-        </DataSomeValuesFrom>
-    </SubClassOf>
-    <SubClassOf>
-        <Class IRI="#Parameter"/>
-        <DataSomeValuesFrom>
-            <DataProperty IRI="#hasValue"/>
-            <Datatype abbreviatedIRI="xsd:double"/>
         </DataSomeValuesFrom>
     </SubClassOf>
     <SubClassOf>
@@ -1173,6 +1201,21 @@
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#Parameter"/>
+        <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasParameterUncertainty"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ParameterModification"/>
+        <Class IRI="#Modification"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ParameterModification"/>
+        <Class IRI="#Valuable"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ParameterModification"/>
         <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasParameterUncertainty"/>
             <Datatype abbreviatedIRI="xsd:string"/>
@@ -1235,6 +1278,18 @@
         </DataMaxCardinality>
     </SubClassOf>
     <SubClassOf>
+        <Class IRI="#Prevalence"/>
+        <Class IRI="#EpidemiologicalParameter"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Probability"/>
+        <Class IRI="#DiseaseProgressionParameter"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Proportion"/>
+        <Class IRI="#DiseaseProgressionParameter"/>
+    </SubClassOf>
+    <SubClassOf>
         <Class IRI="#RareDisease"/>
         <Class IRI="#Disease"/>
     </SubClassOf>
@@ -1251,6 +1306,10 @@
             <DataProperty IRI="#hasRefToORDO"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#RelativeRisk"/>
+        <Class IRI="#DiseaseProgressionParameter"/>
     </SubClassOf>
     <SubClassOf>
         <Class IRI="#ScreeningStrategy"/>
@@ -1361,6 +1420,13 @@
     <SubClassOf>
         <Class IRI="#Valuable"/>
         <DataMaxCardinality cardinality="1">
+            <DataProperty IRI="#hasRefToSTATO"/>
+            <Datatype abbreviatedIRI="xsd:string"/>
+        </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Valuable"/>
+        <DataMaxCardinality cardinality="1">
             <DataProperty IRI="#hasSource"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
@@ -1371,6 +1437,10 @@
             <DataProperty IRI="#hasStochasticUncertainty"/>
             <Datatype abbreviatedIRI="xsd:string"/>
         </DataMaxCardinality>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#timeToEvent"/>
+        <Class IRI="#DiseaseProgressionParameter"/>
     </SubClassOf>
     <ClassAssertion>
         <Class IRI="#Guideline"/>
@@ -1385,7 +1455,7 @@
         <NamedIndividual IRI="#PBD_BasePopulation"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#EpidemiologicalParameter"/>
+        <Class IRI="#BirthPrevalence"/>
         <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -1449,7 +1519,7 @@
         <NamedIndividual IRI="#PBD_CostTreatmentStrategy"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#EpidemiologicalParameter"/>
+        <Class IRI="#BirthPrevalence"/>
         <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -1517,7 +1587,7 @@
         <NamedIndividual IRI="#PBD_ManifestationVisionLoss"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#Modification"/>
+        <Class IRI="#ParameterModification"/>
         <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -1562,7 +1632,15 @@
     </ClassAssertion>
     <ClassAssertion>
         <Class IRI="#Characteristic"/>
+        <NamedIndividual IRI="#ParameterDurationOfDiabetes"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Characteristic"/>
         <NamedIndividual IRI="#ParameterHbA1c"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Characteristic"/>
+        <NamedIndividual IRI="#ParameterSex"/>
     </ClassAssertion>
     <ClassAssertion>
         <Class IRI="#Cost"/>
@@ -1665,7 +1743,7 @@
         <NamedIndividual IRI="#T1DM_ManifestationPathwayNEU_LEA"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#Modification"/>
+        <Class IRI="#CharacteristicValueModification"/>
         <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -1681,11 +1759,11 @@
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_HbA1c"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#EpidemiologicalParameter"/>
+        <Class IRI="#Prevalence"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="#EpidemiologicalParameter"/>
+        <Class IRI="#Prevalence"/>
         <NamedIndividual IRI="#T1DM_Prevalence100"/>
     </ClassAssertion>
     <ClassAssertion>
@@ -2412,11 +2490,6 @@
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">540963</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
-        <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
-        <Literal>BIRTH PREVALENCE</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasExpectedValue"/>
         <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">1.47884E-5</Literal>
@@ -2427,14 +2500,14 @@
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
-        <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
-        <Literal>APPARENT</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasParameterUncertainty"/>
         <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
         <Literal>Beta(8, 540955)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#isTrueEpidemiologicalParameterEstimate"/>
+        <NamedIndividual IRI="#PBD_BirthPrevalenceSpain"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#boolean">false</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSensitivity"/>
@@ -2462,19 +2535,24 @@
         <Literal>Cost of diagnosis for profound BD in Spain. Includes retest for screening, two diagnostic tests and two blood extraction.</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostDiagnosis"/>
+        <Literal>509.65</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostDiagnosis"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#PBD_CostDiagnosis"/>
+        <Literal>UNIFORM(409.65, 609.65)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostDiagnosis"/>
         <Literal>ONETIME</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostDiagnosis"/>
-        <Literal>509.65#UNIFORM(409.65, 609.65)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2492,6 +2570,11 @@
         <Literal>Cost for annual ophthalmologic, auditory, and medical geneticist or metabolic specialist evaluations, and urinary organic acid and acylcarnitine analyses</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostFollowUpStrategy"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">616.75672</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostFollowUpStrategy"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2500,11 +2583,6 @@
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostFollowUpStrategy"/>
         <Literal>ANNUAL</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostFollowUpStrategy"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">616.75672</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2522,6 +2600,11 @@
         <Literal>Annual costs for hearing problems.</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostManifestationHearingProblems"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">155.14</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostManifestationHearingProblems"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2530,11 +2613,6 @@
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostManifestationHearingProblems"/>
         <Literal>ANNUAL</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostManifestationHearingProblems"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">155.14</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2552,6 +2630,11 @@
         <Literal>Initial costs for hearing problems.</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostManifestationHearingProblemsInitial"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">31169.95</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostManifestationHearingProblemsInitial"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2560,11 +2643,6 @@
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostManifestationHearingProblemsInitial"/>
         <Literal>ONETIME</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostManifestationHearingProblemsInitial"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">31169.95</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2582,6 +2660,11 @@
         <Literal>Annual costs for hypotonia.</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostManifestationHypotonia"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">3665.56</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostManifestationHypotonia"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2590,11 +2673,6 @@
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostManifestationHypotonia"/>
         <Literal>ONETIME</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostManifestationHypotonia"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">3665.56</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2612,6 +2690,11 @@
         <Literal>Annual costs for mental delay.</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostManifestationMentalDelay"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">217.74</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostManifestationMentalDelay"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2620,11 +2703,6 @@
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostManifestationMentalDelay"/>
         <Literal>ANNUAL</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostManifestationMentalDelay"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">217.74</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2642,6 +2720,11 @@
         <Literal>Initial costs for mental delay.</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostManifestationMentalDelayInitial"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">1218.02</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostManifestationMentalDelayInitial"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2650,11 +2733,6 @@
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostManifestationMentalDelayInitial"/>
         <Literal>ONETIME</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostManifestationMentalDelayInitial"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">1218.02</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2672,6 +2750,11 @@
         <Literal>Annual costs for seizures.</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostManifestationSeizure"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">3665.56</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostManifestationSeizure"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2680,11 +2763,6 @@
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostManifestationSeizure"/>
         <Literal>ONETIME</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostManifestationSeizure"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">3665.56</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2702,6 +2780,11 @@
         <Literal>Annual costs for skin problems.</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostManifestationSkinProblems"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">3665.56</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostManifestationSkinProblems"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2710,11 +2793,6 @@
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostManifestationSkinProblems"/>
         <Literal>ONETIME</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostManifestationSkinProblems"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">3665.56</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2732,6 +2810,11 @@
         <Literal>Annual costs for vision loss.</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostManifestationVisionLoss"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">121.86</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostManifestationVisionLoss"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2740,11 +2823,6 @@
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostManifestationVisionLoss"/>
         <Literal>ANNUAL</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostManifestationVisionLoss"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">121.86</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2762,6 +2840,11 @@
         <Literal>Initial costs for vision loss.</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostManifestationVisionLossInitial"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">251.8</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostManifestationVisionLossInitial"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2770,11 +2853,6 @@
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostManifestationVisionLossInitial"/>
         <Literal>ONETIME</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostManifestationVisionLossInitial"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">251.8</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2792,19 +2870,24 @@
         <Literal>Cost of screening test for profound biotinidase deficiency in Spain</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostScreening"/>
+        <Literal>0.89</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostScreening"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#PBD_CostScreening"/>
+        <Literal>UNIFORM(0.5, 2.5)</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasTemporalBehavior"/>
         <NamedIndividual IRI="#PBD_CostScreening"/>
         <Literal>ONETIME</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostScreening"/>
-        <Literal>0.89#UNIFORM(0.5, 2.5)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
@@ -2822,6 +2905,11 @@
         <Literal>Cost of annual use of biotin for profound biotinidase deficiency</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_CostTreatmentStrategy"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">66.2475</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_CostTreatmentStrategy"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -2832,29 +2920,19 @@
         <Literal>ANNUAL</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_CostTreatmentStrategy"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">66.2475</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
         <NamedIndividual IRI="#PBD_CostTreatmentStrategy"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#short">2013</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
-        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
-        <Literal>BIRTH PREVALENCE</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
-        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
-        <Literal>APPARENT</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
+        <DataProperty IRI="#hasExpectedValue"/>
         <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">1</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#isTrueEpidemiologicalParameterEstimate"/>
+        <NamedIndividual IRI="#PBD_FakeBirthPrevalence"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#boolean">false</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasAge"/>
@@ -3062,14 +3140,14 @@
         <Literal>Sets the probabilities of all the manifestations to 0</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.0</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasModificationKind"/>
         <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
         <Literal>SET</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_ManifestationsModificationScreening"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.0</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasLifeExpectancy"/>
@@ -3079,7 +3157,7 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToDO"/>
         <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>
-        <Literal>DOID:856</Literal>
+        <Literal>do:856</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToGARD"/>
@@ -3089,17 +3167,17 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToICD"/>
         <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>
-        <Literal>E53.8</Literal>
+        <Literal>icd:E53.8</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToOMIM"/>
         <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>
-        <Literal>https://omim.org/entry/253260</Literal>
+        <Literal>omim:253260</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToORDO"/>
         <NamedIndividual IRI="#PBD_ProfoundBiotinidaseDeficiency"/>
-        <Literal>https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&amp;Expert=79241</Literal>
+        <Literal>ordo:79241</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
@@ -3132,6 +3210,11 @@
         <Literal>Lifetime treatment with biotin</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_UtilityBasePopulation"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">0.8861</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasGeographicalContext"/>
         <NamedIndividual IRI="#PBD_UtilityBasePopulation"/>
         <Literal>Spain @https://www.wikidata.org/wiki/q29</Literal>
@@ -3147,9 +3230,14 @@
         <Literal>UTILITY</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_UtilityBasePopulation"/>
-        <Literal>0.8861</Literal>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_UtilityManifestationHearingProblems"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.01</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#PBD_UtilityManifestationHearingProblems"/>
+        <Literal>UNIFORM(0.008,0.012)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasTemporalBehavior"/>
@@ -3162,9 +3250,14 @@
         <Literal>DISUTILITY</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_UtilityManifestationHearingProblems"/>
-        <Literal>0.01#UNIFORM(0.008,0.012)</Literal>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_UtilityManifestationMentalDelay"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.07</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#PBD_UtilityManifestationMentalDelay"/>
+        <Literal>UNIFORM(0.056,0.084)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasTemporalBehavior"/>
@@ -3175,16 +3268,21 @@
         <DataProperty IRI="#hasUtilityKind"/>
         <NamedIndividual IRI="#PBD_UtilityManifestationMentalDelay"/>
         <Literal>DISUTILITY</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_UtilityManifestationMentalDelay"/>
-        <Literal>0.07#UNIFORM(0.056,0.084)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasCalculationMethod"/>
         <NamedIndividual IRI="#PBD_UtilityManifestationSeizure"/>
         <Literal>EQ-5D??</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#PBD_UtilityManifestationSeizure"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.04</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#PBD_UtilityManifestationSeizure"/>
+        <Literal>UNIFORM(0.032,0.048)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3202,11 +3300,6 @@
         <Literal>DISUTILITY</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#PBD_UtilityManifestationSeizure"/>
-        <Literal>0.04#UNIFORM(0.032,0.048)</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
         <NamedIndividual IRI="#ParameterAge"/>
         <Literal>The age of an individual (in years)</Literal>
@@ -3219,7 +3312,7 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToSNOMED"/>
         <NamedIndividual IRI="#ParameterAge"/>
-        <Literal>https://browser.ihtsdotools.org/?perspective=full&amp;conceptId1=397669002&amp;edition=MAIN/2022-07-31&amp;release=&amp;languages=en</Literal>
+        <Literal>snomed:397669002</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
@@ -3234,7 +3327,7 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToSNOMED"/>
         <NamedIndividual IRI="#ParameterDurationOfDiabetes"/>
-        <Literal>https://browser.ihtsdotools.org/?perspective=full&amp;conceptId1=762636008&amp;edition=MAIN/2022-07-31&amp;release=&amp;languages=en</Literal>
+        <Literal>snomed:762636008</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
@@ -3249,7 +3342,7 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToSNOMED"/>
         <NamedIndividual IRI="#ParameterHbA1c"/>
-        <Literal>http://purl.bioontology.org/ontology/SNOMEDCT/313835008</Literal>
+        <Literal>snomed:313835008</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
@@ -3264,12 +3357,17 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToSNOMED"/>
         <NamedIndividual IRI="#ParameterSex"/>
-        <Literal>https://browser.ihtsdotools.org/?perspective=full&amp;conceptId1=734000001&amp;edition=MAIN/2022-07-31&amp;release=&amp;languages=en</Literal>
+        <Literal>snomed:734000001</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
         <NamedIndividual IRI="#T1DM_AC_Disease"/>
         <Literal>Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_AC_Disease"/>
+        <Literal>1116.733023</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3282,11 +3380,6 @@
         <Literal>ANNUAL</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_AC_Disease"/>
-        <Literal>1116.733023</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
         <NamedIndividual IRI="#T1DM_AC_Disease"/>
         <Literal>2012</Literal>
@@ -3295,6 +3388,16 @@
         <DataProperty IRI="#hasDescription"/>
         <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
         <Literal>Annual cost for treatment of End Stage Renal Disease</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">34259.48</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
+        <Literal>Gamma(24.999999999999996,1370.3792000000003)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3307,11 +3410,6 @@
         <Literal>ANNUAL</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
-        <Literal>34259.48#Gamma(24.999999999999996,1370.3792000000003)</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
         <NamedIndividual IRI="#T1DM_AC_ManifestationESRD"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2015</Literal>
@@ -3320,6 +3418,11 @@
         <DataProperty IRI="#hasDescription"/>
         <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
         <Literal>Annual cost after amputation of low extremity</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">918.01</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3332,11 +3435,6 @@
         <Literal>ANNUAL</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">918.01</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
         <NamedIndividual IRI="#T1DM_AC_ManifestationLEA"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2017</Literal>
@@ -3345,6 +3443,11 @@
         <DataProperty IRI="#hasDescription"/>
         <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
         <Literal>Annual cost of neuropathy</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">3108.86</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3357,11 +3460,6 @@
         <Literal>ANNUAL</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
-        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">3108.86</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
         <NamedIndividual IRI="#T1DM_AC_ManifestationNEU"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2015</Literal>
@@ -3369,62 +3467,22 @@
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToDO"/>
         <NamedIndividual IRI="#T1DM_Disease"/>
-        <Literal>DOID:9744</Literal>
+        <Literal>do:9744</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToICD"/>
         <NamedIndividual IRI="#T1DM_Disease"/>
-        <Literal>ICD10CM:E10</Literal>
+        <Literal>icd:E10</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToOMIM"/>
         <NamedIndividual IRI="#T1DM_Disease"/>
-        <Literal>http://www.omim.org/entry/222100</Literal>
+        <Literal>omim:222100</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasRefToSNOMED"/>
         <NamedIndividual IRI="#T1DM_Disease"/>
-        <Literal>http://purl.bioontology.org/ontology/SNOMEDCT/46635009</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasRefToDO"/>
-        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
-        <Literal>DOID:9744</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasRefToICD"/>
-        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
-        <Literal>ICD10CM:E10</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasRefToOMIM"/>
-        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
-        <Literal>http://purl.bioontology.org/ontology/SNOMEDCT/46635009</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasRefToOMIM"/>
-        <NamedIndividual IRI="#T1DM_DiseaseNEU"/>
-        <Literal>http://www.omim.org/entry/222100</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasRefToDO"/>
-        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
-        <Literal>DOID:9744</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasRefToICD"/>
-        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
-        <Literal>ICD10CM:E10</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasRefToOMIM"/>
-        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
-        <Literal>http://purl.bioontology.org/ontology/SNOMEDCT/46635009</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasRefToOMIM"/>
-        <NamedIndividual IRI="#T1DM_DiseaseNPH"/>
-        <Literal>http://www.omim.org/entry/222100</Literal>
+        <Literal>snomed:46635009</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasInterventionKind"/>
@@ -3612,14 +3670,19 @@
         <Literal>Reduces HbA1c level of the individual</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">1.5</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
         <DataProperty IRI="#hasModificationKind"/>
         <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
         <Literal>DIFF</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
+        <DataProperty IRI="#hasStochasticUncertainty"/>
         <NamedIndividual IRI="#T1DM_ModificationHbA1cDCCTIntensive"/>
-        <Literal>1.5#Normal(1.5,1.1)</Literal>
+        <Literal>Normal(1.5,1.1)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <Annotation>
@@ -3675,14 +3738,14 @@
         <Literal>Initial proportion of Neuropathy among the DCCT</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
+        <DataProperty IRI="#hasExpectedValue"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
-        <Literal>PREVALENCE</Literal>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.034435262</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
+        <DataProperty IRI="#hasParameterUncertainty"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
-        <Literal>TRUE</Literal>
+        <Literal>Beta(25,701)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3690,9 +3753,9 @@
         <Literal>DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
+        <DataProperty IRI="#isTrueEpidemiologicalParameterEstimate"/>
         <NamedIndividual IRI="#T1DM_PopulationDCCT1_InitNEU"/>
-        <Literal>0.034435262#Beta(25,701)</Literal>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#boolean">true</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
@@ -3700,24 +3763,29 @@
         <Literal>A convenient 100% prevalence. Useful for populations where everyone has a disease</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
-        <NamedIndividual IRI="#T1DM_Prevalence100"/>
-        <Literal>PREVALENCE</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
-        <NamedIndividual IRI="#T1DM_Prevalence100"/>
-        <Literal>TRUE</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
+        <DataProperty IRI="#hasExpectedValue"/>
         <NamedIndividual IRI="#T1DM_Prevalence100"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">1.0</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#isTrueEpidemiologicalParameterEstimate"/>
+        <NamedIndividual IRI="#T1DM_Prevalence100"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#boolean">true</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasDescription"/>
         <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
         <Literal>Cost for treatment upon diagnosis of End Stage Renal Disease</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
+        <Literal>3250.73</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
+        <Literal>Gamma(24.999999999999996, 130.02920000000003)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3730,11 +3798,6 @@
         <Literal>ONETIME</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
-        <Literal>3250.73#Gamma(24.999999999999996, 130.02920000000003)</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
         <NamedIndividual IRI="#T1DM_TC_ManifestationESRD"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2015</Literal>
@@ -3743,6 +3806,16 @@
         <DataProperty IRI="#hasDescription"/>
         <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
         <Literal>Cost of the amputation of the low extremity</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
+        <Literal>11333.04</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
+        <Literal>Gamma(45.81313114605552, 247.37536414766024)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3755,14 +3828,19 @@
         <Literal>ONETIME</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
-        <Literal>11333.04#Gamma(45.81313114605552, 247.37536414766024)</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
         <DataProperty IRI="#hasYear"/>
         <NamedIndividual IRI="#T1DM_TC_ManifestationLEA"/>
         <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#integer">2017</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_U_General"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.785</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#T1DM_U_General"/>
+        <Literal>Beta (46.271891771449724,12.673193287721896)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasTemporalBehavior"/>
@@ -3775,9 +3853,14 @@
         <Literal>UTILITY</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_U_General"/>
-        <Literal>0.785#Beta (46.271891771449724,12.673193287721896)</Literal>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationALB2"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.048</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationALB2"/>
+        <Literal>Beta(4.509163965819362, 89.43175198875068)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3795,9 +3878,14 @@
         <Literal>DISUTILITY</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_U_ManifestationALB2"/>
-        <Literal>0.048#Beta(4.509163965819362, 89.43175198875068)</Literal>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationESRD"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.204</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationESRD"/>
+        <Literal>Beta(6.4783215909262735, 25.278156795967227)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3815,9 +3903,14 @@
         <Literal>DISUTILITY</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_U_ManifestationESRD"/>
-        <Literal>0.204#Beta(6.4783215909262735, 25.278156795967227)</Literal>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationLEA"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.28</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationLEA"/>
+        <Literal>Beta(17.80558093450929, 45.78577954588103)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3835,9 +3928,14 @@
         <Literal>DISUTILITY</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_U_ManifestationLEA"/>
-        <Literal>0.28#Beta(17.80558093450929, 45.78577954588103)</Literal>
+        <DataProperty IRI="#hasExpectedValue"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#double">0.084</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#hasParameterUncertainty"/>
+        <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
+        <Literal>Beta(33.975530745679016, 370.4950733695473)</Literal>
     </DataPropertyAssertion>
     <DataPropertyAssertion>
         <DataProperty IRI="#hasSource"/>
@@ -3853,11 +3951,6 @@
         <DataProperty IRI="#hasUtilityKind"/>
         <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
         <Literal>DISUTILITY</Literal>
-    </DataPropertyAssertion>
-    <DataPropertyAssertion>
-        <DataProperty IRI="#hasValue"/>
-        <NamedIndividual IRI="#T1DM_U_ManifestationNEU"/>
-        <Literal>0.084#Beta(33.975530745679016, 370.4950733695473)</Literal>
     </DataPropertyAssertion>
     <SubObjectPropertyOf>
         <ObjectProperty IRI="#hasCost"/>
@@ -4345,14 +4438,34 @@
         <DataProperty IRI="#hasProbabilityOfDiagnosis"/>
         <DataProperty IRI="#hasProbability"/>
     </SubDataPropertyOf>
-    <DataPropertyRange>
-        <DataProperty IRI="#hasEpidemiologicalParameterKind"/>
-        <DataOneOf>
-            <Literal>BIRTH PREVALENCE</Literal>
-            <Literal>INCIDENCE</Literal>
-            <Literal>PREVALENCE</Literal>
-        </DataOneOf>
-    </DataPropertyRange>
+    <SubDataPropertyOf>
+        <DataProperty IRI="#hasRefToDO"/>
+        <DataProperty IRI="#hasRefTo"/>
+    </SubDataPropertyOf>
+    <SubDataPropertyOf>
+        <DataProperty IRI="#hasRefToGARD"/>
+        <DataProperty IRI="#hasRefTo"/>
+    </SubDataPropertyOf>
+    <SubDataPropertyOf>
+        <DataProperty IRI="#hasRefToICD"/>
+        <DataProperty IRI="#hasRefTo"/>
+    </SubDataPropertyOf>
+    <SubDataPropertyOf>
+        <DataProperty IRI="#hasRefToOMIM"/>
+        <DataProperty IRI="#hasRefTo"/>
+    </SubDataPropertyOf>
+    <SubDataPropertyOf>
+        <DataProperty IRI="#hasRefToORDO"/>
+        <DataProperty IRI="#hasRefTo"/>
+    </SubDataPropertyOf>
+    <SubDataPropertyOf>
+        <DataProperty IRI="#hasRefToSNOMED"/>
+        <DataProperty IRI="#hasRefTo"/>
+    </SubDataPropertyOf>
+    <SubDataPropertyOf>
+        <DataProperty IRI="#hasRefToSTATO"/>
+        <DataProperty IRI="#hasRefTo"/>
+    </SubDataPropertyOf>
     <DataPropertyRange>
         <DataProperty IRI="#hasInterventionKind"/>
         <DataOneOf>
@@ -4377,13 +4490,6 @@
         </DataOneOf>
     </DataPropertyRange>
     <DataPropertyRange>
-        <DataProperty IRI="#hasNatureOfEpidemiologicalParameterEstimate"/>
-        <DataOneOf>
-            <Literal>APPARENT</Literal>
-            <Literal>TRUE</Literal>
-        </DataOneOf>
-    </DataPropertyRange>
-    <DataPropertyRange>
         <DataProperty IRI="#hasTemporalBehavior"/>
         <DataOneOf>
             <Literal>ANNUAL</Literal>
@@ -4396,6 +4502,10 @@
             <Literal>DISUTILITY</Literal>
             <Literal>UTILITY</Literal>
         </DataOneOf>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="#isTrueEpidemiologicalParameterEstimate"/>
+        <Datatype abbreviatedIRI="xsd:boolean"/>
     </DataPropertyRange>
     <AnnotationAssertion>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
