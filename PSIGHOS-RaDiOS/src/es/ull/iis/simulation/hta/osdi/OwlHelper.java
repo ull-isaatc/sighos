@@ -140,7 +140,27 @@ public class OwlHelper {
 						clazzes.get(((org.w3c.xsd.owl2.Class)exp).getIRI()).add(prop);
 					}
 				}
+			}
+			else if (axiom instanceof SubClassOf) {
+				final List<JAXBElement<? extends ClassExpression>> list =((SubClassOf) axiom).getRest();
+				// Assuming that the first element is always a class
+				final String name = ((org.w3c.xsd.owl2.Class)list.get(0).getValue()).getIRI();
+				if (!(list.get(1).getValue() instanceof org.w3c.xsd.owl2.Class)) {
+					if (list.get(1).getValue() instanceof org.w3c.xsd.owl2.ObjectExactCardinality) {
+						clazzes.get(name).add(((org.w3c.xsd.owl2.ObjectExactCardinality)list.get(1).getValue()).getObjectProperty().getIRI());
+					}
+					else if (list.get(1).getValue() instanceof org.w3c.xsd.owl2.ObjectMaxCardinality) {
+						clazzes.get(name).add(((org.w3c.xsd.owl2.ObjectMaxCardinality)list.get(1).getValue()).getObjectProperty().getIRI());
+					}
+					else if (list.get(1).getValue() instanceof org.w3c.xsd.owl2.ObjectMinCardinality) {
+						clazzes.get(name).add(((org.w3c.xsd.owl2.ObjectMinCardinality)list.get(1).getValue()).getObjectProperty().getIRI());
+					}
+					else if (list.get(1).getValue() instanceof org.w3c.xsd.owl2.ObjectSomeValuesFrom) {
+						clazzes.get(name).add(((org.w3c.xsd.owl2.ObjectSomeValuesFrom)list.get(1).getValue()).getObjectProperty().getIRI());
+					}
+				}
 			}			
+			
 		}
 		for (String clazz : clazzes.keySet())
 			propagateProperties(clazz, clazzes, new TreeSet<>());
@@ -197,6 +217,9 @@ public class OwlHelper {
 					}
 					else if (list.get(1).getValue() instanceof org.w3c.xsd.owl2.DataMaxCardinality) {
 						clazzes.get(name).add(((org.w3c.xsd.owl2.DataMaxCardinality)list.get(1).getValue()).getDataProperty().getIRI());
+					}
+					else if (list.get(1).getValue() instanceof org.w3c.xsd.owl2.DataMinCardinality) {
+						clazzes.get(name).add(((org.w3c.xsd.owl2.DataMinCardinality)list.get(1).getValue()).getDataProperty().getIRI());
 					}
 					else if (list.get(1).getValue() instanceof org.w3c.xsd.owl2.DataSomeValuesFrom) {
 						clazzes.get(name).add(((org.w3c.xsd.owl2.DataSomeValuesFrom)list.get(1).getValue()).getDataPropertyExpression().get(0).getIRI());
@@ -443,6 +466,10 @@ public class OwlHelper {
 				for (String prop : clazzWithDP.get(clazz))
 					System.out.print("\t" + prop);
 				System.out.println();
+			}
+			System.out.println("\nInstances --> Class");
+			for (String instance : helper.instanceToClazz.keySet()) {
+				System.out.println(instance + "\t" + helper.instanceToClazz.get(instance));
 			}
 		} catch (JAXBException | IOException e) {
 			e.printStackTrace();
