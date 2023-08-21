@@ -23,6 +23,11 @@
   		<scope>system</scope>
   		<systemPath>${project.basedir}/lib/simkit.jar</systemPath>
   	</dependency>-->
+	<dependency>
+    	<groupId>net.sourceforge.owlapi</groupId>
+    	<artifactId>owlapi-distribution</artifactId>
+    	<version>5.5.0</version>
+	</dependency>	  	
   </dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>

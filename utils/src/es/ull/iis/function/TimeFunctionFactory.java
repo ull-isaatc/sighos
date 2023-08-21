@@ -3,6 +3,7 @@
  */
 package es.ull.iis.function;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -94,10 +95,11 @@ public class TimeFunctionFactory {
 
         TimeFunction instance = null;
         try {
-            instance = (TimeFunction) timeFunctionClass.newInstance();
-        } 
-        catch (InstantiationException e) { throw new RuntimeException(e); }
-        catch (IllegalAccessException e) { throw new RuntimeException(e); }
+			instance = (TimeFunction) timeFunctionClass.getDeclaredConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			throw new RuntimeException(e);
+		}
         instance.setParameters(parameters);
         return instance;
     }
