@@ -34,6 +34,7 @@ import org.semanticweb.owlapi.reasoner.NodeSet;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
+import org.semanticweb.owlapi.search.EntitySearcher;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
 import org.semanticweb.owlapi.util.OWLAPIStreamUtils;
 import org.semanticweb.owlapi.util.OWLEntityRemover;
@@ -56,16 +57,15 @@ public class OWLOntologyWrapper {
     protected final OWLDataFactory factory;
     protected final OWLReasoner reasoner;
 
-	/**
+    /**
 	 * Creates a wrapper for the ontology in the file
 	 * @param file The file with the ontology 
 	 * @throws OWLOntologyCreationException If the ontology cannot be opened
 	 */
-	public OWLOntologyWrapper(File file) throws OWLOntologyCreationException {
+	public OWLOntologyWrapper(File file, String prefix) throws OWLOntologyCreationException {
 		manager = OWLManager.createOWLOntologyManager();
 		ontology = manager.loadOntologyFromOntologyDocument(file);
-//        pm = new DefaultPrefixManager(ontology.getOntologyID().getDefaultDocumentIRI().get().getIRIString() + "/");
-        pm = new DefaultPrefixManager();
+        pm = new DefaultPrefixManager(prefix);
         factory = manager.getOWLDataFactory();
         OWLReasonerFactory reasonerFactory = new StructuralReasonerFactory();
         reasoner = reasonerFactory.createReasoner(ontology);
@@ -78,10 +78,9 @@ public class OWLOntologyWrapper {
 	 * @param path Path to the file with the ontology
 	 * @throws OWLOntologyCreationException If the ontology cannot be opened
 	 */
-	public OWLOntologyWrapper(String path) throws OWLOntologyCreationException {
-		this(new File(path));
+	public OWLOntologyWrapper(String path, String prefix) throws OWLOntologyCreationException {
+		this(new File(path), prefix);
 	}
-	
 	public void save() throws OWLOntologyStorageException {
 		manager.saveOntology(ontology);
 	}
@@ -214,6 +213,34 @@ public class OWLOntologyWrapper {
 		return list;
 	}
 	
+	/**
+	 * Returns a list of strings representing the values the specified dataProperty has for the specified individual
+	 * @param individualIRI An individual in the ontology
+	 * @param dataPropIRI A data property in the ontology
+	 * @return a list of strings representing the values the specified dataProperty has for the specified individual
+	 */
+	public ArrayList<String> getDataPropertyValue(String individualIRI, String dataPropIRI) {
+		ArrayList<String> list = new ArrayList<>();
+		EntitySearcher.getDataPropertyValues(factory.getOWLNamedIndividual(individualIRI, pm), factory.getOWLDataProperty(dataPropIRI, pm), ontology).forEach(item -> {
+			list.add(item.getLiteral());
+		});
+		return list;
+	}
+	
+	/**
+	 * Returns a list of strings representing the names of the individuals referenced by the specified objectProperty of specified individual
+	 * @param individualIRI An individual in the ontology
+	 * @param objectPropIRI An object property in the ontology
+	 * @return a list of strings representing the names of the individuals referenced by the specified objectProperty of specified individual
+	 */
+	public ArrayList<String> getObjectPropertyValue(String individualIRI, String objectPropIRI) {
+		ArrayList<String> list = new ArrayList<>();
+		EntitySearcher.getObjectPropertyValues(factory.getOWLNamedIndividual(individualIRI, pm), factory.getOWLObjectProperty(objectPropIRI, pm), ontology).forEach(item -> {
+			list.add(item.toStringID().split("#")[1]);
+		});
+		return list;
+	}
+	
 	public void removeIndividualsOfClass(String classIRI) {
 		final OWLClass owlClass = factory.getOWLClass(classIRI, pm);
 		final NodeSet<OWLNamedIndividual> individualsNodeSet = reasoner.getInstances(owlClass, false);
@@ -258,5 +285,67 @@ public class OWLOntologyWrapper {
         // and convert it to upper case.
         return name.replaceAll(regex, replacement).toUpperCase();
 	}
+
+	public void printIndividuals(boolean full) {
+		if (full) {
+			for (String individual : individualsToString()) {
+				final ArrayList<String> props = getIndividualProperties(individual, "\t");
+				for (String prop : props)
+					System.out.println(individual + "\t" + prop);
+			}
+		}
+		else  {
+			for (String individual : individualsToString())
+				System.out.println(individual);
+		}
+	}
+
+	public void printIndividuals(String classIRI, boolean full) {
+		if (full) {
+			for (String individual : getIndividuals(classIRI)) {
+				final ArrayList<String> props = getIndividualProperties(individual, "\t");
+				for (String prop : props)
+					System.out.println(individual + "\t" + prop);
+			}
+		}
+		else  {
+			for (String individual : getIndividuals(classIRI))
+				System.out.println(individual);
+		}
+	}
+	
+	public void printClasses() {
+		for (String clazz: classesToString())
+			System.out.println(clazz);
+	}
+	
+	public void printClassesAsEnum() {
+		for (String name : classesToString()) {
+			System.out.println(camel2SNAKE(name) + "(\"" + name + "\"),");
+		}
+	}
+
+	public void printDataProperties() {
+		for (String dataProp: dataPropertiesToString())
+			System.out.println(dataProp);
+	}
+	
+	public void printDataPropertiesAsEnum() {
+		for (String name : dataPropertiesToString()) {
+			System.out.println(camel2SNAKE(name) + "(\"" + name + "\"),");
+		}
+	}
+
+	public void printObjectProperties() {
+		for (String objectProp: objectPropertiesToString())
+			System.out.println(objectProp);
+	}
+	
+	public void printObjectPropertiesAsEnum() {
+		for (String name : objectPropertiesToString()) {
+			System.out.println(camel2SNAKE(name) + "(\"" + name + "\"),");
+		}
+	}
+	
 	
 }
