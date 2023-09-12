@@ -12,6 +12,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -22,12 +23,13 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  *
  */
 public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	public static final JexlEngine JEXL = new JexlBuilder().create();
 	private final OwlHelper helper; 
+	private final OSDiWrapper wrap; 
 
 	/**
 	 * 
@@ -45,6 +47,7 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	public OSDiGenericRepository(int nRuns, int nPatients, String path, String diseaseId, String populationId, List<String> interventionsToCompare, DisutilityCombinationMethod method) throws FileNotFoundException, JAXBException, IOException, TranspilerException, MalformedSimulationModelException {
 		super(nRuns, nPatients);
 		helper = new OwlHelper(path);
+		wrap = null;
 		setDisutilityCombinationMethod(method);
 
 		Disease disease = DiseaseBuilder.getDiseaseInstance(this, diseaseId);
@@ -57,6 +60,52 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		for (String interventionName : interventionsToCompare) {
 			InterventionBuilder.getInterventionInstance(this, interventionName);
 		}
+		
+	}
+
+	/**
+	 * 
+	 * @param nRuns
+	 * @param nPatients
+	 * @param path
+	 * @param diseaseId
+	 * @param populationId
+	 * @param method
+	 * @throws FileNotFoundException
+	 * @throws JAXBException
+	 * @throws IOException
+	 * @throws TranspilerException 
+	 * @throws OWLOntologyCreationException 
+	 */
+	public OSDiGenericRepository(int nRuns, int nPatients, String path, String modelId) throws FileNotFoundException, JAXBException, IOException, TranspilerException, MalformedSimulationModelException, OWLOntologyCreationException {
+		super(nRuns, nPatients);
+		wrap = new OSDiWrapper(path);
+		helper = null;
+		ArrayList<String> methods = OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD.getValues(wrap, modelId);
+		// Assuming that exactly one method was defined
+		if (methods.size() != 1)
+			throw new MalformedSimulationModelException("Exactly one disutility combination method must be specified for the model. Instead, " + methods.size() + " defined.");
+		try {
+			setDisutilityCombinationMethod(DisutilityCombinationMethod.valueOf(methods.get(0)));
+		}
+		catch(IllegalArgumentException ex) {
+			throw new MalformedSimulationModelException("Disutility combination method not valid. \"" + methods.get(0) + "\" not found.");			
+		}
+		
+		final ArrayList<String> modelItems = OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM.getValues(wrap, modelId);
+
+		// TODO: Adapt the rest to use the wrapper
+
+//		Disease disease = DiseaseBuilder.getDiseaseInstance(this, diseaseId);
+//		setPopulation(PopulationBuilder.getPopulationInstance(this, disease, populationId));
+		
+		// TODO: Death submodel should be context specific, depending on the population
+		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		
+		// Build interventions
+//		for (String interventionName : interventionsToCompare) {
+//			InterventionBuilder.getInterventionInstance(this, interventionName);
+//		}
 		
 	}
 

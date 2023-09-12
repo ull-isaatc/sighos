@@ -16,7 +16,7 @@ import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import es.ull.iis.ontology.OWLOntologyWrapper;
 
 /**
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  *
  */
 public class OSDiWrapper extends OWLOntologyWrapper {
@@ -142,6 +142,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_CALCULATION_METHOD("hasCalculationMethod"),
 		HAS_CONDITION("hasCondition"),
 		HAS_DESCRIPTION("hasDescription"),
+		HAS_DISUTILITY_COMBINATION_METHOD("hasDisutilityCombinationMethod"),
 		HAS_DOSE("hasDose"),
 		HAS_EXPRESSION("hasExpression"),
 		HAS_FREQUENCY("hasFrequency"),
@@ -241,6 +242,8 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_TREATMENT_COST("hasTreatmentCost"),
 		HAS_UTILITY("hasUtility"),
 		HAS_VALUE("hasValue"),
+		INCLUDED_BY_MODEL("includedByModel"),
+		INCLUDES_MODEL_ITEM("includesModelItem"),
 		INVOLVES_MODIFICATION("involvesModification"),
 		IS_MODIFIED_BY("isModifiedBy"),
 		IS_PARAMETER_OF("isParameterOf"),
@@ -252,7 +255,6 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		IS_VALUE_OF_ATTRIBUTE("isValueOfAttribute"),
 		MODIFIES("modifies"),
 		REQUIRES("requires"),
-		USED_IN_MODEL("usedInModel"),
 		USES_DRUG("usesDrug"),
 		USES_FOLLOW_UP_TEST("usesFollowUpTest"),
 		USES_HEALTH_TECHNOLOGY("usesHealthTechnology"),
@@ -295,19 +297,22 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		DataProperty.HAS_REF_TO_ICD.add(this,  name, refToICD);
 		DataProperty.HAS_REF_TO_OMIM.add(this,  name, refToOMIM);
 		DataProperty.HAS_REF_TO_SNOMED.add(this,  name, refToSNOMED);
-		ObjectProperty.USED_IN_MODEL.add(this, name, modelName);
+		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, modelName);
+		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, modelName, name);
 	}
 	
 	public void createManifestation(String name, ManifestationType type, String description, String modelName, String diseaseName) {
 		type.getClazz().add(this, name);		
 		DataProperty.HAS_DESCRIPTION.add(this, name, description);
 		ObjectProperty.HAS_MANIFESTATION.add(this, diseaseName, name);
-		ObjectProperty.USED_IN_MODEL.add(this, name, modelName);
+		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, modelName);
+		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, modelName, name);
 	}
 	
 	public void createGroupOfManifestations(String name, String modelName, Set<String> manifestationNames) {
 		Clazz.GROUP.add(this, name);		
-		ObjectProperty.USED_IN_MODEL.add(this, name, modelName);
+		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, modelName);
+		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, modelName, name);
 		for (String manifestation : manifestationNames) {
 			ObjectProperty.HAS_COMPONENT.add(this, name, manifestation);			
 			ObjectProperty.BELONGS_TO_GROUP.add(this, manifestation, name);			
