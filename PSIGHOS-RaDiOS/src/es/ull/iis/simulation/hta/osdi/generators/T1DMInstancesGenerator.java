@@ -10,9 +10,9 @@ import java.util.TreeSet;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 
-import es.ull.iis.simulation.hta.osdi.OSDiWrapper;
-import es.ull.iis.simulation.hta.osdi.OSDiWrapper.ManifestationType;
-import es.ull.iis.simulation.hta.osdi.OSDiWrapper.ModelType;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ManifestationType;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ModelType;
 
 /**
  * @author Iv�n Castilla Rodr�guez
@@ -103,7 +103,7 @@ public class T1DMInstancesGenerator {
 	 * 
 	 */
 	public T1DMInstancesGenerator(String path) throws OWLOntologyCreationException, OWLOntologyStorageException {
-		wrap = new OSDiWrapper(path);
+		wrap = new OSDiWrapper(path, STR_MODEL_NAME);
 		wrap.createModel(STR_MODEL_NAME, ModelType.DES, "ICR", "First example of T1DM model", "Spain", 2022, "");
 		wrap.createDisease(STR_DISEASE_NAME, "Type I Diabetes Mellitus", STR_MODEL_NAME, "do:9744", "icd:E10", "omim:222100", "snomed:46635009");
 		for (Manifestation manif : Manifestation.values()) {

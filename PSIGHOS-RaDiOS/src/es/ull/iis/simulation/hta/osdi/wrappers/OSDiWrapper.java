@@ -1,14 +1,18 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.osdi;
+package es.ull.iis.simulation.hta.osdi.wrappers;
 
 import java.io.File;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
+import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
@@ -16,26 +20,41 @@ import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import es.ull.iis.ontology.OWLOntologyWrapper;
 
 /**
- * @author Ivï¿½n Castilla Rodrï¿½guez
+ * @author Iván Castilla Rodríguez
  *
  */
 public class OSDiWrapper extends OWLOntologyWrapper {
+	public static final boolean ENABLE_WARNINGS = true;  
+	
 	private final static String PREFIX = "http://www.ull.es/iis/simulation/ontologies/disease-simulation#";
+	private final String workingModelId;
+	private final Set<String> modelItems;
 
 	/**
 	 * @param file
 	 * @throws OWLOntologyCreationException
 	 */
-	public OSDiWrapper(File file) throws OWLOntologyCreationException {
+	public OSDiWrapper(File file, String workingModelId) throws OWLOntologyCreationException {
 		super(file, PREFIX);
+		this.workingModelId = workingModelId;
+		modelItems = OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM.getValues(this, workingModelId);
 	}
 
 	/**
 	 * @param path
 	 * @throws OWLOntologyCreationException
 	 */
-	public OSDiWrapper(String path) throws OWLOntologyCreationException {
+	public OSDiWrapper(String path, String workingModelId) throws OWLOntologyCreationException {
 		super(path, PREFIX);
+		this.workingModelId = workingModelId;
+		modelItems = OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM.getValues(this, workingModelId);
+	}
+
+	/**
+	 * @return the workingModelId
+	 */
+	public String getWorkingModelId() {
+		return workingModelId;
 	}
 
 	public enum ModelType {
@@ -54,6 +73,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			return clazz;
 		}
 	}
+	
 	public enum ManifestationType {
 		ACUTE(Clazz.ACUTE_MANIFESTATION),
 		CHRONIC(Clazz.CHRONIC_MANIFESTATION);
@@ -68,6 +88,46 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			return clazz;
 		}
 	}
+	
+	public enum UtilityType {
+		UTILITY(DataItemType.DI_UTILITY),
+		DISUTILITY(DataItemType.DI_DISUTILITY);
+		private final DataItemType type;
+		
+		private UtilityType(DataItemType type) {
+			this.type = type;
+		}
+
+		/**
+		 * @return the type
+		 */
+		public DataItemType getType() {
+			return type;
+		}
+	}
+
+	/**
+	 * Temporal behavior for costs and utilities in the ontology
+	 * @author Iván Castilla
+	 *
+	 */
+	public enum TemporalBehavior {
+		ANNUAL("ANNUAL"),
+		ONETIME("ONETIME"),
+		NOT_SPECIFIED("NOT SPECIFIED");
+		
+		private final String shortName;
+		private TemporalBehavior(String shortName) {
+			this.shortName = shortName;
+		}
+		/**
+		 * @return the shortName
+		 */
+		public String getShortName() {
+			return shortName;
+		}
+	}
+	
 	public enum Clazz {
 		ACUTE_MANIFESTATION("AcuteManifestation"),
 		AGENT_BASED_MODEL("AgentBasedModel"),
@@ -134,6 +194,17 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		public void add(OSDiWrapper wrap, String individualIRI) {
 			wrap.addIndividual(shortName, individualIRI);
 		}		
+		
+		public Set<String> getIndividuals(OSDiWrapper wrap) {
+			return getIndividuals(wrap, false);
+		}
+
+		public Set<String> getIndividuals(OSDiWrapper wrap, boolean restrictToWorkingModel) {
+			final Set<String> results = wrap.getIndividuals(shortName);
+			if (restrictToWorkingModel)
+				results.retainAll(wrap.modelItems);
+			return results;
+		}
 	}
 
 	public enum DataProperty {
@@ -192,7 +263,14 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 				wrap.addDataPropertyValue(individualIRI, shortName, value, dataType);
 			}
 		}
-		
+
+		public String getValue(OSDiWrapper wrap, String individualIRI, String defaultValue) {
+			ArrayList<String> values = getValues(wrap, individualIRI);
+			if (values.size() == 0)
+				return defaultValue;
+			return values.get(0);
+		}
+
 		public ArrayList<String> getValues(OSDiWrapper wrap, String individualIRI) {
 			return wrap.getDataPropertyValue(individualIRI, shortName);
 		}
@@ -218,7 +296,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_INCREASED_MORTALITY_RATE("hasIncreasedMortalityRate"),
 		HAS_INTERVENTION("hasIntervention"),
 		HAS_LIFE_EXPECTANCY("hasLifeExpectancy"),
-		HAS_LIFETIME_REDUCTION("hasLifetimeReduction"),
+		HAS_LIFE_EXPECTANCY_REDUCTION("hasLifeExctancyReduction"),
 		HAS_LINE_OF_THERAPY("hasLineOfTherapy"),
 		HAS_MANIFESTATION("hasManifestation"),
 		HAS_NATURAL_DEVELOPMENT("hasNaturalDevelopment"),
@@ -275,12 +353,91 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		public void add(OSDiWrapper wrap, String srcIndividualIRI, String destIndividualIRI) {
 			wrap.addObjectPropertyValue(srcIndividualIRI, shortName, destIndividualIRI);
 		}
+
+		/**
+		 * Returns only the first value for the object property of the specified individual. If more than one are defined, prints a warning
+		 * @param wrap A wrapper for the ontology
+		 * @param individualIRI A specific individual in the ontology
+		 * @return only the first value for the object property of the specified individual; null if non defined.
+		 */
+		public String getValue(OSDiWrapper wrap, String individualIRI) {
+			return getValue(wrap, individualIRI, false);
+		}
 		
-		public ArrayList<String> getValues(OSDiWrapper wrap, String individualIRI) {
-			return wrap.getObjectPropertyValue(individualIRI, shortName);
+		public String getValue(OSDiWrapper wrap, String individualIRI, boolean restrictToWorkingModel) {
+			Set<String> values = getValues(wrap, individualIRI, restrictToWorkingModel);
+			if (values.size() > 1)
+				wrap.printWarning(individualIRI, this, "Found more than one value for the object property. Using only " + values.toArray()[0]);
+			if (values.size() == 0)
+				return null;
+			return (String)values.toArray()[0];
+		}
+		
+		public Set<String> getValues(OSDiWrapper wrap, String individualIRI) {
+			return getValues(wrap, individualIRI, false);
+		}
+		
+		public Set<String> getValues(OSDiWrapper wrap, String individualIRI, boolean restrictToWorkingModel) {
+			final Set<String> results = wrap.getObjectPropertyValue(individualIRI, shortName);
+			if (restrictToWorkingModel)
+				results.retainAll(wrap.modelItems);
+			return results;
 		}
 	}
 
+	/**
+	 * Individuals defined in the ontology as DataItemTypes. The enum name must be the upper case version of the individual IRI.
+	 * The DI_UNDEFINED value does not exist in the ontology and is used only in this code.
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
+	public enum DataItemType {
+		CURRENCY_DOLLAR("Currency_Dollar"),
+		CURRENCY_EURO("Currency_Euro"),
+		CURRENCY_POUND("Currency_Pound"),
+		DI_CONTINUOUS_VARIABLE("DI_Continuous_Variable"),
+		DI_COUNT("DI_Count"),
+		DI_DISUTILITY("DI_Disutility"),
+		DI_FACTOR("DI_Factor"),
+		DI_LOWER95CONFIDENCELIMIT("DI_Lower95ConfidenceLimit"),
+		DI_MEANDIFFERENCE("DI_MeanDifference"),
+		DI_OTHER("DI_Other"),
+		DI_PROBABILITY("DI_Probability"),
+		DI_PROPORTION("DI_Proportion"),
+		DI_RATIO("DI_Ratio"),
+		DI_RELATIVERISK("DI_RelativeRisk"),
+		DI_SENSITIVITY("DI_Sensitivity"),
+		DI_SPECIFICITY("DI_Specificity"),
+		DI_TIMETOEVENT("DI_TimeToEvent"),
+		DI_UPPER95CONFIDENCELIMIT("DI_Upper95ConfidenceLimit"),
+		DI_UTILITY("DI_Utility"),
+		DI_UNDEFINED("Undefined");
+
+		private final String shortName;
+		private DataItemType(String shortName) {
+			this.shortName = shortName;
+		}
+		/**
+		 * @return the shortName
+		 */
+		public String getShortName() {
+			return shortName;
+		}		
+	}
+	
+	public static DataItemType getDataItemType(String individualIRI) {
+		try {
+			return DataItemType.valueOf(individualIRI.toUpperCase());
+		} catch(IllegalArgumentException ex) {
+			return DataItemType.DI_UNDEFINED;
+		}
+	}
+	
+	@Override
+	public String simplifyIRI(String IRI) {
+		return IRI.split("#")[1];
+	}
+	
 	public void createModel(String name, ModelType type, String author, String description, String geoContext, int year, String reference) {
 		type.getClazz().add(this, name);
 		DataProperty.HAS_AUTHOR.add(this, name, author);
@@ -319,6 +476,14 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		}
 	}
 	
+	public Set<String> getClassesForIndividual(String individualIRI) {
+		Set<String> result = new TreeSet<>();
+		final Set<OWLClass> types = reasoner.types(factory.getOWLNamedIndividual(individualIRI, pm)).collect(Collectors.toSet());
+		for (OWLClass clazz : types)
+			result.add(simplifyIRI(clazz.getIRI().getIRIString()));
+		return result;
+	}
+	
 	public ArrayList<String> getEnglishCommentForClass(IRI iri) {
 		final ArrayList<String> list = new ArrayList<>();
 //		final OWLClass owlClass = getClass(clazz.getShortName());
@@ -334,9 +499,15 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		return list;
 	}
 	
+	public Set<String> getIndividuals(String classIRI, boolean restrictToWorkingModel) {
+		if (restrictToWorkingModel)
+			return getIndividualsSubclassOf(modelItems, classIRI);
+		return super.getIndividuals(classIRI);
+	}
+	
 	public static void printEverythingAsEnum(String path) {
 		try {
-			final OSDiWrapper wrap = new OSDiWrapper(path);
+			final OSDiWrapper wrap = new OSDiWrapper(path, "");
 
 			System.out.println("---------------- CLASSES ----------------");
 			wrap.printClassesAsEnum();
@@ -348,13 +519,51 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			e.printStackTrace();
 		}		
 	}
+
+	/**
+	 * Processes the hasYear data property of an individual and returns an integer representation of its value. If the property is not defined
+	 * or its value has a wrong format, returns the current year  
+	 * @param individualIRI The IRI of a valid individual in the ontology
+	 * @return an integer representation of the hasYear data property for an individual
+	 */
+	public int parseHasYearProperty(String individualIRI) {
+		int currentYear = Year.now().getValue();
+		final String strYear = OSDiWrapper.DataProperty.HAS_YEAR.getValue(this, individualIRI, "" + currentYear);
+		try {
+			currentYear = Integer.parseInt(strYear);
+		} catch(NumberFormatException ex) {
+			printWarning(individualIRI, OSDiWrapper.DataProperty.HAS_YEAR, "Wrong year format. Found " + strYear + ". Using " + currentYear + " instead");
+		}
+		return currentYear;
+		
+	}
+	
+	public void printWarning(String individualIRI, OSDiWrapper.DataProperty prop, String msg) {
+		printWarning(individualIRI + "\t" + prop.getShortName() + "\tWARNING\t\"" + msg + "\"");
+	}
+	
+	public void printWarning(String individualIRI, OSDiWrapper.ObjectProperty prop, String msg) {
+		printWarning(individualIRI + "\t" + prop.getShortName() + "\tWARNING\t\"" + msg + "\"");
+	}
+	
+	public void printWarning(String msg) {
+		if (ENABLE_WARNINGS)
+			System.err.println("WARNING: " + msg);
+	}
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		printEverythingAsEnum("resources/OSDi.owl");
-//		try {
-//			final OSDiWrapper wrap = new OSDiWrapper("resources/OSDi.owl");
+//		printEverythingAsEnum("resources/OSDi.owl");
+		try {
+			final OSDiWrapper wrap = new OSDiWrapper("resources/OSDi.owl", "T1DM_StdModelDES");
+			for (String str : wrap.getIndividuals("DataItemType"))
+				System.out.println(str);
+			for (String str : wrap.getClassesForIndividual("T1DM_StdModelDES"))
+				System.out.println(str);
+			System.out.println("TESTING ACCESSING TO DATA PROPERTIES");
+			System.out.println(DataProperty.HAS_REF_TO.getValue(wrap, "T1DM_StdModelDES", "NOPE!"));
 //			for (String str : DataProperty.HAS_REF_TO_SNOMED.getValues(wrap, "T1DM_Disease")) {
 //				System.out.println(str);
 //			}
@@ -364,9 +573,9 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 
 //			for (String  str : wrap.getEnglishCommentForClass(wrap.getObjectProperty(ObjectProperty.BELONGS_TO_AREA.getShortName()).getIRI()))
 //				System.out.println(str);
-//		} catch (OWLOntologyCreationException e) {
-//			e.printStackTrace();
-//		}
+		} catch (OWLOntologyCreationException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

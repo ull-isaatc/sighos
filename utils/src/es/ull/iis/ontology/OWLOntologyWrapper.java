@@ -5,6 +5,7 @@ package es.ull.iis.ontology;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
@@ -175,6 +176,11 @@ public class OWLOntologyWrapper {
 		return set;
 	}
 	
+	/**
+	 * Returns a set of individuals belonging to the specified class or any of its subclasses
+	 * @param classIRI The IRI of a class in the ontology
+	 * @return a set of individuals belonging to the specified class or any of its subclasses
+	 */
 	public Set<String> getIndividuals(String classIRI) {
 		final TreeSet<String> set = new TreeSet<>();
 		final OWLClass owlClass = factory.getOWLClass(classIRI, pm);
@@ -228,17 +234,29 @@ public class OWLOntologyWrapper {
 	}
 	
 	/**
-	 * Returns a list of strings representing the names of the individuals referenced by the specified objectProperty of specified individual
+	 * Returns a set of strings representing the names of the individuals referenced by the specified objectProperty of specified individual
 	 * @param individualIRI An individual in the ontology
 	 * @param objectPropIRI An object property in the ontology
-	 * @return a list of strings representing the names of the individuals referenced by the specified objectProperty of specified individual
+	 * @return a set of strings representing the names of the individuals referenced by the specified objectProperty of specified individual
 	 */
-	public ArrayList<String> getObjectPropertyValue(String individualIRI, String objectPropIRI) {
-		ArrayList<String> list = new ArrayList<>();
+	public Set<String> getObjectPropertyValue(String individualIRI, String objectPropIRI) {
+		TreeSet<String> list = new TreeSet<>();
 		EntitySearcher.getObjectPropertyValues(factory.getOWLNamedIndividual(individualIRI, pm), factory.getOWLObjectProperty(objectPropIRI, pm), ontology).forEach(item -> {
-			list.add(item.toStringID().split("#")[1]);
+			list.add(simplifyIRI(item.toStringID()));
 		});
 		return list;
+	}
+	
+	/**
+	 * Returns a set containing solely those individuals from the passed collection that belongs to the specified class
+	 * @param individuals A collection of individual names 
+	 * @param classIRI The IRI of a class in the ontology
+	 * @return a set containing solely those individuals from the passed collection that belongs to the specified class
+	 */
+	public Set<String> getIndividualsSubclassOf(Collection<String> individuals, String classIRI) {
+		final Set<String> result = getIndividuals(classIRI); 
+		result.retainAll(individuals);
+		return result;
 	}
 	
 	public void removeIndividualsOfClass(String classIRI) {
@@ -286,6 +304,15 @@ public class OWLOntologyWrapper {
         return name.replaceAll(regex, replacement).toUpperCase();
 	}
 
+	/**
+	 * A convenient method to get just the name from IRIs. It depends on the ontology prefix, so it must be overriden by subclasses.
+	 * @param IRI Original complex IRI
+	 * @return The simplified IRI 
+	 */
+	public String simplifyIRI(String IRI) {
+		return IRI;
+	}
+	
 	public void printIndividuals(boolean full) {
 		if (full) {
 			for (String individual : individualsToString()) {

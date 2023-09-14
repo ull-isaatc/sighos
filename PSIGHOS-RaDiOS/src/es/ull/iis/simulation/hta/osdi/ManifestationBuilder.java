@@ -3,11 +3,13 @@
  */
 package es.ull.iis.simulation.hta.osdi;
 
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.Set;
 
-import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
+import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
@@ -25,12 +27,20 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
 public interface ManifestationBuilder {
 
 	public static Manifestation getManifestationInstance(OSDiGenericRepository secParams, Disease disease, String manifestationName) {
-		final OwlHelper helper = secParams.getOwlHelper();		
+		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		
 		Manifestation manifestation = null;
-		final String type = OSDiNames.DataProperty.HAS_MANIFESTATION_KIND.getValue(helper, manifestationName, OSDiNames.DataPropertyRange.MANIFESTATION_KIND_CHRONIC.getDescription());
-		final String description = OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(helper, manifestationName, "");
-		if (OSDiNames.DataPropertyRange.MANIFESTATION_KIND_CHRONIC.getDescription().equals(type)) {
+		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(wrap, manifestationName, "");
+		final Set<String> manifClazz = wrap.getClassesForIndividual(manifestationName);
+		if (manifClazz.contains(OSDiWrapper.Clazz.ACUTE_MANIFESTATION.getShortName())) {
+			manifestation = new AcuteManifestation(secParams, manifestationName, description, disease) {
+				@Override
+				public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+					createParams((OSDiGenericRepository) secParams, this);
+				}
+			};			
+		}
+		else {
 			manifestation = new ChronicManifestation(secParams, manifestationName, description,	disease) {
 					@Override
 					public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
@@ -38,53 +48,59 @@ public interface ManifestationBuilder {
 					}
 			};
 		}
-		else {
-			manifestation = new AcuteManifestation(secParams, manifestationName, description, disease) {
-					@Override
-					public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-						createParams((OSDiGenericRepository) secParams, this);
-					}
-			};			
-		}
 		return manifestation;
 	}
 
 	private static void createParams(OSDiGenericRepository secParams, Manifestation manifestation) {
 		try {
-			createOnsetEndAgeParams(secParams, manifestation);
-			createCostParams(secParams, manifestation);
-			createUtilityParams(secParams, manifestation);
-			createMortalityParams(secParams, manifestation);
-			createProbabilityDiagnosisParam(secParams, manifestation);
-		} catch(TranspilerException ex) {
+			final OSDiWrapper wrap = secParams.getOwlWrapper();
+			createOnsetEndAgeParams(wrap, manifestation);
+			createCostParams(wrap, manifestation);
+			createUtilityParams(wrap, manifestation);
+			createMortalityParams(wrap, manifestation);
+			addProbabilityParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS, 0);
+		} catch (MalformedOSDiModelException ex) {
 			System.err.println(ex.getMessage());
 		}
 		
 	}
 	
 
-	private static void createOnsetEndAgeParams(OSDiGenericRepository secParams, Manifestation manifestation) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
-		String strAge = OSDiNames.DataProperty.HAS_ONSET_AGE.getValue(helper, manifestation.name());
-		if (strAge != null) {
+	private static void createOnsetEndAgeParams(OSDiWrapper wrap, Manifestation manifestation) throws MalformedOSDiModelException {
+		final String onsetAge = OSDiWrapper.ObjectProperty.HAS_ONSET_AGE.getValue(wrap, manifestation.name(), true);
+		if (onsetAge != null) {
 			try {
-				ProbabilityDistribution probDistribution = new ProbabilityDistribution(strAge);
-				OtherParamDescriptions.ONSET_AGE.addParameter(secParams, manifestation, "", probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue());			
-			} catch(TranspilerException ex) {
-				throw new TranspilerException(OSDiNames.Class.MANIFESTATION, manifestation.name(), OSDiNames.DataProperty.HAS_ONSET_AGE, strAge, ex);
+				final ParameterWrapper param = new ParameterWrapper(wrap, onsetAge, 0);
+				OtherParamDescriptions.ONSET_AGE.addParameter(manifestation.getRepository(), manifestation, param.getSource(), param.getDeterministicValue(), param.getProbabilisticValue());
+			} catch(MalformedOSDiModelException ex) {
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, manifestation.name(), OSDiWrapper.ObjectProperty.HAS_ONSET_AGE, "Error parsing manifestation. Caused by ", ex);
 			}
 		}
-		
-		strAge = OSDiNames.DataProperty.HAS_END_AGE.getValue(helper, manifestation.name());
-		if (strAge != null) {
+		final String endAge = OSDiWrapper.ObjectProperty.HAS_END_AGE.getValue(wrap, manifestation.name(), true);
+		if (endAge != null) {
 			try {
-				ProbabilityDistribution probDistribution = new ProbabilityDistribution(strAge);
-				OtherParamDescriptions.END_AGE.addParameter(secParams, manifestation, "", probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue());			
-			} catch(TranspilerException ex) {
-				throw new TranspilerException(OSDiNames.Class.MANIFESTATION, manifestation.name(), OSDiNames.DataProperty.HAS_END_AGE, strAge, ex);
+				final ParameterWrapper param = new ParameterWrapper(wrap, endAge, 0);
+				OtherParamDescriptions.END_AGE.addParameter(manifestation.getRepository(), manifestation, param.getSource(), param.getDeterministicValue(), param.getProbabilisticValue());
+			} catch(MalformedOSDiModelException ex) {
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, manifestation.name(), OSDiWrapper.ObjectProperty.HAS_END_AGE, "Error parsing manifestation. Caused by ", ex);
 			}
 		}
-		
+	}
+
+	private static OSDiWrapper.TemporalBehavior createCostParam(OSDiWrapper wrap, String costName, OSDiWrapper.TemporalBehavior expectedTemporalBehavior, Manifestation manifestation) throws MalformedOSDiModelException {
+		final CostParameterWrapper costParam = new CostParameterWrapper(wrap, costName, 0.0);
+		final OSDiWrapper.TemporalBehavior tempBehavior = costParam.getTemporalBehavior();
+
+		// Assuming ANNUAL COSTS by default
+		final CostParamDescriptions paramDescription = (OSDiWrapper.TemporalBehavior.ONETIME.equals(tempBehavior)) ? CostParamDescriptions.ONE_TIME_COST : CostParamDescriptions.ANNUAL_COST;
+		// Checking coherence of temporal behavior of the cost and the type of manifestation
+		if (!OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.equals(expectedTemporalBehavior) && !expectedTemporalBehavior.equals(tempBehavior)) {
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, manifestation.name(), OSDiWrapper.ObjectProperty.HAS_COST, "Expected " 
+					+ expectedTemporalBehavior.name() + " temporal behavior and obtained " + tempBehavior + " in " + costName);
+		}
+		paramDescription.addParameter(manifestation.getRepository(), manifestation, costParam.getDescription(), costParam.getSource(), costParam.getYear(),
+				costParam.getDeterministicValue(), costParam.getProbabilisticValue());
+		return tempBehavior;
 	}
 	
 	/**
@@ -92,54 +108,49 @@ public interface ManifestationBuilder {
 	 * (one-time and annual) may be defined.
 	 * @param secParams Repository
 	 * @param manifestation A chronic or acute manifestation
-	 * @throws TranspilerException When there was a problem parsing the ontology
+	 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 	 * FIXME: Make a comprehensive error control of cost types for each type of manifestation 
 	 */
-	public static void createCostParams(OSDiGenericRepository secParams, Manifestation manifestation) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
-		List<String> costs = OSDiNames.Class.COST.getDescendantsOf(helper, manifestation.name());
+	public static void createCostParams(OSDiWrapper wrap, Manifestation manifestation) throws MalformedOSDiModelException {
+		final Set<String> costs = OSDiWrapper.ObjectProperty.HAS_COST.getValues(wrap, manifestation.name(), true);
+		// Checking coherence of number of costs and the type of manifestation		
 		boolean acute = Manifestation.Type.ACUTE.equals(manifestation.getType());
 		if (acute) {
-			if (costs.size() > 1 )
-				throw new TranspilerException("Only one cost should be associated to the acute manifestation \"" + manifestation.name() + "\". Instead, " + costs.size() + " found");
+			if (costs.size() > 1)
+				wrap.printWarning(manifestation.name(), OSDiWrapper.ObjectProperty.HAS_COST, "Found more than one cost for an acute manifestation. Using " + costs.toArray()[0]);
+			// TODO: Make a smarter use of the excess of costs and use only those which meets the conditions, i.e. select one annual cost from all the defined ones
+			createCostParam(wrap, (String)costs.toArray()[0], OSDiWrapper.TemporalBehavior.ONETIME, manifestation);
 		}
 		else {
-			if (costs.size() > 2 )
-				throw new TranspilerException("A maximum of two costs (one-time and annual) should be associated to the chronic manifestation \"" + manifestation.name() + "\". Instead, " + costs.size() + " found");
+			if (costs.size() > 2)
+				wrap.printWarning(manifestation.name(), OSDiWrapper.ObjectProperty.HAS_COST, "Found more than two costs (one-time and annual) for a chronic manifestation. Using " + costs.toArray()[0] + " and "  + costs.toArray()[1]);
+			// TODO: Make a smarter use of the excess of costs and use only those which meets the conditions, i.e. select one annual and one "one-time" cost from all the defined ones
+			OSDiWrapper.TemporalBehavior tmpBehavior = createCostParam(wrap, (String)costs.toArray()[0], OSDiWrapper.TemporalBehavior.NOT_SPECIFIED, manifestation);
+			tmpBehavior = OSDiWrapper.TemporalBehavior.ANNUAL.equals(tmpBehavior) ? OSDiWrapper.TemporalBehavior.ONETIME : OSDiWrapper.TemporalBehavior.ANNUAL; 
+			createCostParam(wrap, (String)costs.toArray()[1], tmpBehavior, manifestation);
 		}
-		for (String costName : costs) {
-			// Assumes current year if not specified
-			final int year = Integer.parseInt(OSDiNames.DataProperty.HAS_YEAR.getValue(helper, costName, "" + (new GregorianCalendar()).get(GregorianCalendar.YEAR)));
-			// Assumes cost to be 0 if not defined
-			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, costName, "0.0");
-			// Assumes annual behavior if not specified
-			final String strTempBehavior = OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(helper, costName, OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
-			CostParamDescriptions param = null;
-			if (acute) {
-				param = CostParamDescriptions.ONE_TIME_COST;
-			}
-			else {				
-				// If defined to be applied one time
-				if (OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME.getDescription().equals(strTempBehavior)) {
-					param = CostParamDescriptions.ONE_TIME_COST;
-				}
-				else if (OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription().equals(strTempBehavior)) {
-					param = CostParamDescriptions.ANNUAL_COST;
-				}
-			}
-			if (param == null) {
-				throw new TranspilerException(OSDiNames.Class.COST, costName, OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR, strTempBehavior);
-			}
-			try {
-				final ProbabilityDistribution probDistribution = new ProbabilityDistribution(strValue);
-				param.addParameter(secParams, manifestation, 
-						OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(helper, costName, ""),  
-						OSDiNames.getSource(helper, costName), 
-						year, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
-			} catch(TranspilerException ex) {
-				throw new TranspilerException(OSDiNames.Class.MANIFESTATION, manifestation.name(), OSDiNames.DataProperty.HAS_VALUE, strValue, ex);
-			}
+	}
+
+	private static OSDiWrapper.TemporalBehavior createUtilityParam(OSDiWrapper wrap, String utilityName, OSDiWrapper.TemporalBehavior expectedTemporalBehavior, Manifestation manifestation) throws MalformedOSDiModelException {
+		final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName); 
+		final OSDiWrapper.TemporalBehavior tempBehavior = utilityParam.getTemporalBehavior();
+
+		final boolean isDisutility = OSDiWrapper.UtilityType.DISUTILITY.equals(utilityParam.getType());
+
+		if (!OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.equals(expectedTemporalBehavior) && !expectedTemporalBehavior.equals(tempBehavior)) {
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, manifestation.name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Expected " 
+					+ expectedTemporalBehavior.name() + " temporal behavior and obtained " + tempBehavior + " in " + utilityName);
 		}
+		final UtilityParamDescriptions utilityDesc;
+		if (OSDiWrapper.TemporalBehavior.ONETIME.equals(expectedTemporalBehavior)) {
+			utilityDesc = isDisutility ? UtilityParamDescriptions.ONE_TIME_DISUTILITY : UtilityParamDescriptions.ONE_TIME_UTILITY;
+		}
+		else {
+			utilityDesc = isDisutility ? UtilityParamDescriptions.DISUTILITY : UtilityParamDescriptions.UTILITY;
+		}
+		utilityDesc.addParameter(manifestation.getRepository(), manifestation, utilityParam.getSource(),
+					utilityParam.getDeterministicValue(), utilityParam.getProbabilisticValue());		
+		return tempBehavior;
 	}
 
 	/**
@@ -147,87 +158,61 @@ public interface ManifestationBuilder {
 	 * up to two utilities (one-time and annual) may be defined.
 	 * @param secParams Repository
 	 * @param manifestation A chronic or acute manifestation
-	 * @throws TranspilerException When there was a problem parsing the ontology
+	 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 	 * FIXME: Make a comprehensive error control of utility types for each type of manifestation 
 	 */
-	public static void createUtilityParams(OSDiGenericRepository secParams, Manifestation manifestation) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
-		List<String> utilities = OSDiNames.Class.UTILITY.getDescendantsOf(helper, manifestation.name());
+	public static void createUtilityParams(OSDiWrapper wrap, Manifestation manifestation) throws MalformedOSDiModelException {
+		final Set<String> utilities = OSDiWrapper.ObjectProperty.HAS_UTILITY.getValues(wrap, manifestation.name(), true);
+		
 		boolean acute = Manifestation.Type.ACUTE.equals(manifestation.getType());
 		if (acute) {
 			if (utilities.size() > 1)
-				throw new TranspilerException("Only one (dis)utility should be associated to the acute manifestation \"" + manifestation.name() + "\". Instead, " + utilities.size() + " found");
+				wrap.printWarning(manifestation.name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Found more than one (dis)utility for an acute manifestation. Using " + utilities.toArray()[0]);
+			// TODO: Make a smarter use of the excess of costs and use only those which meets the conditions, i.e. select one annual cost from all the defined ones
+			createUtilityParam(wrap, (String)utilities.toArray()[0], OSDiWrapper.TemporalBehavior.ONETIME, manifestation);
 		}
 		else {
 			if (utilities.size() > 2)
-				throw new TranspilerException("A maximum of two (dis)utilities (one-time and annual) should be associated to the chronic manifestation \"" + manifestation.name() + "\". Instead, " + utilities.size() + " found");
+				wrap.printWarning(manifestation.name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Found more than two (dis)utilities (one-time and annual) for a chronic manifestation. Using " + utilities.toArray()[0] + " and "  + utilities.toArray()[1]);
+			// TODO: Make a smarter use of the excess of costs and use only those which meets the conditions, i.e. select one annual and one "one-time" cost from all the defined ones
+			OSDiWrapper.TemporalBehavior tmpBehavior = createUtilityParam(wrap, (String)utilities.toArray()[0], OSDiWrapper.TemporalBehavior.NOT_SPECIFIED, manifestation);
+			tmpBehavior = OSDiWrapper.TemporalBehavior.ANNUAL.equals(tmpBehavior) ? OSDiWrapper.TemporalBehavior.ONETIME : OSDiWrapper.TemporalBehavior.ANNUAL; 
+			createUtilityParam(wrap, (String)utilities.toArray()[1], tmpBehavior, manifestation);
 		}
-		for (String utilityName : utilities) {
-			// Assumes annual behavior if not specified
-			final String strTempBehavior = OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(helper, utilityName, OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
-			// Assumes that it is a utility (not a disutility) if not specified
-			final String strType = OSDiNames.DataProperty.HAS_UTILITY_KIND.getValue(helper, utilityName, OSDiNames.DataPropertyRange.UTILITY_KIND_UTILITY.getDescription());
-			final boolean isDisutility = OSDiNames.DataPropertyRange.UTILITY_KIND_DISUTILITY.getDescription().equals(strType);
-			// Default value for utilities is 1; 0 for disutilities
-			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, utilityName, isDisutility ? "0.0" : "1.0");
-			UtilityParamDescriptions paramUtility = null;
-			if (acute) {
-				paramUtility = isDisutility ? UtilityParamDescriptions.ONE_TIME_DISUTILITY : UtilityParamDescriptions.ONE_TIME_UTILITY;
-			}
-			else {
-				// If defined to be applied one time
-				final boolean isOneTime = OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME.getDescription().equals(strTempBehavior);
-				if (isOneTime) {
-					paramUtility = isDisutility ? UtilityParamDescriptions.ONE_TIME_DISUTILITY : UtilityParamDescriptions.ONE_TIME_UTILITY;
-				}
-				else {
-					paramUtility = isDisutility ? UtilityParamDescriptions.DISUTILITY : UtilityParamDescriptions.UTILITY;
-				}
-			}
-			try {
-				final ProbabilityDistribution probDistribution = new ProbabilityDistribution(strValue);
-				paramUtility.addParameter(secParams, manifestation,	OSDiNames.getSource(helper, utilityName), 
-						probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
-			} catch(TranspilerException ex) {
-				throw new TranspilerException(OSDiNames.Class.MANIFESTATION, manifestation.name(), OSDiNames.DataProperty.HAS_VALUE, strValue, ex);
-			}
+	}
+	
+	private static void addProbabilityParam(OSDiWrapper wrap, Manifestation manifestation, OSDiWrapper.ObjectProperty objProperty, ProbabilityParamDescriptions paramDescription, double defaultValue) throws MalformedOSDiModelException {
+		final String paramName = objProperty.getValue(wrap, manifestation.name(), true);
+		if (paramName != null) {
+			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, defaultValue);			
+			paramDescription.addParameter(manifestation.getRepository(), manifestation, param.getSource(), 
+					param.getDeterministicValue(), param.getProbabilisticValue());
+		}
+	}
+
+	private static void addOtherParam(OSDiWrapper wrap, Manifestation manifestation, OSDiWrapper.ObjectProperty objProperty, OtherParamDescriptions paramDescription, double defaultValue) throws MalformedOSDiModelException {
+		final String paramName = objProperty.getValue(wrap, manifestation.name(), true);
+		if (paramName != null) {
+			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, defaultValue);			
+			paramDescription.addParameter(manifestation.getRepository(), manifestation, param.getSource(), 
+					param.getDeterministicValue(), param.getProbabilisticValue());
 		}
 	}
 	
 	/**
 	 * 
 	 */
-	private static void createMortalityParams(OSDiGenericRepository secParams, Manifestation manifestation) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
-		final String mortalityFactor = OSDiNames.DataProperty.HAS_MORTALITY_FACTOR.getValue(helper, manifestation.name());
-		if (mortalityFactor != null) {
-			ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(mortalityFactor);
-			if (probabilityDistribution != null) {
-				// Chronic manifestations involve a mortality factor (increased risk of death) or a reduction of life expectancy
-				if (Manifestation.Type.CHRONIC.equals(manifestation.getType())) { 
-					if (probabilityDistribution.getDeterministicValue() > 0) {
-						OtherParamDescriptions.INCREASED_MORTALITY_RATE.addParameter(secParams, manifestation, OSDiNames.STR_SOURCE_UNKNOWN, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
-					} else {
-						// FIXME: Inconsistent value: positive for deterministic, negative for probabilistic. Best to define different data properties for each
-						OtherParamDescriptions.LIFE_EXPECTANCY_REDUCTION.addParameter(secParams, manifestation, OSDiNames.STR_SOURCE_UNKNOWN, Math.abs(probabilityDistribution.getDeterministicValue()), probabilityDistribution.getProbabilisticValue());
-					}
-				// Acute manifestations involve a probability of death
-				} else if (Manifestation.Type.ACUTE == manifestation.getType()) {
-					ProbabilityParamDescriptions.PROBABILITY_DEATH.addParameter(manifestation.getRepository(), manifestation, OSDiNames.STR_SOURCE_UNKNOWN, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
-				}
-			}
+	private static void createMortalityParams(OSDiWrapper wrap, Manifestation manifestation) throws MalformedOSDiModelException {
+		// Chronic manifestations may have increased mortality rates, reductions of life expectancy
+		// FIXME: Currently, we are accepting even a probability of death. Conceptually this could only happen when the chronic manifestation is preceded by an acute manifestation 
+		// (actually, the acute manifestation would be the one with such probability). We are doing so to simplify modeling, but it is inaccurate 
+		addProbabilityParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH, ProbabilityParamDescriptions.PROBABILITY_DEATH, 0);
+
+		// Acute manifestations are assumed not to involve further mortality parameters
+		if (Manifestation.Type.CHRONIC.equals(manifestation.getType())) {
+			addOtherParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE, OtherParamDescriptions.INCREASED_MORTALITY_RATE, 1.0);
+			addOtherParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_LIFE_EXPECTANCY_REDUCTION, OtherParamDescriptions.LIFE_EXPECTANCY_REDUCTION, 0.0);
 		}
 	}
 
-	/**
-	 * 
-	 */
-	private static void createProbabilityDiagnosisParam(OSDiGenericRepository secParams, Manifestation manifestation) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
-		final String pDiagnosis = OSDiNames.DataProperty.HAS_PROBABILITY_OF_DIAGNOSIS.getValue(helper, manifestation.name());
-		if (pDiagnosis != null) {
-			ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(pDiagnosis);
-			ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(manifestation.getRepository(), manifestation, OSDiNames.STR_SOURCE_UNKNOWN, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());
-		}
-	}
 }

@@ -1,10 +1,12 @@
 package es.ull.iis.simulation.hta.osdi;
 
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.Set;
 
+import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
@@ -18,40 +20,42 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  */
 public interface DiseaseBuilder {
 	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseName) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
+		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		
-		Disease disease = new Disease(secParams, diseaseName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(helper, diseaseName, "")) {
+		Disease disease = new Disease(secParams, diseaseName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(wrap, diseaseName, "")) {
 
 			@Override
 			public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 				try {
-					createUtilityParam((OSDiGenericRepository) secParams, this);
-					createCostParams((OSDiGenericRepository) secParams, this);
-				} catch (TranspilerException e) {
+					final OSDiWrapper wrap = ((OSDiGenericRepository) secParams).getOwlWrapper();
+					
+					createUtilityParam(wrap, this);
+					createCostParams(wrap, this);
+				} catch (MalformedOSDiModelException e) {
 					System.err.println(e.getMessage());
 				}
 			}
 			
 		};
 		// Build developments
-		List<String> developments = OSDiNames.Class.DEVELOPMENT.getDescendantsOf(helper, diseaseName);
+		final Set<String> developments = OSDiWrapper.Clazz.DEVELOPMENT.getIndividuals(wrap, true);
 		for (String developmentName : developments) {
 			DevelopmentBuilder.getDevelopmentInstance(secParams, developmentName, disease);
 		}
 		
 		// Build manifestations
-		List<String> manifestations = OSDiNames.Class.MANIFESTATION.getDescendantsOf(helper, diseaseName);
+		final Set<String> manifestations = OSDiWrapper.Clazz.MANIFESTATION.getIndividuals(wrap, true);
 		for (String manifestationName: manifestations) {
 			ManifestationBuilder.getManifestationInstance(secParams, disease, manifestationName);
 		}
 		// Build manifestation pathways after creating all the manifestations
 		for (String manifestationName: manifestations) {
 			final Manifestation manif = disease.getManifestation(manifestationName);
-			final List<String> pathways = OSDiNames.Class.MANIFESTATION_PATHWAY.getDescendantsOf(helper, manifestationName);
+			final Set<String> pathways = OSDiWrapper.ObjectProperty.HAS_PATHWAY.getValues(wrap, manifestationName, true);
 			for (String pathwayName : pathways)
 				ManifestationPathwayBuilder.getManifestationPathwayInstance(secParams, manif, pathwayName);
 			// Also include exclusions among manifestations
-			final List<String> exclusions = OSDiNames.ObjectProperty.EXCLUDES_MANIFESTATION.getValues(helper, manifestationName);
+			final Set<String> exclusions = OSDiWrapper.ObjectProperty.EXCLUDES_MANIFESTATION.getValues(wrap, manifestationName);
 			for (String excludedManif : exclusions) {
 				disease.addExclusion(manif, disease.getManifestation(excludedManif));
 			}
@@ -59,100 +63,61 @@ public interface DiseaseBuilder {
 		return disease;
 	}
 	
-	private static void createCostParam(OwlHelper helper, String costName, CostParamDescriptions paramType, OSDiGenericRepository secParams, Disease disease) throws TranspilerException {
-		// Assumes annual behavior if not specified
-		final String strTempBehavior = OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(helper, costName, OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
-		if (CostParamDescriptions.DIAGNOSIS_COST.equals(paramType)) {
-			if (!OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ONETIME.getDescription().equals(strTempBehavior))
-				throw new TranspilerException("Diagnosis costs directly associated to the disease \"" + disease.name() + "\" should be ONE_TIME. Instead, " + strTempBehavior + " found");
+	private static void createCostParam(OSDiWrapper wrap, OSDiWrapper.ObjectProperty costProperty, CostParamDescriptions paramDescription, Disease disease) throws MalformedOSDiModelException {
+		Set<String> costs = costProperty.getValues(wrap, disease.name(), true);
+		if (costs.size() > 1 )
+			wrap.printWarning(disease.name(), costProperty, "Found more than one cost for a disease. Using only " + costs.toArray()[0]);
+		// TODO: Make a smarter use of the excess of costs and use only those which meets the conditions, i.e. select one annual cost from all the defined ones
+		
+		final CostParameterWrapper costParam = new CostParameterWrapper(wrap, (String)costs.toArray()[0], 0.0);
+		final OSDiWrapper.TemporalBehavior tempBehavior = costParam.getTemporalBehavior();
+		// Checking coherence between type of cost parameter and its temporal behavior. Assumed to be ok if temporal behavior not specified 
+		if (CostParamDescriptions.DIAGNOSIS_COST.equals(paramDescription)) {
+			if (OSDiWrapper.TemporalBehavior.ANNUAL.equals(tempBehavior))
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE, disease.name(), costProperty, "Diagnosis costs directly associated to a disease should be ONE_TIME. Instead, " + tempBehavior + " found");
 		}
 		else {
-			if (!OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription().equals(strTempBehavior))
-				throw new TranspilerException("Follow-up, treatment and non specific costs directly associated to the disease \"" + disease.name() + "\" should be ANNUAL. Instead, " + strTempBehavior + " found");
+			if (OSDiWrapper.TemporalBehavior.ONETIME.equals(tempBehavior))
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE, disease.name(), costProperty, "Follow-up, treatment and non specific costs directly associated to a disease should be ANNUAL. Instead, " + tempBehavior + " found");
 		}
-		// Default value for utilities is 1; 0 for disutilities
-		final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, costName, "0.0");
-		// Assumes current year if not specified
-		final int year = Integer.parseInt(OSDiNames.DataProperty.HAS_YEAR.getValue(helper, costName, "" + (new GregorianCalendar()).get(GregorianCalendar.YEAR)));
-		try {
-			final ProbabilityDistribution probDistribution = new ProbabilityDistribution(strValue);
-			paramType.addParameter(secParams, disease,  
-					OSDiNames.getSource(helper, costName), year, 
-					probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
-		} catch(TranspilerException ex) {
-			throw new TranspilerException(OSDiNames.Class.UTILITY, costName, OSDiNames.DataProperty.HAS_VALUE, strValue);
-		}
-		
+		paramDescription.addParameter(disease.getRepository(), disease, costParam.getSource(), costParam.getYear(),
+				costParam.getDeterministicValue(), costParam.getProbabilisticValue());
 	}
 	/**
 	 * Creates the costs associated to a specific disease by extracting the information from the ontology. 
 	 * TODO: Process strategies and not only costs directly defined
-	 * @param secParams Repository
+	 * @param wrap The ontology wrapper
 	 * @param disease A disease
-	 * @throws TranspilerException When there was a problem parsing the ontology
+	 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 	 */
-	private static void createCostParams(OSDiGenericRepository secParams, Disease disease) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
-		List<String> costs = OSDiNames.ObjectProperty.HAS_COST.getValues(helper, disease.name());
-		if (costs.size() == 1)
-			createCostParam(helper, costs.get(0), CostParamDescriptions.ANNUAL_COST, secParams, disease);
-		else if (costs.size() > 1)
-			throw new TranspilerException("A maximum of one non specific cost should be directly associated to the disease \"" + disease.name() + "\". Instead, " + costs.size() + " found");
-		costs = OSDiNames.ObjectProperty.HAS_FOLLOWUP_COST.getValues(helper, disease.name());
-		if (costs.size() == 1)
-			createCostParam(helper, costs.get(0), CostParamDescriptions.FOLLOW_UP_COST, secParams, disease);
-		else if (costs.size() > 1)
-			throw new TranspilerException("A maximum of one follow-up cost should be directly associated to the disease \"" + disease.name() + "\". Instead, " + costs.size() + " found");
-		costs = OSDiNames.ObjectProperty.HAS_TREATMENT_COST.getValues(helper, disease.name());
-		if (costs.size() == 1)
-			createCostParam(helper, costs.get(0), CostParamDescriptions.TREATMENT_COST, secParams, disease);
-		else if (costs.size() > 1)
-			throw new TranspilerException("A maximum of one treatment cost should be directly associated to the disease \"" + disease.name() + "\". Instead, " + costs.size() + " found");
-		costs = OSDiNames.ObjectProperty.HAS_DIAGNOSIS_COST.getValues(helper, disease.name());
-		if (costs.size() == 1)
-			createCostParam(helper, costs.get(0), CostParamDescriptions.DIAGNOSIS_COST, secParams, disease);
-		else if (costs.size() > 1)
-			throw new TranspilerException("A maximum of one diagnosis cost should be directly associated to the disease \"" + disease.name() + "\". Instead, " + costs.size() + " found");
-		
+	private static void createCostParams(OSDiWrapper wrap, Disease disease) throws MalformedOSDiModelException {
+		createCostParam(wrap, OSDiWrapper.ObjectProperty.HAS_COST, CostParamDescriptions.ANNUAL_COST, disease);
+		createCostParam(wrap, OSDiWrapper.ObjectProperty.HAS_FOLLOW_UP_COST, CostParamDescriptions.ANNUAL_COST, disease);
+		createCostParam(wrap, OSDiWrapper.ObjectProperty.HAS_TREATMENT_COST, CostParamDescriptions.ANNUAL_COST, disease);
+		createCostParam(wrap, OSDiWrapper.ObjectProperty.HAS_DIAGNOSIS_COST, CostParamDescriptions.ONE_TIME_COST, disease);
+		createCostParam(wrap, OSDiWrapper.ObjectProperty.HAS_SCREENING_COST, CostParamDescriptions.ONE_TIME_COST, disease);
 	}
 	
 	/**
 	 * Creates the utilities associated to a specific disease by extracting the information from the ontology. Only one annual (dis)utility should be defined.
-	 * @param secParams Repository
 	 * @param disease A disease
-	 * @throws TranspilerException When there was a problem parsing the ontology
+	 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 	 */
-	private static void createUtilityParam(OSDiGenericRepository secParams, Disease disease) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
-		List<String> utilities = OSDiNames.ObjectProperty.HAS_UTILITY.getValues(helper, disease.name());
-		if (utilities.size() > 1)
-			throw new TranspilerException("A maximum of one annual (dis)utility should be associated to the disease \"" + disease.name() + "\". Instead, " + utilities.size() + " found");
-		for (String utilityName : utilities) {
-			// Assumes annual behavior if not specified
-			final String strTempBehavior = OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(helper, utilityName, OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
-			if (!OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription().equals(strTempBehavior))
-				throw new TranspilerException("Only annual (dis)utilities should be associated to the disease \"" + disease.name() + "\". Instead, " + strTempBehavior + " found");
-			// Assumes that it is a utility (not a disutility) if not specified
-			final String strType = OSDiNames.DataProperty.HAS_UTILITY_KIND.getValue(helper, utilityName, OSDiNames.DataPropertyRange.UTILITY_KIND_UTILITY.getDescription());
-			final boolean isDisutility = OSDiNames.DataPropertyRange.UTILITY_KIND_DISUTILITY.getDescription().equals(strType);
-			// Default value for utilities is 1; 0 for disutilities
-			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, utilityName, isDisutility ? "0.0" : "1.0");
-			try {
-				final ProbabilityDistribution probDistribution = new ProbabilityDistribution(strValue);
-				if (isDisutility) {
-					UtilityParamDescriptions.DISUTILITY.addParameter(secParams, disease,  
-							OSDiNames.getSource(helper, utilityName), 
-							probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
-				}
-				else {
-					UtilityParamDescriptions.UTILITY.addParameter(secParams, disease,  
-							OSDiNames.getSource(helper, utilityName), 
-							probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
-				}
-			} catch(TranspilerException ex) {
-				throw new TranspilerException(OSDiNames.Class.UTILITY, utilityName, OSDiNames.DataProperty.HAS_VALUE, strValue);
-			}
-		}
+	private static void createUtilityParam(OSDiWrapper wrap, Disease disease) throws MalformedOSDiModelException {
+		final Set<String> utilities = OSDiWrapper.ObjectProperty.HAS_UTILITY.getValues(wrap, disease.name(), true);
+		if (utilities.size() > 1 )
+			wrap.printWarning(disease.name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "A maximum of one annual (dis)utility should be associated to a disease. Using only " + utilities.toArray()[0]);
+
+		final String utilityName = (String) utilities.toArray()[0];
+		final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName); 
+		final OSDiWrapper.TemporalBehavior tempBehavior = utilityParam.getTemporalBehavior();
+		
+		if (OSDiWrapper.TemporalBehavior.ONETIME.equals(tempBehavior))
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE, disease.name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Only annual (dis)utilities should be associated to a disease. Instead, " + tempBehavior + " found");
+		
+		final UtilityParamDescriptions utilityDesc = OSDiWrapper.UtilityType.DISUTILITY.equals(utilityParam.getType()) ? UtilityParamDescriptions.DISUTILITY : UtilityParamDescriptions.UTILITY;
+		utilityDesc.addParameter(disease.getRepository(), disease, utilityParam.getSource(),
+					utilityParam.getDeterministicValue(), utilityParam.getProbabilisticValue());
 	}
 
 }

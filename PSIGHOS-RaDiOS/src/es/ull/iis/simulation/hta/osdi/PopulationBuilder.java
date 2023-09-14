@@ -9,6 +9,7 @@ import java.util.List;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -36,8 +37,8 @@ public interface PopulationBuilder {
 	 * @return
 	 */
 	public static StdPopulation getPopulationInstance(OSDiGenericRepository secParams, Disease disease, String populationName) throws TranspilerException, MalformedSimulationModelException {
-		
-		return new OSDiPopulation(secParams, disease, populationName);		
+				
+		return new OSDiPopulation(secParams, disease, populationName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(secParams.getOwlWrapper(), populationName, ""));		
 	}
 	
 	static class OSDiPopulation extends StdPopulation {
@@ -47,8 +48,8 @@ public interface PopulationBuilder {
 		private final int minAge; 
 		private final String strFemaleParamName;
 		
-		public OSDiPopulation(OSDiGenericRepository secParams, Disease disease, String populationName) throws TranspilerException, MalformedSimulationModelException {
-			super(secParams, populationName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(secParams.getOwlHelper(), populationName, ""), disease);
+		public OSDiPopulation(OSDiGenericRepository secParams, Disease disease, String populationName, String populationDescription) throws TranspilerException, MalformedSimulationModelException {
+			super(secParams, populationName, populationDescription, disease);
 			final String strAge = OSDiNames.DataProperty.HAS_AGE.getValue(secParams.getOwlHelper(), populationName, "0.0");
 			this.ageDist = new ProbabilityDistribution(strAge);
 			this.hasPrevalence = false;

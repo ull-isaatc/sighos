@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
@@ -16,52 +17,22 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
- * @author Ivï¿½n Castilla Rodrï¿½guez
+ * @author Iván Castilla Rodríguez
  *
  */
 public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	public static final JexlEngine JEXL = new JexlBuilder().create();
-	private final OwlHelper helper; 
 	private final OSDiWrapper wrap; 
-
-	/**
-	 * 
-	 * @param nRuns
-	 * @param nPatients
-	 * @param path
-	 * @param diseaseId
-	 * @param populationId
-	 * @param method
-	 * @throws FileNotFoundException
-	 * @throws JAXBException
-	 * @throws IOException
-	 * @throws TranspilerException 
-	 */
-	public OSDiGenericRepository(int nRuns, int nPatients, String path, String diseaseId, String populationId, List<String> interventionsToCompare, DisutilityCombinationMethod method) throws FileNotFoundException, JAXBException, IOException, TranspilerException, MalformedSimulationModelException {
-		super(nRuns, nPatients);
-		helper = new OwlHelper(path);
-		wrap = null;
-		setDisutilityCombinationMethod(method);
-
-		Disease disease = DiseaseBuilder.getDiseaseInstance(this, diseaseId);
-		setPopulation(PopulationBuilder.getPopulationInstance(this, disease, populationId));
-		
-		// TODO: Death submodel should be context specific, depending on the population
-		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
-		
-		// Build interventions
-		for (String interventionName : interventionsToCompare) {
-			InterventionBuilder.getInterventionInstance(this, interventionName);
-		}
-		
-	}
+	private final int year;
 
 	/**
 	 * 
@@ -77,11 +48,13 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	 * @throws TranspilerException 
 	 * @throws OWLOntologyCreationException 
 	 */
-	public OSDiGenericRepository(int nRuns, int nPatients, String path, String modelId) throws FileNotFoundException, JAXBException, IOException, TranspilerException, MalformedSimulationModelException, OWLOntologyCreationException {
+	public OSDiGenericRepository(int nRuns, int nPatients, String path, String modelId) throws FileNotFoundException, JAXBException, IOException, TranspilerException, MalformedSimulationModelException, OWLOntologyCreationException, MalformedOSDiModelException {
 		super(nRuns, nPatients);
-		wrap = new OSDiWrapper(path);
-		helper = null;
-		ArrayList<String> methods = OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD.getValues(wrap, modelId);
+		wrap = new OSDiWrapper(path, modelId);
+		
+		year = wrap.parseHasYearProperty(modelId);
+		
+		final ArrayList<String> methods = OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD.getValues(wrap, modelId);
 		// Assuming that exactly one method was defined
 		if (methods.size() != 1)
 			throw new MalformedSimulationModelException("Exactly one disutility combination method must be specified for the model. Instead, " + methods.size() + " defined.");
@@ -91,12 +64,16 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		catch(IllegalArgumentException ex) {
 			throw new MalformedSimulationModelException("Disutility combination method not valid. \"" + methods.get(0) + "\" not found.");			
 		}
-		
-		final ArrayList<String> modelItems = OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM.getValues(wrap, modelId);
 
+		// Find the diseases that belong to the model
+		final Set<String> diseaseName = wrap.getIndividuals(OSDiWrapper.Clazz.DISEASE.getShortName(), true); 
+		if (diseaseName.size() == 0)
+			throw new MalformedSimulationModelException("The model does not include any disease.");
+		else if (diseaseName.size() > 1)
+			wrap.printWarning("Found " + diseaseName.size() + " diseases included in the model. Only " + diseaseName.toArray()[0] + " will be used");
+		final Disease disease = DiseaseBuilder.getDiseaseInstance(this, (String)diseaseName.toArray()[0]);
 		// TODO: Adapt the rest to use the wrapper
 
-//		Disease disease = DiseaseBuilder.getDiseaseInstance(this, diseaseId);
 //		setPopulation(PopulationBuilder.getPopulationInstance(this, disease, populationId));
 		
 		// TODO: Death submodel should be context specific, depending on the population
@@ -109,10 +86,10 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		
 	}
 
-	public OwlHelper getOwlHelper() {
-		return helper;
+	public OSDiWrapper getOwlWrapper() {
+		return wrap;
 	}
-
+	
 	/**
 	 * For testing (currently not working in the test package for unknown reasons)
 	 * @param args
@@ -123,7 +100,7 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 			interventionsToCompare.add(InterventionBuilder.DO_NOTHING);
 
 //			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
-			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#T1DM_Disease", "#T1DM_DCCTPopulation1", interventionsToCompare, DisutilityCombinationMethod.ADD);
+			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "T1DM_StdModel");
 			secParams.registerAllSecondOrderParams();
 			for (Disease disease : secParams.getRegisteredDiseases()) {
 				System.out.println(disease.prettyPrint(""));
@@ -141,6 +118,10 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		} catch (TranspilerException e) {
 			e.printStackTrace();
 		} catch (MalformedSimulationModelException e) {
+			e.printStackTrace();
+		} catch (OWLOntologyCreationException e) {
+			e.printStackTrace();
+		} catch (MalformedOSDiModelException e) {
 			e.printStackTrace();
 		}
 	}

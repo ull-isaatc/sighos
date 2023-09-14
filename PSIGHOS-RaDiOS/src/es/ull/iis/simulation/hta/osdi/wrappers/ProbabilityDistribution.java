@@ -3,8 +3,7 @@ package es.ull.iis.simulation.hta.osdi.wrappers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -15,7 +14,6 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class ProbabilityDistribution {
-	private static final String DET_VALUE = "DETVALUE";
 	private static final String DIST_NAME = "DISTNAME";
 	private static final String DIST_SCALE = "DISTSCALE";
 	private static final String DIST_SCALE_SIGN = "DISTSCALESIGN";
@@ -24,8 +22,7 @@ public class ProbabilityDistribution {
 	private static final String DIST_PARAM2 = "DISTPARAM2";
 	private static final String DIST_PARAM3 = "DISTPARAM3";
 	private static final String DIST_PARAM4 = "DISTPARAM4";
-	private static final String REG_EXP = 
-			"^(?<"+ DET_VALUE + ">[0-9\\.,E-]+)?(#?(?<" + 
+	private static final String REG_EXP = "^(?(?<" + 
 					DIST_OFFSET + ">[+-]?[0-9]+\\.?[0-9]*)?(?<" +
 					DIST_SCALE_SIGN + ">[+-])?((?<" + 
 					DIST_SCALE + ">[0-9]+\\.?[0-9]*)\\*)?(?<" + 
@@ -33,63 +30,45 @@ public class ProbabilityDistribution {
 					DIST_PARAM1 + ">[+-]?[0-9]+\\.?[0-9]*)(,(?<" + 
 					DIST_PARAM2 + ">[+-]?[0-9]+\\.?[0-9]*))?(,(?<" + 
 					DIST_PARAM3 + ">[+-]?[0-9]+\\.?[0-9]*))?(,(?<" + 
-					DIST_PARAM4 + ">[+-]?[0-9]+\\.?[0-9]*))?\\))?$";
+					DIST_PARAM4 + ">[+-]?[0-9]+\\.?[0-9]*))?\\))$";
 
 	private static final String DISTRIBUTION_NAME_SUFFIX = "Variate";
 	private static final Pattern PATTERN = Pattern.compile(REG_EXP);
 
-	private final Double deterministicValue;
-	private final RandomVariate probabilisticValue;
-
-	/**
-	 * Initializes a probability distribution with both the deterministic and probabilistic values
-	 * @param deterministicValue
-	 * @param probabilisticValue
-	 */
-	public ProbabilityDistribution(Double deterministicValue, RandomVariate probabilisticValue) {
-		this.deterministicValue = deterministicValue;
-		this.probabilisticValue = probabilisticValue;
+	private ProbabilityDistribution() {
+		
 	}
-
 	/**
-	 * Initializes a probability distribution from a string in the form &ltdeterministic_value#probabilistic_distribution&gt
-	 * FIXME: By default, a constant variate is assigned if not defined. Depending on the type of parameter, it would be desirable to use specific distributions by default
+	 * Initializes a probability distribution from a string in the form [&ltOFFSET&gt + &ltSCALE&gt * ] &ltDISTRIBUTION_NAME&gt (&ltPARAM1&gt, [...])
 	 * @param text
 	 */
-	public ProbabilityDistribution(String text) throws TranspilerException {
+	public static RandomVariate getInstanceFromExpression(String text) throws MalformedOSDiModelException {
 		String valueNormalized = text.replace(" ", "");
 		Matcher matcher = PATTERN.matcher(valueNormalized);
 		try {
 			if (matcher.find()) {	
-				final String detValue = matcher.group(DET_VALUE);
-				deterministicValue = (detValue == null) ? null : Double.parseDouble(detValue);
 				final String distributionName = matcher.group(DIST_NAME);
-				if (distributionName == null)
-					probabilisticValue = RandomVariateFactory.getInstance("ConstantVariate", deterministicValue);
-				else {
-					final String[] parameters = new String[4];
-					parameters[0] = matcher.group(DIST_PARAM1);
-					parameters[1] = matcher.group(DIST_PARAM2);
-					parameters[2] = matcher.group(DIST_PARAM3);
-					parameters[3] = matcher.group(DIST_PARAM4);
-					final RandomVariate rnd = buildDistributionVariate(distributionName, parameters);
-					final String strScale = matcher.group(DIST_SCALE);
-					final String strOffset = matcher.group(DIST_OFFSET);					
-					if (strScale != null || strOffset != null) {
-						final String strSign = matcher.group(DIST_SCALE_SIGN);
-						final double sign = "-".equals(strSign) ? -1.0 : 1.0;  
-						probabilisticValue = RandomVariateFactory.getInstance("ScaledVariate", rnd, sign * 
-									((strScale == null) ? 1.0 : Double.parseDouble(strScale)), (strOffset == null) ? 0.0 : Double.parseDouble(strOffset));
-					}
-					else
-						probabilisticValue = rnd;
+				final String[] parameters = new String[4];
+				parameters[0] = matcher.group(DIST_PARAM1);
+				parameters[1] = matcher.group(DIST_PARAM2);
+				parameters[2] = matcher.group(DIST_PARAM3);
+				parameters[3] = matcher.group(DIST_PARAM4);
+				final RandomVariate rnd = buildDistributionVariate(distributionName, parameters);
+				final String strScale = matcher.group(DIST_SCALE);
+				final String strOffset = matcher.group(DIST_OFFSET);					
+				if (strScale != null || strOffset != null) {
+					final String strSign = matcher.group(DIST_SCALE_SIGN);
+					final double sign = "-".equals(strSign) ? -1.0 : 1.0;  
+					return RandomVariateFactory.getInstance("ScaledVariate", rnd, sign * 
+								((strScale == null) ? 1.0 : Double.parseDouble(strScale)), (strOffset == null) ? 0.0 : Double.parseDouble(strOffset));
 				}
+				return rnd;
 			}
 			else
-				throw new TranspilerException("Error parsing probability distribution " + text);
+				throw new MalformedOSDiModelException("Error parsing probability distribution " + text);
 		}
 		catch(IllegalArgumentException ex) {
-			throw new TranspilerException("Error parsing probability distribution " + text, ex);			
+			throw new MalformedOSDiModelException("Error parsing probability distribution " + text, ex);			
 		}
 	}
 
@@ -100,7 +79,6 @@ public class ProbabilityDistribution {
 	 * @param firstParameter
 	 * @param secondParameter
 	 * @return
-	 * @throws TranspilerException
 	 */
 	private static RandomVariate buildDistributionVariate(String distributionName, String[] parameters) {
 		int validParams = 3;
@@ -116,55 +94,5 @@ public class ProbabilityDistribution {
 		if (validParams == 1)
 			return RandomVariateFactory.getInstance(distributionName + DISTRIBUTION_NAME_SUFFIX, numParams[0], numParams[1]);
 		return RandomVariateFactory.getInstance(distributionName + DISTRIBUTION_NAME_SUFFIX, numParams[0]);
-	}
-	
-	
-	public Double getDeterministicValue() {
-		return deterministicValue;
-	}
-
-	public RandomVariate getProbabilisticValue() {
-		return probabilisticValue;
-	}
-
-	// FIXME: Currently, this function is useless as far as ValuePArser initializes the probabilisticValue by default to constant
-	public RandomVariate getProbabilisticValueInitializedForProbability() {
-		if (probabilisticValue == null && deterministicValue != null) {
-			if (deterministicValue == 0.0 || deterministicValue == 1.0) {
-				return RandomVariateFactory.getInstance("ConstantVariate", getDeterministicValue());
-			} else {
-				return SecondOrderParamsRepository.getRandomVariateForProbability(getDeterministicValue());
-			}
-		}
-		return probabilisticValue;
-	}
-
-	// FIXME: Currently, this function is useless as far as ValuePArser initializes the probabilisticValue by default to constant
-	public RandomVariate getProbabilisticValueInitializedForCost() {
-		if (probabilisticValue == null && deterministicValue != null) {
-			return SecondOrderParamsRepository.getRandomVariateForCost(getDeterministicValue());
-		}
-		return probabilisticValue;
-	}
-
-	private String getDeterministicValueOrEmpty () {
-		return getDeterministicValue() != null ? getDeterministicValue().toString() : "";
-	}
-	
-	private String getProbabilisticValueOrEmpty () {
-		return getProbabilisticValue() != null ? getProbabilisticValue().toString() : "";
-	}
-	
-	@Override
-	public String toString() {
-		if (getDeterministicValue() != null && getProbabilisticValue() != null) {
-			return String.format("%s#%s", getDeterministicValueOrEmpty(), getProbabilisticValueOrEmpty()); 
-		} else if (getDeterministicValue() != null) {
-			return String.format("%s", getDeterministicValueOrEmpty()); 
-		} else if (getProbabilisticValue() != null) {
-			return String.format("%s", getProbabilisticValueOrEmpty()); 
-		} else {
-			return "";
-		}
 	}
 }

@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.osdi;
 
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.progression.Development;
 import es.ull.iis.simulation.hta.progression.Disease;
 
@@ -20,7 +21,7 @@ public interface DevelopmentBuilder {
 	 * @return a {@link Development} based on the information stored in the ontology
 	 */
 	public static Development getDevelopmentInstance(OSDiGenericRepository secParams, String developmentName, Disease disease) {
-		final Development develop = new Development(developmentName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(secParams.getOwlHelper(), developmentName, ""), disease);
+		final Development develop = new Development(developmentName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(secParams.getOwlWrapper(), developmentName, ""), disease);
 		return develop;
 	}
 }

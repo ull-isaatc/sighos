@@ -240,11 +240,11 @@
                    rdfs:range :AttributeValue .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasLifetimeReduction
-:hasLifetimeReduction rdf:type owl:ObjectProperty ;
-                      rdfs:subPropertyOf :hasParameter ;
-                      rdfs:domain :Manifestation ;
-                      rdfs:range :Parameter .
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasLifeExpectancyReduction
+:hasLifeExpectancyReduction rdf:type owl:ObjectProperty ;
+                            rdfs:subPropertyOf :hasParameter ;
+                            rdfs:domain :Manifestation ;
+                            rdfs:range :Parameter .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasLineOfTherapy
@@ -1313,6 +1313,10 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                                     ]
                                ] ,
                                [ rdf:type owl:Restriction ;
+                                 owl:onProperty :excludesManifestation ;
+                                 owl:someValuesFrom :Manifestation
+                               ] ,
+                               [ rdf:type owl:Restriction ;
                                  owl:onProperty :hasCost ;
                                  owl:someValuesFrom :Cost
                                ] ,
@@ -1325,7 +1329,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                  owl:someValuesFrom :Parameter
                                ] ,
                                [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasLifetimeReduction ;
+                                 owl:onProperty :hasLifeExpectancyReduction ;
                                  owl:someValuesFrom :Parameter
                                ] ,
                                [ rdf:type owl:Restriction ;
@@ -2261,6 +2265,26 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_StdModelDES
 :T1DM_StdModelDES rdf:type owl:NamedIndividual ,
                            :DiscreteEventSimulationModel ;
+                  :includesModelItem :T1DM_Disease ,
+                                     :T1DM_Group_Manif_CHD ,
+                                     :T1DM_Group_Manif_HYPO ,
+                                     :T1DM_Group_Manif_NEU ,
+                                     :T1DM_Group_Manif_NPH ,
+                                     :T1DM_Group_Manif_RET ,
+                                     :T1DM_Manif_ALB1 ,
+                                     :T1DM_Manif_ALB2 ,
+                                     :T1DM_Manif_ANGINA ,
+                                     :T1DM_Manif_BGRET ,
+                                     :T1DM_Manif_BLI ,
+                                     :T1DM_Manif_ESRD ,
+                                     :T1DM_Manif_HF ,
+                                     :T1DM_Manif_LEA ,
+                                     :T1DM_Manif_ME ,
+                                     :T1DM_Manif_MI ,
+                                     :T1DM_Manif_NEU ,
+                                     :T1DM_Manif_PRET ,
+                                     :T1DM_Manif_SHE ,
+                                     :T1DM_Manif_STROKE ;
                   :hasAuthor "ICR" ;
                   :hasDescription "First example of T1DM model" ;
                   :hasGeographicalContext "Spain" ;
