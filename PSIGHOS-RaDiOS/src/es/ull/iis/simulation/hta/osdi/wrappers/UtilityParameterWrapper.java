@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 
 /**
  * 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class UtilityParameterWrapper extends ParameterWrapper {
@@ -34,7 +34,7 @@ public class UtilityParameterWrapper extends ParameterWrapper {
 			type = OSDiWrapper.UtilityType.UTILITY;
 			break;
 		default:
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.UTILITY, paramId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Using something else as utility: " + getDataItemType().getShortName());
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.UTILITY, paramId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Using something else as utility: " + getDataItemType().getInstanceName());
 		}
 		// Fix deterministic value in case it was not specified
 		if (Double.isNaN(getDeterministicValue())) {

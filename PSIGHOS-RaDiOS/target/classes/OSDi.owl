@@ -1894,7 +1894,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                              :Incidence ;
                     :hasDataItemType :DI_Ratio ;
                     :hasExpression "1.0"^^xsd:double ;
-                    :isTrueEpidemiologicalParameterEstimate "false"^^xsd:boolean .
+                    :isTrueEpidemiologicalParameterEstimate "true"^^xsd:boolean .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ConstantPrevalence1
@@ -1902,7 +1902,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                               :Prevalence ;
                      :hasDataItemType :DI_Ratio ;
                      :hasExpression "1.0"^^xsd:double ;
-                     :isTrueEpidemiologicalParameterEstimate "false"^^xsd:boolean .
+                     :isTrueEpidemiologicalParameterEstimate "true"^^xsd:boolean .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ConstantProbability0

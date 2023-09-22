@@ -26,7 +26,7 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class OSDiGenericRepository extends SecondOrderParamsRepository {
@@ -48,9 +48,9 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	 * @throws TranspilerException 
 	 * @throws OWLOntologyCreationException 
 	 */
-	public OSDiGenericRepository(int nRuns, int nPatients, String path, String modelId) throws FileNotFoundException, JAXBException, IOException, TranspilerException, MalformedSimulationModelException, OWLOntologyCreationException, MalformedOSDiModelException {
+	public OSDiGenericRepository(int nRuns, int nPatients, String path, String modelId, String instancePrefix) throws FileNotFoundException, JAXBException, IOException, TranspilerException, MalformedSimulationModelException, OWLOntologyCreationException, MalformedOSDiModelException {
 		super(nRuns, nPatients);
-		wrap = new OSDiWrapper(path, modelId);
+		wrap = new OSDiWrapper(path, modelId, instancePrefix);
 		
 		year = wrap.parseHasYearProperty(modelId);
 		
@@ -100,7 +100,7 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 			interventionsToCompare.add(InterventionBuilder.DO_NOTHING);
 
 //			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
-			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "T1DM_StdModel");
+			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "StdModel", "T1DM_");
 			secParams.registerAllSecondOrderParams();
 			for (Disease disease : secParams.getRegisteredDiseases()) {
 				System.out.println(disease.prettyPrint(""));

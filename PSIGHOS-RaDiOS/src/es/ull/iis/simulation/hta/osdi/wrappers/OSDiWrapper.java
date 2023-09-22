@@ -20,41 +20,56 @@ import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import es.ull.iis.ontology.OWLOntologyWrapper;
 
 /**
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  *
  */
 public class OSDiWrapper extends OWLOntologyWrapper {
 	public static final boolean ENABLE_WARNINGS = true;  
 	
 	private final static String PREFIX = "http://www.ull.es/iis/simulation/ontologies/disease-simulation#";
-	private final String workingModelId;
+	private String workingModelInstance;
 	private final Set<String> modelItems;
+	private final String instancePrefix;
+	
+	public final static String STR_MANIF_PREFIX = "Manif_";
+	public final static String STR_MANIF_GROUP_PREFIX = "Group_Manif_";
+	public final static String STR_UNCERTAINTY_SUFFIX = "_ParamUncertainty";
+	public final static String STR_ANNUAL_COST_SUFFIX = "_AC";
+	public final static String STR_ONETIME_COST_SUFFIX = "_TC";
 
 	/**
 	 * @param file
 	 * @throws OWLOntologyCreationException
 	 */
-	public OSDiWrapper(File file, String workingModelId) throws OWLOntologyCreationException {
+	public OSDiWrapper(File file, String workingModelName, String instancePrefix) throws OWLOntologyCreationException {
 		super(file, PREFIX);
-		this.workingModelId = workingModelId;
-		modelItems = OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM.getValues(this, workingModelId);
+		this.instancePrefix = instancePrefix;
+		this.modelItems = new TreeSet<>();
+		setWorkingModelInstance(workingModelName);
 	}
 
 	/**
 	 * @param path
 	 * @throws OWLOntologyCreationException
 	 */
-	public OSDiWrapper(String path, String workingModelId) throws OWLOntologyCreationException {
+	public OSDiWrapper(String path, String workingModelName, String instancePrefix) throws OWLOntologyCreationException {
 		super(path, PREFIX);
-		this.workingModelId = workingModelId;
-		modelItems = OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM.getValues(this, workingModelId);
+		this.instancePrefix = instancePrefix;
+		this.modelItems = new TreeSet<>();
+		setWorkingModelInstance(workingModelName);
 	}
 
 	/**
 	 * @return the workingModelId
 	 */
-	public String getWorkingModelId() {
-		return workingModelId;
+	public String getWorkingModelInstance() {
+		return workingModelInstance;
+	}
+	
+	public void setWorkingModelInstance(String workingModelName) {
+		this.workingModelInstance = instancePrefix + workingModelName;
+		modelItems.clear();
+		modelItems.addAll(OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM.getValues(this, this.workingModelInstance));
 	}
 
 	public enum ModelType {
@@ -108,7 +123,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 
 	/**
 	 * Temporal behavior for costs and utilities in the ontology
-	 * @author Iván Castilla
+	 * @author Ivï¿½n Castilla
 	 *
 	 */
 	public enum TemporalBehavior {
@@ -388,7 +403,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	/**
 	 * Individuals defined in the ontology as DataItemTypes. The enum name must be the upper case version of the individual IRI.
 	 * The DI_UNDEFINED value does not exist in the ontology and is used only in this code.
-	 * @author Iván Castilla Rodríguez
+	 * @author IvÃ¡n Castilla RodrÃ­guez
 	 *
 	 */
 	public enum DataItemType {
@@ -413,15 +428,15 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		DI_UTILITY("DI_Utility"),
 		DI_UNDEFINED("Undefined");
 
-		private final String shortName;
-		private DataItemType(String shortName) {
-			this.shortName = shortName;
+		private final String instanceName;
+		private DataItemType(String instanceName) {
+			this.instanceName = instanceName;
 		}
 		/**
 		 * @return the shortName
 		 */
-		public String getShortName() {
-			return shortName;
+		public String getInstanceName() {
+			return instanceName;
 		}		
 	}
 	
@@ -438,42 +453,98 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		return IRI.split("#")[1];
 	}
 	
-	public void createModel(String name, ModelType type, String author, String description, String geoContext, int year, String reference) {
-		type.getClazz().add(this, name);
-		DataProperty.HAS_AUTHOR.add(this, name, author);
-		DataProperty.HAS_DESCRIPTION.add(this, name, description);
-		DataProperty.HAS_GEOGRAPHICAL_CONTEXT.add(this, name, geoContext);
-		DataProperty.HAS_REF_TO.add(this, name, reference);
-		DataProperty.HAS_YEAR.add(this, name, "" + year);		
+	/**
+	 * @return The prefix that is applied to every instance
+	 */
+	public String getInstancePrefix() {
+		return instancePrefix;
+	}
+	
+	public String getManifestationInstanceName(String manifName) {
+		return instancePrefix + STR_MANIF_PREFIX + manifName;
 	}
 
-	public void createDisease(String name, String description, String modelName, String refToDO, String refToICD, String refToOMIM, String refToSNOMED) {
+	public String getManifestationGroupInstanceName(String groupName) {
+		return instancePrefix + STR_MANIF_GROUP_PREFIX + groupName;
+	}
+
+	public String createCost(String costName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, DataItemType currency) {
+		String name = instancePrefix + costName;
+		Clazz.COST.add(this, name);
+		ObjectProperty.HAS_DATA_ITEM_TYPE.add(this, name, currency.getInstanceName());
+		DataProperty.HAS_DESCRIPTION.add(this, name, description);
+		DataProperty.HAS_SOURCE.add(this, name, source);
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
+		DataProperty.HAS_YEAR.add(this, name, "" + year);
+		DataProperty.HAS_EXPRESSION.add(this, name, deterministic);
+		if (uncertainty != null && !("".equals(uncertainty))) {
+			name = name + STR_UNCERTAINTY_SUFFIX;
+			Clazz.COST.add(this, name);
+			ObjectProperty.HAS_DATA_ITEM_TYPE.add(this, name, currency.getInstanceName());
+			DataProperty.HAS_DESCRIPTION.add(this, name, description);
+			DataProperty.HAS_SOURCE.add(this, name, source);
+			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
+			DataProperty.HAS_YEAR.add(this, name, "" + year);
+			DataProperty.HAS_EXPRESSION.add(this, name, uncertainty);			
+		}
+		return name;
+	}
+	
+	/**
+	 * Creates a model by using the working model instance specified 
+	 * @param modelName
+	 * @param type
+	 * @param author
+	 * @param description
+	 * @param geoContext
+	 * @param year
+	 * @param reference
+	 */
+	public void createWorkingModel(ModelType type, String author, String description, String geoContext, int year, String reference) {
+		type.getClazz().add(this, workingModelInstance);
+		DataProperty.HAS_AUTHOR.add(this, workingModelInstance, author);
+		DataProperty.HAS_DESCRIPTION.add(this, workingModelInstance, description);
+		DataProperty.HAS_GEOGRAPHICAL_CONTEXT.add(this, workingModelInstance, geoContext);
+		DataProperty.HAS_REF_TO.add(this, workingModelInstance, reference);
+		DataProperty.HAS_YEAR.add(this, workingModelInstance, "" + year);		
+	}
+
+	public String createDisease(String diseaseName, String description, String refToDO, String refToICD, String refToOMIM, String refToSNOMED) {
+		final String name = instancePrefix + diseaseName;
 		Clazz.DISEASE.add(this, name);		
 		DataProperty.HAS_DESCRIPTION.add(this, name, description);
 		DataProperty.HAS_REF_TO_DO.add(this,  name, refToDO);
 		DataProperty.HAS_REF_TO_ICD.add(this,  name, refToICD);
 		DataProperty.HAS_REF_TO_OMIM.add(this,  name, refToOMIM);
 		DataProperty.HAS_REF_TO_SNOMED.add(this,  name, refToSNOMED);
-		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, modelName);
-		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, modelName, name);
+		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, workingModelInstance);
+		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, workingModelInstance, name);
+		return name;
 	}
 	
-	public void createManifestation(String name, ManifestationType type, String description, String modelName, String diseaseName) {
+	public String createManifestation(String manifName, ManifestationType type, String description, Set<String> exclusions, String diseaseName) {
+		final String name = getManifestationInstanceName(manifName);
 		type.getClazz().add(this, name);		
 		DataProperty.HAS_DESCRIPTION.add(this, name, description);
 		ObjectProperty.HAS_MANIFESTATION.add(this, diseaseName, name);
-		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, modelName);
-		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, modelName, name);
+		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, workingModelInstance);
+		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, workingModelInstance, name);
+		for (String excludedManif : exclusions) {
+			ObjectProperty.EXCLUDES_MANIFESTATION.add(this, name, getManifestationInstanceName(excludedManif));
+		}
+		return name;
 	}
 	
-	public void createGroupOfManifestations(String name, String modelName, Set<String> manifestationNames) {
+	public String createGroupOfManifestations(String groupName, Set<String> manifestationNames) {
+		final String name = getManifestationGroupInstanceName(groupName);		
 		Clazz.GROUP.add(this, name);		
-		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, modelName);
-		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, modelName, name);
+		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, workingModelInstance);
+		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, workingModelInstance, name);
 		for (String manifestation : manifestationNames) {
-			ObjectProperty.HAS_COMPONENT.add(this, name, manifestation);			
-			ObjectProperty.BELONGS_TO_GROUP.add(this, manifestation, name);			
+			ObjectProperty.HAS_COMPONENT.add(this, name, getManifestationInstanceName(manifestation));			
+			ObjectProperty.BELONGS_TO_GROUP.add(this, getManifestationInstanceName(manifestation), name);			
 		}
+		return name;
 	}
 	
 	public Set<String> getClassesForIndividual(String individualIRI) {
@@ -507,7 +578,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	
 	public static void printEverythingAsEnum(String path) {
 		try {
-			final OSDiWrapper wrap = new OSDiWrapper(path, "");
+			final OSDiWrapper wrap = new OSDiWrapper(path, "", "");
 
 			System.out.println("---------------- CLASSES ----------------");
 			wrap.printClassesAsEnum();
@@ -557,7 +628,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public static void main(String[] args) {
 //		printEverythingAsEnum("resources/OSDi.owl");
 		try {
-			final OSDiWrapper wrap = new OSDiWrapper("resources/OSDi.owl", "T1DM_StdModelDES");
+			final OSDiWrapper wrap = new OSDiWrapper("resources/OSDi.owl", "T1DM_StdModelDES", "T1DM_");
 			for (String str : wrap.getIndividuals("DataItemType"))
 				System.out.println(str);
 			for (String str : wrap.getClassesForIndividual("T1DM_StdModelDES"))

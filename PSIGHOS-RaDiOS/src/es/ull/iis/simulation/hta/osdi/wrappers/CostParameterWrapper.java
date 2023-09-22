@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 
 /**
  * TODO Process currency
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class CostParameterWrapper extends ParameterWrapper {
