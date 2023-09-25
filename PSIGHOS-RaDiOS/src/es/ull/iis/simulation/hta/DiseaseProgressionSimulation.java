@@ -11,7 +11,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * The simulation class for an intervention on patients
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class DiseaseProgressionSimulation extends Simulation {

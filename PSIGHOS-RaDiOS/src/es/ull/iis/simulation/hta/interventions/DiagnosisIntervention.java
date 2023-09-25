@@ -21,7 +21,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
 /**
  * A diagnosis intervention to detect a disease 
  * TODO: Process complex strategies that may produce several events
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class DiagnosisIntervention extends Intervention implements DefinesSensitivityAndSpecificity, Reseteable {

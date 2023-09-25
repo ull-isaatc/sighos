@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface DefinesSensitivityAndSpecificity extends CreatesSecondOrderParameters, Named {

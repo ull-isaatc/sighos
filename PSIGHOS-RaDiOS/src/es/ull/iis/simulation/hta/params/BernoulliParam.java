@@ -8,7 +8,7 @@ import simkit.random.RandomNumber;
 
 /**
  * A parameter that uses a probability to predict whether or not something will happen to a patient, i.e. a Bernoulli distribution
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class BernoulliParam extends UniqueEventParam<Boolean> {

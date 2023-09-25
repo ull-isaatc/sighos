@@ -14,7 +14,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 /**
  * A class to create patients, either from scratch or mimicking a previous set of patients created in a different simulation.
  * All the patients are created at the beginning of the simulation
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class PatientGenerator extends TimeDrivenGenerator<Population> {

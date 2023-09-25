@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.params;
 /**
  * A class to update costs according to the Spanish Consumer Price Index (CPI). Uses the values of CPI in January for each year. 
  * Currently updated up to the 2021 CPI. Future uses require adding extra values to both GENERAL_INDEX and HEALTHCARE_INDEX
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class SpanishCPIUpdate {

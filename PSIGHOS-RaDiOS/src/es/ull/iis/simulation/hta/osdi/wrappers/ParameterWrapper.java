@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import simkit.random.RandomVariate;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class ParameterWrapper {

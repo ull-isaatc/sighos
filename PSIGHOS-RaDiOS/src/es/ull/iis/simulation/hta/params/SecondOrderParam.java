@@ -8,7 +8,7 @@ import simkit.random.RandomVariateFactory;
 
 /**
  * A parameter that models second order uncertainty. These are the parameters that uses {@link SecondOrderParamsRepository} 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class SecondOrderParam implements PrettyPrintable {

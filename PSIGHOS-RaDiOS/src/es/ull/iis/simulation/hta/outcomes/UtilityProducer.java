@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.Patient;
 
 /**
  * Classes implementing this interface produce utility values
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface UtilityProducer extends OutcomeProducer {

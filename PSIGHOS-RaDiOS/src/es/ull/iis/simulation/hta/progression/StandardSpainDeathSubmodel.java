@@ -14,9 +14,9 @@ import simkit.random.GompertzVariate;
 import simkit.random.RandomNumber;
 
 /**
- * A death submodel based on the Spanish 2016 Mortality risk from the Instituto Nacional de EstadÌstica (INE). The
+ * A death submodel based on the Spanish 2016 Mortality risk from the Instituto Nacional de Estad√≠stica (INE). The
  * parameters are adjusted using a Gompertz distribution with logs or the yearly mortality risks from age 18 to 100.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class StandardSpainDeathSubmodel extends DeathSubmodel {

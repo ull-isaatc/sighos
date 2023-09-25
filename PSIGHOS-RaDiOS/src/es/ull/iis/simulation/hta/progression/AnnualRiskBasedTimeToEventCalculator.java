@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * Calculates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event. 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class AnnualRiskBasedTimeToEventCalculator implements TimeToEventCalculator {

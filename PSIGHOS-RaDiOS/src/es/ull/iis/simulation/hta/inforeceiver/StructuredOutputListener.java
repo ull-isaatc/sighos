@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.inforeceiver;
 
 /**
  * The listeners that implement this interface must be prepared to print results in a single line, finishing by a tab.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface StructuredOutputListener {

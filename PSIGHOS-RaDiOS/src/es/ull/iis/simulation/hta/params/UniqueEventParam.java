@@ -10,7 +10,7 @@ import simkit.random.RandomNumber;
 
 /**
  * A class to generate unique events for patients, i.e., an event that happens only once during the lifetime of the patient.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class UniqueEventParam<T> implements Param<T> {

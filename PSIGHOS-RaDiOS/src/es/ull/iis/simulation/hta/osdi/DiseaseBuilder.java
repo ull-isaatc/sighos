@@ -15,8 +15,8 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * Allows the creation of a {@link StandardDisease} based on the information stored in the ontology
- * @author Iv·n Castilla RodrÌguez
- * @author David Prieto Gonz·lez
+ * @author Iv√°n Castilla Rodr√≠guez
+ * @author David Prieto Gonz√°lez
  */
 public interface DiseaseBuilder {
 	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseName) throws TranspilerException {

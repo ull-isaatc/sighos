@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class DCCT_ConventionalIntervention extends Intervention {

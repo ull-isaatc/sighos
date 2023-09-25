@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository {

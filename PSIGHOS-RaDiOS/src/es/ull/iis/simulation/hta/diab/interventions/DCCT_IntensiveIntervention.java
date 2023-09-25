@@ -13,7 +13,7 @@ import es.ull.iis.simulation.hta.params.Modification.Type;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class DCCT_IntensiveIntervention extends Intervention {

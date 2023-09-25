@@ -9,8 +9,8 @@ import simkit.random.RandomVariateFactory;
 
 /**
  * A wrapper for probability distributions together with deterministic values
- * @author David Prieto Gonz·lez
- * @author Iv·n Castilla RodrÌguez
+ * @author David Prieto Gonz√°lez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class ProbabilityDistribution {

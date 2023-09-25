@@ -2,7 +2,7 @@ package es.ull.iis.simulation.hta.outcomes;
 
 /**
  * Defines different methods to combine disutilities in a patient
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public enum DisutilityCombinationMethod {

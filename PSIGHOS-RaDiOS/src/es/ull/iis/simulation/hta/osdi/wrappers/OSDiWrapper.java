@@ -34,43 +34,11 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public final static String STR_MANIF_PREFIX = "Manif_";
 	public final static String STR_MANIF_GROUP_PREFIX = "Group_Manif_";
 	public final static String STR_UNCERTAINTY_SUFFIX = "_ParamUncertainty";
+	public final static String STR_L95CI_SUFFIX = "_L95CI";
+	public final static String STR_U95CI_SUFFIX = "_U95CI";
 	public final static String STR_ANNUAL_COST_SUFFIX = "_AC";
 	public final static String STR_ONETIME_COST_SUFFIX = "_TC";
-
-	/**
-	 * @param file
-	 * @throws OWLOntologyCreationException
-	 */
-	public OSDiWrapper(File file, String workingModelName, String instancePrefix) throws OWLOntologyCreationException {
-		super(file, PREFIX);
-		this.instancePrefix = instancePrefix;
-		this.modelItems = new TreeSet<>();
-		setWorkingModelInstance(workingModelName);
-	}
-
-	/**
-	 * @param path
-	 * @throws OWLOntologyCreationException
-	 */
-	public OSDiWrapper(String path, String workingModelName, String instancePrefix) throws OWLOntologyCreationException {
-		super(path, PREFIX);
-		this.instancePrefix = instancePrefix;
-		this.modelItems = new TreeSet<>();
-		setWorkingModelInstance(workingModelName);
-	}
-
-	/**
-	 * @return the workingModelId
-	 */
-	public String getWorkingModelInstance() {
-		return workingModelInstance;
-	}
-	
-	public void setWorkingModelInstance(String workingModelName) {
-		this.workingModelInstance = instancePrefix + workingModelName;
-		modelItems.clear();
-		modelItems.addAll(OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM.getValues(this, this.workingModelInstance));
-	}
+	public final static String STR_UTILITY_SUFFIX = "_U";
 
 	public enum ModelType {
 		DES(Clazz.DISCRETE_EVENT_SIMULATION_MODEL),
@@ -439,6 +407,41 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			return instanceName;
 		}		
 	}
+
+	/**
+	 * @param file
+	 * @throws OWLOntologyCreationException
+	 */
+	public OSDiWrapper(File file, String workingModelName, String instancePrefix) throws OWLOntologyCreationException {
+		super(file, PREFIX);
+		this.instancePrefix = instancePrefix;
+		this.modelItems = new TreeSet<>();
+		setWorkingModelInstance(workingModelName);
+	}
+
+	/**
+	 * @param path
+	 * @throws OWLOntologyCreationException
+	 */
+	public OSDiWrapper(String path, String workingModelName, String instancePrefix) throws OWLOntologyCreationException {
+		super(path, PREFIX);
+		this.instancePrefix = instancePrefix;
+		this.modelItems = new TreeSet<>();
+		setWorkingModelInstance(workingModelName);
+	}
+
+	/**
+	 * @return the workingModelId
+	 */
+	public String getWorkingModelInstance() {
+		return workingModelInstance;
+	}
+	
+	public void setWorkingModelInstance(String workingModelName) {
+		this.workingModelInstance = instancePrefix + workingModelName;
+		modelItems.clear();
+		modelItems.addAll(ObjectProperty.INCLUDES_MODEL_ITEM.getValues(this, this.workingModelInstance));
+	}
 	
 	public static DataItemType getDataItemType(String individualIRI) {
 		try {
@@ -468,24 +471,44 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		return instancePrefix + STR_MANIF_GROUP_PREFIX + groupName;
 	}
 
-	public String createCost(String costName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, DataItemType currency) {
-		String name = instancePrefix + costName;
-		Clazz.COST.add(this, name);
-		ObjectProperty.HAS_DATA_ITEM_TYPE.add(this, name, currency.getInstanceName());
+	
+	public String createParameter(String paramName, Clazz clazz, String description, String source, int year, String expression, DataItemType dataType) {
+		String name = instancePrefix + paramName;
+		clazz.add(this, name);
+		ObjectProperty.HAS_DATA_ITEM_TYPE.add(this, name, dataType.getInstanceName());
 		DataProperty.HAS_DESCRIPTION.add(this, name, description);
 		DataProperty.HAS_SOURCE.add(this, name, source);
-		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
 		DataProperty.HAS_YEAR.add(this, name, "" + year);
-		DataProperty.HAS_EXPRESSION.add(this, name, deterministic);
+		DataProperty.HAS_EXPRESSION.add(this, name, expression);
+		return name;
+	}
+	
+	public String createCost(String costName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, DataItemType currency) {
+		String name = createParameter(costName, Clazz.COST, description, source, year, expression, currency);
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
+		return name;
+	}
+	
+	public String createCost(String costName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, DataItemType currency) {
+		String name = createCost(costName, description, source, tmpBehavior, year, deterministic, currency);
 		if (uncertainty != null && !("".equals(uncertainty))) {
-			name = name + STR_UNCERTAINTY_SUFFIX;
-			Clazz.COST.add(this, name);
-			ObjectProperty.HAS_DATA_ITEM_TYPE.add(this, name, currency.getInstanceName());
-			DataProperty.HAS_DESCRIPTION.add(this, name, description);
-			DataProperty.HAS_SOURCE.add(this, name, source);
+			name = createParameter(costName + STR_UNCERTAINTY_SUFFIX, Clazz.COST, description, source, year, uncertainty, currency);
 			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
-			DataProperty.HAS_YEAR.add(this, name, "" + year);
-			DataProperty.HAS_EXPRESSION.add(this, name, uncertainty);			
+		}
+		return name;
+	}
+
+	public String createUtility(String utilityName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, UtilityType utilityType) {
+		String name = createParameter(utilityName, Clazz.UTILITY, description, source, year, expression, utilityType.getType());
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
+		return name;
+	}
+	
+	public String createUtility(String utilityName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, UtilityType utilityType) {
+		String name = createUtility(utilityName, description, source, tmpBehavior, year, deterministic, utilityType);
+		if (uncertainty != null && !("".equals(uncertainty))) {
+			name = createParameter(utilityName + STR_UNCERTAINTY_SUFFIX, Clazz.UTILITY, description, source, year, uncertainty, utilityType.getType());
+			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
 		}
 		return name;
 	}

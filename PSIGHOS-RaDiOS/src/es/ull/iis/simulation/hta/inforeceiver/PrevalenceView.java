@@ -19,7 +19,7 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  * It shows separate results for each intervention.
  * It shows results for every manifestation. 
  * No results are shown for mortality
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class PrevalenceView extends EpidemiologicView {

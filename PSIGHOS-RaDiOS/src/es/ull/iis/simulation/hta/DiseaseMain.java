@@ -12,15 +12,16 @@ import java.util.TreeMap;
 
 import javax.xml.bind.JAXBException;
 
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+
 import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
 import es.ull.iis.simulation.hta.diab.T1DMRepository;
-import es.ull.iis.simulation.hta.osdi.InterventionBuilder;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.pbdmodel.PBDRepository;
@@ -29,7 +30,7 @@ import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
 /**
  * Main class to launch simulation experiments
  * 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class DiseaseMain extends HTAExperiment {
@@ -56,10 +57,14 @@ public class DiseaseMain extends HTAExperiment {
 	}
 	
 	public static class Arguments extends CommonArguments {
-		@Parameter(names = { "--type", "-t" }, description = "Selects an alternative scenario (0: Programmatic; 1: OSDi)", order = 8)
+		@Parameter(names = { "--type", "-t" }, description = "Selects an alternative scenario (0: Programmatic; 1: OSDi). If OSDi is selected, a model name must be specified with the -m option; otherwise, you should specify a disease", order = 8)
 		public int type = 0;
 		@Parameter(names = { "--disease", "-dis" }, description = "Disease to test with (1-4: Synthetic diseases; 10:SCD; 11: PBD; 12: T1DM)", order = 3)
 		public int disease = 1;
+		@Parameter(names = { "--model", "-mod" }, description = "The name of the OSDi model to test", order = 3)
+		public String model = "";
+		@Parameter(names = { "--prefix", "-pre" }, description = "The prefix used for all instances of the OSDi model to test", order = 3)
+		public String prefix = "";
 		@DynamicParameter(names = { "--iniprop", "-I" }, description = "Initial proportion for complication stages")
 		public Map<String, String> initProportions = new TreeMap<String, String>();
 	}
@@ -68,58 +73,55 @@ public class DiseaseMain extends HTAExperiment {
 	public SecondOrderParamsRepository createRepository(CommonArguments arguments) throws MalformedSimulationModelException {
 		SecondOrderParamsRepository secParams = null;
 		final List<String> interventionsToCompare = new ArrayList<>();
-		final int disease = ((Arguments)arguments).disease;
 		final int nRuns = ((Arguments)arguments).nRuns;
 		final int nPatients = ((Arguments)arguments).nPatients;
-		String strDisease = "";
-		String strPopulation = "";
-		switch (((Arguments)arguments).type) {			
-		case 1:
-			String path = "";
-			switch(disease) {
-			case TEST_SCD:
-				System.out.println("No OSDi test available for SCD\n\n");
-//				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease SCD \n\n"));
-//				path = "resources/radios_SCD.json";
-				break;
-			case TEST_RARE_DISEASE1:
-			case TEST_RARE_DISEASE2:
-			case TEST_RARE_DISEASE3:
-			case TEST_RARE_DISEASE4:
-				System.out.println("No OSDi test available for test diseases\n\n");
-//				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", disease));
-//				interventionsToCompare.add(Constants.CONSTANT_DO_NOTHING);
-//				interventionsToCompare.add("#RD1_Intervention_Effective");
-//				path = "resources/radios-test_disease" + disease + ".json";
-				break;
-			case TEST_T1DM:
-				System.out.println(String.format("\n\nExecuting the OSDi test for the T1DM \n\n"));
-				interventionsToCompare.add(InterventionBuilder.DO_NOTHING);
-				interventionsToCompare.add("#T1DM_InterventionDCCTIntensive");
-				strDisease = "#T1DM_Disease";
-				strPopulation = "#T1DM_PopulationDCCT1";
-				path = System.getProperty("user.dir") + "\\resources\\OSDi.owl";
-				break;
-			case TEST_PBD:
-			default:
-				System.out.println(String.format("\n\nExecuting the OSDi test for the rare disease PBD \n\n"));
-				interventionsToCompare.add("#PBD_InterventionNoScreening");
-				interventionsToCompare.add("#PBD_InterventionScreening");
-				strDisease = "#PBD_ProfoundBiotinidaseDeficiency";
-				strPopulation = "#PBD_FakePopulation";
-				path = System.getProperty("user.dir") + "\\resources\\OSDi.owl";
-				break;				
-			}
+		if (((Arguments)arguments).type == 1) {
+//			String path = "";
+//			switch(disease) {
+//			case TEST_SCD:
+//				System.out.println("No OSDi test available for SCD\n\n");
+////				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease SCD \n\n"));
+////				path = "resources/radios_SCD.json";
+//				break;
+//			case TEST_RARE_DISEASE1:
+//			case TEST_RARE_DISEASE2:
+//			case TEST_RARE_DISEASE3:
+//			case TEST_RARE_DISEASE4:
+//				System.out.println("No OSDi test available for test diseases\n\n");
+////				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", disease));
+////				interventionsToCompare.add(Constants.CONSTANT_DO_NOTHING);
+////				interventionsToCompare.add("#RD1_Intervention_Effective");
+////				path = "resources/radios-test_disease" + disease + ".json";
+//				break;
+//			case TEST_T1DM:
+//				System.out.println(String.format("\n\nExecuting the OSDi test for the T1DM \n\n"));
+//				interventionsToCompare.add(InterventionBuilder.DO_NOTHING);
+//				interventionsToCompare.add("#T1DM_InterventionDCCTIntensive");
+//				strDisease = "#T1DM_Disease";
+//				strPopulation = "#T1DM_PopulationDCCT1";
+//				path = System.getProperty("user.dir") + "\\resources\\OSDi.owl";
+//				break;
+//			case TEST_PBD:
+//			default:
+//				System.out.println(String.format("\n\nExecuting the OSDi test for the rare disease PBD \n\n"));
+//				interventionsToCompare.add("#PBD_InterventionNoScreening");
+//				interventionsToCompare.add("#PBD_InterventionScreening");
+//				strDisease = "#PBD_ProfoundBiotinidaseDeficiency";
+//				strPopulation = "#PBD_FakePopulation";
+//				path = System.getProperty("user.dir") + "\\resources\\OSDi.owl";
+//				break;				
+//			}
+			// TODO: Add arguments validation for OSDi
 			try {
-				secParams = new OSDiGenericRepository(nRuns, nPatients, path, strDisease, strPopulation, interventionsToCompare, DisutilityCombinationMethod.ADD);
-			} catch (IOException | TranspilerException | JAXBException e) {
+				secParams = new OSDiGenericRepository(nRuns, nPatients, System.getProperty("user.dir") + "\\resources\\OSDi.owl", ((Arguments)arguments).model, ((Arguments)arguments).prefix);
+			} catch (IOException | TranspilerException | JAXBException | OWLOntologyCreationException | MalformedOSDiModelException e) {
 				MalformedSimulationModelException ex = new MalformedSimulationModelException("");
 				ex.initCause(e);
 				throw ex;
 			}
-			break;
-		case 0:
-		default:
+		}
+		else {
+			final int disease = ((Arguments)arguments).disease;
 			switch(disease) {
 			case TEST_SCD:
 				System.out.println("No programmatic test available for SCD\n\n");
@@ -141,9 +143,7 @@ public class DiseaseMain extends HTAExperiment {
 				secParams = new PBDRepository(nRuns, nPatients, ALL_AFFECTED);
 				break;				
 			}			
-			break;
 		}
-
 		return secParams;
 	}
 

@@ -15,9 +15,9 @@ import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
 
 /**
- * A death submodel based on the Spanish 2017 Mortality risk from the Instituto Nacional de EstadÌstica (INE). The
+ * A death submodel based on the Spanish 2017 Mortality risk from the Instituto Nacional de Estad√≠stica (INE). The
  * parameters are adjusted using an empirical distribution based on survival data simulated from the mortality risks.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {

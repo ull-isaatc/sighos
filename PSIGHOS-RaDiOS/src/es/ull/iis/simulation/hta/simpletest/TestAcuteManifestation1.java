@@ -13,7 +13,7 @@ import simkit.random.RandomVariateFactory;
 
 /**
  * A recurrent acute manifestation with 10% mortality 
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class TestAcuteManifestation1 extends AcuteManifestation {

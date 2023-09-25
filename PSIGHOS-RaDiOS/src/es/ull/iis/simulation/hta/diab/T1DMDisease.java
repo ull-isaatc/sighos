@@ -41,7 +41,7 @@ import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class T1DMDisease extends Disease {
@@ -78,7 +78,7 @@ public class T1DMDisease extends Disease {
 
 	// Probability parameters for neuropathy
 	private static final double P_DNC_NEU = 0.0354;
-	private static final double P_NEU_LEA = 0.0154; // Klein et al. 2004. TambiÈn usado en Sheffield (DCCT, Moss et al)
+	private static final double P_NEU_LEA = 0.0154; // Klein et al. 2004. Tambi√©n usado en Sheffield (DCCT, Moss et al)
 	private static final double P_DNC_LEA = 0.0003;
 	private static final double[] CI_DNC_NEU = {0.020, 0.055}; // McQueen
 	private static final double[] LIMITS_DNC_LEA = {0.0, 0.0006}; // Assumption
@@ -497,7 +497,7 @@ public class T1DMDisease extends Disease {
 	 * They assume a probability for HbA1c level = 10% (p_10), so that p_h = p_10 X (h/10)^beta, where "h" is the new HbA1c level.
 	 * As a consequence, RR = p_h/p_10 = (h/10)^beta
 	 *   
-	 * @author Iv·n Castilla RodrÌguez
+	 * @author Iv√°n Castilla Rodr√≠guez
 	 *
 	 */
 	public static class SheffieldComplicationRR implements RRCalculator {
@@ -527,7 +527,7 @@ public class T1DMDisease extends Disease {
 	 * 
 	 * Then
 	 * RR_k = p_k / p_0 = RR_0^k
-	 * @author Iv·n Castilla RodrÌguez
+	 * @author Iv√°n Castilla Rodr√≠guez
 	 *
 	 */
 	public static class HbA1c1PPComplicationRR implements RRCalculator {
@@ -555,7 +555,7 @@ public class T1DMDisease extends Disease {
 	/**
 	 * A condition to check that the CHD manifestation is the first one. A condition of this type must be assigned to each pathway
 	 * leading to a CHD manifestation; each one with a different order (if there are N manifestations, 0, 1, 2, ... N-1).
-	 * @author Iv·n Castilla
+	 * @author Iv√°n Castilla
 	 *
 	 */
 	public class CHDCondition extends Condition<Patient> {

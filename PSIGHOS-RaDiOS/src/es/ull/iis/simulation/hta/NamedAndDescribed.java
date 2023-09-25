@@ -7,7 +7,7 @@ import es.ull.iis.simulation.model.Describable;
 
 /**
  * A class that has both a name and a description
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface NamedAndDescribed extends Named, Describable {

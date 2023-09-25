@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.Patient;
 
 /**
  * A parameter capable of cancelling the last generated value
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public interface CancellableParam<T> extends Param<T> {

@@ -14,7 +14,7 @@ import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 
 /**
  * A disease with a single acute manifestation with recurrent episodes
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class TestRareDisease2 extends TemplateTestRareDisease {

@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.progression.Disease;
 
 /**
  * A template for test diseases
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class TemplateTestRareDisease extends Disease {

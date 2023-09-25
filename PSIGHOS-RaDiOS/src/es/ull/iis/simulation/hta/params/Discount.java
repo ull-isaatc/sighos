@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.outcomes.OutcomeProducer;
  * A class to represent a discount rate >= 0 and <= 1, applied to cost and effects during the simulation.
  * Includes the methods required to use such discount
  * 
- * @author Iván Castilla Rodríguez
+ * @author IvÃ¡n Castilla RodrÃ­guez
  *
  */
 public class Discount {

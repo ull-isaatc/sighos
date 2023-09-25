@@ -2,7 +2,7 @@
  * 
  */
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 package es.ull.iis.simulation.hta.outcomes;

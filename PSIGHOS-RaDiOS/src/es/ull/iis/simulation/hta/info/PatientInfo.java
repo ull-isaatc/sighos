@@ -14,7 +14,7 @@ import es.ull.iis.simulation.model.Simulation;
 /**
  * Simulation piece of information related to the evolution of a patient. Patient {@link DiscreteEvent events} that represent the
  * progression of the disease should emit these pieces of information to be collected by the corresponding {@link InfoReceiver}
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class PatientInfo extends AsynchronousInfo {

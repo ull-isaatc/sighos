@@ -22,7 +22,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
 /**
  * The second order characterization of an intervention. The {@link #registerSecondOrderParameters()} method 
  * must be invoked from the {@link SecondOrderParamsRepository} to register the second order parameters. 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class Intervention implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Intervention>, PrettyPrintable, CostProducer, UtilityProducer {

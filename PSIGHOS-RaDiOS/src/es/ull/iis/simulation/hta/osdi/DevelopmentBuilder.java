@@ -9,8 +9,8 @@ import es.ull.iis.simulation.hta.progression.Disease;
 
 /**
  * Allows the creation of a {@link Development} based on the information stored in the ontology
- * @author Iv·n Castilla RodrÌguez
- * @author David Prieto Gonz·lez
+ * @author Iv√°n Castilla Rodr√≠guez
+ * @author David Prieto Gonz√°lez
  */
 public interface DevelopmentBuilder {
 

@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class BackgroundRetinopathy extends ChronicManifestation {

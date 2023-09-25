@@ -11,7 +11,7 @@ import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class PatientInfoView extends Listener {

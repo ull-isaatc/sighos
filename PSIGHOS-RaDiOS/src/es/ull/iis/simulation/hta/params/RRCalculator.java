@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.Patient;
 
 /**
  * A class capable to compute relative risks for complications for a specific patient 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface RRCalculator {

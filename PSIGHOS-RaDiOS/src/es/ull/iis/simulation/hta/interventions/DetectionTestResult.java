@@ -4,7 +4,7 @@ import es.ull.iis.simulation.hta.Named;
 
 /**
  * The possible results of a diagnostic/screening test
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public enum DetectionTestResult implements Named {

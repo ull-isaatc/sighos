@@ -14,7 +14,7 @@ import simkit.random.RandomVariate;
 
 /**
  * A basic class to generate non-correlated information about patients who can either suffer or not a specific disease.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class StdPopulation extends Population {

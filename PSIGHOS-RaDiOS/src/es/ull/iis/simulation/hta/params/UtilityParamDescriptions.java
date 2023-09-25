@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.Patient;
 import simkit.random.RandomVariate;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public enum UtilityParamDescriptions implements DescribesParameter {

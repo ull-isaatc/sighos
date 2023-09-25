@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.outcomes;
 
 /**
  * Generates outcomes for a patient during a specified period of time
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public interface OutcomeProducer {

@@ -14,7 +14,7 @@ import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class SMBG_Intervention extends Intervention {

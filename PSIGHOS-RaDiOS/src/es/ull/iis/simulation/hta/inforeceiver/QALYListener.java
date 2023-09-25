@@ -16,7 +16,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class QALYListener extends Listener implements StructuredOutputListener {

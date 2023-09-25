@@ -22,7 +22,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  * in a unit cost (either one-time or annual); more complex strategies involve a succession of stages or steps, each one consisting on one or several drugs, 
  * treatments, follow-up tests...
  * TODO: The computation of costs for complex structures is not yet implemented  
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class Strategy implements PartOfStrategy, Reseteable {

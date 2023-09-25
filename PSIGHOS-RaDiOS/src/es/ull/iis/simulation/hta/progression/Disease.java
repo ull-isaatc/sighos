@@ -29,7 +29,7 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
  * excludes the "asymptomatic" chronic manifestation.
  * By default, the progression is driven by @link {@link ManifestationPathway manifestation pathways}, but it can be changed by modifying the
  * {@link #getProgression(Patient)} method. 
- * @author Iván Castilla Rodríguez
+ * @author IvÃ¡n Castilla RodrÃ­guez
  */
 public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, Reseteable, PrettyPrintable, CostProducer, UtilityProducer {
 	/** Common parameters repository */
@@ -138,7 +138,7 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	
 	/**
 	 * Assigns a label to a manifestation
-	 * @param label ÇA label that identifies related manifestations
+	 * @param label Ã‡A label that identifies related manifestations
 	 * @param manif A manifestation of the disease
 	 */
 	public void assignLabel(Named label, Manifestation manif) {

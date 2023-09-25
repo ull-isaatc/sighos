@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta;
 
 /**
  * Indicates that the class contains components that must be restarted among the simulation of every intervention.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface Reseteable {

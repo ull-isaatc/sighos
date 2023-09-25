@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.outcomes.Strategy;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  * TODO Either implement here or in the Disease class
  */
 public class StrategyBasedDisease extends Disease {

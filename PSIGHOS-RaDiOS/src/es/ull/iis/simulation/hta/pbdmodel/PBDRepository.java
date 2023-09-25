@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class PBDRepository extends SecondOrderParamsRepository {

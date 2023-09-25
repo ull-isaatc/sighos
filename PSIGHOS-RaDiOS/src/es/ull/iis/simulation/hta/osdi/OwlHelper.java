@@ -431,7 +431,7 @@ public class OwlHelper {
 	
 	public static void main(String[] args) {
 //		String path = System.getProperty("user.dir") + "\\resources\\OSDi.owl";
-		String path = "H:/Mi unidad/Investigación/Proyectos/OSDi/OSDi.owl";
+		String path = "H:/Mi unidad/InvestigaciÃ³n/Proyectos/OSDi/OSDi.owl";
 		try {
 			System.out.println("Parsing " + path);
 			OwlHelper helper = new OwlHelper(path);

@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.NamedAndDescribed;
 import simkit.random.RandomVariate;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public enum OtherParamDescriptions implements DescribesParameter {

@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class ExpressionLanguageCondition extends Condition<Patient> {

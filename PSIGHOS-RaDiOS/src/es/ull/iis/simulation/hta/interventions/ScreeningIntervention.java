@@ -20,7 +20,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
  * A screening intervention to detect a disease 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class ScreeningIntervention extends Intervention implements DefinesSensitivityAndSpecificity, Reseteable {

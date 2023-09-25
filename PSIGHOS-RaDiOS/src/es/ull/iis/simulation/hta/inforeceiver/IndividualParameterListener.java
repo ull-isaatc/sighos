@@ -14,7 +14,7 @@ import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.util.Statistics;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class IndividualParameterListener extends Listener implements StructuredOutputListener {

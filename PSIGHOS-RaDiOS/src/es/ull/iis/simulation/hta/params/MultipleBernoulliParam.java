@@ -9,7 +9,7 @@ import simkit.random.RandomNumber;
 /**
  * A parameter that uses a probability to predict whether or not something will happen to a patient, i.e. a Bernoulli distribution. The same patient may use this parameter
  * multiple times during his/her lifetime
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class MultipleBernoulliParam extends MultipleEventParam<Boolean> {

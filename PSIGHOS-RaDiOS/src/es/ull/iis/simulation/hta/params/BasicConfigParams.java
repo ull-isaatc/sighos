@@ -11,7 +11,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * Basic configuration parameters for the simulation study.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class BasicConfigParams {

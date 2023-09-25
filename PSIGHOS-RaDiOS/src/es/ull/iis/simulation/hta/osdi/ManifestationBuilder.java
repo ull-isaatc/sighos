@@ -21,8 +21,8 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
- * @author David Prieto Gonz·lez
- * @author Iv·n Castilla RodrÌguez
+ * @author David Prieto Gonz√°lez
+ * @author Iv√°n Castilla Rodr√≠guez
  */
 public interface ManifestationBuilder {
 

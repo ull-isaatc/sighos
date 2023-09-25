@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 /**
  * A "pathway" to a manifestation. Pathways consists of a {@link Condition condition} that must be met by the patient and a way of computing the 
  * @link {@link TimeToEventCalculator time to the event}. 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class ManifestationPathway implements CreatesSecondOrderParameters {

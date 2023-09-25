@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException
 
 /**
  * Any extra clinical parameter of the patient
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class ClinicalParameter implements Named {

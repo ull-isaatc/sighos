@@ -9,7 +9,7 @@ import simkit.random.RandomNumber;
 /**
  * A parameter to select between N different options (labeled 0, 1, ..., N - 1). In a single simulation replication, the selection will be always the same for each patient
  * Adapted from "simkit.random.DiscreteIntegerVariate" (https://github.com/kastork/simkit-mirror/blob/master/src/simkit/random/DiscreteIntegerVariate.java)
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class SingleSelectorParam extends UniqueEventParam<Integer> {

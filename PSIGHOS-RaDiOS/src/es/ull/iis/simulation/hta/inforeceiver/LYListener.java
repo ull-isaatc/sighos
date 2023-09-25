@@ -15,7 +15,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class LYListener extends Listener implements StructuredOutputListener {

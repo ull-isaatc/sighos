@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.Patient;
 
 /**
  * A relative risk calculator that combines different relative risks
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class CompoundRRCalculator implements RRCalculator {
@@ -58,7 +58,7 @@ public class CompoundRRCalculator implements RRCalculator {
 
 	/**
 	 * A generic interface to implement other combination methods
-	 * @author Iv·n Castilla RodrÌguez
+	 * @author Iv√°n Castilla Rodr√≠guez
 	 */
 	public static interface CombinationMethod {
 		double combine(RRCalculator[] calculators, Patient pat); 

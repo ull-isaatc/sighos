@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * A submodel for progression to death.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class DeathSubmodel implements CreatesSecondOrderParameters {

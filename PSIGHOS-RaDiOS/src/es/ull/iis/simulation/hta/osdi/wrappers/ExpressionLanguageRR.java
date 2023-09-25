@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.params.RRCalculator;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class ExpressionLanguageRR implements RRCalculator {

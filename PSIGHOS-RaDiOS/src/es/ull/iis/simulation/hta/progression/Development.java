@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.PrettyPrintable;
 
 /**
  * A development for a disease. A disease may have different developments (natural vs modified, severe vs mild, ...).
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class Development implements NamedAndDescribed, PrettyPrintable {

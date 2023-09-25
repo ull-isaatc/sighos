@@ -11,7 +11,7 @@ import java.util.Map;
 import es.ull.iis.simulation.model.Describable;
 
 /**
- * @author Iván Castilla
+ * @author IvÃ¡n Castilla
  *
  */
 public interface OSDiNames {
@@ -19,7 +19,7 @@ public interface OSDiNames {
 	
 	/**
 	 * Names of the classes defined in the ontology
-	 * @author Iván Castilla
+	 * @author IvÃ¡n Castilla
 	 *
 	 */
 	public static enum Class implements Describable {
@@ -68,7 +68,7 @@ public interface OSDiNames {
 	public static final Map<String, OSDiNames.DataProperty> DATA_PROPERTY_MAP = new HashMap<String, OSDiNames.DataProperty>();  
 	/**
 	 * Names of the data properties defined in the ontology
-	 * @author Iván Castilla
+	 * @author IvÃ¡n Castilla
 	 *
 	 */
 	public static enum DataProperty implements Describable {
@@ -163,7 +163,7 @@ public interface OSDiNames {
 
 	/**
 	 * Names of the object properties defined in the ontology
-	 * @author Iván Castilla
+	 * @author IvÃ¡n Castilla
 	 *
 	 */
 	public static enum ObjectProperty implements Describable {
@@ -244,7 +244,7 @@ public interface OSDiNames {
 
 	/**
 	 * Names of the ranges defined for data properties in the ontology
-	 * @author Iván Castilla
+	 * @author IvÃ¡n Castilla
 	 *
 	 */
 	public static enum DataPropertyRange implements Describable {

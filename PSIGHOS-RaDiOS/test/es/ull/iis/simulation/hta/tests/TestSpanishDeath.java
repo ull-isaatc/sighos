@@ -9,7 +9,7 @@ import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class TestSpanishDeath {

@@ -10,7 +10,7 @@ import simkit.random.RandomVariate;
 
 /**
  * A clinical parameter that is initially set for a patient and will not change during the simulation
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class InitiallySetClinicalParameter extends ClinicalParameter {

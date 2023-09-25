@@ -18,7 +18,7 @@ import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCond
 /**
  * A disease with two chronic (and independent) manifestations. The first manifestation increases the risk of the second. 
  * The intervention reduces the risk of the second manifestation
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class TestRareDisease3 extends TemplateTestRareDisease {

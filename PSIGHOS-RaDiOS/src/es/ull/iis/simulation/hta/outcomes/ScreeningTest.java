@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.params.DefinesSensitivityAndSpecificity;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class ScreeningTest extends HealthTechnology implements DefinesSensitivityAndSpecificity {

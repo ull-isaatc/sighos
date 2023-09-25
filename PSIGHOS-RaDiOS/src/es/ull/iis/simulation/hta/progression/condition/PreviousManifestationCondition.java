@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * A condition that meets if the patient is suffering all of the manifestations specified 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class PreviousManifestationCondition extends Condition<Patient> {

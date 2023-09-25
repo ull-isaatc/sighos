@@ -20,7 +20,7 @@ import es.ull.iis.simulation.hta.params.BasicConfigParams;
     .build()
     .parse(args);
     }</pre>   
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class CommonArguments {

@@ -12,7 +12,7 @@
  * <p>A death submodel for the Spanish population is also included ({@link StandardSpainDeathSubmodel}).
 
  *  
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 package es.ull.iis.simulation.hta.progression;

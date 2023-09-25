@@ -8,7 +8,7 @@ import java.util.TreeSet;
 
 /**
  * A change in the progression of a disease. Includes new events related to complications and the cancellation of no longer valid events. 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class DiseaseProgression {

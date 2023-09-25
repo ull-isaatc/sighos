@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.Discount;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public interface PartOfStrategy extends NamedAndDescribed, CreatesSecondOrderParameters {

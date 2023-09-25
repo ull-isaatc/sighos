@@ -28,13 +28,13 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 
 /**
  * A manifestation of a {@link Disease} defined in the model. Manifestations may be chronic or acute. 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, Reseteable, PrettyPrintable, CostProducer, UtilityProducer {
 	/**
 	 * The type of the manifestation. Currently distinguishes among chronic and acute manifestations
-	 * @author Iv·n Castilla
+	 * @author Iv√°n Castilla
 	 */
 	public enum Type {
 		ACUTE,

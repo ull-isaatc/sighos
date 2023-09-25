@@ -13,7 +13,7 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class HearingProblemsManifestation extends ChronicManifestation {

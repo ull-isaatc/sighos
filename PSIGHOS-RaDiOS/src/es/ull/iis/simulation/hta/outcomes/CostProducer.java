@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.params.Discount;
 
 /**
  * Classes implementing this interface produce costs
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface CostProducer extends OutcomeProducer {

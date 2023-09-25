@@ -16,7 +16,7 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  * It can show a single result or aggregated results from various simulation experiments (by using the nExperiments parameter).
  * It shows separate results for each intervention.
  * It shows results for every manifestation. Is also shows general and manifestation-specific mortality.  
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class IncidenceView extends EpidemiologicView {

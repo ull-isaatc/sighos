@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.tests;
 
 /**
  * Several methods useful for testing
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface TestUtils {

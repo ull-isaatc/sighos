@@ -10,7 +10,7 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class ScreeningTestPerformanceView extends Listener implements StructuredOutputListener {

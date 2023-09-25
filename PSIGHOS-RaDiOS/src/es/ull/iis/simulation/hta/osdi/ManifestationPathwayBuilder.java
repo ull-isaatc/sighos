@@ -25,8 +25,8 @@ import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
 
 /**
- * @author Iv·n Castilla RodrÌguez
- * @author David Prieto Gonz·lez
+ * @author Iv√°n Castilla Rodr√≠guez
+ * @author David Prieto Gonz√°lez
  *
  */
 public interface ManifestationPathwayBuilder {

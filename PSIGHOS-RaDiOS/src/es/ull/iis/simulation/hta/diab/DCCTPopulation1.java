@@ -22,7 +22,7 @@ import simkit.random.RandomVariateFactory;
 
 /**
  * Primary prevention cohort of DCCT
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class DCCTPopulation1 extends StdPopulation {

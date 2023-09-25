@@ -35,7 +35,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
- * @author Iván Castilla
+ * @author IvÃ¡n Castilla
  *
  */
 public abstract class HTAExperiment {
@@ -430,7 +430,7 @@ public abstract class HTAExperiment {
 	public static class EpidemiologicOutputFormat {
 		/**
 		 * Type of epidemiologic information
-		 * @author Iván Castilla
+		 * @author IvÃ¡n Castilla
 		 */
 		public enum Type {
 			INCIDENCE,
@@ -541,7 +541,7 @@ public abstract class HTAExperiment {
 	/**
 	 * The executor of simulations. Each problem executor launches a set of simulation experiments
 	 * 
-	 * @author Iván Castilla Rodríguez
+	 * @author IvÃ¡n Castilla RodrÃ­guez
 	 */
 	private class ProblemExecutor implements Runnable {
 		final private PrintWriter out;
@@ -567,7 +567,7 @@ public abstract class HTAExperiment {
 	/**
 	 * A class to print the progression of the simulations
 	 * 
-	 * @author Iván Castilla Rodríguez
+	 * @author IvÃ¡n Castilla RodrÃ­guez
 	 *
 	 */
 	private class PrintProgress {

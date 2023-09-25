@@ -16,7 +16,7 @@ import es.ull.iis.simulation.hta.osdi.wrappers.RangeWrapper;
 import es.ull.iis.simulation.hta.outcomes.Guideline;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface GuidelineBuilder {

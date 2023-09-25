@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * An object that defines second order parameters and adds them to a repository.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface CreatesSecondOrderParameters {

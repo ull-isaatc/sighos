@@ -11,7 +11,7 @@ import simkit.random.RandomVariateFactory;
 
 /**
  * An intervention that delays all the transitions
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class EffectiveIntervention extends Intervention {

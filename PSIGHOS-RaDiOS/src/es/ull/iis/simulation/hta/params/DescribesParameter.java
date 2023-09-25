@@ -12,7 +12,7 @@ import es.ull.iis.simulation.model.Describable;
  * In general, should be implemented by enum types. 
  * Describes the prefixes used to create specific  names and descriptions of parameters, and encapsulates the access to the collections within the repository to get 
  * parameters. Describes also the default value that can be used when a parameter is not defined within the repository.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface DescribesParameter extends Named {

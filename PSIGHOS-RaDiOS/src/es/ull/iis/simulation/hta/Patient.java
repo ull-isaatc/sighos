@@ -31,7 +31,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  * to a time period.
  * The patient may progress to several chronic complications (see {@link ChronicComplication}), or may develop acute complications 
  * (see {@link AcuteComplication}).
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class Patient extends VariableStoreSimulationObject implements EventSource {
@@ -452,7 +452,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 
 	/**
 	 * The first event of the patient that initializes everything and computes initial time to events.
-	 * @author Iv·n Castilla RodrÌguez
+	 * @author Iv√°n Castilla Rodr√≠guez
 	 *
 	 */
 	private class StartEvent extends DiscreteEvent.DefaultStartEvent {
@@ -472,7 +472,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	/**
 	 * An event related to the progression to a new manifestation. Updates the state of the patient and recomputes 
 	 * time to develop other complications in case the risks change.
-	 * @author Iv·n Castilla RodrÌguez
+	 * @author Iv√°n Castilla Rodr√≠guez
 	 *
 	 */
 	public class ManifestationEvent extends DiscreteEvent {

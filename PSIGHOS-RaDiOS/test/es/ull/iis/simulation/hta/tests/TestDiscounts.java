@@ -8,7 +8,7 @@ import java.util.Arrays;
 import es.ull.iis.simulation.hta.params.Discount;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class TestDiscounts {

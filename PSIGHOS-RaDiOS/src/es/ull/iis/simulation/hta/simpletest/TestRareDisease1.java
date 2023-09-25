@@ -17,7 +17,7 @@ import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCond
 
 /**
  * A disease with two chronic manifestations in increasing order or severity. Each manifestation supposes a new stage in the development of the disease and replaces the previous one
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class TestRareDisease1 extends TemplateTestRareDisease {

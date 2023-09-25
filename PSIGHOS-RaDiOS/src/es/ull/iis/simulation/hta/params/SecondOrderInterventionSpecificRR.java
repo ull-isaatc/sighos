@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.Patient;
 /**
  * Class that associates a relative risk to an intervention. If the patient loses the effect of the intervention, uses the
  * RR for intervention 0 (assumed to be base effect)
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class SecondOrderInterventionSpecificRR implements RRCalculator {

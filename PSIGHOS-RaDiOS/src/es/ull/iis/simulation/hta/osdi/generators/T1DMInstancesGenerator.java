@@ -11,6 +11,7 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.Clazz;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.DataItemType;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ManifestationType;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ModelType;
@@ -145,11 +146,16 @@ public class T1DMInstancesGenerator {
 				"Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population", 
 				"Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007", TemporalBehavior.ANNUAL, 2012, "1116.733023", null, DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_FOLLOW_UP_COST.add(wrap, diseaseIRI, diseaseCostIRI);
+		final String diseaseUtilityIRI = generateUtilityFromAvgCI(STR_DISEASE_NAME + "_ComplicationsFree" + OSDiWrapper.STR_UTILITY_SUFFIX, 
+				"Utility of DM1 without complications",	"TODO: Buscar", 
+				new double[] {0.785, 0.889, 0.681}, TemporalBehavior.ANNUAL, 2015, OSDiWrapper.UtilityType.UTILITY);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(wrap, diseaseIRI, diseaseUtilityIRI);
 		
 		for (Manifestation manif : Manifestation.values()) {
 			manif.generate(wrap);
 		}
 		generateCostsForManifestations();
+		generateUtilitiesForManifestations();
 		for (GroupOfManifestations group : GroupOfManifestations.values()) {
 			group.generate(wrap);
 		}
@@ -160,13 +166,74 @@ public class T1DMInstancesGenerator {
 	private void generateCostsForManifestations() {
 		// ---- CHD manifestations ----
 		// Angina
-		String costIRI = wrap.createCost(Manifestation.ANGINA + OSDiWrapper.STR_ANNUAL_COST_SUFFIX, "Year 2+ of Angina", 
-				"https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "532.01", null, DataItemType.CURRENCY_EURO);
+		String costIRI = wrap.createCost(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.ANGINA + OSDiWrapper.STR_ANNUAL_COST_SUFFIX, "Year 2+ of Angina", 
+				"https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "532.01", DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.ANGINA.getInstanceName(), costIRI);
-		costIRI = wrap.createCost(Manifestation.ANGINA + OSDiWrapper.STR_ONETIME_COST_SUFFIX, "Episode of Angina", 
-				"https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "1985.96", null, DataItemType.CURRENCY_EURO);
+		costIRI = wrap.createCost(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.ANGINA + OSDiWrapper.STR_ONETIME_COST_SUFFIX, "Episode of Angina", 
+				"https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "1985.96", DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.ANGINA.getInstanceName(), costIRI);
+		// HF
+		costIRI = wrap.createCost(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.HF + OSDiWrapper.STR_ANNUAL_COST_SUFFIX, "Year 2+ of heart failure", 
+				"https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "1054.42", DataItemType.CURRENCY_EURO);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.HF.getInstanceName(), costIRI);
+		costIRI = wrap.createCost(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.HF + OSDiWrapper.STR_ONETIME_COST_SUFFIX, "Episode of heart failure", 
+				"https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "4503.24", DataItemType.CURRENCY_EURO);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.HF.getInstanceName(), costIRI);
+		// Stroke
+		costIRI = wrap.createCost(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.STROKE + OSDiWrapper.STR_ANNUAL_COST_SUFFIX, "Year 2+ of stroke", 
+				"https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "2485.66", DataItemType.CURRENCY_EURO);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.STROKE.getInstanceName(), costIRI);
+		costIRI = wrap.createCost(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.STROKE + OSDiWrapper.STR_ONETIME_COST_SUFFIX, "Episode of stroke", 
+				"https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "3634.66", DataItemType.CURRENCY_EURO);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.STROKE.getInstanceName(), costIRI);
+		// MI
+		costIRI = wrap.createCost(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.MI + OSDiWrapper.STR_ANNUAL_COST_SUFFIX, "Year 2+ of myocardial infarction", 
+				"https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "948", DataItemType.CURRENCY_EURO);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.MI.getInstanceName(), costIRI);
+		costIRI = wrap.createCost(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.MI + OSDiWrapper.STR_ONETIME_COST_SUFFIX, "Episode of myocardial infarction", 
+				"https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "22588", DataItemType.CURRENCY_EURO);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.MI.getInstanceName(), costIRI);
+		// ---- NPH manifestations ----
+		// ALB1
+		// TODO: Add rest of costs
 	}
+	
+	private String generateUtilityFromAvgCI(String utilityName, String description, String source, double[] values, TemporalBehavior tmpBehavior, int year, OSDiWrapper.UtilityType utilityType) {
+		String utilityIRI = wrap.createUtility(utilityName, description, source, tmpBehavior, year, "" + values[0], utilityType);
+		String utilityUncertaintyIRI = wrap.createParameter(utilityName + OSDiWrapper.STR_L95CI_SUFFIX, Clazz.UTILITY, "Lower 95% confidence interval for " + description, 
+				source, year, "" + values[1], OSDiWrapper.DataItemType.DI_LOWER95CONFIDENCELIMIT);
+		OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(wrap, utilityIRI, utilityUncertaintyIRI);
+		utilityUncertaintyIRI = wrap.createParameter(utilityName + OSDiWrapper.STR_U95CI_SUFFIX, Clazz.UTILITY, "Upper 95% confidence interval for " + description, 
+				source, year, "" + values[2], OSDiWrapper.DataItemType.DI_UPPER95CONFIDENCELIMIT);
+		OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(wrap, utilityIRI, utilityUncertaintyIRI);		
+		return utilityIRI;
+	}
+	
+	private void generateUtilitiesForManifestations() {
+		// ---- CHD manifestations ----
+		// Angina
+		String utilityName = OSDiWrapper.STR_MANIF_PREFIX + Manifestation.ANGINA + OSDiWrapper.STR_UTILITY_SUFFIX;
+		String utilityIRI = generateUtilityFromAvgCI(utilityName, "Annual disutility of Angina", "Bagust and Beale (10.1002/hec.910)", 
+				new double[] {0.09, 0.054, 0.126}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(wrap, Manifestation.ANGINA.getInstanceName(), utilityIRI);
+		// HF
+		utilityName = OSDiWrapper.STR_MANIF_PREFIX + Manifestation.HF + OSDiWrapper.STR_UTILITY_SUFFIX;
+		utilityIRI = generateUtilityFromAvgCI(utilityName, "Annual disutility of heart failure", "Bagust and Beale (10.1002/hec.910)", 
+				new double[] {0.108, 0.048, 0.169}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(wrap, Manifestation.HF.getInstanceName(), utilityIRI);
+		// MI
+		utilityName = OSDiWrapper.STR_MANIF_PREFIX + Manifestation.MI + OSDiWrapper.STR_UTILITY_SUFFIX;
+		utilityIRI = generateUtilityFromAvgCI(utilityName, "Annual disutility of myocardial infarction", "Bagust and Beale (10.1002/hec.910)", 
+				new double[] {0.055, 0.042, 0.067}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(wrap, Manifestation.MI.getInstanceName(), utilityIRI);
+		// Stroke
+		utilityName = OSDiWrapper.STR_MANIF_PREFIX + Manifestation.STROKE + OSDiWrapper.STR_UTILITY_SUFFIX;
+		utilityIRI = generateUtilityFromAvgCI(utilityName, "Annual disutility of stroke", "Bagust and Beale (10.1002/hec.910)", 
+				new double[] {0.164, 0.105, 0.222}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(wrap, Manifestation.STROKE.getInstanceName(), utilityIRI);
+		
+	}
+	
 	/**
 	 * @param args
 	 */

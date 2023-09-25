@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * A recurrent acute manifestation 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class AcuteManifestation extends Manifestation {

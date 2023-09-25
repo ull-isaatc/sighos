@@ -8,7 +8,7 @@ import simkit.random.RandomVariate;
 
 /**
  * Represents a modification of the development of a disease or a manifestation
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class Modification extends SecondOrderParam {

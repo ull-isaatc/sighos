@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.Patient;
 /**
  * The base class for relative risks. Simply returns the same relative risk specified in the constructor , or 1.0 if the effect of the 
  * intervention is lost and the applyEffect option is true.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class StdComplicationRR implements RRCalculator {

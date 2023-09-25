@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.Patient;
 
 /**
  * A relative risk that changes with age
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class AgeRelatedRR implements RRCalculator {

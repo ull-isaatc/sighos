@@ -9,7 +9,7 @@ import java.util.Arrays;
 import es.ull.iis.simulation.hta.Patient;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class MultipleRandomSeedPerPatient implements RandomSeedForPatients {

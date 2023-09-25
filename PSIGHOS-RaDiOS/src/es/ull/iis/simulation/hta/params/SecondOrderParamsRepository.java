@@ -45,10 +45,10 @@ import simkit.random.RandomVariateFactory;
  * <li>Create a method to return the parameter (or ensure that the parameter is added to one of the standard collections, which already defined access methods)</li>
  * <li>Remember to add the value of the parameter in the corresponding subclasses</li> 
  * </ol>
- * TODO El cálculo de tiempo hasta complicación usa siempre el mismo número aleatorio para la misma complicación. Si aumenta el riesgo de esa
- * complicación en un momento de la simulación, se recalcula el tiempo, pero empezando en el instante actual. Esto produce que no necesariamente se acorte
- * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
- * @author Iván Castilla Rodríguez
+ * TODO El cÃ¡lculo de tiempo hasta complicaciÃ³n usa siempre el mismo nÃºmero aleatorio para la misma complicaciÃ³n. Si aumenta el riesgo de esa
+ * complicaciÃ³n en un momento de la simulaciÃ³n, se recalcula el tiempo, pero empezando en el instante actual. Esto produce que no necesariamente se acorte
+ * el tiempo hasta evento en caso de un nuevo factor de riesgo. Â¿deberÃ­a reescalar de alguna manera el tiempo hasta evento en estos casos (Â¿proporcional al RR?)?
+ * @author IvÃ¡n Castilla RodrÃ­guez
  */
 public abstract class SecondOrderParamsRepository implements PrettyPrintable, Reseteable {
 	public static final String STR_MOD_PREFIX = "MOD_";

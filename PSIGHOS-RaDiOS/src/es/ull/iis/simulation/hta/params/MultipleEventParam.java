@@ -11,7 +11,7 @@ import simkit.random.RandomNumber;
 
 /**
  * A class to generate multiple events for patients, i.e., an event that happens more than once during the lifetime of the patient.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class MultipleEventParam<T> implements ReseteableParam<T>, CancellableParam<T> {

@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.interventions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
- * @author Iv·n Castilla	
+ * @author Iv√°n Castilla	
  *
  */
 public class DoNothingIntervention extends Intervention {

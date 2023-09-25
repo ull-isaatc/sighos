@@ -9,7 +9,7 @@ import simkit.random.RandomVariate;
 
 /**
  * Common probability-like parameters defined within the repository 
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public enum ProbabilityParamDescriptions implements DescribesParameter {

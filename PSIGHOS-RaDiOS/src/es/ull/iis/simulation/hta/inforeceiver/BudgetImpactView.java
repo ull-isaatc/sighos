@@ -18,7 +18,7 @@ import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class BudgetImpactView implements ExperimentListener {

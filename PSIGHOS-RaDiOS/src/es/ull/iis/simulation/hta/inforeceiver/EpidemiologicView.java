@@ -27,7 +27,7 @@ import es.ull.iis.simulation.inforeceiver.Listener;
  * It shows separate results for each intervention.
  * It shows results for every manifestation. Is also shows general  and specific mortality.  
  * FIXME: Must review computation of relative measures, since they should depend on the number of persons at risk 
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public abstract class EpidemiologicView implements ExperimentListener {
@@ -167,7 +167,7 @@ public abstract class EpidemiologicView implements ExperimentListener {
 	
 	/**
 	 * A listener that collects incidence or prevalence from a single simulation 
-	 * @author Iv·n Castilla RodrÌguez
+	 * @author Iv√°n Castilla Rodr√≠guez
 	 *
 	 */
 	public class InnerListenerInstance extends Listener implements InnerListener {

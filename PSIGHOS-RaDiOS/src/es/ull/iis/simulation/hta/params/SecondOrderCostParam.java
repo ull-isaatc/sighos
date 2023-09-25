@@ -4,7 +4,7 @@ import simkit.random.RandomVariate;
 
 /**
  * A special kind of second order parameter that updates the values according to the Spanish IPC.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class SecondOrderCostParam extends SecondOrderParam {

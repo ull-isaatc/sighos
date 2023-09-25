@@ -15,7 +15,7 @@ import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculato
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class PBDDisease extends Disease {

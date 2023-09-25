@@ -21,7 +21,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * Experiment-level listener for dissagregated annual costs.  
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class AnnualCostView implements ExperimentListener {
@@ -107,7 +107,7 @@ public class AnnualCostView implements ExperimentListener {
 	/**
 	 * A viewer to show the breakdown of annual costs 
 	 * 
-	 * @author Iv·n Castilla
+	 * @author Iv√°n Castilla
 	 *
 	 */
 	public class InnerListenerInstance extends Listener implements InnerListener {

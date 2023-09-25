@@ -12,7 +12,7 @@ import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class ProliferativeRetinopathy extends ChronicManifestation {

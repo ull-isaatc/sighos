@@ -19,7 +19,7 @@ import simkit.random.RandomNumber;
 
 /**
  * A class that can create patient profiles belonging to a population description
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public abstract class Population extends GenerationInfo implements CreatesSecondOrderParameters, DefinesBaseUtility, NamedAndDescribed {

@@ -14,7 +14,7 @@ import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class Stroke extends ChronicManifestation {

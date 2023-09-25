@@ -10,7 +10,7 @@ import simkit.random.RandomVariate;
 
 /**
  * Common cost-like parameters defined within the repository
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public enum CostParamDescriptions implements DescribesParameter {

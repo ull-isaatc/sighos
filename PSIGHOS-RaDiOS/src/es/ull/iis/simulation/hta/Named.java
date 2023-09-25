@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta;
 
 /**
  * A class that can have a name (useful for using enums and classes together)
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public interface Named {

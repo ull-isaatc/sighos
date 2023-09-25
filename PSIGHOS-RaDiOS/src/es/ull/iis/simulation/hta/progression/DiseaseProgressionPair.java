@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.progression;
 /**
  * A pair of <complication, time> denoting a new complication to be scheduled and the time when 
  * it's predicted to start.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public final class DiseaseProgressionPair {

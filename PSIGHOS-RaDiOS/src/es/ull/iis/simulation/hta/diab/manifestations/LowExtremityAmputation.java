@@ -13,7 +13,7 @@ import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class LowExtremityAmputation extends ChronicManifestation {
@@ -38,7 +38,7 @@ public class LowExtremityAmputation extends ChronicManifestation {
 		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "del Pino et al", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
 		final double[] tcParams = Statistics.gammaParametersFromNormal(TC[0], TC[1]);
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "amputation", 
-				"Spanish tariffs: Cantabria; CataluÒa; Madrid; Murcia; Navarra; PaÌs Vasco", COSTYEAR, 
+				"Spanish tariffs: Cantabria; Catalu√±a; Madrid; Murcia; Navarra; Pa√≠s Vasco", COSTYEAR, 
 				TC[0], RandomVariateFactory.getInstance("GammaVariate", tcParams[0], tcParams[1]));
 
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);

@@ -20,7 +20,7 @@ import es.ull.iis.util.Statistics;
  * A listener to capture the time until a chronic manifestation onsets. Time can be 0 (if the patient starts with the manifestation),
  * Long.MAX_VALUE if the simulation finishes and the patient never developed the manifestation, or any positive value among both extremes
  * (it is expected to be always inferior to the maximum age of the patient)
- * @author Iv·n Castilla
+ * @author Iv√°n Castilla
  *
  */
 public class TimeFreeOfComplicationsView extends Listener implements StructuredOutputListener {
