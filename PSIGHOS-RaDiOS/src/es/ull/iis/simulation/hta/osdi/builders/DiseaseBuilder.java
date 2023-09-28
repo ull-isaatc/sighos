@@ -1,9 +1,10 @@
-package es.ull.iis.simulation.hta.osdi;
+package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.Set;
 
+import es.ull.iis.simulation.hta.osdi.ManifestationPathwayBuilder;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
@@ -19,7 +20,7 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  * @author David Prieto González
  */
 public interface DiseaseBuilder {
-	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseName) throws TranspilerException {
+	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseName) {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		
 		Disease disease = new Disease(secParams, diseaseName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(wrap, diseaseName, "")) {

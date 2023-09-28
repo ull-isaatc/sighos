@@ -19,7 +19,7 @@ import es.ull.iis.simulation.hta.inforeceiver.CostListener;
 import es.ull.iis.simulation.hta.inforeceiver.CumulativeIncidenceView;
 import es.ull.iis.simulation.hta.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.inforeceiver.IncidenceView;
-import es.ull.iis.simulation.hta.inforeceiver.IndividualParameterListener;
+import es.ull.iis.simulation.hta.inforeceiver.PopulationAttributeListener;
 import es.ull.iis.simulation.hta.inforeceiver.IndividualTime2ManifestationView;
 import es.ull.iis.simulation.hta.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.inforeceiver.PatientInfoView;
@@ -289,7 +289,7 @@ public abstract class HTAExperiment {
 			str.append(CostListener.getStrHeader(shortName));
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
-			str.append(IndividualParameterListener.getStrHeader(shortName, secParams.getPopulation().getPatientParameters()));
+			str.append(PopulationAttributeListener.getStrHeader(shortName, secParams.getPopulation().getPatientAttributes()));
 			if (interventions[i] instanceof ScreeningIntervention)
 				str.append(ScreeningTestPerformanceView.getStrHeader(shortName));
 		}
@@ -298,7 +298,7 @@ public abstract class HTAExperiment {
 		return str.toString();
 	}
 
-	private String print(DiseaseProgressionSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, IndividualParameterListener[] paramListeners, TimeFreeOfComplicationsView timeFreeListener,
+	private String print(DiseaseProgressionSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, PopulationAttributeListener[] paramListeners, TimeFreeOfComplicationsView timeFreeListener,
 			ScreeningTestPerformanceView[] screenListeners) {
 		final StringBuilder str = new StringBuilder();
 		str.append(simul.getIdentifier()).append("\t").append(nPatients).append("\t");
@@ -325,7 +325,7 @@ public abstract class HTAExperiment {
 		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], secParams, timeHorizon);
 		
 		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(secParams, false);
-		final IndividualParameterListener[] paramListeners = new IndividualParameterListener[nInterventions];
+		final PopulationAttributeListener[] paramListeners = new PopulationAttributeListener[nInterventions];
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
@@ -333,7 +333,7 @@ public abstract class HTAExperiment {
 
 		for (int i = 0; i < nInterventions; i++) {
 			costListeners[i] = new CostListener(discountCost, nPatients);
-			paramListeners[i] = new IndividualParameterListener(nPatients, secParams.getPopulation().getPatientParameters());
+			paramListeners[i] = new PopulationAttributeListener(nPatients, secParams.getPopulation().getPatientAttributes());
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getDisutilityCombinationMethod(), discountEffect, nPatients);
 			screenListeners[i] = (interventions[i] instanceof ScreeningIntervention) ? new ScreeningTestPerformanceView(secParams) : null;

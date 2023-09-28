@@ -9,11 +9,11 @@ import es.ull.iis.simulation.hta.Patient;
 import simkit.random.RandomVariate;
 
 /**
- * A clinical parameter that is initially set for a patient and will not change during the simulation
+ * A clinical parameter or characteristic that is initially set for a patient and will not change during the simulation
  * @author Iván Castilla Rodríguez
  *
  */
-public class InitiallySetClinicalParameter extends ClinicalParameter {
+public class InitiallySetPopulationAttribute extends PopulationAttribute {
 	private final RandomVariate firstOrderValue;
 
 	/**
@@ -21,7 +21,7 @@ public class InitiallySetClinicalParameter extends ClinicalParameter {
 	 * @param firstOrderValue
 	 * @throws MalformedSimulationModelException 
 	 */
-	public InitiallySetClinicalParameter(String name, RandomVariate firstOrderValue) throws MalformedSimulationModelException {
+	public InitiallySetPopulationAttribute(String name, RandomVariate firstOrderValue) throws MalformedSimulationModelException {
 		super(name);
 		this.firstOrderValue = firstOrderValue;
 	}

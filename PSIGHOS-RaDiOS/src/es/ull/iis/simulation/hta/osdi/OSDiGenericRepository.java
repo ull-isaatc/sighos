@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.xml.bind.JAXBException;
 
@@ -17,10 +18,14 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.osdi.builders.DiseaseBuilder;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.DataItemType;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.params.DescribesParameter;
+import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
@@ -34,6 +39,12 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	private final OSDiWrapper wrap; 
 	private final int year;
 
+	// TODO: Check if this structure is useful, because there are multiple mappings for the same DataItem
+	private final static TreeMap<OSDiWrapper.DataItemType, DescribesParameter> dataItemMap = new TreeMap<>();
+	
+	static {
+		dataItemMap.put(DataItemType.DI_PROPORTION, ProbabilityParamDescriptions.PROPORTION);
+	}
 	/**
 	 * 
 	 * @param nRuns

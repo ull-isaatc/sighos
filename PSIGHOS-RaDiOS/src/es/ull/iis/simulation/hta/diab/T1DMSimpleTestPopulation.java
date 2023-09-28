@@ -10,8 +10,8 @@ import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.populations.ClinicalParameter;
-import es.ull.iis.simulation.hta.populations.InitiallySetClinicalParameter;
+import es.ull.iis.simulation.hta.populations.PopulationAttribute;
+import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.DiscreteRandomVariate;
@@ -52,11 +52,11 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	}
 
 	@Override
-	protected List<ClinicalParameter> initializePatientParameterList() throws MalformedSimulationModelException {
-		final ArrayList<ClinicalParameter> paramList = new ArrayList<>();
+	protected List<PopulationAttribute> initializePatientAttributeList() throws MalformedSimulationModelException {
+		final ArrayList<PopulationAttribute> paramList = new ArrayList<>();
 
-		paramList.add(new InitiallySetClinicalParameter(T1DMRepository.STR_HBA1C, RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C)));
-		paramList.add(new InitiallySetClinicalParameter(T1DMRepository.STR_DURATION, RandomVariateFactory.getInstance("ConstantVariate", BASELINE_DURATION)));
+		paramList.add(new InitiallySetPopulationAttribute(T1DMRepository.STR_HBA1C, RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C)));
+		paramList.add(new InitiallySetPopulationAttribute(T1DMRepository.STR_DURATION, RandomVariateFactory.getInstance("ConstantVariate", BASELINE_DURATION)));
 		return paramList;
 	}
 	

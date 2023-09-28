@@ -13,7 +13,7 @@ import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Modification;
-import es.ull.iis.simulation.hta.populations.ClinicalParameter;
+import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -56,8 +56,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	private final long simulInitAge;
 	/** {@link Disease} of the patient or {@link Disease.HEALTHY} in case the patient is healthy */ 
 	private final Disease disease;
-	/** A collection of properties */
-	private final TreeMap<String, Number> properties;
+	/** A collection of attributes */
+	private final TreeMap<String, Number> attributes;
 	
 	// Events
 	/** Events that this patient has suffered related to each manifestation */
@@ -87,9 +87,9 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.initAge = population.getInitAge(this);
 		this.simulInitAge = BasicConfigParams.SIMUNIT.convert(initAge, TimeUnit.YEAR);
 		this.disease = population.getDisease(this);
-		properties = new TreeMap<>();
-		for (ClinicalParameter param : population.getPatientParameters())
-			addProperty(param.name(), param.getInitialValue(this, simul));
+		attributes = new TreeMap<>();
+		for (PopulationAttribute attribute : population.getPatientAttributes())
+			addAttribute(attribute.name(), attribute.getInitialValue(this, simul));
 		manifestationEvents = new TreeMap<>();
 		nextManifestationEvents = new TreeMap<>();
 	}
@@ -112,7 +112,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.initAge = original.initAge;
 		this.simulInitAge = original.simulInitAge;
 		this.disease = original.disease;
-		properties = original.properties;
+		attributes = original.attributes;
 		manifestationEvents = new TreeMap<>();
 		nextManifestationEvents = new TreeMap<>();
 	}
@@ -407,14 +407,14 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 
 	/**
-	 * Returns the value associated to the specified property modified depending on the patient
-	 * @param property The name of the property
-	 * @return the value associated to the specified property
+	 * Returns the value associated to the specified attribute modified depending on the patient
+	 * @param attribute The name of the attribute
+	 * @return the value associated to the specified attribute
 	 */
-	public Number getPropertyValue(String property) {
+	public Number getAttributeValue(String attribute) {
 		final int id = getSimulation().getIdentifier();
-		final Modification modif = getSimulation().getIntervention().getClinicalParameterModification(property);
-		double value = properties.get(property).doubleValue(); 
+		final Modification modif = getSimulation().getIntervention().getClinicalParameterModification(attribute);
+		double value = attributes.get(attribute).doubleValue(); 
 		switch(modif.getType()) {
 		case DIFF:
 			value -= modif.getValue(id);
@@ -432,22 +432,22 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 
 	/**
-	 * Sets the value of the specified property. Replaces the property if already exists.
-	 * @param property The name of the property
-	 * @param value The new value of the property
-	 * @return This profile, so you can concatenate calls to this method 
+	 * Sets the value of the specified attribute. Replaces the attribute value if already declared.
+	 * @param attribute The name of the attribute
+	 * @param value The new value of the attribute
+	 * @return This patient, so you can concatenate calls to this method 
 	 */
-	public Patient addProperty(String property, Number value) {
-		properties.put(property, value);
+	public Patient addAttribute(String attribute, Number value) {
+		attributes.put(attribute, value);
 		return this;
 	}
 
 	/**
-	 * Returns the list of properties 	
-	 * @return
+	 * Returns the list of attributes defined for this patient 	
+	 * @return the list of attributes defined for this patient
 	 */
-	public Collection<String> getPropertyNames() {
-		return properties.keySet();
+	public Collection<String> getAttributeNames() {
+		return attributes.keySet();
 	}
 
 	/**

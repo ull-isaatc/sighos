@@ -28,14 +28,15 @@ public abstract class Population extends GenerationInfo implements CreatesSecond
 	private final String name;
 	private final String description;
 	private final SecondOrderParamsRepository secParams;
-	private final List<ClinicalParameter> parameters;
+	/** Clinical parameters or other characteristics required to be defined for patients from this population */
+	private final List<PopulationAttribute> attributes;
 
 	public Population(String name, String description, SecondOrderParamsRepository secParams) throws MalformedSimulationModelException {
 		super(1.0);
 		this.name = name;
 		this.description = description;
 		this.secParams = secParams;
-		this.parameters = initializePatientParameterList();
+		this.attributes = initializePatientAttributeList();
 		rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 	}
 
@@ -104,11 +105,11 @@ public abstract class Population extends GenerationInfo implements CreatesSecond
 	 */
 	public abstract boolean isDiagnosedFromStart(Patient pat);
 
-	protected List<ClinicalParameter> initializePatientParameterList() throws MalformedSimulationModelException {
+	protected List<PopulationAttribute> initializePatientAttributeList() throws MalformedSimulationModelException {
 		return new ArrayList<>();
 	}
 
-	public List<ClinicalParameter> getPatientParameters() {
-		return parameters;
+	public List<PopulationAttribute> getPatientAttributes() {
+		return attributes;
 	}
 }

@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
-import es.ull.iis.simulation.hta.populations.ClinicalParameter;
+import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.util.Statistics;
@@ -17,9 +17,9 @@ import es.ull.iis.util.Statistics;
  * @author Iván Castilla Rodríguez
  *
  */
-public class IndividualParameterListener extends Listener implements StructuredOutputListener {
+public class PopulationAttributeListener extends Listener implements StructuredOutputListener {
 	private final int nPatients;
-	private final String [] paramNames;
+	private final String [] attributeNames;
 	private final TreeMap<String, Double> aggregated;
 	private final TreeMap<String, double[]> values;
 	private double aggregatedInitAge;
@@ -28,17 +28,17 @@ public class IndividualParameterListener extends Listener implements StructuredO
 	/**
 	 * @param description
 	 */
-	public IndividualParameterListener(int nPatients, List<ClinicalParameter> paramList) {
+	public PopulationAttributeListener(int nPatients, List<PopulationAttribute> attributeList) {
 		super("Listener for individual parameters");
 		this.nPatients = nPatients;
 		this.values = new TreeMap<>();
-		paramNames = new String[paramList.size()];
+		attributeNames = new String[attributeList.size()];
 		this.aggregated = new TreeMap<>();
-		for (int i = 0; i < paramList.size(); i++) {
-			final ClinicalParameter param = paramList.get(i);
-			paramNames[i] = param.name();
-			values.put(paramNames[i], new double[nPatients]);
-			aggregated.put(paramNames[i], 0.0);
+		for (int i = 0; i < attributeList.size(); i++) {
+			final PopulationAttribute attribute = attributeList.get(i);
+			attributeNames[i] = attribute.name();
+			values.put(attributeNames[i], new double[nPatients]);
+			aggregated.put(attributeNames[i], 0.0);
 		}
 		initAges = new double[nPatients];
 		aggregatedInitAge = 0.0;
@@ -57,8 +57,8 @@ public class IndividualParameterListener extends Listener implements StructuredO
 			if (PatientInfo.Type.START.equals(pInfo.getType())) {
 				initAges[pat.getIdentifier()] = pat.getInitAge();
 				aggregatedInitAge += initAges[pat.getIdentifier()]; 
-				for (String name : paramNames) {
-					values.get(name)[pat.getIdentifier()] = (double)pat.getPropertyValue(name);
+				for (String name : attributeNames) {
+					values.get(name)[pat.getIdentifier()] = (double)pat.getAttributeValue(name);
 					aggregated.put(name, aggregated.get(name) + values.get(name)[pat.getIdentifier()]);
 				}
 			}
@@ -78,7 +78,7 @@ public class IndividualParameterListener extends Listener implements StructuredO
 		final double[] cipAge = Statistics.getPercentile95CI(initAges);
 		results.put("INIT_AGE", new double[] {avgAge, sdAge, ciAge[0], ciAge[1], cipAge[0], cipAge[1]});
 
-		for (String name : paramNames) {
+		for (String name : attributeNames) {
 			final double avg = aggregated.get(name) / nPatients;
 			final double sd = Statistics.stdDev(values.get(name), avg);
 			final double[] ci = Statistics.normal95CI(avg, sd, nPatients);
@@ -88,12 +88,12 @@ public class IndividualParameterListener extends Listener implements StructuredO
 		return results;
 	}
 	
-	public static String getStrHeader(String intervention, List<ClinicalParameter> paramList) {
+	public static String getStrHeader(String intervention, List<PopulationAttribute> paramList) {
 		final StringBuilder str = new StringBuilder();
 		str.append(STR_AVG_PREFIX + "INITAGE_" + intervention + SEP);
 		str.append(STR_L95CI_PREFIX + "INITAGE_" + intervention + SEP);
 		str.append(STR_U95CI_PREFIX + "INITAGE_" + intervention + SEP);
-		for (ClinicalParameter param : paramList) {
+		for (PopulationAttribute param : paramList) {
 			str.append(STR_AVG_PREFIX + param.name() + "_" + intervention + SEP);
 			str.append(STR_L95CI_PREFIX + param.name() + "_" + intervention + SEP);
 			str.append(STR_U95CI_PREFIX + param.name() + "_" + intervention + SEP);
@@ -106,7 +106,7 @@ public class IndividualParameterListener extends Listener implements StructuredO
 		final StringBuilder str = new StringBuilder();
 		final double[] cipAge = Statistics.getPercentile95CI(initAges);
 		str.append((aggregatedInitAge / nPatients) + SEP + cipAge[0] + SEP + cipAge[1] + SEP);
-		for (String name : paramNames) {
+		for (String name : attributeNames) {
 			final double[] cip = Statistics.getPercentile95CI(values.get(name));
 			str.append((aggregated.get(name) / nPatients) + SEP + cip[0] + SEP + cip[1] + SEP);
 		}

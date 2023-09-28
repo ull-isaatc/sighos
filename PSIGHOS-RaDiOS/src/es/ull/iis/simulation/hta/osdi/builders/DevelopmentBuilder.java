@@ -1,8 +1,9 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.osdi;
+package es.ull.iis.simulation.hta.osdi.builders;
 
+import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.progression.Development;
 import es.ull.iis.simulation.hta.progression.Disease;

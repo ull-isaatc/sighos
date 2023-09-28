@@ -7,6 +7,7 @@ import java.io.File;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -31,15 +32,35 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	private final Set<String> modelItems;
 	private final String instancePrefix;
 	
-	public final static String STR_MANIF_PREFIX = "Manif_";
-	public final static String STR_MANIF_GROUP_PREFIX = "Group_Manif_";
-	public final static String STR_UNCERTAINTY_SUFFIX = "_ParamUncertainty";
-	public final static String STR_L95CI_SUFFIX = "_L95CI";
-	public final static String STR_U95CI_SUFFIX = "_U95CI";
-	public final static String STR_ANNUAL_COST_SUFFIX = "_AC";
-	public final static String STR_ONETIME_COST_SUFFIX = "_TC";
-	public final static String STR_UTILITY_SUFFIX = "_U";
+	private final static String STR_SEP = "_";
+	public final static String STR_MANIF_PREFIX = "Manif" + STR_SEP;
+	public final static String STR_MANIF_GROUP_PREFIX = "Group_Manif" + STR_SEP;
+	public final static String STR_POPULATION_PREFIX = "Population" + STR_SEP;
+	public final static String STR_ATTRIBUTE_PREFIX = "Attribute" + STR_SEP;
+	public final static String STR_UNCERTAINTY_SUFFIX = STR_SEP + "ParamUncertainty";
+	public final static String STR_L95CI_SUFFIX = STR_SEP + "L95CI";
+	public final static String STR_U95CI_SUFFIX = STR_SEP + "U95CI";
+	public final static String STR_ANNUAL_COST_SUFFIX = STR_SEP + "AC";
+	public final static String STR_ONETIME_COST_SUFFIX = STR_SEP + "TC";
+	public final static String STR_UTILITY_SUFFIX = STR_SEP + "U";
+	private final static TreeMap<Clazz, ModelType> reverseModelType = new TreeMap<>(); 
+	private final static TreeMap<Clazz, InterventionType> reverseInterventionType = new TreeMap<>(); 
 
+	static {
+		reverseModelType.put(Clazz.DISCRETE_EVENT_SIMULATION_MODEL, ModelType.DES);
+		reverseModelType.put(Clazz.AGENT_BASED_MODEL, ModelType.AGENT);
+		reverseModelType.put(Clazz.MARKOV_MODEL, ModelType.MARKOV);
+		reverseModelType.put(Clazz.DECISION_TREE_MODEL, ModelType.DECISION_TREE);
+		reverseInterventionType.put(Clazz.DIAGNOSIS_INTERVENTION, InterventionType.DIAGNOSIS);
+		reverseInterventionType.put(Clazz.SCREENING_INTERVENTION, InterventionType.SCREENING);
+		reverseInterventionType.put(Clazz.THERAPEUTIC_INTERVENTION, InterventionType.THERAPEUTIC);
+	}
+	
+	/**
+	 * A list of the different types of models that can be defined in OSDi
+	 * @author Iván Castilla
+	 *
+	 */
 	public enum ModelType {
 		DES(Clazz.DISCRETE_EVENT_SIMULATION_MODEL),
 		AGENT(Clazz.AGENT_BASED_MODEL),
@@ -50,7 +71,25 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			this.clazz = clazz;
 		}
 		/**
-		 * @return the clazz
+		 * Returns the associated class in the ontology
+		 * @return The associated class in the ontology
+		 */
+		public Clazz getClazz() {
+			return clazz;
+		}
+	}
+
+	public enum InterventionType {
+		DIAGNOSIS(Clazz.DIAGNOSIS_INTERVENTION),
+		SCREENING(Clazz.SCREENING_INTERVENTION),
+		THERAPEUTIC(Clazz.THERAPEUTIC_INTERVENTION);
+		private final Clazz clazz;
+		private InterventionType(Clazz clazz) {
+			this.clazz = clazz;
+		}
+		/**
+		 * Returns the associated class in the ontology
+		 * @return The associated class in the ontology
 		 */
 		public Clazz getClazz() {
 			return clazz;
@@ -91,7 +130,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 
 	/**
 	 * Temporal behavior for costs and utilities in the ontology
-	 * @author Iv�n Castilla
+	 * @author Iván Castilla
 	 *
 	 */
 	public enum TemporalBehavior {
@@ -263,6 +302,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		BELONGS_TO_GROUP("belongsToGroup"),
 		EXCLUDES_MANIFESTATION("excludesManifestation"),
 		FOLLOWED_BY_STRATEGY("followedByStrategy"),
+		HAS_AGE("hasAge"),
 		HAS_ATTRIBUTE_VALUE("hasAttributeValue"),
 		HAS_COMPONENT("hasComponent"),
 		HAS_COST("hasCost"),
@@ -294,6 +334,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_SCREENING_COST("hasScreeningCost"),
 		HAS_SCREENING_STRATEGY("hasScreeningStrategy"),
 		HAS_SENSITIVITY("hasSensitivity"),
+		HAS_SEX("hasSex"),
 		HAS_SPECIFICITY("hasSpecificity"),
 		HAS_STAGE("hasStage"),
 		HAS_STOCHASTIC_UNCERTAINTY("hasStochasticUncertainty"),
@@ -320,7 +361,8 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		USES_FOLLOW_UP_TEST("usesFollowUpTest"),
 		USES_HEALTH_TECHNOLOGY("usesHealthTechnology"),
 		USES_SAME_MODEL_ITEMS_AS("usesSameModelItemsAs"),
-		USES_TREATMENT("usesTreatment");
+		USES_TREATMENT("usesTreatment"),
+		USES_VALUE_FROM("usesValueFrom");
 		
 		private final String shortName;
 		private ObjectProperty(String shortName) {
@@ -463,6 +505,10 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		return instancePrefix;
 	}
 	
+	public String getDiseaseInstanceName(String diseaseName) {
+		return instancePrefix + diseaseName;
+	}
+	
 	public String getManifestationInstanceName(String manifName) {
 		return instancePrefix + STR_MANIF_PREFIX + manifName;
 	}
@@ -471,46 +517,65 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		return instancePrefix + STR_MANIF_GROUP_PREFIX + groupName;
 	}
 
-	
-	public String createParameter(String paramName, Clazz clazz, String description, String source, int year, String expression, DataItemType dataType) {
-		String name = instancePrefix + paramName;
-		clazz.add(this, name);
-		ObjectProperty.HAS_DATA_ITEM_TYPE.add(this, name, dataType.getInstanceName());
-		DataProperty.HAS_DESCRIPTION.add(this, name, description);
-		DataProperty.HAS_SOURCE.add(this, name, source);
-		DataProperty.HAS_YEAR.add(this, name, "" + year);
-		DataProperty.HAS_EXPRESSION.add(this, name, expression);
-		return name;
+	public String getPopulationInstanceName(String populationName) {
+		return instancePrefix + STR_POPULATION_PREFIX + populationName;
 	}
 	
-	public String createCost(String costName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, DataItemType currency) {
-		String name = createParameter(costName, Clazz.COST, description, source, year, expression, currency);
-		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
-		return name;
+	public String getAttributeInstanceName(String attributeName) {
+		return instancePrefix + STR_ATTRIBUTE_PREFIX + attributeName; 
 	}
 	
-	public String createCost(String costName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, DataItemType currency) {
-		String name = createCost(costName, description, source, tmpBehavior, year, deterministic, currency);
-		if (uncertainty != null && !("".equals(uncertainty))) {
-			name = createParameter(costName + STR_UNCERTAINTY_SUFFIX, Clazz.COST, description, source, year, uncertainty, currency);
-			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
-		}
-		return name;
+	public String getPopulationAttributeValueInstanceName(String populationName, String attributeName) {
+		return getPopulationInstanceName(populationName) + STR_SEP + attributeName; 
+	}
+	
+	public String getParameterInstanceName(String paramName) {
+		return instancePrefix + paramName;
+	}
+	
+	public void createValuable(String instanceName, Clazz clazz, String source, String expression, DataItemType dataType) {
+		clazz.add(this, instanceName);
+		ObjectProperty.HAS_DATA_ITEM_TYPE.add(this, instanceName, dataType.getInstanceName());
+		DataProperty.HAS_SOURCE.add(this, instanceName, source);
+		DataProperty.HAS_EXPRESSION.add(this, instanceName, expression);		
+		includeInModel(instanceName);
+	}
+	
+	public void createParameter(String instanceName, Clazz clazz, String description, String source, int year, String expression, DataItemType dataType) {
+		createValuable(instanceName, clazz, source, expression, dataType);
+		DataProperty.HAS_DESCRIPTION.add(this, instanceName, description);
+		DataProperty.HAS_YEAR.add(this, instanceName, "" + year);
 	}
 
-	public String createUtility(String utilityName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, UtilityType utilityType) {
-		String name = createParameter(utilityName, Clazz.UTILITY, description, source, year, expression, utilityType.getType());
-		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
-		return name;
+	public void createAttributeValue(String instanceName, String attributeInstanceName, String source, String expression, DataItemType dataType) {
+		createValuable(instanceName, Clazz.ATTRIBUTE_VALUE, source, expression, dataType);
+		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(this, instanceName, attributeInstanceName);
 	}
 	
-	public String createUtility(String utilityName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, UtilityType utilityType) {
-		String name = createUtility(utilityName, description, source, tmpBehavior, year, deterministic, utilityType);
+	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, DataItemType currency) {
+		createParameter(instanceName, Clazz.COST, description, source, year, expression, currency);
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, instanceName, tmpBehavior.getShortName());
+	}
+	
+	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, DataItemType currency) {
+		createCost(instanceName, description, source, tmpBehavior, year, deterministic, currency);
 		if (uncertainty != null && !("".equals(uncertainty))) {
-			name = createParameter(utilityName + STR_UNCERTAINTY_SUFFIX, Clazz.UTILITY, description, source, year, uncertainty, utilityType.getType());
-			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, name, tmpBehavior.getShortName());
+			createParameter(instanceName + STR_UNCERTAINTY_SUFFIX, Clazz.COST, description, source, year, uncertainty, currency);
+			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, instanceName, tmpBehavior.getShortName());
 		}
-		return name;
+	}
+
+	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, UtilityType utilityType) {
+		createParameter(instanceName, Clazz.UTILITY, description, source, year, expression, utilityType.getType());
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, instanceName, tmpBehavior.getShortName());
+	}
+	
+	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, UtilityType utilityType) {
+		createUtility(instanceName, description, source, tmpBehavior, year, deterministic, utilityType);
+		if (uncertainty != null && !("".equals(uncertainty))) {
+			createParameter(instanceName + STR_UNCERTAINTY_SUFFIX, Clazz.UTILITY, description, source, year, uncertainty, utilityType.getType());
+			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, instanceName, tmpBehavior.getShortName());
+		}
 	}
 	
 	/**
@@ -532,42 +597,50 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		DataProperty.HAS_YEAR.add(this, workingModelInstance, "" + year);		
 	}
 
-	public String createDisease(String diseaseName, String description, String refToDO, String refToICD, String refToOMIM, String refToSNOMED) {
-		final String name = instancePrefix + diseaseName;
-		Clazz.DISEASE.add(this, name);		
-		DataProperty.HAS_DESCRIPTION.add(this, name, description);
-		DataProperty.HAS_REF_TO_DO.add(this,  name, refToDO);
-		DataProperty.HAS_REF_TO_ICD.add(this,  name, refToICD);
-		DataProperty.HAS_REF_TO_OMIM.add(this,  name, refToOMIM);
-		DataProperty.HAS_REF_TO_SNOMED.add(this,  name, refToSNOMED);
-		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, workingModelInstance);
-		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, workingModelInstance, name);
-		return name;
+	public void createDisease(String instanceName, String description, String refToDO, String refToICD, String refToOMIM, String refToSNOMED) {
+		Clazz.DISEASE.add(this, instanceName);		
+		DataProperty.HAS_DESCRIPTION.add(this, instanceName, description);
+		DataProperty.HAS_REF_TO_DO.add(this,  instanceName, refToDO);
+		DataProperty.HAS_REF_TO_ICD.add(this,  instanceName, refToICD);
+		DataProperty.HAS_REF_TO_OMIM.add(this,  instanceName, refToOMIM);
+		DataProperty.HAS_REF_TO_SNOMED.add(this,  instanceName, refToSNOMED);
+		includeInModel(instanceName);
 	}
 	
-	public String createManifestation(String manifName, ManifestationType type, String description, Set<String> exclusions, String diseaseName) {
-		final String name = getManifestationInstanceName(manifName);
-		type.getClazz().add(this, name);		
-		DataProperty.HAS_DESCRIPTION.add(this, name, description);
-		ObjectProperty.HAS_MANIFESTATION.add(this, diseaseName, name);
-		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, workingModelInstance);
-		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, workingModelInstance, name);
+	public void createManifestation(String instanceName, ManifestationType type, String description, Set<String> exclusions, String diseaseInstanceName) {
+		type.getClazz().add(this, instanceName);		
+		DataProperty.HAS_DESCRIPTION.add(this, instanceName, description);
+		ObjectProperty.HAS_MANIFESTATION.add(this, diseaseInstanceName, instanceName);
+		includeInModel(instanceName);
 		for (String excludedManif : exclusions) {
-			ObjectProperty.EXCLUDES_MANIFESTATION.add(this, name, getManifestationInstanceName(excludedManif));
+			ObjectProperty.EXCLUDES_MANIFESTATION.add(this, instanceName, getManifestationInstanceName(excludedManif));
 		}
-		return name;
 	}
 	
-	public String createGroupOfManifestations(String groupName, Set<String> manifestationNames) {
-		final String name = getManifestationGroupInstanceName(groupName);		
-		Clazz.GROUP.add(this, name);		
-		ObjectProperty.INCLUDED_BY_MODEL.add(this, name, workingModelInstance);
-		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, workingModelInstance, name);
+	public void createGroupOfManifestations(String instanceName, Set<String> manifestationNames) {
+		Clazz.GROUP.add(this, instanceName);
+		includeInModel(instanceName);
 		for (String manifestation : manifestationNames) {
-			ObjectProperty.HAS_COMPONENT.add(this, name, getManifestationInstanceName(manifestation));			
-			ObjectProperty.BELONGS_TO_GROUP.add(this, getManifestationInstanceName(manifestation), name);			
+			ObjectProperty.HAS_COMPONENT.add(this, instanceName, getManifestationInstanceName(manifestation));			
+			ObjectProperty.BELONGS_TO_GROUP.add(this, getManifestationInstanceName(manifestation), instanceName);			
 		}
-		return name;
+	}
+	
+	public void createPopulation(String instanceName, String description, double minAge, double maxAge, int size, int year) {
+		Clazz.POPULATION.add(this, instanceName);
+		DataProperty.HAS_DESCRIPTION.add(this, instanceName, description);
+		DataProperty.HAS_MIN_AGE.add(this, instanceName, "" + minAge);
+		DataProperty.HAS_MAX_AGE.add(this, instanceName, "" + maxAge);
+		DataProperty.HAS_SIZE.add(this, instanceName, "" + size);
+		DataProperty.HAS_YEAR.add(this, instanceName, "" + year);
+		
+		includeInModel(instanceName);
+		
+	}
+	
+	private void includeInModel(String instanceName) {
+		ObjectProperty.INCLUDED_BY_MODEL.add(this, instanceName, workingModelInstance);
+		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, workingModelInstance, instanceName);
 	}
 	
 	public Set<String> getClassesForIndividual(String individualIRI) {

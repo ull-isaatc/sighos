@@ -1,10 +1,11 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.osdi;
+package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.Set;
 
+import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;

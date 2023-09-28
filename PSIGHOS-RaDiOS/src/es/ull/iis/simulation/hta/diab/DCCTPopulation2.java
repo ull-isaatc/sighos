@@ -12,8 +12,8 @@ import es.ull.iis.simulation.hta.diab.manifestations.BackgroundRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.populations.ClinicalParameter;
-import es.ull.iis.simulation.hta.populations.InitiallySetClinicalParameter;
+import es.ull.iis.simulation.hta.populations.PopulationAttribute;
+import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
@@ -62,15 +62,15 @@ public class DCCTPopulation2 extends StdPopulation {
 	}
 
 	@Override
-	protected List<ClinicalParameter> initializePatientParameterList() throws MalformedSimulationModelException {
-		final ArrayList<ClinicalParameter> paramList = new ArrayList<>();
+	protected List<PopulationAttribute> initializePatientAttributeList() throws MalformedSimulationModelException {
+		final ArrayList<PopulationAttribute> paramList = new ArrayList<>();
 		
 		final double alfaHbA1c = ((BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN) / BASELINE_HBA1C_SD) * ((BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN) / BASELINE_HBA1C_SD);
 		final double betaHbA1c = (BASELINE_HBA1C_SD * BASELINE_HBA1C_SD) / (BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN);
 		final RandomVariate rndHbA1c = RandomVariateFactory.getInstance("GammaVariate", alfaHbA1c, betaHbA1c);
 
-		paramList.add(new InitiallySetClinicalParameter(T1DMRepository.STR_HBA1C, RandomVariateFactory.getInstance("ScaledVariate", rndHbA1c, 1.0, BASELINE_HBA1C_MIN)));
-		paramList.add(new InitiallySetClinicalParameter(T1DMRepository.STR_DURATION, RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION_AVG, BASELINE_DURATION_SD)));
+		paramList.add(new InitiallySetPopulationAttribute(T1DMRepository.STR_HBA1C, RandomVariateFactory.getInstance("ScaledVariate", rndHbA1c, 1.0, BASELINE_HBA1C_MIN)));
+		paramList.add(new InitiallySetPopulationAttribute(T1DMRepository.STR_DURATION, RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION_AVG, BASELINE_DURATION_SD)));
 		return paramList;
 	}
 

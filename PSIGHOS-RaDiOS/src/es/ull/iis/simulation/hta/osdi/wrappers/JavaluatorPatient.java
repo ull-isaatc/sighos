@@ -26,9 +26,9 @@ public class JavaluatorPatient extends StaticVariableSet<Double> {
 		for (Manifestation manif : pat.getState()) {
 			set(manif.name(), (double)pat.getTimeToManifestation(manif));
 		}
-		final Collection<String> propNames = pat.getPropertyNames();
+		final Collection<String> propNames = pat.getAttributeNames();
 		for (String propName : propNames)
-			set(propName, (double)pat.getPropertyValue(propName));
+			set(propName, (double)pat.getAttributeValue(propName));
 	}
 
 }

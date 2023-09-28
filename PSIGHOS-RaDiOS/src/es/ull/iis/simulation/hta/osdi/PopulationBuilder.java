@@ -8,14 +8,16 @@ import java.util.List;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
+import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.populations.ClinicalParameter;
-import es.ull.iis.simulation.hta.populations.InitiallySetClinicalParameter;
+import es.ull.iis.simulation.hta.populations.PopulationAttribute;
+import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.DiscreteRandomVariate;
@@ -36,35 +38,51 @@ public interface PopulationBuilder {
 	 * @param populationName
 	 * @return
 	 */
-	public static StdPopulation getPopulationInstance(OSDiGenericRepository secParams, Disease disease, String populationName) throws TranspilerException, MalformedSimulationModelException {
-				
-		return new OSDiPopulation(secParams, disease, populationName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(secParams.getOwlWrapper(), populationName, ""));		
+	public static StdPopulation getPopulationInstance(OSDiGenericRepository secParams, Disease disease, String populationName) throws MalformedSimulationModelException, MalformedOSDiModelException {
+		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(secParams.getOwlWrapper(), populationName, "");
+		return new OSDiPopulation(secParams, disease, populationName, description);		
 	}
 	
 	static class OSDiPopulation extends StdPopulation {
-		private final ProbabilityDistribution ageDist;
+		private final AttributeValueWrapper ageWrapper;
+		private final AttributeValueWrapper sexWrapper;
 		private boolean hasPrevalence;
 		private boolean hasBirthPrevalence;
 		private final int minAge; 
-		private final String strFemaleParamName;
+		private final int maxAge; 
 		
-		public OSDiPopulation(OSDiGenericRepository secParams, Disease disease, String populationName, String populationDescription) throws TranspilerException, MalformedSimulationModelException {
+		public OSDiPopulation(OSDiGenericRepository secParams, Disease disease, String populationName, String populationDescription) throws MalformedSimulationModelException, MalformedOSDiModelException {
 			super(secParams, populationName, populationDescription, disease);
-			final String strAge = OSDiNames.DataProperty.HAS_AGE.getValue(secParams.getOwlHelper(), populationName, "0.0");
-			this.ageDist = new ProbabilityDistribution(strAge);
+			final OSDiWrapper wrap = secParams.getOwlWrapper();
+			final String strMinAge = OSDiWrapper.DataProperty.HAS_MIN_AGE.getValue(wrap, populationName, "" + super.getMinAge());
+			minAge = Integer.parseInt(strMinAge);
+			final String strMaxAge = OSDiWrapper.DataProperty.HAS_MAX_AGE.getValue(wrap, populationName, "" + super.getMaxAge());
+			maxAge = Integer.parseInt(strMaxAge);
+			 // TODO: Currently we are only defining initially assigned attributes, i.e., attributes whose value does not change during the simulation 
+			// Process population age
+			final String ageAttribute = OSDiWrapper.ObjectProperty.HAS_AGE.getValue(wrap, populationName, true);
+			ageWrapper = new AttributeValueWrapper(wrap, ageAttribute, minAge);
+			if (ageWrapper.getProbabilisticValue() == null) {
+				ageWrapper.setProbabilisticValue(RandomVariateFactory.getInstance("ConstantVariate", ageWrapper.getDeterministicValue()));
+			}
+			// Process population sex
+			final String sexAttribute = OSDiWrapper.ObjectProperty.HAS_SEX.getValue(wrap, populationName, true);
+			sexWrapper = new AttributeValueWrapper(wrap, ageAttribute, 0);
+			if (sexWrapper.getProbabilisticValue() == null) {
+				// FIXME: cannot be ConstantVAriate because it is not a discrete variate
+				sexWrapper.setProbabilisticValue(RandomVariateFactory.getInstance("ConstantVariate", sexWrapper.getDeterministicValue()));
+			}
+			
 			this.hasPrevalence = false;
 			this.hasBirthPrevalence = false;
-			final String strMinAge = OSDiNames.DataProperty.HAS_MIN_AGE.getValue(secParams.getOwlHelper(), populationName, "" + super.getMinAge());
-			minAge = Integer.parseInt(strMinAge);
-			this.strFemaleParamName = "FEMALE_" + populationName;
 		}
 		
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			final OSDiGenericRepository OSDiParams = ((OSDiGenericRepository)secParams); 
-			final OwlHelper helper = OSDiParams.getOwlHelper(); 
+			final OSDiWrapper wrap = OSDiParams.getOwlWrapper();
 			try {
-				final String strPFemale = OSDiNames.DataProperty.HAS_FEMALE_PROPORTION.getValue(helper, name(), "0.5");
+				final String strPFemale = OSDiWrapper.DataProperty.HAS_FEMALE_PROPORTION.getValue(helper, name(), "0.5");
 				final ProbabilityDistribution pFemale = new ProbabilityDistribution(strPFemale);
 				ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, strFemaleParamName, "females in population " + name(), 
 						"",	pFemale.getDeterministicValue(), pFemale.getProbabilisticValue());
@@ -165,7 +183,7 @@ public interface PopulationBuilder {
 
 		@Override
 		protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
-			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.PROPORTION.getValue(getRepository(), strFemaleParamName, simul));
+			return (DiscreteRandomVariate) sexWrapper.getProbabilisticValue();
 		}
 		
 		@Override
@@ -185,19 +203,24 @@ public interface PopulationBuilder {
 		
 		@Override
 		protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
-			return ageDist.getProbabilisticValue();
+			return ageWrapper.getProbabilisticValue();
 		}
 		
 		@Override
 		public int getMinAge() {
 			return minAge;
 		}
+		
+		@Override
+		public int getMaxAge() {
+			return maxAge;
+		}
 
 		@Override
-		protected List<ClinicalParameter> initializePatientParameterList() throws MalformedSimulationModelException {
+		protected List<PopulationAttribute> initializePatientAttributeList() throws MalformedSimulationModelException {
 			final OwlHelper helper = ((OSDiGenericRepository) getRepository()).getOwlHelper();		
 
-			final ArrayList<ClinicalParameter> paramList = new ArrayList<>();
+			final ArrayList<PopulationAttribute> paramList = new ArrayList<>();
 			List<String> indParams = OSDiNames.ObjectProperty.DEFINES_INDIVIDUAL_PARAMETER_VALUE.getValues(helper, name());
 			for (String paramName : indParams) {
 				try {
@@ -205,7 +228,7 @@ public interface PopulationBuilder {
 					final String indParamName = OSDiNames.DataProperty.HAS_NAME.getValue(helper, indParamParamName);
 					final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, paramName, "0.0");
 					final ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(strValue);
-					paramList.add(new InitiallySetClinicalParameter(indParamName, probabilityDistribution.getProbabilisticValue()));				
+					paramList.add(new InitiallySetPopulationAttribute(indParamName, probabilityDistribution.getProbabilisticValue()));				
 				} catch(TranspilerException ex) {
 					System.err.println(ex.getMessage());
 				}

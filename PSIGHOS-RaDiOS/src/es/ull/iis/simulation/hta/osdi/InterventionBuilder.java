@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.osdi;
 
 import java.util.List;
+import java.util.Set;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
@@ -11,6 +12,7 @@ import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.osdi.OSDiNames.DataProperty;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
@@ -26,13 +28,14 @@ public interface InterventionBuilder {
 	public static String DO_NOTHING = "DO_NOTHING";
 
 	public static Intervention getInterventionInstance(OSDiGenericRepository secParams, String interventionName) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
+		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		if (DO_NOTHING.equals(interventionName))
 			return new DoNothingIntervention(secParams);
-		final String description = OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(helper, interventionName, "");
-		final String kind = OSDiNames.DataProperty.HAS_INTERVENTION_KIND.getValue(helper, interventionName, OSDiNames.DataPropertyRange.INTERVENTION_KIND_GENERAL.getDescription());
+		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(wrap, interventionName, "");
+		final Set<String> superclasses = wrap.getClassesForIndividual(interventionName);
 		Intervention intervention = null;
-		if (OSDiNames.DataPropertyRange.INTERVENTION_KIND_SCREENING.getDescription().equals(kind)) {			
+		// TODO: Populate different methods for different interventions
+		if (superclasses.contains(OSDiWrapper.InterventionType.SCREENING.getClazz().getShortName())) {			
 
 			intervention = new ScreeningIntervention(secParams, interventionName, description) {
 				
@@ -138,7 +141,7 @@ public interface InterventionBuilder {
 	}
 	
 	private static void createSpecificityAndSensitivity(OSDiGenericRepository secParams, ScreeningIntervention intervention) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
+		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		String strSensitivity = DataProperty.HAS_SENSITIVITY.getValue(helper, intervention.name(), "1.0");
 		try {
 			final ProbabilityDistribution probSensitivity = new ProbabilityDistribution(strSensitivity);
