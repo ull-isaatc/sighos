@@ -216,4 +216,41 @@ public interface ManifestationBuilder {
 		}
 	}
 
+	private static void createEpidemiologicalParams(OSDiWrapper wrap, Manifestation manifestation) throws MalformedOSDiModelException {
+		final OSDiGenericRepository OSDiParams = ((OSDiGenericRepository)manifestation.getRepository()); 
+
+		// Gets the manifestation parameters related to the working model
+		final Set<String> manifestationParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(manifestation.name(), true);
+		// TODO: Check whether they should be epidemiological or just Parameters
+		// Gets all the epidemiological parameters that are manifestation parameters
+		final Set<String> epidemParams = OSDiWrapper.Clazz.EPIDEMIOLOGICAL_PARAMETER.getIndividuals(true);
+		epidemParams.retainAll(manifestationParams);
+		boolean hasPrevalence = false;
+		try {
+			// Processes and register the epidemiological parameters related to the manifestation
+			for (String paramName : epidemParams) {
+				final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, 0.0);
+				// TODO: Should we check if the parameter is defined for the disease? Should be unnecessary.
+				// If the parameter is a prevalence, it is considered an initial proportion
+				if (OSDiWrapper.Clazz.PREVALENCE.containsIntance(paramName)) {
+					if (hasPrevalence) {
+						wrap.printWarning(manifestation.name(), OSDiWrapper.ObjectProperty.HAS_PARAMETER, "A manifestation can define just one prevalence. Ignoring " + paramName);														
+					}
+					else {
+						hasPrevalence = true;
+						ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(OSDiParams, manifestation, paramWrapper.getSource(),
+								paramWrapper.getDeterministicValue(), paramWrapper.getProbabilisticValue());						
+					}
+				}
+				// If the parameter is an incidence, it is considered a risk or time to event to develop the manifestation
+				else if (OSDiWrapper.Clazz.INCIDENCE.containsIntance(paramName)) {
+					// TODO: Check if should be processed here or from ManifestationPathwayBuilder
+				}
+			}
+		} catch (MalformedOSDiModelException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 }

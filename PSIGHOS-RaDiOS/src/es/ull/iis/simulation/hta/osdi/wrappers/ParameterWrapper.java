@@ -35,8 +35,10 @@ public class ParameterWrapper extends ValuableWrapper {
 			}
 			setProbabilisticValue(parseExpressionPropertyAsProbabilityDistribution((String)paramUncertainty.toArray()[0]));
 		}
+		if (!wrap.addParameterWrapper(paramId, this))
+			// TODO: Define the error better
+			throw new MalformedOSDiModelException("");
 	}
-
 	
 	/**
 	 * @return the description

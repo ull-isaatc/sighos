@@ -21,8 +21,6 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  */
 public interface DiseaseBuilder {
 	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseName) {
-		final OSDiWrapper wrap = secParams.getOwlWrapper();
-		
 		Disease disease = new Disease(secParams, diseaseName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(diseaseName, "")) {
 
 			@Override

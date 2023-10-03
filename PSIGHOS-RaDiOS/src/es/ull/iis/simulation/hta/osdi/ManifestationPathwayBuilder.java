@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.osdi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import es.ull.iis.simulation.condition.AndCondition;
 import es.ull.iis.simulation.condition.Condition;
@@ -13,6 +14,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.JavaluatorRR;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -42,7 +44,7 @@ public interface ManifestationPathwayBuilder {
 	 * @return
 	 * @throws TranspilerException 
 	 */
-	public static ManifestationPathway getManifestationPathwayInstance(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName) throws TranspilerException {
+	public static ManifestationPathway getManifestationPathwayInstance(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName) {
 		final Disease disease = manifestation.getDisease();
 		final Condition<Patient> cond = createCondition(secParams, disease, pathwayName);
 		final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, manifestation, pathwayName);
@@ -152,10 +154,17 @@ public interface ManifestationPathwayBuilder {
 		
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-			final OwlHelper helper = ((OSDiGenericRepository) secParams).getOwlHelper();		
+			final OSDiWrapper wrap = ((OSDiGenericRepository)secParams).getOwlWrapper();
 			
 			final Manifestation manifestation = this.getDestManifestation();
+			// Gets the manifestation pathway parameters related to the working model
+			final Set<String> pathwayParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(pathwayName, true);
 			try {
+				// Processes and register the epidemiological parameters related to the manifestaition
+				for (String paramName : pathwayParams) {
+					// TODO: Continue here
+				}
+				
 				// TODO: Check the order to process these parameters or think in a different solution
 				final String strPropManif = OSDiNames.DataProperty.HAS_PROPORTION.getValue(pathwayName);
 				if (strPropManif != null) {

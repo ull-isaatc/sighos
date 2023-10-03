@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.osdi;
+package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,18 +9,17 @@ import java.util.Set;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
+import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.DiscreteRandomVariate;
@@ -28,7 +27,7 @@ import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iván Castilla Rodríguez
+ * @author IvÃ¡n Castilla RodrÃ­guez
  *
  */
 public interface PopulationBuilder {
@@ -100,6 +99,9 @@ public interface PopulationBuilder {
 							if (hasPrevalence) {
 								wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_PARAMETER, "A population can define just one prevalence. Ignoring " + paramName);														
 							}
+							else if (hasBirthPrevalence) {
+								wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_PARAMETER, "A population cannot define both prevalence and birth prevalence. Ignoring " + paramName);														
+							}
 							else {
 								hasPrevalence = true;
 								registerEpidemParam(OSDiParams, wrap, paramWrapper, ProbabilityParamDescriptions.PREVALENCE);
@@ -108,6 +110,9 @@ public interface PopulationBuilder {
 						else if (OSDiWrapper.Clazz.BIRTH_PREVALENCE.containsIntance(paramName)) {
 							if (hasBirthPrevalence) {
 								wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_PARAMETER, "A population can define just one birth prevalence. Ignoring " + paramName);														
+							}
+							else if (hasPrevalence) {
+								wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_PARAMETER, "A population cannot define both prevalence and birth prevalence. Ignoring " + paramName);														
 							}
 							else {
 								hasBirthPrevalence = true;
@@ -121,8 +126,6 @@ public interface PopulationBuilder {
 				e.printStackTrace();
 			}
 		}
-
-		
 		
 		private void registerEpidemParam(OSDiGenericRepository secParams, OSDiWrapper wrap, ParameterWrapper paramWrapper, ProbabilityParamDescriptions secondOrderParam) {
 			final String paramName = paramWrapper.getParamId();
@@ -135,48 +138,8 @@ public interface PopulationBuilder {
 				else if (relatedDiseases.size() > 1) {
 					wrap.printWarning(paramName, OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_DISEASE, "Until more than one disease is supported by OSDi, a population parameter should be related to the only one disease. Currently " + relatedDiseases.size());														
 				}
-				ProbabilityParamDescriptions.PREVALENCE.addParameter(secParams, paramName, paramWrapper.getDescription(), paramWrapper.getSource(), 
+				secondOrderParam.addParameter(secParams, paramName, paramWrapper.getDescription(), paramWrapper.getSource(), 
 						paramWrapper.getDeterministicValue(), paramWrapper.getProbabilisticValue());
-			}
-		}
-
-		private void registerEpidemParamOld(OSDiGenericRepository secParams, String paramName, ProbabilityParamDescriptions secondOrderParam) throws TranspilerException {
-			final OwlHelper helper = secParams.getOwlHelper();		
-			
-			final List<String> manifestations = OSDiNames.ObjectProperty.IS_PARAMETER_OF_MANIFESTATION.getValues(paramName);
-			// If the parameter is related to a manifestation, is intended to be an initial proportion
-			if (!manifestations.isEmpty()) {
-				// We assume a 100% prevalence in case it is not specified
-				final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue("1.0");
-				try {
-					final ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(strValue);
-					for (String manifestationName: manifestations) {
-						ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getManifestation(manifestationName), OSDiNames.getSource(helper, paramName),
-								probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValueInitializedForProbability());						
-					}
-				} catch(TranspilerException ex) {
-					throw new TranspilerException(OSDiNames.Class.EPIDEMIOLOGICAL_PARAMETER, paramName, OSDiNames.DataProperty.HAS_VALUE, strValue, ex);
-				}
-			}
-			else {
-				// Check if the prevalence is related to the objective disease
-				final List<String> strDiseases = OSDiNames.ObjectProperty.IS_PARAMETER_OF_DISEASE.getValues(paramName);
-				boolean found = false;
-				for (String strDisease : strDiseases) {
-					if (strDisease.equals(disease.name()))
-						found = true;
-				}
-				if (found) {
-					// We assume a 100% prevalence in case it is not specified
-					final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue("1.0");
-					try {
-						final ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(strValue);
-						secondOrderParam.addParameter(secParams, name(), name(), OSDiNames.getSource(helper, paramName), 
-								probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
-					} catch(TranspilerException ex) {
-						throw new TranspilerException(OSDiNames.Class.EPIDEMIOLOGICAL_PARAMETER, paramName, OSDiNames.DataProperty.HAS_VALUE, strValue, ex);
-					}
-				}
 			}
 		}
 		

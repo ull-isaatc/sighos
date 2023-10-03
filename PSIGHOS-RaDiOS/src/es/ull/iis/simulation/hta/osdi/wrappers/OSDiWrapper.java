@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.osdi.wrappers;
 import java.io.File;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -31,6 +32,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	private String workingModelInstance;
 	private final Set<String> modelItems;
 	private final String instancePrefix;
+	private final Map<String, ParameterWrapper> parameterWrappers;
 	
 	private final static String STR_SEP = "_";
 	public final static String STR_MANIF_PREFIX = "Manif" + STR_SEP;
@@ -45,7 +47,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public final static String STR_UTILITY_SUFFIX = STR_SEP + "U";
 	private final static TreeMap<Clazz, ModelType> reverseModelType = new TreeMap<>(); 
 	private final static TreeMap<Clazz, InterventionType> reverseInterventionType = new TreeMap<>(); 
-	public static OSDiWrapper currentWrapper = null;
+	private static OSDiWrapper currentWrapper = null;
 
 	static {
 		reverseModelType.put(Clazz.DISCRETE_EVENT_SIMULATION_MODEL, ModelType.DES);
@@ -484,6 +486,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		super(file, PREFIX);
 		this.instancePrefix = instancePrefix;
 		this.modelItems = new TreeSet<>();
+		this.parameterWrappers = new TreeMap<>();
 		OSDiWrapper.setCurrentWrapper(this, workingModelName);
 	}
 
@@ -496,6 +499,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		super(path, PREFIX);
 		this.instancePrefix = instancePrefix;
 		this.modelItems = new TreeSet<>();
+		this.parameterWrappers = new TreeMap<>();
 		OSDiWrapper.setCurrentWrapper(this, workingModelName);
 	}
 
@@ -512,6 +516,26 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public static void setCurrentWrapper(OSDiWrapper currentWrapper, String workingModelName) {
 		OSDiWrapper.currentWrapper = currentWrapper;
 		currentWrapper.setWorkingModelInstance(workingModelName);
+	}
+
+	/**
+	 * @param paramName
+	 * @return
+	 */
+	public ParameterWrapper getParameterWrapper(String paramName) {
+		return parameterWrappers.get(paramName);
+	}
+
+	/**
+	 * @param paramName
+	 * @param value
+	 * @return
+	 */
+	public boolean addParameterWrapper(String paramName, ParameterWrapper wrapper) {
+		if (parameterWrappers.containsKey(paramName))
+			return false;
+		parameterWrappers.put(paramName, wrapper);
+		return true;
 	}
 
 	/**

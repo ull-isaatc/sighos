@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -19,13 +20,12 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.builders.DiseaseBuilder;
+import es.ull.iis.simulation.hta.osdi.builders.PopulationBuilder;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.DataItemType;
+import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
-import es.ull.iis.simulation.hta.params.DescribesParameter;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
@@ -38,13 +38,6 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	public static final JexlEngine JEXL = new JexlBuilder().create();
 	private final OSDiWrapper wrap; 
 	private final int year;
-
-	// TODO: Check if this structure is useful, because there are multiple mappings for the same DataItem
-	private final static TreeMap<OSDiWrapper.DataItemType, DescribesParameter> dataItemMap = new TreeMap<>();
-	
-	static {
-		dataItemMap.put(DataItemType.DI_PROPORTION, ProbabilityParamDescriptions.PROPORTION);
-	}
 	/**
 	 * 
 	 * @param nRuns
@@ -62,7 +55,6 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	public OSDiGenericRepository(int nRuns, int nPatients, String path, String modelId, String instancePrefix) throws FileNotFoundException, JAXBException, IOException, TranspilerException, MalformedSimulationModelException, OWLOntologyCreationException, MalformedOSDiModelException {
 		super(nRuns, nPatients);
 		wrap = new OSDiWrapper(path, modelId, instancePrefix);
-		
 		year = wrap.parseHasYearProperty(modelId);
 		
 		final ArrayList<String> methods = OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD.getValues(modelId);
