@@ -65,7 +65,7 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		
 		year = wrap.parseHasYearProperty(modelId);
 		
-		final ArrayList<String> methods = OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD.getValues(wrap, modelId);
+		final ArrayList<String> methods = OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD.getValues(modelId);
 		// Assuming that exactly one method was defined
 		if (methods.size() != 1)
 			throw new MalformedSimulationModelException("Exactly one disutility combination method must be specified for the model. Instead, " + methods.size() + " defined.");
@@ -77,19 +77,25 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		}
 
 		// Find the diseases that belong to the model
-		final Set<String> diseaseName = wrap.getIndividuals(OSDiWrapper.Clazz.DISEASE.getShortName(), true); 
+		final Set<String> diseaseName = OSDiWrapper.Clazz.DISEASE.getIndividuals(true); 
 		if (diseaseName.size() == 0)
 			throw new MalformedSimulationModelException("The model does not include any disease.");
 		else if (diseaseName.size() > 1)
 			wrap.printWarning("Found " + diseaseName.size() + " diseases included in the model. Only " + diseaseName.toArray()[0] + " will be used");
 		final Disease disease = DiseaseBuilder.getDiseaseInstance(this, (String)diseaseName.toArray()[0]);
+		
+		final Set<String> populationName = OSDiWrapper.Clazz.POPULATION.getIndividuals(true); 
+		if (populationName.size() == 0)
+			throw new MalformedSimulationModelException("The model does not include any population.");
+		else if (populationName.size() > 1)
+			wrap.printWarning("Found " + populationName.size() + " populations included in the model. Only " + populationName.toArray()[0] + " will be used");
+		setPopulation(PopulationBuilder.getPopulationInstance(this, disease, (String)populationName.toArray()[0]));
+		
 		// TODO: Adapt the rest to use the wrapper
 
-//		setPopulation(PopulationBuilder.getPopulationInstance(this, disease, populationId));
 		
 		// TODO: Death submodel should be context specific, depending on the population
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
-		
 		// Build interventions
 //		for (String interventionName : interventionsToCompare) {
 //			InterventionBuilder.getInterventionInstance(this, interventionName);
@@ -101,6 +107,24 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		return wrap;
 	}
 	
+	@Override
+	public void registerAllSecondOrderParams() {
+		super.registerAllSecondOrderParams();
+		registerEpidemiologicalParameters();
+	}
+	
+	private void registerEpidemiologicalParameters() {
+		String populationName = getPopulation().name();
+		// Gets all the epidemiological parameters related to the working model
+		final Set<String> epidemParams = OSDiWrapper.Clazz.EPIDEMIOLOGICAL_PARAMETER.getIndividuals(true);
+		// Gets the disease parameters that are epidemiological parameters
+		final Set<String> diseaseParams = OSDiWrapper.ObjectProperty.HAS_PARAMETER.getValues(populationName);
+		diseaseParams.retainAll(epidemParams);
+		// Processes and register the epidemiological parameters related to the disease
+		for (String paramName : diseaseParams) {
+			
+		}
+	}
 	/**
 	 * For testing (currently not working in the test package for unknown reasons)
 	 * @param args

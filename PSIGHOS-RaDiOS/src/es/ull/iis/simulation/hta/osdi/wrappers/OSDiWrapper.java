@@ -45,6 +45,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public final static String STR_UTILITY_SUFFIX = STR_SEP + "U";
 	private final static TreeMap<Clazz, ModelType> reverseModelType = new TreeMap<>(); 
 	private final static TreeMap<Clazz, InterventionType> reverseInterventionType = new TreeMap<>(); 
+	public static OSDiWrapper currentWrapper = null;
 
 	static {
 		reverseModelType.put(Clazz.DISCRETE_EVENT_SIMULATION_MODEL, ModelType.DES);
@@ -202,30 +203,55 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		TREATMENT("Treatment"),
 		UTILITY("Utility"),
 		VALUABLE("Valuable");
+		/** The short name that is used as IRI of this class in the ontology */
 		private final String shortName;
 		private Clazz(String shortName) {
 			this.shortName = shortName;
 		}
+		
 		/**
-		 * @return the shortName
+		 * Returns a short name that is used as IRI of this class in the ontology.
+		 * @return the short name that is used as IRI of this class in the ontology.
 		 */
 		public String getShortName() {
 			return shortName;
 		}
-		
-		public void add(OSDiWrapper wrap, String individualIRI) {
-			wrap.addIndividual(shortName, individualIRI);
+
+		/**
+		 * Creates a new individual that belongs to this class.
+		 * @param individualIRI Unique identifier for the individual.
+		 */
+		public void add(String individualIRI) {
+			currentWrapper.addIndividual(shortName, individualIRI);
 		}		
 		
-		public Set<String> getIndividuals(OSDiWrapper wrap) {
-			return getIndividuals(wrap, false);
+		/**
+		 * Returns the individuals defined for this class. 
+		 * @return the individuals defined for this class.
+		 */
+		public Set<String> getIndividuals() {
+			return getIndividuals(false);
 		}
 
-		public Set<String> getIndividuals(OSDiWrapper wrap, boolean restrictToWorkingModel) {
-			final Set<String> results = wrap.getIndividuals(shortName);
+		/**
+		 * Returns the individuals defined for this class. If restrictToWorkingModel is enabled, only returns those individuals that belong to the working model
+		 * @param restrictToWorkingModel Restricts the results to those individuals that belong to the working model 
+		 * @return the individuals defined for this class.
+		 */
+		public Set<String> getIndividuals(boolean restrictToWorkingModel) {
+			final Set<String> results = currentWrapper.getIndividuals(shortName);
 			if (restrictToWorkingModel)
-				results.retainAll(wrap.modelItems);
+				results.retainAll(currentWrapper.modelItems);
 			return results;
+		}
+		
+		/**
+		 * Returns true if the specified individual is an instance of this class (or any of its subclasses)
+		 * @param individualIRI The IRI of an individual in the ontology
+		 * @return true if the specified individual is an instance of this class (or any of its subclasses)
+		 */
+		public boolean containsIntance(String individualIRI) {
+			return currentWrapper.isInstanceOf(individualIRI, shortName);
 		}
 	}
 
@@ -274,27 +300,27 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			return shortName;
 		}
 		
-		public void add(OSDiWrapper wrap, String individualIRI, String value) {
+		public void add(String individualIRI, String value) {
 			if(!("".equals(value))) {
-				wrap.addDataPropertyValue(individualIRI, shortName, value);
+				currentWrapper.addDataPropertyValue(individualIRI, shortName, value);
 			}
 		}
 		
-		public void add(OSDiWrapper wrap, String individualIRI, String value, OWL2Datatype dataType) {
+		public void add(String individualIRI, String value, OWL2Datatype dataType) {
 			if(!("".equals(value))) {
-				wrap.addDataPropertyValue(individualIRI, shortName, value, dataType);
+				currentWrapper.addDataPropertyValue(individualIRI, shortName, value, dataType);
 			}
 		}
 
-		public String getValue(OSDiWrapper wrap, String individualIRI, String defaultValue) {
-			ArrayList<String> values = getValues(wrap, individualIRI);
+		public String getValue(String individualIRI, String defaultValue) {
+			ArrayList<String> values = getValues(individualIRI);
 			if (values.size() == 0)
 				return defaultValue;
 			return values.get(0);
 		}
 
-		public ArrayList<String> getValues(OSDiWrapper wrap, String individualIRI) {
-			return wrap.getDataPropertyValue(individualIRI, shortName);
+		public ArrayList<String> getValues(String individualIRI) {
+			return currentWrapper.getDataPropertyValue(individualIRI, shortName);
 		}
 	}
 
@@ -375,37 +401,36 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			return shortName;
 		}
 	
-		public void add(OSDiWrapper wrap, String srcIndividualIRI, String destIndividualIRI) {
-			wrap.addObjectPropertyValue(srcIndividualIRI, shortName, destIndividualIRI);
+		public void add(String srcIndividualIRI, String destIndividualIRI) {
+			currentWrapper.addObjectPropertyValue(srcIndividualIRI, shortName, destIndividualIRI);
 		}
 
 		/**
 		 * Returns only the first value for the object property of the specified individual. If more than one are defined, prints a warning
-		 * @param wrap A wrapper for the ontology
 		 * @param individualIRI A specific individual in the ontology
 		 * @return only the first value for the object property of the specified individual; null if non defined.
 		 */
-		public String getValue(OSDiWrapper wrap, String individualIRI) {
-			return getValue(wrap, individualIRI, false);
+		public String getValue(String individualIRI) {
+			return getValue(individualIRI, false);
 		}
 		
-		public String getValue(OSDiWrapper wrap, String individualIRI, boolean restrictToWorkingModel) {
-			Set<String> values = getValues(wrap, individualIRI, restrictToWorkingModel);
+		public String getValue(String individualIRI, boolean restrictToWorkingModel) {
+			Set<String> values = getValues(individualIRI, restrictToWorkingModel);
 			if (values.size() > 1)
-				wrap.printWarning(individualIRI, this, "Found more than one value for the object property. Using only " + values.toArray()[0]);
+				currentWrapper.printWarning(individualIRI, this, "Found more than one value for the object property. Using only " + values.toArray()[0]);
 			if (values.size() == 0)
 				return null;
 			return (String)values.toArray()[0];
 		}
 		
-		public Set<String> getValues(OSDiWrapper wrap, String individualIRI) {
-			return getValues(wrap, individualIRI, false);
+		public Set<String> getValues(String individualIRI) {
+			return getValues(individualIRI, false);
 		}
 		
-		public Set<String> getValues(OSDiWrapper wrap, String individualIRI, boolean restrictToWorkingModel) {
-			final Set<String> results = wrap.getObjectPropertyValue(individualIRI, shortName);
+		public Set<String> getValues(String individualIRI, boolean restrictToWorkingModel) {
+			final Set<String> results = currentWrapper.getObjectPropertyValue(individualIRI, shortName);
 			if (restrictToWorkingModel)
-				results.retainAll(wrap.modelItems);
+				results.retainAll(currentWrapper.modelItems);
 			return results;
 		}
 	}
@@ -451,6 +476,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	}
 
 	/**
+	 * Creating an OSDi wrapper, by default initializes the static property currentWrapper to this instance.
 	 * @param file
 	 * @throws OWLOntologyCreationException
 	 */
@@ -458,10 +484,11 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		super(file, PREFIX);
 		this.instancePrefix = instancePrefix;
 		this.modelItems = new TreeSet<>();
-		setWorkingModelInstance(workingModelName);
+		OSDiWrapper.setCurrentWrapper(this, workingModelName);
 	}
 
 	/**
+	 * Creating an OSDi wrapper, by default initializes the static property currentWrapper to this instance.
 	 * @param path
 	 * @throws OWLOntologyCreationException
 	 */
@@ -469,7 +496,22 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		super(path, PREFIX);
 		this.instancePrefix = instancePrefix;
 		this.modelItems = new TreeSet<>();
-		setWorkingModelInstance(workingModelName);
+		OSDiWrapper.setCurrentWrapper(this, workingModelName);
+	}
+
+	/**
+	 * @return the currentWrapper
+	 */
+	public static OSDiWrapper getCurrentWrapper() {
+		return currentWrapper;
+	}
+
+	/**
+	 * @param currentWrapper the currentWrapper to set
+	 */
+	public static void setCurrentWrapper(OSDiWrapper currentWrapper, String workingModelName) {
+		OSDiWrapper.currentWrapper = currentWrapper;
+		currentWrapper.setWorkingModelInstance(workingModelName);
 	}
 
 	/**
@@ -482,7 +524,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public void setWorkingModelInstance(String workingModelName) {
 		this.workingModelInstance = instancePrefix + workingModelName;
 		modelItems.clear();
-		modelItems.addAll(ObjectProperty.INCLUDES_MODEL_ITEM.getValues(this, this.workingModelInstance));
+		modelItems.addAll(ObjectProperty.INCLUDES_MODEL_ITEM.getValues(this.workingModelInstance));
 	}
 	
 	public static DataItemType getDataItemType(String individualIRI) {
@@ -534,47 +576,47 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	}
 	
 	public void createValuable(String instanceName, Clazz clazz, String source, String expression, DataItemType dataType) {
-		clazz.add(this, instanceName);
-		ObjectProperty.HAS_DATA_ITEM_TYPE.add(this, instanceName, dataType.getInstanceName());
-		DataProperty.HAS_SOURCE.add(this, instanceName, source);
-		DataProperty.HAS_EXPRESSION.add(this, instanceName, expression);		
+		clazz.add(instanceName);
+		ObjectProperty.HAS_DATA_ITEM_TYPE.add(instanceName, dataType.getInstanceName());
+		DataProperty.HAS_SOURCE.add(instanceName, source);
+		DataProperty.HAS_EXPRESSION.add(instanceName, expression);		
 		includeInModel(instanceName);
 	}
 	
 	public void createParameter(String instanceName, Clazz clazz, String description, String source, int year, String expression, DataItemType dataType) {
 		createValuable(instanceName, clazz, source, expression, dataType);
-		DataProperty.HAS_DESCRIPTION.add(this, instanceName, description);
-		DataProperty.HAS_YEAR.add(this, instanceName, "" + year);
+		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
+		DataProperty.HAS_YEAR.add(instanceName, "" + year);
 	}
 
 	public void createAttributeValue(String instanceName, String attributeInstanceName, String source, String expression, DataItemType dataType) {
 		createValuable(instanceName, Clazz.ATTRIBUTE_VALUE, source, expression, dataType);
-		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(this, instanceName, attributeInstanceName);
+		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(instanceName, attributeInstanceName);
 	}
 	
 	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, DataItemType currency) {
 		createParameter(instanceName, Clazz.COST, description, source, year, expression, currency);
-		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, instanceName, tmpBehavior.getShortName());
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 	}
 	
 	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, DataItemType currency) {
 		createCost(instanceName, description, source, tmpBehavior, year, deterministic, currency);
 		if (uncertainty != null && !("".equals(uncertainty))) {
 			createParameter(instanceName + STR_UNCERTAINTY_SUFFIX, Clazz.COST, description, source, year, uncertainty, currency);
-			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, instanceName, tmpBehavior.getShortName());
+			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 		}
 	}
 
 	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, UtilityType utilityType) {
 		createParameter(instanceName, Clazz.UTILITY, description, source, year, expression, utilityType.getType());
-		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, instanceName, tmpBehavior.getShortName());
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 	}
 	
 	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, UtilityType utilityType) {
 		createUtility(instanceName, description, source, tmpBehavior, year, deterministic, utilityType);
 		if (uncertainty != null && !("".equals(uncertainty))) {
 			createParameter(instanceName + STR_UNCERTAINTY_SUFFIX, Clazz.UTILITY, description, source, year, uncertainty, utilityType.getType());
-			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(this, instanceName, tmpBehavior.getShortName());
+			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 		}
 	}
 	
@@ -589,58 +631,58 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	 * @param reference
 	 */
 	public void createWorkingModel(ModelType type, String author, String description, String geoContext, int year, String reference) {
-		type.getClazz().add(this, workingModelInstance);
-		DataProperty.HAS_AUTHOR.add(this, workingModelInstance, author);
-		DataProperty.HAS_DESCRIPTION.add(this, workingModelInstance, description);
-		DataProperty.HAS_GEOGRAPHICAL_CONTEXT.add(this, workingModelInstance, geoContext);
-		DataProperty.HAS_REF_TO.add(this, workingModelInstance, reference);
-		DataProperty.HAS_YEAR.add(this, workingModelInstance, "" + year);		
+		type.getClazz().add(workingModelInstance);
+		DataProperty.HAS_AUTHOR.add(workingModelInstance, author);
+		DataProperty.HAS_DESCRIPTION.add(workingModelInstance, description);
+		DataProperty.HAS_GEOGRAPHICAL_CONTEXT.add(workingModelInstance, geoContext);
+		DataProperty.HAS_REF_TO.add(workingModelInstance, reference);
+		DataProperty.HAS_YEAR.add(workingModelInstance, "" + year);		
 	}
 
 	public void createDisease(String instanceName, String description, String refToDO, String refToICD, String refToOMIM, String refToSNOMED) {
-		Clazz.DISEASE.add(this, instanceName);		
-		DataProperty.HAS_DESCRIPTION.add(this, instanceName, description);
-		DataProperty.HAS_REF_TO_DO.add(this,  instanceName, refToDO);
-		DataProperty.HAS_REF_TO_ICD.add(this,  instanceName, refToICD);
-		DataProperty.HAS_REF_TO_OMIM.add(this,  instanceName, refToOMIM);
-		DataProperty.HAS_REF_TO_SNOMED.add(this,  instanceName, refToSNOMED);
+		Clazz.DISEASE.add(instanceName);		
+		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
+		DataProperty.HAS_REF_TO_DO.add(instanceName,  refToDO);
+		DataProperty.HAS_REF_TO_ICD.add(instanceName,  refToICD);
+		DataProperty.HAS_REF_TO_OMIM.add(instanceName,  refToOMIM);
+		DataProperty.HAS_REF_TO_SNOMED.add(instanceName,  refToSNOMED);
 		includeInModel(instanceName);
 	}
 	
 	public void createManifestation(String instanceName, ManifestationType type, String description, Set<String> exclusions, String diseaseInstanceName) {
-		type.getClazz().add(this, instanceName);		
-		DataProperty.HAS_DESCRIPTION.add(this, instanceName, description);
-		ObjectProperty.HAS_MANIFESTATION.add(this, diseaseInstanceName, instanceName);
+		type.getClazz().add(instanceName);		
+		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
+		ObjectProperty.HAS_MANIFESTATION.add(diseaseInstanceName, instanceName);
 		includeInModel(instanceName);
 		for (String excludedManif : exclusions) {
-			ObjectProperty.EXCLUDES_MANIFESTATION.add(this, instanceName, getManifestationInstanceName(excludedManif));
+			ObjectProperty.EXCLUDES_MANIFESTATION.add(instanceName, getManifestationInstanceName(excludedManif));
 		}
 	}
 	
 	public void createGroupOfManifestations(String instanceName, Set<String> manifestationNames) {
-		Clazz.GROUP.add(this, instanceName);
+		Clazz.GROUP.add(instanceName);
 		includeInModel(instanceName);
 		for (String manifestation : manifestationNames) {
-			ObjectProperty.HAS_COMPONENT.add(this, instanceName, getManifestationInstanceName(manifestation));			
-			ObjectProperty.BELONGS_TO_GROUP.add(this, getManifestationInstanceName(manifestation), instanceName);			
+			ObjectProperty.HAS_COMPONENT.add(instanceName, getManifestationInstanceName(manifestation));			
+			ObjectProperty.BELONGS_TO_GROUP.add(getManifestationInstanceName(manifestation), instanceName);			
 		}
 	}
 	
 	public void createPopulation(String instanceName, String description, double minAge, double maxAge, int size, int year) {
-		Clazz.POPULATION.add(this, instanceName);
-		DataProperty.HAS_DESCRIPTION.add(this, instanceName, description);
-		DataProperty.HAS_MIN_AGE.add(this, instanceName, "" + minAge);
-		DataProperty.HAS_MAX_AGE.add(this, instanceName, "" + maxAge);
-		DataProperty.HAS_SIZE.add(this, instanceName, "" + size);
-		DataProperty.HAS_YEAR.add(this, instanceName, "" + year);
+		Clazz.POPULATION.add(instanceName);
+		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
+		DataProperty.HAS_MIN_AGE.add(instanceName, "" + minAge);
+		DataProperty.HAS_MAX_AGE.add(instanceName, "" + maxAge);
+		DataProperty.HAS_SIZE.add(instanceName, "" + size);
+		DataProperty.HAS_YEAR.add(instanceName, "" + year);
 		
 		includeInModel(instanceName);
 		
 	}
 	
 	private void includeInModel(String instanceName) {
-		ObjectProperty.INCLUDED_BY_MODEL.add(this, instanceName, workingModelInstance);
-		ObjectProperty.INCLUDES_MODEL_ITEM.add(this, workingModelInstance, instanceName);
+		ObjectProperty.INCLUDED_BY_MODEL.add(instanceName, workingModelInstance);
+		ObjectProperty.INCLUDES_MODEL_ITEM.add(workingModelInstance, instanceName);
 	}
 	
 	public Set<String> getClassesForIndividual(String individualIRI) {
@@ -695,7 +737,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	 */
 	public int parseHasYearProperty(String individualIRI) {
 		int currentYear = Year.now().getValue();
-		final String strYear = OSDiWrapper.DataProperty.HAS_YEAR.getValue(this, individualIRI, "" + currentYear);
+		final String strYear = OSDiWrapper.DataProperty.HAS_YEAR.getValue(individualIRI, "" + currentYear);
 		try {
 			currentYear = Integer.parseInt(strYear);
 		} catch(NumberFormatException ex) {
@@ -730,7 +772,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			for (String str : wrap.getClassesForIndividual("T1DM_StdModelDES"))
 				System.out.println(str);
 			System.out.println("TESTING ACCESSING TO DATA PROPERTIES");
-			System.out.println(DataProperty.HAS_REF_TO.getValue(wrap, "T1DM_StdModelDES", "NOPE!"));
+			System.out.println(DataProperty.HAS_REF_TO.getValue("T1DM_StdModelDES", "NOPE!"));
 //			for (String str : DataProperty.HAS_REF_TO_SNOMED.getValues(wrap, "T1DM_Disease")) {
 //				System.out.println(str);
 //			}

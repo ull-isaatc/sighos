@@ -31,7 +31,7 @@ public interface ManifestationBuilder {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		
 		Manifestation manifestation = null;
-		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(wrap, manifestationName, "");
+		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(manifestationName, "");
 		final Set<String> manifClazz = wrap.getClassesForIndividual(manifestationName);
 		if (manifClazz.contains(OSDiWrapper.Clazz.ACUTE_MANIFESTATION.getShortName())) {
 			manifestation = new AcuteManifestation(secParams, manifestationName, description, disease) {
@@ -68,7 +68,7 @@ public interface ManifestationBuilder {
 	
 
 	private static void createOnsetEndAgeParams(OSDiWrapper wrap, Manifestation manifestation) throws MalformedOSDiModelException {
-		final String onsetAge = OSDiWrapper.ObjectProperty.HAS_ONSET_AGE.getValue(wrap, manifestation.name(), true);
+		final String onsetAge = OSDiWrapper.ObjectProperty.HAS_ONSET_AGE.getValue(manifestation.name(), true);
 		if (onsetAge != null) {
 			try {
 				final ParameterWrapper param = new ParameterWrapper(wrap, onsetAge, 0);
@@ -77,7 +77,7 @@ public interface ManifestationBuilder {
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, manifestation.name(), OSDiWrapper.ObjectProperty.HAS_ONSET_AGE, "Error parsing manifestation. Caused by ", ex);
 			}
 		}
-		final String endAge = OSDiWrapper.ObjectProperty.HAS_END_AGE.getValue(wrap, manifestation.name(), true);
+		final String endAge = OSDiWrapper.ObjectProperty.HAS_END_AGE.getValue(manifestation.name(), true);
 		if (endAge != null) {
 			try {
 				final ParameterWrapper param = new ParameterWrapper(wrap, endAge, 0);
@@ -113,7 +113,7 @@ public interface ManifestationBuilder {
 	 * FIXME: Make a comprehensive error control of cost types for each type of manifestation 
 	 */
 	public static void createCostParams(OSDiWrapper wrap, Manifestation manifestation) throws MalformedOSDiModelException {
-		final Set<String> costs = OSDiWrapper.ObjectProperty.HAS_COST.getValues(wrap, manifestation.name(), true);
+		final Set<String> costs = OSDiWrapper.ObjectProperty.HAS_COST.getValues(manifestation.name(), true);
 		// Checking coherence of number of costs and the type of manifestation		
 		boolean acute = Manifestation.Type.ACUTE.equals(manifestation.getType());
 		if (acute) {
@@ -163,7 +163,7 @@ public interface ManifestationBuilder {
 	 * FIXME: Make a comprehensive error control of utility types for each type of manifestation 
 	 */
 	public static void createUtilityParams(OSDiWrapper wrap, Manifestation manifestation) throws MalformedOSDiModelException {
-		final Set<String> utilities = OSDiWrapper.ObjectProperty.HAS_UTILITY.getValues(wrap, manifestation.name(), true);
+		final Set<String> utilities = OSDiWrapper.ObjectProperty.HAS_UTILITY.getValues(manifestation.name(), true);
 		
 		boolean acute = Manifestation.Type.ACUTE.equals(manifestation.getType());
 		if (acute) {
@@ -183,7 +183,7 @@ public interface ManifestationBuilder {
 	}
 	
 	private static void addProbabilityParam(OSDiWrapper wrap, Manifestation manifestation, OSDiWrapper.ObjectProperty objProperty, ProbabilityParamDescriptions paramDescription, double defaultValue) throws MalformedOSDiModelException {
-		final String paramName = objProperty.getValue(wrap, manifestation.name(), true);
+		final String paramName = objProperty.getValue(manifestation.name(), true);
 		if (paramName != null) {
 			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, defaultValue);			
 			paramDescription.addParameter(manifestation.getRepository(), manifestation, param.getSource(), 
@@ -192,7 +192,7 @@ public interface ManifestationBuilder {
 	}
 
 	private static void addOtherParam(OSDiWrapper wrap, Manifestation manifestation, OSDiWrapper.ObjectProperty objProperty, OtherParamDescriptions paramDescription, double defaultValue) throws MalformedOSDiModelException {
-		final String paramName = objProperty.getValue(wrap, manifestation.name(), true);
+		final String paramName = objProperty.getValue(manifestation.name(), true);
 		if (paramName != null) {
 			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, defaultValue);			
 			paramDescription.addParameter(manifestation.getRepository(), manifestation, param.getSource(), 

@@ -74,7 +74,9 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	/** The collection of defined developments */
 	final protected ArrayList<Development> registeredDevelopments;
 	
-	/** The death submodel to be used */
+	/** The death submodel to be used 
+	 * TODO: Conceptually, the death submodel should be linked to the population, not to the repository
+	 * */
 	protected DeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
 	final protected ArrayList<Intervention> registeredInterventions;

@@ -15,6 +15,7 @@ import simkit.random.RandomVariate;
  */
 public class ValuableWrapper {
 	private final OSDiWrapper wrap;
+	private final String paramId;
 	private final String source;
 	private double deterministicValue;
 	private RandomVariate probabilisticValue;
@@ -26,11 +27,12 @@ public class ValuableWrapper {
 	 */
 	public ValuableWrapper(OSDiWrapper wrap, String paramId, double defaultDetValue) throws MalformedOSDiModelException {
 		this.wrap = wrap;
+		this.paramId = paramId;
 		source = parseHasSourceProperty(paramId);
 		deterministicValue = parseExpressionPropertyAsValue(paramId, defaultDetValue);
 		// Takes the stochastic uncertainty that characterizes this parameter, but only if it's included in the working model 
-		final Set<String> stochasticUncertainty = OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY.getValues(wrap, paramId, true);
-		final Set<String> heterogeneity = OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY.getValues(wrap, paramId, true);
+		final Set<String> stochasticUncertainty = OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY.getValues(paramId, true);
+		final Set<String> heterogeneity = OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY.getValues(paramId, true);
 		if (stochasticUncertainty.size() > 0) {
 			if (stochasticUncertainty.size() > 1) {
 				wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Found more than one stochastic uncertainty characterization for a parameter. Using " + stochasticUncertainty.toArray()[0]);
@@ -52,7 +54,7 @@ public class ValuableWrapper {
 			}
 		}
 
-		Set<String> types = OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE.getValues(wrap, paramId);
+		Set<String> types = OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE.getValues(paramId);
 		// Type assumed to be utility if not specified
 		if (types.size() == 0) {
 			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item type not specified for parameter. Assigning UNDEFINED");
@@ -64,6 +66,13 @@ public class ValuableWrapper {
 			dataItemType = OSDiWrapper.getDataItemType((String) types.toArray()[0]);
 			
 		}
+	}
+
+	/**
+	 * @return the paramId
+	 */
+	public String getParamId() {
+		return paramId;
 	}
 
 	/**
@@ -118,11 +127,11 @@ public class ValuableWrapper {
 	 * @return a double representation of the hasExpression data property for an individual
 	 */
 	public double parseExpressionPropertyAsValue(String individualIRI, double defaultValue) {
-		if (OSDiWrapper.DataProperty.HAS_EXPRESSION.getValues(wrap, individualIRI).size() == 0) {
+		if (OSDiWrapper.DataProperty.HAS_EXPRESSION.getValues(individualIRI).size() == 0) {
 			wrap.printWarning(individualIRI, OSDiWrapper.DataProperty.HAS_EXPRESSION, "Expression for parameter not defined. Using " + defaultValue + " instead");
 			return defaultValue;
 		}
-		final String strValue = OSDiWrapper.DataProperty.HAS_EXPRESSION.getValue(wrap, individualIRI, "" + defaultValue);
+		final String strValue = OSDiWrapper.DataProperty.HAS_EXPRESSION.getValue(individualIRI, "" + defaultValue);
 		try {
 			return Double.parseDouble(strValue);
 		} catch(NumberFormatException ex) {
@@ -132,7 +141,7 @@ public class ValuableWrapper {
 	}
 	
 	public RandomVariate parseExpressionPropertyAsProbabilityDistribution(String individualIRI) throws MalformedOSDiModelException {
-		final String strValue = OSDiWrapper.DataProperty.HAS_EXPRESSION.getValue(wrap, individualIRI, "");
+		final String strValue = OSDiWrapper.DataProperty.HAS_EXPRESSION.getValue(individualIRI, "");
 		if (strValue == "")
 			return null;
 		return ProbabilityDistribution.getInstanceFromExpression(strValue);		
@@ -144,7 +153,7 @@ public class ValuableWrapper {
 	 * @return the hasSource data property of an individual. If the property is not defined, returns "Unknown"
 	 */
 	public String parseHasSourceProperty(String individualIRI) {
-		return OSDiWrapper.DataProperty.HAS_SOURCE.getValue(wrap, individualIRI, "Unknown");
+		return OSDiWrapper.DataProperty.HAS_SOURCE.getValue(individualIRI, "Unknown");
 	}
 	
 }

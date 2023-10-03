@@ -31,7 +31,7 @@ public interface InterventionBuilder {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		if (DO_NOTHING.equals(interventionName))
 			return new DoNothingIntervention(secParams);
-		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(wrap, interventionName, "");
+		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(interventionName, "");
 		final Set<String> superclasses = wrap.getClassesForIndividual(interventionName);
 		Intervention intervention = null;
 		// TODO: Populate different methods for different interventions
@@ -142,7 +142,7 @@ public interface InterventionBuilder {
 	
 	private static void createSpecificityAndSensitivity(OSDiGenericRepository secParams, ScreeningIntervention intervention) throws TranspilerException {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
-		String strSensitivity = DataProperty.HAS_SENSITIVITY.getValue(helper, intervention.name(), "1.0");
+		String strSensitivity = DataProperty.HAS_SENSITIVITY.getValue("1.0");
 		try {
 			final ProbabilityDistribution probSensitivity = new ProbabilityDistribution(strSensitivity);
 			ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, "",  
@@ -151,7 +151,7 @@ public interface InterventionBuilder {
 			throw new TranspilerException(OSDiNames.Class.INTERVENTION, intervention.name(), OSDiNames.DataProperty.HAS_SENSITIVITY, strSensitivity, ex);
 		}
 
-		String strSpecificity = DataProperty.HAS_SPECIFICITY.getValue(helper, intervention.name(), "1.0");
+		String strSpecificity = DataProperty.HAS_SPECIFICITY.getValue("1.0");
 		try {
 			final ProbabilityDistribution probSpecificity = new ProbabilityDistribution(strSpecificity);
 			ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, intervention, "",  
@@ -164,10 +164,10 @@ public interface InterventionBuilder {
 	private static void createModificationParams(OSDiGenericRepository secParams, Intervention intervention) throws TranspilerException {
 		final OwlHelper helper = secParams.getOwlHelper();		
 		// Collects the modifications associated to the specified intervention
-		List<String> modifications = OSDiNames.ObjectProperty.INVOLVES_MODIFICATION.getValues(helper, intervention.name());
+		List<String> modifications = OSDiNames.ObjectProperty.INVOLVES_MODIFICATION.getValues(intervention.name());
 		for (String modificationName : modifications) {			
 			// Parse the modification kind
-			final String strKind = OSDiNames.DataProperty.HAS_MODIFICATION_KIND.getValue(helper, modificationName, OSDiNames.DataPropertyRange.MODIFICATION_KIND_SET.getDescription());
+			final String strKind = OSDiNames.DataProperty.HAS_MODIFICATION_KIND.getValue(OSDiNames.DataPropertyRange.MODIFICATION_KIND_SET.getDescription());
 			// I assume that modification kinds are equivalent to those defined in Modificaton.Type
 			Modification.Type kind = null;
 			try {
@@ -175,11 +175,11 @@ public interface InterventionBuilder {
 			} catch(IllegalArgumentException ex) {
 				throw new TranspilerException(OSDiNames.Class.MODIFICATION, modificationName, OSDiNames.DataProperty.HAS_MODIFICATION_KIND, strKind);
 			}
-			final String strDescription = OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(helper, modificationName, "");			
+			final String strDescription = OSDiNames.DataProperty.HAS_DESCRIPTION.getValue("");			
 			// Get the source, if specified
-			final String strSource = OSDiNames.DataProperty.HAS_SOURCE.getValue(helper, modificationName, "");
+			final String strSource = OSDiNames.DataProperty.HAS_SOURCE.getValue("");
 			// Parse the value
-			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, modificationName);
+			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(modificationName);
 			ProbabilityDistribution probDistribution;
 			try {
 				probDistribution = new ProbabilityDistribution(strValue);
@@ -188,22 +188,22 @@ public interface InterventionBuilder {
 			}
 			
 			// If it is modifying an individual parameter, the processing is different
-			List<String> modifiedItems = OSDiNames.ObjectProperty.MODIFIES_INDIVIDUAL_PARAMETER.getValues(helper, modificationName);
+			List<String> modifiedItems = OSDiNames.ObjectProperty.MODIFIES_INDIVIDUAL_PARAMETER.getValues(modificationName);
 			for (String indParamName : modifiedItems) {
-				final String name = OSDiNames.DataProperty.HAS_NAME.getValue(helper, indParamName);
+				final String name = OSDiNames.DataProperty.HAS_NAME.getValue(indParamName);
 				intervention.addClinicalParameterModification(name, new Modification(secParams, kind, SecondOrderParamsRepository.getModificationString(intervention, name), strDescription,
 						strSource, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue()));
 			}
 			
 			// Parse the property which is modified
-			final List<String> strProperties = OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED.getValues(helper, modificationName);
+			final List<String> strProperties = OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED.getValues(modificationName);
 			for (String strProperty : strProperties) {
 				final OSDiNames.DataProperty property = OSDiNames.DATA_PROPERTY_MAP.get(strProperty);
 				if (property == null) {
 					throw new TranspilerException(OSDiNames.Class.MODIFICATION, modificationName, OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED, strProperty);
 				}
 				// Process modifications that affect the development
-				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_DEVELOPMENT.getValues(helper, modificationName);
+				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_DEVELOPMENT.getValues(modificationName);
 				for (String developmentName : modifiedItems) {
 					switch(property) {
 					case HAS_LIFE_EXPECTANCY:
@@ -215,7 +215,7 @@ public interface InterventionBuilder {
 					}
 				}
 				// Then process modifications that affect to specific manifestations
-				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_MANIFESTATION.getValues(helper, modificationName);
+				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_MANIFESTATION.getValues(modificationName);
 				for (String manifestationName : modifiedItems) {
 					final Manifestation manif = secParams.getManifestationByName(manifestationName);
 					switch(property) {
@@ -236,9 +236,9 @@ public interface InterventionBuilder {
 					}
 				}
 				// And finally process modifications that affect to specific manifestation pathways
-				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_MANIFESTATION_PATHWAY.getValues(helper, modificationName);
+				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_MANIFESTATION_PATHWAY.getValues(modificationName);
 				for (String manifPathwayName : modifiedItems) {
-					final List<String> manifestationNames = OSDiNames.ObjectProperty.IS_PATHWAY_TO.getValues(helper, manifPathwayName);
+					final List<String> manifestationNames = OSDiNames.ObjectProperty.IS_PATHWAY_TO.getValues(manifPathwayName);
 					switch(property) {
 					case HAS_PROBABILITY:
 						for (String manifestationName : manifestationNames) {

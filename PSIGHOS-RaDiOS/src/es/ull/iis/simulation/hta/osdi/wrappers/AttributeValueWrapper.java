@@ -17,7 +17,7 @@ public class AttributeValueWrapper extends ValuableWrapper {
 	 */
 	public AttributeValueWrapper(OSDiWrapper wrap, String attributeValueId, double defaultDetValue) throws MalformedOSDiModelException {
 		super(wrap, attributeValueId, defaultDetValue);
-		attributeId = OSDiWrapper.ObjectProperty.IS_VALUE_OF_ATTRIBUTE.getValue(wrap, attributeValueId);
+		attributeId = OSDiWrapper.ObjectProperty.IS_VALUE_OF_ATTRIBUTE.getValue(attributeValueId);
 		
 	}
 	

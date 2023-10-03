@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.osdi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
@@ -12,7 +13,9 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
@@ -39,7 +42,7 @@ public interface PopulationBuilder {
 	 * @return
 	 */
 	public static StdPopulation getPopulationInstance(OSDiGenericRepository secParams, Disease disease, String populationName) throws MalformedSimulationModelException, MalformedOSDiModelException {
-		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(secParams.getOwlWrapper(), populationName, "");
+		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(populationName, "");
 		return new OSDiPopulation(secParams, disease, populationName, description);		
 	}
 	
@@ -54,23 +57,22 @@ public interface PopulationBuilder {
 		public OSDiPopulation(OSDiGenericRepository secParams, Disease disease, String populationName, String populationDescription) throws MalformedSimulationModelException, MalformedOSDiModelException {
 			super(secParams, populationName, populationDescription, disease);
 			final OSDiWrapper wrap = secParams.getOwlWrapper();
-			final String strMinAge = OSDiWrapper.DataProperty.HAS_MIN_AGE.getValue(wrap, populationName, "" + super.getMinAge());
+			final String strMinAge = OSDiWrapper.DataProperty.HAS_MIN_AGE.getValue(populationName, "" + super.getMinAge());
 			minAge = Integer.parseInt(strMinAge);
-			final String strMaxAge = OSDiWrapper.DataProperty.HAS_MAX_AGE.getValue(wrap, populationName, "" + super.getMaxAge());
+			final String strMaxAge = OSDiWrapper.DataProperty.HAS_MAX_AGE.getValue(populationName, "" + super.getMaxAge());
 			maxAge = Integer.parseInt(strMaxAge);
 			 // TODO: Currently we are only defining initially assigned attributes, i.e., attributes whose value does not change during the simulation 
 			// Process population age
-			final String ageAttribute = OSDiWrapper.ObjectProperty.HAS_AGE.getValue(wrap, populationName, true);
+			final String ageAttribute = OSDiWrapper.ObjectProperty.HAS_AGE.getValue(populationName, true);
 			ageWrapper = new AttributeValueWrapper(wrap, ageAttribute, minAge);
 			if (ageWrapper.getProbabilisticValue() == null) {
 				ageWrapper.setProbabilisticValue(RandomVariateFactory.getInstance("ConstantVariate", ageWrapper.getDeterministicValue()));
 			}
 			// Process population sex
-			final String sexAttribute = OSDiWrapper.ObjectProperty.HAS_SEX.getValue(wrap, populationName, true);
-			sexWrapper = new AttributeValueWrapper(wrap, ageAttribute, 0);
+			final String sexAttribute = OSDiWrapper.ObjectProperty.HAS_SEX.getValue(populationName, true);
+			sexWrapper = new AttributeValueWrapper(wrap, sexAttribute, 0);
 			if (sexWrapper.getProbabilisticValue() == null) {
-				// FIXME: cannot be ConstantVAriate because it is not a discrete variate
-				sexWrapper.setProbabilisticValue(RandomVariateFactory.getInstance("ConstantVariate", sexWrapper.getDeterministicValue()));
+				sexWrapper.setProbabilisticValue(RandomVariateFactory.getInstance("DiscreteConstantVariate", sexWrapper.getDeterministicValue()));
 			}
 			
 			this.hasPrevalence = false;
@@ -79,76 +81,73 @@ public interface PopulationBuilder {
 		
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-			final OSDiGenericRepository OSDiParams = ((OSDiGenericRepository)secParams); 
+			final OSDiGenericRepository OSDiParams = ((OSDiGenericRepository)getRepository()); 
 			final OSDiWrapper wrap = OSDiParams.getOwlWrapper();
-			try {
-				final String strPFemale = OSDiWrapper.DataProperty.HAS_FEMALE_PROPORTION.getValue(helper, name(), "0.5");
-				final ProbabilityDistribution pFemale = new ProbabilityDistribution(strPFemale);
-				ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, strFemaleParamName, "females in population " + name(), 
-						"",	pFemale.getDeterministicValue(), pFemale.getProbabilisticValue());
-				// Register epidemiologic parameters
-				List<String> epidemParams = OSDiNames.Class.EPIDEMIOLOGICAL_PARAMETER.getDescendantsOf(helper, name());
-				for (String paramName : epidemParams) {
-					final String type = OSDiNames.DataProperty.HAS_EPIDEMIOLOGICAL_PARAMETER_KIND.getValue(helper, paramName);
-					if (OSDiNames.DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_PREVALENCE.getDescription().equals(type)) {
-						registerEpidemParam(OSDiParams, paramName, ProbabilityParamDescriptions.PREVALENCE);
-						hasPrevalence = true;
-					}
-					else if (OSDiNames.DataPropertyRange.EPIDEMIOLOGICAL_PARAMETER_KIND_BIRTH_PREVALENCE.getDescription().equals(type)) {
-						registerEpidemParam(OSDiParams, paramName, ProbabilityParamDescriptions.BIRTH_PREVALENCE);
-						hasBirthPrevalence = true;
-					}
 
+			// Gets all the epidemiological parameters related to the working model
+			final Set<String> epidemParams = OSDiWrapper.Clazz.EPIDEMIOLOGICAL_PARAMETER.getIndividuals(true);
+			// Gets the population parameters that are epidemiological parameters
+			final Set<String> populationParams = OSDiWrapper.ObjectProperty.HAS_PARAMETER.getValues(name());
+			populationParams.retainAll(epidemParams);
+			try {
+				// Processes and register the epidemiological parameters related to the population
+				for (String paramName : populationParams) {
+					// Ignores parameters that are both parameters of the disease and a manifestation, since they are supposed to be processed in the corresponding manifestation
+					if (OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_MANIFESTATION.getValues(paramName, true).size() == 0) {
+						final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, 0.0);
+						// If the parameter is a prevalence
+						if (OSDiWrapper.Clazz.PREVALENCE.containsIntance(paramName)) {
+							if (hasPrevalence) {
+								wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_PARAMETER, "A population can define just one prevalence. Ignoring " + paramName);														
+							}
+							else {
+								hasPrevalence = true;
+								registerEpidemParam(OSDiParams, wrap, paramWrapper, ProbabilityParamDescriptions.PREVALENCE);
+							}
+						}
+						else if (OSDiWrapper.Clazz.BIRTH_PREVALENCE.containsIntance(paramName)) {
+							if (hasBirthPrevalence) {
+								wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_PARAMETER, "A population can define just one birth prevalence. Ignoring " + paramName);														
+							}
+							else {
+								hasBirthPrevalence = true;
+								registerEpidemParam(OSDiParams, wrap, paramWrapper, ProbabilityParamDescriptions.BIRTH_PREVALENCE);
+							}
+						}
+					}
 				}
 				registerUtilityParam(OSDiParams);
-			} catch(TranspilerException ex) {
-				System.err.println(ex.getMessage());
+			} catch (MalformedOSDiModelException e) {
+				e.printStackTrace();
 			}
 		}
+
 		
-		/**
-		 * Registers the base utility associated to the population by extracting the information from the ontology. 
-		 * @throws TranspilerException When there was a problem parsing the ontology
-		 */
-		private void registerUtilityParam(OSDiGenericRepository secParams) throws TranspilerException {
-			final OwlHelper helper = secParams.getOwlHelper();		
-			
-			List<String> utilities = OSDiNames.Class.UTILITY.getDescendantsOf(helper, name());
-			if (utilities.size() > 1)
-				throw new TranspilerException("Only one base utility should be associated to the population \"" + name() + "\". Instead, " + utilities.size() + " found");
-			for (String utilityName : utilities) {
-				// Assumes annual behavior if not specified
-				final String strTempBehavior = OSDiNames.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(helper, utilityName, OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription());
-				// Indeed, only annual behavior is valid 
-				if (!OSDiNames.DataPropertyRange.TEMPORAL_BEHAVIOR_ANNUAL.getDescription().equals(strTempBehavior))
-					throw new TranspilerException("Only utilities with annual temporal behavior should be associated to the population \"" + name() + "\". Instead, " + strTempBehavior + " found");
-				// Assumes that it is a utility (not a disutility) if not specified
-				final String strType = OSDiNames.DataProperty.HAS_UTILITY_KIND.getValue(helper, utilityName, OSDiNames.DataPropertyRange.UTILITY_KIND_UTILITY.getDescription());
-				// Only utilities can be used for populations
-				if (OSDiNames.DataPropertyRange.UTILITY_KIND_DISUTILITY.getDescription().equals(strType))
-					throw new TranspilerException("Only utilities should be associated to the population \"" + name() + "\". Instead, found a disutility");
-				// Default value is 1;
-				final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, utilityName, "1.0");
-				// Assumes a default calculation method specified in Constants if not specified
-				final String strCalcMethod = OSDiNames.DataProperty.HAS_CALCULATION_METHOD.getValue(helper, utilityName, "Unknown");
-				try {
-					final ProbabilityDistribution probDistribution = new ProbabilityDistribution(strValue);
-					UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, name(), OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(helper, utilityName, "Utility for " + name() + " calculated using " + strCalcMethod),  
-							OSDiNames.getSource(helper, utilityName), probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValueInitializedForCost());
-				} catch(TranspilerException ex) {
-					throw new TranspilerException(OSDiNames.Class.UTILITY, utilityName, OSDiNames.DataProperty.HAS_VALUE, strValue, ex);
+		
+		private void registerEpidemParam(OSDiGenericRepository secParams, OSDiWrapper wrap, ParameterWrapper paramWrapper, ProbabilityParamDescriptions secondOrderParam) {
+			final String paramName = paramWrapper.getParamId();
+			// The parameter should be related to both the population and the disease
+			final Set<String> relatedDiseases = OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_DISEASE.getValues(paramName, true);
+			if (relatedDiseases.size() == 0 || relatedDiseases.contains(disease.name())) {
+				if (relatedDiseases.size() == 0) {
+					wrap.printWarning(paramName, OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_DISEASE, "The parameter is only related to the population but not to the disease. We will assume that it is as far as only one disease is supported by OSDi");
 				}
+				else if (relatedDiseases.size() > 1) {
+					wrap.printWarning(paramName, OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_DISEASE, "Until more than one disease is supported by OSDi, a population parameter should be related to the only one disease. Currently " + relatedDiseases.size());														
+				}
+				ProbabilityParamDescriptions.PREVALENCE.addParameter(secParams, paramName, paramWrapper.getDescription(), paramWrapper.getSource(), 
+						paramWrapper.getDeterministicValue(), paramWrapper.getProbabilisticValue());
 			}
 		}
-		
-		private void registerEpidemParam(OSDiGenericRepository secParams, String paramName, ProbabilityParamDescriptions secondOrderParam) throws TranspilerException {
+
+		private void registerEpidemParamOld(OSDiGenericRepository secParams, String paramName, ProbabilityParamDescriptions secondOrderParam) throws TranspilerException {
 			final OwlHelper helper = secParams.getOwlHelper();		
 			
-			final List<String> manifestations = OSDiNames.ObjectProperty.IS_PARAMETER_OF_MANIFESTATION.getValues(helper, paramName);
+			final List<String> manifestations = OSDiNames.ObjectProperty.IS_PARAMETER_OF_MANIFESTATION.getValues(paramName);
 			// If the parameter is related to a manifestation, is intended to be an initial proportion
 			if (!manifestations.isEmpty()) {
 				// We assume a 100% prevalence in case it is not specified
-				final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, paramName, "1.0");
+				final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue("1.0");
 				try {
 					final ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(strValue);
 					for (String manifestationName: manifestations) {
@@ -161,7 +160,7 @@ public interface PopulationBuilder {
 			}
 			else {
 				// Check if the prevalence is related to the objective disease
-				final List<String> strDiseases = OSDiNames.ObjectProperty.IS_PARAMETER_OF_DISEASE.getValues(helper, paramName);
+				final List<String> strDiseases = OSDiNames.ObjectProperty.IS_PARAMETER_OF_DISEASE.getValues(paramName);
 				boolean found = false;
 				for (String strDisease : strDiseases) {
 					if (strDisease.equals(disease.name()))
@@ -169,7 +168,7 @@ public interface PopulationBuilder {
 				}
 				if (found) {
 					// We assume a 100% prevalence in case it is not specified
-					final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, paramName, "1.0");
+					final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue("1.0");
 					try {
 						final ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(strValue);
 						secondOrderParam.addParameter(secParams, name(), name(), OSDiNames.getSource(helper, paramName), 
@@ -179,6 +178,26 @@ public interface PopulationBuilder {
 					}
 				}
 			}
+		}
+		
+		/**
+		 * Registers the base utility associated to the population by extracting the information from the ontology. 
+		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
+		 */
+		private void registerUtilityParam(OSDiGenericRepository secParams) throws MalformedOSDiModelException {
+			final OSDiWrapper wrap = secParams.getOwlWrapper();
+			final Set<String> utilities = OSDiWrapper.ObjectProperty.HAS_UTILITY.getValues(name(), true);
+			if (utilities.size() > 1)
+				wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Found more than one utility for a population. Using only " + utilities.toArray()[0]);
+
+			final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, (String)utilities.toArray()[0]); 
+			final OSDiWrapper.TemporalBehavior tempBehavior = utilityParam.getTemporalBehavior();
+			if (OSDiWrapper.TemporalBehavior.ONETIME.equals(tempBehavior))
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.POPULATION, name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Only annual utilities should be associated to a population. Instead, " + tempBehavior + " found");
+			if (OSDiWrapper.UtilityType.DISUTILITY.equals(utilityParam.getType()))
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.POPULATION, name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Only utilities should be associated to a population. Instead, disutility found");
+			UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, name(), utilityParam.getDescription(), utilityParam.getSource(), 
+					utilityParam.getDeterministicValue(), utilityParam.getProbabilisticValue()); 
 		}
 
 		@Override
@@ -218,22 +237,23 @@ public interface PopulationBuilder {
 
 		@Override
 		protected List<PopulationAttribute> initializePatientAttributeList() throws MalformedSimulationModelException {
-			final OwlHelper helper = ((OSDiGenericRepository) getRepository()).getOwlHelper();		
+			final OSDiGenericRepository OSDiParams = ((OSDiGenericRepository)getRepository()); 
+			final OSDiWrapper wrap = OSDiParams.getOwlWrapper();
 
-			final ArrayList<PopulationAttribute> paramList = new ArrayList<>();
-			List<String> indParams = OSDiNames.ObjectProperty.DEFINES_INDIVIDUAL_PARAMETER_VALUE.getValues(helper, name());
-			for (String paramName : indParams) {
-				try {
-					final String indParamParamName = OSDiNames.ObjectProperty.IS_VALUE_OF_INDIVIDUAL_PARAMETER.getValue(helper, paramName);
-					final String indParamName = OSDiNames.DataProperty.HAS_NAME.getValue(helper, indParamParamName);
-					final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(helper, paramName, "0.0");
-					final ProbabilityDistribution probabilityDistribution = new ProbabilityDistribution(strValue);
-					paramList.add(new InitiallySetPopulationAttribute(indParamName, probabilityDistribution.getProbabilisticValue()));				
-				} catch(TranspilerException ex) {
-					System.err.println(ex.getMessage());
+			final Set<String> attributes = OSDiWrapper.ObjectProperty.HAS_ATTRIBUTE_VALUE.getValues(name(), true);
+			final ArrayList<PopulationAttribute> attributeList = new ArrayList<>();
+			try {
+				for (String attribute : attributes) {
+					final AttributeValueWrapper attWrapper = new AttributeValueWrapper(wrap, attribute, 0);
+					final String attributeName = OSDiWrapper.DataProperty.HAS_NAME.getValue(attWrapper.getAttributeId(), attWrapper.getAttributeId());
+					if (attWrapper.getProbabilisticValue() == null)
+						attWrapper.setProbabilisticValue(RandomVariateFactory.getInstance("ConstantVariate", attWrapper.getDeterministicValue()));
+					attributeList.add(new InitiallySetPopulationAttribute(attributeName, attWrapper.getProbabilisticValue()));				
 				}
+			} catch(MalformedOSDiModelException ex) {
+				throw new MalformedSimulationModelException("Error parsing attribute value from ontology. Caused by " + ex.getMessage());
 			}
-			return paramList;
+			return attributeList;
 		}
 
 	}

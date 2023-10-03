@@ -21,11 +21,11 @@ public class ParameterWrapper extends ValuableWrapper {
 	 */
 	public ParameterWrapper(OSDiWrapper wrap, String paramId, double defaultDetValue) throws MalformedOSDiModelException {
 		super(wrap, paramId, defaultDetValue);
-		description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(wrap, paramId, "");
+		description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(paramId, "");
 		year = wrap.parseHasYearProperty(paramId);
 		
-		// Takes the parameter uncertainty that characterizes this parameter, but only if it's included in the working model 
-		final Set<String> paramUncertainty = OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.getValues(wrap, paramId, true);
+		// Takes the uncertainty that characterizes this parameter, but only if it's included in the working model 
+		final Set<String> paramUncertainty = OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.getValues(paramId, true);
 		if (paramUncertainty.size() > 0) {
 			if (getProbabilisticValue() != null) {
 				wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY, "Parameter defined both parameter uncertainty and either heterogeneity or stochastic uncertainty. Using only parameter uncertainty");				

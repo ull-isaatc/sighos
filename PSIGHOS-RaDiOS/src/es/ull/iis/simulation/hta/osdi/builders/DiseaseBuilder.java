@@ -23,7 +23,7 @@ public interface DiseaseBuilder {
 	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseName) {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		
-		Disease disease = new Disease(secParams, diseaseName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(wrap, diseaseName, "")) {
+		Disease disease = new Disease(secParams, diseaseName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(diseaseName, "")) {
 
 			@Override
 			public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
@@ -39,24 +39,24 @@ public interface DiseaseBuilder {
 			
 		};
 		// Build developments
-		final Set<String> developments = OSDiWrapper.Clazz.DEVELOPMENT.getIndividuals(wrap, true);
+		final Set<String> developments = OSDiWrapper.Clazz.DEVELOPMENT.getIndividuals(true);
 		for (String developmentName : developments) {
 			DevelopmentBuilder.getDevelopmentInstance(secParams, developmentName, disease);
 		}
 		
 		// Build manifestations
-		final Set<String> manifestations = OSDiWrapper.Clazz.MANIFESTATION.getIndividuals(wrap, true);
+		final Set<String> manifestations = OSDiWrapper.Clazz.MANIFESTATION.getIndividuals(true);
 		for (String manifestationName: manifestations) {
 			ManifestationBuilder.getManifestationInstance(secParams, disease, manifestationName);
 		}
 		// Build manifestation pathways after creating all the manifestations
 		for (String manifestationName: manifestations) {
 			final Manifestation manif = disease.getManifestation(manifestationName);
-			final Set<String> pathways = OSDiWrapper.ObjectProperty.HAS_PATHWAY.getValues(wrap, manifestationName, true);
+			final Set<String> pathways = OSDiWrapper.ObjectProperty.HAS_PATHWAY.getValues(manifestationName, true);
 			for (String pathwayName : pathways)
 				ManifestationPathwayBuilder.getManifestationPathwayInstance(secParams, manif, pathwayName);
 			// Also include exclusions among manifestations
-			final Set<String> exclusions = OSDiWrapper.ObjectProperty.EXCLUDES_MANIFESTATION.getValues(wrap, manifestationName);
+			final Set<String> exclusions = OSDiWrapper.ObjectProperty.EXCLUDES_MANIFESTATION.getValues(manifestationName);
 			for (String excludedManif : exclusions) {
 				disease.addExclusion(manif, disease.getManifestation(excludedManif));
 			}
@@ -65,7 +65,7 @@ public interface DiseaseBuilder {
 	}
 	
 	private static void createCostParam(OSDiWrapper wrap, OSDiWrapper.ObjectProperty costProperty, CostParamDescriptions paramDescription, Disease disease) throws MalformedOSDiModelException {
-		Set<String> costs = costProperty.getValues(wrap, disease.name(), true);
+		Set<String> costs = costProperty.getValues(disease.name(), true);
 		if (costs.size() > 1 )
 			wrap.printWarning(disease.name(), costProperty, "Found more than one cost for a disease. Using only " + costs.toArray()[0]);
 		// TODO: Make a smarter use of the excess of costs and use only those which meets the conditions, i.e. select one annual cost from all the defined ones
@@ -105,7 +105,7 @@ public interface DiseaseBuilder {
 	 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 	 */
 	private static void createUtilityParam(OSDiWrapper wrap, Disease disease) throws MalformedOSDiModelException {
-		final Set<String> utilities = OSDiWrapper.ObjectProperty.HAS_UTILITY.getValues(wrap, disease.name(), true);
+		final Set<String> utilities = OSDiWrapper.ObjectProperty.HAS_UTILITY.getValues(disease.name(), true);
 		if (utilities.size() > 1 )
 			wrap.printWarning(disease.name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "A maximum of one annual (dis)utility should be associated to a disease. Using only " + utilities.toArray()[0]);
 

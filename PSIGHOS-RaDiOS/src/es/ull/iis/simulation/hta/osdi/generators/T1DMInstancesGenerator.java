@@ -150,11 +150,11 @@ public class T1DMInstancesGenerator {
 		wrap.createCost(diseaseCostIRI, 
 				"Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population", 
 				"Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007", TemporalBehavior.ANNUAL, 2012, "1116.733023", null, DataItemType.CURRENCY_EURO);
-		OSDiWrapper.ObjectProperty.HAS_FOLLOW_UP_COST.add(wrap, diseaseIRI, diseaseCostIRI);
+		OSDiWrapper.ObjectProperty.HAS_FOLLOW_UP_COST.add(diseaseIRI, diseaseCostIRI);
 		final String diseaseUtilityIRI = wrap.getParameterInstanceName(STR_DISEASE_NAME + "_ComplicationsFree" + OSDiWrapper.STR_UTILITY_SUFFIX);
 		generateUtilityFromAvgCI(diseaseUtilityIRI, "Utility of DM1 without complications",	"TODO: Buscar", 
 				new double[] {0.785, 0.889, 0.681}, TemporalBehavior.ANNUAL, 2015, OSDiWrapper.UtilityType.UTILITY);
-		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(wrap, diseaseIRI, diseaseUtilityIRI);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(diseaseIRI, diseaseUtilityIRI);
 		
 		for (Manifestation manif : Manifestation.values()) {
 			manif.generate(wrap);
@@ -176,23 +176,23 @@ public class T1DMInstancesGenerator {
 		// Define population age (fixed)
 		String valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "Age");
 		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("Age"), "DCCT", "26.47933884", DataItemType.DI_OTHER);
-		ObjectProperty.HAS_AGE.add(wrap, populationIRI, valueIRI);
+		ObjectProperty.HAS_AGE.add(populationIRI, valueIRI);
 		
 		// Define sex proportion within the population. The default value is 0 (male) because there are more men than women.
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "Sex");
 		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("Sex"), "Proportion of female population in DCCT", "0", DataItemType.DI_PROPORTION);
-		ObjectProperty.HAS_SEX.add(wrap, populationIRI, valueIRI);
+		ObjectProperty.HAS_SEX.add(populationIRI, valueIRI);
 		// Define heterogeneity for sex based on the proportion of female population
-		ObjectProperty.HAS_HETEROGENEITY.add(wrap, valueIRI, valueIRI + "_Heterogeneity");
+		ObjectProperty.HAS_HETEROGENEITY.add(valueIRI, valueIRI + "_Heterogeneity");
 		valueIRI += "_Heterogeneity";
 		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("Sex"), "Proportion of female population in DCCT", "Bernoulli(0.483966942)", DataItemType.DI_PROPORTION);
 		
 		// Define duration of diabetes for the population
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "DurationOfDiabetes");
 		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("DurationOfDiabetes"), "DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", "2.6", DataItemType.DI_TIMETOEVENT);
-		ObjectProperty.HAS_ATTRIBUTE_VALUE.add(wrap, populationIRI, valueIRI);
+		ObjectProperty.HAS_ATTRIBUTE_VALUE.add(populationIRI, valueIRI);
 		// Define heterogeneity for Duration of diabetes
-		ObjectProperty.HAS_HETEROGENEITY.add(wrap, valueIRI, valueIRI + "_Heterogeneity");
+		ObjectProperty.HAS_HETEROGENEITY.add(valueIRI, valueIRI + "_Heterogeneity");
 		valueIRI += "_Heterogeneity";
 		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("DurationOfDiabetes"), "DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", "Normal(2.6,1.4)", DataItemType.DI_TIMETOEVENT);
 		
@@ -200,38 +200,39 @@ public class T1DMInstancesGenerator {
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "HbA1c");
 		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("HbA1c"), 
 				"Own calculation from: Design of DCCT (http://diabetes.diabetesjournals.org/content/35/5/530) and DCCT (https://www.nejm.org/doi/10.1056/NEJM199309303291401)", "8.8", DataItemType.DI_OTHER);
-		ObjectProperty.HAS_ATTRIBUTE_VALUE.add(wrap, populationIRI, valueIRI);
+		ObjectProperty.HAS_ATTRIBUTE_VALUE.add(populationIRI, valueIRI);
 	}
+	
 	private void generateCostsForManifestations() {
 		// ---- CHD manifestations ----
 		// Angina
 		String costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.ANGINA + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 		wrap.createCost(costIRI, "Year 2+ of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "532.01", DataItemType.CURRENCY_EURO);
-		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.ANGINA.getInstanceName(), costIRI);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.ANGINA.getInstanceName(), costIRI);
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.ANGINA + OSDiWrapper.STR_ONETIME_COST_SUFFIX);
 		wrap.createCost(costIRI, "Episode of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "1985.96", DataItemType.CURRENCY_EURO);
-		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.ANGINA.getInstanceName(), costIRI);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.ANGINA.getInstanceName(), costIRI);
 		// HF
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.HF + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 		wrap.createCost(costIRI, "Year 2+ of heart failure", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "1054.42", DataItemType.CURRENCY_EURO);
-		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.HF.getInstanceName(), costIRI);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.HF.getInstanceName(), costIRI);
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.HF + OSDiWrapper.STR_ONETIME_COST_SUFFIX); 
 		wrap.createCost(costIRI, "Episode of heart failure", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "4503.24", DataItemType.CURRENCY_EURO);
-		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.HF.getInstanceName(), costIRI);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.HF.getInstanceName(), costIRI);
 		// Stroke
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.STROKE + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 		wrap.createCost(costIRI, "Year 2+ of stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "2485.66", DataItemType.CURRENCY_EURO);
-		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.STROKE.getInstanceName(), costIRI);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.STROKE.getInstanceName(), costIRI);
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.STROKE + OSDiWrapper.STR_ONETIME_COST_SUFFIX);
 		wrap.createCost(costIRI, "Episode of stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "3634.66", DataItemType.CURRENCY_EURO);
-		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.STROKE.getInstanceName(), costIRI);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.STROKE.getInstanceName(), costIRI);
 		// MI
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.MI + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 		wrap.createCost(costIRI, "Year 2+ of myocardial infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "948", DataItemType.CURRENCY_EURO);
-		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.MI.getInstanceName(), costIRI);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.MI.getInstanceName(), costIRI);
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.MI + OSDiWrapper.STR_ONETIME_COST_SUFFIX);
 		wrap.createCost(costIRI, "Episode of myocardial infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "22588", DataItemType.CURRENCY_EURO);
-		OSDiWrapper.ObjectProperty.HAS_COST.add(wrap, Manifestation.MI.getInstanceName(), costIRI);
+		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.MI.getInstanceName(), costIRI);
 		// ---- NPH manifestations ----
 		// ALB1
 		// TODO: Add rest of costs
@@ -242,11 +243,11 @@ public class T1DMInstancesGenerator {
 		String utilityUncertaintyIRI = utilityIRI + OSDiWrapper.STR_L95CI_SUFFIX;
 		wrap.createParameter(utilityUncertaintyIRI, Clazz.UTILITY, "Lower 95% confidence interval for " + description, 
 				source, year, "" + values[1], OSDiWrapper.DataItemType.DI_LOWER95CONFIDENCELIMIT);
-		OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(wrap, utilityIRI, utilityUncertaintyIRI);
+		OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(utilityIRI, utilityUncertaintyIRI);
 		utilityUncertaintyIRI = utilityIRI + OSDiWrapper.STR_U95CI_SUFFIX;
 		wrap.createParameter(utilityUncertaintyIRI, Clazz.UTILITY, "Upper 95% confidence interval for " + description, 
 				source, year, "" + values[2], OSDiWrapper.DataItemType.DI_UPPER95CONFIDENCELIMIT);
-		OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(wrap, utilityIRI, utilityUncertaintyIRI);		
+		OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(utilityIRI, utilityUncertaintyIRI);		
 	}
 	
 	private void generateUtilitiesForManifestations() {
@@ -255,22 +256,22 @@ public class T1DMInstancesGenerator {
 		String utilityIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.ANGINA + OSDiWrapper.STR_UTILITY_SUFFIX);
 		generateUtilityFromAvgCI(utilityIRI, "Annual disutility of Angina", "Bagust and Beale (10.1002/hec.910)", 
 				new double[] {0.09, 0.054, 0.126}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
-		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(wrap, Manifestation.ANGINA.getInstanceName(), utilityIRI);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(Manifestation.ANGINA.getInstanceName(), utilityIRI);
 		// HF
 		utilityIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.HF + OSDiWrapper.STR_UTILITY_SUFFIX);
 		generateUtilityFromAvgCI(utilityIRI, "Annual disutility of heart failure", "Bagust and Beale (10.1002/hec.910)", 
 				new double[] {0.108, 0.048, 0.169}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
-		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(wrap, Manifestation.HF.getInstanceName(), utilityIRI);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(Manifestation.HF.getInstanceName(), utilityIRI);
 		// MI
 		utilityIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.MI + OSDiWrapper.STR_UTILITY_SUFFIX);
 		generateUtilityFromAvgCI(utilityIRI, "Annual disutility of myocardial infarction", "Bagust and Beale (10.1002/hec.910)", 
 				new double[] {0.055, 0.042, 0.067}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
-		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(wrap, Manifestation.MI.getInstanceName(), utilityIRI);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(Manifestation.MI.getInstanceName(), utilityIRI);
 		// Stroke
 		utilityIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.STROKE + OSDiWrapper.STR_UTILITY_SUFFIX);
 		generateUtilityFromAvgCI(utilityIRI, "Annual disutility of stroke", "Bagust and Beale (10.1002/hec.910)", 
 				new double[] {0.164, 0.105, 0.222}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
-		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(wrap, Manifestation.STROKE.getInstanceName(), utilityIRI);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(Manifestation.STROKE.getInstanceName(), utilityIRI);
 		// ---- NPH manifestations ----
 		// ALB1
 		// TODO: Add rest of utilities

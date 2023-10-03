@@ -1082,6 +1082,10 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                            owl:someValuesFrom :Manifestation
                          ] ,
                          [ rdf:type owl:Restriction ;
+                           owl:onProperty :hasParameter ;
+                           owl:someValuesFrom :Parameter
+                         ] ,
+                         [ rdf:type owl:Restriction ;
                            owl:onProperty :hasScreeningCost ;
                            owl:someValuesFrom :Cost
                          ] ,
@@ -1574,6 +1578,10 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                             [ rdf:type owl:Restriction ;
                               owl:onProperty :hasSubpopulation ;
                               owl:someValuesFrom :Population
+                            ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty :hasUtility ;
+                              owl:someValuesFrom :Utility
                             ] ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty :hasAge ;

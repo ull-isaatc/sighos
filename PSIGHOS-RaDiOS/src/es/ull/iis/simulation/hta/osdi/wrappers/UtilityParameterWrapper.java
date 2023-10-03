@@ -11,18 +11,24 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
  *
  */
 public class UtilityParameterWrapper extends ParameterWrapper {
-	private final OSDiWrapper.TemporalBehavior temporalBehavior;
-	private final OSDiWrapper.UtilityType type;
 	/**
-	 * @param wrap
-	 * @param paramId
-	 * @param defaultDetValue
-	 * @throws MalformedOSDiModelException
+	 * The temporal behavior for this utility
 	 */
-	public UtilityParameterWrapper(OSDiWrapper wrap, String paramId)
-			throws MalformedOSDiModelException {
+	private final OSDiWrapper.TemporalBehavior temporalBehavior;
+	/**
+	 * The type (UTILITY, DISUTILITY) of this utility
+	 */
+	private final OSDiWrapper.UtilityType type;
+	
+	/**
+	 * Creates a wrapper for a utility defined in the ontology.
+	 * @param wrap A wrapper for the ontology
+	 * @param paramId The IRI of the utility instance in the ontology
+	 * @throws MalformedOSDiModelException If the utility wrapper cannot be created due to incorrect definitions in the ontology
+	 */
+	public UtilityParameterWrapper(OSDiWrapper wrap, String paramId) throws MalformedOSDiModelException {
 		super(wrap, paramId, Double.NaN);
-		temporalBehavior = OSDiWrapper.TemporalBehavior.valueOf(OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(wrap, paramId, OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.getShortName()));
+		temporalBehavior = OSDiWrapper.TemporalBehavior.valueOf(OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(paramId, OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.getShortName()));
 		
 		switch(getDataItemType()) {
 		case DI_DISUTILITY:
@@ -44,14 +50,16 @@ public class UtilityParameterWrapper extends ParameterWrapper {
 	}
 	
 	/**
-	 * @return the temporalBehavior
+	 * Returns the temporal behavior for this utility. By default, it is set to NOT_SPECIFIED if it was not specified by the ontology 
+	 * @return the temporal behavior for this utility.
 	 */
 	public OSDiWrapper.TemporalBehavior getTemporalBehavior() {
 		return temporalBehavior;
 	}
 	
 	/**
-	 * @return the type
+	 * Returns the type (UTILITY, DISUTILITY) of this utility
+	 * @return the type (UTILITY, DISUTILITY) of this utility
 	 */
 	public OSDiWrapper.UtilityType getType() {
 		return type;

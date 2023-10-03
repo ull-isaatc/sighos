@@ -22,7 +22,7 @@ public interface DevelopmentBuilder {
 	 * @return a {@link Development} based on the information stored in the ontology
 	 */
 	public static Development getDevelopmentInstance(OSDiGenericRepository secParams, String developmentName, Disease disease) {
-		final Development develop = new Development(developmentName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(secParams.getOwlWrapper(), developmentName, ""), disease);
+		final Development develop = new Development(developmentName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(developmentName, ""), disease);
 		return develop;
 	}
 }
