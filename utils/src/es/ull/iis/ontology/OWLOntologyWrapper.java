@@ -48,7 +48,7 @@ import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 /**
  * A wrapper for an ontology in OWL. Creates convenient methods that shorten the use of OWLApi.
- * @author Iván Castilla
+ * @author Ivï¿½n Castilla
  *
  */
 public class OWLOntologyWrapper {
@@ -173,6 +173,30 @@ public class OWLOntologyWrapper {
 		for (OWLObjectProperty objectProp : ontology.getObjectPropertiesInSignature()) {
 			set.add(objectProp.getIRI().getShortForm());
 		}
+		return set;
+	}
+	
+	/**
+	 * Returns true if the specified individual is an instance of the specified class (or any of its subclasses)
+	 * @param individualIRI The IRI of an individual in the ontology
+	 * @param classIRI The IRI of a class in the ontology
+	 * @return true if the specified individual is instance of the specified class (or any of its subclasses).
+	 */
+	public boolean isInstanceOf(String individualIRI, String classIRI) {
+		return getIndividuals(classIRI).contains(individualIRI);
+	}
+	
+	/**
+	 * Returns a set of individuals belonging at the same time to ALL the specified classes or any of its subclasses
+	 * @param classIRIs A collection of IRIs for classes in the ontology
+	 * @return a set of individuals belonging at the same time to ALL the specified classes or any of its subclasses
+	 */
+	public Set<String> getIndividuals(ArrayList<String> classIRIs) {
+		if (classIRIs.size() == 0)
+			return new TreeSet<>();
+		final Set<String> set = getIndividuals(classIRIs.get(0));
+		for (int i = 1; i < classIRIs.size(); i++)
+			set.retainAll(getIndividuals(classIRIs.get(i)));
 		return set;
 	}
 	
