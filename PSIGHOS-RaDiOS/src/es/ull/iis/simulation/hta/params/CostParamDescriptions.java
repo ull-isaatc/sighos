@@ -74,9 +74,10 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param year Year when the cost was originally estimated
 	 * @param detValue Deterministic (constant) value of the parameter
+	 * @return The name assigned to the parameter in the repository
 	 */
-	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, int year, double detValue) {
-		this.addParameter(secParams, instance.name(), instance.getDescription(), source, year, detValue);
+	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, int year, double detValue) {
+		return this.addParameter(secParams, instance.name(), instance.getDescription(), source, year, detValue);
 	}
 
 	/**
@@ -88,9 +89,12 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param year Year when the cost was originally estimated
 	 * @param detValue Deterministic (constant) value of the parameter
+	 * @return The name assigned to the parameter in the repository
 	 */
-	public void addParameter(SecondOrderParamsRepository secParams, Named instance, String description, String source, int year, double detValue) {
-		secParams.addCostParam(new SecondOrderCostParam(secParams, getParameterName(instance.name()), description, source, this, year, detValue));
+	public String addParameter(SecondOrderParamsRepository secParams, Named instance, String description, String source, int year, double detValue) {
+		final String paramName = getParameterName(instance.name());
+		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, description, source, this, year, detValue));
+		return paramName;
 	}
 	
 	/**
@@ -101,9 +105,12 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param year Year when the cost was originally estimated
 	 * @param detValue Deterministic (constant) value of the parameter
+	 * @return The name assigned to the parameter in the repository
 	 */
-	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue) {
-		secParams.addCostParam(new SecondOrderCostParam(secParams, getParameterName(name), getParameterDescription(description), source, this, year, detValue));
+	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue) {
+		final String paramName = getParameterName(name);
+		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, getParameterDescription(description), source, this, year, detValue));
+		return paramName;
 	}
 
 	/**
@@ -114,9 +121,10 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @param year Year when the cost was originally estimated
 	 * @param detValue Deterministic (constant) value of the parameter
 	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 * @return The name assigned to the parameter in the repository
 	 */
-	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, int year, double detValue, RandomVariate rnd) {
-		this.addParameter(secParams, instance.name(), instance.getDescription(), source, year, detValue, rnd);
+	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, int year, double detValue, RandomVariate rnd) {
+		return this.addParameter(secParams, instance.name(), instance.getDescription(), source, year, detValue, rnd);
 	}
 
 	/**
@@ -129,9 +137,12 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @param year Year when the cost was originally estimated
 	 * @param detValue Deterministic (constant) value of the parameter
 	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 * @return The name assigned to the parameter in the repository
 	 */
-	public void addParameter(SecondOrderParamsRepository secParams, Named instance, String description, String source, int year, double detValue, RandomVariate rnd) {
-		secParams.addCostParam(new SecondOrderCostParam(secParams, getParameterName(instance.name()), description, source, this, year, detValue, rnd));
+	public String addParameter(SecondOrderParamsRepository secParams, Named instance, String description, String source, int year, double detValue, RandomVariate rnd) {
+		final String paramName = getParameterName(instance.name());
+		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, description, source, this, year, detValue, rnd));
+		return paramName;
 	}
 	
 	/**
@@ -143,9 +154,12 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @param year Year when the cost was originally estimated
 	 * @param detValue Deterministic (constant) value of the parameter
 	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
+	 * @return The name assigned to the parameter in the repository
 	 */
-	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
-		secParams.addCostParam(new SecondOrderCostParam(secParams, getParameterName(name), getParameterDescription(description), source, this, year, detValue, rnd));
+	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
+		final String paramName = getParameterName(name);
+		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, getParameterDescription(description), source, this, year, detValue, rnd));
+		return paramName;
 	}
 	
 }

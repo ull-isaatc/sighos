@@ -93,7 +93,7 @@ public interface PopulationBuilder {
 				for (String paramName : populationParams) {
 					// Ignores parameters that are both parameters of the disease and a manifestation, since they are supposed to be processed in the corresponding manifestation
 					if (OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_MANIFESTATION.getValues(paramName, true).size() == 0) {
-						final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, 0.0);
+						final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, 0.0, "Epidemiological parameter for population " + this.name());
 						// If the parameter is a prevalence
 						if (OSDiWrapper.Clazz.PREVALENCE.containsIntance(paramName)) {
 							if (hasPrevalence) {
@@ -153,7 +153,7 @@ public interface PopulationBuilder {
 			if (utilities.size() > 1)
 				wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Found more than one utility for a population. Using only " + utilities.toArray()[0]);
 
-			final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, (String)utilities.toArray()[0]); 
+			final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, (String)utilities.toArray()[0], "Utility for population " + this.name()); 
 			final OSDiWrapper.TemporalBehavior tempBehavior = utilityParam.getTemporalBehavior();
 			if (OSDiWrapper.TemporalBehavior.ONETIME.equals(tempBehavior))
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.POPULATION, name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Only annual utilities should be associated to a population. Instead, " + tempBehavior + " found");

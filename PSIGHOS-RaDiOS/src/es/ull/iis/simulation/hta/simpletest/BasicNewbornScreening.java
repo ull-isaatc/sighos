@@ -26,7 +26,7 @@ public class BasicNewbornScreening extends ScreeningIntervention {
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, this, "", 0.9);
-		ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, this, "", 0.9);
+		ProbabilityParamDescriptions.SPECIFICITY.addParameter(secParams, this, "", 0.9);
 	}
 
 	@Override

@@ -3,26 +3,24 @@
  */
 package es.ull.iis.simulation.hta.osdi;
 
-import java.util.List;
 import java.util.Set;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
-import es.ull.iis.simulation.hta.osdi.OSDiNames.DataProperty;
+import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.ProbabilityDistribution;
+import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * @author Iván Castilla
- *
+ * TODO: SCREENING should be generalized to DETECTION
  */
 public interface InterventionBuilder {
 	public static String DO_NOTHING = "DO_NOTHING";
@@ -126,7 +124,7 @@ public interface InterventionBuilder {
 	private static void createParams(OSDiGenericRepository secParams, Intervention intervention) {
 		try {
 			createModificationParams(secParams, intervention);
-		} catch(TranspilerException ex) {
+		} catch(MalformedOSDiModelException ex) {
 			System.err.println(ex.getMessage());
 		}
 	}
@@ -135,127 +133,80 @@ public interface InterventionBuilder {
 		try {
 			createModificationParams(secParams, intervention);
 			createSpecificityAndSensitivity(secParams, intervention);
-		} catch(TranspilerException ex) {
+		} catch(MalformedOSDiModelException ex) {
 			System.err.println(ex.getMessage());
 		}
 	}
 	
-	private static void createSpecificityAndSensitivity(OSDiGenericRepository secParams, ScreeningIntervention intervention) throws TranspilerException {
+	private static void createSpecificityAndSensitivity(OSDiGenericRepository secParams, ScreeningIntervention intervention) throws MalformedOSDiModelException {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
-		String strSensitivity = DataProperty.HAS_SENSITIVITY.getValue("1.0");
-		try {
-			final ProbabilityDistribution probSensitivity = new ProbabilityDistribution(strSensitivity);
-			ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, "",  
-					probSensitivity.getDeterministicValue(), probSensitivity.getProbabilisticValue());
-		} catch(TranspilerException ex) {
-			throw new TranspilerException(OSDiNames.Class.INTERVENTION, intervention.name(), OSDiNames.DataProperty.HAS_SENSITIVITY, strSensitivity, ex);
+		// Sensitivity
+		final Set<String> strSensitivities = OSDiWrapper.ObjectProperty.HAS_SENSITIVITY.getValues(intervention.name(), true);
+		if (strSensitivities.size() == 0) {
+			wrap.printWarning(intervention.name(), OSDiWrapper.ObjectProperty.HAS_SENSITIVITY, "Sensitivity not defined for a screening intervention. Using 1.0");						
+			ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, "", 1.0);
 		}
-
-		String strSpecificity = DataProperty.HAS_SPECIFICITY.getValue("1.0");
-		try {
-			final ProbabilityDistribution probSpecificity = new ProbabilityDistribution(strSpecificity);
-			ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, intervention, "",  
-					probSpecificity.getDeterministicValue(), probSpecificity.getProbabilisticValue());
-		} catch(TranspilerException ex) {
-			throw new TranspilerException(OSDiNames.Class.INTERVENTION, intervention.name(), OSDiNames.DataProperty.HAS_SPECIFICITY, strSpecificity, ex);
+		else {
+			final String sensitivityParamName = (String) strSensitivities.toArray()[0];
+			if (strSensitivities.size() > 1) {
+				wrap.printWarning(intervention.name(), OSDiWrapper.ObjectProperty.HAS_SENSITIVITY, "Found more than one sensitivity for a screening intervention. Using " + sensitivityParamName);			
+			}
+			final ParameterWrapper sensitivityWrapper = new ParameterWrapper(wrap, sensitivityParamName, 1.0, "Sensitivity for " + intervention.name()); 
+			if (!OSDiWrapper.DataItemType.DI_SENSITIVITY.equals(sensitivityWrapper.getDataItemType())) {
+				wrap.printWarning(sensitivityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Sensitivity should be of type " + OSDiWrapper.DataItemType.DI_SENSITIVITY.getInstanceName() + ". Instead, found " + sensitivityWrapper.getDataItemType().getInstanceName());			
+			}
+			ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, sensitivityWrapper.getDescription(),  
+					sensitivityWrapper.getDeterministicValue(), sensitivityWrapper.getProbabilisticValue());
+		}
+		// Specificity
+		final Set<String> strSpecificities = OSDiWrapper.ObjectProperty.HAS_SPECIFICITY.getValues(intervention.name(), true);
+		if (strSpecificities.size() == 0) {
+			wrap.printWarning(intervention.name(), OSDiWrapper.ObjectProperty.HAS_SPECIFICITY, "Specificity not defined for a screening intervention. Using 1.0");						
+			ProbabilityParamDescriptions.SPECIFICITY.addParameter(secParams, intervention, "", 1.0);
+		}
+		else {
+			final String specificityParamName = (String) strSpecificities.toArray()[0];
+			if (strSpecificities.size() > 1) {
+				wrap.printWarning(intervention.name(), OSDiWrapper.ObjectProperty.HAS_SPECIFICITY, "Found more than one specificity for a screening intervention. Using " + specificityParamName);			
+			}
+			final ParameterWrapper specificityWrapper = new ParameterWrapper(wrap, specificityParamName, 1.0, "Specificity for " + intervention.name()); 
+			if (!OSDiWrapper.DataItemType.DI_SPECIFICITY.equals(specificityWrapper.getDataItemType())) {
+				wrap.printWarning(specificityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Specificity should be of type " + OSDiWrapper.DataItemType.DI_SPECIFICITY.getInstanceName() + ". Instead, found " + specificityWrapper.getDataItemType().getInstanceName());			
+			}
+			ProbabilityParamDescriptions.SPECIFICITY.addParameter(secParams, intervention, specificityWrapper.getDescription(),  
+					specificityWrapper.getDeterministicValue(), specificityWrapper.getProbabilisticValue());
 		}
 	}
 	
-	private static void createModificationParams(OSDiGenericRepository secParams, Intervention intervention) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
+	private static void createModificationParams(OSDiGenericRepository secParams, Intervention intervention) throws MalformedOSDiModelException {
+		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		// Collects the modifications associated to the specified intervention
-		List<String> modifications = OSDiNames.ObjectProperty.INVOLVES_MODIFICATION.getValues(intervention.name());
-		for (String modificationName : modifications) {			
-			// Parse the modification kind
-			final String strKind = OSDiNames.DataProperty.HAS_MODIFICATION_KIND.getValue(OSDiNames.DataPropertyRange.MODIFICATION_KIND_SET.getDescription());
-			// I assume that modification kinds are equivalent to those defined in Modificaton.Type
+		final Set<String> modifications = OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.getValues(intervention.name(), true);
+		for (String modificationName : modifications) {		
+			final ParameterWrapper modification = new ParameterWrapper(wrap, modificationName, 0, "");
 			Modification.Type kind = null;
-			try {
-				kind = Modification.Type.valueOf(strKind);
-			} catch(IllegalArgumentException ex) {
-				throw new TranspilerException(OSDiNames.Class.MODIFICATION, modificationName, OSDiNames.DataProperty.HAS_MODIFICATION_KIND, strKind);
-			}
-			final String strDescription = OSDiNames.DataProperty.HAS_DESCRIPTION.getValue("");			
-			// Get the source, if specified
-			final String strSource = OSDiNames.DataProperty.HAS_SOURCE.getValue("");
-			// Parse the value
-			final String strValue = OSDiNames.DataProperty.HAS_VALUE.getValue(modificationName);
-			ProbabilityDistribution probDistribution;
-			try {
-				probDistribution = new ProbabilityDistribution(strValue);
-			} catch(TranspilerException ex) {
-				throw new TranspilerException(OSDiNames.Class.MODIFICATION, modificationName, OSDiNames.DataProperty.HAS_VALUE, strValue, ex);
-			}
+			switch (modification.getDataItemType()) {
+			case DI_CONTINUOUS_VARIABLE:
+				kind = Modification.Type.SET;
+				break;
+			case DI_FACTOR:
+				kind = Modification.Type.RR;
+				break;
+			case DI_MEANDIFFERENCE:
+				kind = Modification.Type.DIFF;
+				break;
+			case DI_RELATIVERISK:
+				kind = Modification.Type.RR;
+				break;
+			default:
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, modificationName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item type for a modification: " + modification.getDataItemType().getInstanceName());
 			
-			// If it is modifying an individual parameter, the processing is different
-			List<String> modifiedItems = OSDiNames.ObjectProperty.MODIFIES_INDIVIDUAL_PARAMETER.getValues(modificationName);
+			}
+			final Set<String> modifiedItems = OSDiWrapper.ObjectProperty.MODIFIES.getValues(modificationName, true);
 			for (String indParamName : modifiedItems) {
-				final String name = OSDiNames.DataProperty.HAS_NAME.getValue(indParamName);
-				intervention.addClinicalParameterModification(name, new Modification(secParams, kind, SecondOrderParamsRepository.getModificationString(intervention, name), strDescription,
-						strSource, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue()));
-			}
-			
-			// Parse the property which is modified
-			final List<String> strProperties = OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED.getValues(modificationName);
-			for (String strProperty : strProperties) {
-				final OSDiNames.DataProperty property = OSDiNames.DATA_PROPERTY_MAP.get(strProperty);
-				if (property == null) {
-					throw new TranspilerException(OSDiNames.Class.MODIFICATION, modificationName, OSDiNames.DataProperty.HAS_DATA_PROPERTY_MODIFIED, strProperty);
-				}
-				// Process modifications that affect the development
-				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_DEVELOPMENT.getValues(modificationName);
-				for (String developmentName : modifiedItems) {
-					switch(property) {
-					case HAS_LIFE_EXPECTANCY:
-						// TODO
-					case HAS_MODIFICATION_FOR_ALL_PARAMS:
-						// TODO: Probably useless
-					default:
-						throw new TranspilerException("The data property " + strProperty + " cannot be handled to create a modification of a parameter of a manifestation pathway. Error in instance \"" + modificationName + "\"");
-					}
-				}
-				// Then process modifications that affect to specific manifestations
-				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_MANIFESTATION.getValues(modificationName);
-				for (String manifestationName : modifiedItems) {
-					final Manifestation manif = secParams.getManifestationByName(manifestationName);
-					switch(property) {
-					case HAS_DURATION:
-						// TODO
-					case HAS_END_AGE:
-						// TODO
-					case HAS_FREQUENCY:
-						// TODO
-					case HAS_MORTALITY_FACTOR:
-						// TODO
-					case HAS_ONSET_AGE:					
-						// TODO
-					case HAS_PROBABILITY_OF_DIAGNOSIS:
-						// TODO
-					default:
-						throw new TranspilerException("The data property " + strProperty + " cannot be handled to create a modification of a parameter of a manifestation pathway. Error in instance \"" + modificationName + "\"");
-					}
-				}
-				// And finally process modifications that affect to specific manifestation pathways
-				modifiedItems = OSDiNames.ObjectProperty.MODIFIES_MANIFESTATION_PATHWAY.getValues(modificationName);
-				for (String manifPathwayName : modifiedItems) {
-					final List<String> manifestationNames = OSDiNames.ObjectProperty.IS_PATHWAY_TO.getValues(manifPathwayName);
-					switch(property) {
-					case HAS_PROBABILITY:
-						for (String manifestationName : manifestationNames) {
-							final Manifestation manif = secParams.getManifestationByName(manifestationName);
-							secParams.addModificationParam(intervention, kind, ProbabilityParamDescriptions.PROBABILITY.getParameterName(ManifestationPathwayBuilder.getProbString(manif, manifPathwayName)), strSource, probDistribution.getDeterministicValue(), probDistribution.getProbabilisticValue());
-						}
-						break;
-					case HAS_RELATIVE_RISK:
-						// TODO
-					case HAS_TIME_TO:
-						// TODO
-					default:
-						throw new TranspilerException("The data property " + strProperty + " cannot be handled to create a modification of a parameter of a manifestation pathway. Error in instance \"" + modificationName + "\"");
-					}
-				}
+				intervention.addAttributeModification(indParamName, new Modification(secParams, kind, SecondOrderParamsRepository.getModificationString(intervention, indParamName), 
+						modification.getDescription(), modification.getSource(), modification.getDeterministicValue(), modification.getProbabilisticValue()));
 			}
 		}
-		// TODO: Check what type of data property is going to be modified and create the appropriate modification
 	}
 }

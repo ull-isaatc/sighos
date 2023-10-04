@@ -24,6 +24,7 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
 /**
  * @author David Prieto González
  * @author Iván Castilla Rodríguez
+ * TODO: Create pathways for manifestation pathways directly defined in the manifestation
  */
 public interface ManifestationBuilder {
 
@@ -71,7 +72,7 @@ public interface ManifestationBuilder {
 		final String onsetAge = OSDiWrapper.ObjectProperty.HAS_ONSET_AGE.getValue(manifestation.name(), true);
 		if (onsetAge != null) {
 			try {
-				final ParameterWrapper param = new ParameterWrapper(wrap, onsetAge, 0);
+				final ParameterWrapper param = new ParameterWrapper(wrap, onsetAge, 0, "Onset age for manifestation " + manifestation.name());
 				OtherParamDescriptions.ONSET_AGE.addParameter(manifestation.getRepository(), manifestation, param.getSource(), param.getDeterministicValue(), param.getProbabilisticValue());
 			} catch(MalformedOSDiModelException ex) {
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, manifestation.name(), OSDiWrapper.ObjectProperty.HAS_ONSET_AGE, "Error parsing manifestation. Caused by ", ex);
@@ -80,7 +81,7 @@ public interface ManifestationBuilder {
 		final String endAge = OSDiWrapper.ObjectProperty.HAS_END_AGE.getValue(manifestation.name(), true);
 		if (endAge != null) {
 			try {
-				final ParameterWrapper param = new ParameterWrapper(wrap, endAge, 0);
+				final ParameterWrapper param = new ParameterWrapper(wrap, endAge, 0, "End age for manifestation " + manifestation.name());
 				OtherParamDescriptions.END_AGE.addParameter(manifestation.getRepository(), manifestation, param.getSource(), param.getDeterministicValue(), param.getProbabilisticValue());
 			} catch(MalformedOSDiModelException ex) {
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, manifestation.name(), OSDiWrapper.ObjectProperty.HAS_END_AGE, "Error parsing manifestation. Caused by ", ex);
@@ -89,7 +90,7 @@ public interface ManifestationBuilder {
 	}
 
 	private static OSDiWrapper.TemporalBehavior createCostParam(OSDiWrapper wrap, String costName, OSDiWrapper.TemporalBehavior expectedTemporalBehavior, Manifestation manifestation) throws MalformedOSDiModelException {
-		final CostParameterWrapper costParam = new CostParameterWrapper(wrap, costName, 0.0);
+		final CostParameterWrapper costParam = new CostParameterWrapper(wrap, costName, 0.0, "Cost for manifestation " + manifestation.name());
 		final OSDiWrapper.TemporalBehavior tempBehavior = costParam.getTemporalBehavior();
 
 		// Assuming ANNUAL COSTS by default
@@ -133,7 +134,7 @@ public interface ManifestationBuilder {
 	}
 
 	private static OSDiWrapper.TemporalBehavior createUtilityParam(OSDiWrapper wrap, String utilityName, OSDiWrapper.TemporalBehavior expectedTemporalBehavior, Manifestation manifestation) throws MalformedOSDiModelException {
-		final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName); 
+		final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName, "Utility for manifestation " + manifestation.name()); 
 		final OSDiWrapper.TemporalBehavior tempBehavior = utilityParam.getTemporalBehavior();
 
 		final boolean isDisutility = OSDiWrapper.UtilityType.DISUTILITY.equals(utilityParam.getType());
@@ -185,7 +186,7 @@ public interface ManifestationBuilder {
 	private static void addProbabilityParam(OSDiWrapper wrap, Manifestation manifestation, OSDiWrapper.ObjectProperty objProperty, ProbabilityParamDescriptions paramDescription, double defaultValue) throws MalformedOSDiModelException {
 		final String paramName = objProperty.getValue(manifestation.name(), true);
 		if (paramName != null) {
-			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, defaultValue);			
+			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, defaultValue, "");			
 			paramDescription.addParameter(manifestation.getRepository(), manifestation, param.getSource(), 
 					param.getDeterministicValue(), param.getProbabilisticValue());
 		}
@@ -194,7 +195,7 @@ public interface ManifestationBuilder {
 	private static void addOtherParam(OSDiWrapper wrap, Manifestation manifestation, OSDiWrapper.ObjectProperty objProperty, OtherParamDescriptions paramDescription, double defaultValue) throws MalformedOSDiModelException {
 		final String paramName = objProperty.getValue(manifestation.name(), true);
 		if (paramName != null) {
-			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, defaultValue);			
+			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, defaultValue, "");			
 			paramDescription.addParameter(manifestation.getRepository(), manifestation, param.getSource(), 
 					param.getDeterministicValue(), param.getProbabilisticValue());
 		}
@@ -229,7 +230,7 @@ public interface ManifestationBuilder {
 		try {
 			// Processes and register the epidemiological parameters related to the manifestation
 			for (String paramName : epidemParams) {
-				final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, 0.0);
+				final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, 0.0, "");
 				// TODO: Should we check if the parameter is defined for the disease? Should be unnecessary.
 				// If the parameter is a prevalence, it is considered an initial proportion
 				if (OSDiWrapper.Clazz.PREVALENCE.containsIntance(paramName)) {

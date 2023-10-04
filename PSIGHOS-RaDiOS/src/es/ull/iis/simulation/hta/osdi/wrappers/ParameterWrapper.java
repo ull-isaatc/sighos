@@ -19,9 +19,9 @@ public class ParameterWrapper extends ValuableWrapper {
 	 * @throws MalformedOSDiModelException 
 	 * 
 	 */
-	public ParameterWrapper(OSDiWrapper wrap, String paramId, double defaultDetValue) throws MalformedOSDiModelException {
+	public ParameterWrapper(OSDiWrapper wrap, String paramId, double defaultDetValue, String defaultDescription) throws MalformedOSDiModelException {
 		super(wrap, paramId, defaultDetValue);
-		description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(paramId, "");
+		description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(paramId, defaultDescription);
 		year = wrap.parseHasYearProperty(paramId);
 		
 		// Takes the uncertainty that characterizes this parameter, but only if it's included in the working model 

@@ -16,7 +16,7 @@ public interface DefinesSensitivityAndSpecificity extends CreatesSecondOrderPara
 	 * @return the specificity
 	 */
 	public default double getSpecificity(Patient pat) {
-		return ProbabilityParamDescriptions.SPECIFICTY.getValueIfExists(getRepository(), this, pat.getSimulation());
+		return ProbabilityParamDescriptions.SPECIFICITY.getValueIfExists(getRepository(), this, pat.getSimulation());
 	}
 	
 	/**

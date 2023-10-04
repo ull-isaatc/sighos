@@ -38,7 +38,7 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 
 	private Modification lifeExpectancyModification;
 	private Modification allParameterModification;
-	private final TreeMap<String, Modification> clinicalParameterModifications;
+	private final TreeMap<String, Modification> attributeModifications;
 	private final Strategy strategy;
 	
 	/**
@@ -61,7 +61,7 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 		this.description = description;
 		lifeExpectancyModification = secParams.NO_MODIF;
 		allParameterModification = secParams.NO_MODIF;
-		clinicalParameterModifications = new TreeMap<>();
+		attributeModifications = new TreeMap<>();
 		this.strategy = strategy;
 		secParams.addIntervention(this);
 	}
@@ -181,24 +181,24 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	}
 
 	/**
-	 * Adds a modification that affects a clinical parameter of the patient 
-	 * @param clinicalParameterName Name of the clinical parameter
-	 * @param modif Modification that affects the value of the clinical parameter
+	 * Adds a modification that affects an attribute of the patient 
+	 * @param attributeName Name of the attribute
+	 * @param modif Modification that affects the value of the attribute
 	 * @return This intervention
 	 */
-	public Intervention addClinicalParameterModification(String clinicalParameterName, Modification modif) {
-		clinicalParameterModifications.put(clinicalParameterName, modif);
+	public Intervention addAttributeModification(String attributeName, Modification modif) {
+		attributeModifications.put(attributeName, modif);
 		return this;
 	}
 	
 	/**
-	 * Return a modification that affects the value of a clinical parameter
-	 * @param clinicalParameterName Name of the clinical parameter
-	 * @return a modification that affects the value of a clinical parameter
+	 * Return a modification that affects the value of an attribute
+	 * @param attributeName Name of the attribute
+	 * @return a modification that affects the value of an attribute
 	 */
-	public Modification getClinicalParameterModification(String clinicalParameterName) {
-		if (clinicalParameterModifications.containsKey(clinicalParameterName))
-			return clinicalParameterModifications.get(clinicalParameterName);
+	public Modification getClinicalParameterModification(String attributeName) {
+		if (attributeModifications.containsKey(attributeName))
+			return attributeModifications.get(attributeName);
 		return secParams.NO_MODIF;
 	}
 	/**

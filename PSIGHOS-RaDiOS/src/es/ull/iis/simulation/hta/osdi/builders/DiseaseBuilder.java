@@ -2,7 +2,6 @@ package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.Set;
 
-import es.ull.iis.simulation.hta.osdi.ManifestationPathwayBuilder;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
@@ -51,8 +50,12 @@ public interface DiseaseBuilder {
 		for (String manifestationName: manifestations) {
 			final Manifestation manif = disease.getManifestation(manifestationName);
 			final Set<String> pathways = OSDiWrapper.ObjectProperty.HAS_PATHWAY.getValues(manifestationName, true);
-			for (String pathwayName : pathways)
-				ManifestationPathwayBuilder.getManifestationPathwayInstance(secParams, manif, pathwayName);
+			try {
+				for (String pathwayName : pathways)
+					ManifestationPathwayBuilder.getManifestationPathwayInstance(secParams, manif, pathwayName);
+			} catch(MalformedOSDiModelException ex) {
+				System.err.println(ex.getMessage());
+			}
 			// Also include exclusions among manifestations
 			final Set<String> exclusions = OSDiWrapper.ObjectProperty.EXCLUDES_MANIFESTATION.getValues(manifestationName);
 			for (String excludedManif : exclusions) {
@@ -68,7 +71,7 @@ public interface DiseaseBuilder {
 			wrap.printWarning(disease.name(), costProperty, "Found more than one cost for a disease. Using only " + costs.toArray()[0]);
 		// TODO: Make a smarter use of the excess of costs and use only those which meets the conditions, i.e. select one annual cost from all the defined ones
 		
-		final CostParameterWrapper costParam = new CostParameterWrapper(wrap, (String)costs.toArray()[0], 0.0);
+		final CostParameterWrapper costParam = new CostParameterWrapper(wrap, (String)costs.toArray()[0], 0.0, "Cost for disease " + disease.name());
 		final OSDiWrapper.TemporalBehavior tempBehavior = costParam.getTemporalBehavior();
 		// Checking coherence between type of cost parameter and its temporal behavior. Assumed to be ok if temporal behavior not specified 
 		if (CostParamDescriptions.DIAGNOSIS_COST.equals(paramDescription)) {
@@ -108,7 +111,7 @@ public interface DiseaseBuilder {
 			wrap.printWarning(disease.name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "A maximum of one annual (dis)utility should be associated to a disease. Using only " + utilities.toArray()[0]);
 
 		final String utilityName = (String) utilities.toArray()[0];
-		final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName); 
+		final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName, "Utility for disease " + disease.name()); 
 		final OSDiWrapper.TemporalBehavior tempBehavior = utilityParam.getTemporalBehavior();
 		
 		if (OSDiWrapper.TemporalBehavior.ONETIME.equals(tempBehavior))

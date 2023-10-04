@@ -931,11 +931,17 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                        rdfs:subClassOf :Intervention ,
                                        [ rdf:type owl:Restriction ;
                                          owl:onProperty :hasSensitivity ;
-                                         owl:someValuesFrom :Parameter
+                                         owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                              owl:onProperty :hasDataItemType ;
+                                                              owl:hasValue :DI_Sensitivity
+                                                            ]
                                        ] ,
                                        [ rdf:type owl:Restriction ;
                                          owl:onProperty :hasSpecificity ;
-                                         owl:someValuesFrom :Parameter
+                                         owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                              owl:onProperty :hasDataItemType ;
+                                                              owl:hasValue :DI_Specificity
+                                                            ]
                                        ] ;
                        rdfs:comment "An intervention intended to detect the presence of a disease or condition in a person" .
 

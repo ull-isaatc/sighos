@@ -31,7 +31,7 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
 		ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, this, "", 1.0);
-		ProbabilityParamDescriptions.SPECIFICTY.addParameter(secParams, this, "", 0.999935);
+		ProbabilityParamDescriptions.SPECIFICITY.addParameter(secParams, this, "", 0.999935);
 		for (Manifestation manif : secParams.getRegisteredManifestations())
 			secParams.addModificationParam(this, Modification.Type.SET, ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif), "", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 	}

@@ -26,8 +26,8 @@ public class UtilityParameterWrapper extends ParameterWrapper {
 	 * @param paramId The IRI of the utility instance in the ontology
 	 * @throws MalformedOSDiModelException If the utility wrapper cannot be created due to incorrect definitions in the ontology
 	 */
-	public UtilityParameterWrapper(OSDiWrapper wrap, String paramId) throws MalformedOSDiModelException {
-		super(wrap, paramId, Double.NaN);
+	public UtilityParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription) throws MalformedOSDiModelException {
+		super(wrap, paramId, Double.NaN, defaultDescription);
 		temporalBehavior = OSDiWrapper.TemporalBehavior.valueOf(OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(paramId, OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.getShortName()));
 		
 		switch(getDataItemType()) {
