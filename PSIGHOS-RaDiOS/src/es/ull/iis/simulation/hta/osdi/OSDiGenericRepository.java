@@ -47,23 +47,23 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	public OSDiGenericRepository(int nRuns, int nPatients, String path, String modelId, String instancePrefix) throws OWLOntologyCreationException, MalformedSimulationModelException {
 		super(nRuns, nPatients);
 		wrap = new OSDiWrapper(path, modelId, instancePrefix);
-		setStudyYear(wrap.parseHasYearProperty(modelId));
+		setStudyYear(wrap.parseHasYearProperty(wrap.getWorkingModelInstance()));
 		
-		final ArrayList<String> methods = OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD.getValues(modelId);
+		final ArrayList<String> methods = OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD.getValues(wrap.getWorkingModelInstance());
 		// Assuming that exactly one method was defined
 		if (methods.size() != 1)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, modelId, OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD, "Exactly one disutility combination method must be specified for the model. Instead, " + methods.size() + " defined.");
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, wrap.getWorkingModelInstance(), OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD, "Exactly one disutility combination method must be specified for the model. Instead, " + methods.size() + " defined.");
 		try {
 			setDisutilityCombinationMethod(DisutilityCombinationMethod.valueOf(methods.get(0)));
 		}
 		catch(IllegalArgumentException ex) {
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, modelId, OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD, "Disutility combination method not valid. \"" + methods.get(0) + "\" not found.");			
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, wrap.getWorkingModelInstance(), OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD, "Disutility combination method not valid. \"" + methods.get(0) + "\" not found.");			
 		}
 
 		// Find the diseases that belong to the model
 		final Set<String> diseaseNames = OSDiWrapper.Clazz.DISEASE.getIndividuals(true); 
 		if (diseaseNames.size() == 0)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, modelId, OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM, "The model does not include any disease.");
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, wrap.getWorkingModelInstance(), OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM, "The model does not include any disease.");
 		final String diseaseName = (String)diseaseNames.toArray()[0];
 		if (diseaseNames.size() > 1)
 			wrap.printWarning("Found " + diseaseNames.size() + " diseases included in the model. Only " + diseaseName + " will be used");
@@ -71,7 +71,7 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		// Find the populations that belong to the model
 		final Set<String> populationNames = OSDiWrapper.Clazz.POPULATION.getIndividuals(true); 
 		if (populationNames.size() == 0)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, modelId, OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM, "The model does not include any population.");
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, wrap.getWorkingModelInstance(), OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM, "The model does not include any population.");
 		final String populationName = (String)populationNames.toArray()[0];
 		if (populationNames.size() > 1)
 			wrap.printWarning("Found " + populationNames.size() + " populations included in the model. Only " + populationName + " will be used");
@@ -85,12 +85,12 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		// TODO: Death submodel should be context specific, depending on the population
 		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 		// Build interventions that belong to the model
-		final Set<String> interventionNames = OSDiWrapper.Clazz.INTERVENTION.getIndividuals(true); 
-		if (interventionNames.size() == 0)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, modelId, OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM, "The model does not include any intervention.");
-		for (String interventionName : interventionNames) {
-			InterventionBuilder.getInterventionInstance(this, interventionName);
-		}
+//		final Set<String> interventionNames = OSDiWrapper.Clazz.INTERVENTION.getIndividuals(true); 
+//		if (interventionNames.size() == 0)
+//			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, wrap.getWorkingModelInstance(), OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM, "The model does not include any intervention.");
+//		for (String interventionName : interventionNames) {
+//			InterventionBuilder.getInterventionInstance(this, interventionName);
+//		}
 		
 	}
 
@@ -113,7 +113,7 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 			interventionsToCompare.add(InterventionBuilder.DO_NOTHING);
 
 //			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "#PBD_ProfoundBiotinidaseDeficiency", "#PBD_BasePopulation", DisutilityCombinationMethod.ADD);
-			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi.owl", "StdModel", "T1DM_");
+			final SecondOrderParamsRepository secParams = new OSDiGenericRepository(1, 1000, System.getProperty("user.dir") + "\\resources\\OSDi_test.owl", "StdModelDES", "T1DM_");
 			secParams.registerAllSecondOrderParams();
 			for (Disease disease : secParams.getRegisteredDiseases()) {
 				System.out.println(disease.prettyPrint(""));

@@ -17,6 +17,7 @@ import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ManifestationType;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ModelType;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ObjectProperty;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.TemporalBehavior;
+import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -143,7 +144,7 @@ public class T1DMInstancesGenerator {
 	 */
 	public T1DMInstancesGenerator(String path) throws OWLOntologyCreationException, OWLOntologyStorageException {
 		wrap = new OSDiWrapper(path, STR_MODEL_NAME, INSTANCE_PREFIX);
-		wrap.createWorkingModel(ModelType.DES, "ICR", "First example of T1DM model", "Spain", 2022, "");
+		wrap.createWorkingModel(ModelType.DES, "ICR", "First example of T1DM model", "Spain", 2022, "", DisutilityCombinationMethod.ADD);
 		final String diseaseIRI = wrap.getDiseaseInstanceName(STR_DISEASE_NAME);
 		wrap.createDisease(diseaseIRI, "Type I Diabetes Mellitus", "do:9744", "icd:E10", "omim:222100", "snomed:46635009");
 		final String diseaseCostIRI = wrap.getParameterInstanceName(STR_DISEASE_NAME + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
@@ -151,10 +152,6 @@ public class T1DMInstancesGenerator {
 				"Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population", 
 				"Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007", TemporalBehavior.ANNUAL, 2012, "1116.733023", null, DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_FOLLOW_UP_COST.add(diseaseIRI, diseaseCostIRI);
-		final String diseaseUtilityIRI = wrap.getParameterInstanceName(STR_DISEASE_NAME + "_ComplicationsFree" + OSDiWrapper.STR_UTILITY_SUFFIX);
-		generateUtilityFromAvgCI(diseaseUtilityIRI, "Utility of DM1 without complications",	"TODO: Buscar", 
-				new double[] {0.785, 0.889, 0.681}, TemporalBehavior.ANNUAL, 2015, OSDiWrapper.UtilityType.UTILITY);
-		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(diseaseIRI, diseaseUtilityIRI);
 		
 		for (Manifestation manif : Manifestation.values()) {
 			manif.generate(wrap);
@@ -172,6 +169,11 @@ public class T1DMInstancesGenerator {
 	private void generatePopulationAndAttributes() {
 		final String populationIRI = wrap.getPopulationInstanceName(STR_POPULATION_NAME);
 		wrap.createPopulation(populationIRI, "First cohort of DCCT Population", 13, 40, 100, 2010);
+
+		final String diseaseUtilityIRI = wrap.getParameterInstanceName(STR_POPULATION_NAME + "_ComplicationsFree" + OSDiWrapper.STR_UTILITY_SUFFIX);
+		generateUtilityFromAvgCI(diseaseUtilityIRI, "Utility of DM1 without complications",	"TODO: Buscar", 
+				new double[] {0.785, 0.889, 0.681}, TemporalBehavior.ANNUAL, 2015, OSDiWrapper.UtilityType.UTILITY);
+		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(populationIRI, diseaseUtilityIRI);		
 		
 		// Define population age (fixed)
 		String valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "Age");
@@ -182,18 +184,18 @@ public class T1DMInstancesGenerator {
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "Sex");
 		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("Sex"), "Proportion of female population in DCCT", "0", DataItemType.DI_PROPORTION);
 		ObjectProperty.HAS_SEX.add(populationIRI, valueIRI);
-		// Define heterogeneity for sex based on the proportion of female population
-		ObjectProperty.HAS_HETEROGENEITY.add(valueIRI, valueIRI + "_Heterogeneity");
-		valueIRI += "_Heterogeneity";
+		// Define stochastic uncertainty for sex based on the proportion of female population
+		ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY.add(valueIRI, valueIRI + "_StochasticUncertainty");
+		valueIRI += "_StochasticUncertainty";
 		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("Sex"), "Proportion of female population in DCCT", "Bernoulli(0.483966942)", DataItemType.DI_PROPORTION);
 		
 		// Define duration of diabetes for the population
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "DurationOfDiabetes");
 		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("DurationOfDiabetes"), "DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", "2.6", DataItemType.DI_TIMETOEVENT);
 		ObjectProperty.HAS_ATTRIBUTE_VALUE.add(populationIRI, valueIRI);
-		// Define heterogeneity for Duration of diabetes
-		ObjectProperty.HAS_HETEROGENEITY.add(valueIRI, valueIRI + "_Heterogeneity");
-		valueIRI += "_Heterogeneity";
+		// Define stochastic uncertainty for Duration of diabetes
+		ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY.add(valueIRI, valueIRI + "_StochasticUncertainty");
+		valueIRI += "_StochasticUncertainty";
 		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("DurationOfDiabetes"), "DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", "Normal(2.6,1.4)", DataItemType.DI_TIMETOEVENT);
 		
 		// Define HbAc level for the population (fixed)
@@ -283,7 +285,7 @@ public class T1DMInstancesGenerator {
 	 */
 	public static void main(String[] args) {
 		try {
-			final T1DMInstancesGenerator gen = new T1DMInstancesGenerator("resources/OSDi.owl");
+			final T1DMInstancesGenerator gen = new T1DMInstancesGenerator("resources/OSDi_test.owl");
 		} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
 			e.printStackTrace();
 		}

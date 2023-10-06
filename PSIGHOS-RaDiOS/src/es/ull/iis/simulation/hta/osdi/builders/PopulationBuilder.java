@@ -57,9 +57,17 @@ public interface PopulationBuilder {
 			super(secParams, populationName, populationDescription, disease);
 			final OSDiWrapper wrap = secParams.getOwlWrapper();
 			final String strMinAge = OSDiWrapper.DataProperty.HAS_MIN_AGE.getValue(populationName, "" + super.getMinAge());
-			minAge = Integer.parseInt(strMinAge);
+			try {
+				minAge = Integer.parseInt(strMinAge);
+			} catch(NumberFormatException ex) {
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.POPULATION, populationName, OSDiWrapper.DataProperty.HAS_MIN_AGE, "Wrong format of " + strMinAge + " . Expected an integer value.");
+			}
 			final String strMaxAge = OSDiWrapper.DataProperty.HAS_MAX_AGE.getValue(populationName, "" + super.getMaxAge());
+			try {
 			maxAge = Integer.parseInt(strMaxAge);
+			} catch(NumberFormatException ex) {
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.POPULATION, populationName, OSDiWrapper.DataProperty.HAS_MAX_AGE, "Wrong format of " + strMaxAge + " . Expected an integer value.");
+			}
 			 // TODO: Currently we are only defining initially assigned attributes, i.e., attributes whose value does not change during the simulation 
 			// Process population age
 			final String ageAttribute = OSDiWrapper.ObjectProperty.HAS_AGE.getValue(populationName, true);

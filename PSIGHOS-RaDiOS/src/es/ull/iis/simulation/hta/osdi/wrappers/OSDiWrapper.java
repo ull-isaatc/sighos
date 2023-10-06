@@ -20,6 +20,7 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
 
 import es.ull.iis.ontology.OWLOntologyWrapper;
+import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 
 /**
  * @author Iv�n Castilla Rodr�guez
@@ -588,8 +589,13 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		return instancePrefix + STR_POPULATION_PREFIX + populationName;
 	}
 	
+	/**
+	 * Returns the expected name for an attribute instance within the ontology. In general, attributes do not use the prefix of the working model, since they should be defined for every disease and model
+	 * @param attributeName The "raw" name of the attribute 
+	 * @return the expected name for an attribute instance within the ontology.
+	 */
 	public String getAttributeInstanceName(String attributeName) {
-		return instancePrefix + STR_ATTRIBUTE_PREFIX + attributeName; 
+		return STR_ATTRIBUTE_PREFIX + attributeName; 
 	}
 	
 	public String getPopulationAttributeValueInstanceName(String populationName, String attributeName) {
@@ -655,13 +661,14 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	 * @param year
 	 * @param reference
 	 */
-	public void createWorkingModel(ModelType type, String author, String description, String geoContext, int year, String reference) {
+	public void createWorkingModel(ModelType type, String author, String description, String geoContext, int year, String reference, DisutilityCombinationMethod combinationMethod) {
 		type.getClazz().add(workingModelInstance);
 		DataProperty.HAS_AUTHOR.add(workingModelInstance, author);
 		DataProperty.HAS_DESCRIPTION.add(workingModelInstance, description);
 		DataProperty.HAS_GEOGRAPHICAL_CONTEXT.add(workingModelInstance, geoContext);
 		DataProperty.HAS_REF_TO.add(workingModelInstance, reference);
 		DataProperty.HAS_YEAR.add(workingModelInstance, "" + year);		
+		DataProperty.HAS_DISUTILITY_COMBINATION_METHOD.add(workingModelInstance, combinationMethod.name());
 	}
 
 	public void createDisease(String instanceName, String description, String refToDO, String refToICD, String refToOMIM, String refToSNOMED) {
@@ -693,7 +700,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		}
 	}
 	
-	public void createPopulation(String instanceName, String description, double minAge, double maxAge, int size, int year) {
+	public void createPopulation(String instanceName, String description, int minAge, int maxAge, int size, int year) {
 		Clazz.POPULATION.add(instanceName);
 		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
 		DataProperty.HAS_MIN_AGE.add(instanceName, "" + minAge);

@@ -30,32 +30,10 @@ public class ValuableWrapper {
 		this.paramId = paramId;
 		source = parseHasSourceProperty(paramId);
 		deterministicValue = parseExpressionPropertyAsValue(paramId, defaultDetValue);
-		// Takes the stochastic uncertainty that characterizes this parameter, but only if it's included in the working model 
-		final Set<String> stochasticUncertainty = OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY.getValues(paramId, true);
-		final Set<String> heterogeneity = OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY.getValues(paramId, true);
-		if (stochasticUncertainty.size() > 0) {
-			if (stochasticUncertainty.size() > 1) {
-				wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Found more than one stochastic uncertainty characterization for a parameter. Using " + stochasticUncertainty.toArray()[0]);
-			}
-			probabilisticValue = parseExpressionPropertyAsProbabilityDistribution((String)stochasticUncertainty.toArray()[0]);
-			if (heterogeneity.size() > 0) {
-				wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Parameter defined both stochastic uncertainty and heterogeneity. Using only stochastic uncertainty.");
-			}
-		}
-		else {
-			if (heterogeneity.size() > 0) {
-				if (heterogeneity.size() > 1) {
-					wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY, "Found more than one heterogeneity characterization for a parameter. Using " + heterogeneity.toArray()[0]);
-				}
-				probabilisticValue = parseExpressionPropertyAsProbabilityDistribution((String)heterogeneity.toArray()[0]);
-			}
-			else {
-				probabilisticValue = null;
-			}
-		}
+		this.probabilisticValue = processUncertainty(wrap);
 
 		Set<String> types = OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE.getValues(paramId);
-		// Type assumed to be utility if not specified
+		// Type assumed to be undefined if not specified
 		if (types.size() == 0) {
 			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item type not specified for parameter. Assigning UNDEFINED");
 			dataItemType = OSDiWrapper.DataItemType.DI_UNDEFINED;
@@ -68,6 +46,18 @@ public class ValuableWrapper {
 		}
 	}
 
+	public RandomVariate processUncertainty(OSDiWrapper wrap) throws MalformedOSDiModelException {
+		RandomVariate stochasticUncertainty = UncertaintyProcessor.process(wrap, this, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY);
+		RandomVariate heterogeneity = UncertaintyProcessor.process(wrap, this, OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY);
+		if (stochasticUncertainty != null) {
+			if (heterogeneity != null) {
+				wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Parameter defined both stochastic uncertainty and heterogeneity. Using only stochastic uncertainty.");
+			}
+			return stochasticUncertainty;
+		}
+		return heterogeneity;
+	}
+	
 	/**
 	 * @return the paramId
 	 */
@@ -138,13 +128,6 @@ public class ValuableWrapper {
 			wrap.printWarning(individualIRI, OSDiWrapper.DataProperty.HAS_EXPRESSION, "Wrong expression format. Found " + strValue + ". Using " + defaultValue + " instead");
 			return defaultValue;
 		}
-	}
-	
-	public RandomVariate parseExpressionPropertyAsProbabilityDistribution(String individualIRI) throws MalformedOSDiModelException {
-		final String strValue = OSDiWrapper.DataProperty.HAS_EXPRESSION.getValue(individualIRI, "");
-		if (strValue == "")
-			return null;
-		return ProbabilityDistribution.getInstanceFromExpression(strValue);		
 	}
 	
 	/**

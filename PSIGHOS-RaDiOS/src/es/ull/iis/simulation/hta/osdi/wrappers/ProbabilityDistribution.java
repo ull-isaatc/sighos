@@ -22,7 +22,7 @@ public class ProbabilityDistribution {
 	private static final String DIST_PARAM2 = "DISTPARAM2";
 	private static final String DIST_PARAM3 = "DISTPARAM3";
 	private static final String DIST_PARAM4 = "DISTPARAM4";
-	private static final String REG_EXP = "^(?(?<" + 
+	private static final String REG_EXP = "^((?<" + 
 					DIST_OFFSET + ">[+-]?[0-9]+\\.?[0-9]*)?(?<" +
 					DIST_SCALE_SIGN + ">[+-])?((?<" + 
 					DIST_SCALE + ">[0-9]+\\.?[0-9]*)\\*)?(?<" + 

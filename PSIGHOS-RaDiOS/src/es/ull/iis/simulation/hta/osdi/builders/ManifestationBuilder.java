@@ -210,11 +210,16 @@ public interface ManifestationBuilder {
 
 			// Gets the manifestation parameters related to the working model
 			final Set<String> manifestationParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(name, true);
-			final String manifParam = (String)manifestationParams.toArray()[0];
-			if (manifestationParams.size() > 1) {
-				wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestations should define a single risk characterization. Using " + manifParam);
+			if (manifestationParams.size() > 0) {
+				String manifParam = (String)manifestationParams.toArray()[0];
+				if (manifestationParams.size() > 1) {
+					wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestations should define a single risk characterization. Using " + manifParam);
+				}
+				incidenceWrapper = new ParameterWrapper(wrap, manifParam, 0, "Developing " + name);;
 			}
-			incidenceWrapper = new ParameterWrapper(wrap, manifParam, 0, "Developing " + name);
+			else {
+				incidenceWrapper = null;
+			}
 		}
 
 		@Override
@@ -246,22 +251,32 @@ public interface ManifestationBuilder {
 
 			// Gets the manifestation parameters related to the working model
 			Set<String> manifestationParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(name, true);
-			String manifParam = (String)manifestationParams.toArray()[0];
-			if (manifestationParams.size() > 1) {
-				wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestations should define a single risk characterization. Using " + manifParam);
+			if (manifestationParams.size() > 0) {
+				String manifParam = (String)manifestationParams.toArray()[0];
+				if (manifestationParams.size() > 1) {
+					wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestations should define a single risk characterization. Using " + manifParam);
+				}
+				incidenceWrapper = new ParameterWrapper(wrap, manifParam, 0, "Developing " + name);;
 			}
-			incidenceWrapper = new ParameterWrapper(wrap, manifParam, 0, "Developing " + name);;
+			else {
+				incidenceWrapper = null;
+			}
 
 			// Gets the manifestation parameters related to the working model
 			manifestationParams = OSDiWrapper.ObjectProperty.HAS_INITIAL_PROPORTION.getValues(name, true);
-			manifParam = (String)manifestationParams.toArray()[0];
-			if (manifestationParams.size() > 1) {
-				wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_INITIAL_PROPORTION, "Manifestations should define a single initial proportion. Using " + manifParam);
+			if (manifestationParams.size() > 0) {
+				String manifParam = (String)manifestationParams.toArray()[0];
+				if (manifestationParams.size() > 1) {
+					wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_INITIAL_PROPORTION, "Manifestations should define a single initial proportion. Using " + manifParam);
+				}
+				if (!OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION.getValues(manifParam, true).contains(populationName))
+					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, manifParam, OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION, 
+							"Parameters characterizing initial proportions must be related to the population: " + populationName);
+				initialProportionWrapper = new ParameterWrapper(wrap, manifParam, 0, "Initial proportion of " + name);
 			}
-			if (!OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION.getValues(manifParam, true).contains(populationName))
-				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, manifParam, OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION, 
-						"Parameters characterizing initial proportions must be related to the population: " + populationName);
-			initialProportionWrapper = new ParameterWrapper(wrap, manifParam, 0, "Initial proportion of " + name);
+			else {
+				initialProportionWrapper = null;
+			}
 		}
 
 		@Override
