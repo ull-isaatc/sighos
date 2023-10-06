@@ -40,9 +40,9 @@ public interface PopulationBuilder {
 	 * @param populationName
 	 * @return
 	 */
-	public static StdPopulation getPopulationInstance(OSDiGenericRepository secParams, Disease disease, String populationName) throws MalformedSimulationModelException, MalformedOSDiModelException {
+	public static StdPopulation getPopulationInstance(OSDiGenericRepository secParams, String populationName, Disease disease) throws MalformedSimulationModelException {
 		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(populationName, "");
-		return new OSDiPopulation(secParams, disease, populationName, description);		
+		return new OSDiPopulation(secParams, populationName, description, disease);		
 	}
 	
 	static class OSDiPopulation extends StdPopulation {
@@ -53,7 +53,7 @@ public interface PopulationBuilder {
 		private final int minAge; 
 		private final int maxAge; 
 		
-		public OSDiPopulation(OSDiGenericRepository secParams, Disease disease, String populationName, String populationDescription) throws MalformedSimulationModelException, MalformedOSDiModelException {
+		public OSDiPopulation(OSDiGenericRepository secParams, String populationName, String populationDescription, Disease disease) throws MalformedSimulationModelException {
 			super(secParams, populationName, populationDescription, disease);
 			final OSDiWrapper wrap = secParams.getOwlWrapper();
 			final String strMinAge = OSDiWrapper.DataProperty.HAS_MIN_AGE.getValue(populationName, "" + super.getMinAge());

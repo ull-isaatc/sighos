@@ -233,6 +233,15 @@
                            rdfs:comment "By default = 1" .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasInitialProportion
+:hasInitialProportion rdf:type owl:ObjectProperty ;
+                      rdfs:subPropertyOf :hasParameter ;
+                      rdfs:domain :Manifestation ,
+                                  :Population ;
+                      rdfs:range :Parameter ;
+                      rdfs:comment "The initial proportion of patients of a population that already present certain manifestation"@en .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasIntervention
 :hasIntervention rdf:type owl:ObjectProperty ;
                  rdfs:domain :Disease ;
@@ -1364,6 +1373,10 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                  owl:someValuesFrom :Parameter
                                ] ,
                                [ rdf:type owl:Restriction ;
+                                 owl:onProperty :hasInitialProportion ;
+                                 owl:someValuesFrom :Parameter
+                               ] ,
+                               [ rdf:type owl:Restriction ;
                                  owl:onProperty :hasLifeExpectancyReduction ;
                                  owl:someValuesFrom :Parameter
                                ] ,
@@ -1572,6 +1585,10 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                             [ rdf:type owl:Restriction ;
                               owl:onProperty :hasAttributeValue ;
                               owl:someValuesFrom :AttributeValue
+                            ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty :hasInitialProportion ;
+                              owl:someValuesFrom :Parameter
                             ] ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty :hasLifeExpectancy ;

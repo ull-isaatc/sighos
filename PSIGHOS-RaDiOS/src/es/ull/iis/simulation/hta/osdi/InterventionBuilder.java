@@ -10,7 +10,6 @@ import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.Discount;
@@ -25,7 +24,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 public interface InterventionBuilder {
 	public static String DO_NOTHING = "DO_NOTHING";
 
-	public static Intervention getInterventionInstance(OSDiGenericRepository secParams, String interventionName) throws TranspilerException {
+	public static Intervention getInterventionInstance(OSDiGenericRepository secParams, String interventionName) {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		if (DO_NOTHING.equals(interventionName))
 			return new DoNothingIntervention(secParams);

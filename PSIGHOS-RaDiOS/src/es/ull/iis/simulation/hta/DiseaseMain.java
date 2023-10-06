@@ -4,13 +4,10 @@
 package es.ull.iis.simulation.hta;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import javax.xml.bind.JAXBException;
 
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
@@ -20,9 +17,6 @@ import com.beust.jcommander.Parameter;
 
 import es.ull.iis.simulation.hta.diab.T1DMRepository;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
-import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.pbdmodel.PBDRepository;
 import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
@@ -52,8 +46,11 @@ public class DiseaseMain extends HTAExperiment {
 //	private final static String PARAMS = "-n 100 -r 0 -dr 0 -q -t 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 //	private final static String PARAMS = "-n 1000 -r 0 -dr 0 -q -t 1 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 
+	private final TreeMap<String, Double> initProportions;
+	
 	public DiseaseMain(Arguments arguments, ByteArrayOutputStream simResult) throws MalformedSimulationModelException {
 		super(arguments, simResult);
+		initProportions = new TreeMap<>();
 	}
 	
 	public static class Arguments extends CommonArguments {
@@ -75,6 +72,10 @@ public class DiseaseMain extends HTAExperiment {
 		final List<String> interventionsToCompare = new ArrayList<>();
 		final int nRuns = ((Arguments)arguments).nRuns;
 		final int nPatients = ((Arguments)arguments).nPatients;
+		// FIXME: Currently, do not doing anything with this initial proportions
+		for (final Map.Entry<String, String> pInit : ((Arguments)arguments).initProportions.entrySet()) {
+			initProportions.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
+		}
 		if (((Arguments)arguments).type == 1) {
 //			String path = "";
 //			switch(disease) {
@@ -114,7 +115,8 @@ public class DiseaseMain extends HTAExperiment {
 			// TODO: Add arguments validation for OSDi
 			try {
 				secParams = new OSDiGenericRepository(nRuns, nPatients, System.getProperty("user.dir") + "\\resources\\OSDi.owl", ((Arguments)arguments).model, ((Arguments)arguments).prefix);
-			} catch (IOException | TranspilerException | JAXBException | OWLOntologyCreationException | MalformedOSDiModelException e) {
+				// This repository ignores potential study years passed as arguments
+			} catch (OWLOntologyCreationException | MalformedSimulationModelException e) {
 				MalformedSimulationModelException ex = new MalformedSimulationModelException("");
 				ex.initCause(e);
 				throw ex;
@@ -132,15 +134,18 @@ public class DiseaseMain extends HTAExperiment {
 			case TEST_RARE_DISEASE4:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for the rare disease [%d] \n\n", disease));
 				secParams = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
+				secParams.setStudyYear(arguments.year);
 				break;
 			case TEST_T1DM:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for T1DM \n\n"));
 				secParams = new T1DMRepository(nRuns, nPatients);
+				secParams.setStudyYear(arguments.year);
 				break;
 			case TEST_PBD:
 			default:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for the rare disease PBD \n\n"));
 				secParams = new PBDRepository(nRuns, nPatients, ALL_AFFECTED);
+				secParams.setStudyYear(arguments.year);
 				break;				
 			}			
 		}
@@ -157,9 +162,6 @@ public class DiseaseMain extends HTAExperiment {
 			final JCommander jc = JCommander.newBuilder().addObject(arguments).build();
 			jc.parse((PARAMS == "") ? args : PARAMS.split(" "));
 
-			for (final Map.Entry<String, String> pInit : arguments.initProportions.entrySet()) {
-				BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
-			}
 			// ##############################################################################################################
 
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream ();

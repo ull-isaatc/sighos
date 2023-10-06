@@ -97,20 +97,7 @@ public interface ManifestationPathwayBuilder {
 		if (pathwayParams.size() > 1) {
 			wrap.printWarning(pathwayName, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestation pathways should define a single risk characterization. Using " + pathwayParam);
 		}
-		final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, pathwayParam, 0, "Developing " + manifestation + " due to " + pathwayName);
-		final OSDiWrapper.DataItemType dataItem = paramWrapper.getDataItemType();
-		
-		switch(dataItem) {
-		case DI_PROBABILITY:
-			break;
-		case DI_PROPORTION:
-			break;
-		case DI_TIMETOEVENT:
-			break;
-		default:
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, pathwayName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item type: " + dataItem.getInstanceName());
-		}
-		return paramWrapper;
+		return new ParameterWrapper(wrap, pathwayParam, 0, "Developing " + manifestation + " due to " + pathwayName);
 	}
 	/**
 	 * Creates the calculator for the time to event associated to this pathway. Currently only allows the time to be expressed as an annual risk and, consequently, uses 
@@ -122,7 +109,7 @@ public interface ManifestationPathwayBuilder {
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	private static TimeToEventCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
+	public static TimeToEventCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
 		
 		final OSDiWrapper.DataItemType dataItem = riskWrapper.getDataItemType();
 		

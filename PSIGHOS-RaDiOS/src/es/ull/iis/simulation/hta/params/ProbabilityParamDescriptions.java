@@ -14,7 +14,6 @@ import simkit.random.RandomVariate;
  */
 public enum ProbabilityParamDescriptions implements DescribesParameter {
 	BIRTH_PREVALENCE("BIRTH_PREVALENCE", "Birth prevalence of", 0.0),
-	INITIAL_PROBABILITY("P_INIT", "Probability of starting with", 0.0),
 	INITIAL_PROPORTION("P_INIT", "Proportion starting with", 0.0),
 	PREVALENCE("PREVALENCE", "Prevalence of", 0.0),
 	PROBABILITY("P", "Probability of", 0.0),

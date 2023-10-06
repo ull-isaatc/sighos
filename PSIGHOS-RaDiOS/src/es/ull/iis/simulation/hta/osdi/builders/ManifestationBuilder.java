@@ -5,7 +5,10 @@ package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.Set;
 
+import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.builders.ManifestationPathwayBuilder.OSDiManifestationPathway;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
@@ -20,6 +23,7 @@ import es.ull.iis.simulation.hta.progression.AcuteManifestation;
 import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 
 /**
  * @author David Prieto González
@@ -28,45 +32,15 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  */
 public interface ManifestationBuilder {
 
-	public static Manifestation getManifestationInstance(OSDiGenericRepository secParams, Disease disease, String manifestationName) {
+	public static Manifestation getManifestationInstance(OSDiGenericRepository secParams, String manifestationName, Disease disease, String populationName) throws MalformedOSDiModelException {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		
-		Manifestation manifestation = null;
 		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(manifestationName, "");
 		final Set<String> manifClazz = wrap.getClassesForIndividual(manifestationName);
-		if (manifClazz.contains(OSDiWrapper.Clazz.ACUTE_MANIFESTATION.getShortName())) {
-			manifestation = new AcuteManifestation(secParams, manifestationName, description, disease) {
-				@Override
-				public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-					createParams((OSDiGenericRepository) secParams, this);
-				}
-			};			
-		}
-		else {
-			manifestation = new ChronicManifestation(secParams, manifestationName, description,	disease) {
-					@Override
-					public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-						createParams((OSDiGenericRepository) secParams, this);
-					}
-			};
-		}
-		return manifestation;
+		if (manifClazz.contains(OSDiWrapper.Clazz.ACUTE_MANIFESTATION.getShortName()))
+			return new OSDiAcuteManifestation(secParams, manifestationName, description, disease);			
+		return new OSDiChronicManifestation(secParams, manifestationName, description,	disease, populationName);
 	}
-
-	private static void createParams(OSDiGenericRepository secParams, Manifestation manifestation) {
-		try {
-			final OSDiWrapper wrap = secParams.getOwlWrapper();
-			createOnsetEndAgeParams(wrap, manifestation);
-			createCostParams(wrap, manifestation);
-			createUtilityParams(wrap, manifestation);
-			createMortalityParams(wrap, manifestation);
-			addProbabilityParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS, 0);
-		} catch (MalformedOSDiModelException ex) {
-			System.err.println(ex.getMessage());
-		}
-		
-	}
-	
 
 	private static void createOnsetEndAgeParams(OSDiWrapper wrap, Manifestation manifestation) throws MalformedOSDiModelException {
 		final String onsetAge = OSDiWrapper.ObjectProperty.HAS_ONSET_AGE.getValue(manifestation.name(), true);
@@ -216,42 +190,98 @@ public interface ManifestationBuilder {
 			addOtherParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_LIFE_EXPECTANCY_REDUCTION, OtherParamDescriptions.LIFE_EXPECTANCY_REDUCTION, 0.0);
 		}
 	}
+	
+	static private void createIncidenceParam(Manifestation manifestation, ParameterWrapper incidenceWrapper) throws MalformedOSDiModelException {
+		if (incidenceWrapper != null) {
+			final OSDiGenericRepository OSDiParams = ((OSDiGenericRepository)manifestation.getRepository()); 
+			final TimeToEventCalculator tte = ManifestationPathwayBuilder.createTimeToEventCalculator(OSDiParams, manifestation, "", incidenceWrapper);
+			OSDiManifestationPathway pathway = new OSDiManifestationPathway(OSDiParams, manifestation, new TrueCondition<Patient>(), tte, "", incidenceWrapper);
+		}
 
-	private static void createEpidemiologicalParams(OSDiWrapper wrap, Manifestation manifestation) throws MalformedOSDiModelException {
-		final OSDiGenericRepository OSDiParams = ((OSDiGenericRepository)manifestation.getRepository()); 
+	}
+	
+	static class OSDiAcuteManifestation extends AcuteManifestation {
+		final private ParameterWrapper incidenceWrapper; 
 
-		// Gets the manifestation parameters related to the working model
-		final Set<String> manifestationParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(manifestation.name(), true);
-		// TODO: Check whether they should be epidemiological or just Parameters
-		// Gets all the epidemiological parameters that are manifestation parameters
-		final Set<String> epidemParams = OSDiWrapper.Clazz.EPIDEMIOLOGICAL_PARAMETER.getIndividuals(true);
-		epidemParams.retainAll(manifestationParams);
-		boolean hasPrevalence = false;
-		try {
-			// Processes and register the epidemiological parameters related to the manifestation
-			for (String paramName : epidemParams) {
-				final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, 0.0, "");
-				// TODO: Should we check if the parameter is defined for the disease? Should be unnecessary.
-				// If the parameter is a prevalence, it is considered an initial proportion
-				if (OSDiWrapper.Clazz.PREVALENCE.containsIntance(paramName)) {
-					if (hasPrevalence) {
-						wrap.printWarning(manifestation.name(), OSDiWrapper.ObjectProperty.HAS_PARAMETER, "A manifestation can define just one prevalence. Ignoring " + paramName);														
-					}
-					else {
-						hasPrevalence = true;
-						ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(OSDiParams, manifestation, paramWrapper.getSource(),
-								paramWrapper.getDeterministicValue(), paramWrapper.getProbabilisticValue());						
-					}
-				}
-				// If the parameter is an incidence, it is considered a risk or time to event to develop the manifestation
-				else if (OSDiWrapper.Clazz.INCIDENCE.containsIntance(paramName)) {
-					// TODO: Check if should be processed here or from ManifestationPathwayBuilder
-				}
+		public OSDiAcuteManifestation(OSDiGenericRepository secParams, String name, String description,
+				Disease disease) throws MalformedOSDiModelException {
+			super(secParams, name, description, disease);
+			final OSDiWrapper wrap = secParams.getOwlWrapper();
+
+			// Gets the manifestation parameters related to the working model
+			final Set<String> manifestationParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(name, true);
+			final String manifParam = (String)manifestationParams.toArray()[0];
+			if (manifestationParams.size() > 1) {
+				wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestations should define a single risk characterization. Using " + manifParam);
 			}
-		} catch (MalformedOSDiModelException e) {
-			e.printStackTrace();
+			incidenceWrapper = new ParameterWrapper(wrap, manifParam, 0, "Developing " + name);
+		}
+
+		@Override
+		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+			final OSDiGenericRepository OSDiParams = (OSDiGenericRepository) secParams; 
+			try {
+				final OSDiWrapper wrap = OSDiParams.getOwlWrapper();
+				createOnsetEndAgeParams(wrap, this);
+				createCostParams(wrap, this);
+				createUtilityParams(wrap, this);
+				createMortalityParams(wrap, this);
+				addProbabilityParam(wrap, this, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS, 0);
+				createIncidenceParam(this, incidenceWrapper);
+			} catch (MalformedOSDiModelException ex) {
+				System.err.println(ex.getMessage());
+			}
 		}
 		
 	}
 	
+	static class OSDiChronicManifestation extends ChronicManifestation {
+		final private ParameterWrapper incidenceWrapper; 
+		final private ParameterWrapper initialProportionWrapper; 
+
+		public OSDiChronicManifestation(OSDiGenericRepository secParams, String name, String description,
+				Disease disease, String populationName) throws MalformedOSDiModelException {
+			super(secParams, name, description, disease);
+			final OSDiWrapper wrap = secParams.getOwlWrapper();
+
+			// Gets the manifestation parameters related to the working model
+			Set<String> manifestationParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(name, true);
+			String manifParam = (String)manifestationParams.toArray()[0];
+			if (manifestationParams.size() > 1) {
+				wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestations should define a single risk characterization. Using " + manifParam);
+			}
+			incidenceWrapper = new ParameterWrapper(wrap, manifParam, 0, "Developing " + name);;
+
+			// Gets the manifestation parameters related to the working model
+			manifestationParams = OSDiWrapper.ObjectProperty.HAS_INITIAL_PROPORTION.getValues(name, true);
+			manifParam = (String)manifestationParams.toArray()[0];
+			if (manifestationParams.size() > 1) {
+				wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_INITIAL_PROPORTION, "Manifestations should define a single initial proportion. Using " + manifParam);
+			}
+			if (!OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION.getValues(manifParam, true).contains(populationName))
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, manifParam, OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION, 
+						"Parameters characterizing initial proportions must be related to the population: " + populationName);
+			initialProportionWrapper = new ParameterWrapper(wrap, manifParam, 0, "Initial proportion of " + name);
+		}
+
+		@Override
+		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+			final OSDiGenericRepository OSDiParams = (OSDiGenericRepository) secParams; 
+			try {
+				final OSDiWrapper wrap = OSDiParams.getOwlWrapper();
+				createOnsetEndAgeParams(wrap, this);
+				createCostParams(wrap, this);
+				createUtilityParams(wrap, this);
+				createMortalityParams(wrap, this);
+				addProbabilityParam(wrap, this, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS, 0);
+				createIncidenceParam(this, incidenceWrapper);
+				if (initialProportionWrapper != null)
+					ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(getRepository(), this, initialProportionWrapper.getSource(), 
+							initialProportionWrapper.getDeterministicValue(), initialProportionWrapper.getProbabilisticValue());
+			} catch (MalformedOSDiModelException ex) {
+				System.err.println(ex.getMessage());
+			}
+		}
+		
+	}
 }

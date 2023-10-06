@@ -3,12 +3,8 @@
  */
 package es.ull.iis.simulation.hta.tests;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.JAXBException;
 
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
@@ -16,9 +12,6 @@ import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.InterventionBuilder;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
-import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 
@@ -52,19 +45,9 @@ public class TestLoadOWL {
 				System.out.println(interv.prettyPrint(""));
 			}
 			System.out.println(secParams.prettyPrint(""));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (TranspilerException e) {
-			e.printStackTrace();
 		} catch (MalformedSimulationModelException e) {
 			e.printStackTrace();
 		} catch (OWLOntologyCreationException e) {
-			e.printStackTrace();
-		} catch (MalformedOSDiModelException e) {
 			e.printStackTrace();
 		}
 	}

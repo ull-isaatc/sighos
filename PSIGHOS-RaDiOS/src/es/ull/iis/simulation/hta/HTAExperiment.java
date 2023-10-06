@@ -68,7 +68,6 @@ public abstract class HTAExperiment {
 	private final ArrayList<ExperimentListener> baseCaseExpListeners;
 
 	public HTAExperiment(CommonArguments arguments, ByteArrayOutputStream simResult) throws MalformedSimulationModelException {
-		BasicConfigParams.STUDY_YEAR = arguments.year;
 		this.secParams = createRepository(arguments);
 		final String validity = secParams.checkValidity();
 		if (validity != null) {
@@ -592,8 +591,12 @@ public abstract class HTAExperiment {
 	public static class MalformedSimulationModelException extends Exception {
 		private static final long serialVersionUID = 7167363294337270171L;
 
-		public MalformedSimulationModelException(String s) {
-			super("The model was incomplete or malformed: " + s);
+		public MalformedSimulationModelException(String message, Throwable cause) {
+			super("The model was incomplete or malformed: " + message, cause);
+		}
+
+		public MalformedSimulationModelException(String message) {
+			super("The model was incomplete or malformed: " + message);
 		}
 				
 	}

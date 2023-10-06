@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta;
 
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class CommonArguments {
 	@Parameter(names = { "--quiet", "-q" }, description = "Quiet execution (does not print progress info)", order = 6)
 	public boolean quiet = false;
 	@Parameter(names = { "--year", "-y" }, description = "Modifies the year of the study (for cost updating))", order = 8)
-	public int year = BasicConfigParams.STUDY_YEAR;
+	public int year = Year.now().getValue();
 
 	/**
 	 * 

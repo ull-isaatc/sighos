@@ -27,7 +27,7 @@ public class SecondOrderCostParam extends SecondOrderParam {
 	public SecondOrderCostParam(SecondOrderParamsRepository secParams, String name, String description, String source, CostParamDescriptions type, int year, double detValue) {
 		super(secParams, name, description, source, detValue);
 		this.year = year;
-		generatedValues[0] = SpanishCPIUpdate.updateCost(generatedValues[0], year, BasicConfigParams.STUDY_YEAR);
+		generatedValues[0] = SpanishCPIUpdate.updateCost(generatedValues[0], year, secParams.getStudyYear());
 		this.type = type;
 	}
 	
@@ -44,14 +44,14 @@ public class SecondOrderCostParam extends SecondOrderParam {
 	public SecondOrderCostParam(SecondOrderParamsRepository secParams, String name, String description, String source, CostParamDescriptions type, int year, double detValue, RandomVariate rnd) {
 		super(secParams, name, description, source, detValue, rnd);
 		this.year = year;
-		generatedValues[0] = SpanishCPIUpdate.updateCost(generatedValues[0], year, BasicConfigParams.STUDY_YEAR);
+		generatedValues[0] = SpanishCPIUpdate.updateCost(generatedValues[0], year, secParams.getStudyYear());
 		this.type = type;
 	}
 
 	@Override
 	public double getValue(int id) {
 		if (Double.isNaN(generatedValues[id])) {
-				generatedValues[id] = SpanishCPIUpdate.updateCost(rnd.generate(), year, BasicConfigParams.STUDY_YEAR);
+				generatedValues[id] = SpanishCPIUpdate.updateCost(rnd.generate(), year, secParams.getStudyYear());
 		}
 		return generatedValues[id];
 	}

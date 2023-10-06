@@ -345,6 +345,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_GUIDELINE("hasGuideline"),
 		HAS_HETEROGENEITY("hasHeterogeneity"),
 		HAS_INCREASED_MORTALITY_RATE("hasIncreasedMortalityRate"),
+		HAS_INITIAL_PROPORTION("hasInitialProportion"),
 		HAS_INTERVENTION("hasIntervention"),
 		HAS_LIFE_EXPECTANCY("hasLifeExpectancy"),
 		HAS_LIFE_EXPECTANCY_REDUCTION("hasLifeExctancyReduction"),

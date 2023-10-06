@@ -359,19 +359,6 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 		return exclusions.get(manif);
 	}
 	
-	/**
-	 * Adds the parameters corresponding to the second order uncertainty on the initial proportions for each stage of
-	 * the complication
-	 * @param secParams Second order parameters repository
-	 */
-	public void addSecondOrderInitProportion() {
-		for (final Manifestation manif : getManifestations()) {
-			if (BasicConfigParams.INIT_PROP.containsKey(manif.name())) {
-				ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, manif, "", BasicConfigParams.INIT_PROP.get(manif.name()));
-			}			
-		}		
-	}
-	
 	@Override
 	public String toString() {
 		return name;

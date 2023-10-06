@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.params;
 
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
@@ -95,6 +96,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	public final Modification NO_MODIF;
 	/** The method to combine different disutilities. {@link DisutilityCombinationMethod#ADD} by default */
 	private DisutilityCombinationMethod method = DisutilityCombinationMethod.ADD;
+	/** Year used to update the costs */
+	private int studyYear;
 	
 	/**
 	 * Creates a repository of second order parameters. By default, generates the base case values.
@@ -108,6 +111,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 		this.modificationParams = new TreeMap<>();
 		this.nPatients = nPatients;
 		this.nRuns = nRuns;
+		this.studyYear = Year.now().getValue();
 		this.registeredManifestations = new ArrayList<>();
 		this.registeredDiseases = new ArrayList<>();
 		this.registeredDevelopments = new ArrayList<>();
@@ -323,6 +327,22 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	 */
 	public int getNRuns() {
 		return nRuns;
+	}
+
+	/**
+	 * Return the year that is used to update the cost parameters
+	 * @return the year that is used to update the cost parameters
+	 */
+	public int getStudyYear() {
+		return studyYear;
+	}
+
+	/**
+	 * Sets the value of the year that is used to update the cost parameters
+	 * @param studyYear The new year of study
+	 */
+	public void setStudyYear(int studyYear) {
+		this.studyYear = studyYear;
 	}
 
 	/**

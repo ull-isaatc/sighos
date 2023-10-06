@@ -212,7 +212,7 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 		final int id = pat.getSimulation().getIdentifier();
 		if (pInit[id] == null)
 			pInit[id] = new BernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), 
-					ProbabilityParamDescriptions.INITIAL_PROBABILITY.getValue(secParams, this, pat.getSimulation()));
+					ProbabilityParamDescriptions.INITIAL_PROPORTION.getValue(secParams, this, pat.getSimulation()));
 		return pInit[id].getValue(pat);
 	}
 

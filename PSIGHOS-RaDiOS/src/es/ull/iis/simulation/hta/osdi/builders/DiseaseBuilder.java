@@ -19,7 +19,16 @@ import es.ull.iis.simulation.hta.progression.Manifestation;
  * @author David Prieto González
  */
 public interface DiseaseBuilder {
-	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseName) {
+	/**
+	 * Creates an instance of a disease from the information stored in the ontology. The population is required because some parameters are population-dependant; 
+	 * e.g. initial proportion of manifestations should be related both to a manifestation and a population.
+	 * @param secParams Common parameters repository
+	 * @param diseaseName Name of the disease, used as IRI in the ontology
+	 * @param populationName Name of the population, used as IRI in the ontology. 
+	 * @return An instance of a disease 
+	 * @throws MalformedOSDiModelException 
+	 */
+	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseName, String populationName) throws MalformedOSDiModelException {
 		Disease disease = new Disease(secParams, diseaseName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(diseaseName, "")) {
 
 			@Override
@@ -44,18 +53,14 @@ public interface DiseaseBuilder {
 		// Build manifestations
 		final Set<String> manifestations = OSDiWrapper.Clazz.MANIFESTATION.getIndividuals(true);
 		for (String manifestationName: manifestations) {
-			ManifestationBuilder.getManifestationInstance(secParams, disease, manifestationName);
+			ManifestationBuilder.getManifestationInstance(secParams, manifestationName, disease, populationName);
 		}
 		// Build manifestation pathways after creating all the manifestations
 		for (String manifestationName: manifestations) {
 			final Manifestation manif = disease.getManifestation(manifestationName);
 			final Set<String> pathways = OSDiWrapper.ObjectProperty.HAS_PATHWAY.getValues(manifestationName, true);
-			try {
-				for (String pathwayName : pathways)
-					ManifestationPathwayBuilder.getManifestationPathwayInstance(secParams, manif, pathwayName);
-			} catch(MalformedOSDiModelException ex) {
-				System.err.println(ex.getMessage());
-			}
+			for (String pathwayName : pathways)
+				ManifestationPathwayBuilder.getManifestationPathwayInstance(secParams, manif, pathwayName);
 			// Also include exclusions among manifestations
 			final Set<String> exclusions = OSDiWrapper.ObjectProperty.EXCLUDES_MANIFESTATION.getValues(manifestationName);
 			for (String excludedManif : exclusions) {
