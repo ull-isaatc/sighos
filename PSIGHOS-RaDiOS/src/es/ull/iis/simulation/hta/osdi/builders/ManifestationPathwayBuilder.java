@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +15,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
+import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
@@ -97,7 +99,7 @@ public interface ManifestationPathwayBuilder {
 		if (pathwayParams.size() > 1) {
 			wrap.printWarning(pathwayName, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestation pathways should define a single risk characterization. Using " + pathwayParam);
 		}
-		return new ParameterWrapper(wrap, pathwayParam, "Developing " + manifestation + " due to " + pathwayName);
+		return new ParameterWrapper(wrap, pathwayParam, "Developing " + manifestation + " due to " + pathwayName, EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
 	}
 	/**
 	 * Creates the calculator for the time to event associated to this pathway. Currently only allows the time to be expressed as an annual risk and, consequently, uses 
@@ -111,26 +113,27 @@ public interface ManifestationPathwayBuilder {
 	 */
 	public static TimeToEventCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
 		
-		final OSDiWrapper.DataItemType dataItem = riskWrapper.getDataItemType();
+		final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 		
-		switch(dataItem) {
-		case DI_PROBABILITY:
+		if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
 			return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
 			// FIXME: Currently not using anything more complex than a value
 //			final String strRRManif = OSDiNames.DataProperty.HAS_RELATIVE_RISK.getValue(pathwayName);
 //			if (strRRManif == null)
 //				return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
-		case DI_PROPORTION:
+		}
+		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
 			return new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROPORTION.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
-		case DI_TIMETOEVENT:
+		}
+		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_TIMETOEVENT)) {
 			// FIXME: Currently not using time to
 			// final String strTimeTo = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_TIME_TO.getDescription());
 			// FIXME: Still not processing data tables
 //			Object[][] datatableMatrix = ValueParser.rangeDatatableToMatrix(XmlTransform.getDataTable(strPManif), secParams);
 //			tte = new AgeBasedTimeToEventCalculator(datatableMatrix, manifestation, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix));
-			break;
-		default:
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, pathwayName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item type: " + dataItem.getInstanceName());
+		}
+		else {
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, pathwayName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item types");			
 		}
 		return null;
 	}
@@ -176,21 +179,17 @@ public interface ManifestationPathwayBuilder {
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			final Manifestation manifestation = this.getDestManifestation();
-			final OSDiWrapper.DataItemType dataItem = riskWrapper.getDataItemType();
-			
-			switch(dataItem) {
-			case DI_PROBABILITY:
+			final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
+			if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
 				ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, getProbString(manifestation, pathwayName), riskWrapper.getDescription(), riskWrapper.getSource(),
-						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
-				break;
-			case DI_PROPORTION:
+						riskWrapper.getExpression().getConstantValue(), riskWrapper.getProbabilisticValue());
+			}
+			else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
 				ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, getProbString(manifestation, pathwayName), riskWrapper.getDescription(), riskWrapper.getSource(),
-						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
-				break;
-			case DI_TIMETOEVENT:
-				break;
-			default:
-				final Exception ex = new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, pathwayName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item type: " + dataItem.getInstanceName());
+						riskWrapper.getExpression().getConstantValue(), riskWrapper.getProbabilisticValue());
+			}
+			else {
+				final Exception ex = new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, pathwayName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item types");
 				System.err.println(ex.getMessage());
 			}
 		}

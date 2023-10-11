@@ -50,6 +50,11 @@ public class ExpressionWrapper {
 		}
 	}
 	
+	/**
+	 * Processes an expression for an individual and returns a double representation of its value. If the string has a wrong format, returns NaN.  
+	 * @param expression A string with a constant expression
+	 * @return a double representation of the an expression for an individual
+	 */
 	private static double parseExpressionAsConstant(String expression) {
 		try {
 			return Double.parseDouble(expression);

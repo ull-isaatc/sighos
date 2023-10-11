@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
+import java.util.Set;
+
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import simkit.random.RandomVariate;
 
@@ -18,8 +20,8 @@ public class ParameterWrapper extends ValuableWrapper {
 	 * @throws MalformedOSDiModelException 
 	 * 
 	 */
-	public ParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription) throws MalformedOSDiModelException {
-		super(wrap, paramId);
+	public ParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription, Set<ExpressionWrapper.SupportedType> supportedTypes) throws MalformedOSDiModelException {
+		super(wrap, paramId, supportedTypes);
 		description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(paramId, defaultDescription);
 		year = wrap.parseHasYearProperty(paramId);
 		
@@ -28,11 +30,10 @@ public class ParameterWrapper extends ValuableWrapper {
 	}
 	
 	@Override
-	public RandomVariate processUncertainty(OSDiWrapper wrap) throws MalformedOSDiModelException {
-		String paramId = getParamId();
-		RandomVariate paramUncertainty = UncertaintyProcessor.process(wrap, this, OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY);
-		RandomVariate stochasticUncertainty = UncertaintyProcessor.process(wrap, this, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY);
-		RandomVariate heterogeneity = UncertaintyProcessor.process(wrap, this, OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY);
+	protected RandomVariate initProbabilisticValue() throws MalformedOSDiModelException {
+		RandomVariate paramUncertainty = initProbabilisticValue(OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY);
+		RandomVariate stochasticUncertainty = initProbabilisticValue(OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY);
+		RandomVariate heterogeneity = initProbabilisticValue(OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY);
 		// FIXME: They should be supported 
 		if (stochasticUncertainty != null)
 			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Stochastic uncertainty not currently supported in Parameters.");
