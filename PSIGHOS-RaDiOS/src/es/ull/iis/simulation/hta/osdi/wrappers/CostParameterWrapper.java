@@ -18,9 +18,9 @@ public class CostParameterWrapper extends ParameterWrapper {
 	 * @param defaultDetValue
 	 * @throws MalformedOSDiModelException
 	 */
-	public CostParameterWrapper(OSDiWrapper wrap, String paramId, double defaultDetValue, String defaultDescription)
+	public CostParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription)
 			throws MalformedOSDiModelException {
-		super(wrap, paramId, defaultDetValue, defaultDescription);
+		super(wrap, paramId, defaultDescription);
 		temporalBehavior = OSDiWrapper.TemporalBehavior.valueOf(OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(paramId, OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.getShortName()));
 	}
 	

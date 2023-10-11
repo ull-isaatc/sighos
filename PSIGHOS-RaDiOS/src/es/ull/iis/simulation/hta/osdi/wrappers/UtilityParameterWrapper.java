@@ -27,7 +27,7 @@ public class UtilityParameterWrapper extends ParameterWrapper {
 	 * @throws MalformedOSDiModelException If the utility wrapper cannot be created due to incorrect definitions in the ontology
 	 */
 	public UtilityParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription) throws MalformedOSDiModelException {
-		super(wrap, paramId, Double.NaN, defaultDescription);
+		super(wrap, paramId, defaultDescription);
 		temporalBehavior = OSDiWrapper.TemporalBehavior.valueOf(OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(paramId, OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.getShortName()));
 		
 		switch(getDataItemType()) {
@@ -41,11 +41,6 @@ public class UtilityParameterWrapper extends ParameterWrapper {
 			break;
 		default:
 			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.UTILITY, paramId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Using something else as utility: " + getDataItemType().getInstanceName());
-		}
-		// Fix deterministic value in case it was not specified
-		if (Double.isNaN(getDeterministicValue())) {
-			setDeterministicValue(OSDiWrapper.UtilityType.UTILITY.equals(type) ? 1.0 : 0.0);
-			wrap.printWarning(paramId, OSDiWrapper.DataProperty.HAS_EXPRESSION, "Fixing the default value of the utility. Using " + getDeterministicValue());
 		}
 	}
 	

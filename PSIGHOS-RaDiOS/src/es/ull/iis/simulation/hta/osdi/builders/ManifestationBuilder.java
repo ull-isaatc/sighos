@@ -46,7 +46,7 @@ public interface ManifestationBuilder {
 		final String onsetAge = OSDiWrapper.ObjectProperty.HAS_ONSET_AGE.getValue(manifestation.name(), true);
 		if (onsetAge != null) {
 			try {
-				final ParameterWrapper param = new ParameterWrapper(wrap, onsetAge, 0, "Onset age for manifestation " + manifestation.name());
+				final ParameterWrapper param = new ParameterWrapper(wrap, onsetAge, "Onset age for manifestation " + manifestation.name());
 				OtherParamDescriptions.ONSET_AGE.addParameter(manifestation.getRepository(), manifestation, param.getSource(), param.getDeterministicValue(), param.getProbabilisticValue());
 			} catch(MalformedOSDiModelException ex) {
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, manifestation.name(), OSDiWrapper.ObjectProperty.HAS_ONSET_AGE, "Error parsing manifestation. Caused by ", ex);
@@ -55,7 +55,7 @@ public interface ManifestationBuilder {
 		final String endAge = OSDiWrapper.ObjectProperty.HAS_END_AGE.getValue(manifestation.name(), true);
 		if (endAge != null) {
 			try {
-				final ParameterWrapper param = new ParameterWrapper(wrap, endAge, 0, "End age for manifestation " + manifestation.name());
+				final ParameterWrapper param = new ParameterWrapper(wrap, endAge, "End age for manifestation " + manifestation.name());
 				OtherParamDescriptions.END_AGE.addParameter(manifestation.getRepository(), manifestation, param.getSource(), param.getDeterministicValue(), param.getProbabilisticValue());
 			} catch(MalformedOSDiModelException ex) {
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, manifestation.name(), OSDiWrapper.ObjectProperty.HAS_END_AGE, "Error parsing manifestation. Caused by ", ex);
@@ -64,7 +64,7 @@ public interface ManifestationBuilder {
 	}
 
 	private static OSDiWrapper.TemporalBehavior createCostParam(OSDiWrapper wrap, String costName, OSDiWrapper.TemporalBehavior expectedTemporalBehavior, Manifestation manifestation) throws MalformedOSDiModelException {
-		final CostParameterWrapper costParam = new CostParameterWrapper(wrap, costName, 0.0, "Cost for manifestation " + manifestation.name());
+		final CostParameterWrapper costParam = new CostParameterWrapper(wrap, costName, "Cost for manifestation " + manifestation.name());
 		final OSDiWrapper.TemporalBehavior tempBehavior = costParam.getTemporalBehavior();
 
 		// Assuming ANNUAL COSTS by default
@@ -157,19 +157,19 @@ public interface ManifestationBuilder {
 		}
 	}
 	
-	private static void addProbabilityParam(OSDiWrapper wrap, Manifestation manifestation, OSDiWrapper.ObjectProperty objProperty, ProbabilityParamDescriptions paramDescription, double defaultValue) throws MalformedOSDiModelException {
+	private static void addProbabilityParam(OSDiWrapper wrap, Manifestation manifestation, OSDiWrapper.ObjectProperty objProperty, ProbabilityParamDescriptions paramDescription) throws MalformedOSDiModelException {
 		final String paramName = objProperty.getValue(manifestation.name(), true);
 		if (paramName != null) {
-			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, defaultValue, "");			
+			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, "");			
 			paramDescription.addParameter(manifestation.getRepository(), manifestation, param.getSource(), 
 					param.getDeterministicValue(), param.getProbabilisticValue());
 		}
 	}
 
-	private static void addOtherParam(OSDiWrapper wrap, Manifestation manifestation, OSDiWrapper.ObjectProperty objProperty, OtherParamDescriptions paramDescription, double defaultValue) throws MalformedOSDiModelException {
+	private static void addOtherParam(OSDiWrapper wrap, Manifestation manifestation, OSDiWrapper.ObjectProperty objProperty, OtherParamDescriptions paramDescription) throws MalformedOSDiModelException {
 		final String paramName = objProperty.getValue(manifestation.name(), true);
 		if (paramName != null) {
-			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, defaultValue, "");			
+			final ParameterWrapper param = new ParameterWrapper(wrap, paramName, "");			
 			paramDescription.addParameter(manifestation.getRepository(), manifestation, param.getSource(), 
 					param.getDeterministicValue(), param.getProbabilisticValue());
 		}
@@ -182,12 +182,12 @@ public interface ManifestationBuilder {
 		// Chronic manifestations may have increased mortality rates, reductions of life expectancy
 		// FIXME: Currently, we are accepting even a probability of death. Conceptually this could only happen when the chronic manifestation is preceded by an acute manifestation 
 		// (actually, the acute manifestation would be the one with such probability). We are doing so to simplify modeling, but it is inaccurate 
-		addProbabilityParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH, ProbabilityParamDescriptions.PROBABILITY_DEATH, 0);
+		addProbabilityParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH, ProbabilityParamDescriptions.PROBABILITY_DEATH);
 
 		// Acute manifestations are assumed not to involve further mortality parameters
 		if (Manifestation.Type.CHRONIC.equals(manifestation.getType())) {
-			addOtherParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE, OtherParamDescriptions.INCREASED_MORTALITY_RATE, 1.0);
-			addOtherParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_LIFE_EXPECTANCY_REDUCTION, OtherParamDescriptions.LIFE_EXPECTANCY_REDUCTION, 0.0);
+			addOtherParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE, OtherParamDescriptions.INCREASED_MORTALITY_RATE);
+			addOtherParam(wrap, manifestation, OSDiWrapper.ObjectProperty.HAS_LIFE_EXPECTANCY_REDUCTION, OtherParamDescriptions.LIFE_EXPECTANCY_REDUCTION);
 		}
 	}
 	
@@ -215,7 +215,7 @@ public interface ManifestationBuilder {
 				if (manifestationParams.size() > 1) {
 					wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestations should define a single risk characterization. Using " + manifParam);
 				}
-				incidenceWrapper = new ParameterWrapper(wrap, manifParam, 0, "Developing " + name);;
+				incidenceWrapper = new ParameterWrapper(wrap, manifParam, "Developing " + name);;
 			}
 			else {
 				incidenceWrapper = null;
@@ -231,7 +231,7 @@ public interface ManifestationBuilder {
 				createCostParams(wrap, this);
 				createUtilityParams(wrap, this);
 				createMortalityParams(wrap, this);
-				addProbabilityParam(wrap, this, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS, 0);
+				addProbabilityParam(wrap, this, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS);
 				createIncidenceParam(this, incidenceWrapper);
 			} catch (MalformedOSDiModelException ex) {
 				System.err.println(ex.getMessage());
@@ -256,7 +256,7 @@ public interface ManifestationBuilder {
 				if (manifestationParams.size() > 1) {
 					wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestations should define a single risk characterization. Using " + manifParam);
 				}
-				incidenceWrapper = new ParameterWrapper(wrap, manifParam, 0, "Developing " + name);;
+				incidenceWrapper = new ParameterWrapper(wrap, manifParam, "Developing " + name);;
 			}
 			else {
 				incidenceWrapper = null;
@@ -272,7 +272,7 @@ public interface ManifestationBuilder {
 				if (!OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION.getValues(manifParam, true).contains(populationName))
 					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, manifParam, OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION, 
 							"Parameters characterizing initial proportions must be related to the population: " + populationName);
-				initialProportionWrapper = new ParameterWrapper(wrap, manifParam, 0, "Initial proportion of " + name);
+				initialProportionWrapper = new ParameterWrapper(wrap, manifParam, "Initial proportion of " + name);
 			}
 			else {
 				initialProportionWrapper = null;
@@ -288,7 +288,7 @@ public interface ManifestationBuilder {
 				createCostParams(wrap, this);
 				createUtilityParams(wrap, this);
 				createMortalityParams(wrap, this);
-				addProbabilityParam(wrap, this, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS, 0);
+				addProbabilityParam(wrap, this, OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS);
 				createIncidenceParam(this, incidenceWrapper);
 				if (initialProportionWrapper != null)
 					ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(getRepository(), this, initialProportionWrapper.getSource(), 

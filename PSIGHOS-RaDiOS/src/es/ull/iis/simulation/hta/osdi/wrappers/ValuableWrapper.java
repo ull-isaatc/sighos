@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
@@ -17,7 +18,7 @@ public class ValuableWrapper {
 	private final OSDiWrapper wrap;
 	private final String paramId;
 	private final String source;
-	private double deterministicValue;
+	private final double deterministicValue;
 	private RandomVariate probabilisticValue;
 	private final OSDiWrapper.DataItemType dataItemType;
 
@@ -25,11 +26,21 @@ public class ValuableWrapper {
 	 * @throws MalformedOSDiModelException 
 	 * 
 	 */
-	public ValuableWrapper(OSDiWrapper wrap, String paramId, double defaultDetValue) throws MalformedOSDiModelException {
+	public ValuableWrapper(OSDiWrapper wrap, String paramId) throws MalformedOSDiModelException {
 		this.wrap = wrap;
 		this.paramId = paramId;
 		source = parseHasSourceProperty(paramId);
-		deterministicValue = parseExpressionPropertyAsValue(paramId, defaultDetValue);
+		final ArrayList<String> detValues = OSDiWrapper.DataProperty.HAS_EXPRESSION.getValues(paramId);
+		if (detValues.size() == 0)
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, OSDiWrapper.DataProperty.HAS_EXPRESSION, "Expression for valuable not defined.");
+		if (detValues.size() > 1)
+			wrap.printWarning(paramId, OSDiWrapper.DataProperty.HAS_EXPRESSION, "More than one expression found for parameter. Using " + detValues.get(0) + " by default");
+
+		final ExpressionWrapper detExpression = new ExpressionWrapper(detValues.get(0)); 
+		// TODO: Process expression language
+		if (!ExpressionWrapper.SupportedType.CONSTANT.equals(detExpression.getType()))
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, OSDiWrapper.DataProperty.HAS_EXPRESSION, "Expression for valuable is not a constant. Instead: " + detExpression.getType() + " found.");
+		this.deterministicValue = detExpression.getConstantValue();
 		this.probabilisticValue = processUncertainty(wrap);
 
 		Set<String> types = OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE.getValues(paramId);
@@ -84,13 +95,6 @@ public class ValuableWrapper {
 	 */
 	public double getDeterministicValue() {
 		return deterministicValue;
-	}
-
-	/**
-	 * @param deterministicValue the deterministicValue to set
-	 */
-	public void setDeterministicValue(double deterministicValue) {
-		this.deterministicValue = deterministicValue;
 	}
 
 	/**

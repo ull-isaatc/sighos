@@ -18,14 +18,13 @@ public class ParameterWrapper extends ValuableWrapper {
 	 * @throws MalformedOSDiModelException 
 	 * 
 	 */
-	public ParameterWrapper(OSDiWrapper wrap, String paramId, double defaultDetValue, String defaultDescription) throws MalformedOSDiModelException {
-		super(wrap, paramId, defaultDetValue);
+	public ParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription) throws MalformedOSDiModelException {
+		super(wrap, paramId);
 		description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(paramId, defaultDescription);
 		year = wrap.parseHasYearProperty(paramId);
 		
 		if (!wrap.addParameterWrapper(paramId, this))
-			// TODO: Define the error better
-			throw new MalformedOSDiModelException("");
+			throw new MalformedOSDiModelException("Parameter with the same name (" + paramId + ") already defined");
 	}
 	
 	@Override
@@ -34,10 +33,11 @@ public class ParameterWrapper extends ValuableWrapper {
 		RandomVariate paramUncertainty = UncertaintyProcessor.process(wrap, this, OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY);
 		RandomVariate stochasticUncertainty = UncertaintyProcessor.process(wrap, this, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY);
 		RandomVariate heterogeneity = UncertaintyProcessor.process(wrap, this, OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY);
-		if (stochasticUncertainty != null || heterogeneity != null) {
-			// FIXME: They should be supported 
-			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Stochastic uncertainty or heterogeneity not currently supported in Parameters.");
-		}
+		// FIXME: They should be supported 
+		if (stochasticUncertainty != null)
+			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Stochastic uncertainty not currently supported in Parameters.");
+		if (heterogeneity != null)
+			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY, "Heterogeneity not currently supported in Parameters.");
 		return paramUncertainty;
 	}
 	

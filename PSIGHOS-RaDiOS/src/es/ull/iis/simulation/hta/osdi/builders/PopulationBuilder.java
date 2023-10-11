@@ -71,13 +71,13 @@ public interface PopulationBuilder {
 			 // TODO: Currently we are only defining initially assigned attributes, i.e., attributes whose value does not change during the simulation 
 			// Process population age
 			final String ageAttribute = OSDiWrapper.ObjectProperty.HAS_AGE.getValue(populationName, true);
-			ageWrapper = new AttributeValueWrapper(wrap, ageAttribute, minAge);
+			ageWrapper = new AttributeValueWrapper(wrap, ageAttribute);
 			if (ageWrapper.getProbabilisticValue() == null) {
 				ageWrapper.setProbabilisticValue(RandomVariateFactory.getInstance("ConstantVariate", ageWrapper.getDeterministicValue()));
 			}
 			// Process population sex
 			final String sexAttribute = OSDiWrapper.ObjectProperty.HAS_SEX.getValue(populationName, true);
-			sexWrapper = new AttributeValueWrapper(wrap, sexAttribute, 0);
+			sexWrapper = new AttributeValueWrapper(wrap, sexAttribute);
 			if (sexWrapper.getProbabilisticValue() == null) {
 				sexWrapper.setProbabilisticValue(RandomVariateFactory.getInstance("DiscreteConstantVariate", sexWrapper.getDeterministicValue()));
 			}
@@ -101,7 +101,7 @@ public interface PopulationBuilder {
 				for (String paramName : populationParams) {
 					// Ignores parameters that are both parameters of the disease and a manifestation, since they are supposed to be processed in the corresponding manifestation
 					if (OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_MANIFESTATION.getValues(paramName, true).size() == 0) {
-						final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, 0.0, "Epidemiological parameter for population " + this.name());
+						final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, "Epidemiological parameter for population " + this.name());
 						// If the parameter is a prevalence
 						if (OSDiWrapper.Clazz.PREVALENCE.containsIntance(paramName)) {
 							if (hasPrevalence) {
@@ -215,7 +215,7 @@ public interface PopulationBuilder {
 			final ArrayList<PopulationAttribute> attributeList = new ArrayList<>();
 			try {
 				for (String attribute : attributes) {
-					final AttributeValueWrapper attWrapper = new AttributeValueWrapper(wrap, attribute, 0);
+					final AttributeValueWrapper attWrapper = new AttributeValueWrapper(wrap, attribute);
 					final String attributeName = OSDiWrapper.DataProperty.HAS_NAME.getValue(attWrapper.getAttributeId(), attWrapper.getAttributeId());
 					if (attWrapper.getProbabilisticValue() == null)
 						attWrapper.setProbabilisticValue(RandomVariateFactory.getInstance("ConstantVariate", attWrapper.getDeterministicValue()));

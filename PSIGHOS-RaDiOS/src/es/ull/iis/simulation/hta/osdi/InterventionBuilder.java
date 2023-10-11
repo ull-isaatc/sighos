@@ -150,7 +150,7 @@ public interface InterventionBuilder {
 			if (strSensitivities.size() > 1) {
 				wrap.printWarning(intervention.name(), OSDiWrapper.ObjectProperty.HAS_SENSITIVITY, "Found more than one sensitivity for a screening intervention. Using " + sensitivityParamName);			
 			}
-			final ParameterWrapper sensitivityWrapper = new ParameterWrapper(wrap, sensitivityParamName, 1.0, "Sensitivity for " + intervention.name()); 
+			final ParameterWrapper sensitivityWrapper = new ParameterWrapper(wrap, sensitivityParamName, "Sensitivity for " + intervention.name()); 
 			if (!OSDiWrapper.DataItemType.DI_SENSITIVITY.equals(sensitivityWrapper.getDataItemType())) {
 				wrap.printWarning(sensitivityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Sensitivity should be of type " + OSDiWrapper.DataItemType.DI_SENSITIVITY.getInstanceName() + ". Instead, found " + sensitivityWrapper.getDataItemType().getInstanceName());			
 			}
@@ -168,7 +168,7 @@ public interface InterventionBuilder {
 			if (strSpecificities.size() > 1) {
 				wrap.printWarning(intervention.name(), OSDiWrapper.ObjectProperty.HAS_SPECIFICITY, "Found more than one specificity for a screening intervention. Using " + specificityParamName);			
 			}
-			final ParameterWrapper specificityWrapper = new ParameterWrapper(wrap, specificityParamName, 1.0, "Specificity for " + intervention.name()); 
+			final ParameterWrapper specificityWrapper = new ParameterWrapper(wrap, specificityParamName, "Specificity for " + intervention.name()); 
 			if (!OSDiWrapper.DataItemType.DI_SPECIFICITY.equals(specificityWrapper.getDataItemType())) {
 				wrap.printWarning(specificityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Specificity should be of type " + OSDiWrapper.DataItemType.DI_SPECIFICITY.getInstanceName() + ". Instead, found " + specificityWrapper.getDataItemType().getInstanceName());			
 			}
@@ -182,7 +182,7 @@ public interface InterventionBuilder {
 		// Collects the modifications associated to the specified intervention
 		final Set<String> modifications = OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.getValues(intervention.name(), true);
 		for (String modificationName : modifications) {		
-			final ParameterWrapper modification = new ParameterWrapper(wrap, modificationName, 0, "");
+			final ParameterWrapper modification = new ParameterWrapper(wrap, modificationName, "");
 			Modification.Type kind = null;
 			switch (modification.getDataItemType()) {
 			case DI_CONTINUOUS_VARIABLE:

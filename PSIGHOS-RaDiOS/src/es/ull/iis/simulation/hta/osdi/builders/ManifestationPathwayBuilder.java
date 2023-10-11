@@ -97,7 +97,7 @@ public interface ManifestationPathwayBuilder {
 		if (pathwayParams.size() > 1) {
 			wrap.printWarning(pathwayName, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestation pathways should define a single risk characterization. Using " + pathwayParam);
 		}
-		return new ParameterWrapper(wrap, pathwayParam, 0, "Developing " + manifestation + " due to " + pathwayName);
+		return new ParameterWrapper(wrap, pathwayParam, "Developing " + manifestation + " due to " + pathwayName);
 	}
 	/**
 	 * Creates the calculator for the time to event associated to this pathway. Currently only allows the time to be expressed as an annual risk and, consequently, uses 

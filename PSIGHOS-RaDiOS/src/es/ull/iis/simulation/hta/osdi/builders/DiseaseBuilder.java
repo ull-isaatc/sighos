@@ -76,7 +76,7 @@ public interface DiseaseBuilder {
 			wrap.printWarning(disease.name(), costProperty, "Found more than one cost for a disease. Using only " + costs.toArray()[0]);
 		// TODO: Make a smarter use of the excess of costs and use only those which meets the conditions, i.e. select one annual cost from all the defined ones
 		
-		final CostParameterWrapper costParam = new CostParameterWrapper(wrap, (String)costs.toArray()[0], 0.0, "Cost for disease " + disease.name());
+		final CostParameterWrapper costParam = new CostParameterWrapper(wrap, (String)costs.toArray()[0], "Cost for disease " + disease.name());
 		final OSDiWrapper.TemporalBehavior tempBehavior = costParam.getTemporalBehavior();
 		// Checking coherence between type of cost parameter and its temporal behavior. Assumed to be ok if temporal behavior not specified 
 		if (CostParamDescriptions.DIAGNOSIS_COST.equals(paramDescription)) {
