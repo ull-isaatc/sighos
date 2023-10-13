@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
+import java.util.Set;
+
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 
 /**
@@ -26,21 +28,20 @@ public class UtilityParameterWrapper extends ParameterWrapper {
 	 * @param paramId The IRI of the utility instance in the ontology
 	 * @throws MalformedOSDiModelException If the utility wrapper cannot be created due to incorrect definitions in the ontology
 	 */
-	public UtilityParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription) throws MalformedOSDiModelException {
-		super(wrap, paramId, defaultDescription);
+	public UtilityParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription, Set<ExpressionWrapper.SupportedType> supportedTypes) throws MalformedOSDiModelException {
+		super(wrap, paramId, defaultDescription, supportedTypes);
 		temporalBehavior = OSDiWrapper.TemporalBehavior.valueOf(OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(paramId, OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.getShortName()));
+
+		final Set<OSDiWrapper.DataItemType> dataItems = getDataItemTypes();
 		
-		switch(getDataItemType()) {
-		case DI_DISUTILITY:
-			type = OSDiWrapper.UtilityType.DISUTILITY;
-			break;			
-		case DI_UNDEFINED:
-			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item type not specified fot utility. Assuming that it is a utility");
-		case DI_UTILITY:
-			type = OSDiWrapper.UtilityType.UTILITY;
-			break;
-		default:
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.UTILITY, paramId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Using something else as utility: " + getDataItemType().getInstanceName());
+		if (dataItems.contains(OSDiWrapper.DataItemType.DI_DISUTILITY)) {
+			type = OSDiWrapper.UtilityType.DISUTILITY;			
+		}
+		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_UTILITY)) {
+			type = OSDiWrapper.UtilityType.UTILITY;			
+		}
+		else {
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.UTILITY, paramId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item type for utility does not include utility or disutility");			
 		}
 	}
 	

@@ -6,15 +6,15 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla
  *
  */
-public class Microalbuminuria extends ChronicManifestation {
+public class Microalbuminuria extends Manifestation {
 	public static final String NAME = "ALB1";
 
 	/**
@@ -22,7 +22,7 @@ public class Microalbuminuria extends ChronicManifestation {
 	 * @param disease
 	 */
 	public Microalbuminuria(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Microalbuminuria", disease);
+		super(secParams, NAME, "Microalbuminuria", disease, Type.CHRONIC);
 	}
 
 	@Override

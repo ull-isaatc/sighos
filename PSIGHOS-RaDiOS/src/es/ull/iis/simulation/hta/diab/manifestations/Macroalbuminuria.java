@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.ChronicManifestation;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
@@ -16,7 +16,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla
  *
  */
-public class Macroalbuminuria extends ChronicManifestation {
+public class Macroalbuminuria extends Manifestation {
 	/** Utility (avg, SD) from either Bagust and Beale; or Sullivan */
 	private static final double[] DU = new double[] {0.048, (0.091 - 0.005) / 3.92};
 	public static final String NAME = "ALB2";
@@ -26,7 +26,7 @@ public class Macroalbuminuria extends ChronicManifestation {
 	 * @param disease
 	 */
 	public Macroalbuminuria(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Macroalbuminuria", disease);
+		super(secParams, NAME, "Macroalbuminuria", disease, Type.CHRONIC);
 	}
 
 	@Override

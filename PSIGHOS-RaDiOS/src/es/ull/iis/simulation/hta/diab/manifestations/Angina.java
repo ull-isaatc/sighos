@@ -7,8 +7,8 @@ import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
@@ -16,7 +16,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class Angina extends ChronicManifestation {
+public class Angina extends Manifestation {
 	private static final double ANNUAL_COST = 532.01;
 	private static final double TRANS_COST = 2517.97 - ANNUAL_COST;
 	private static final int COSTYEAR = 2016;
@@ -28,7 +28,7 @@ public class Angina extends ChronicManifestation {
 	 * @param disease
 	 */
 	public Angina(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Angina", disease);
+		super(secParams, NAME, "Angina", disease, Type.CHRONIC);
 	}
 
 	@Override

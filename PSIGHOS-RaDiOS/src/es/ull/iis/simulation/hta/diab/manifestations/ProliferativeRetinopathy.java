@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.ChronicManifestation;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
@@ -15,7 +15,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla
  *
  */
-public class ProliferativeRetinopathy extends ChronicManifestation {
+public class ProliferativeRetinopathy extends Manifestation {
 	private static final double COST = 6394.62;
 	private static final int COSTYEAR = 2018;
 	private static final double[] DU = new double[] {0.04, (0.066 - 0.014) / 3.92};
@@ -26,7 +26,7 @@ public class ProliferativeRetinopathy extends ChronicManifestation {
 	 * @param disease
 	 */
 	public ProliferativeRetinopathy(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Proliferative Retinopathy", disease);
+		super(secParams, NAME, "Proliferative Retinopathy", disease, Type.CHRONIC);
 	}
 
 	@Override

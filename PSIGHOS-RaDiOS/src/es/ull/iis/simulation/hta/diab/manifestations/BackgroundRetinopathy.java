@@ -6,15 +6,15 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.ChronicManifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla
  *
  */
-public class BackgroundRetinopathy extends ChronicManifestation {
+public class BackgroundRetinopathy extends Manifestation {
 	private static final double COST = 146.4525;
 	private static final int COSTYEAR = 2018;
 	private static final double DU = 0.0;
@@ -25,7 +25,7 @@ public class BackgroundRetinopathy extends ChronicManifestation {
 	 * @param disease
 	 */
 	public BackgroundRetinopathy(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Background Retinopathy", disease);
+		super(secParams, NAME, "Background Retinopathy", disease, Type.CHRONIC);
 	}
 
 	@Override

@@ -170,10 +170,14 @@ public interface ManifestationPathwayBuilder {
 		private final ParameterWrapper riskWrapper;
 
 		public OSDiManifestationPathway(SecondOrderParamsRepository secParams, Manifestation destManifestation,
-				Condition<Patient> condition, TimeToEventCalculator timeToEvent, String pathwayName, ParameterWrapper riskWrapper) {
+				Condition<Patient> condition, TimeToEventCalculator timeToEvent, String pathwayName, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
 			super(secParams, destManifestation, condition, timeToEvent);
 			this.pathwayName = pathwayName;
 			this.riskWrapper = riskWrapper;
+			final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
+			if (!dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY) && !dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, pathwayName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item types");
+			}
 		}
 		
 		@Override
@@ -182,15 +186,11 @@ public interface ManifestationPathwayBuilder {
 			final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 			if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
 				ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, getProbString(manifestation, pathwayName), riskWrapper.getDescription(), riskWrapper.getSource(),
-						riskWrapper.getExpression().getConstantValue(), riskWrapper.getProbabilisticValue());
+						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
 			}
 			else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
 				ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, getProbString(manifestation, pathwayName), riskWrapper.getDescription(), riskWrapper.getSource(),
-						riskWrapper.getExpression().getConstantValue(), riskWrapper.getProbabilisticValue());
-			}
-			else {
-				final Exception ex = new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, pathwayName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item types");
-				System.err.println(ex.getMessage());
+						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
 			}
 		}
 		

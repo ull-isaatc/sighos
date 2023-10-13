@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.ChronicManifestation;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.RandomVariateFactory;
 
@@ -16,7 +16,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SeizuresManifestation extends ChronicManifestation {
+public class SeizuresManifestation extends Manifestation {
 	private final static int COST_YEAR = 2013;
 	private final static double COST = 3665.56;
 	private final static double DU = 0.04;
@@ -26,7 +26,7 @@ public class SeizuresManifestation extends ChronicManifestation {
 	 * @param disease
 	 */
 	public SeizuresManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "#PBD_ManifestationSeizure", "Seizures", disease);
+		super(secParams, "#PBD_ManifestationSeizure", "Seizures", disease, Type.CHRONIC);
 	}
 
 	@Override

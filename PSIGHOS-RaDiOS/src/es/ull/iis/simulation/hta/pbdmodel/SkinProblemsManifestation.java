@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.ChronicManifestation;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.RandomVariateFactory;
 
@@ -15,7 +15,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SkinProblemsManifestation extends ChronicManifestation {
+public class SkinProblemsManifestation extends Manifestation {
 	private final static int COST_YEAR = 2013;
 	private final static double COST = 3665.56;
 
@@ -24,7 +24,7 @@ public class SkinProblemsManifestation extends ChronicManifestation {
 	 * @param disease
 	 */
 	public SkinProblemsManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "#PBD_ManifestationSkinProblems", "Skin problems", disease);
+		super(secParams, "#PBD_ManifestationSkinProblems", "Skin problems", disease, Type.CHRONIC);
 	}	 
 
 	@Override

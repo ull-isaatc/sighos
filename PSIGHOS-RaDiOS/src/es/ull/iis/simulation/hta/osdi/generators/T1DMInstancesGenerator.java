@@ -212,28 +212,28 @@ public class T1DMInstancesGenerator {
 		wrap.createCost(costIRI, "Year 2+ of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "532.01", DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.ANGINA.getInstanceName(), costIRI);
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.ANGINA + OSDiWrapper.STR_ONETIME_COST_SUFFIX);
-		wrap.createCost(costIRI, "Episode of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "1985.96", DataItemType.CURRENCY_EURO);
+		wrap.createCost(costIRI, "Episode of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ONETIME, 2016, "1985.96", DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.ANGINA.getInstanceName(), costIRI);
 		// HF
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.HF + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 		wrap.createCost(costIRI, "Year 2+ of heart failure", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "1054.42", DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.HF.getInstanceName(), costIRI);
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.HF + OSDiWrapper.STR_ONETIME_COST_SUFFIX); 
-		wrap.createCost(costIRI, "Episode of heart failure", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "4503.24", DataItemType.CURRENCY_EURO);
+		wrap.createCost(costIRI, "Episode of heart failure", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ONETIME, 2016, "4503.24", DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.HF.getInstanceName(), costIRI);
 		// Stroke
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.STROKE + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 		wrap.createCost(costIRI, "Year 2+ of stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "2485.66", DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.STROKE.getInstanceName(), costIRI);
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.STROKE + OSDiWrapper.STR_ONETIME_COST_SUFFIX);
-		wrap.createCost(costIRI, "Episode of stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "3634.66", DataItemType.CURRENCY_EURO);
+		wrap.createCost(costIRI, "Episode of stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ONETIME, 2016, "3634.66", DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.STROKE.getInstanceName(), costIRI);
 		// MI
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.MI + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 		wrap.createCost(costIRI, "Year 2+ of myocardial infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "948", DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.MI.getInstanceName(), costIRI);
 		costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + Manifestation.MI + OSDiWrapper.STR_ONETIME_COST_SUFFIX);
-		wrap.createCost(costIRI, "Episode of myocardial infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, "22588", DataItemType.CURRENCY_EURO);
+		wrap.createCost(costIRI, "Episode of myocardial infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ONETIME, 2016, "22588", DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_COST.add(Manifestation.MI.getInstanceName(), costIRI);
 		// ---- NPH manifestations ----
 		// ALB1

@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
+import java.util.Set;
+
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 
 /**
@@ -18,9 +20,9 @@ public class CostParameterWrapper extends ParameterWrapper {
 	 * @param defaultDetValue
 	 * @throws MalformedOSDiModelException
 	 */
-	public CostParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription)
+	public CostParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription, Set<ExpressionWrapper.SupportedType> supportedTypes)
 			throws MalformedOSDiModelException {
-		super(wrap, paramId, defaultDescription);
+		super(wrap, paramId, defaultDescription, supportedTypes);
 		temporalBehavior = OSDiWrapper.TemporalBehavior.valueOf(OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(paramId, OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.getShortName()));
 	}
 	

@@ -157,7 +157,7 @@ public interface InterventionBuilder {
 				wrap.printWarning(sensitivityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiWrapper.DataItemType.DI_SENSITIVITY.getInstanceName());			
 			}
 			ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, sensitivityWrapper.getDescription(),  
-					sensitivityWrapper.getExpression().getConstantValue(), sensitivityWrapper.getProbabilisticValue());
+					sensitivityWrapper.getDeterministicValue(), sensitivityWrapper.getProbabilisticValue());
 		}
 		// Specificity
 		final Set<String> strSpecificities = OSDiWrapper.ObjectProperty.HAS_SPECIFICITY.getValues(intervention.name(), true);
@@ -175,7 +175,7 @@ public interface InterventionBuilder {
 				wrap.printWarning(specificityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiWrapper.DataItemType.DI_SPECIFICITY.getInstanceName());			
 			}
 			ProbabilityParamDescriptions.SPECIFICITY.addParameter(secParams, intervention, specificityWrapper.getDescription(),  
-					specificityWrapper.getExpression().getConstantValue(), specificityWrapper.getProbabilisticValue());
+					specificityWrapper.getDeterministicValue(), specificityWrapper.getProbabilisticValue());
 		}
 	}
 	
@@ -198,7 +198,7 @@ public interface InterventionBuilder {
 			final Set<String> modifiedItems = OSDiWrapper.ObjectProperty.MODIFIES.getValues(modificationName, true);
 			for (String indParamName : modifiedItems) {
 				intervention.addAttributeModification(indParamName, new Modification(secParams, kind, SecondOrderParamsRepository.getModificationString(intervention, indParamName), 
-						modification.getDescription(), modification.getSource(), modification.getExpression().getConstantValue(), modification.getProbabilisticValue()));
+						modification.getDescription(), modification.getSource(), modification.getDeterministicValue(), modification.getProbabilisticValue()));
 			}
 		}
 	}

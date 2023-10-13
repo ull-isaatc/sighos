@@ -105,6 +105,12 @@ public class ValuableWrapper {
 		return probabilisticValue;
 	}
 	
+	public double getDeterministicValue() {
+		if (ExpressionWrapper.SupportedType.CONSTANT.equals(expression.getType()))
+			return expression.getConstantValue();
+		return Double.NaN;
+	}
+	
 	protected RandomVariate initProbabilisticValue() throws MalformedOSDiModelException {
 		RandomVariate stochasticUncertainty = initProbabilisticValue(OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY);
 		RandomVariate heterogeneity = initProbabilisticValue(OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY);
@@ -131,7 +137,7 @@ public class ValuableWrapper {
 			final ValuableWrapper paramWrap2 = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[1], EnumSet.of(SupportedType.CONSTANT)); 
 			if (paramWrap1.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_LOWER95CONFIDENCELIMIT)) {
 				if (paramWrap2.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_UPPER95CONFIDENCELIMIT)) {
-					return getRandomVariateFromAvgAndCIs(expression.getConstantValue(), new double[] {paramWrap1.getExpression().getConstantValue(), paramWrap2.getExpression().getConstantValue()});
+					return getRandomVariateFromAvgAndCIs(getDeterministicValue(), new double[] {paramWrap1.getDeterministicValue(), paramWrap2.getDeterministicValue()});
 				}
 				else {
 					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramWrap2.getParamId(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Upper and lower confidence intervals required to represent uncertainty. This parameter should include data item type " + OSDiWrapper.DataItemType.DI_UPPER95CONFIDENCELIMIT);
@@ -139,7 +145,7 @@ public class ValuableWrapper {
 			}
 			else if (paramWrap1.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_UPPER95CONFIDENCELIMIT)) {
 				if (paramWrap2.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_LOWER95CONFIDENCELIMIT)) {
-					return getRandomVariateFromAvgAndCIs(expression.getConstantValue(), new double[] {paramWrap2.getExpression().getConstantValue(), paramWrap1.getExpression().getConstantValue()});
+					return getRandomVariateFromAvgAndCIs(getDeterministicValue(), new double[] {paramWrap2.getDeterministicValue(), paramWrap1.getDeterministicValue()});
 				}
 				else {
 					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramWrap2.getParamId(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Upper and lower confidence intervals required to represent uncertainty. This parameter should include data item type " + OSDiWrapper.DataItemType.DI_LOWER95CONFIDENCELIMIT);

@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.AcuteManifestation;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
@@ -16,7 +16,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla
  *
  */
-public class SevereHypoglycemiaEvent extends AcuteManifestation {
+public class SevereHypoglycemiaEvent extends Manifestation {
 	private static final double DU_HYPO_EPISODE = 0.0631; // Walters et al. (2011) 
 	private static final double[] LIMITS_DU_HYPO_EPISODE = {0.01, 2 * DU_HYPO_EPISODE - 0.01}; // Assumption from observed values in Canada and Beaudet
 	/** Cost from 2017, from https://doi.org/10.1007/s13300-017-0285-0 */
@@ -31,7 +31,7 @@ public class SevereHypoglycemiaEvent extends AcuteManifestation {
 	 * @param disease
 	 */
 	public SevereHypoglycemiaEvent(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Severe hypoglycemic event", disease);
+		super(secParams, NAME, "Severe hypoglycemic event", disease, Type.ACUTE);
 	}
 
 	@Override

@@ -12,6 +12,7 @@ import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.RangeWrapper;
 import es.ull.iis.simulation.hta.outcomes.Guideline;
 
@@ -21,15 +22,13 @@ import es.ull.iis.simulation.hta.outcomes.Guideline;
  */
 public interface GuidelineBuilder {
 	public static Guideline getGuidelineInstance(OSDiGenericRepository secParams, String guidelineName) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
-		final Guideline guide = new Guideline(guidelineName, OSDiNames.DataProperty.HAS_DESCRIPTION.getValue(""), createCondition(secParams, guidelineName));
+		final Guideline guide = new Guideline(guidelineName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(guidelineName, ""), createCondition(secParams, guidelineName));
 		createGuidelineRanges(secParams, guide);
 		return guide;
 	}
 
 	private static Condition<Patient> createCondition(OSDiGenericRepository secParams, String guidelineName) {
-		final OwlHelper helper = secParams.getOwlHelper();		
-		final List<String> strConditions = OSDiNames.DataProperty.HAS_CONDITION.getValues(guidelineName);
+		final List<String> strConditions = OSDiWrapper.DataProperty.HAS_CONDITION.getValues(guidelineName);
 		final ArrayList<Condition<Patient>> condList = new ArrayList<>();
 		for (String strCond : strConditions)
 			condList.add(new ExpressionLanguageCondition(strCond));
@@ -43,13 +42,13 @@ public interface GuidelineBuilder {
 	}
 	
 	private static void createGuidelineRanges(OSDiGenericRepository secParams, Guideline guide) throws TranspilerException {
-		final OwlHelper helper = secParams.getOwlHelper();		
-		final List<String> strRanges = OSDiNames.ObjectProperty.HAS_GUIDELINE_RANGE.getValues(guide.name());
+		final OSDiWrapper wrap = secParams.getOwlWrapper();
+		final List<String> strRanges = OSDiWrapper.ObjectProperty.HAS_GUIDELINE_RANGE.getValues(guide.name());
 		for (String rangeName : strRanges) {
 			// TODO: Allow distributions instead of simply deterministic values
-			final double dose = Double.parseDouble(OSDiNames.DataProperty.HAS_DOSE.getValue("0.0")); 
-			final double frequency = Double.parseDouble(OSDiNames.DataProperty.HAS_FREQUENCY.getValue("0.0"));
-			final String strValue = OSDiNames.DataProperty.HAS_RANGE.getValue(rangeName);
+			final double dose = Double.parseDouble(OSDiWrapper.DataProperty.HAS_DOSE.getValue(guide.name(), "0.0")); 
+			final double frequency = Double.parseDouble(OSDiWrapper.DataProperty.HAS_FREQUENCY.getValue(guide.name(), "0.0"));
+			final String strValue = OSDiWrapper.DataProperty.HAS_RANGE.getValue(rangeName, "");
 			if (strValue == null) {
 				throw new TranspilerException("Range (data property 'has_range' not defined for GuidelineRange instance " + rangeName);
 			}

@@ -31,7 +31,7 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, Reseteable, PrettyPrintable, CostProducer, UtilityProducer {
+public class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, Reseteable, PrettyPrintable, CostProducer, UtilityProducer {
 	/**
 	 * The type of the manifestation. Currently distinguishes among chronic and acute manifestations
 	 * @author Iván Castilla
@@ -68,6 +68,8 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 	private final ArrayList<ManifestationPathway> pathways;
 	/** A set of labels that may be assigned to this manifestation. Labels serve to group related manifestations */
 	private final TreeSet<Named> labels;
+
+	private final RandomValues[][] rndValues;
 	
 	/**
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
@@ -93,6 +95,19 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 		Arrays.fill(randomSeeds, null);
 		this.pathways = new ArrayList<>();
 		this.labels = new TreeSet<Named>();
+		if (Type.ACUTE.equals(type)) {
+			rndValues = new RandomValues[secParams.getNRuns() + 1][secParams.getNPatients()];
+			for (int i = 0; i < secParams.getNRuns() + 1; i++)
+				for (int j = 0; j < secParams.getNPatients(); j++)
+					rndValues[i][j] = new AcuteRandomValues();			
+		}
+		else {
+			rndValues = new RandomValues[secParams.getNRuns() + 1][secParams.getNPatients()];
+			for (int i = 0; i < secParams.getNRuns() + 1; i++)
+				for (int j = 0; j < secParams.getNPatients(); j++)
+					rndValues[i][j] = new ChronicRandomValues();
+		}
+		
 		disease.addManifestation(this);
 	}
 	
@@ -273,14 +288,24 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 	 * @param n Number of random numbers to generate
 	 * @return n random values between 0 and 1 for the specified patient
 	 */
-	public abstract List<Double> getRandomValues(Patient pat, int n);
+	public List<Double> getRandomValues(Patient pat, int n) {
+		if (Type.ACUTE.equals(type)) {
+			return rndValues[pat.getSimulation().getIdentifier()][pat.getIdentifier()].draw(pat.getNManifestations(this) + 1, n);
+		}
+		return rndValues[pat.getSimulation().getIdentifier()][pat.getIdentifier()].draw(0, n);
+	}
 	
 	/**
 	 * Returns a random values between 0 and 1 for the specified patient
 	 * @param pat A patient
 	 * @return A random values between 0 and 1 for the specified patient
 	 */
-	public abstract double getRandomValue(Patient pat);
+	public double getRandomValue(Patient pat) {
+		if (Type.ACUTE.equals(type)) {
+			return rndValues[pat.getSimulation().getIdentifier()][pat.getIdentifier()].draw(pat.getNManifestations(this) + 1);			
+		}
+		return rndValues[pat.getSimulation().getIdentifier()][pat.getIdentifier()].draw(0);		
+	}
 
 	/**
 	 * Returns the collection of pathways that lead to this manifestation
@@ -295,6 +320,9 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 		return secParams;
 	}
 
+	@Override
+	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+	}
 
 	@Override
 	public double getCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
@@ -347,4 +375,58 @@ public abstract class Manifestation implements NamedAndDescribed, Comparable<Man
 		}
 		return str.toString();
 	}
+	
+	private interface RandomValues {
+		double draw(int nEvent);
+		List<Double> draw(int currentEvent, int n);
+	}
+	
+	private class AcuteRandomValues implements RandomValues {
+		private final ArrayList<ArrayList<Double>> values;
+		
+		public AcuteRandomValues() {
+			values = new ArrayList<>();
+		}
+		
+		public List<Double> draw(int currentEvent, int n) {
+			if (currentEvent > values.size()) {
+				values.add(new ArrayList<>());
+			}
+			final ArrayList<Double> currentValues = values.get(currentEvent - 1); 
+			if (n > currentValues.size()) {
+				for (int i = currentValues.size(); i < n; i++) {
+					final double rnd = SecondOrderParamsRepository.getRNG_FIRST_ORDER().draw();
+					currentValues.add(rnd);
+				}
+			}
+			return currentValues.subList(0, n);
+		}
+		
+		public double draw(int nEvent) {
+			return draw(nEvent, 1).get(0);
+		}		
+	}
+	
+	private class ChronicRandomValues implements RandomValues {
+		private final ArrayList<Double> values;
+		
+		public ChronicRandomValues() {
+			values = new ArrayList<>();
+		}
+		
+		public List<Double> draw(int currentEvent, int n) {
+			if (n > values.size()) {
+				for (int i = values.size(); i < n; i++) {
+					final double rnd = SecondOrderParamsRepository.getRNG_FIRST_ORDER().draw();
+					values.add(rnd);
+				}
+			}
+			return values.subList(0, n);
+		}
+		
+		public double draw(int nEvent) {
+			return draw(0, 1).get(0);
+		}		
+	}
+
 }
