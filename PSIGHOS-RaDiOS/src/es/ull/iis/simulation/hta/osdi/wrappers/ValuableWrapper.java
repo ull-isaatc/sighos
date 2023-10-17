@@ -105,6 +105,14 @@ public class ValuableWrapper {
 		return probabilisticValue;
 	}
 	
+	/**
+	 * Returns a default probabilistic value to be used for this wrapper in case it is not defined 
+	 * @return a default probabilistic value to be used for this wrapper in case it is not defined
+	 */
+	public RandomVariate getDefaultProbabilisticValue() {
+		return RandomVariateFactory.getInstance("ConstantVariate", getDeterministicValue());
+	}
+	
 	public double getDeterministicValue() {
 		if (ExpressionWrapper.SupportedType.CONSTANT.equals(expression.getType()))
 			return expression.getConstantValue();
@@ -120,6 +128,8 @@ public class ValuableWrapper {
 			}
 			return stochasticUncertainty;
 		}
+		if (heterogeneity == null)
+			return getDefaultProbabilisticValue();
 		return heterogeneity;
 
 	}

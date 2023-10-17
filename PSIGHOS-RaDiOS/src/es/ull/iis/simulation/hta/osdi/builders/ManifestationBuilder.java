@@ -173,7 +173,7 @@ public interface ManifestationBuilder {
 		public void addCostParams() throws MalformedOSDiModelException {
 			final Set<String> costs = OSDiWrapper.ObjectProperty.HAS_COST.getValues(name(), true);
 			if (costs.size() == 0) {
-				wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_COST, "No cost define for a manifestation. Using 0 as a default value");				
+				wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_COST, "No cost defined for a manifestation. Using 0 as a default value");				
 			}
 			else {
 				// Checking coherence of number of costs and the type of manifestation		
@@ -225,7 +225,7 @@ public interface ManifestationBuilder {
 		public void addUtilityParams() throws MalformedOSDiModelException {
 			final Set<String> utilities = OSDiWrapper.ObjectProperty.HAS_UTILITY.getValues(name(), true);
 			if (utilities.size() == 0) {
-				wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "No utility define for a manifestation. Creating a 0 disutility as a default value");				
+				wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "No utility defined for a manifestation. Creating a 0 disutility as a default value");				
 			}
 			else {
 				boolean acute = Manifestation.Type.ACUTE.equals(getType());
@@ -240,8 +240,10 @@ public interface ManifestationBuilder {
 						wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Found more than two (dis)utilities (one-time and annual) for a chronic manifestation. Using " + utilities.toArray()[0] + " and "  + utilities.toArray()[1]);
 					// TODO: Make a smarter use of the excess of costs and use only those which meets the conditions, i.e. select one annual and one "one-time" cost from all the defined ones
 					OSDiWrapper.TemporalBehavior tmpBehavior = addUtilityParam((String)utilities.toArray()[0], OSDiWrapper.TemporalBehavior.NOT_SPECIFIED);
-					tmpBehavior = OSDiWrapper.TemporalBehavior.ANNUAL.equals(tmpBehavior) ? OSDiWrapper.TemporalBehavior.ONETIME : OSDiWrapper.TemporalBehavior.ANNUAL; 
-					addUtilityParam((String)utilities.toArray()[1], tmpBehavior);
+					if (utilities.size() > 1) {
+						tmpBehavior = OSDiWrapper.TemporalBehavior.ANNUAL.equals(tmpBehavior) ? OSDiWrapper.TemporalBehavior.ONETIME : OSDiWrapper.TemporalBehavior.ANNUAL; 
+						addUtilityParam((String)utilities.toArray()[1], tmpBehavior);
+					}
 				}
 			}
 		}

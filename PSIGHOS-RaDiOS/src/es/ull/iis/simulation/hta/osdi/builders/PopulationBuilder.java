@@ -76,19 +76,16 @@ public interface PopulationBuilder {
 			// Process population age
 			final String ageAttribute = OSDiWrapper.ObjectProperty.HAS_AGE.getValue(populationName, true);
 			final AttributeValueWrapper ageWrapper = new AttributeValueWrapper(wrap, ageAttribute, EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
-			if (ageWrapper.getProbabilisticValue() == null) {
-				ageVariate = RandomVariateFactory.getInstance("ConstantVariate", ageWrapper.getDeterministicValue());
-			}
-			else
-				ageVariate = ageWrapper.getProbabilisticValue();
+			ageVariate = ageWrapper.getProbabilisticValue();
 			// Process population sex
 			final String sexAttribute = OSDiWrapper.ObjectProperty.HAS_SEX.getValue(populationName, true);
-			final AttributeValueWrapper sexWrapper = new AttributeValueWrapper(wrap, sexAttribute, EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
-			if (sexWrapper.getProbabilisticValue() == null) {
-				sexVariate = (DiscreteRandomVariate) RandomVariateFactory.getInstance("DiscreteConstantVariate", sexWrapper.getDeterministicValue());
-			}
-			else
-				sexVariate = (DiscreteRandomVariate) sexWrapper.getProbabilisticValue();
+			final AttributeValueWrapper sexWrapper = new AttributeValueWrapper(wrap, sexAttribute, EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)) {
+				@Override
+				public RandomVariate getDefaultProbabilisticValue() {
+					return RandomVariateFactory.getInstance("DiscreteConstantVariate", getDeterministicValue());
+				}
+			};
+			sexVariate = (DiscreteRandomVariate) sexWrapper.getProbabilisticValue();
 			
 			this.utilityParam = addUtilityParam();
 			
@@ -219,10 +216,7 @@ public interface PopulationBuilder {
 				for (String attribute : attributes) {
 					final AttributeValueWrapper attWrapper = new AttributeValueWrapper(wrap, attribute, EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
 					final String attributeName = OSDiWrapper.DataProperty.HAS_NAME.getValue(attWrapper.getAttributeId(), attWrapper.getAttributeId());
-					if (attWrapper.getProbabilisticValue() == null)
-						attributeList.add(new InitiallySetPopulationAttribute(attributeName, RandomVariateFactory.getInstance("ConstantVariate", attWrapper.getDeterministicValue())));
-					else
-						attributeList.add(new InitiallySetPopulationAttribute(attributeName, attWrapper.getProbabilisticValue()));										
+					attributeList.add(new InitiallySetPopulationAttribute(attributeName, attWrapper.getProbabilisticValue()));										
 				}
 			} catch(MalformedOSDiModelException ex) {
 				throw new MalformedSimulationModelException("Error parsing attribute value from ontology. Caused by " + ex.getMessage());

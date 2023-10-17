@@ -39,6 +39,8 @@ public class ParameterWrapper extends ValuableWrapper {
 			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Stochastic uncertainty not currently supported in Parameters.");
 		if (heterogeneity != null)
 			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY, "Heterogeneity not currently supported in Parameters.");
+		if (paramUncertainty == null)
+			return getDefaultProbabilisticValue();
 		return paramUncertainty;
 	}
 	
