@@ -63,6 +63,8 @@
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasEndAge
 # 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasEpidemiologicalParameter
+# 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasFollowUpCost
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasFollowUpStrategy
@@ -483,6 +485,11 @@ _:genid27 a owl:Restriction;
   rdfs:subPropertyOf :hasParameter;
   rdfs:domain :Manifestation;
   rdfs:range :Parameter .
+
+:hasEpidemiologicalParameter a owl:ObjectProperty;
+  rdfs:subPropertyOf :hasParameter;
+  rdfs:domain :Disease, :Population;
+  rdfs:range :EpidemiologicalParameter .
 
 :hasFollowUpCost a owl:ObjectProperty;
   rdfs:subPropertyOf :hasCost;
@@ -1394,7 +1401,7 @@ _:genid160 a owl:Restriction;
   rdfs:subClassOf :ModelItem, _:genid161, _:genid162, _:genid163, _:genid164, _:genid165,
     _:genid166, _:genid167, _:genid168, _:genid169, _:genid170, _:genid171, _:genid172,
     _:genid173, _:genid174, _:genid175, _:genid176, _:genid177, _:genid178, _:genid179,
-    _:genid180, _:genid181, _:genid182 .
+    _:genid180, _:genid181, _:genid182, _:genid183 .
 
 _:genid161 a owl:Restriction;
   owl:someValuesFrom :AttributeValue;
@@ -1417,162 +1424,157 @@ _:genid165 a owl:Restriction;
   owl:onProperty :hasDiagnosisStrategy .
 
 _:genid166 a owl:Restriction;
+  owl:someValuesFrom :EpidemiologicalParameter;
+  owl:onProperty :hasEpidemiologicalParameter .
+
+_:genid167 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasFollowUpCost .
 
-_:genid167 a owl:Restriction;
+_:genid168 a owl:Restriction;
   owl:someValuesFrom :FollowUpStrategy;
   owl:onProperty :hasFollowUpStrategy .
 
-_:genid168 a owl:Restriction;
+_:genid169 a owl:Restriction;
   owl:someValuesFrom :Intervention;
   owl:onProperty :hasIntervention .
 
-_:genid169 a owl:Restriction;
+_:genid170 a owl:Restriction;
   owl:someValuesFrom :AttributeValue;
   owl:onProperty :hasLifeExpectancy .
 
-_:genid170 a owl:Restriction;
+_:genid171 a owl:Restriction;
   owl:someValuesFrom :LineOfTherapy;
   owl:onProperty :hasLineOfTherapy .
 
-_:genid171 a owl:Restriction;
+_:genid172 a owl:Restriction;
   owl:someValuesFrom :Manifestation;
   owl:onProperty :hasManifestation .
 
-_:genid172 a owl:Restriction;
+_:genid173 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasParameter .
 
-_:genid173 a owl:Restriction;
+_:genid174 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasScreeningCost .
 
-_:genid174 a owl:Restriction;
+_:genid175 a owl:Restriction;
   owl:someValuesFrom :ScreeningStrategy;
   owl:onProperty :hasScreeningStrategy .
 
-_:genid175 a owl:Restriction;
+_:genid176 a owl:Restriction;
   owl:someValuesFrom :Stage;
   owl:onProperty :hasStage .
 
-_:genid176 a owl:Restriction;
+_:genid177 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasTreatmentCost .
 
-_:genid177 a owl:Restriction;
+_:genid178 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid178 a owl:Restriction;
+_:genid179 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToDO .
 
-_:genid179 a owl:Restriction;
+_:genid180 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToICD .
 
-_:genid180 a owl:Restriction;
+_:genid181 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToOMIM .
 
-_:genid181 a owl:Restriction;
+_:genid182 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToSNOMED .
 
-_:genid182 a owl:Restriction;
+_:genid183 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :DiseasePathway a owl:Class;
-  rdfs:subClassOf :Pathway, _:genid183 .
+  rdfs:subClassOf :Pathway, _:genid184 .
 
-_:genid183 a owl:Restriction;
+_:genid184 a owl:Restriction;
   owl:onClass :Disease;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :isPathwayTo .
 
 :Drug a owl:Class;
-  rdfs:subClassOf :HealthTechnology, _:genid184;
+  rdfs:subClassOf :HealthTechnology, _:genid185;
   rdfs:comment "A natural or synthetic remedy for a disease or manifestation" .
 
-_:genid184 a owl:Restriction;
+_:genid185 a owl:Restriction;
   owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
 
 :EpidemiologicalParameter a owl:Class;
-  rdfs:subClassOf :Parameter, _:genid185 .
+  rdfs:subClassOf :Parameter, _:genid186 .
 
-_:genid185 a owl:Restriction;
+_:genid186 a owl:Restriction;
   owl:onDataRange xsd:boolean;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :isTrueEpidemiologicalParameterEstimate .
 
 :FollowUpStrategy a owl:Class;
-  rdfs:subClassOf :Strategy, _:genid186, _:genid188, _:genid189 .
-
-_:genid186 a owl:Restriction;
-  owl:someValuesFrom _:genid187;
-  owl:onProperty :belongsToGroup .
+  rdfs:subClassOf :Strategy, _:genid187, _:genid189, _:genid190 .
 
 _:genid187 a owl:Restriction;
+  owl:someValuesFrom _:genid188;
+  owl:onProperty :belongsToGroup .
+
+_:genid188 a owl:Restriction;
   owl:allValuesFrom :FollowUpStrategy;
   owl:onProperty :hasComponent .
 
-_:genid188 a owl:Restriction;
+_:genid189 a owl:Restriction;
   owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
 
-_:genid189 a owl:Restriction;
+_:genid190 a owl:Restriction;
   owl:allValuesFrom :FollowUpTest;
   owl:onProperty :usesHealthTechnology .
 
 :FollowUpTest a owl:Class;
-  rdfs:subClassOf :HealthTechnology, _:genid190;
+  rdfs:subClassOf :HealthTechnology, _:genid191;
   rdfs:comment "Tests performed to monitor the state of a patient" .
 
-_:genid190 a owl:Restriction;
+_:genid191 a owl:Restriction;
   owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
 
 :Group a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid191, _:genid192 .
+  rdfs:subClassOf :ModelItem, _:genid192, _:genid193 .
 
-_:genid191 a owl:Restriction;
+_:genid192 a owl:Restriction;
   owl:someValuesFrom :GroupableModelItem;
   owl:onProperty :hasComponent .
 
-_:genid192 a owl:Restriction;
+_:genid193 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :GroupableModelItem a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid193, _:genid194 .
+  rdfs:subClassOf :ModelItem, _:genid194, _:genid195 .
 
-_:genid193 a owl:Restriction;
+_:genid194 a owl:Restriction;
   owl:someValuesFrom :Group;
   owl:onProperty :belongsToGroup .
 
-_:genid194 a owl:Restriction;
+_:genid195 a owl:Restriction;
   owl:someValuesFrom :ProportionWithinGroup;
   owl:onProperty :hasProportionWithinGroup .
 
 :Guideline a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid195, _:genid196, _:genid197 .
+  rdfs:subClassOf :ModelItem, _:genid196 .
 
-_:genid195 a owl:Restriction;
-  owl:someValuesFrom :Guideline;
+_:genid196 owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
-
-_:genid196 a owl:Restriction;
-  owl:someValuesFrom xsd:string;
-  owl:onProperty :hasCondition .
-
-_:genid197 owl:onDataRange xsd:string;
-  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasRange .
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#HealthTechnology
 # 
@@ -1750,45 +1752,51 @@ _:genid197 owl:onDataRange xsd:string;
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_TC
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U_U95CI
 
-_:genid197 a owl:Restriction .
+_:genid196 a owl:Restriction .
 
-:Guideline rdfs:subClassOf _:genid198, _:genid199, _:genid200, _:genid201;
+:Guideline rdfs:subClassOf _:genid197, _:genid198, _:genid199, _:genid200, _:genid201,
+    _:genid202;
   rdfs:comment "The way a treatment, drug, test... is applied. It defines a period of time (range), dose, frequency, etc." .
+
+_:genid197 a owl:Restriction;
+  owl:someValuesFrom xsd:string;
+  owl:onProperty :hasCondition .
 
 _:genid198 a owl:Restriction;
   owl:onDataRange xsd:string;
-  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasDescription .
+  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasRange .
 
 _:genid199 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasDose .
+  owl:onProperty :hasDescription .
 
 _:genid200 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasFrequency .
+  owl:onProperty :hasDose .
 
 _:genid201 a owl:Restriction;
+  owl:onDataRange xsd:string;
+  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasFrequency .
+
+_:genid202 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasHoursInterval .
 
 :HealthTechnology a owl:Class;
-  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid202, _:genid203;
+  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid203, _:genid204;
   rdfs:comment "Any treatment, drug, test... that may be applied to a patient" .
 
-_:genid202 a owl:Restriction;
+_:genid203 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid203 a owl:Restriction;
+_:genid204 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
@@ -1797,186 +1805,186 @@ _:genid203 a owl:Restriction;
   rdfs:subClassOf :EpidemiologicalParameter .
 
 :Intervention a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid204, _:genid205, _:genid206, _:genid208;
+  rdfs:subClassOf :ModelItem, _:genid205, _:genid206, _:genid207, _:genid209;
   rdfs:comment "Some kind of treatment, drug, surgical procedure... used to modify the development of a Disease" .
 
-_:genid204 a owl:Restriction;
+_:genid205 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid205 a owl:Restriction;
+_:genid206 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid206 a owl:Restriction;
-  owl:someValuesFrom _:genid207;
+_:genid207 a owl:Restriction;
+  owl:someValuesFrom _:genid208;
   owl:onProperty :involvesModification .
 
-_:genid207 a owl:Restriction;
+_:genid208 a owl:Restriction;
   owl:onClass :Valuable;
   owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :modifies .
 
-_:genid208 a owl:Restriction;
+_:genid209 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :LineOfTherapy a owl:Class;
-  rdfs:subClassOf :Strategy, _:genid209, _:genid211, _:genid212, _:genid216 .
-
-_:genid209 a owl:Restriction;
-  owl:someValuesFrom _:genid210;
-  owl:onProperty :belongsToGroup .
+  rdfs:subClassOf :Strategy, _:genid210, _:genid212, _:genid213, _:genid217 .
 
 _:genid210 a owl:Restriction;
+  owl:someValuesFrom _:genid211;
+  owl:onProperty :belongsToGroup .
+
+_:genid211 a owl:Restriction;
   owl:allValuesFrom :LineOfTherapy;
   owl:onProperty :hasComponent .
 
-_:genid211 a owl:Restriction;
+_:genid212 a owl:Restriction;
   owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
 
-_:genid212 a owl:Restriction;
-  owl:allValuesFrom _:genid213;
+_:genid213 a owl:Restriction;
+  owl:allValuesFrom _:genid214;
   owl:onProperty :usesHealthTechnology .
 
-_:genid213 a owl:Class;
-  owl:unionOf _:genid215 .
+_:genid214 a owl:Class;
+  owl:unionOf _:genid216 .
+
+_:genid216 a rdf:List;
+  rdf:first :Drug;
+  rdf:rest _:genid215 .
 
 _:genid215 a rdf:List;
-  rdf:first :Drug;
-  rdf:rest _:genid214 .
-
-_:genid214 a rdf:List;
   rdf:first :Treatment;
   rdf:rest rdf:nil .
 
-_:genid216 a owl:Restriction;
+_:genid217 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :failsIf .
 
 :Manifestation a owl:Class;
-  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid217, _:genid219, _:genid220,
-    _:genid221, _:genid222, _:genid223, _:genid224, _:genid225, _:genid226, _:genid227,
-    _:genid228, _:genid229, _:genid230, _:genid231, _:genid232, _:genid233;
+  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid218, _:genid220, _:genid221,
+    _:genid222, _:genid223, _:genid224, _:genid225, _:genid226, _:genid227, _:genid228,
+    _:genid229, _:genid230, _:genid231, _:genid232, _:genid233, _:genid234;
   rdfs:comment "Symptoms and signs of a Disease. They may be chronic or acute" .
 
-_:genid217 a owl:Restriction;
-  owl:someValuesFrom _:genid218;
+_:genid218 a owl:Restriction;
+  owl:someValuesFrom _:genid219;
   owl:onProperty :belongsToGroup .
 
-_:genid218 a owl:Restriction;
+_:genid219 a owl:Restriction;
   owl:allValuesFrom :Manifestation;
   owl:onProperty :hasComponent .
 
-_:genid219 a owl:Restriction;
+_:genid220 a owl:Restriction;
   owl:someValuesFrom :Manifestation;
   owl:onProperty :excludesManifestation .
 
-_:genid220 a owl:Restriction;
+_:genid221 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid221 a owl:Restriction;
+_:genid222 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasEndAge .
 
-_:genid222 a owl:Restriction;
+_:genid223 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasIncreasedMortalityRate .
 
-_:genid223 a owl:Restriction;
+_:genid224 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasInitialProportion .
 
-_:genid224 a owl:Restriction;
+_:genid225 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasLifeExpectancyReduction .
 
-_:genid225 a owl:Restriction;
+_:genid226 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasOnsetAge .
 
-_:genid226 a owl:Restriction;
+_:genid227 a owl:Restriction;
   owl:someValuesFrom :ManifestationPathway;
   owl:onProperty :hasPathway .
 
-_:genid227 a owl:Restriction;
+_:genid228 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasProbabilityOfDeath .
 
-_:genid228 a owl:Restriction;
+_:genid229 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasProbabilityOfDiagnosis .
 
-_:genid229 a owl:Restriction;
+_:genid230 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasRiskCharacterization .
 
-_:genid230 a owl:Restriction;
+_:genid231 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid231 a owl:Restriction;
+_:genid232 a owl:Restriction;
   owl:someValuesFrom xsd:double;
   owl:onProperty :hasFrequency .
 
-_:genid232 a owl:Restriction;
+_:genid233 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToICD .
 
-_:genid233 a owl:Restriction;
+_:genid234 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :ManifestationPathway a owl:Class;
-  rdfs:subClassOf :Pathway, _:genid234, _:genid235, _:genid236, _:genid237, _:genid238,
-    _:genid240;
+  rdfs:subClassOf :Pathway, _:genid235, _:genid236, _:genid237, _:genid238, _:genid239,
+    _:genid241;
   rdfs:comment "The way a manifestation appears. It may be a probability, time to event, a proportion of people affected..., and it may change depending on the Development of the Disease or a specific Intervention" .
 
-_:genid234 a owl:Restriction;
+_:genid235 a owl:Restriction;
   owl:someValuesFrom :Development;
   owl:onProperty :requires .
 
-_:genid235 a owl:Restriction;
+_:genid236 a owl:Restriction;
   owl:someValuesFrom :Intervention;
   owl:onProperty :requires .
 
-_:genid236 a owl:Restriction;
+_:genid237 a owl:Restriction;
   owl:someValuesFrom :Manifestation;
   owl:onProperty :requires .
 
-_:genid237 a owl:Restriction;
+_:genid238 a owl:Restriction;
   owl:someValuesFrom :Stage;
   owl:onProperty :requires .
 
-_:genid238 a owl:Restriction;
-  owl:someValuesFrom _:genid239;
+_:genid239 a owl:Restriction;
+  owl:someValuesFrom _:genid240;
   owl:onProperty :requires .
 
-_:genid239 a owl:Restriction;
+_:genid240 a owl:Restriction;
   owl:allValuesFrom :Manifestation;
   owl:onProperty :hasComponent .
 
-_:genid240 a owl:Restriction;
-  owl:onClass _:genid241;
+_:genid241 a owl:Restriction;
+  owl:onClass _:genid242;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :isPathwayTo .
 
-_:genid241 a owl:Class;
-  owl:unionOf _:genid244 .
+_:genid242 a owl:Class;
+  owl:unionOf _:genid245 .
 
-_:genid244 a rdf:List;
+_:genid245 a rdf:List;
   rdf:first :Manifestation;
-  rdf:rest _:genid242 .
+  rdf:rest _:genid243 .
 
-_:genid242 a rdf:List;
-  rdf:first _:genid243;
+_:genid243 a rdf:List;
+  rdf:first _:genid244;
   rdf:rest rdf:nil .
 
-_:genid243 a owl:Restriction;
+_:genid244 a owl:Restriction;
   owl:allValuesFrom :Manifestation;
   owl:onProperty :hasComponent .
 
@@ -1984,191 +1992,195 @@ _:genid243 a owl:Restriction;
   rdfs:subClassOf :Model .
 
 :MeasuredDataItemType a owl:Class;
-  rdfs:subClassOf :DataItemType, _:genid245 .
+  rdfs:subClassOf :DataItemType, _:genid246 .
 
-_:genid245 a owl:Restriction;
+_:genid246 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasUnit .
 
 :Model a owl:Class;
-  rdfs:subClassOf _:genid246, _:genid247, _:genid248, _:genid249, _:genid250, _:genid251,
-    _:genid255 .
+  rdfs:subClassOf _:genid247, _:genid248, _:genid249, _:genid250, _:genid251, _:genid252,
+    _:genid256 .
 
-_:genid246 a owl:Restriction;
+_:genid247 a owl:Restriction;
   owl:someValuesFrom :Model;
   owl:onProperty :usesSameModelItemsAs .
 
-_:genid247 a owl:Restriction;
+_:genid248 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasAuthor .
 
-_:genid248 a owl:Restriction;
+_:genid249 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasGeographicalContext .
 
-_:genid249 a owl:Restriction;
+_:genid250 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefTo .
 
-_:genid250 a owl:Restriction;
+_:genid251 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasYear .
 
-_:genid251 a owl:Restriction;
-  owl:onDataRange _:genid252;
+_:genid252 a owl:Restriction;
+  owl:onDataRange _:genid253;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDisutilityCombinationMethod .
 
-_:genid252 a rdfs:Datatype;
-  owl:oneOf _:genid254 .
+_:genid253 a rdfs:Datatype;
+  owl:oneOf _:genid255 .
+
+_:genid255 a rdf:List;
+  rdf:first "ADD";
+  rdf:rest _:genid254 .
 
 _:genid254 a rdf:List;
-  rdf:first "ADD";
-  rdf:rest _:genid253 .
-
-_:genid253 a rdf:List;
   rdf:first "MAX";
   rdf:rest rdf:nil .
 
-_:genid255 a owl:Restriction;
+_:genid256 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :ModelItem a owl:Class;
-  rdfs:subClassOf _:genid256 .
+  rdfs:subClassOf _:genid257 .
 
-_:genid256 a owl:Restriction;
+_:genid257 a owl:Restriction;
   owl:someValuesFrom :Model;
   owl:onProperty :includedByModel .
 
 :Parameter a owl:Class;
-  rdfs:subClassOf :Valuable, _:genid257, _:genid258, _:genid259, _:genid260, _:genid261,
-    _:genid262;
+  rdfs:subClassOf :Valuable, _:genid258, _:genid259, _:genid260, _:genid261, _:genid262,
+    _:genid263;
   rdfs:comment "Parameters used for computing outcomes or characterize certain class. They have a source, a geographical context, year, description and value." .
 
-_:genid257 a owl:Restriction;
+_:genid258 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasParameterUncertainty .
 
-_:genid258 a owl:Restriction;
+_:genid259 a owl:Restriction;
   owl:someValuesFrom :Disease;
   owl:onProperty :isParameterOfDisease .
 
-_:genid259 a owl:Restriction;
+_:genid260 a owl:Restriction;
   owl:someValuesFrom :Manifestation;
   owl:onProperty :isParameterOfManifestation .
 
-_:genid260 a owl:Restriction;
+_:genid261 a owl:Restriction;
   owl:someValuesFrom :Population;
   owl:onProperty :isParameterOfPopulation .
 
-_:genid261 a owl:Restriction;
+_:genid262 a owl:Restriction;
   owl:someValuesFrom xsd:short;
   owl:onProperty :hasYear .
 
-_:genid262 a owl:Restriction;
+_:genid263 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :Pathway a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid263, _:genid264, _:genid265, _:genid266;
+  rdfs:subClassOf :ModelItem, _:genid264, _:genid265, _:genid266, _:genid267;
   rdfs:comment "The way a disease, development, manifestation or stage appears, i.e., the conditions that must be met to lead to any of these."@en .
 
-_:genid263 a owl:Restriction;
+_:genid264 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid264 a owl:Restriction;
+_:genid265 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasRiskCharacterization .
 
-_:genid265 a owl:Restriction;
+_:genid266 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid266 a owl:Restriction;
+_:genid267 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasCondition .
 
 :Population a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid267, _:genid268, _:genid269, _:genid270, _:genid271,
-    _:genid272, _:genid273, _:genid275, _:genid277, _:genid278, _:genid279, _:genid280,
-    _:genid281, _:genid282, _:genid283 .
+  rdfs:subClassOf :ModelItem, _:genid268, _:genid269, _:genid270, _:genid271, _:genid272,
+    _:genid273, _:genid274, _:genid275, _:genid277, _:genid279, _:genid280, _:genid281,
+    _:genid282, _:genid283, _:genid284, _:genid285 .
 
-_:genid267 a owl:Restriction;
+_:genid268 a owl:Restriction;
   owl:someValuesFrom :AttributeValue;
   owl:onProperty :hasAttributeValue .
 
-_:genid268 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasInitialProportion .
-
 _:genid269 a owl:Restriction;
-  owl:someValuesFrom :AttributeValue;
-  owl:onProperty :hasLifeExpectancy .
+  owl:someValuesFrom :EpidemiologicalParameter;
+  owl:onProperty :hasEpidemiologicalParameter .
 
 _:genid270 a owl:Restriction;
   owl:someValuesFrom :Parameter;
-  owl:onProperty :hasParameter .
+  owl:onProperty :hasInitialProportion .
 
 _:genid271 a owl:Restriction;
+  owl:someValuesFrom :AttributeValue;
+  owl:onProperty :hasLifeExpectancy .
+
+_:genid272 a owl:Restriction;
+  owl:someValuesFrom :Parameter;
+  owl:onProperty :hasParameter .
+
+_:genid273 a owl:Restriction;
   owl:someValuesFrom :Population;
   owl:onProperty :hasSubpopulation .
 
-_:genid272 a owl:Restriction;
+_:genid274 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
-
-_:genid273 a owl:Restriction;
-  owl:onClass _:genid274;
-  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasAge .
-
-_:genid274 a owl:Restriction;
-  owl:hasValue :Attribute_Age;
-  owl:onProperty :isValueOfAttribute .
 
 _:genid275 a owl:Restriction;
   owl:onClass _:genid276;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasSex .
+  owl:onProperty :hasAge .
 
 _:genid276 a owl:Restriction;
-  owl:hasValue :Attribute_Sex;
+  owl:hasValue :Attribute_Age;
   owl:onProperty :isValueOfAttribute .
 
 _:genid277 a owl:Restriction;
+  owl:onClass _:genid278;
+  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasSex .
+
+_:genid278 a owl:Restriction;
+  owl:hasValue :Attribute_Sex;
+  owl:onProperty :isValueOfAttribute .
+
+_:genid279 a owl:Restriction;
   owl:onClass :Population;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :isSubpopulationOf .
 
-_:genid278 a owl:Restriction;
+_:genid280 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasGeographicalContext .
 
-_:genid279 a owl:Restriction;
+_:genid281 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasYear .
-
-_:genid280 a owl:Restriction;
-  owl:onDataRange xsd:string;
-  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasDescription .
-
-_:genid281 a owl:Restriction;
-  owl:onDataRange xsd:string;
-  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasMaxAge .
 
 _:genid282 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasMinAge .
+  owl:onProperty :hasDescription .
 
 _:genid283 a owl:Restriction;
+  owl:onDataRange xsd:string;
+  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasMaxAge .
+
+_:genid284 a owl:Restriction;
+  owl:onDataRange xsd:string;
+  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasMinAge .
+
+_:genid285 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasSize .
@@ -2177,255 +2189,255 @@ _:genid283 a owl:Restriction;
   rdfs:subClassOf :EpidemiologicalParameter .
 
 :ProportionWithinGroup a owl:Class;
-  rdfs:subClassOf :Parameter, _:genid284 .
+  rdfs:subClassOf :Parameter, _:genid286 .
 
-_:genid284 a owl:Restriction;
+_:genid286 a owl:Restriction;
   owl:onClass :Group;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :belongsToGroup .
 
 :RareDisease a owl:Class;
-  rdfs:subClassOf :Disease, _:genid285, _:genid286;
+  rdfs:subClassOf :Disease, _:genid287, _:genid288;
   rdfs:comment "A Disease with very low  prevalence" .
 
-_:genid285 a owl:Restriction;
+_:genid287 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToGARD .
 
-_:genid286 a owl:Restriction;
+_:genid288 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToORDO .
 
 :ScreeningIntervention a owl:Class;
-  rdfs:subClassOf :DetectionIntervention, _:genid287, _:genid288;
+  rdfs:subClassOf :DetectionIntervention, _:genid289, _:genid290;
   rdfs:comment "An intervention to identifiy the subset of population who may have certain disease or condition and require further testing to obtain a final diagnosis" .
 
-_:genid287 a owl:Restriction;
+_:genid289 a owl:Restriction;
   owl:onClass :DiagnosisStrategy;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDiagnosisStrategy .
 
-_:genid288 a owl:Restriction;
+_:genid290 a owl:Restriction;
   owl:onClass :ScreeningStrategy;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasScreeningStrategy .
 
 :ScreeningStrategy a owl:Class;
-  rdfs:subClassOf :DetectionStrategy, _:genid289, _:genid291;
+  rdfs:subClassOf :DetectionStrategy, _:genid291, _:genid293;
   rdfs:comment "A test used to identify persons potentially suffering a disease among a population" .
 
-_:genid289 a owl:Restriction;
-  owl:someValuesFrom _:genid290;
+_:genid291 a owl:Restriction;
+  owl:someValuesFrom _:genid292;
   owl:onProperty :belongsToGroup .
 
-_:genid290 a owl:Restriction;
+_:genid292 a owl:Restriction;
   owl:allValuesFrom :ScreeningStrategy;
   owl:onProperty :hasComponent .
 
-_:genid291 a owl:Restriction;
+_:genid293 a owl:Restriction;
   owl:onClass :Parameter;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasTemporaryThreshold .
 
 :Stage a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid292, _:genid293, _:genid294, _:genid295, _:genid296,
-    _:genid297, _:genid298, _:genid299, _:genid300;
-  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid301;
+  rdfs:subClassOf :ModelItem, _:genid294, _:genid295, _:genid296, _:genid297, _:genid298,
+    _:genid299, _:genid300, _:genid301, _:genid302;
+  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid303;
   rdfs:comment "A phase or step in the progression of a disease" .
 
-_:genid292 a owl:Restriction;
+_:genid294 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid293 a owl:Restriction;
+_:genid295 a owl:Restriction;
   owl:someValuesFrom :Manifestation;
   owl:onProperty :hasManifestation .
 
-_:genid294 a owl:Restriction;
+_:genid296 a owl:Restriction;
   owl:someValuesFrom :StagePathway;
   owl:onProperty :hasPathway .
 
-_:genid295 a owl:Restriction;
+_:genid297 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasProbabilityOfDeath .
 
-_:genid296 a owl:Restriction;
+_:genid298 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasProbabilityOfDiagnosis .
 
-_:genid297 a owl:Restriction;
+_:genid299 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasRiskCharacterization .
 
-_:genid298 a owl:Restriction;
+_:genid300 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid299 a owl:Restriction;
+_:genid301 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToICD .
 
-_:genid300 a owl:Restriction;
+_:genid302 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
-_:genid301 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
+_:genid303 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionY> 1.332020154340692E2;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionX> 1.0061244444225647E2 .
 
 :StagePathway a owl:Class;
-  rdfs:subClassOf :Pathway, _:genid302, _:genid303, _:genid304, _:genid305 .
+  rdfs:subClassOf :Pathway, _:genid304, _:genid305, _:genid306, _:genid307 .
 
-_:genid302 a owl:Restriction;
+_:genid304 a owl:Restriction;
   owl:someValuesFrom :Development;
   owl:onProperty :requires .
 
-_:genid303 a owl:Restriction;
+_:genid305 a owl:Restriction;
   owl:someValuesFrom :Intervention;
   owl:onProperty :requires .
 
-_:genid304 a owl:Restriction;
+_:genid306 a owl:Restriction;
   owl:someValuesFrom :Stage;
   owl:onProperty :requires .
 
-_:genid305 a owl:Restriction;
+_:genid307 a owl:Restriction;
   owl:onClass :Stage;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :isPathwayTo .
 
 :Strategy a owl:Class;
-  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid306, _:genid308, _:genid313,
-    _:genid314, _:genid315, _:genid316 .
-
-_:genid306 a owl:Restriction;
-  owl:someValuesFrom _:genid307;
-  owl:onProperty :belongsToGroup .
-
-_:genid307 a owl:Restriction;
-  owl:allValuesFrom :Strategy;
-  owl:onProperty :hasComponent .
+  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid308, _:genid310, _:genid315,
+    _:genid316, _:genid317, _:genid318 .
 
 _:genid308 a owl:Restriction;
   owl:someValuesFrom _:genid309;
-  owl:onProperty :followedByStrategy .
+  owl:onProperty :belongsToGroup .
 
-_:genid309 a owl:Class;
-  owl:unionOf _:genid312 .
-
-_:genid312 a rdf:List;
-  rdf:first :Strategy;
-  rdf:rest _:genid310 .
-
-_:genid310 a rdf:List;
-  rdf:first _:genid311;
-  rdf:rest rdf:nil .
-
-_:genid311 a owl:Restriction;
+_:genid309 a owl:Restriction;
   owl:allValuesFrom :Strategy;
   owl:onProperty :hasComponent .
 
+_:genid310 a owl:Restriction;
+  owl:someValuesFrom _:genid311;
+  owl:onProperty :followedByStrategy .
+
+_:genid311 a owl:Class;
+  owl:unionOf _:genid314 .
+
+_:genid314 a rdf:List;
+  rdf:first :Strategy;
+  rdf:rest _:genid312 .
+
+_:genid312 a rdf:List;
+  rdf:first _:genid313;
+  rdf:rest rdf:nil .
+
 _:genid313 a owl:Restriction;
+  owl:allValuesFrom :Strategy;
+  owl:onProperty :hasComponent .
+
+_:genid315 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid314 a owl:Restriction;
+_:genid316 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid315 a owl:Restriction;
+_:genid317 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasCondition .
 
-_:genid316 a owl:Restriction;
+_:genid318 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :TherapeuticIntervention a owl:Class;
-  rdfs:subClassOf :Intervention, _:genid317, _:genid318 .
+  rdfs:subClassOf :Intervention, _:genid319, _:genid320 .
 
-_:genid317 a owl:Restriction;
+_:genid319 a owl:Restriction;
   owl:onClass :FollowUpStrategy;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasFollowUpStrategy .
 
-_:genid318 a owl:Restriction;
+_:genid320 a owl:Restriction;
   owl:onClass :LineOfTherapy;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasLineOfTherapy .
 
 :Treatment a owl:Class;
-  rdfs:subClassOf :HealthTechnology, _:genid319;
+  rdfs:subClassOf :HealthTechnology, _:genid321;
   rdfs:comment "Any non-drug intervention used to treat a disease or manifestation" .
 
-_:genid319 a owl:Restriction;
+_:genid321 a owl:Restriction;
   owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
 
 :Utility a owl:Class;
-  rdfs:subClassOf :Parameter, _:genid320, _:genid324 .
+  rdfs:subClassOf :Parameter, _:genid322, _:genid326 .
 
-_:genid320 a owl:Restriction;
-  owl:onDataRange _:genid321;
+_:genid322 a owl:Restriction;
+  owl:onDataRange _:genid323;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasTemporalBehavior .
 
-_:genid321 a rdfs:Datatype;
-  owl:oneOf _:genid323 .
+_:genid323 a rdfs:Datatype;
+  owl:oneOf _:genid325 .
 
-_:genid323 a rdf:List;
+_:genid325 a rdf:List;
   rdf:first "ANNUAL";
-  rdf:rest _:genid322 .
+  rdf:rest _:genid324 .
 
-_:genid322 a rdf:List;
+_:genid324 a rdf:List;
   rdf:first "ONETIME";
   rdf:rest rdf:nil .
 
-_:genid324 a owl:Restriction;
+_:genid326 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasCalculationMethod .
 
 :Valuable a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid325, _:genid326, _:genid327, _:genid328, _:genid329,
-    _:genid330, _:genid331, _:genid332, _:genid333 .
-
-_:genid325 a owl:Restriction;
-  owl:someValuesFrom :Valuable;
-  owl:onProperty :hasHeterogeneity .
-
-_:genid326 a owl:Restriction;
-  owl:someValuesFrom :Valuable;
-  owl:onProperty :hasStochasticUncertainty .
+  rdfs:subClassOf :ModelItem, _:genid327, _:genid328, _:genid329, _:genid330, _:genid331,
+    _:genid332, _:genid333, _:genid334, _:genid335 .
 
 _:genid327 a owl:Restriction;
   owl:someValuesFrom :Valuable;
-  owl:onProperty :isModifiedBy .
+  owl:onProperty :hasHeterogeneity .
 
 _:genid328 a owl:Restriction;
   owl:someValuesFrom :Valuable;
-  owl:onProperty :modifies .
+  owl:onProperty :hasStochasticUncertainty .
 
 _:genid329 a owl:Restriction;
   owl:someValuesFrom :Valuable;
-  owl:onProperty :usesValueFrom .
+  owl:onProperty :isModifiedBy .
 
 _:genid330 a owl:Restriction;
+  owl:someValuesFrom :Valuable;
+  owl:onProperty :modifies .
+
+_:genid331 a owl:Restriction;
+  owl:someValuesFrom :Valuable;
+  owl:onProperty :usesValueFrom .
+
+_:genid332 a owl:Restriction;
   owl:onClass :DataItemType;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDataItemType .
 
-_:genid331 a owl:Restriction;
+_:genid333 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasGeographicalContext .
 
-_:genid332 a owl:Restriction;
+_:genid334 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasExpression .
 
-_:genid333 a owl:Restriction;
+_:genid335 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasSource .
@@ -2461,6 +2473,8 @@ _:genid333 a owl:Restriction;
 
 :Constant_Prevalence1 a owl:NamedIndividual, :Prevalence;
   :hasDataItemType :DI_Ratio;
+  :isParameterOfDisease :T1DM_Disease;
+  :isParameterOfPopulation :T1DM_Population_DCCT1;
   :hasExpression 1.0E0;
   :isTrueEpidemiologicalParameterEstimate true .
 
@@ -2595,6 +2609,7 @@ _:genid333 a owl:Restriction;
   :hasYear "2015" .
 
 :T1DM_Disease a owl:NamedIndividual, :Disease;
+  :hasEpidemiologicalParameter :Constant_Prevalence1;
   :hasFollowUpCost :T1DM_Disease_AC;
   :hasIntervention :T1DM_Intervention_DCCTIntensive;
   :hasManifestation :T1DM_Manif_ALB1, :T1DM_Manif_ALB2, :T1DM_Manif_ANGINA, :T1DM_Manif_BGRET,
@@ -2769,23 +2784,11 @@ _:genid333 a owl:Restriction;
   :hasParameterUncertainty :T1DM_Manif_HF_U_L95CI, :T1DM_Manif_HF_U_U95CI;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Annual disutility of heart failure";
-  :hasExpression "0.108";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasTemporalBehavior "ANNUAL";
-  :hasYear "2005" .
-
-:T1DM_Manif_HF_U_L95CI a owl:NamedIndividual, :Utility;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Annual disutility of heart failure";
-  :hasExpression "0.048";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_HF_U_U95CI a owl:NamedIndividual, :Utility;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Annual disutility of heart failure" .
+  :hasExpression "0.108" .
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U_U95CI
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_LEA
 # 
@@ -2839,7 +2842,23 @@ _:genid333 a owl:Restriction;
 # 
 # Generated by the OWL API (version 5.5.0.2023-01-14T12:41:38Z) https://github.com/owlcs/owlapi/
 
-:T1DM_Manif_HF_U_U95CI :hasExpression "0.169";
+:T1DM_Manif_HF_U :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasTemporalBehavior "ANNUAL";
+  :hasYear "2005" .
+
+:T1DM_Manif_HF_U_L95CI a owl:NamedIndividual, :Utility;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Annual disutility of heart failure";
+  :hasExpression "0.048";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_HF_U_U95CI a owl:NamedIndividual, :Utility;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Annual disutility of heart failure";
+  :hasExpression "0.169";
   :hasSource "Bagust and Beale (10.1002/hec.910)";
   :hasYear "2005" .
 
@@ -2977,6 +2996,7 @@ _:genid333 a owl:Restriction;
 :T1DM_Population_DCCT1 a owl:NamedIndividual, :Population;
   :hasAge :T1DM_Population_DCCT1_Age;
   :hasAttributeValue :T1DM_Population_DCCT1_DurationOfDiabetes, :T1DM_Population_DCCT1_HbA1c;
+  :hasEpidemiologicalParameter :Constant_Prevalence1;
   :hasSex :T1DM_Population_DCCT1_Sex;
   :hasUtility :T1DM_DCCT1_ComplicationsFree_U;
   :includedByModel :T1DM_StdModelDES;

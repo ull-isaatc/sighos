@@ -20,7 +20,6 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
 
 import es.ull.iis.ontology.OWLOntologyWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.DataItemType;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 
 /**
@@ -346,6 +345,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_DIAGNOSIS_STRATEGY("hasDiagnosisStrategy"),
 		HAS_DURATION("hasDuration"),
 		HAS_END_AGE("hasEndAge"),
+		HAS_EPIDEMIOLOGICAL_PARAMETER("hasEpidemiologicalParameter"),
 		HAS_FOLLOW_UP_COST("hasFollowUpCost"),
 		HAS_FOLLOW_UP_STRATEGY("hasFollowUpStrategy"),
 		HAS_GUIDELINE("hasGuideline"),

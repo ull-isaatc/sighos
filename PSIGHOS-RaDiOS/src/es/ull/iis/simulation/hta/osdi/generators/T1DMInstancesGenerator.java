@@ -25,6 +25,7 @@ public class T1DMInstancesGenerator {
 	protected final static String STR_DISEASE_NAME ="Disease";
 	private final static String STR_POPULATION_NAME = "DCCT1";
 	private final static String STR_INTERVENTION_NAME = "DCCTIntensive";
+	private final static String STR_CONST_PREV_1 = "Constant_Prevalence1";
 	
 	/**
 	 * @throws OWLOntologyCreationException 
@@ -34,14 +35,8 @@ public class T1DMInstancesGenerator {
 	public T1DMInstancesGenerator(String path) throws OWLOntologyCreationException, OWLOntologyStorageException {
 		wrap = new OSDiWrapper(path, STR_MODEL_NAME, INSTANCE_PREFIX);
 		wrap.createWorkingModel(ModelType.DES, "ICR", "First example of T1DM model", "Spain", 2022, "", DisutilityCombinationMethod.ADD);
-		final String diseaseIRI = wrap.getDiseaseInstanceName(STR_DISEASE_NAME);
-		wrap.createDisease(diseaseIRI, "Type I Diabetes Mellitus", "do:9744", "icd:E10", "omim:222100", "snomed:46635009");
-		final String diseaseCostIRI = wrap.getParameterInstanceName(STR_DISEASE_NAME + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
-		wrap.createCost(diseaseCostIRI, 
-				"Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population", 
-				"Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007", TemporalBehavior.ANNUAL, 2012, "1116.733023", null, DataItemType.CURRENCY_EURO);
-		OSDiWrapper.ObjectProperty.HAS_FOLLOW_UP_COST.add(diseaseIRI, diseaseCostIRI);
 		
+		generateDisease();
 		for (ManifestationTemplate manif : ManifestationTemplate.values()) {
 			manif.generate(wrap);
 		}
@@ -56,6 +51,18 @@ public class T1DMInstancesGenerator {
 		wrap.save();
 	}
 
+	private void generateDisease() {
+		final String diseaseIRI = wrap.getDiseaseInstanceName(STR_DISEASE_NAME);
+		wrap.createDisease(diseaseIRI, "Type I Diabetes Mellitus", "do:9744", "icd:E10", "omim:222100", "snomed:46635009");
+		OSDiWrapper.ObjectProperty.HAS_EPIDEMIOLOGICAL_PARAMETER.add(diseaseIRI, STR_CONST_PREV_1);
+		OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_DISEASE.add(STR_CONST_PREV_1, diseaseIRI);
+		final String diseaseCostIRI = wrap.getParameterInstanceName(STR_DISEASE_NAME + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
+		wrap.createCost(diseaseCostIRI, 
+				"Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population", 
+				"Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007", TemporalBehavior.ANNUAL, 2012, "1116.733023", null, DataItemType.CURRENCY_EURO);
+		OSDiWrapper.ObjectProperty.HAS_FOLLOW_UP_COST.add(diseaseIRI, diseaseCostIRI);
+	}
+	
 	private void generateInterventions() {
 		final String interventionIRI = wrap.getInterventionInstanceName(STR_INTERVENTION_NAME);
 		wrap.createIntervention(interventionIRI, OSDiWrapper.InterventionType.THERAPEUTIC, "DCCT intensive arm");
@@ -75,6 +82,8 @@ public class T1DMInstancesGenerator {
 	private void generatePopulationAndAttributes() {
 		final String populationIRI = wrap.getPopulationInstanceName(STR_POPULATION_NAME);
 		wrap.createPopulation(populationIRI, "First cohort of DCCT Population", 13, 40, 100, 2010);
+		OSDiWrapper.ObjectProperty.HAS_EPIDEMIOLOGICAL_PARAMETER.add(populationIRI, STR_CONST_PREV_1);
+		OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION.add(STR_CONST_PREV_1, populationIRI);
 
 		final String diseaseUtilityIRI = wrap.getParameterInstanceName(STR_POPULATION_NAME + "_ComplicationsFree" + OSDiWrapper.STR_UTILITY_SUFFIX);
 		generateUtilityFromAvgCI(diseaseUtilityIRI, "Utility of DM1 without complications",	"TODO: Buscar", 
