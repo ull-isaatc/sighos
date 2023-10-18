@@ -33,6 +33,7 @@ import org.w3c.xsd.owl2.SubClassOf;
 
 /**
  * A convenient class to help parsing an ontology
+ * @deprecated
  * @author masbe
  *
  */

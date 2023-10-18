@@ -20,6 +20,7 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
 
 import es.ull.iis.ontology.OWLOntologyWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.DataItemType;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 
 /**
@@ -39,8 +40,12 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public final static String STR_MANIF_PREFIX = "Manif" + STR_SEP;
 	public final static String STR_MANIF_GROUP_PREFIX = "Group_Manif" + STR_SEP;
 	public final static String STR_POPULATION_PREFIX = "Population" + STR_SEP;
+	public final static String STR_INTERVENTION_PREFIX = "Intervention" + STR_SEP;	
 	public final static String STR_ATTRIBUTE_PREFIX = "Attribute" + STR_SEP;
-	public final static String STR_UNCERTAINTY_SUFFIX = STR_SEP + "ParamUncertainty";
+	public final static String STR_PARAM_UNCERTAINTY_SUFFIX = STR_SEP + "ParamUncertainty";
+	public final static String STR_STOCHASTIC_UNCERTAINTY_SUFFIX = STR_SEP + "StochasticUncertainty";
+	public final static String STR_HETEROGENEITY_SUFFIX = STR_SEP + "Heterogeneity";
+	public final static String STR_MODIFICATION_SUFFIX = STR_SEP + "Modification";
 	public final static String STR_L95CI_SUFFIX = STR_SEP + "L95CI";
 	public final static String STR_U95CI_SUFFIX = STR_SEP + "U95CI";
 	public final static String STR_ANNUAL_COST_SUFFIX = STR_SEP + "AC";
@@ -597,6 +602,10 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		return instancePrefix + STR_POPULATION_PREFIX + populationName;
 	}
 	
+	public String getInterventionInstanceName(String interventionName) {
+		return instancePrefix + STR_INTERVENTION_PREFIX + interventionName;
+	}
+	
 	/**
 	 * Returns the expected name for an attribute instance within the ontology. In general, attributes do not use the prefix of the working model, since they should be defined for every disease and model
 	 * @param attributeName The "raw" name of the attribute 
@@ -612,6 +621,14 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	
 	public String getParameterInstanceName(String paramName) {
 		return instancePrefix + paramName;
+	}
+	
+	public String getAttributeValueInstanceModificationName(String interventionName, String attributeName) {
+		return getInterventionInstanceName(interventionName) + STR_SEP + attributeName + STR_MODIFICATION_SUFFIX; 
+	}
+	
+	public String getParameterInstanceModificationName(String interventionName, String paramName) {
+		return getInterventionInstanceName(interventionName) + STR_SEP + paramName + STR_MODIFICATION_SUFFIX;
 	}
 	
 	public void createValuable(String instanceName, Clazz clazz, String source, String expression, DataItemType dataType) {
@@ -633,6 +650,13 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(instanceName, attributeInstanceName);
 	}
 	
+	public void createAttributeValueModification(String instanceName, String interventionInstanceName, String originalAttributeValueInstanceName, String attributeInstanceName, String source, String expression, DataItemType dataType) {
+		createAttributeValue(instanceName, attributeInstanceName, source, expression, dataType);		
+		ObjectProperty.MODIFIES.add(instanceName, originalAttributeValueInstanceName);
+		ObjectProperty.IS_MODIFIED_BY.add(originalAttributeValueInstanceName, instanceName);
+		OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.add(interventionInstanceName, instanceName);
+	}
+	
 	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, DataItemType currency) {
 		createParameter(instanceName, Clazz.COST, description, source, year, expression, currency);
 		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
@@ -641,7 +665,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, DataItemType currency) {
 		createCost(instanceName, description, source, tmpBehavior, year, deterministic, currency);
 		if (uncertainty != null && !("".equals(uncertainty))) {
-			createParameter(instanceName + STR_UNCERTAINTY_SUFFIX, Clazz.COST, description, source, year, uncertainty, currency);
+			createParameter(instanceName + STR_PARAM_UNCERTAINTY_SUFFIX, Clazz.COST, description, source, year, uncertainty, currency);
 			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 		}
 	}
@@ -654,7 +678,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, UtilityType utilityType) {
 		createUtility(instanceName, description, source, tmpBehavior, year, deterministic, utilityType);
 		if (uncertainty != null && !("".equals(uncertainty))) {
-			createParameter(instanceName + STR_UNCERTAINTY_SUFFIX, Clazz.UTILITY, description, source, year, uncertainty, utilityType.getType());
+			createParameter(instanceName + STR_PARAM_UNCERTAINTY_SUFFIX, Clazz.UTILITY, description, source, year, uncertainty, utilityType.getType());
 			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 		}
 	}
@@ -717,7 +741,13 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		DataProperty.HAS_YEAR.add(instanceName, "" + year);
 		
 		includeInModel(instanceName);
+	}
+	
+	public void createIntervention(String instanceName, InterventionType type, String description) {
+		type.getClazz().add(instanceName);
+		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
 		
+		includeInModel(instanceName);
 	}
 	
 	private void includeInModel(String instanceName) {
