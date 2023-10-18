@@ -657,6 +657,13 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.add(interventionInstanceName, instanceName);
 	}
 	
+	public void createParameterModification(String instanceName, String interventionInstanceName, String originalParameterInstanceName, Clazz clazz, String description, String source, int year, String expression, DataItemType dataType) {
+		createParameter(instanceName, clazz, description, source, year, expression, dataType);
+		ObjectProperty.MODIFIES.add(instanceName, originalParameterInstanceName);
+		ObjectProperty.IS_MODIFIED_BY.add(originalParameterInstanceName, instanceName);
+		OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.add(interventionInstanceName, instanceName);
+	}
+	
 	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, DataItemType currency) {
 		createParameter(instanceName, Clazz.COST, description, source, year, expression, currency);
 		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
