@@ -31,7 +31,7 @@ import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCond
 /**
  * @author Iván Castilla Rodríguez
  * @author David Prieto González
- *
+ * TODO: Process different types of combination of parameters (P + RR, TTE, ...) to create the time to event 
  */
 public interface ManifestationPathwayBuilder {
 
