@@ -39,8 +39,9 @@ public class SMBG_Intervention extends Intervention {
 		double mode = Statistics.betaModeFromMeanSD(USE_STRIPS[0], USE_STRIPS[1]);
 		double[] betaParams = Statistics.betaParametersFromEmpiricData(USE_STRIPS[0], mode, MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[1]);
 		RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);
-		secParams.addOtherParam(new SecondOrderParam(secParams, STR_USE_STRIPS, "Use of strips in " + getDescription(), 
-				"DIAMOND 10.1001/jama.2016.19975", USE_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_USE_STRIPS[1] - MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[0])));
+		secParams.addParameter(new SecondOrderParam(secParams, STR_USE_STRIPS, "Use of strips in " + getDescription(), 
+				"DIAMOND 10.1001/jama.2016.19975", USE_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_USE_STRIPS[1] - MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[0])), 
+				SecondOrderParamsRepository.ParameterType.OTHER);
 		
 		mode = Statistics.betaModeFromMeanSD(C_STRIPS[0], C_STRIPS[1]);
 		betaParams = Statistics.betaParametersFromEmpiricData(C_STRIPS[0], mode, MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[1]);
@@ -54,7 +55,7 @@ public class SMBG_Intervention extends Intervention {
 		final SecondOrderParamsRepository secParams = getRepository();
 
 		return discountRate.applyDiscount(
-				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getOtherParam(STR_USE_STRIPS, 0.0, pat.getSimulation()) * 365, 
+				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat.getSimulation()) * 365, 
 				initT, endT);
 	}
 
@@ -67,7 +68,7 @@ public class SMBG_Intervention extends Intervention {
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		final SecondOrderParamsRepository secParams = getRepository();
 		return discountRate.applyAnnualDiscount(
-				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getOtherParam(STR_USE_STRIPS, 0.0, pat.getSimulation()) * 365, 
+				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat.getSimulation()) * 365, 
 				initT, endT);
 	}
 

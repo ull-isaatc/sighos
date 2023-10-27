@@ -100,16 +100,6 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 	public double getParameterDefaultValue() {
 		return defaultValue;
 	}
-	
-	@Override
-	public double getValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-		return secParams.getUtilityParam(getParameterName(name), defaultValue, simul);
-	}
-
-	@Override
-	public double getValueIfExists(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-		return secParams.getUtilityParam(getParameterName(name), simul);
-	}
 
 	public double forceValue(SecondOrderParamsRepository secParams, Named instance, DiseaseProgressionSimulation simul) {
 		return forceValue(secParams, instance.name(), simul);
@@ -151,7 +141,7 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
 		final String paramName = getParameterName(name);
-		secParams.addUtilityParam(new SecondOrderParam(secParams, paramName, getParameterDescription(description), source, detValue));
+		secParams.addParameter(new SecondOrderParam(secParams, paramName, getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.UTILITY);
 		return paramName;
 	}
 	
@@ -165,7 +155,7 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
 		final String paramName = getParameterName(name);
-		secParams.addUtilityParam(new SecondOrderParam(secParams, paramName, getParameterDescription(description), source, detValue, rnd));
+		secParams.addParameter(new SecondOrderParam(secParams, paramName, getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.UTILITY);
 		return paramName;
 	}
 }

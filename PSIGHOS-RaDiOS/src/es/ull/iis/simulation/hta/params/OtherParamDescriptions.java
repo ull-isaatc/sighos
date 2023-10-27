@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.params;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import simkit.random.RandomVariate;
 
@@ -46,17 +45,6 @@ public enum OtherParamDescriptions implements DescribesParameter {
 		return defaultValue;
 	}
 	
-	@Override
-	public double getValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-		return secParams.getOtherParam(getParameterName(name), defaultValue, simul);
-	}
-
-	@Override
-	public double getValueIfExists(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-		return secParams.getOtherParam(getParameterName(name), simul);
-	}
-
-	
 	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue) {
 		this.addParameter(secParams, instance.name(), instance.getDescription(), source, detValue);
 	}
@@ -66,7 +54,7 @@ public enum OtherParamDescriptions implements DescribesParameter {
 	}
 	
 	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
-		secParams.addOtherParam(new SecondOrderParam(secParams, getParameterName(name), getParameterDescription(description), source, detValue));
+		secParams.addParameter(new SecondOrderParam(secParams, getParameterName(name), getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.OTHER);
 	}
 	
 	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
@@ -78,7 +66,7 @@ public enum OtherParamDescriptions implements DescribesParameter {
 	}
 	
 	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
-		secParams.addOtherParam(new SecondOrderParam(secParams, getParameterName(name), getParameterDescription(description), source, detValue, rnd));
+		secParams.addParameter(new SecondOrderParam(secParams, getParameterName(name), getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.OTHER);
 	}
 	
 }

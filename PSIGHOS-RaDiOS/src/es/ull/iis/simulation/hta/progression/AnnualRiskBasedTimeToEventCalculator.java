@@ -50,6 +50,6 @@ public class AnnualRiskBasedTimeToEventCalculator implements TimeToEventCalculat
 	public long getTimeToEvent(Patient pat) {
 		final double rndValue = destManifestation.getRandomValue(pat);
 		return SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, 
-				secParams.getProbParam(paramName, pat.getSimulation()), Math.log(rndValue), rr.getRR(pat));
+				secParams.getParameter(paramName, pat.getSimulation()), Math.log(rndValue), rr.getRR(pat));
 	}		
 }

@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.params;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import simkit.random.RandomVariate;
 
@@ -51,16 +50,6 @@ public enum ProbabilityParamDescriptions implements DescribesParameter {
 		return defaultValue;
 	}
 	
-	@Override
-	public double getValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-		return secParams.getProbParam(getParameterName(name), defaultValue, simul);
-	}
-
-	@Override
-	public double getValueIfExists(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-		return secParams.getProbParam(getParameterName(name), simul);
-	}
-	
 	/**
 	 * Adds a probability parameter with no uncertainty to the repository, and returns the name assigned to the parameter in the repository
 	 * @param secParams Common parameters repository
@@ -97,7 +86,7 @@ public enum ProbabilityParamDescriptions implements DescribesParameter {
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
 		final String paramName = getParameterName(name);
-		secParams.addProbParam(new SecondOrderParam(secParams, paramName, getParameterDescription(description), source, detValue));
+		secParams.addParameter(new SecondOrderParam(secParams, paramName, getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.PROBABILITY);
 		return paramName;
 	}
 	
@@ -140,7 +129,7 @@ public enum ProbabilityParamDescriptions implements DescribesParameter {
 	 */	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
 		final String paramName = getParameterName(name);
-		secParams.addProbParam(new SecondOrderParam(secParams, paramName, getParameterDescription(description), source, detValue, rnd));
+		secParams.addParameter(new SecondOrderParam(secParams, paramName, getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.PROBABILITY);
 		return paramName;
 	}
 }

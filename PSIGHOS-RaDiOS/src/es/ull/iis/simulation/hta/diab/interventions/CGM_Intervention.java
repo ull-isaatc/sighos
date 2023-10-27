@@ -49,8 +49,9 @@ public class CGM_Intervention extends Intervention {
 		double mode = Statistics.betaModeFromMeanSD(USE_STRIPS[0], USE_STRIPS[1]);
 		double[] betaParams = Statistics.betaParametersFromEmpiricData(USE_STRIPS[0], mode, MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[1]);
 		RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);
-		secParams.addOtherParam(new SecondOrderParam(secParams, STR_USE_STRIPS, "Use of strips in " + getDescription(), 
-				"DIAMOND 10.1001/jama.2016.19975", USE_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_USE_STRIPS[1] - MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[0])));
+		secParams.addParameter(new SecondOrderParam(secParams, STR_USE_STRIPS, "Use of strips in " + getDescription(), 
+				"DIAMOND 10.1001/jama.2016.19975", USE_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_USE_STRIPS[1] - MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[0])),
+				SecondOrderParamsRepository.ParameterType.OTHER);
 		
 		mode = Statistics.betaModeFromMeanSD(C_STRIPS[0], C_STRIPS[1]);
 		betaParams = Statistics.betaParametersFromEmpiricData(C_STRIPS[0], mode, MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[1]);
@@ -59,8 +60,9 @@ public class CGM_Intervention extends Intervention {
 				YEAR_C_STRIPS, C_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_C_STRIPS[1] - MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[0]));
 
 		// I assume a daily use with +-25% uncertainty
-		secParams.addOtherParam(new SecondOrderParam(secParams, STR_USE_SENSOR_G5, "Use of sensor", 
-				"Technical data sheets", USE_SENSOR_G5, RandomVariateFactory.getInstance("UniformVariate", 0.75 * USE_SENSOR_G5, 1.25 * USE_SENSOR_G5)));
+		secParams.addParameter(new SecondOrderParam(secParams, STR_USE_SENSOR_G5, "Use of sensor", 
+				"Technical data sheets", USE_SENSOR_G5, RandomVariateFactory.getInstance("UniformVariate", 0.75 * USE_SENSOR_G5, 1.25 * USE_SENSOR_G5)), 
+				SecondOrderParamsRepository.ParameterType.OTHER);
 		
 		final double sd = Statistics.sdFrom95CI(HBA1C_REDUCTION_IC95);
 		addAttributeModification(T1DMRepository.STR_HBA1C, new Modification(secParams, Type.DIFF, SecondOrderParamsRepository.getModificationString(this, T1DMRepository.STR_HBA1C + "_REDUX"), T1DMRepository.STR_HBA1C + " reduction",
@@ -70,8 +72,8 @@ public class CGM_Intervention extends Intervention {
 	@Override
 	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		final SecondOrderParamsRepository secParams = getRepository();
-		return discountRate.applyDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getOtherParam(STR_USE_STRIPS, 0.0, pat.getSimulation()) +
-				C_SENSOR_G5 * secParams.getOtherParam(STR_USE_SENSOR_G5, 0.0, pat.getSimulation())) * 365, initT, endT);
+		return discountRate.applyDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat.getSimulation()) +
+				C_SENSOR_G5 * secParams.getParameter(STR_USE_SENSOR_G5, 0.0, pat.getSimulation())) * 365, initT, endT);
 	}
 
 	@Override
@@ -82,8 +84,8 @@ public class CGM_Intervention extends Intervention {
 	@Override
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		final SecondOrderParamsRepository secParams = getRepository();
-		return discountRate.applyAnnualDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getOtherParam(STR_USE_STRIPS, 0.0, pat.getSimulation()) +
-				C_SENSOR_G5 * secParams.getOtherParam(STR_USE_SENSOR_G5, 0.0, pat.getSimulation())) * 365, initT, endT);
+		return discountRate.applyAnnualDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat.getSimulation()) +
+				C_SENSOR_G5 * secParams.getParameter(STR_USE_SENSOR_G5, 0.0, pat.getSimulation())) * 365, initT, endT);
 	}
 
 	@Override

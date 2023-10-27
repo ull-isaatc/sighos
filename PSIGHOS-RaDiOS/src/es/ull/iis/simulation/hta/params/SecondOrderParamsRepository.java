@@ -5,7 +5,8 @@ package es.ull.iis.simulation.hta.params;
 
 import java.time.Year;
 import java.util.ArrayList;
-import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
@@ -52,20 +53,28 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  */
 public abstract class SecondOrderParamsRepository implements PrettyPrintable, Reseteable {
+	public enum ParameterType {
+		PROBABILITY,
+		COST,
+		UTILITY,
+		MODIFICATION,
+		OTHER
+	}
 	public static final String STR_MOD_PREFIX = "MOD_";
 	/** A null relative risk, i.e., RR = 1.0 */
 	public static final RRCalculator NO_RR = new StdComplicationRR(1.0);
 	
+	final protected HashMap<String, SecondOrderParam> params;
 	/** The collection of probability parameters */
-	final protected TreeMap<String, SecondOrderParam> probabilityParams;
+	final protected TreeSet<SecondOrderParam> probabilityParams;
 	/** The collection of cost parameters */
-	final protected TreeMap<String, SecondOrderCostParam> costParams;
+	final protected TreeSet<SecondOrderCostParam> costParams;
 	/** The collection of utility parameters */
-	final protected TreeMap<String, SecondOrderParam> utilParams;
+	final protected TreeSet<SecondOrderParam> utilParams;
 	/** The collection of miscellaneous parameters */
-	final protected TreeMap<String, SecondOrderParam> otherParams;
+	final protected TreeSet<SecondOrderParam> otherParams;
 	/** A map where the key is the name of a parameter, and the value is a modification */
-	private final TreeMap <String, Modification> modificationParams;
+	private final TreeSet<Modification> modificationParams;
 	/** A random number generator for first order parameter values */
 	private static RandomNumber RNG_FIRST_ORDER = RandomNumberFactory.getInstance();
 	/** The collection of defined manifestations */
@@ -104,11 +113,12 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	 * @param nPatients Number of patients to create
 	 */
 	protected SecondOrderParamsRepository(final int nRuns, final int nPatients) {
-		this.probabilityParams = new TreeMap<>();
-		this.costParams = new TreeMap<>();
-		this.otherParams = new TreeMap<>();
-		this.utilParams = new TreeMap<>();
-		this.modificationParams = new TreeMap<>();
+		this.params = new HashMap<>();
+		this.probabilityParams = new TreeSet<>();
+		this.costParams = new TreeSet<>();
+		this.otherParams = new TreeSet<>();
+		this.utilParams = new TreeSet<>();
+		this.modificationParams = new TreeSet<>();
 		this.nPatients = nPatients;
 		this.nRuns = nRuns;
 		this.studyYear = Year.now().getValue();
@@ -346,141 +356,63 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	}
 
 	/**
-	 * Adds a probability parameter
-	 * @param param Probability parameter
+	 * Adds a parameter
+	 * @param param Parameter
+	 * @param type Type of the parameter
 	 */
-	public void addProbParam(SecondOrderParam param) {
-		probabilityParams.put(param.getName(), param);
-	}
-	
-	public void addModificationParam(Modification param) {
-		modificationParams.put(param.getName(), param);		
+	public void addParameter(SecondOrderParam param, ParameterType type) {		
+		params.put(param.getName(), param);
+		switch(type) {
+		case COST:
+			costParams.add((SecondOrderCostParam) param);
+			break;
+		case MODIFICATION:
+			modificationParams.add((Modification) param);
+			break;
+		case OTHER:
+			otherParams.add(param);
+			break;
+		case PROBABILITY:
+			probabilityParams.add(param);
+			break;
+		case UTILITY:
+			utilParams.add(param);
+			break;
+		default:
+			break;
+		
+		}
 	}
 	
 	public void addModificationParam(Intervention interv, Modification.Type type, Manifestation fromManifestation, Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
-		addModificationParam(new Modification(this, type, getModificationString(interv, fromManifestation, toManifestation), "Modification of probability of going from " + fromManifestation + " to " + toManifestation + " due to " + interv, source, detValue, rnd));
+		addParameter(new Modification(this, type, getModificationString(interv, fromManifestation, toManifestation), "Modification of probability of going from " + fromManifestation + " to " + toManifestation + " due to " + interv, source, detValue, rnd), SecondOrderParamsRepository.ParameterType.MODIFICATION);
 	}
 	
 	public void addModificationParam(Intervention interv, Modification.Type type, String paramName, String source, double detValue, RandomVariate rnd) {
-		addModificationParam(new Modification(this, type, getModificationString(interv, paramName), "Modification of parameter " + paramName + " due to " + interv, source, detValue, rnd));
-	}
-	
-	/**
-	 * Adds a cost parameter
-	 * @param param Cost parameter
-	 */
-	public void addCostParam(SecondOrderCostParam param) {
-		costParams.put(param.getName(), param);
-	}
-	
-	/**
-	 * Adds a utility or disutility parameter
-	 * @param param Utility parameter
-	 */
-	public void addUtilityParam(SecondOrderParam param) {
-		utilParams.put(param.getName(), param);
+		addParameter(new Modification(this, type, getModificationString(interv, paramName), "Modification of parameter " + paramName + " due to " + interv, source, detValue, rnd), SecondOrderParamsRepository.ParameterType.MODIFICATION);
 	}
 
 	/**
-	 * Adds a miscellaneous parameter
-	 * @param param Miscellanous parameter
+	 * Returns a value for a parameter
+	 * @param name String identifier of the parameter
+	 * @return A value for the specified parameter; {@link Double#NaN} in case the parameter is not defined
 	 */
-	public void addOtherParam(SecondOrderParam param) {
-		otherParams.put(param.getName(), param);
-	}
-
-
-	/**
-	 * Returns a value for a miscellaneous parameter
-	 * @param name String identifier of the miscellaneous parameter
-	 * @return A value for the specified miscellaneous parameter; {@link Double#NaN} in case the parameter is not defined
-	 */
-	public double getOtherParam(String name, DiseaseProgressionSimulation simul) {
-		return getOtherParam(name, Double.NaN, simul);
+	public double getParameter(String name, DiseaseProgressionSimulation simul) {
+		return getParameter(name, Double.NaN, simul);
 	}
 
 	/**
-	 * Returns a value for a miscellaneous parameter
-	 * @param name String identifier of the miscellaneous parameter
+	 * Returns a value for a parameter
+	 * @param name String identifier of the parameter
 	 * @param defaultValue Default value in case the parameter is not defined
-	 * @return A value for the specified miscellaneous parameter; the specified default value in case the parameter is not defined
+	 * @return A value for the specified parameter; the specified default value in case the parameter is not defined
 	 */
-	public double getOtherParam(String name, double defaultValue, DiseaseProgressionSimulation simul) {
+	public double getParameter(String name, double defaultValue, DiseaseProgressionSimulation simul) {
 		final int id = simul.getIdentifier();
-		final SecondOrderParam param = otherParams.get(name);
+		final SecondOrderParam param = params.get(name);
 		if (param == null)
 			return defaultValue;
-		final Modification modif = modificationParams.get(getModificationString(simul.getIntervention(), name));
-		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
-	}
-	
-	/**
-	 * Returns a value for a cost parameter
-	 * @param name String identifier of the cost parameter
-	 * @return A value for the specified cost parameter; {@link Double#NaN} in case the parameter is not defined
-	 */
-	public double getCostParam(String name, DiseaseProgressionSimulation simul) {
-		return getCostParam(name, Double.NaN, simul); 
-	}
-	
-	/**
-	 * Returns a value for a cost parameter
-	 * @param name String identifier of the cost parameter
-	 * @param defaultValue Default value in case the parameter is not defined
-	 * @return A value for the specified cost parameter; defaultValue in case the parameter is not defined
-	 */
-	public double getCostParam(String name, double defaultValue, DiseaseProgressionSimulation simul) {
-		final int id = simul.getIdentifier();
-		final SecondOrderParam param = costParams.get(name);
-		return (param == null) ? defaultValue : param.getValue(id); 
-	}
-
-	/**
-	 * Returns a value for a probability parameter
-	 * @param name String identifier of the probability parameter
-	 * @return A value for the specified probability parameter; {@link Double#NaN} in case the parameter is not defined
-	 */	
-	public double getProbParam(String name, DiseaseProgressionSimulation simul) {
-		return getProbParam(name, Double.NaN, simul);
-	}
-
-	/**
-	 * Returns a value for a probability parameter
-	 * @param name String identifier of the probability parameter
-	 * @param defaultValue Default value in case the parameter is not defined
-	 * @return A value for the specified probability parameter; the specified default value in case the parameter is not defined
-	 */	
-	public double getProbParam(String name, double defaultValue, DiseaseProgressionSimulation simul) {
-		final int id = simul.getIdentifier();
-		final SecondOrderParam param = probabilityParams.get(name);
-		if (param == null)
-			return defaultValue;
-		final Modification modif = modificationParams.get(getModificationString(simul.getIntervention(), name));
-		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
-	}
-
-	/**
-	 * Returns a value for a utility parameter
-	 * @param name String identifier of the utility parameter
-	 * @param defaultValue Default value in case the parameter is not defined
-	 * @return A value for the specified probability parameter; {@link Double#NaN} in case the parameter is not defined
-	 */	
-	public double getUtilityParam(String name, DiseaseProgressionSimulation simul) {
-		return getUtilityParam(name, Double.NaN, simul);
-	}
-
-	/**
-	 * Returns a value for a utility parameter
-	 * @param name String identifier of the utility parameter
-	 * @param defaultValue Default value in case the parameter is not defined
-	 * @return A value for the specified probability parameter; the specified default value in case the parameter is not defined
-	 */	
-	public double getUtilityParam(String name, double defaultValue, DiseaseProgressionSimulation simul) {
-		final int id = simul.getIdentifier();
-		final SecondOrderParam param = utilParams.get(name);
-		if (param == null)
-			return defaultValue;
-		final Modification modif = modificationParams.get(getModificationString(simul.getIntervention(), name));
+		final Modification modif = (Modification) params.get(getModificationString(simul.getIntervention(), name));
 		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
 	}
 	
@@ -596,15 +528,15 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	 */
 	public String getStrHeader() {
 		StringBuilder str = new StringBuilder();
-		for (SecondOrderParam param : probabilityParams.values())
+		for (SecondOrderParam param : probabilityParams)
 			str.append(param.getName()).append("\t");
-		for (SecondOrderParam param : costParams.values())
+		for (SecondOrderParam param : costParams)
 			str.append(param.getName()).append("\t");
-		for (SecondOrderParam param : utilParams.values())
+		for (SecondOrderParam param : utilParams)
 			str.append(param.getName()).append("\t");
-		for (SecondOrderParam param : otherParams.values())
+		for (SecondOrderParam param : otherParams)
 			str.append(param.getName()).append("\t");
-		for (SecondOrderParam param : modificationParams.values())
+		for (SecondOrderParam param : modificationParams)
 			str.append(param.getName()).append("\t");
 		return str.toString();
 	}
@@ -612,19 +544,19 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	@Override
 	public String prettyPrint(String linePrefix) {
 		StringBuilder str = new StringBuilder();
-		for (SecondOrderParam param : probabilityParams.values()) {
+		for (SecondOrderParam param : probabilityParams) {
 			str.append(param.prettyPrint(linePrefix)).append("\n");
 		}			
-		for (SecondOrderParam param : costParams.values()) {
+		for (SecondOrderParam param : costParams) {
 			str.append(param.prettyPrint(linePrefix)).append("\n");
 		}
-		for (SecondOrderParam param : utilParams.values()) {
+		for (SecondOrderParam param : utilParams) {
 			str.append(param.prettyPrint(linePrefix)).append("\n");
 		}
-		for (SecondOrderParam param : otherParams.values()) {
+		for (SecondOrderParam param : otherParams) {
 			str.append(param.prettyPrint(linePrefix)).append("\n");
 		}
-		for (SecondOrderParam param : modificationParams.values()) {
+		for (SecondOrderParam param : modificationParams) {
 			str.append(param.prettyPrint(linePrefix)).append("\n");
 		}
 		return str.toString();
@@ -632,15 +564,15 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	
 	public String print(int id) {
 		StringBuilder str = new StringBuilder();
-		for (SecondOrderParam param : probabilityParams.values())
+		for (SecondOrderParam param : probabilityParams)
 			str.append(param.getValue(id)).append("\t");
-		for (SecondOrderParam param : costParams.values())
+		for (SecondOrderParam param : costParams)
 			str.append(param.getValue(id)).append("\t");
-		for (SecondOrderParam param : utilParams.values())
+		for (SecondOrderParam param : utilParams)
 			str.append(param.getValue(id)).append("\t");
-		for (SecondOrderParam param : otherParams.values())
+		for (SecondOrderParam param : otherParams)
 			str.append(param.getValue(id)).append("\t");
-		for (SecondOrderParam param : modificationParams.values())
+		for (SecondOrderParam param : modificationParams)
 			str.append(param.getValue(id)).append("\t");
 		return str.toString();
 	}

@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.params;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import simkit.random.RandomVariate;
@@ -56,16 +55,6 @@ public enum CostParamDescriptions implements DescribesParameter {
 	public double getParameterDefaultValue() {
 		return defaultValue;
 	}
-	
-	@Override
-	public double getValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-		return secParams.getCostParam(getParameterName(name), defaultValue, simul);
-	}
-
-	@Override
-	public double getValueIfExists(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-		return secParams.getCostParam(getParameterName(name), simul);
-	}
 
 	/**
 	 * Adds a cost parameter to the repository with only deterministic value. The name and description of the parameter are filled according to the enum item.
@@ -93,7 +82,7 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, Named instance, String description, String source, int year, double detValue) {
 		final String paramName = getParameterName(instance.name());
-		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, description, source, this, year, detValue));
+		secParams.addParameter(new SecondOrderCostParam(secParams, paramName, description, source, this, year, detValue), SecondOrderParamsRepository.ParameterType.COST);
 		return paramName;
 	}
 	
@@ -109,7 +98,7 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue) {
 		final String paramName = getParameterName(name);
-		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, getParameterDescription(description), source, this, year, detValue));
+		secParams.addParameter(new SecondOrderCostParam(secParams, paramName, getParameterDescription(description), source, this, year, detValue), SecondOrderParamsRepository.ParameterType.COST);
 		return paramName;
 	}
 
@@ -141,7 +130,7 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, Named instance, String description, String source, int year, double detValue, RandomVariate rnd) {
 		final String paramName = getParameterName(instance.name());
-		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, description, source, this, year, detValue, rnd));
+		secParams.addParameter(new SecondOrderCostParam(secParams, paramName, description, source, this, year, detValue, rnd), SecondOrderParamsRepository.ParameterType.COST);
 		return paramName;
 	}
 	
@@ -158,7 +147,7 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
 		final String paramName = getParameterName(name);
-		secParams.addCostParam(new SecondOrderCostParam(secParams, paramName, getParameterDescription(description), source, this, year, detValue, rnd));
+		secParams.addParameter(new SecondOrderCostParam(secParams, paramName, getParameterDescription(description), source, this, year, detValue, rnd), SecondOrderParamsRepository.ParameterType.COST);
 		return paramName;
 	}
 	

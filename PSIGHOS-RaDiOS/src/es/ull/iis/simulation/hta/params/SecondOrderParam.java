@@ -11,7 +11,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SecondOrderParam implements PrettyPrintable {
+public class SecondOrderParam implements PrettyPrintable, Comparable<SecondOrderParam> {
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 	/** Short name and identifier of the parameter */
@@ -140,6 +140,11 @@ public class SecondOrderParam implements PrettyPrintable {
 		}			
 		sb.append(PrettyPrintable.SEPARATOR).append(rnd.toString());	
 		return sb.toString();		
+	}
+
+	@Override
+	public int compareTo(SecondOrderParam o) {
+		return name.compareTo(o.name);
 	}
 
 }

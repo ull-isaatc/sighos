@@ -90,7 +90,9 @@ public interface DescribesParameter extends Named {
 	 * @param simul Current simulation
 	 * @return the value of the parameter if it is registered in the repository; otherwise, should return a predefined default value
 	 */
-	double getValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul);
+	default double getValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
+		return secParams.getParameter(name, getParameterDefaultValue(), simul);
+	}
 	
 	/**
 	 * Returns the value of the parameter if it is registered in the repository; otherwise, should return Double.NaN
@@ -110,7 +112,9 @@ public interface DescribesParameter extends Named {
 	 * @param simul Current simulation
 	 * @return the value of the parameter if it is registered in the repository; otherwise, should return Double.NaN
 	 */
-	double getValueIfExists(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul);
+	default double getValueIfExists(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
+		return secParams.getParameter(name, simul);
+	}
 	
 	/**
 	 * Creates a specific parameter name that involves a transition, e.g., probability of going from "from" to "to".
