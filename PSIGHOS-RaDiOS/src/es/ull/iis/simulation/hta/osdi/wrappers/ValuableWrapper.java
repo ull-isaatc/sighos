@@ -40,6 +40,10 @@ public class ValuableWrapper {
 		if (detValues.size() > 1)
 			wrap.printWarning(paramId, OSDiWrapper.DataProperty.HAS_EXPRESSION, "More than one expression found for parameter. Using " + detValues.get(0) + " by default");
 
+		final Set<String> referencedInstances = OSDiWrapper.ObjectProperty.USES_VALUE_FROM.getValues(paramId, true);
+		if (referencedInstances.size() > 0 && !supportedTypes.contains(ExpressionWrapper.SupportedType.EXPRESSION_LANGUAGE))
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, OSDiWrapper.ObjectProperty.USES_VALUE_FROM, "The valuable declares that uses other valuables in its expression. However, either a constant or probability was expected");
+			
 		expression = new ExpressionWrapper(detValues.get(0)); 
 		if (!supportedTypes.contains(expression.getType()))
 			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, OSDiWrapper.DataProperty.HAS_EXPRESSION, "Expression type for valuable not supported: " + expression.getType());

@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.osdi;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -30,6 +31,8 @@ import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	public static final JexlEngine JEXL = new JexlBuilder().create();
 	private final OSDiWrapper wrap; 
+	private final HashMap<String, String> ontologyParameterMapping;
+	
 	/**
 	 * 
 	 * @param nRuns
@@ -46,6 +49,7 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 	 */
 	public OSDiGenericRepository(int nRuns, int nPatients, String path, String modelId, String instancePrefix) throws OWLOntologyCreationException, MalformedSimulationModelException {
 		super(nRuns, nPatients);
+		ontologyParameterMapping = new HashMap<>();
 		wrap = new OSDiWrapper(path, modelId, instancePrefix);
 		setStudyYear(wrap.parseHasYearProperty(wrap.getWorkingModelInstance()));
 		
@@ -98,11 +102,6 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		return wrap;
 	}
 	
-	@Override
-	public void registerAllSecondOrderParams() {
-		super.registerAllSecondOrderParams();
-	}
-	
 	/**
 	 * For testing (currently not working in the test package for unknown reasons)
 	 * @param args
@@ -129,5 +128,8 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		}
 	}
 
+	public void addParameterMapping(String ontologyId, String paramId) {
+		ontologyParameterMapping.put(ontologyId, paramId);
+	}
 
 }

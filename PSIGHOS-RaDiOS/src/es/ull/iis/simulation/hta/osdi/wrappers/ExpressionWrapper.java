@@ -3,10 +3,6 @@ package es.ull.iis.simulation.hta.osdi.wrappers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.jexl3.JexlException;
-import org.apache.commons.jexl3.JexlExpression;
-
-import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -41,12 +37,11 @@ public class ExpressionWrapper {
 	public enum SupportedType {
 		CONSTANT,
 		PROBABILITY_DISTRIBUTION,
-		EXPRESSION_LANGUAGE,
-		UNKNOWN
+		EXPRESSION_LANGUAGE
 	}
 	private final double constantValue;
 	private final RandomVariate rnd;
-	private final JexlExpression exprToEvaluate;
+	private final String exprToEvaluate;
 	private final SupportedType type; 
 
 	public ExpressionWrapper(String expression) throws MalformedOSDiModelException {
@@ -63,14 +58,8 @@ public class ExpressionWrapper {
 				exprToEvaluate = null;				
 			}
 			else {
-				exprToEvaluate = parseExpressionAsExpressionLanguage(expression);				
-				if (exprToEvaluate == null) {
-					type = SupportedType.UNKNOWN;					
-					throw new MalformedOSDiModelException("Expression does not match with a constant, probability distribution or valid expression language: " + expression);
-				}
-				else {
-					type = SupportedType.EXPRESSION_LANGUAGE;
-				}
+				exprToEvaluate = expression;				
+				type = SupportedType.EXPRESSION_LANGUAGE;
 			}
 		}
 	}
@@ -120,14 +109,6 @@ public class ExpressionWrapper {
 			return null;
 		}
 	}
-	
-	private static JexlExpression parseExpressionAsExpressionLanguage(String expression) {
-		try {
-			return OSDiGenericRepository.JEXL.createExpression(expression);
-		} catch(JexlException ex) {
-			return null;
-		}		
-	}
 
 	/**
 	 * @return the constantValue
@@ -146,7 +127,7 @@ public class ExpressionWrapper {
 	/**
 	 * @return the exprToEvaluate
 	 */
-	public JexlExpression getExprToEvaluate() {
+	public String getExprToEvaluate() {
 		return exprToEvaluate;
 	}
 
