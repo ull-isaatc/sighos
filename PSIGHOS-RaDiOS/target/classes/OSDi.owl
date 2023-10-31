@@ -61,6 +61,18 @@
                 rdfs:range :Group .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#dependsOnAttribute
+:dependsOnAttribute rdf:type owl:ObjectProperty ;
+                    rdfs:domain :AdHocExpression ;
+                    rdfs:range :Attribute .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#dependsOnParameter
+:dependsOnParameter rdf:type owl:ObjectProperty ;
+                    rdfs:domain :AdHocExpression ;
+                    rdfs:range :Parameter .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#excludesManifestation
 :excludesManifestation rdf:type owl:ObjectProperty ;
                        rdfs:domain :Manifestation ;
@@ -170,6 +182,20 @@
            rdfs:subPropertyOf :hasParameter ;
            rdfs:domain :Manifestation ;
            rdfs:range :Parameter .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasEpidemiologicalParameter
+:hasEpidemiologicalParameter rdf:type owl:ObjectProperty ;
+                             rdfs:subPropertyOf :hasParameter ;
+                             rdfs:domain :Disease ,
+                                         :Population ;
+                             rdfs:range :EpidemiologicalParameter .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasExpression
+:hasExpression rdf:type owl:ObjectProperty ;
+               rdfs:domain :Valuable ;
+               rdfs:range :Expression .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasFollowUpCost
@@ -637,8 +663,26 @@
 :failsIf rdf:type owl:DatatypeProperty .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasAlfaParameter
+:hasAlfaParameter rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
+                  rdfs:domain :BetaDistributionExpression .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasAuthor
 :hasAuthor rdf:type owl:DatatypeProperty .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasAverageParameter
+:hasAverageParameter rdf:type owl:DatatypeProperty ;
+                     rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
+                     rdfs:domain :ProbabilityDistributionExpression .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasBetaParameter
+:hasBetaParameter rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
+                  rdfs:domain :BetaDistributionExpression .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasCalculationMethod
@@ -648,6 +692,11 @@
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasCondition
 :hasCondition rdf:type owl:DatatypeProperty ;
               rdfs:comment "It allows expressing conditions based on parameters that we will find in the model. For example, we can find that certain drugs will be administered depending on the weight or age of the patient. The language in which the conditions are expressed is in EL format (Expression Language: JSR-341)." .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasConstantValue
+:hasConstantValue rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf owl:topDataProperty .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasDescription
@@ -674,9 +723,10 @@
          rdfs:comment "Dosage of the indicated drug" .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasExpression
-:hasExpression rdf:type owl:DatatypeProperty ;
-               rdfs:subPropertyOf owl:topDataProperty .
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasExpressionValue
+:hasExpressionValue rdf:type owl:DatatypeProperty ;
+                    rdfs:domain :AdHocExpression ;
+                    rdfs:range xsd:string .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasFrequency
@@ -695,6 +745,22 @@ By default = 1, for the Manifestations.""" .
                   rdfs:comment "Interval in which the indicated dose of drug should be given." .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasLambdaParameter
+:hasLambdaParameter rdf:type owl:DatatypeProperty ;
+                    rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
+                    rdfs:domain [ rdf:type owl:Class ;
+                                  owl:unionOf ( :ExponentialDistributionExpression
+                                                :PoissonDistributionExpression
+                                              )
+                                ] .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasLowerLimitParameter
+:hasLowerLimitParameter rdf:type owl:DatatypeProperty ;
+                        rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
+                        rdfs:domain :UniformDistributionExpression .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasMaxAge
 :hasMaxAge rdf:type owl:DatatypeProperty ;
            rdfs:subPropertyOf owl:topDataProperty .
@@ -707,6 +773,18 @@ By default = 1, for the Manifestations.""" .
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasName
 :hasName rdf:type owl:DatatypeProperty .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasOffsetParameter
+:hasOffsetParameter rdf:type owl:DatatypeProperty ;
+                    rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
+                    rdfs:domain :ProbabilityDistributionExpression ;
+                    rdfs:range xsd:double .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasProbabilityDistributionParameter
+:hasProbabilityDistributionParameter rdf:type owl:DatatypeProperty ;
+                                     rdfs:domain :ProbabilityDistributionExpression .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasRange
@@ -766,12 +844,25 @@ Examples:
 :hasReftoWikidata rdf:type owl:DatatypeProperty .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasScaleParameter
+:hasScaleParameter rdf:type owl:DatatypeProperty ;
+                   rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
+                   rdfs:domain :ProbabilityDistributionExpression ;
+                   rdfs:range xsd:double .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasSize
 :hasSize rdf:type owl:DatatypeProperty .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasSource
 :hasSource rdf:type owl:DatatypeProperty .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasStandardDeviationParameter
+:hasStandardDeviationParameter rdf:type owl:DatatypeProperty ;
+                               rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
+                               rdfs:domain :ProbabilityDistributionExpression .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasTemporalBehavior
@@ -791,6 +882,12 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUnit
 :hasUnit rdf:type owl:DatatypeProperty .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUpperLimitParameter
+:hasUpperLimitParameter rdf:type owl:DatatypeProperty ;
+                        rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
+                        rdfs:domain :UniformDistributionExpression .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasYear
@@ -814,6 +911,24 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                                                                  <http://ontologydesignpatterns.org/opla-sd#entityPositionY> "111.01194217726372"^^xsd:double ;
                                                                                  rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en
                                                                                ] .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#AdHocExpression
+:AdHocExpression rdf:type owl:Class ;
+                 rdfs:subClassOf :Expression ,
+                                 [ rdf:type owl:Restriction ;
+                                   owl:onProperty :dependsOnAttribute ;
+                                   owl:someValuesFrom :Attribute
+                                 ] ,
+                                 [ rdf:type owl:Restriction ;
+                                   owl:onProperty :dependsOnParameter ;
+                                   owl:someValuesFrom :Parameter
+                                 ] ,
+                                 [ rdf:type owl:Restriction ;
+                                   owl:onProperty :hasExpressionValue ;
+                                   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                   owl:onDataRange xsd:string
+                                 ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#AgentBasedModel
@@ -858,6 +973,21 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                                                              rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en
                                                                            ] ;
                 rdfs:comment "The value of an individual parameter for a specific class, such as a Disease, Development or Population" .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#BetaDistributionExpression
+:BetaDistributionExpression rdf:type owl:Class ;
+                            rdfs:subClassOf :ProbabilityDistributionExpression ,
+                                            [ rdf:type owl:Restriction ;
+                                              owl:onProperty :hasAlfaParameter ;
+                                              owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                              owl:onDataRange xsd:double
+                                            ] ,
+                                            [ rdf:type owl:Restriction ;
+                                              owl:onProperty :hasBetaParameter ;
+                                              owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                              owl:onDataRange xsd:double
+                                            ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#BirthPrevalence
@@ -1073,6 +1203,10 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                            owl:someValuesFrom :DiagnosisStrategy
                          ] ,
                          [ rdf:type owl:Restriction ;
+                           owl:onProperty :hasEpidemiologicalParameter ;
+                           owl:someValuesFrom :EpidemiologicalParameter
+                         ] ,
+                         [ rdf:type owl:Restriction ;
                            owl:onProperty :hasFollowUpCost ;
                            owl:someValuesFrom :Cost
                          ] ,
@@ -1173,6 +1307,21 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                           ] .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ExponentialDistributionExpression
+:ExponentialDistributionExpression rdf:type owl:Class ;
+                                   rdfs:subClassOf :ProbabilityDistributionExpression ,
+                                                   [ rdf:type owl:Restriction ;
+                                                     owl:onProperty :hasLambdaParameter ;
+                                                     owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                     owl:onDataRange xsd:double
+                                                   ] .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Expression
+:Expression rdf:type owl:Class ;
+            rdfs:subClassOf :ModelItem .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#FollowUpStrategy
 :FollowUpStrategy rdf:type owl:Class ;
                   rdfs:subClassOf :Strategy ,
@@ -1201,6 +1350,21 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                 owl:someValuesFrom :Guideline
                               ] ;
               rdfs:comment "Tests performed to monitor the state of a patient" .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#GammaDistributionExpression
+:GammaDistributionExpression rdf:type owl:Class ;
+                             rdfs:subClassOf :ProbabilityDistributionExpression ,
+                                             [ rdf:type owl:Restriction ;
+                                               owl:onProperty :hasAlfaParameter ;
+                                               owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                               owl:onDataRange xsd:double
+                                             ] ,
+                                             [ rdf:type owl:Restriction ;
+                                               owl:onProperty :hasLambdaParameter ;
+                                               owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                               owl:onDataRange xsd:double
+                                             ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Group
@@ -1526,6 +1690,11 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                            ] .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#NormalDistributionExpression
+:NormalDistributionExpression rdf:type owl:Class ;
+                              rdfs:subClassOf :ProbabilityDistributionExpression .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Parameter
 :Parameter rdf:type owl:Class ;
            rdfs:subClassOf :Valuable ,
@@ -1579,12 +1748,26 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
          rdfs:comment "The way a disease, development, manifestation or stage appears, i.e., the conditions that must be met to lead to any of these."@en .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#PoissonDistributionExpression
+:PoissonDistributionExpression rdf:type owl:Class ;
+                               rdfs:subClassOf :ProbabilityDistributionExpression ,
+                                               [ rdf:type owl:Restriction ;
+                                                 owl:onProperty :hasLambdaParameter ;
+                                                 owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                 owl:onDataRange xsd:double
+                                               ] .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Population
 :Population rdf:type owl:Class ;
             rdfs:subClassOf :ModelItem ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty :hasAttributeValue ;
                               owl:someValuesFrom :AttributeValue
+                            ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty :hasEpidemiologicalParameter ;
+                              owl:someValuesFrom :EpidemiologicalParameter
                             ] ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty :hasInitialProportion ;
@@ -1660,6 +1843,31 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Prevalence
 :Prevalence rdf:type owl:Class ;
             rdfs:subClassOf :EpidemiologicalParameter .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ProbabilityDistributionExpression
+:ProbabilityDistributionExpression rdf:type owl:Class ;
+                                   rdfs:subClassOf :Expression ,
+                                                   [ rdf:type owl:Restriction ;
+                                                     owl:onProperty :hasAverageParameter ;
+                                                     owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                     owl:onDataRange xsd:double
+                                                   ] ,
+                                                   [ rdf:type owl:Restriction ;
+                                                     owl:onProperty :hasOffsetParameter ;
+                                                     owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                     owl:onDataRange xsd:double
+                                                   ] ,
+                                                   [ rdf:type owl:Restriction ;
+                                                     owl:onProperty :hasScaleParameter ;
+                                                     owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                     owl:onDataRange xsd:double
+                                                   ] ,
+                                                   [ rdf:type owl:Restriction ;
+                                                     owl:onProperty :hasStandardDeviationParameter ;
+                                                     owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                     owl:onDataRange xsd:double
+                                                   ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ProportionWithinGroup
@@ -1855,6 +2063,21 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
            rdfs:comment "Any non-drug intervention used to treat a disease or manifestation" .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#UniformDistributionExpression
+:UniformDistributionExpression rdf:type owl:Class ;
+                               rdfs:subClassOf :ProbabilityDistributionExpression ,
+                                               [ rdf:type owl:Restriction ;
+                                                 owl:onProperty :hasLowerLimitParameter ;
+                                                 owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                 owl:onDataRange xsd:double
+                                               ] ,
+                                               [ rdf:type owl:Restriction ;
+                                                 owl:onProperty :hasUpperLimitParameter ;
+                                                 owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                 owl:onDataRange xsd:double
+                                               ] .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Utility
 :Utility rdf:type owl:Class ;
          rdfs:subClassOf :Parameter ,
@@ -1907,12 +2130,17 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                             owl:onClass :DataItemType
                           ] ,
                           [ rdf:type owl:Restriction ;
+                            owl:onProperty :hasExpression ;
+                            owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                            owl:onClass :Expression
+                          ] ,
+                          [ rdf:type owl:Restriction ;
                             owl:onProperty :hasGeographicalContext ;
                             owl:someValuesFrom xsd:string
                           ] ,
                           [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasExpression ;
-                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                            owl:onProperty :hasConstantValue ;
+                            owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                             owl:onDataRange xsd:string
                           ] ,
                           [ rdf:type owl:Restriction ;
@@ -1969,7 +2197,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 :Constant_Incidence1 rdf:type owl:NamedIndividual ,
                               :Incidence ;
                      :hasDataItemType :DI_Ratio ;
-                     :hasExpression "1.0"^^xsd:double ;
+                     :hasConstantValue "1.0"^^xsd:double ;
                      :isTrueEpidemiologicalParameterEstimate "true"^^xsd:boolean .
 
 
@@ -1977,7 +2205,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 :Constant_Prevalence1 rdf:type owl:NamedIndividual ,
                                :Prevalence ;
                       :hasDataItemType :DI_Ratio ;
-                      :hasExpression "1.0"^^xsd:double ;
+                      :hasConstantValue "1.0"^^xsd:double ;
                       :isTrueEpidemiologicalParameterEstimate "true"^^xsd:boolean .
 
 
@@ -1985,28 +2213,28 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 :Constant_Probability0 rdf:type owl:NamedIndividual ,
                                 :Parameter ;
                        :hasDataItemType :DI_Probability ;
-                       :hasExpression "0.0"^^xsd:double .
+                       :hasConstantValue "0.0"^^xsd:double .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Probability1
 :Constant_Probability1 rdf:type owl:NamedIndividual ,
                                 :Parameter ;
                        :hasDataItemType :DI_Probability ;
-                       :hasExpression "1.0"^^xsd:double .
+                       :hasConstantValue "1.0"^^xsd:double .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Sensitivity1
 :Constant_Sensitivity1 rdf:type owl:NamedIndividual ,
                                 :Parameter ;
                        :hasDataItemType :DI_Sensitivity ;
-                       :hasExpression "1.0"^^xsd:double .
+                       :hasConstantValue "1.0"^^xsd:double .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Specificity1
 :Constant_Specificity1 rdf:type owl:NamedIndividual ,
                                 :Parameter ;
                        :hasDataItemType :DI_Specificity ;
-                       :hasExpression "1.0"^^xsd:double .
+                       :hasConstantValue "1.0"^^xsd:double .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Currency_Dollar
@@ -2150,375 +2378,11 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
             :hasName "Utility" .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Disease
-:Disease rdf:type owl:NamedIndividual ;
-         :hasManifestation :T1DM_Manif_ALB1 ,
-                           :T1DM_Manif_ALB2 ,
-                           :T1DM_Manif_ANGINA ,
-                           :T1DM_Manif_BGRET ,
-                           :T1DM_Manif_BLI ,
-                           :T1DM_Manif_ESRD ,
-                           :T1DM_Manif_HF ,
-                           :T1DM_Manif_LEA ,
-                           :T1DM_Manif_ME ,
-                           :T1DM_Manif_MI ,
-                           :T1DM_Manif_NEU ,
-                           :T1DM_Manif_PRET ,
-                           :T1DM_Manif_SHE ,
-                           :T1DM_Manif_STROKE .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#GuidelineLifetimeAnual
 :GuidelineLifetimeAnual rdf:type owl:NamedIndividual ,
                                  :Guideline ;
                         :hasFrequency "1y" ;
                         :hasRange "0y-*" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Disease
-:T1DM_Disease rdf:type owl:NamedIndividual ,
-                       :Disease ;
-              :hasFollowUpCost :T1DM_Disease_AC ;
-              :hasManifestation :T1DM_Manif_ALB1 ,
-                                :T1DM_Manif_ALB2 ,
-                                :T1DM_Manif_ANGINA ,
-                                :T1DM_Manif_BGRET ,
-                                :T1DM_Manif_BLI ,
-                                :T1DM_Manif_ESRD ,
-                                :T1DM_Manif_HF ,
-                                :T1DM_Manif_LEA ,
-                                :T1DM_Manif_ME ,
-                                :T1DM_Manif_MI ,
-                                :T1DM_Manif_NEU ,
-                                :T1DM_Manif_PRET ,
-                                :T1DM_Manif_SHE ,
-                                :T1DM_Manif_STROKE ;
-              :includedByModel :T1DM_StdModelDES ;
-              :hasDescription "Type I Diabetes Mellitus" ;
-              :hasRefToDO "do:9744" ;
-              :hasRefToICD "icd:E10" ;
-              :hasRefToOMIM "omim:222100" ;
-              :hasRefToSNOMED "snomed:46635009" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Disease_AC
-:T1DM_Disease_AC rdf:type owl:NamedIndividual ,
-                          :Cost ;
-                 :hasDataItemType :Currency_Euro ;
-                 :hasDescription "Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population" ;
-                 :hasExpression "1116.733023" ;
-                 :hasSource "Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007" ;
-                 :hasTemporalBehavior "ANNUAL" ;
-                 :hasYear "2012" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD
-:T1DM_Group_Manif_CHD rdf:type owl:NamedIndividual ,
-                               :Group ;
-                      :hasComponent :T1DM_Manif_ANGINA ,
-                                    :T1DM_Manif_HF ,
-                                    :T1DM_Manif_MI ,
-                                    :T1DM_Manif_STROKE ;
-                      :includedByModel :T1DM_StdModelDES .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_HYPO
-:T1DM_Group_Manif_HYPO rdf:type owl:NamedIndividual ,
-                                :Group ;
-                       :hasComponent :T1DM_Manif_SHE ;
-                       :includedByModel :T1DM_StdModelDES .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_NEU
-:T1DM_Group_Manif_NEU rdf:type owl:NamedIndividual ,
-                               :Group ;
-                      :hasComponent :T1DM_Manif_LEA ,
-                                    :T1DM_Manif_NEU ;
-                      :includedByModel :T1DM_StdModelDES .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_NPH
-:T1DM_Group_Manif_NPH rdf:type owl:NamedIndividual ,
-                               :Group ;
-                      :hasComponent :T1DM_Manif_ALB1 ,
-                                    :T1DM_Manif_ALB2 ,
-                                    :T1DM_Manif_ESRD ;
-                      :includedByModel :T1DM_StdModelDES .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_RET
-:T1DM_Group_Manif_RET rdf:type owl:NamedIndividual ,
-                               :Group ;
-                      :hasComponent :T1DM_Manif_BGRET ,
-                                    :T1DM_Manif_BLI ,
-                                    :T1DM_Manif_ME ,
-                                    :T1DM_Manif_PRET ;
-                      :includedByModel :T1DM_StdModelDES .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB1
-:T1DM_Manif_ALB1 rdf:type owl:NamedIndividual ,
-                          :ChronicManifestation ;
-                 :belongsToGroup :T1DM_Group_Manif_NPH ;
-                 :includedByModel :T1DM_StdModelDES ;
-                 :hasDescription "Microalbuminuria" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2
-:T1DM_Manif_ALB2 rdf:type owl:NamedIndividual ,
-                          :ChronicManifestation ;
-                 :belongsToGroup :T1DM_Group_Manif_NPH ;
-                 :excludesManifestation :T1DM_Manif_ALB1 ;
-                 :includedByModel :T1DM_StdModelDES ;
-                 :hasDescription "Macroalbuminuria" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA
-:T1DM_Manif_ANGINA rdf:type owl:NamedIndividual ,
-                            :ChronicManifestation ;
-                   :belongsToGroup :T1DM_Group_Manif_CHD ;
-                   :excludesManifestation :T1DM_Manif_HF ,
-                                          :T1DM_Manif_MI ,
-                                          :T1DM_Manif_STROKE ;
-                   :hasCost :T1DM_Manif_ANGINA_AC ,
-                            :T1DM_Manif_ANGINA_TC ;
-                   :includedByModel :T1DM_StdModelDES ;
-                   :hasDescription "Angina" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_AC
-:T1DM_Manif_ANGINA_AC rdf:type owl:NamedIndividual ,
-                               :Cost ;
-                      :hasDataItemType :Currency_Euro ;
-                      :hasDescription "Year 2+ of Angina" ;
-                      :hasExpression "532.01" ;
-                      :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008" ;
-                      :hasTemporalBehavior "ANNUAL" ;
-                      :hasYear "2016" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_TC
-:T1DM_Manif_ANGINA_TC rdf:type owl:NamedIndividual ,
-                               :Cost ;
-                      :hasDataItemType :Currency_Euro ;
-                      :hasDescription "Episode of Angina" ;
-                      :hasExpression "1985.96" ;
-                      :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008" ;
-                      :hasTemporalBehavior "ANNUAL" ;
-                      :hasYear "2016" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_BGRET
-:T1DM_Manif_BGRET rdf:type owl:NamedIndividual ,
-                           :ChronicManifestation ;
-                  :belongsToGroup :T1DM_Group_Manif_RET ;
-                  :includedByModel :T1DM_StdModelDES ;
-                  :hasDescription "Background Retinopathy" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_BLI
-:T1DM_Manif_BLI rdf:type owl:NamedIndividual ,
-                         :ChronicManifestation ;
-                :belongsToGroup :T1DM_Group_Manif_RET ;
-                :excludesManifestation :T1DM_Manif_BGRET ,
-                                       :T1DM_Manif_ME ,
-                                       :T1DM_Manif_PRET ;
-                :includedByModel :T1DM_StdModelDES ;
-                :hasDescription "Blindness" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD
-:T1DM_Manif_ESRD rdf:type owl:NamedIndividual ,
-                          :ChronicManifestation ;
-                 :belongsToGroup :T1DM_Group_Manif_NPH ;
-                 :excludesManifestation :T1DM_Manif_ALB1 ,
-                                        :T1DM_Manif_ALB2 ;
-                 :includedByModel :T1DM_StdModelDES ;
-                 :hasDescription "End-Stage Renal Disease" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF
-:T1DM_Manif_HF rdf:type owl:NamedIndividual ,
-                        :ChronicManifestation ;
-               :belongsToGroup :T1DM_Group_Manif_CHD ;
-               :excludesManifestation :T1DM_Manif_ANGINA ,
-                                      :T1DM_Manif_MI ,
-                                      :T1DM_Manif_STROKE ;
-               :hasCost :T1DM_Manif_HF_AC ,
-                        :T1DM_Manif_HF_TC ;
-               :includedByModel :T1DM_StdModelDES ;
-               :hasDescription "Heart Failure" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_AC
-:T1DM_Manif_HF_AC rdf:type owl:NamedIndividual ,
-                           :Cost ;
-                  :hasDataItemType :Currency_Euro ;
-                  :hasDescription "Year 2+ of heart failure" ;
-                  :hasExpression "1054.42" ;
-                  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008" ;
-                  :hasTemporalBehavior "ANNUAL" ;
-                  :hasYear "2016" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_TC
-:T1DM_Manif_HF_TC rdf:type owl:NamedIndividual ,
-                           :Cost ;
-                  :hasDataItemType :Currency_Euro ;
-                  :hasDescription "Episode of heart failure" ;
-                  :hasExpression "4503.24" ;
-                  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008" ;
-                  :hasTemporalBehavior "ANNUAL" ;
-                  :hasYear "2016" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_LEA
-:T1DM_Manif_LEA rdf:type owl:NamedIndividual ,
-                         :ChronicManifestation ;
-                :belongsToGroup :T1DM_Group_Manif_NEU ;
-                :excludesManifestation :T1DM_Manif_NEU ;
-                :includedByModel :T1DM_StdModelDES ;
-                :hasDescription "Lower Extremity Amputation" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ME
-:T1DM_Manif_ME rdf:type owl:NamedIndividual ,
-                        :ChronicManifestation ;
-               :belongsToGroup :T1DM_Group_Manif_RET ;
-               :includedByModel :T1DM_StdModelDES ;
-               :hasDescription "Macular Edema" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI
-:T1DM_Manif_MI rdf:type owl:NamedIndividual ,
-                        :ChronicManifestation ;
-               :belongsToGroup :T1DM_Group_Manif_CHD ;
-               :excludesManifestation :T1DM_Manif_ANGINA ,
-                                      :T1DM_Manif_HF ,
-                                      :T1DM_Manif_STROKE ;
-               :hasCost :T1DM_Manif_MI_AC ,
-                        :T1DM_Manif_MI_TC ;
-               :includedByModel :T1DM_StdModelDES ;
-               :hasDescription "Myocardial Infarction" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_AC
-:T1DM_Manif_MI_AC rdf:type owl:NamedIndividual ,
-                           :Cost ;
-                  :hasDataItemType :Currency_Euro ;
-                  :hasDescription "Year 2+ of myocardial infarction" ;
-                  :hasExpression "948" ;
-                  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008" ;
-                  :hasTemporalBehavior "ANNUAL" ;
-                  :hasYear "2016" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_TC
-:T1DM_Manif_MI_TC rdf:type owl:NamedIndividual ,
-                           :Cost ;
-                  :hasDataItemType :Currency_Euro ;
-                  :hasDescription "Episode of myocardial infarction" ;
-                  :hasExpression "22588" ;
-                  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008" ;
-                  :hasTemporalBehavior "ANNUAL" ;
-                  :hasYear "2016" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_NEU
-:T1DM_Manif_NEU rdf:type owl:NamedIndividual ,
-                         :ChronicManifestation ;
-                :belongsToGroup :T1DM_Group_Manif_NEU ;
-                :includedByModel :T1DM_StdModelDES ;
-                :hasDescription "Neuropathy" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_PRET
-:T1DM_Manif_PRET rdf:type owl:NamedIndividual ,
-                          :ChronicManifestation ;
-                 :belongsToGroup :T1DM_Group_Manif_RET ;
-                 :excludesManifestation :T1DM_Manif_BGRET ;
-                 :includedByModel :T1DM_StdModelDES ;
-                 :hasDescription "Proliferative Retinopathy" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_SHE
-:T1DM_Manif_SHE rdf:type owl:NamedIndividual ,
-                         :AcuteManifestation ;
-                :belongsToGroup :T1DM_Group_Manif_HYPO ;
-                :includedByModel :T1DM_StdModelDES ;
-                :hasDescription "Severe Hypoglycemic Episode" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE
-:T1DM_Manif_STROKE rdf:type owl:NamedIndividual ,
-                            :ChronicManifestation ;
-                   :belongsToGroup :T1DM_Group_Manif_CHD ;
-                   :excludesManifestation :T1DM_Manif_ANGINA ,
-                                          :T1DM_Manif_HF ,
-                                          :T1DM_Manif_MI ;
-                   :hasCost :T1DM_Manif_STROKE_AC ,
-                            :T1DM_Manif_STROKE_TC ;
-                   :includedByModel :T1DM_StdModelDES ;
-                   :hasDescription "Stroke" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_AC
-:T1DM_Manif_STROKE_AC rdf:type owl:NamedIndividual ,
-                               :Cost ;
-                      :hasDataItemType :Currency_Euro ;
-                      :hasDescription "Year 2+ of stroke" ;
-                      :hasExpression "2485.66" ;
-                      :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008" ;
-                      :hasTemporalBehavior "ANNUAL" ;
-                      :hasYear "2016" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_TC
-:T1DM_Manif_STROKE_TC rdf:type owl:NamedIndividual ,
-                               :Cost ;
-                      :hasDataItemType :Currency_Euro ;
-                      :hasDescription "Episode of stroke" ;
-                      :hasExpression "3634.66" ;
-                      :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008" ;
-                      :hasTemporalBehavior "ANNUAL" ;
-                      :hasYear "2016" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_StdModelDES
-:T1DM_StdModelDES rdf:type owl:NamedIndividual ,
-                           :DiscreteEventSimulationModel ;
-                  :includesModelItem :T1DM_Disease ,
-                                     :T1DM_Group_Manif_CHD ,
-                                     :T1DM_Group_Manif_HYPO ,
-                                     :T1DM_Group_Manif_NEU ,
-                                     :T1DM_Group_Manif_NPH ,
-                                     :T1DM_Group_Manif_RET ,
-                                     :T1DM_Manif_ALB1 ,
-                                     :T1DM_Manif_ALB2 ,
-                                     :T1DM_Manif_ANGINA ,
-                                     :T1DM_Manif_BGRET ,
-                                     :T1DM_Manif_BLI ,
-                                     :T1DM_Manif_ESRD ,
-                                     :T1DM_Manif_HF ,
-                                     :T1DM_Manif_LEA ,
-                                     :T1DM_Manif_ME ,
-                                     :T1DM_Manif_MI ,
-                                     :T1DM_Manif_NEU ,
-                                     :T1DM_Manif_PRET ,
-                                     :T1DM_Manif_SHE ,
-                                     :T1DM_Manif_STROKE ;
-                  :hasAuthor "ICR" ;
-                  :hasDescription "First example of T1DM model" ;
-                  :hasGeographicalContext "Spain" ;
-                  :hasYear "2022" .
-
-
-#################################################################
-#    Annotations
-#################################################################
-
-:Disease rdfs:label "Disease" ;
-         rdfs:comment "An illness or health problem that involves one or more ways of developing manifestations" .
 
 
 ###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi

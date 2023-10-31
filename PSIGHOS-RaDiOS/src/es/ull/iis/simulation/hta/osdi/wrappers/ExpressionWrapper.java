@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,68 +14,87 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class ExpressionWrapper {
-	private static final String DIST_NAME = "DISTNAME";
-	private static final String DIST_SCALE = "DISTSCALE";
-	private static final String DIST_SCALE_SIGN = "DISTSCALESIGN";
-	private static final String DIST_OFFSET = "DISTOFFSET";
-	private static final String DIST_PARAM1 = "DISTPARAM1";
-	private static final String DIST_PARAM2 = "DISTPARAM2";
-	private static final String DIST_PARAM3 = "DISTPARAM3";
-	private static final String DIST_PARAM4 = "DISTPARAM4";
-	private static final String REG_EXP = "^((?<" + 
-					DIST_OFFSET + ">[+-]?[0-9]+\\.?[0-9]*)?(?<" +
-					DIST_SCALE_SIGN + ">[+-])?((?<" + 
-					DIST_SCALE + ">[0-9]+\\.?[0-9]*)\\*)?(?<" + 
-					DIST_NAME +">[A-Za-z]+)\\((?<" + 
-					DIST_PARAM1 + ">[+-]?[0-9]+\\.?[0-9]*)(,(?<" + 
-					DIST_PARAM2 + ">[+-]?[0-9]+\\.?[0-9]*))?(,(?<" + 
-					DIST_PARAM3 + ">[+-]?[0-9]+\\.?[0-9]*))?(,(?<" + 
-					DIST_PARAM4 + ">[+-]?[0-9]+\\.?[0-9]*))?\\))$";
 
-	private static final String DISTRIBUTION_NAME_SUFFIX = "Variate";
-	private static final Pattern PATTERN = Pattern.compile(REG_EXP);
-	
-	public enum SupportedType {
-		CONSTANT,
-		PROBABILITY_DISTRIBUTION,
-		EXPRESSION_LANGUAGE
+	// TODO: Process parameters when expressed in different ways. E.g. gamma parameters may be average and standard deviation
+	public enum SupportedProbabilityDistributions {
+		NORMAL("NormalVariate"),
+		UNIFORM("UniformVariate") {
+			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_LOWER_LIMIT_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_UPPER_LIMIT_PARAMETER.getValue(instanceId, "0")};				
+			}
+		},
+		BETA("BetaVariate") {
+			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_BETA_PARAMETER.getValue(instanceId, "0")};				
+			}
+		},
+		GAMMA("GammaVariate") {
+			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
+			}
+		},
+		EXPONENTIAL("ExponentialVariate") {
+			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
+			}
+		},
+		POISSON("PoissonVariate") {
+			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
+			}
+		};
+		private final String variateName;
+		
+		private SupportedProbabilityDistributions(String variateName) {
+			this.variateName = variateName;
+		}
+		
+		public String[] getParameters(OSDiWrapper wrap, String instanceId) {
+			return new String[] {OSDiWrapper.DataProperty.HAS_AVERAGE_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_STANDARD_DEVIATION_PARAMETER.getValue(instanceId, "0")};
+		}
+		
+		/**
+		 * @return the variateName
+		 */
+		public String getVariateName() {
+			return variateName;
+		}
+		
 	}
-	private final double constantValue;
+	private static final String DISTRIBUTION_NAME_SUFFIX = "Variate";
 	private final RandomVariate rnd;
 	private final String exprToEvaluate;
-	private final SupportedType type; 
 
-	public ExpressionWrapper(String expression) throws MalformedOSDiModelException {
-		constantValue = parseExpressionAsConstant(expression);
-		if (!Double.isNaN(constantValue)) {
-			type = SupportedType.CONSTANT;
-			rnd = null;
-			exprToEvaluate = null;
+	public ExpressionWrapper(OSDiWrapper wrap, String instanceId) throws MalformedOSDiModelException {
+		final Set<String> superclasses = wrap.getClassesForIndividual(instanceId);
+		if (superclasses.contains(OSDiWrapper.Clazz.AD_HOC_EXPRESSION.getShortName())) {
+			exprToEvaluate = OSDiWrapper.DataProperty.HAS_EXPRESSION_VALUE.getValue(instanceId, "");
+			// TODO: Process dependences with Attributes and Parameters
 		}
-		else {
-			rnd = parseExpressionAsProbabilityDistribution(expression);
-			if (rnd != null) {
-				type = SupportedType.PROBABILITY_DISTRIBUTION;
-				exprToEvaluate = null;				
+		else if (superclasses.contains(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION.getShortName())) {
+			SupportedProbabilityDistributions dist = null;
+			if (superclasses.contains(OSDiWrapper.Clazz.NORMAL_DISTRIBUTION_EXPRESSION.getShortName())) {
+				dist = SupportedProbabilityDistributions.NORMAL;
 			}
-			else {
-				exprToEvaluate = expression;				
-				type = SupportedType.EXPRESSION_LANGUAGE;
+			else if (superclasses.contains(OSDiWrapper.Clazz.UNIFORM_DISTRIBUTION_EXPRESSION.getShortName())) {
+				dist = SupportedProbabilityDistributions.UNIFORM;				
 			}
+			else if (superclasses.contains(OSDiWrapper.Clazz.BETA_DISTRIBUTION_EXPRESSION.getShortName())) {
+				dist = SupportedProbabilityDistributions.BETA;
+			}
+			else if (superclasses.contains(OSDiWrapper.Clazz.GAMMA_DISTRIBUTION_EXPRESSION.getShortName())) {
+				dist = SupportedProbabilityDistributions.GAMMA;
+			}
+			else if (superclasses.contains(OSDiWrapper.Clazz.EXPONENTIAL_DISTRIBUTION_EXPRESSION.getShortName())) {
+				dist = SupportedProbabilityDistributions.EXPONENTIAL;
+			}
+			else if (superclasses.contains(OSDiWrapper.Clazz.POISSON_DISTRIBUTION_EXPRESSION.getShortName())) {
+				dist = SupportedProbabilityDistributions.POISSON;
+			}
+			if (dist == null)
+				throw new MalformedOSDiModelException("Unsupported probability distribution " + instanceId);
+			rnd = buildDistributionVariate(dist.getVariateName(), dist.getParameters(wrap, instanceId));
 		}
-	}
-	
-	/**
-	 * Processes an expression for an individual and returns a double representation of its value. If the string has a wrong format, returns NaN.  
-	 * @param expression A string with a constant expression
-	 * @return a double representation of the an expression for an individual
-	 */
-	private static double parseExpressionAsConstant(String expression) {
-		try {
-			return Double.parseDouble(expression);
-		} catch(NumberFormatException ex) {
-			return Double.NaN;
-		}		
 	}
 	
 	/**
@@ -111,13 +131,6 @@ public class ExpressionWrapper {
 	}
 
 	/**
-	 * @return the constantValue
-	 */
-	public double getConstantValue() {
-		return constantValue;
-	}
-
-	/**
 	 * @return the rnd
 	 */
 	public RandomVariate getRnd() {
@@ -129,13 +142,6 @@ public class ExpressionWrapper {
 	 */
 	public String getExprToEvaluate() {
 		return exprToEvaluate;
-	}
-
-	/**
-	 * @return the type
-	 */
-	public SupportedType getType() {
-		return type;
 	}
 
 	/**

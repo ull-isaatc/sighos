@@ -160,9 +160,11 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	
 	public enum Clazz {
 		ACUTE_MANIFESTATION("AcuteManifestation"),
+		AD_HOC_EXPRESSION("AdHocExpression"),
 		AGENT_BASED_MODEL("AgentBasedModel"),
 		ATTRIBUTE("Attribute"),
 		ATTRIBUTE_VALUE("AttributeValue"),
+		BETA_DISTRIBUTION_EXPRESSION("BetaDistributionExpression"),
 		BIRTH_PREVALENCE("BirthPrevalence"),
 		CHRONIC_MANIFESTATION("ChronicManifestation"),
 		COST("Cost"),
@@ -180,8 +182,11 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		DISEASE_PATHWAY("DiseasePathway"),
 		DRUG("Drug"),
 		EPIDEMIOLOGICAL_PARAMETER("EpidemiologicalParameter"),
+		EXPONENTIAL_DISTRIBUTION_EXPRESSION("ExponentialDistributionExpression"),
+		EXPRESSION("Expression"),
 		FOLLOW_UP_STRATEGY("FollowUpStrategy"),
 		FOLLOW_UP_TEST("FollowUpTest"),
+		GAMMA_DISTRIBUTION_EXPRESSION("GammaDistributionExpression"),
 		GROUP("Group"),
 		GROUPABLE_MODEL_ITEM("GroupableModelItem"),
 		GUIDELINE("Guideline"),
@@ -195,10 +200,13 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		MEASURED_DATA_ITEM_TYPE("MeasuredDataItemType"),
 		MODEL("Model"),
 		MODEL_ITEM("ModelItem"),
+		NORMAL_DISTRIBUTION_EXPRESSION("NormalDistributionExpression"),
 		PARAMETER("Parameter"),
 		PATHWAY("Pathway"),
+		POISSON_DISTRIBUTION_EXPRESSION("PoissonDistributionExpression"),
 		POPULATION("Population"),
 		PREVALENCE("Prevalence"),
+		PROBABILITY_DISTRIBUTION_EXPRESSION("ProbabilityDistributionExpression"),
 		PROPORTION_WITHIN_GROUP("ProportionWithinGroup"),
 		RARE_DISEASE("RareDisease"),
 		SCREENING_INTERVENTION("ScreeningIntervention"),
@@ -208,6 +216,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		STRATEGY("Strategy"),
 		THERAPEUTIC_INTERVENTION("TherapeuticIntervention"),
 		TREATMENT("Treatment"),
+		UNIFORM_DISTRIBUTION_EXPRESSION("UniformDistributionExpression"),
 		UTILITY("Utility"),
 		VALUABLE("Valuable");
 		/** The short name that is used as IRI of this class in the ontology */
@@ -264,19 +273,27 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 
 	public enum DataProperty {
 		FAILS_IF("failsIf"),
+		HAS_ALFA_PARAMETER("hasAlfaParameter"),
 		HAS_AUTHOR("hasAuthor"),
+		HAS_AVERAGE_PARAMETER("hasAverageParameter"),
+		HAS_BETA_PARAMETER("hasBetaParameter"),
 		HAS_CALCULATION_METHOD("hasCalculationMethod"),
 		HAS_CONDITION("hasCondition"),
+		HAS_CONSTANT_VALUE("hasConstantValue"),
 		HAS_DESCRIPTION("hasDescription"),
 		HAS_DISUTILITY_COMBINATION_METHOD("hasDisutilityCombinationMethod"),
 		HAS_DOSE("hasDose"),
-		HAS_EXPRESSION("hasExpression"),
+		HAS_EXPRESSION_VALUE("hasExpressionValue"),
 		HAS_FREQUENCY("hasFrequency"),
 		HAS_GEOGRAPHICAL_CONTEXT("hasGeographicalContext"),
 		HAS_HOURS_INTERVAL("hasHoursInterval"),
+		HAS_LAMBDA_PARAMETER("hasLambdaParameter"),
+		HAS_LOWER_LIMIT_PARAMETER("hasLowerLimitParameter"),
 		HAS_MAX_AGE("hasMaxAge"),
 		HAS_MIN_AGE("hasMinAge"),
 		HAS_NAME("hasName"),
+		HAS_OFFSET_PARAMETER("hasOffsetParameter"),
+		HAS_PROBABILITY_DISTRIBUTION_PARAMETER("hasProbabilityDistributionParameter"),
 		HAS_RANGE("hasRange"),
 		HAS_REF_TO("hasRefTo"),
 		HAS_REF_TO_DO("hasRefToDO"),
@@ -288,10 +305,13 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_REF_TO_STATO("hasRefToSTATO"),
 		HAS_REF_TO_WIKIDATA("hasRefToWikidata"),
 		HAS_REFTO_WIKIDATA("hasReftoWikidata"),
+		HAS_SCALE_PARAMETER("hasScaleParameter"),
 		HAS_SIZE("hasSize"),
 		HAS_SOURCE("hasSource"),
+		HAS_STANDARD_DEVIATION_PARAMETER("hasStandardDeviationParameter"),
 		HAS_TEMPORAL_BEHAVIOR("hasTemporalBehavior"),
 		HAS_UNIT("hasUnit"),
+		HAS_UPPER_LIMIT_PARAMETER("hasUpperLimitParameter"),
 		HAS_YEAR("hasYear"),
 		IS_TRUE_EPIDEMIOLOGICAL_PARAMETER_ESTIMATE("isTrueEpidemiologicalParameterEstimate"),
 		TOP_DATA_PROPERTY("topDataProperty");
@@ -333,6 +353,8 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 
 	public enum ObjectProperty {
 		BELONGS_TO_GROUP("belongsToGroup"),
+		DEPENDS_ON_ATTRIBUTE("dependsOnAttribute"),
+		DEPENDS_ON_PARAMETER("dependsOnParameter"),
 		EXCLUDES_MANIFESTATION("excludesManifestation"),
 		FOLLOWED_BY_STRATEGY("followedByStrategy"),
 		HAS_AGE("hasAge"),
@@ -346,6 +368,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_DURATION("hasDuration"),
 		HAS_END_AGE("hasEndAge"),
 		HAS_EPIDEMIOLOGICAL_PARAMETER("hasEpidemiologicalParameter"),
+		HAS_EXPRESSION("hasExpression"),
 		HAS_FOLLOW_UP_COST("hasFollowUpCost"),
 		HAS_FOLLOW_UP_STRATEGY("hasFollowUpStrategy"),
 		HAS_GUIDELINE("hasGuideline"),
@@ -354,7 +377,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_INITIAL_PROPORTION("hasInitialProportion"),
 		HAS_INTERVENTION("hasIntervention"),
 		HAS_LIFE_EXPECTANCY("hasLifeExpectancy"),
-		HAS_LIFE_EXPECTANCY_REDUCTION("hasLifeExctancyReduction"),
+		HAS_LIFE_EXPECTANCY_REDUCTION("hasLifeExpectancyReduction"),
 		HAS_LINE_OF_THERAPY("hasLineOfTherapy"),
 		HAS_MANIFESTATION("hasManifestation"),
 		HAS_NATURAL_DEVELOPMENT("hasNaturalDevelopment"),
@@ -631,41 +654,41 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		return getInterventionInstanceName(interventionName) + STR_SEP + paramName + STR_MODIFICATION_SUFFIX;
 	}
 	
-	public void createValuable(String instanceName, Clazz clazz, String source, String expression, DataItemType dataType) {
+	public void createValuable(String instanceName, Clazz clazz, String source, double value, DataItemType dataType) {
 		clazz.add(instanceName);
 		ObjectProperty.HAS_DATA_ITEM_TYPE.add(instanceName, dataType.getInstanceName());
 		DataProperty.HAS_SOURCE.add(instanceName, source);
-		DataProperty.HAS_EXPRESSION.add(instanceName, expression);		
+		DataProperty.HAS_CONSTANT_VALUE.add(instanceName, Double.toString(value));		
 		includeInModel(instanceName);
 	}
 	
-	public void createParameter(String instanceName, Clazz clazz, String description, String source, int year, String expression, DataItemType dataType) {
-		createValuable(instanceName, clazz, source, expression, dataType);
+	public void createParameter(String instanceName, Clazz clazz, String description, String source, int year, double value, DataItemType dataType) {
+		createValuable(instanceName, clazz, source, value, dataType);
 		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
 		DataProperty.HAS_YEAR.add(instanceName, "" + year);
 	}
 
-	public void createAttributeValue(String instanceName, String attributeInstanceName, String source, String expression, DataItemType dataType) {
-		createValuable(instanceName, Clazz.ATTRIBUTE_VALUE, source, expression, dataType);
+	public void createAttributeValue(String instanceName, String attributeInstanceName, String source, double value, DataItemType dataType) {
+		createValuable(instanceName, Clazz.ATTRIBUTE_VALUE, source, value, dataType);
 		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(instanceName, attributeInstanceName);
 	}
 	
-	public void createAttributeValueModification(String instanceName, String interventionInstanceName, String originalAttributeValueInstanceName, String attributeInstanceName, String source, String expression, DataItemType dataType) {
-		createAttributeValue(instanceName, attributeInstanceName, source, expression, dataType);		
+	public void createAttributeValueModification(String instanceName, String interventionInstanceName, String originalAttributeValueInstanceName, String attributeInstanceName, String source, double value, DataItemType dataType) {
+		createAttributeValue(instanceName, attributeInstanceName, source, value, dataType);		
 		ObjectProperty.MODIFIES.add(instanceName, originalAttributeValueInstanceName);
 		ObjectProperty.IS_MODIFIED_BY.add(originalAttributeValueInstanceName, instanceName);
 		OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.add(interventionInstanceName, instanceName);
 	}
 	
-	public void createParameterModification(String instanceName, String interventionInstanceName, String originalParameterInstanceName, Clazz clazz, String description, String source, int year, String expression, DataItemType dataType) {
-		createParameter(instanceName, clazz, description, source, year, expression, dataType);
+	public void createParameterModification(String instanceName, String interventionInstanceName, String originalParameterInstanceName, Clazz clazz, String description, String source, int year, double value, DataItemType dataType) {
+		createParameter(instanceName, clazz, description, source, year, value, dataType);
 		ObjectProperty.MODIFIES.add(instanceName, originalParameterInstanceName);
 		ObjectProperty.IS_MODIFIED_BY.add(originalParameterInstanceName, instanceName);
 		OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.add(interventionInstanceName, instanceName);
 	}
 	
-	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, DataItemType currency) {
-		createParameter(instanceName, Clazz.COST, description, source, year, expression, currency);
+	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, DataItemType currency) {
+		createParameter(instanceName, Clazz.COST, description, source, year, value, currency);
 		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 	}
 	
@@ -760,14 +783,6 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	private void includeInModel(String instanceName) {
 		ObjectProperty.INCLUDED_BY_MODEL.add(instanceName, workingModelInstance);
 		ObjectProperty.INCLUDES_MODEL_ITEM.add(workingModelInstance, instanceName);
-	}
-	
-	public Set<String> getClassesForIndividual(String individualIRI) {
-		Set<String> result = new TreeSet<>();
-		final Set<OWLClass> types = reasoner.types(factory.getOWLNamedIndividual(individualIRI, pm)).collect(Collectors.toSet());
-		for (OWLClass clazz : types)
-			result.add(simplifyIRI(clazz.getIRI().getIRIString()));
-		return result;
 	}
 	
 	public ArrayList<String> getEnglishCommentForClass(IRI iri) {

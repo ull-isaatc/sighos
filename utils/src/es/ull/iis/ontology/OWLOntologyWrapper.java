@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.AddAxiom;
@@ -214,6 +215,19 @@ public class OWLOntologyWrapper {
 			set.add(individual.getIRI().getShortForm());
 		}
 		return set;
+	}
+
+	/**
+	 * Returns all the classes and superclasses of the specified individual
+	 * @param individualIRI The IRI of the individual
+	 * @return all the classes and superclasses of the specified individual
+	 */
+	public Set<String> getClassesForIndividual(String individualIRI) {
+		Set<String> result = new TreeSet<>();
+		final Set<OWLClass> types = reasoner.types(factory.getOWLNamedIndividual(individualIRI, pm)).collect(Collectors.toSet());
+		for (OWLClass clazz : types)
+			result.add(simplifyIRI(clazz.getIRI().getIRIString()));
+		return result;
 	}
 	
 	public ArrayList<String> getIndividualProperties(String individualIRI, String sep) {
