@@ -3,12 +3,10 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Set;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionWrapper.SupportedType;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -24,30 +22,34 @@ public class ValuableWrapper {
 	private final String source;
 	private final Set<OSDiWrapper.DataItemType> dataItemTypes;
 	private final ExpressionWrapper expression;
+	private final double deterministicValue;
 	private final RandomVariate probabilisticValue;
 
 	/**
 	 * @throws MalformedOSDiModelException 
 	 * 
 	 */
-	public ValuableWrapper(OSDiWrapper wrap, String paramId, Set<ExpressionWrapper.SupportedType> supportedTypes) throws MalformedOSDiModelException {
+	public ValuableWrapper(OSDiWrapper wrap, String paramId) throws MalformedOSDiModelException {
 		this.wrap = wrap;
 		this.paramId = paramId;
 		source = parseHasSourceProperty(paramId);
-		final ArrayList<String> detValues = OSDiWrapper.DataProperty.HAS_EXPRESSION.getValues(paramId);
-		if (detValues.size() == 0)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, OSDiWrapper.DataProperty.HAS_EXPRESSION, "Expression for valuable not defined.");
-		if (detValues.size() > 1)
-			wrap.printWarning(paramId, OSDiWrapper.DataProperty.HAS_EXPRESSION, "More than one expression found for parameter. Using " + detValues.get(0) + " by default");
-
-		final Set<String> referencedInstances = OSDiWrapper.ObjectProperty.USES_VALUE_FROM.getValues(paramId, true);
-		if (referencedInstances.size() > 0 && !supportedTypes.contains(ExpressionWrapper.SupportedType.EXPRESSION_LANGUAGE))
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, OSDiWrapper.ObjectProperty.USES_VALUE_FROM, "The valuable declares that uses other valuables in its expression. However, either a constant or probability was expected");
+		
+		final String detValue = OSDiWrapper.DataProperty.HAS_CONSTANT_VALUE.getValue(paramId);
+		final String strExpression = OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getValue(paramId, true);
+		
+		if (detValue == null && strExpression == null)
+			throw new MalformedOSDiModelException("Neither a " + OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getShortName() + " or a " + OSDiWrapper.DataProperty.HAS_CONSTANT_VALUE.getShortName() + " properties were defined for valueable " + paramId);
+		if (detValue != null && strExpression != null)
+			throw new MalformedOSDiModelException("The Valuable " + paramId + " defines a " + OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getShortName() + " and a " + OSDiWrapper.DataProperty.HAS_CONSTANT_VALUE.getShortName() + " properties at the same time");
+		if (detValue != null) {
+			deterministicValue = Double.parseDouble(detValue);
+			expression = null; 
+		}
+		else {
+			deterministicValue = Double.NaN;
+			expression = new ExpressionWrapper(wrap, strExpression); 
+		}
 			
-		expression = new ExpressionWrapper(detValues.get(0)); 
-		if (!supportedTypes.contains(expression.getType()))
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, OSDiWrapper.DataProperty.HAS_EXPRESSION, "Expression type for valuable not supported: " + expression.getType());
-
 		dataItemTypes = EnumSet.noneOf(OSDiWrapper.DataItemType.class); 
 		Set<String> types = OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE.getValues(paramId);
 		// Type assumed to be undefined if not specified
@@ -118,9 +120,7 @@ public class ValuableWrapper {
 	}
 	
 	public double getDeterministicValue() {
-		if (ExpressionWrapper.SupportedType.CONSTANT.equals(expression.getType()))
-			return expression.getConstantValue();
-		return Double.NaN;
+		return deterministicValue;
 	}
 	
 	protected RandomVariate initProbabilisticValue() throws MalformedOSDiModelException {
@@ -143,12 +143,12 @@ public class ValuableWrapper {
 		final Set<String> uncertaintyParams = uncertaintyProperty.getValues(paramId, true);
 		if (uncertaintyParams.size() == 1) {
 			// Currently only probabilities allowed
-			final ValuableWrapper paramWrap = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[0], EnumSet.of(SupportedType.PROBABILITY_DISTRIBUTION));
+			final ValuableWrapper paramWrap = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[0]);
 			return paramWrap.getExpression().getRnd();
 		}
 		if (uncertaintyParams.size() == 2) {
-			final ValuableWrapper paramWrap1 = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[0], EnumSet.of(SupportedType.CONSTANT)); 
-			final ValuableWrapper paramWrap2 = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[1], EnumSet.of(SupportedType.CONSTANT)); 
+			final ValuableWrapper paramWrap1 = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[0]); 
+			final ValuableWrapper paramWrap2 = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[1]); 
 			if (paramWrap1.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_LOWER95CONFIDENCELIMIT)) {
 				if (paramWrap2.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_UPPER95CONFIDENCELIMIT)) {
 					return getRandomVariateFromAvgAndCIs(getDeterministicValue(), new double[] {paramWrap1.getDeterministicValue(), paramWrap2.getDeterministicValue()});

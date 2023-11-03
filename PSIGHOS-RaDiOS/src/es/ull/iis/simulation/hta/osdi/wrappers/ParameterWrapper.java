@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
-import java.util.Set;
-
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import simkit.random.RandomVariate;
 
@@ -20,8 +18,8 @@ public class ParameterWrapper extends ValuableWrapper {
 	 * @throws MalformedOSDiModelException 
 	 * 
 	 */
-	public ParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription, Set<ExpressionWrapper.SupportedType> supportedTypes) throws MalformedOSDiModelException {
-		super(wrap, paramId, supportedTypes);
+	public ParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription) throws MalformedOSDiModelException {
+		super(wrap, paramId);
 		description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(paramId, defaultDescription);
 		year = wrap.parseHasYearProperty(paramId);
 		

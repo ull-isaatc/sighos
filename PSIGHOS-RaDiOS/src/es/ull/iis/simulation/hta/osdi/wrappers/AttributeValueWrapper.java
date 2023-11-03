@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
-import java.util.Set;
-
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 
 /**
@@ -17,8 +15,8 @@ public class AttributeValueWrapper extends ValuableWrapper {
 	 * @throws MalformedOSDiModelException 
 	 * 
 	 */
-	public AttributeValueWrapper(OSDiWrapper wrap, String attributeValueId, Set<ExpressionWrapper.SupportedType> supportedTypes) throws MalformedOSDiModelException {
-		super(wrap, attributeValueId, supportedTypes);
+	public AttributeValueWrapper(OSDiWrapper wrap, String attributeValueId) throws MalformedOSDiModelException {
+		super(wrap, attributeValueId);
 		attributeId = OSDiWrapper.ObjectProperty.IS_VALUE_OF_ATTRIBUTE.getValue(attributeValueId);
 		
 	}

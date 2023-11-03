@@ -339,8 +339,14 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			}
 		}
 
+		public String getValue(String individualIRI) {
+			return getValue(individualIRI, null);
+		}
+
 		public String getValue(String individualIRI, String defaultValue) {
 			ArrayList<String> values = getValues(individualIRI);
+			if (values.size() > 1)
+				currentWrapper.printWarning(individualIRI, this, "Found more than one value for the data property. Using only " + values.toArray()[0]);
 			if (values.size() == 0)
 				return defaultValue;
 			return values.get(0);
@@ -419,8 +425,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		USES_FOLLOW_UP_TEST("usesFollowUpTest"),
 		USES_HEALTH_TECHNOLOGY("usesHealthTechnology"),
 		USES_SAME_MODEL_ITEMS_AS("usesSameModelItemsAs"),
-		USES_TREATMENT("usesTreatment"),
-		USES_VALUE_FROM("usesValueFrom");
+		USES_TREATMENT("usesTreatment");
 		
 		private final String shortName;
 		private ObjectProperty(String shortName) {
@@ -438,7 +443,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		}
 
 		/**
-		 * Returns only the first value for the object property of the specified individual. If more than one are defined, prints a warning
+		 * Returns only the first value for the object property of the specified individual. If more than one are defined, prints a warning.
 		 * @param individualIRI A specific individual in the ontology
 		 * @return only the first value for the object property of the specified individual; null if non defined.
 		 */
@@ -446,6 +451,12 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			return getValue(individualIRI, false);
 		}
 		
+		/**
+		 * Returns only the first value for the object property of the specified individual. If more than one are defined, prints a warning
+		 * @param individualIRI A specific individual in the ontology
+		 * @param restrictToWorkingModel Restrict results to those individuals belonging to the working model
+		 * @return only the first value for the object property of the specified individual; null if non defined.
+		 */
 		public String getValue(String individualIRI, boolean restrictToWorkingModel) {
 			Set<String> values = getValues(individualIRI, restrictToWorkingModel);
 			if (values.size() > 1)
@@ -658,7 +669,8 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		clazz.add(instanceName);
 		ObjectProperty.HAS_DATA_ITEM_TYPE.add(instanceName, dataType.getInstanceName());
 		DataProperty.HAS_SOURCE.add(instanceName, source);
-		DataProperty.HAS_CONSTANT_VALUE.add(instanceName, Double.toString(value));		
+		DataProperty.HAS_CONSTANT_VALUE.add(instanceName, Double.toString(value));
+		// TODO: create HAS_EXPRESSION and EXPRESSION
 		includeInModel(instanceName);
 	}
 	
@@ -692,21 +704,21 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 	}
 	
-	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, DataItemType currency) {
-		createCost(instanceName, description, source, tmpBehavior, year, deterministic, currency);
+	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, String uncertainty, DataItemType currency) {
+		createCost(instanceName, description, source, tmpBehavior, year, value, currency);
 		if (uncertainty != null && !("".equals(uncertainty))) {
 			createParameter(instanceName + STR_PARAM_UNCERTAINTY_SUFFIX, Clazz.COST, description, source, year, uncertainty, currency);
 			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 		}
 	}
 
-	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, UtilityType utilityType) {
-		createParameter(instanceName, Clazz.UTILITY, description, source, year, expression, utilityType.getType());
+	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, UtilityType utilityType) {
+		createParameter(instanceName, Clazz.UTILITY, description, source, year, value, utilityType.getType());
 		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 	}
 	
-	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String deterministic, String uncertainty, UtilityType utilityType) {
-		createUtility(instanceName, description, source, tmpBehavior, year, deterministic, utilityType);
+	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, String uncertainty, UtilityType utilityType) {
+		createUtility(instanceName, description, source, tmpBehavior, year, value, utilityType);
 		if (uncertainty != null && !("".equals(uncertainty))) {
 			createParameter(instanceName + STR_PARAM_UNCERTAINTY_SUFFIX, Clazz.UTILITY, description, source, year, uncertainty, utilityType.getType());
 			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());

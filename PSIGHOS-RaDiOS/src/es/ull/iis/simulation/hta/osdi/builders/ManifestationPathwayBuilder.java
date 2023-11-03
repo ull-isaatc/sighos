@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -15,7 +14,6 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
-import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
@@ -99,7 +97,7 @@ public interface ManifestationPathwayBuilder {
 		if (pathwayParams.size() > 1) {
 			wrap.printWarning(pathwayName, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestation pathways should define a single risk characterization. Using " + pathwayParam);
 		}
-		return new ParameterWrapper(wrap, pathwayParam, "Developing " + manifestation + " due to " + pathwayName, EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
+		return new ParameterWrapper(wrap, pathwayParam, "Developing " + manifestation + " due to " + pathwayName);
 	}
 	/**
 	 * Creates the calculator for the time to event associated to this pathway. Currently only allows the time to be expressed as an annual risk and, consequently, uses 

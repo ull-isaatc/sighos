@@ -64,13 +64,15 @@
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#dependsOnAttribute
 :dependsOnAttribute rdf:type owl:ObjectProperty ;
                     rdfs:domain :AdHocExpression ;
-                    rdfs:range :Attribute .
+                    rdfs:range :Attribute ;
+                    rdfs:comment "Defines a relationship between a Valuable instance and an Attribute, where the \"hasExpression\" of the domain instance makes reference to the range instance. Hence, the hasExpression property should include a reference to that attribute, so that the final value of this Valuable is a function of the value of this attribute."@en .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#dependsOnParameter
 :dependsOnParameter rdf:type owl:ObjectProperty ;
                     rdfs:domain :AdHocExpression ;
-                    rdfs:range :Parameter .
+                    rdfs:range :Parameter ;
+                    rdfs:comment "Defines a relationship between a Valuable instance and a Parameter, where the \"hasExpression\" of the domain instance makes reference to the range instance. Hence, the hasExpression property should include a reference to that parameter, so that the final value of this Valuable is a function of the value of this parameter."@en .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#excludesManifestation

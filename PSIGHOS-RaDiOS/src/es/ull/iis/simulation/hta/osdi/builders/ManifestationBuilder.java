@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.osdi.builders;
 
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -14,7 +13,6 @@ import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.builders.ManifestationPathwayBuilder.OSDiManifestationPathway;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
@@ -79,13 +77,13 @@ public interface ManifestationBuilder {
 		private void addProbabilityParam(OSDiWrapper.ObjectProperty objProperty, ProbabilityParamDescriptions paramDescription) throws MalformedOSDiModelException {
 			final String paramName = objProperty.getValue(name(), true);
 			if (paramName != null)
-				probParams.put(paramDescription, new ParameterWrapper(wrap, paramName, "", EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)));			
+				probParams.put(paramDescription, new ParameterWrapper(wrap, paramName, ""));			
 		}
 		
 		private void addOtherParam(OSDiWrapper.ObjectProperty objProperty, OtherParamDescriptions paramDescription) throws MalformedOSDiModelException {
 			final String paramName = objProperty.getValue(name(), true);
 			if (paramName != null)
-				otherParams.put(paramDescription, new ParameterWrapper(wrap, paramName, "", EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)));			
+				otherParams.put(paramDescription, new ParameterWrapper(wrap, paramName, ""));			
 		}
 		
 		private void addMortalityParams() throws MalformedOSDiModelException {
@@ -111,7 +109,7 @@ public interface ManifestationBuilder {
 				if (!OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION.getValues(manifParam, true).contains(populationName))
 					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, manifParam, OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION, 
 							"Parameters characterizing initial proportions must be related to the population: " + populationName);
-				probParams.put(ProbabilityParamDescriptions.INITIAL_PROPORTION, new ParameterWrapper(wrap, manifParam, "Initial proportion of " + name(), EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)));
+				probParams.put(ProbabilityParamDescriptions.INITIAL_PROPORTION, new ParameterWrapper(wrap, manifParam, "Initial proportion of " + name()));
 			}
 		}
 		
@@ -119,7 +117,7 @@ public interface ManifestationBuilder {
 			final String onsetAge = OSDiWrapper.ObjectProperty.HAS_ONSET_AGE.getValue(name(), true);
 			if (onsetAge != null) {
 				try {
-					otherParams.put(OtherParamDescriptions.ONSET_AGE, new ParameterWrapper(wrap, onsetAge, "Onset age for manifestation " + name(), EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)));
+					otherParams.put(OtherParamDescriptions.ONSET_AGE, new ParameterWrapper(wrap, onsetAge, "Onset age for manifestation " + name()));
 				} catch(MalformedOSDiModelException ex) {
 					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, name(), OSDiWrapper.ObjectProperty.HAS_ONSET_AGE, "Error parsing manifestation. Caused by ", ex);
 				}
@@ -127,7 +125,7 @@ public interface ManifestationBuilder {
 			final String endAge = OSDiWrapper.ObjectProperty.HAS_END_AGE.getValue(name(), true);
 			if (endAge != null) {
 				try {
-					otherParams.put(OtherParamDescriptions.END_AGE, new ParameterWrapper(wrap, endAge, "End age for manifestation " + name(), EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)));
+					otherParams.put(OtherParamDescriptions.END_AGE, new ParameterWrapper(wrap, endAge, "End age for manifestation " + name()));
 				} catch(MalformedOSDiModelException ex) {
 					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION, name(), OSDiWrapper.ObjectProperty.HAS_END_AGE, "Error parsing manifestation. Caused by ", ex);
 				}
@@ -142,7 +140,7 @@ public interface ManifestationBuilder {
 				if (manifestationParams.size() > 1) {
 					wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestations should define a single risk characterization. Using " + manifParam);
 				}
-				final ParameterWrapper incidenceWrapper = new ParameterWrapper(wrap, manifParam, "Developing " + name(), EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
+				final ParameterWrapper incidenceWrapper = new ParameterWrapper(wrap, manifParam, "Developing " + name());
 				OSDiGenericRepository OSDiParams = (OSDiGenericRepository) getRepository();
 				final TimeToEventCalculator tte = ManifestationPathwayBuilder.createTimeToEventCalculator(OSDiParams, this, "", incidenceWrapper);
 				final OSDiManifestationPathway pathway = new OSDiManifestationPathway(OSDiParams, this, new TrueCondition<Patient>(), tte, "", incidenceWrapper);
@@ -150,7 +148,7 @@ public interface ManifestationBuilder {
 		}
 
 		private OSDiWrapper.TemporalBehavior addCostParam(String costName, OSDiWrapper.TemporalBehavior expectedTemporalBehavior) throws MalformedOSDiModelException {
-			final CostParameterWrapper costParam = new CostParameterWrapper(wrap, costName, "Cost for manifestation " + name(), EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
+			final CostParameterWrapper costParam = new CostParameterWrapper(wrap, costName, "Cost for manifestation " + name());
 			final OSDiWrapper.TemporalBehavior tempBehavior = costParam.getTemporalBehavior();
 
 			// Assuming ANNUAL COSTS by default
@@ -196,7 +194,7 @@ public interface ManifestationBuilder {
 		}
 		
 		private OSDiWrapper.TemporalBehavior addUtilityParam(String utilityName, OSDiWrapper.TemporalBehavior expectedTemporalBehavior) throws MalformedOSDiModelException {
-			final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName, "Utility for manifestation " + name(),EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)); 
+			final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName, "Utility for manifestation " + name()); 
 			final OSDiWrapper.TemporalBehavior tempBehavior = utilityParam.getTemporalBehavior();
 
 			final boolean isDisutility = OSDiWrapper.UtilityType.DISUTILITY.equals(utilityParam.getType());

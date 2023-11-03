@@ -1,8 +1,6 @@
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import simkit.random.RandomVariate;
@@ -67,8 +65,12 @@ public class ExpressionWrapper {
 
 	public ExpressionWrapper(OSDiWrapper wrap, String instanceId) throws MalformedOSDiModelException {
 		final Set<String> superclasses = wrap.getClassesForIndividual(instanceId);
+		RandomVariate rnd = null;
+		String exprToEvaluate = null; 
 		if (superclasses.contains(OSDiWrapper.Clazz.AD_HOC_EXPRESSION.getShortName())) {
 			exprToEvaluate = OSDiWrapper.DataProperty.HAS_EXPRESSION_VALUE.getValue(instanceId, "");
+			final Set<String> referencedAttributes = OSDiWrapper.ObjectProperty.DEPENDS_ON_ATTRIBUTE.getValues(instanceId, true);
+			final Set<String> referencedParameters = OSDiWrapper.ObjectProperty.DEPENDS_ON_PARAMETER.getValues(instanceId, true);
 			// TODO: Process dependences with Attributes and Parameters
 		}
 		else if (superclasses.contains(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION.getShortName())) {
@@ -91,43 +93,32 @@ public class ExpressionWrapper {
 			else if (superclasses.contains(OSDiWrapper.Clazz.POISSON_DISTRIBUTION_EXPRESSION.getShortName())) {
 				dist = SupportedProbabilityDistributions.POISSON;
 			}
-			if (dist == null)
+			if (dist == null) {
 				throw new MalformedOSDiModelException("Unsupported probability distribution " + instanceId);
-			rnd = buildDistributionVariate(dist.getVariateName(), dist.getParameters(wrap, instanceId));
-		}
-	}
-	
-	/**
-	 * Initializes a probability distribution from a string in the form [&ltOFFSET&gt + &ltSCALE&gt * ] &ltDISTRIBUTION_NAME&gt (&ltPARAM1&gt, [...])
-	 * @param expression
-	 */
-	private static RandomVariate parseExpressionAsProbabilityDistribution(String expression) {
-		String valueNormalized = expression.replace(" ", "");
-		Matcher matcher = PATTERN.matcher(valueNormalized);
-		try {
-			if (matcher.find()) {	
-				final String distributionName = matcher.group(DIST_NAME);
-				final String[] parameters = new String[4];
-				parameters[0] = matcher.group(DIST_PARAM1);
-				parameters[1] = matcher.group(DIST_PARAM2);
-				parameters[2] = matcher.group(DIST_PARAM3);
-				parameters[3] = matcher.group(DIST_PARAM4);
-				final RandomVariate rnd = buildDistributionVariate(distributionName, parameters);
-				final String strScale = matcher.group(DIST_SCALE);
-				final String strOffset = matcher.group(DIST_OFFSET);					
-				if (strScale != null || strOffset != null) {
-					final String strSign = matcher.group(DIST_SCALE_SIGN);
-					final double sign = "-".equals(strSign) ? -1.0 : 1.0;  
-					return RandomVariateFactory.getInstance("ScaledVariate", rnd, sign * 
-								((strScale == null) ? 1.0 : Double.parseDouble(strScale)), (strOffset == null) ? 0.0 : Double.parseDouble(strOffset));
-				}
-				return rnd;
 			}
-			return null;
+			
+			rnd = buildDistributionVariate(dist.getVariateName(), dist.getParameters(wrap, instanceId)); 
+
+			String strOffset = OSDiWrapper.DataProperty.HAS_OFFSET_PARAMETER.getValue(instanceId, "0.0");
+			double offset = 0.0;
+			try {
+				offset = Double.parseDouble(strOffset);
+			} catch(NumberFormatException ex) {
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceId, OSDiWrapper.DataProperty.HAS_OFFSET_PARAMETER, "Invalid offset parameter for probabilistic expression. Found " + strOffset);
+			}
+			String strScale = OSDiWrapper.DataProperty.HAS_SCALE_PARAMETER.getValue(instanceId, "1.0");
+			double scale = 1.0;
+			try {
+				scale = Double.parseDouble(strScale);
+			} catch(NumberFormatException ex) {
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceId, OSDiWrapper.DataProperty.HAS_SCALE_PARAMETER, "Invalid scale parameter for probabilistic expression. Found " + strScale);
+			}
+			if (scale != 1.0 || offset != 0.0) {
+				rnd = RandomVariateFactory.getInstance("ScaledVariate", rnd, scale, offset);
+			}
 		}
-		catch(IllegalArgumentException ex) {
-			return null;
-		}
+		this.exprToEvaluate = exprToEvaluate;
+		this.rnd = rnd;
 	}
 
 	/**

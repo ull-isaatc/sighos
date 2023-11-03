@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,7 +12,6 @@ import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
@@ -75,11 +73,11 @@ public interface PopulationBuilder {
 			 // TODO: Currently we are only defining initially assigned attributes, i.e., attributes whose value does not change during the simulation 
 			// Process population age
 			final String ageAttribute = OSDiWrapper.ObjectProperty.HAS_AGE.getValue(populationName, true);
-			final AttributeValueWrapper ageWrapper = new AttributeValueWrapper(wrap, ageAttribute, EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
+			final AttributeValueWrapper ageWrapper = new AttributeValueWrapper(wrap, ageAttribute);
 			ageVariate = ageWrapper.getProbabilisticValue();
 			// Process population sex
 			final String sexAttribute = OSDiWrapper.ObjectProperty.HAS_SEX.getValue(populationName, true);
-			final AttributeValueWrapper sexWrapper = new AttributeValueWrapper(wrap, sexAttribute, EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)) {
+			final AttributeValueWrapper sexWrapper = new AttributeValueWrapper(wrap, sexAttribute) {
 				@Override
 				public RandomVariate getDefaultProbabilisticValue() {
 					return RandomVariateFactory.getInstance("DiscreteConstantVariate", getDeterministicValue());
@@ -98,7 +96,7 @@ public interface PopulationBuilder {
 			for (String paramName : populationParams) {
 				// Ignores parameters that are both parameters of the disease and a manifestation, since they are supposed to be processed in the corresponding manifestation
 				if (OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_MANIFESTATION.getValues(paramName, true).size() == 0) {
-					final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, "Epidemiological parameter for population " + this.name(), EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
+					final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, "Epidemiological parameter for population " + this.name());
 					// If the parameter is a prevalence
 					if (OSDiWrapper.Clazz.PREVALENCE.containsIntance(paramName)) {
 						if (prevalenceParam != null)
@@ -161,7 +159,7 @@ public interface PopulationBuilder {
 			if (utilities.size() > 1)
 				wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Found more than one utility for a population. Using only " + utilities.toArray()[0]);
 
-			final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, (String)utilities.toArray()[0], "Utility for population " + this.name(), EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)); 
+			final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, (String)utilities.toArray()[0], "Utility for population " + this.name()); 
 			final OSDiWrapper.TemporalBehavior tempBehavior = utilityParam.getTemporalBehavior();
 			if (OSDiWrapper.TemporalBehavior.ONETIME.equals(tempBehavior))
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.POPULATION, name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Only annual utilities should be associated to a population. Instead, " + tempBehavior + " found");
@@ -214,7 +212,7 @@ public interface PopulationBuilder {
 			final ArrayList<PopulationAttribute> attributeList = new ArrayList<>();
 			try {
 				for (String attribute : attributes) {
-					final AttributeValueWrapper attWrapper = new AttributeValueWrapper(wrap, attribute, EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
+					final AttributeValueWrapper attWrapper = new AttributeValueWrapper(wrap, attribute);
 					final String attributeName = OSDiWrapper.DataProperty.HAS_NAME.getValue(attWrapper.getAttributeId(), attWrapper.getAttributeId());
 					attributeList.add(new InitiallySetPopulationAttribute(attributeName, attWrapper.getProbabilisticValue()));										
 				}

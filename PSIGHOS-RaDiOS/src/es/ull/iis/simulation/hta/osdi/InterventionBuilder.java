@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.osdi;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 import es.ull.iis.simulation.hta.Patient;
@@ -11,7 +10,6 @@ import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.Discount;
@@ -152,7 +150,7 @@ public interface InterventionBuilder {
 			if (strSensitivities.size() > 1) {
 				wrap.printWarning(intervention.name(), OSDiWrapper.ObjectProperty.HAS_SENSITIVITY, "Found more than one sensitivity for a screening intervention. Using " + sensitivityParamName);			
 			}
-			final ParameterWrapper sensitivityWrapper = new ParameterWrapper(wrap, sensitivityParamName, "Sensitivity for " + intervention.name(), EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)); 
+			final ParameterWrapper sensitivityWrapper = new ParameterWrapper(wrap, sensitivityParamName, "Sensitivity for " + intervention.name()); 
 			if (!sensitivityWrapper.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_SENSITIVITY)) {
 				wrap.printWarning(sensitivityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiWrapper.DataItemType.DI_SENSITIVITY.getInstanceName());			
 			}
@@ -170,7 +168,7 @@ public interface InterventionBuilder {
 			if (strSpecificities.size() > 1) {
 				wrap.printWarning(intervention.name(), OSDiWrapper.ObjectProperty.HAS_SPECIFICITY, "Found more than one specificity for a screening intervention. Using " + specificityParamName);			
 			}
-			final ParameterWrapper specificityWrapper = new ParameterWrapper(wrap, specificityParamName, "Specificity for " + intervention.name(), EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT)); 
+			final ParameterWrapper specificityWrapper = new ParameterWrapper(wrap, specificityParamName, "Specificity for " + intervention.name()); 
 			if (!specificityWrapper.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_SPECIFICITY)) {
 				wrap.printWarning(specificityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiWrapper.DataItemType.DI_SPECIFICITY.getInstanceName());			
 			}
@@ -184,7 +182,7 @@ public interface InterventionBuilder {
 		// Collects the modifications associated to the specified intervention
 		final Set<String> modifications = OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.getValues(intervention.name(), true);
 		for (String modificationName : modifications) {		
-			final ParameterWrapper modification = new ParameterWrapper(wrap, modificationName, "", EnumSet.of(ExpressionWrapper.SupportedType.CONSTANT));
+			final ParameterWrapper modification = new ParameterWrapper(wrap, modificationName, "");
 			Modification.Type kind = null;
 			if (modification.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_CONTINUOUS_VARIABLE))
 				kind = Modification.Type.SET;
