@@ -11,6 +11,7 @@ import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.Clazz;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.DataItemType;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ModelType;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ObjectProperty;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ProbabilityDistributionExpression;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.TemporalBehavior;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 
@@ -59,7 +60,7 @@ public class T1DMInstancesGenerator {
 		final String diseaseCostIRI = wrap.getParameterInstanceName(STR_DISEASE_NAME + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 		wrap.createCost(diseaseCostIRI, 
 				"Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population", 
-				"Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007", TemporalBehavior.ANNUAL, 2012, 1116.733023, null, DataItemType.CURRENCY_EURO);
+				"Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007", TemporalBehavior.ANNUAL, 2012, 1116.733023, DataItemType.CURRENCY_EURO);
 		OSDiWrapper.ObjectProperty.HAS_FOLLOW_UP_COST.add(diseaseIRI, diseaseCostIRI);
 	}
 	
@@ -73,7 +74,7 @@ public class T1DMInstancesGenerator {
 		final String modificationIRI = wrap.getAttributeValueInstanceModificationName(STR_INTERVENTION_NAME, "HbA1c"); 
 		wrap.createAttributeValueModification(modificationIRI, interventionIRI, attributeValueIRI, attributeIRI, "DCCT", 1.5, DataItemType.DI_MEANDIFFERENCE);
 		// Create uncertainty for the modification
-		wrap.createAttributeValue(modificationIRI + OSDiWrapper.STR_STOCHASTIC_UNCERTAINTY_SUFFIX, attributeIRI, "DCCT", "Normal(1.5, 1.1)", DataItemType.DI_MEANDIFFERENCE);
+		wrap.createProbabilityDistributionExpression(modificationIRI + OSDiWrapper.STR_STOCHASTIC_UNCERTAINTY_SUFFIX, ProbabilityDistributionExpression.NORMAL, new double[] {1.5, 1.1});
 		OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY.add(modificationIRI, modificationIRI + OSDiWrapper.STR_STOCHASTIC_UNCERTAINTY_SUFFIX);
 		
 		OSDiWrapper.ObjectProperty.HAS_INTERVENTION.add(wrap.getDiseaseInstanceName(STR_DISEASE_NAME), interventionIRI);		
@@ -102,7 +103,7 @@ public class T1DMInstancesGenerator {
 		// Define stochastic uncertainty for sex based on the proportion of female population
 		ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY.add(valueIRI, valueIRI + OSDiWrapper.STR_STOCHASTIC_UNCERTAINTY_SUFFIX);
 		valueIRI += OSDiWrapper.STR_STOCHASTIC_UNCERTAINTY_SUFFIX;
-		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("Sex"), "Proportion of female population in DCCT", "Bernoulli(0.483966942)", DataItemType.DI_PROPORTION);
+		wrap.createProbabilityDistributionExpression(valueIRI, ProbabilityDistributionExpression.BERNOULLI, new double[] {0.483966942});
 		
 		// Define duration of diabetes for the population
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "DurationOfDiabetes");
@@ -111,7 +112,7 @@ public class T1DMInstancesGenerator {
 		// Define stochastic uncertainty for Duration of diabetes
 		ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY.add(valueIRI, valueIRI + OSDiWrapper.STR_STOCHASTIC_UNCERTAINTY_SUFFIX);
 		valueIRI += OSDiWrapper.STR_STOCHASTIC_UNCERTAINTY_SUFFIX;
-		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("DurationOfDiabetes"), "DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", "Normal(2.6,1.4)", DataItemType.DI_TIMETOEVENT);
+		wrap.createProbabilityDistributionExpression(valueIRI, ProbabilityDistributionExpression.NORMAL, new double[] {2.6, 1.4});
 		
 		// Define HbAc level for the population (fixed)
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "HbA1c");

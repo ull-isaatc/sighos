@@ -10,11 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
-import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
@@ -23,7 +21,7 @@ import es.ull.iis.ontology.OWLOntologyWrapper;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 
 /**
- * @author Iv�n Castilla Rodr�guez
+ * @author Iván Castilla Rodríguez
  *
  */
 public class OSDiWrapper extends OWLOntologyWrapper {
@@ -119,6 +117,11 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		}
 	}
 	
+	/**
+	 * The type of utilities that can be handled
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
 	public enum UtilityType {
 		UTILITY(DataItemType.DI_UTILITY),
 		DISUTILITY(DataItemType.DI_DISUTILITY);
@@ -138,7 +141,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 
 	/**
 	 * Temporal behavior for costs and utilities in the ontology
-	 * @author Iván Castilla
+	 * @author Iván Castilla Rodríguez
 	 *
 	 */
 	public enum TemporalBehavior {
@@ -158,12 +161,88 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		}
 	}
 	
+	/**
+	 * @author Iván Castilla
+	 * TODO: Process parameters when expressed in different ways. E.g. gamma parameters may be average and standard deviation
+	 */
+	public enum ProbabilityDistributionExpression {
+		NORMAL(Clazz.NORMAL_DISTRIBUTION_EXPRESSION, "NormalVariate", 2),
+		UNIFORM(Clazz.UNIFORM_DISTRIBUTION_EXPRESSION, "UniformVariate", 2) {
+			public String[] getParameters(String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_LOWER_LIMIT_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_UPPER_LIMIT_PARAMETER.getValue(instanceId, "0")};				
+			}
+		},
+		BETA(Clazz.BETA_DISTRIBUTION_EXPRESSION, "BetaVariate", 2) {
+			public String[] getParameters(String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_BETA_PARAMETER.getValue(instanceId, "0")};				
+			}
+		},
+		GAMMA(Clazz.GAMMA_DISTRIBUTION_EXPRESSION, "GammaVariate", 2) {
+			public String[] getParameters(String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
+			}
+		},
+		EXPONENTIAL(Clazz.EXPONENTIAL_DISTRIBUTION_EXPRESSION, "ExponentialVariate", 1) {
+			public String[] getParameters(String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
+			}
+		},
+		POISSON(Clazz.POISSON_DISTRIBUTION_EXPRESSION, "PoissonVariate", 1) {
+			public String[] getParameters(String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
+			}
+		},
+		BERNOULLI(Clazz.BERNOULLI_DISTRIBUTION_EXPRESSION, "BernoulliVariate", 1) {
+			public String[] getParameters(String instanceId) {
+				return new String[] {OSDiWrapper.DataProperty.HAS_PROBABILITY_PARAMETER.getValue(instanceId, "0")};				
+			}			
+		};
+		private final Clazz clazz;
+		private final String variateName;
+		private final int nParameters;
+		
+		private ProbabilityDistributionExpression(Clazz clazz, String variateName, int nParameters) {
+			this.clazz = clazz;
+			this.variateName = variateName;
+			this.nParameters = nParameters;
+		}
+		
+		public String[] getParameters(String instanceId) {
+			return new String[] {OSDiWrapper.DataProperty.HAS_AVERAGE_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_STANDARD_DEVIATION_PARAMETER.getValue(instanceId, "0")};
+		}
+		
+		
+		/**
+		 * @return the variateName
+		 */
+		public String getVariateName() {
+			return variateName;
+		}
+
+		/**
+		 * @return the clazz
+		 */
+		public Clazz getClazz() {
+			return clazz;
+		}
+
+		/**
+		 * @return the nParameters
+		 */
+		public int getnParameters() {
+			return nParameters;
+		}
+		
+
+	}
+	
 	public enum Clazz {
 		ACUTE_MANIFESTATION("AcuteManifestation"),
 		AD_HOC_EXPRESSION("AdHocExpression"),
 		AGENT_BASED_MODEL("AgentBasedModel"),
 		ATTRIBUTE("Attribute"),
 		ATTRIBUTE_VALUE("AttributeValue"),
+		BERNOULLI_DISTRIBUTION_EXPRESSION("BernoulliDistributionExpression"),
 		BETA_DISTRIBUTION_EXPRESSION("BetaDistributionExpression"),
 		BIRTH_PREVALENCE("BirthPrevalence"),
 		CHRONIC_MANIFESTATION("ChronicManifestation"),
@@ -279,10 +358,10 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_BETA_PARAMETER("hasBetaParameter"),
 		HAS_CALCULATION_METHOD("hasCalculationMethod"),
 		HAS_CONDITION("hasCondition"),
-		HAS_CONSTANT_VALUE("hasConstantValue"),
 		HAS_DESCRIPTION("hasDescription"),
 		HAS_DISUTILITY_COMBINATION_METHOD("hasDisutilityCombinationMethod"),
 		HAS_DOSE("hasDose"),
+		HAS_EXPECTED_VALUE("hasExpectedValue"),
 		HAS_EXPRESSION_VALUE("hasExpressionValue"),
 		HAS_FREQUENCY("hasFrequency"),
 		HAS_GEOGRAPHICAL_CONTEXT("hasGeographicalContext"),
@@ -294,6 +373,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_NAME("hasName"),
 		HAS_OFFSET_PARAMETER("hasOffsetParameter"),
 		HAS_PROBABILITY_DISTRIBUTION_PARAMETER("hasProbabilityDistributionParameter"),
+		HAS_PROBABILITY_PARAMETER("hasProbabilityParameter"),
 		HAS_RANGE("hasRange"),
 		HAS_REF_TO("hasRefTo"),
 		HAS_REF_TO_DO("hasRefToDO"),
@@ -669,7 +749,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		clazz.add(instanceName);
 		ObjectProperty.HAS_DATA_ITEM_TYPE.add(instanceName, dataType.getInstanceName());
 		DataProperty.HAS_SOURCE.add(instanceName, source);
-		DataProperty.HAS_CONSTANT_VALUE.add(instanceName, Double.toString(value));
+		DataProperty.HAS_EXPECTED_VALUE.add(instanceName, Double.toString(value));
 		// TODO: create HAS_EXPRESSION and EXPRESSION
 		includeInModel(instanceName);
 	}
@@ -703,28 +783,44 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		createParameter(instanceName, Clazz.COST, description, source, year, value, currency);
 		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 	}
-	
-	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, String uncertainty, DataItemType currency) {
-		createCost(instanceName, description, source, tmpBehavior, year, value, currency);
-		if (uncertainty != null && !("".equals(uncertainty))) {
-			createParameter(instanceName + STR_PARAM_UNCERTAINTY_SUFFIX, Clazz.COST, description, source, year, uncertainty, currency);
-			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
-		}
-	}
 
 	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, UtilityType utilityType) {
 		createParameter(instanceName, Clazz.UTILITY, description, source, year, value, utilityType.getType());
 		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 	}
-	
-	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, String uncertainty, UtilityType utilityType) {
-		createUtility(instanceName, description, source, tmpBehavior, year, value, utilityType);
-		if (uncertainty != null && !("".equals(uncertainty))) {
-			createParameter(instanceName + STR_PARAM_UNCERTAINTY_SUFFIX, Clazz.UTILITY, description, source, year, uncertainty, utilityType.getType());
-			DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
+
+	public void createProbabilityDistributionExpression(String instanceName, ProbabilityDistributionExpression type, double[] parameters) {
+		if (parameters.length != type.getnParameters())
+			throw new IllegalArgumentException("Creating a " + type.name() + " probability distribution requires " + type.getnParameters() + " parameters. Passed " + parameters.length);
+		type.getClazz().add(instanceName);
+		switch(type) {
+		case BERNOULLI:
+			OSDiWrapper.DataProperty.HAS_PROBABILITY_PARAMETER.add(instanceName, "" + parameters[0]);		
+			break;			
+		case BETA:
+			OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.add(instanceName, "" + parameters[0]);
+			OSDiWrapper.DataProperty.HAS_BETA_PARAMETER.add(instanceName, "" + parameters[1]);		
+			break;
+		case POISSON:
+		case EXPONENTIAL:
+			OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.add(instanceName, "" + parameters[0]);		
+			break;
+		case GAMMA:
+			OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.add(instanceName, "" + parameters[0]);
+			OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.add(instanceName, "" + parameters[1]);		
+			break;
+		case UNIFORM:
+			OSDiWrapper.DataProperty.HAS_LOWER_LIMIT_PARAMETER.add(instanceName, "" + parameters[0]);
+			OSDiWrapper.DataProperty.HAS_UPPER_LIMIT_PARAMETER.add(instanceName, "" + parameters[1]);		
+			break;
+		case NORMAL:
+		default:
+			OSDiWrapper.DataProperty.HAS_AVERAGE_PARAMETER.add(instanceName, "" + parameters[0]);
+			OSDiWrapper.DataProperty.HAS_STANDARD_DEVIATION_PARAMETER.add(instanceName, "" + parameters[1]);		
+			break;		
 		}
 	}
-	
+
 	/**
 	 * Creates a model by using the working model instance specified 
 	 * @param modelName

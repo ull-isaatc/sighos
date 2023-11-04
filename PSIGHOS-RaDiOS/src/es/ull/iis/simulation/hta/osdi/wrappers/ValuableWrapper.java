@@ -34,13 +34,13 @@ public class ValuableWrapper {
 		this.paramId = paramId;
 		source = parseHasSourceProperty(paramId);
 		
-		final String detValue = OSDiWrapper.DataProperty.HAS_CONSTANT_VALUE.getValue(paramId);
+		final String detValue = OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE.getValue(paramId);
 		final String strExpression = OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getValue(paramId, true);
 		
 		if (detValue == null && strExpression == null)
-			throw new MalformedOSDiModelException("Neither a " + OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getShortName() + " or a " + OSDiWrapper.DataProperty.HAS_CONSTANT_VALUE.getShortName() + " properties were defined for valueable " + paramId);
+			throw new MalformedOSDiModelException("Neither a " + OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getShortName() + " or a " + OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE.getShortName() + " properties were defined for valueable " + paramId);
 		if (detValue != null && strExpression != null)
-			throw new MalformedOSDiModelException("The Valuable " + paramId + " defines a " + OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getShortName() + " and a " + OSDiWrapper.DataProperty.HAS_CONSTANT_VALUE.getShortName() + " properties at the same time");
+			throw new MalformedOSDiModelException("The Valuable " + paramId + " defines a " + OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getShortName() + " and a " + OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE.getShortName() + " properties at the same time");
 		if (detValue != null) {
 			deterministicValue = Double.parseDouble(detValue);
 			expression = null; 
@@ -138,13 +138,14 @@ public class ValuableWrapper {
 
 	}
 	
+	// FIXME: Currently this is inconsistent. Change hierarchy in ontology or check here whether uncertainty individuals are valuable or expressions.
 	protected RandomVariate initProbabilisticValue(OSDiWrapper.ObjectProperty uncertaintyProperty) throws MalformedOSDiModelException {
 		// Takes the uncertainty that characterizes this parameter, but only if it's included in the working model 
 		final Set<String> uncertaintyParams = uncertaintyProperty.getValues(paramId, true);
 		if (uncertaintyParams.size() == 1) {
 			// Currently only probabilities allowed
-			final ValuableWrapper paramWrap = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[0]);
-			return paramWrap.getExpression().getRnd();
+			final ExpressionWrapper expWrap = new ExpressionWrapper(wrap, (String)uncertaintyParams.toArray()[0]);
+			return expWrap.getRnd();
 		}
 		if (uncertaintyParams.size() == 2) {
 			final ValuableWrapper paramWrap1 = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[0]); 
