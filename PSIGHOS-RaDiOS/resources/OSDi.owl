@@ -677,7 +677,9 @@
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasAuthor
-:hasAuthor rdf:type owl:DatatypeProperty .
+:hasAuthor rdf:type owl:DatatypeProperty ;
+           rdfs:domain :Model ;
+           rdfs:range xsd:string .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasAverageParameter
@@ -693,7 +695,9 @@
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasCalculationMethod
-:hasCalculationMethod rdf:type owl:DatatypeProperty .
+:hasCalculationMethod rdf:type owl:DatatypeProperty ;
+                      rdfs:domain :Utility ;
+                      rdfs:range xsd:string .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasCondition
@@ -744,7 +748,14 @@ By default = 1, for the Manifestations.""" .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasGeographicalContext
-:hasGeographicalContext rdf:type owl:DatatypeProperty .
+:hasGeographicalContext rdf:type owl:DatatypeProperty ;
+                        rdfs:domain [ rdf:type owl:Class ;
+                                      owl:unionOf ( :Model
+                                                    :Population
+                                                    :Valuable
+                                                  )
+                                    ] ;
+                        rdfs:range xsd:string .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasHoursInterval
@@ -779,7 +790,13 @@ By default = 1, for the Manifestations.""" .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasName
-:hasName rdf:type owl:DatatypeProperty .
+:hasName rdf:type owl:DatatypeProperty ;
+         rdfs:domain [ rdf:type owl:Class ;
+                       owl:unionOf ( :Attribute
+                                     :DataItemType
+                                   )
+                     ] ;
+         rdfs:range xsd:string .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasOffsetParameter
@@ -853,10 +870,6 @@ Examples:
                   rdfs:subPropertyOf :hasRefTo .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasReftoWikidata
-:hasReftoWikidata rdf:type owl:DatatypeProperty .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasScaleParameter
 :hasScaleParameter rdf:type owl:DatatypeProperty ;
                    rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
@@ -865,11 +878,15 @@ Examples:
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasSize
-:hasSize rdf:type owl:DatatypeProperty .
+:hasSize rdf:type owl:DatatypeProperty ;
+         rdfs:domain :Population ;
+         rdfs:range xsd:string .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasSource
-:hasSource rdf:type owl:DatatypeProperty .
+:hasSource rdf:type owl:DatatypeProperty ;
+           rdfs:domain :Valuable ;
+           rdfs:range xsd:string .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasStandardDeviationParameter
@@ -894,7 +911,9 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUnit
-:hasUnit rdf:type owl:DatatypeProperty .
+:hasUnit rdf:type owl:DatatypeProperty ;
+         rdfs:domain :MeasuredDataItemType ;
+         rdfs:range xsd:string .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUpperLimitParameter
@@ -1721,13 +1740,13 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Parameter
 :Parameter rdf:type owl:Class ;
            rdfs:subClassOf :Valuable ,
-                           [ rdf:type owl:Class ;
-                             owl:unionOf ( :Parameter
-                                           [ rdf:type owl:Restriction ;
-                                             owl:onProperty :hasParameterUncertainty ;
-                                             owl:someValuesFrom :Expression
-                                           ]
-                                         )
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :hasParameterUncertainty ;
+                             owl:someValuesFrom [ rdf:type owl:Class ;
+                                                  owl:unionOf ( :Expression
+                                                                :Parameter
+                                                              )
+                                                ]
                            ] ,
                            [ rdf:type owl:Restriction ;
                              owl:onProperty :isParameterOfDisease ;
@@ -2131,21 +2150,21 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Valuable
 :Valuable rdf:type owl:Class ;
           rdfs:subClassOf :ModelItem ,
-                          [ rdf:type owl:Class ;
-                            owl:unionOf ( :Valuable
-                                          [ rdf:type owl:Restriction ;
-                                            owl:onProperty :hasHeterogeneity ;
-                                            owl:someValuesFrom :Expression
-                                          ]
-                                        )
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :hasHeterogeneity ;
+                            owl:someValuesFrom [ rdf:type owl:Class ;
+                                                 owl:unionOf ( :Expression
+                                                               :Valuable
+                                                             )
+                                               ]
                           ] ,
-                          [ rdf:type owl:Class ;
-                            owl:unionOf ( :Valuable
-                                          [ rdf:type owl:Restriction ;
-                                            owl:onProperty :hasStochasticUncertainty ;
-                                            owl:someValuesFrom :Expression
-                                          ]
-                                        )
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :hasStochasticUncertainty ;
+                            owl:someValuesFrom [ rdf:type owl:Class ;
+                                                 owl:unionOf ( :Expression
+                                                               :Valuable
+                                                             )
+                                               ]
                           ] ,
                           [ rdf:type owl:Restriction ;
                             owl:onProperty :isModifiedBy ;
@@ -2273,7 +2292,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                           :Currency ;
                  :hasDescription "Official currency of the USA" ;
                  :hasName "Dollar" ;
-                 :hasReftoWikidata "wiki:Q14083" ;
+                 :hasRefToWikidata "wiki:Q14083" ;
                  :hasUnit "$" .
 
 
@@ -2282,7 +2301,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                         :Currency ;
                :hasDescription "Official currency of the E. U." ;
                :hasName "Euro" ;
-               :hasReftoWikidata "wiki:Q4916" ;
+               :hasRefToWikidata "wiki:Q4916" ;
                :hasUnit "\\u20ac" .
 
 
@@ -2291,7 +2310,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                          :Currency ;
                 :hasDescription "Official currency of the United Kingdom" ;
                 :hasName "Pound sterling" ;
-                :hasReftoWikidata "wiki:Q25224" ;
+                :hasRefToWikidata "wiki:Q25224" ;
                 :hasUnit "\\u00a3" .
 
 

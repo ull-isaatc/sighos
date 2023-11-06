@@ -48,6 +48,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public final static String STR_ANNUAL_COST_SUFFIX = STR_SEP + "AC";
 	public final static String STR_ONETIME_COST_SUFFIX = STR_SEP + "TC";
 	public final static String STR_UTILITY_SUFFIX = STR_SEP + "U";
+	public final static String STR_EXPRESSION_SUFFIX = STR_SEP + "EXPR";
 	private final static TreeMap<Clazz, ModelType> reverseModelType = new TreeMap<>(); 
 	private final static TreeMap<Clazz, InterventionType> reverseInterventionType = new TreeMap<>(); 
 	private static OSDiWrapper currentWrapper = null;
@@ -384,7 +385,6 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_REF_TO_SNOMED("hasRefToSNOMED"),
 		HAS_REF_TO_STATO("hasRefToSTATO"),
 		HAS_REF_TO_WIKIDATA("hasRefToWikidata"),
-		HAS_REFTO_WIKIDATA("hasReftoWikidata"),
 		HAS_SCALE_PARAMETER("hasScaleParameter"),
 		HAS_SIZE("hasSize"),
 		HAS_SOURCE("hasSource"),
@@ -744,20 +744,60 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public String getParameterInstanceModificationName(String interventionName, String paramName) {
 		return getInterventionInstanceName(interventionName) + STR_SEP + paramName + STR_MODIFICATION_SUFFIX;
 	}
-	
-	public void createValuable(String instanceName, Clazz clazz, String source, double value, DataItemType dataType) {
+
+	/**
+	 * Common part of creating a valuable, independently of whether it is created by defining an expected value or an expression
+	 * @param instanceName Name of the valuable in the ontology
+	 * @param clazz Specific class of the valuable in the ontology: Parameter, AttributeValue...
+	 * @param source Source of the value or expression
+	 * @param dataType Data type of the valuable
+	 */
+	private void createCommonPartOfValuable(String instanceName, Clazz clazz, String source, DataItemType dataType) {
 		clazz.add(instanceName);
 		ObjectProperty.HAS_DATA_ITEM_TYPE.add(instanceName, dataType.getInstanceName());
 		DataProperty.HAS_SOURCE.add(instanceName, source);
-		DataProperty.HAS_EXPECTED_VALUE.add(instanceName, Double.toString(value));
-		// TODO: create HAS_EXPRESSION and EXPRESSION
 		includeInModel(instanceName);
+	}
+	
+	public void createValuable(String instanceName, Clazz clazz, String source, double value, DataItemType dataType) {
+		createCommonPartOfValuable(instanceName, clazz, source, dataType);
+		DataProperty.HAS_EXPECTED_VALUE.add(instanceName, Double.toString(value));
+	}
+	
+	public void createValuable(String instanceName, Clazz clazz, String source, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		createCommonPartOfValuable(instanceName, clazz, source, dataType);
+		final String expInstanceName = instanceName + STR_EXPRESSION_SUFFIX; 
+		Clazz.AD_HOC_EXPRESSION.add(expInstanceName);
+		DataProperty.HAS_EXPRESSION_VALUE.add(expInstanceName, expression);
+		for (String attributeName : dependentAttributes) {
+			ObjectProperty.DEPENDS_ON_ATTRIBUTE.add(expInstanceName, getAttributeInstanceName(attributeName));
+		}
+		for (String parameterName : dependentParameters) {
+			ObjectProperty.DEPENDS_ON_PARAMETER.add(expInstanceName, getParameterInstanceName(parameterName));
+		}
+		ObjectProperty.HAS_EXPRESSION.add(instanceName, expInstanceName);
+		includeInModel(expInstanceName);			
+	}
+
+	/**
+	 * Common part of creating a parameter, independently of whether it is created by defining an expected value or an expression
+	 * @param instanceName Name of the parameter in the ontology
+	 * @param description Description of the parameter
+	 * @param year Year of the parameter
+	 */
+	private void createCommonPartOfParameter(String instanceName, String description, int year) {
+		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
+		DataProperty.HAS_YEAR.add(instanceName, "" + year);
 	}
 	
 	public void createParameter(String instanceName, Clazz clazz, String description, String source, int year, double value, DataItemType dataType) {
 		createValuable(instanceName, clazz, source, value, dataType);
-		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
-		DataProperty.HAS_YEAR.add(instanceName, "" + year);
+		createCommonPartOfParameter(instanceName, description, year);
+	}
+	
+	public void createParameter(String instanceName, Clazz clazz, String description, String source, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		createValuable(instanceName, clazz, source, expression, dependentAttributes, dependentParameters, dataType);
+		createCommonPartOfParameter(instanceName, description, year);
 	}
 
 	public void createAttributeValue(String instanceName, String attributeInstanceName, String source, double value, DataItemType dataType) {
@@ -765,27 +805,55 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(instanceName, attributeInstanceName);
 	}
 	
-	public void createAttributeValueModification(String instanceName, String interventionInstanceName, String originalAttributeValueInstanceName, String attributeInstanceName, String source, double value, DataItemType dataType) {
-		createAttributeValue(instanceName, attributeInstanceName, source, value, dataType);		
-		ObjectProperty.MODIFIES.add(instanceName, originalAttributeValueInstanceName);
-		ObjectProperty.IS_MODIFIED_BY.add(originalAttributeValueInstanceName, instanceName);
-		OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.add(interventionInstanceName, instanceName);
+	public void createAttributeValue(String instanceName, String attributeInstanceName, String source, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		createValuable(instanceName, Clazz.ATTRIBUTE_VALUE, source, expression, dependentAttributes, dependentParameters, dataType);
+		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(instanceName, attributeInstanceName);
 	}
 	
-	public void createParameterModification(String instanceName, String interventionInstanceName, String originalParameterInstanceName, Clazz clazz, String description, String source, int year, double value, DataItemType dataType) {
+	private void createCommonPartOfModification(String modificationInstanceName, String interventionInstanceName, String modifiedInstanceName) {
+		ObjectProperty.MODIFIES.add(modificationInstanceName, modifiedInstanceName);
+		ObjectProperty.IS_MODIFIED_BY.add(modifiedInstanceName, modificationInstanceName);
+		OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.add(interventionInstanceName, modificationInstanceName);
+	}
+	
+
+	public void createAttributeValueModification(String instanceName, String interventionInstanceName, String modifiedAttributeValueInstanceName, String attributeInstanceName, String source, double value, DataItemType dataType) {
+		createAttributeValue(instanceName, attributeInstanceName, source, value, dataType);
+		createCommonPartOfModification(instanceName, interventionInstanceName, modifiedAttributeValueInstanceName);
+	}
+	
+	public void createAttributeValueModification(String instanceName, String interventionInstanceName, String modifiedAttributeValueInstanceName, String attributeInstanceName, String source, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		createAttributeValue(instanceName, attributeInstanceName, source, expression, dependentAttributes, dependentParameters, dataType);		
+		createCommonPartOfModification(instanceName, interventionInstanceName, modifiedAttributeValueInstanceName);
+	}
+	
+	public void createParameterModification(String instanceName, String interventionInstanceName, String modifiedParameterInstanceName, Clazz clazz, String description, String source, int year, double value, DataItemType dataType) {
 		createParameter(instanceName, clazz, description, source, year, value, dataType);
-		ObjectProperty.MODIFIES.add(instanceName, originalParameterInstanceName);
-		ObjectProperty.IS_MODIFIED_BY.add(originalParameterInstanceName, instanceName);
-		OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.add(interventionInstanceName, instanceName);
+		createCommonPartOfModification(instanceName, interventionInstanceName, modifiedParameterInstanceName);
+	}
+	
+	public void createParameterModification(String instanceName, String interventionInstanceName, String modifiedParameterInstanceName, Clazz clazz, String description, String source, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		createParameter(instanceName, clazz, description, source, year, expression, dependentAttributes, dependentParameters, dataType);
+		createCommonPartOfModification(instanceName, interventionInstanceName, modifiedParameterInstanceName);
 	}
 	
 	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, DataItemType currency) {
 		createParameter(instanceName, Clazz.COST, description, source, year, value, currency);
 		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 	}
+	
+	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType currency) {
+		createParameter(instanceName, Clazz.COST, description, source, year, expression, dependentAttributes, dependentParameters, currency);
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
+	}
 
 	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, UtilityType utilityType) {
 		createParameter(instanceName, Clazz.UTILITY, description, source, year, value, utilityType.getType());
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
+	}
+
+	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, UtilityType utilityType) {
+		createParameter(instanceName, Clazz.UTILITY, description, source, year, expression, dependentAttributes, dependentParameters, utilityType.getType());
 		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
 	}
 
