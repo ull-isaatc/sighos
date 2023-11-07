@@ -70,7 +70,7 @@ public class T1DMInstancesGenerator {
 		final String attributeIRI = wrap.getAttributeInstanceName("HbA1c");
 		final String attributeValueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "HbA1c");
 		final String modificationIRI = wrap.getAttributeValueInstanceModificationName(STR_INTERVENTION_NAME, "HbA1c"); 
-		wrap.createAttributeValueModification(modificationIRI, interventionIRI, attributeValueIRI, attributeIRI, "DCCT", 1.5, DataItemType.DI_MEANDIFFERENCE);
+		wrap.createAttributeValueModification(modificationIRI, interventionIRI, attributeValueIRI, attributeIRI, "DCCT", 1.5, DataItemType.DI_MEAN_DIFFERENCE);
 		// Create uncertainty for the modification
 		wrap.createProbabilityDistributionExpression(modificationIRI + OSDiWrapper.STR_STOCHASTIC_UNCERTAINTY_SUFFIX, ProbabilityDistributionExpression.NORMAL, new double[] {1.5, 1.1});
 		OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY.add(modificationIRI, modificationIRI + OSDiWrapper.STR_STOCHASTIC_UNCERTAINTY_SUFFIX);
@@ -85,7 +85,7 @@ public class T1DMInstancesGenerator {
 		OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION.add(STR_CONST_PREV_1, populationIRI);
 
 		final String diseaseUtilityIRI = wrap.getParameterInstanceName(STR_POPULATION_NAME + "_ComplicationsFree" + OSDiWrapper.STR_UTILITY_SUFFIX);
-		generateUtilityFromAvgCI(wrap, diseaseUtilityIRI, "Utility of DM1 without complications",	"TODO: Buscar", 
+		generateUtilityFromAvgCI(wrap, diseaseUtilityIRI, "Utility of DM1 without complications", "TODO: Buscar", 
 				new double[] {0.785, 0.889, 0.681}, TemporalBehavior.ANNUAL, 2015, OSDiWrapper.UtilityType.UTILITY);
 		OSDiWrapper.ObjectProperty.HAS_UTILITY.add(populationIRI, diseaseUtilityIRI);		
 		
@@ -105,7 +105,7 @@ public class T1DMInstancesGenerator {
 		
 		// Define duration of diabetes for the population
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "DurationOfDiabetes");
-		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("DurationOfDiabetes"), "DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", 2.6, DataItemType.DI_TIMETOEVENT);
+		wrap.createAttributeValue(valueIRI, wrap.getAttributeInstanceName("DurationOfDiabetes"), "DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", 2.6, DataItemType.DI_TIME_TO_EVENT);
 		ObjectProperty.HAS_ATTRIBUTE_VALUE.add(populationIRI, valueIRI);
 		// Define stochastic uncertainty for Duration of diabetes
 		ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY.add(valueIRI, valueIRI + OSDiWrapper.STR_STOCHASTIC_UNCERTAINTY_SUFFIX);
@@ -121,14 +121,24 @@ public class T1DMInstancesGenerator {
 	
 	public static void generateUtilityFromAvgCI(OSDiWrapper wrap, String utilityIRI, String description, String source, double[] values, TemporalBehavior tmpBehavior, int year, OSDiWrapper.UtilityType utilityType) {
 		wrap.createUtility(utilityIRI, description, source, tmpBehavior, year, values[0], utilityType);
-		String utilityUncertaintyIRI = utilityIRI + OSDiWrapper.STR_L95CI_SUFFIX;
-		wrap.createParameter(utilityUncertaintyIRI, Clazz.UTILITY, "Lower 95% confidence interval for " + description, 
-				source, year, values[1], OSDiWrapper.DataItemType.DI_LOWER95CONFIDENCELIMIT);
-		OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(utilityIRI, utilityUncertaintyIRI);
-		utilityUncertaintyIRI = utilityIRI + OSDiWrapper.STR_U95CI_SUFFIX;
-		wrap.createParameter(utilityUncertaintyIRI, Clazz.UTILITY, "Upper 95% confidence interval for " + description, 
-				source, year, values[2], OSDiWrapper.DataItemType.DI_UPPER95CONFIDENCELIMIT);
-		OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(utilityIRI, utilityUncertaintyIRI);		
+		final String[] params = generateCIParameters(wrap, utilityIRI, Clazz.UTILITY, description, source, new double[] {values[1], values[2]}, year);
+		OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.add(params[0], tmpBehavior.getShortName());
+		OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.add(params[1], tmpBehavior.getShortName());
+	}
+	
+	public static String[] generateCIParameters(OSDiWrapper wrap, String mainParamIRI, Clazz clazz, String description, String source, double[] values, int year) {
+		String []params = new String[2];
+		String paramUncertaintyIRI = mainParamIRI + OSDiWrapper.STR_L95CI_SUFFIX;
+		wrap.createParameter(paramUncertaintyIRI, clazz, "Lower 95% confidence interval for " + description, 
+				source, year, values[0], OSDiWrapper.DataItemType.DI_LOWER_95_CONFIDENCE_LIMIT);
+		OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(mainParamIRI, paramUncertaintyIRI);
+		params[0] = paramUncertaintyIRI;
+		paramUncertaintyIRI = mainParamIRI + OSDiWrapper.STR_U95CI_SUFFIX;
+		wrap.createParameter(paramUncertaintyIRI, clazz, "Upper 95% confidence interval for " + description, 
+				source, year, values[1], OSDiWrapper.DataItemType.DI_UPPER_95_CONFIDENCE_LIMIT);
+		OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(mainParamIRI, paramUncertaintyIRI);		
+		params[1] = paramUncertaintyIRI;
+		return params;
 	}
 	
 	/**

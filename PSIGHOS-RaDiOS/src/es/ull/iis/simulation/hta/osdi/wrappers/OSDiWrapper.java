@@ -49,6 +49,8 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public final static String STR_ONETIME_COST_SUFFIX = STR_SEP + "TC";
 	public final static String STR_UTILITY_SUFFIX = STR_SEP + "U";
 	public final static String STR_EXPRESSION_SUFFIX = STR_SEP + "EXPR";
+	public final static String STR_INCREASED_MORTALITY_RATE_SUFFIX = STR_SEP + "IMR";
+	public final static String STR_DEATH_PROBABILITY_SUFFIX = STR_SEP + "P_DEATH";
 	private final static TreeMap<Clazz, ModelType> reverseModelType = new TreeMap<>(); 
 	private final static TreeMap<Clazz, InterventionType> reverseInterventionType = new TreeMap<>(); 
 	private static OSDiWrapper currentWrapper = null;
@@ -572,17 +574,18 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		DI_COUNT("DI_Count", 0.0),
 		DI_DISUTILITY("DI_Disutility", 0.0),
 		DI_FACTOR("DI_Factor", 1.0),
-		DI_LOWER95CONFIDENCELIMIT("DI_Lower95ConfidenceLimit", 0.0),
-		DI_MEANDIFFERENCE("DI_MeanDifference", 0.0),
+		DI_LOWER_95_CONFIDENCE_LIMIT("DI_Lower95ConfidenceLimit", 0.0),
+		DI_MEAN_DIFFERENCE("DI_MeanDifference", 0.0),
 		DI_OTHER("DI_Other", 0.0),
 		DI_PROBABILITY("DI_Probability", 0.0),
 		DI_PROPORTION("DI_Proportion", 0.0),
 		DI_RATIO("DI_Ratio", 1.0),
-		DI_RELATIVERISK("DI_RelativeRisk", 1.0),
+		DI_RELATIVE_RISK("DI_RelativeRisk", 1.0),
 		DI_SENSITIVITY("DI_Sensitivity", 1.0),
 		DI_SPECIFICITY("DI_Specificity", 1.0),
-		DI_TIMETOEVENT("DI_TimeToEvent", 0.0),
-		DI_UPPER95CONFIDENCELIMIT("DI_Upper95ConfidenceLimit", 0.0),
+		DI_STANDARD_DEVIATION("DI_StandardDeviation", 0.0),
+		DI_TIME_TO_EVENT("DI_TimeToEvent", 0.0),
+		DI_UPPER_95_CONFIDENCE_LIMIT("DI_Upper95ConfidenceLimit", 0.0),
 		DI_UTILITY("DI_Utility", 1.0),
 		DI_UNDEFINED("Undefined", Double.NaN);
 

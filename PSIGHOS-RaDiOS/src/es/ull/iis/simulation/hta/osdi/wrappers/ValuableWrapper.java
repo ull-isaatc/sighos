@@ -138,32 +138,52 @@ public class ValuableWrapper {
 
 	}
 	
+	public ValuableWrapper getInstanceForUncertainty(String uncertainParamId) throws MalformedOSDiModelException {
+		return new ValuableWrapper(wrap, uncertainParamId);
+	}
+	
 	// FIXME: Currently this is inconsistent. Change hierarchy in ontology or check here whether uncertainty individuals are valuable or expressions.
 	protected RandomVariate initProbabilisticValue(OSDiWrapper.ObjectProperty uncertaintyProperty) throws MalformedOSDiModelException {
 		// Takes the uncertainty that characterizes this parameter, but only if it's included in the working model 
 		final Set<String> uncertaintyParams = uncertaintyProperty.getValues(paramId, true);
 		if (uncertaintyParams.size() == 1) {
-			// Currently only probabilities allowed
-			final ExpressionWrapper expWrap = new ExpressionWrapper(wrap, (String)uncertaintyParams.toArray()[0]);
-			return expWrap.getRnd();
+			final String uncertainParamId = (String)uncertaintyParams.toArray()[0];
+			final Set<String> clazzes = wrap.getClassesForIndividual(uncertainParamId);
+			if (clazzes.contains(OSDiWrapper.Clazz.VALUABLE.getShortName())) {
+				final ValuableWrapper paramWrap = getInstanceForUncertainty(uncertainParamId);
+				// If the uncertainty is characterized by a standard deviation, then we use a normal distribution
+				if (paramWrap.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_STANDARD_DEVIATION)) {
+					return RandomVariateFactory.getInstance("NormalVariate", getDeterministicValue(), paramWrap.getDeterministicValue());
+				}
+				else {
+					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, uncertainParamId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item type not supported for characterizing uncertainty.");
+				}
+			}
+			else if (clazzes.contains(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION.getShortName())) {
+				final ExpressionWrapper expWrap = new ExpressionWrapper(wrap, uncertainParamId);
+				return expWrap.getRnd();
+			}
+			else {
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, uncertaintyProperty, "Class for the uncertainty characterization of individual " + uncertainParamId + " not supported. Currently " + (OSDiWrapper.Clazz)clazzes.toArray()[0]);
+			}
 		}
 		if (uncertaintyParams.size() == 2) {
-			final ValuableWrapper paramWrap1 = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[0]); 
-			final ValuableWrapper paramWrap2 = new ValuableWrapper(wrap, (String)uncertaintyParams.toArray()[1]); 
-			if (paramWrap1.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_LOWER95CONFIDENCELIMIT)) {
-				if (paramWrap2.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_UPPER95CONFIDENCELIMIT)) {
+			final ValuableWrapper paramWrap1 = getInstanceForUncertainty((String)uncertaintyParams.toArray()[0]); 
+			final ValuableWrapper paramWrap2 = getInstanceForUncertainty((String)uncertaintyParams.toArray()[1]); 
+			if (paramWrap1.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_LOWER_95_CONFIDENCE_LIMIT)) {
+				if (paramWrap2.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_UPPER_95_CONFIDENCE_LIMIT)) {
 					return getRandomVariateFromAvgAndCIs(getDeterministicValue(), new double[] {paramWrap1.getDeterministicValue(), paramWrap2.getDeterministicValue()});
 				}
 				else {
-					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramWrap2.getParamId(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Upper and lower confidence intervals required to represent uncertainty. This parameter should include data item type " + OSDiWrapper.DataItemType.DI_UPPER95CONFIDENCELIMIT);
+					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramWrap2.getParamId(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Upper and lower confidence intervals required to represent uncertainty. This parameter should include data item type " + OSDiWrapper.DataItemType.DI_UPPER_95_CONFIDENCE_LIMIT);
 				}				
 			}
-			else if (paramWrap1.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_UPPER95CONFIDENCELIMIT)) {
-				if (paramWrap2.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_LOWER95CONFIDENCELIMIT)) {
+			else if (paramWrap1.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_UPPER_95_CONFIDENCE_LIMIT)) {
+				if (paramWrap2.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_LOWER_95_CONFIDENCE_LIMIT)) {
 					return getRandomVariateFromAvgAndCIs(getDeterministicValue(), new double[] {paramWrap2.getDeterministicValue(), paramWrap1.getDeterministicValue()});
 				}
 				else {
-					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramWrap2.getParamId(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Upper and lower confidence intervals required to represent uncertainty. This parameter should include data item type " + OSDiWrapper.DataItemType.DI_LOWER95CONFIDENCELIMIT);
+					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramWrap2.getParamId(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Upper and lower confidence intervals required to represent uncertainty. This parameter should include data item type " + OSDiWrapper.DataItemType.DI_LOWER_95_CONFIDENCE_LIMIT);
 				}				
 			}
 			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, uncertaintyProperty, "Unsupported combination of valuables (" + paramWrap1.getParamId() + ", " + paramWrap2.getParamId() + ") to define the uncertainty");

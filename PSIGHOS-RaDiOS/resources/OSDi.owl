@@ -2347,7 +2347,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                     :DataItemType ;
                            :hasDescription "Lower limit for a 95% Confidence interval" ;
                            :hasName "Lower 95% CI limit" ;
-                           :hasRefToSTATO "0000122" .
+                           :hasRefToSTATO "stato:0000315" .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_MeanDifference
@@ -2405,6 +2405,14 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                 :hasRefToSTATO "stato:0000134" .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_StandardDeviation
+:DI_StandardDeviation rdf:type owl:NamedIndividual ,
+                               :DataItemType ;
+                      :hasDescription "A measure of variation which correspond to the average distance from the mean of the data set to any given point of that dataset" ;
+                      :hasName "Standard deviation" ;
+                      :hasRefToSTATO "stato:0000237" .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_TimeToEvent
 :DI_TimeToEvent rdf:type owl:NamedIndividual ,
                          :MeasuredDataItemType ;
@@ -2418,7 +2426,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                     :DataItemType ;
                            :hasDescription "Upper limit for a 95% Confidence interval" ;
                            :hasName "Upper 95% CI limit" ;
-                           :hasRefToSTATO "0000125" .
+                           :hasRefToSTATO "stato:0000314" .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_Utility

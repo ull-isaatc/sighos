@@ -123,7 +123,7 @@ public interface ManifestationPathwayBuilder {
 		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
 			return new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROPORTION.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
 		}
-		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_TIMETOEVENT)) {
+		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_TIME_TO_EVENT)) {
 			// FIXME: Currently not using time to
 			// final String strTimeTo = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_TIME_TO.getDescription());
 			// FIXME: Still not processing data tables

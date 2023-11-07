@@ -23,6 +23,11 @@ public enum ManifestationTemplate {
 			T1DMInstancesGenerator.generateUtilityFromAvgCI(wrap, utilityIRI, "Annual disutility of Angina", "Bagust and Beale (10.1002/hec.910)", 
 					new double[] {0.09, 0.054, 0.126}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
 			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(getInstanceName(), utilityIRI);
+			
+			String imrIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_INCREASED_MORTALITY_RATE_SUFFIX);
+			wrap.createParameter(imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for Angina", "https://doi.org/10.2337/diacare.28.3.617", 2005, 1.96, DataItemType.DI_RELATIVE_RISK);
+			T1DMInstancesGenerator.generateCIParameters(wrap, imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for Angina", "https://doi.org/10.2337/diacare.28.3.617", new double[] {1.33, 2.89}, 2005);
+			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(getInstanceName(), imrIRI);
 		}
 	},
 	HF("Heart Failure", ManifestationType.CHRONIC) {
@@ -38,6 +43,11 @@ public enum ManifestationTemplate {
 			T1DMInstancesGenerator.generateUtilityFromAvgCI(wrap, utilityIRI, "Annual disutility of heart failure", "Bagust and Beale (10.1002/hec.910)", 
 					new double[] {0.108, 0.048, 0.169}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
 			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(getInstanceName(), utilityIRI);
+			
+			String imrIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_INCREASED_MORTALITY_RATE_SUFFIX);
+			wrap.createParameter(imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for heart failure", "https://doi.org/10.2337/diacare.28.3.617", 2005, 1.96, DataItemType.DI_RELATIVE_RISK);
+			T1DMInstancesGenerator.generateCIParameters(wrap, imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for heart failure", "https://doi.org/10.2337/diacare.28.3.617", new double[] {1.33, 2.89}, 2005);
+			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(getInstanceName(), imrIRI);
 		}
 	},
 	STROKE("Stroke", ManifestationType.CHRONIC) {
@@ -53,6 +63,16 @@ public enum ManifestationTemplate {
 			T1DMInstancesGenerator.generateUtilityFromAvgCI(wrap, utilityIRI, "Annual disutility of myocardial infarction", "Bagust and Beale (10.1002/hec.910)", 
 					new double[] {0.055, 0.042, 0.067}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
 			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(getInstanceName(), utilityIRI);
+			
+			String imrIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_INCREASED_MORTALITY_RATE_SUFFIX);
+			wrap.createParameter(imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for stroke", "https://doi.org/10.2337/diacare.28.3.617", 2005, 1.96, DataItemType.DI_RELATIVE_RISK);
+			T1DMInstancesGenerator.generateCIParameters(wrap, imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for stroke", "https://doi.org/10.2337/diacare.28.3.617", new double[] {1.33, 2.89}, 2005);
+			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(getInstanceName(), imrIRI);
+			
+			String pDeathIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_DEATH_PROBABILITY_SUFFIX);
+			// TODO: create an expression to use sex to distinguish death probability
+			wrap.createParameter(pDeathIRI, OSDiWrapper.Clazz.PARAMETER, "Probability of sudden death after Stroke (average men-women)", "As in CORE Model", 2005, 0.124, DataItemType.DI_PROBABILITY);
+			OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH.add(getInstanceName(), pDeathIRI);
 		}
 	},
 	MI("Myocardial Infarction", ManifestationType.CHRONIC) {
@@ -68,6 +88,16 @@ public enum ManifestationTemplate {
 			T1DMInstancesGenerator.generateUtilityFromAvgCI(wrap, utilityIRI, "Annual disutility of stroke", "Bagust and Beale (10.1002/hec.910)", 
 					new double[] {0.164, 0.105, 0.222}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
 			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(getInstanceName(), utilityIRI);
+			
+			String imrIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_INCREASED_MORTALITY_RATE_SUFFIX);
+			wrap.createParameter(imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for myocardial infarction", "https://doi.org/10.2337/diacare.28.3.617", 2005, 1.96, DataItemType.DI_RELATIVE_RISK);
+			T1DMInstancesGenerator.generateCIParameters(wrap, imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for myocardial infarction", "https://doi.org/10.2337/diacare.28.3.617", new double[] {1.33, 2.89}, 2005);
+			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(getInstanceName(), imrIRI);
+			
+			String pDeathIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_DEATH_PROBABILITY_SUFFIX);
+			// TODO: create an expression to use sex to distinguish death probability
+			wrap.createParameter(pDeathIRI, OSDiWrapper.Clazz.PARAMETER, "Probability of sudden death after MI (average men-women)", "As in CORE Model", 2005, 0.3785, DataItemType.DI_PROBABILITY);
+			OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH.add(getInstanceName(), pDeathIRI);
 		}
 	},
 	BGRET("Background Retinopathy", ManifestationType.CHRONIC),

@@ -186,9 +186,9 @@ public interface InterventionBuilder {
 			Modification.Type kind = null;
 			if (modification.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_CONTINUOUS_VARIABLE))
 				kind = Modification.Type.SET;
-			else if (modification.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_FACTOR) || modification.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_RELATIVERISK))
+			else if (modification.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_FACTOR) || modification.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_RELATIVE_RISK))
 				kind = Modification.Type.RR;
-			else if (modification.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_MEANDIFFERENCE))
+			else if (modification.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_MEAN_DIFFERENCE))
 				kind = Modification.Type.DIFF;
 			else {
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, modificationName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "None of the data item types defined for the modification are currently supported");
