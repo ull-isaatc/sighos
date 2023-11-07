@@ -6,6 +6,7 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.DataItemType;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ManifestationType;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.ProbabilityDistributionExpression;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.TemporalBehavior;
 
 public enum ManifestationTemplate {
@@ -13,91 +14,131 @@ public enum ManifestationTemplate {
 	ANGINA("Angina", ManifestationType.CHRONIC) {
 		@Override
 		protected void createParameters(OSDiWrapper wrap) {
+			final String instanceName = wrap.getManifestationInstanceName(name());
+
 			String costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 			wrap.createCost(costIRI, "Year 2+ of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, 532.01, DataItemType.CURRENCY_EURO);
-			OSDiWrapper.ObjectProperty.HAS_COST.add(getInstanceName(), costIRI);
+			OSDiWrapper.ObjectProperty.HAS_COST.add(instanceName, costIRI);
 			costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_ONETIME_COST_SUFFIX);
 			wrap.createCost(costIRI, "Episode of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ONETIME, 2016, 1985.96, DataItemType.CURRENCY_EURO);
-			OSDiWrapper.ObjectProperty.HAS_COST.add(getInstanceName(), costIRI);
+			OSDiWrapper.ObjectProperty.HAS_COST.add(instanceName, costIRI);
 			String utilityIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_UTILITY_SUFFIX);
 			T1DMInstancesGenerator.generateUtilityFromAvgCI(wrap, utilityIRI, "Annual disutility of Angina", "Bagust and Beale (10.1002/hec.910)", 
 					new double[] {0.09, 0.054, 0.126}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
-			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(getInstanceName(), utilityIRI);
+			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(instanceName, utilityIRI);
 			
 			String imrIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_INCREASED_MORTALITY_RATE_SUFFIX);
 			wrap.createParameter(imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for Angina", "https://doi.org/10.2337/diacare.28.3.617", 2005, 1.96, DataItemType.DI_RELATIVE_RISK);
 			T1DMInstancesGenerator.generateCIParameters(wrap, imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for Angina", "https://doi.org/10.2337/diacare.28.3.617", new double[] {1.33, 2.89}, 2005);
-			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(getInstanceName(), imrIRI);
+			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(instanceName, imrIRI);
+			
+			String propIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_PROPORTION_SUFFIX);
+			wrap.createParameter(propIRI, OSDiWrapper.Clazz.PROPORTION_WITHIN_GROUP, "Proportion of angina within CHD complications", "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
+					2005, 0.28, DataItemType.DI_PROPORTION);
+			OSDiWrapper.ObjectProperty.HAS_PROPORTION_WITHIN_GROUP.add(instanceName, propIRI);
+			OSDiWrapper.ObjectProperty.BELONGS_TO_GROUP.add(propIRI, wrap.getManifestationGroupInstanceName(GroupOfManifestationsTemplate.CHD.name()));
+			wrap.createProbabilityDistributionExpression(propIRI + OSDiWrapper.STR_PARAM_UNCERTAINTY_SUFFIX, ProbabilityDistributionExpression.GAMMA, new double[] {1.0, 0.28});
+			OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(propIRI, propIRI + OSDiWrapper.STR_PARAM_UNCERTAINTY_SUFFIX);
 		}
 	},
 	HF("Heart Failure", ManifestationType.CHRONIC) {
 		@Override
 		protected void createParameters(OSDiWrapper wrap) {
+			final String instanceName = wrap.getManifestationInstanceName(name());
+
 			String costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 			wrap.createCost(costIRI, "Year 2+ of heart failure", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, 1054.42, DataItemType.CURRENCY_EURO);
-			OSDiWrapper.ObjectProperty.HAS_COST.add(getInstanceName(), costIRI);
+			OSDiWrapper.ObjectProperty.HAS_COST.add(instanceName, costIRI);
 			costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_ONETIME_COST_SUFFIX); 
 			wrap.createCost(costIRI, "Episode of heart failure", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ONETIME, 2016, 4503.24, DataItemType.CURRENCY_EURO);
-			OSDiWrapper.ObjectProperty.HAS_COST.add(getInstanceName(), costIRI);
+			OSDiWrapper.ObjectProperty.HAS_COST.add(instanceName, costIRI);
 			String utilityIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_UTILITY_SUFFIX);
 			T1DMInstancesGenerator.generateUtilityFromAvgCI(wrap, utilityIRI, "Annual disutility of heart failure", "Bagust and Beale (10.1002/hec.910)", 
 					new double[] {0.108, 0.048, 0.169}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
-			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(getInstanceName(), utilityIRI);
+			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(instanceName, utilityIRI);
 			
 			String imrIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_INCREASED_MORTALITY_RATE_SUFFIX);
 			wrap.createParameter(imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for heart failure", "https://doi.org/10.2337/diacare.28.3.617", 2005, 1.96, DataItemType.DI_RELATIVE_RISK);
 			T1DMInstancesGenerator.generateCIParameters(wrap, imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for heart failure", "https://doi.org/10.2337/diacare.28.3.617", new double[] {1.33, 2.89}, 2005);
-			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(getInstanceName(), imrIRI);
+			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(instanceName, imrIRI);
+			
+			String propIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_PROPORTION_SUFFIX);
+			wrap.createParameter(propIRI, OSDiWrapper.Clazz.PROPORTION_WITHIN_GROUP, "Proportion of heart failure within CHD complications", "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
+					2005, 0.12, DataItemType.DI_PROPORTION);
+			OSDiWrapper.ObjectProperty.HAS_PROPORTION_WITHIN_GROUP.add(instanceName, propIRI);
+			OSDiWrapper.ObjectProperty.BELONGS_TO_GROUP.add(propIRI, wrap.getManifestationGroupInstanceName(GroupOfManifestationsTemplate.CHD.name()));
+			wrap.createProbabilityDistributionExpression(propIRI + OSDiWrapper.STR_PARAM_UNCERTAINTY_SUFFIX, ProbabilityDistributionExpression.GAMMA, new double[] {1.0, 0.12});
+			OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(propIRI, propIRI + OSDiWrapper.STR_PARAM_UNCERTAINTY_SUFFIX);
 		}
 	},
 	STROKE("Stroke", ManifestationType.CHRONIC) {
 		@Override
 		protected void createParameters(OSDiWrapper wrap) {
+			final String instanceName = wrap.getManifestationInstanceName(name());
+
 			String costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 			wrap.createCost(costIRI, "Year 2+ of stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, 2485.66, DataItemType.CURRENCY_EURO);
-			OSDiWrapper.ObjectProperty.HAS_COST.add(getInstanceName(), costIRI);
+			OSDiWrapper.ObjectProperty.HAS_COST.add(instanceName, costIRI);
 			costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_ONETIME_COST_SUFFIX);
 			wrap.createCost(costIRI, "Episode of stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ONETIME, 2016, 3634.66, DataItemType.CURRENCY_EURO);
-			OSDiWrapper.ObjectProperty.HAS_COST.add(getInstanceName(), costIRI);
+			OSDiWrapper.ObjectProperty.HAS_COST.add(instanceName, costIRI);
 			String utilityIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_UTILITY_SUFFIX);
 			T1DMInstancesGenerator.generateUtilityFromAvgCI(wrap, utilityIRI, "Annual disutility of myocardial infarction", "Bagust and Beale (10.1002/hec.910)", 
 					new double[] {0.055, 0.042, 0.067}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
-			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(getInstanceName(), utilityIRI);
+			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(instanceName, utilityIRI);
 			
 			String imrIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_INCREASED_MORTALITY_RATE_SUFFIX);
 			wrap.createParameter(imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for stroke", "https://doi.org/10.2337/diacare.28.3.617", 2005, 1.96, DataItemType.DI_RELATIVE_RISK);
 			T1DMInstancesGenerator.generateCIParameters(wrap, imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for stroke", "https://doi.org/10.2337/diacare.28.3.617", new double[] {1.33, 2.89}, 2005);
-			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(getInstanceName(), imrIRI);
+			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(instanceName, imrIRI);
 			
 			String pDeathIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_DEATH_PROBABILITY_SUFFIX);
 			// TODO: create an expression to use sex to distinguish death probability
 			wrap.createParameter(pDeathIRI, OSDiWrapper.Clazz.PARAMETER, "Probability of sudden death after Stroke (average men-women)", "As in CORE Model", 2005, 0.124, DataItemType.DI_PROBABILITY);
-			OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH.add(getInstanceName(), pDeathIRI);
+			OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH.add(instanceName, pDeathIRI);
+			
+			String propIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_PROPORTION_SUFFIX);
+			wrap.createParameter(propIRI, OSDiWrapper.Clazz.PROPORTION_WITHIN_GROUP, "Proportion of stroke within CHD complications", "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
+					2005, 0.07, DataItemType.DI_PROPORTION);
+			OSDiWrapper.ObjectProperty.HAS_PROPORTION_WITHIN_GROUP.add(instanceName, propIRI);
+			OSDiWrapper.ObjectProperty.BELONGS_TO_GROUP.add(propIRI, wrap.getManifestationGroupInstanceName(GroupOfManifestationsTemplate.CHD.name()));
+			wrap.createProbabilityDistributionExpression(propIRI + OSDiWrapper.STR_PARAM_UNCERTAINTY_SUFFIX, ProbabilityDistributionExpression.GAMMA, new double[] {1.0, 0.07});
+			OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(propIRI, propIRI + OSDiWrapper.STR_PARAM_UNCERTAINTY_SUFFIX);
 		}
 	},
 	MI("Myocardial Infarction", ManifestationType.CHRONIC) {
 		@Override
 		protected void createParameters(OSDiWrapper wrap) {
+			final String instanceName = wrap.getManifestationInstanceName(name());
+
 			String costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_ANNUAL_COST_SUFFIX);
 			wrap.createCost(costIRI, "Year 2+ of myocardial infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ANNUAL, 2016, 948, DataItemType.CURRENCY_EURO);
-			OSDiWrapper.ObjectProperty.HAS_COST.add(getInstanceName(), costIRI);
+			OSDiWrapper.ObjectProperty.HAS_COST.add(instanceName, costIRI);
 			costIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_ONETIME_COST_SUFFIX);
 			wrap.createCost(costIRI, "Episode of myocardial infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", TemporalBehavior.ONETIME, 2016, 22588, DataItemType.CURRENCY_EURO);
-			OSDiWrapper.ObjectProperty.HAS_COST.add(getInstanceName(), costIRI);
+			OSDiWrapper.ObjectProperty.HAS_COST.add(instanceName, costIRI);
 			String utilityIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_UTILITY_SUFFIX);
 			T1DMInstancesGenerator.generateUtilityFromAvgCI(wrap, utilityIRI, "Annual disutility of stroke", "Bagust and Beale (10.1002/hec.910)", 
 					new double[] {0.164, 0.105, 0.222}, TemporalBehavior.ANNUAL, 2005, OSDiWrapper.UtilityType.DISUTILITY);
-			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(getInstanceName(), utilityIRI);
+			OSDiWrapper.ObjectProperty.HAS_UTILITY.add(instanceName, utilityIRI);
 			
 			String imrIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_INCREASED_MORTALITY_RATE_SUFFIX);
 			wrap.createParameter(imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for myocardial infarction", "https://doi.org/10.2337/diacare.28.3.617", 2005, 1.96, DataItemType.DI_RELATIVE_RISK);
 			T1DMInstancesGenerator.generateCIParameters(wrap, imrIRI, OSDiWrapper.Clazz.PARAMETER, "Increased mortality rate for myocardial infarction", "https://doi.org/10.2337/diacare.28.3.617", new double[] {1.33, 2.89}, 2005);
-			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(getInstanceName(), imrIRI);
+			OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE.add(instanceName, imrIRI);
 			
 			String pDeathIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_DEATH_PROBABILITY_SUFFIX);
 			// TODO: create an expression to use sex to distinguish death probability
 			wrap.createParameter(pDeathIRI, OSDiWrapper.Clazz.PARAMETER, "Probability of sudden death after MI (average men-women)", "As in CORE Model", 2005, 0.3785, DataItemType.DI_PROBABILITY);
-			OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH.add(getInstanceName(), pDeathIRI);
+			OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH.add(instanceName, pDeathIRI);
+			
+			String propIRI = wrap.getParameterInstanceName(OSDiWrapper.STR_MANIF_PREFIX + this + OSDiWrapper.STR_PROPORTION_SUFFIX);
+			wrap.createParameter(propIRI, OSDiWrapper.Clazz.PROPORTION_WITHIN_GROUP, "Proportion of myocardial infarction within CHD complications", "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
+					2005, 0.53, DataItemType.DI_PROPORTION);
+			OSDiWrapper.ObjectProperty.HAS_PROPORTION_WITHIN_GROUP.add(instanceName, propIRI);
+			OSDiWrapper.ObjectProperty.BELONGS_TO_GROUP.add(propIRI, wrap.getManifestationGroupInstanceName(GroupOfManifestationsTemplate.CHD.name()));
+			wrap.createProbabilityDistributionExpression(propIRI + OSDiWrapper.STR_PARAM_UNCERTAINTY_SUFFIX, ProbabilityDistributionExpression.GAMMA, new double[] {1.0, 0.53});
+			OSDiWrapper.ObjectProperty.HAS_PARAMETER_UNCERTAINTY.add(propIRI, propIRI + OSDiWrapper.STR_PARAM_UNCERTAINTY_SUFFIX);
 		}
 	},
 	BGRET("Background Retinopathy", ManifestationType.CHRONIC),
@@ -126,7 +167,6 @@ public enum ManifestationTemplate {
 	private final String description;
 	private final OSDiWrapper.ManifestationType type;
 	private final Set<ManifestationTemplate> exclusions;
-	private String instanceName = null;
 	/**
 	 * @param description
 	 * @param type
@@ -164,15 +204,11 @@ public enum ManifestationTemplate {
 		final Set<String> strExclusions = new TreeSet<>();
 		for (ManifestationTemplate exclManif : exclusions)
 			strExclusions.add(exclManif.name());
-		instanceName = wrap.getManifestationInstanceName(name());
-		wrap.createManifestation(instanceName, type, description, strExclusions, wrap.getDiseaseInstanceName(T1DMInstancesGenerator.STR_DISEASE_NAME));
+		wrap.createManifestation(wrap.getManifestationInstanceName(name()), type, description, strExclusions, wrap.getDiseaseInstanceName(T1DMInstancesGenerator.STR_DISEASE_NAME));
 		createParameters(wrap);
 	}
 	
 	protected void createParameters(OSDiWrapper wrap) {		
 	}
 	
-	public String getInstanceName() {
-		return instanceName;
-	}
 }

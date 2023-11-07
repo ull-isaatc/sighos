@@ -2872,6 +2872,28 @@ _:genid379 a owl:Restriction;
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD
 # 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_BASE_RR
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_BASE_RR_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_BASE_RR_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_Base_RR
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_Base_RR_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_Base_RR_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_RR
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_RR_Expression
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_U95CI
+# 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_HYPO
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_NEU
@@ -2900,6 +2922,10 @@ _:genid379 a owl:Restriction;
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_IMR_U95CI
 # 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_Proportion
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_Proportion_ParamUncertainty
+# 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_TC
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_U
@@ -2924,6 +2950,10 @@ _:genid379 a owl:Restriction;
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_IMR_U95CI
 # 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_Proportion
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_Proportion_ParamUncertainty
+# 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_TC
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U
@@ -2946,7 +2976,11 @@ _:genid379 a owl:Restriction;
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_IMR_U95CI
 # 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_P_DEATH
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_ProbDeath
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_Proportion
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_Proportion_ParamUncertainty
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_TC
 # 
@@ -2972,7 +3006,11 @@ _:genid379 a owl:Restriction;
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_IMR_U95CI
 # 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_P_DEATH
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_ProbDeath
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_Proportion
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_Proportion_ParamUncertainty
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_TC
 # 
@@ -3055,7 +3093,98 @@ _:genid379 a owl:Restriction;
 
 :T1DM_Group_Manif_CHD a owl:NamedIndividual, :Group;
   :hasComponent :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
+  :hasRiskCharacterization :T1DM_Group_Manif_CHD_Incidence, :T1DM_Group_Manif_CHD_Incidence_RR;
   :includedByModel :T1DM_StdModelDES .
+
+:T1DM_Group_Manif_CHD_Incidence a owl:NamedIndividual, :Incidence;
+  :hasDataItemType :DI_Probability;
+  :hasParameterUncertainty :T1DM_Group_Manif_CHD_Incidence_L95CI, :T1DM_Group_Manif_CHD_Incidence_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Base incidence of any manifestation related to CHD when HbA1c is 9.1";
+  :hasExpectedValue "0.0045";
+  :hasSource "Hoerger 2004";
+  :hasYear "2004" .
+
+:T1DM_Group_Manif_CHD_Incidence_BASE_RR a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasParameterUncertainty :T1DM_Group_Manif_CHD_Incidence_BASE_RR_L95CI, :T1DM_Group_Manif_CHD_Incidence_BASE_RR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasExpectedValue "1.15";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Group_Manif_CHD_Incidence_BASE_RR_L95CI a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasExpectedValue "0.92";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Group_Manif_CHD_Incidence_BASE_RR_U95CI a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasExpectedValue "1.43";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Group_Manif_CHD_Incidence_Base_RR a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasParameterUncertainty :T1DM_Group_Manif_CHD_Incidence_Base_RR_L95CI, :T1DM_Group_Manif_CHD_Incidence_Base_RR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasExpectedValue "1.15";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Group_Manif_CHD_Incidence_Base_RR_L95CI a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasExpectedValue "0.92";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Group_Manif_CHD_Incidence_Base_RR_U95CI a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasExpectedValue "1.43";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Group_Manif_CHD_Incidence_L95CI a owl:NamedIndividual, :Incidence;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Base incidence of any manifestation related to CHD when HbA1c is 9.1";
+  :hasExpectedValue "0.001";
+  :hasSource "Hoerger 2004";
+  :hasYear "2004" .
+
+:T1DM_Group_Manif_CHD_Incidence_RR a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasExpression :T1DM_Group_Manif_CHD_Incidence_RR_Expression;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Group_Manif_CHD_Incidence_RR_Expression a owl:NamedIndividual, :AdHocExpression;
+  :dependsOnAttribute :Attribute_HbA1c;
+  :dependsOnParameter :T1DM_Group_Manif_CHD_Incidence_BASE_RR, :T1DM_Group_Manif_CHD_Incidence_Base_RR;
+  :includedByModel :T1DM_StdModelDES;
+  :hasExpressionValue "T1DM_Group_Manif_CHD_Incidence_BASE_RR^(Attribute_HbA1c - 9.1)",
+    "T1DM_Group_Manif_CHD_Incidence_Base_RR^(Attribute_HbA1c - 9.1)" .
+
+:T1DM_Group_Manif_CHD_Incidence_U95CI a owl:NamedIndividual, :Incidence;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Base incidence of any manifestation related to CHD when HbA1c is 9.1";
+  :hasExpectedValue "0.0084";
+  :hasSource "Hoerger 2004";
+  :hasYear "2004" .
 
 :T1DM_Group_Manif_HYPO a owl:NamedIndividual, :Group;
   :hasComponent :T1DM_Manif_SHE;
@@ -3108,6 +3237,7 @@ _:genid379 a owl:Restriction;
   :excludesManifestation :T1DM_Manif_HF, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
   :hasCost :T1DM_Manif_ANGINA_AC, :T1DM_Manif_ANGINA_TC;
   :hasIncreasedMortalityRate :T1DM_Manif_ANGINA_IMR;
+  :hasProportionWithinGroup :T1DM_Manif_ANGINA_Proportion;
   :hasUtility :T1DM_Manif_ANGINA_U;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Angina" .
@@ -3145,6 +3275,20 @@ _:genid379 a owl:Restriction;
   :hasExpectedValue "2.89";
   :hasSource "https://doi.org/10.2337/diacare.28.3.617";
   :hasYear "2005" .
+
+:T1DM_Manif_ANGINA_Proportion a owl:NamedIndividual, :ProportionWithinGroup;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :hasDataItemType :DI_Proportion;
+  :hasParameterUncertainty :T1DM_Manif_ANGINA_Proportion_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Proportion of angina within CHD complications";
+  :hasExpectedValue "0.28";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "2005" .
+
+:T1DM_Manif_ANGINA_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
+  :hasAlfaParameter "1.0";
+  :hasLambdaParameter "0.28" .
 
 :T1DM_Manif_ANGINA_TC a owl:NamedIndividual, :Cost;
   :hasDataItemType :Currency_Euro;
@@ -3205,18 +3349,10 @@ _:genid379 a owl:Restriction;
   :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
   :hasCost :T1DM_Manif_HF_AC, :T1DM_Manif_HF_TC;
   :hasIncreasedMortalityRate :T1DM_Manif_HF_IMR;
+  :hasProportionWithinGroup :T1DM_Manif_HF_Proportion;
   :hasUtility :T1DM_Manif_HF_U;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Heart Failure" .
-
-:T1DM_Manif_HF_IMR a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasParameterUncertainty :T1DM_Manif_HF_IMR_L95CI, :T1DM_Manif_HF_IMR_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Increased mortality rate for heart failure";
-  :hasExpectedValue "1.96";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
 
 :T1DM_Manif_HF_AC a owl:NamedIndividual, :Cost;
   :hasDataItemType :Currency_Euro;
@@ -3226,6 +3362,15 @@ _:genid379 a owl:Restriction;
   :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2016" .
+
+:T1DM_Manif_HF_IMR a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasParameterUncertainty :T1DM_Manif_HF_IMR_L95CI, :T1DM_Manif_HF_IMR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Increased mortality rate for heart failure";
+  :hasExpectedValue "1.96";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
 
 :T1DM_Manif_HF_IMR_L95CI a owl:NamedIndividual, :Parameter;
   :hasDataItemType :DI_Lower95ConfidenceLimit;
@@ -3242,6 +3387,20 @@ _:genid379 a owl:Restriction;
   :hasExpectedValue "2.89";
   :hasSource "https://doi.org/10.2337/diacare.28.3.617";
   :hasYear "2005" .
+
+:T1DM_Manif_HF_Proportion a owl:NamedIndividual, :ProportionWithinGroup;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :hasDataItemType :DI_Proportion;
+  :hasParameterUncertainty :T1DM_Manif_HF_Proportion_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Proportion of heart failure within CHD complications";
+  :hasExpectedValue "0.12";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "2005" .
+
+:T1DM_Manif_HF_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
+  :hasAlfaParameter "1.0";
+  :hasLambdaParameter "0.12" .
 
 :T1DM_Manif_HF_TC a owl:NamedIndividual, :Cost;
   :hasDataItemType :Currency_Euro;
@@ -3296,27 +3455,11 @@ _:genid379 a owl:Restriction;
   :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_STROKE;
   :hasCost :T1DM_Manif_MI_AC, :T1DM_Manif_MI_TC;
   :hasIncreasedMortalityRate :T1DM_Manif_MI_IMR;
-  :hasProbabilityOfDeath :T1DM_Manif_MI_P_DEATH;
+  :hasProbabilityOfDeath :T1DM_Manif_MI_ProbDeath;
+  :hasProportionWithinGroup :T1DM_Manif_MI_Proportion;
   :hasUtility :T1DM_Manif_MI_U;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Myocardial Infarction" .
-
-:T1DM_Manif_MI_IMR a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasParameterUncertainty :T1DM_Manif_MI_IMR_L95CI, :T1DM_Manif_MI_IMR_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Increased mortality rate for myocardial infarction";
-  :hasExpectedValue "1.96";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_MI_P_DEATH a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Probability;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Probability of sudden death after MI (average men-women)";
-  :hasExpectedValue "0.3785";
-  :hasSource "As in CORE Model";
-  :hasYear "2005" .
 
 :T1DM_Manif_MI_AC a owl:NamedIndividual, :Cost;
   :hasDataItemType :Currency_Euro;
@@ -3326,6 +3469,15 @@ _:genid379 a owl:Restriction;
   :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2016" .
+
+:T1DM_Manif_MI_IMR a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasParameterUncertainty :T1DM_Manif_MI_IMR_L95CI, :T1DM_Manif_MI_IMR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Increased mortality rate for myocardial infarction";
+  :hasExpectedValue "1.96";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
 
 :T1DM_Manif_MI_IMR_L95CI a owl:NamedIndividual, :Parameter;
   :hasDataItemType :DI_Lower95ConfidenceLimit;
@@ -3342,6 +3494,28 @@ _:genid379 a owl:Restriction;
   :hasExpectedValue "2.89";
   :hasSource "https://doi.org/10.2337/diacare.28.3.617";
   :hasYear "2005" .
+
+:T1DM_Manif_MI_ProbDeath a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Probability;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Probability of sudden death after MI (average men-women)";
+  :hasExpectedValue "0.3785";
+  :hasSource "As in CORE Model";
+  :hasYear "2005" .
+
+:T1DM_Manif_MI_Proportion a owl:NamedIndividual, :ProportionWithinGroup;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :hasDataItemType :DI_Proportion;
+  :hasParameterUncertainty :T1DM_Manif_MI_Proportion_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Proportion of myocardial infarction within CHD complications";
+  :hasExpectedValue "0.53";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "2005" .
+
+:T1DM_Manif_MI_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
+  :hasAlfaParameter "1.0";
+  :hasLambdaParameter "0.53" .
 
 :T1DM_Manif_MI_TC a owl:NamedIndividual, :Cost;
   :hasDataItemType :Currency_Euro;
@@ -3401,27 +3575,11 @@ _:genid379 a owl:Restriction;
   :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_MI;
   :hasCost :T1DM_Manif_STROKE_AC, :T1DM_Manif_STROKE_TC;
   :hasIncreasedMortalityRate :T1DM_Manif_STROKE_IMR;
-  :hasProbabilityOfDeath :T1DM_Manif_STROKE_P_DEATH;
+  :hasProbabilityOfDeath :T1DM_Manif_STROKE_ProbDeath;
+  :hasProportionWithinGroup :T1DM_Manif_STROKE_Proportion;
   :hasUtility :T1DM_Manif_STROKE_U;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Stroke" .
-
-:T1DM_Manif_STROKE_IMR a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasParameterUncertainty :T1DM_Manif_STROKE_IMR_L95CI, :T1DM_Manif_STROKE_IMR_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Increased mortality rate for stroke";
-  :hasExpectedValue "1.96";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_STROKE_P_DEATH a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Probability;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Probability of sudden death after Stroke (average men-women)";
-  :hasExpectedValue "0.124";
-  :hasSource "As in CORE Model";
-  :hasYear "2005" .
 
 :T1DM_Manif_STROKE_AC a owl:NamedIndividual, :Cost;
   :hasDataItemType :Currency_Euro;
@@ -3431,6 +3589,15 @@ _:genid379 a owl:Restriction;
   :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2016" .
+
+:T1DM_Manif_STROKE_IMR a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasParameterUncertainty :T1DM_Manif_STROKE_IMR_L95CI, :T1DM_Manif_STROKE_IMR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Increased mortality rate for stroke";
+  :hasExpectedValue "1.96";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
 
 :T1DM_Manif_STROKE_IMR_L95CI a owl:NamedIndividual, :Parameter;
   :hasDataItemType :DI_Lower95ConfidenceLimit;
@@ -3447,6 +3614,28 @@ _:genid379 a owl:Restriction;
   :hasExpectedValue "2.89";
   :hasSource "https://doi.org/10.2337/diacare.28.3.617";
   :hasYear "2005" .
+
+:T1DM_Manif_STROKE_ProbDeath a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Probability;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Probability of sudden death after Stroke (average men-women)";
+  :hasExpectedValue "0.124";
+  :hasSource "As in CORE Model";
+  :hasYear "2005" .
+
+:T1DM_Manif_STROKE_Proportion a owl:NamedIndividual, :ProportionWithinGroup;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :hasDataItemType :DI_Proportion;
+  :hasParameterUncertainty :T1DM_Manif_STROKE_Proportion_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Proportion of stroke within CHD complications";
+  :hasExpectedValue "0.07";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "2005" .
+
+:T1DM_Manif_STROKE_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
+  :hasAlfaParameter "1.0";
+  :hasLambdaParameter "0.07" .
 
 :T1DM_Manif_STROKE_TC a owl:NamedIndividual, :Cost;
   :hasDataItemType :Currency_Euro;
@@ -3540,21 +3729,27 @@ _:genid379 a owl:Restriction;
 :T1DM_StdModelDES a owl:NamedIndividual, :DiscreteEventSimulationModel;
   :includesModelItem :T1DM_DCCT1_ComplicationsFree_U, :T1DM_DCCT1_ComplicationsFree_U_L95CI,
     :T1DM_DCCT1_ComplicationsFree_U_U95CI, :T1DM_Disease, :T1DM_Disease_AC, :T1DM_Group_Manif_CHD,
-    :T1DM_Group_Manif_HYPO, :T1DM_Group_Manif_NEU, :T1DM_Group_Manif_NPH, :T1DM_Group_Manif_RET,
-    :T1DM_Intervention_DCCTIntensive, :T1DM_Intervention_DCCTIntensive_HbA1c_Modification,
+    :T1DM_Group_Manif_CHD_Incidence, :T1DM_Group_Manif_CHD_Incidence_BASE_RR, :T1DM_Group_Manif_CHD_Incidence_BASE_RR_L95CI,
+    :T1DM_Group_Manif_CHD_Incidence_BASE_RR_U95CI, :T1DM_Group_Manif_CHD_Incidence_Base_RR,
+    :T1DM_Group_Manif_CHD_Incidence_Base_RR_L95CI, :T1DM_Group_Manif_CHD_Incidence_Base_RR_U95CI,
+    :T1DM_Group_Manif_CHD_Incidence_L95CI, :T1DM_Group_Manif_CHD_Incidence_RR, :T1DM_Group_Manif_CHD_Incidence_RR_Expression,
+    :T1DM_Group_Manif_CHD_Incidence_U95CI, :T1DM_Group_Manif_HYPO, :T1DM_Group_Manif_NEU,
+    :T1DM_Group_Manif_NPH, :T1DM_Group_Manif_RET, :T1DM_Intervention_DCCTIntensive, :T1DM_Intervention_DCCTIntensive_HbA1c_Modification,
     :T1DM_Manif_ALB1, :T1DM_Manif_ALB2, :T1DM_Manif_ANGINA, :T1DM_Manif_ANGINA_AC, :T1DM_Manif_ANGINA_IMR,
-    :T1DM_Manif_ANGINA_IMR_L95CI, :T1DM_Manif_ANGINA_IMR_U95CI, :T1DM_Manif_ANGINA_TC,
-    :T1DM_Manif_ANGINA_U, :T1DM_Manif_ANGINA_U_L95CI, :T1DM_Manif_ANGINA_U_U95CI, :T1DM_Manif_BGRET,
-    :T1DM_Manif_BLI, :T1DM_Manif_ESRD, :T1DM_Manif_HF, :T1DM_Manif_HF_AC, :T1DM_Manif_HF_IMR,
-    :T1DM_Manif_HF_IMR_L95CI, :T1DM_Manif_HF_IMR_U95CI, :T1DM_Manif_HF_TC, :T1DM_Manif_HF_U,
-    :T1DM_Manif_HF_U_L95CI, :T1DM_Manif_HF_U_U95CI, :T1DM_Manif_LEA, :T1DM_Manif_ME, :T1DM_Manif_MI,
-    :T1DM_Manif_MI_AC, :T1DM_Manif_MI_IMR, :T1DM_Manif_MI_IMR_L95CI, :T1DM_Manif_MI_IMR_U95CI,
-    :T1DM_Manif_MI_P_DEATH, :T1DM_Manif_MI_TC, :T1DM_Manif_MI_U, :T1DM_Manif_MI_U_L95CI,
-    :T1DM_Manif_MI_U_U95CI, :T1DM_Manif_NEU, :T1DM_Manif_PRET, :T1DM_Manif_SHE, :T1DM_Manif_STROKE,
-    :T1DM_Manif_STROKE_AC, :T1DM_Manif_STROKE_IMR, :T1DM_Manif_STROKE_IMR_L95CI, :T1DM_Manif_STROKE_IMR_U95CI,
-    :T1DM_Manif_STROKE_P_DEATH, :T1DM_Manif_STROKE_TC, :T1DM_Manif_STROKE_U, :T1DM_Manif_STROKE_U_L95CI,
-    :T1DM_Manif_STROKE_U_U95CI, :T1DM_Population_DCCT1, :T1DM_Population_DCCT1_Age, :T1DM_Population_DCCT1_DurationOfDiabetes,
-    :T1DM_Population_DCCT1_HbA1c, :T1DM_Population_DCCT1_Sex;
+    :T1DM_Manif_ANGINA_IMR_L95CI, :T1DM_Manif_ANGINA_IMR_U95CI, :T1DM_Manif_ANGINA_Proportion,
+    :T1DM_Manif_ANGINA_TC, :T1DM_Manif_ANGINA_U, :T1DM_Manif_ANGINA_U_L95CI, :T1DM_Manif_ANGINA_U_U95CI,
+    :T1DM_Manif_BGRET, :T1DM_Manif_BLI, :T1DM_Manif_ESRD, :T1DM_Manif_HF, :T1DM_Manif_HF_AC,
+    :T1DM_Manif_HF_IMR, :T1DM_Manif_HF_IMR_L95CI, :T1DM_Manif_HF_IMR_U95CI, :T1DM_Manif_HF_Proportion,
+    :T1DM_Manif_HF_TC, :T1DM_Manif_HF_U, :T1DM_Manif_HF_U_L95CI, :T1DM_Manif_HF_U_U95CI,
+    :T1DM_Manif_LEA, :T1DM_Manif_ME, :T1DM_Manif_MI, :T1DM_Manif_MI_AC, :T1DM_Manif_MI_IMR,
+    :T1DM_Manif_MI_IMR_L95CI, :T1DM_Manif_MI_IMR_U95CI, :T1DM_Manif_MI_ProbDeath, :T1DM_Manif_MI_Proportion,
+    :T1DM_Manif_MI_TC, :T1DM_Manif_MI_U, :T1DM_Manif_MI_U_L95CI, :T1DM_Manif_MI_U_U95CI,
+    :T1DM_Manif_NEU, :T1DM_Manif_PRET, :T1DM_Manif_SHE, :T1DM_Manif_STROKE, :T1DM_Manif_STROKE_AC,
+    :T1DM_Manif_STROKE_IMR, :T1DM_Manif_STROKE_IMR_L95CI, :T1DM_Manif_STROKE_IMR_U95CI,
+    :T1DM_Manif_STROKE_ProbDeath, :T1DM_Manif_STROKE_Proportion, :T1DM_Manif_STROKE_TC,
+    :T1DM_Manif_STROKE_U, :T1DM_Manif_STROKE_U_L95CI, :T1DM_Manif_STROKE_U_U95CI, :T1DM_Population_DCCT1,
+    :T1DM_Population_DCCT1_Age, :T1DM_Population_DCCT1_DurationOfDiabetes, :T1DM_Population_DCCT1_HbA1c,
+    :T1DM_Population_DCCT1_Sex;
   :hasAuthor "ICR";
   :hasDescription "First example of T1DM model";
   :hasDisutilityCombinationMethod "ADD";

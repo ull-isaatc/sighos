@@ -48,9 +48,13 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public final static String STR_ANNUAL_COST_SUFFIX = STR_SEP + "AC";
 	public final static String STR_ONETIME_COST_SUFFIX = STR_SEP + "TC";
 	public final static String STR_UTILITY_SUFFIX = STR_SEP + "U";
-	public final static String STR_EXPRESSION_SUFFIX = STR_SEP + "EXPR";
+	public final static String STR_EXPRESSION_SUFFIX = STR_SEP + "Expression";
 	public final static String STR_INCREASED_MORTALITY_RATE_SUFFIX = STR_SEP + "IMR";
-	public final static String STR_DEATH_PROBABILITY_SUFFIX = STR_SEP + "P_DEATH";
+	public final static String STR_DEATH_PROBABILITY_SUFFIX = STR_SEP + "ProbDeath";
+	public final static String STR_INCIDENCE_SUFFIX = STR_SEP + "Incidence";
+	public final static String STR_PREVALENCE_SUFFIX = STR_SEP + "Prevalence";
+	public final static String STR_RELATIVE_RISK_SUFFIX = STR_SEP + "RR";
+	public final static String STR_PROPORTION_SUFFIX = STR_SEP + "Proportion";
 	private final static TreeMap<Clazz, ModelType> reverseModelType = new TreeMap<>(); 
 	private final static TreeMap<Clazz, InterventionType> reverseInterventionType = new TreeMap<>(); 
 	private static OSDiWrapper currentWrapper = null;
