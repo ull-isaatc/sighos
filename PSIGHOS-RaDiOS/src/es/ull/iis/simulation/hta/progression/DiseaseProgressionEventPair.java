@@ -9,7 +9,7 @@ package es.ull.iis.simulation.hta.progression;
  * @author Iván Castilla Rodríguez
  *
  */
-public final class DiseaseProgressionPair {
+public final class DiseaseProgressionEventPair {
 	/** A manifestation */
 	private final Manifestation manif;
 	/** The time when the complication stage is predicted to start */
@@ -20,7 +20,7 @@ public final class DiseaseProgressionPair {
 	 * @param manif A manifestation
 	 * @param timeToEvent The time when the manifestation is predicted to start 
 	 */
-	public DiseaseProgressionPair(Manifestation manif, long timeToEvent) {
+	public DiseaseProgressionEventPair(Manifestation manif, long timeToEvent) {
 		this.manif = manif;
 		this.timeToEvent = timeToEvent;
 	}

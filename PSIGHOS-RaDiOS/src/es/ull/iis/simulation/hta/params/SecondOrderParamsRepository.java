@@ -20,7 +20,7 @@ import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Development;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionEvents;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.ManifestationPathway;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -98,7 +98,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	/** The number of probabilistic simulations to run by using this repository */
 	final private int nRuns;
 	/** Absence of progression */
-	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
+	private static final DiseaseProgressionEvents NULL_PROGRESSION = new DiseaseProgressionEvents(); 
 	/** A dummy disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
 	public final Disease HEALTHY;
 	/** A dummy modification that do not modify anything */
@@ -129,7 +129,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 		this.HEALTHY = new Disease(this, "HEALTHY", "Healthy") {
 
 			@Override
-			public DiseaseProgression getProgression(Patient pat) {
+			public DiseaseProgressionEvents getProgression(Patient pat) {
 				return NULL_PROGRESSION;
 			}
 		};

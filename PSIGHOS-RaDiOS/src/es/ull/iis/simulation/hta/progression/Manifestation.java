@@ -34,7 +34,6 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 public class Manifestation implements NamedAndDescribed, Comparable<Manifestation>, CreatesSecondOrderParameters, Reseteable, PrettyPrintable, CostProducer, UtilityProducer {
 	/**
 	 * The type of the manifestation. Currently distinguishes among chronic and acute manifestations
-	 * @author Iván Castilla
 	 */
 	public enum Type {
 		ACUTE,
@@ -42,9 +41,9 @@ public class Manifestation implements NamedAndDescribed, Comparable<Manifestatio
 	}
 	/** Common parameters repository */
 	private final SecondOrderParamsRepository secParams;
-	/** Short name of the complication stage */
+	/** Short name of the manifestation */
 	private final String name;
-	/** Full description of the complication stage */
+	/** Full description of the manifestation */
 	private final String description;
 	/** Disease this manifestation is related to */
 	private final Disease disease;
@@ -54,7 +53,7 @@ public class Manifestation implements NamedAndDescribed, Comparable<Manifestatio
 	/** Type of manifestation */
 	private final Type type;
 	
-	/** Probability that a patient starts in this stage */
+	/** Probability that a patient starts in this manifestation */
 	private final BernoulliParam[] pInit;
 	/** Death associated to the acute events */
 	private final MultipleBernoulliParam[] associatedDeath;
@@ -72,10 +71,10 @@ public class Manifestation implements NamedAndDescribed, Comparable<Manifestatio
 	private final RandomValues[][] rndValues;
 	
 	/**
-	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
+	 * Creates a new manifestation of a {@link ChronicComplication chronic complication} defined in the model
 	 * @param secParams Common parameters repository
-	 * @param name Name of the stage
-	 * @param description Full description of the stage
+	 * @param name Name of the manifestation
+	 * @param description Full description of the manifestation
 	 * @param disease Main chronic complication
 	 * @param type The {@link Type} of the manifestation
 	 */
@@ -174,16 +173,16 @@ public class Manifestation implements NamedAndDescribed, Comparable<Manifestatio
 		return timeTo;
 	}
 	/**
-	 * Returns the order assigned to this stage in a simulation.
-	 * @return the order assigned to this stage in a simulation
+	 * Returns the order assigned to this manifestation in a simulation.
+	 * @return the order assigned to this manifestation in a simulation
 	 */
 	public int ordinal() {
 		return ord;
 	}
 	
 	/**
-	 * Assigns the order that this stage have in a simulation
-	 * @param ord order that this stage have in a simulation
+	 * Assigns the order that this manifestation have in a simulation
+	 * @param ord order that this manifestation have in a simulation
 	 */
 	public void setOrder(int ord) {
 		if (this.ord == -1)

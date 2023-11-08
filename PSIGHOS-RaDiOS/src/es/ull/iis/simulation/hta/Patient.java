@@ -16,8 +16,8 @@ import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.DiseaseProgression;
-import es.ull.iis.simulation.hta.progression.DiseaseProgressionPair;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionEvents;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionEventPair;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
@@ -347,8 +347,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * Applies the indicated progression to the patient, adding the new events
 	 * @param progs ManifestationPathway of the disease for this patient
 	 */
-	private void applyProgression(DiseaseProgression progs) {
-		for (DiseaseProgressionPair pr : progs.getNewEvents()) {
+	private void applyProgression(DiseaseProgressionEvents progs) {
+		for (DiseaseProgressionEventPair pr : progs.getNewEvents()) {
 			final ManifestationEvent ev = new ManifestationEvent(pr); 
 			nextManifestationEvents.put(pr.getManifestation(), ev);
 			simul.addEvent(ev);
@@ -380,7 +380,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		
 		for (Manifestation manif : getDisease().getInitialStage(this)) {
 			ArrayDeque<ManifestationEvent> events = new ArrayDeque<>();
-			events.add(new ManifestationEvent(new DiseaseProgressionPair(manif, 0)));				
+			events.add(new ManifestationEvent(new DiseaseProgressionEventPair(manif, 0)));				
 			// I was scheduling these events in the usual way, but they were not executed before the next loop and progression fails
 			manifestationEvents.put(manif, events);
 			// This should never happen
@@ -396,7 +396,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			}
 		}
 		// Assign manifestation events
-		final DiseaseProgression progs = getDisease().getProgression(this);
+		final DiseaseProgressionEvents progs = getDisease().getProgression(this);
 		if (progs.getCancelEvents().size() > 0)
 			error("Cancel complications at start?");
 		applyProgression(progs);
@@ -476,9 +476,9 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 *
 	 */
 	public class ManifestationEvent extends DiscreteEvent {
-		private final DiseaseProgressionPair progress;
+		private final DiseaseProgressionEventPair progress;
 
-		public ManifestationEvent(DiseaseProgressionPair progress) {
+		public ManifestationEvent(DiseaseProgressionEventPair progress) {
 			super(progress.getTimeToEvent());
 			this.progress = progress;
 		}
@@ -532,7 +532,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 					// Recompute time to death in case the risk increases
 					readjustDeath(manifestation);
 					// Update complications
-					final DiseaseProgression progs = getDisease().getProgression(Patient.this);
+					final DiseaseProgressionEvents progs = getDisease().getProgression(Patient.this);
 					for (Manifestation st: progs.getCancelEvents()) {
 						nextManifestationEvents.get(st).cancel();
 						nextManifestationEvents.remove(st);

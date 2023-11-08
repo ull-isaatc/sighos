@@ -11,16 +11,16 @@ import java.util.TreeSet;
  * @author Iván Castilla Rodríguez
  *
  */
-public class DiseaseProgression {
+public class DiseaseProgressionEvents {
 	/** New complications to progress to */
-	private final ArrayList<DiseaseProgressionPair> newEvents;
+	private final ArrayList<DiseaseProgressionEventPair> newEvents;
 	/** Already assigned complications that must be cancelled */
 	private final TreeSet<Manifestation> cancelEvents;
 
 	/**
 	 * Creates a progression instance for T1DM
 	 */
-	public DiseaseProgression() {
+	public DiseaseProgressionEvents() {
 		newEvents = new ArrayList<>();
 		cancelEvents = new TreeSet<>();
 	}
@@ -31,7 +31,7 @@ public class DiseaseProgression {
 	 * @param timeToEvent Timestamp when this manifestation is predicted to appear
 	 */
 	public void addNewEvent(Manifestation stage, long timeToEvent) {
-		newEvents.add(new DiseaseProgressionPair(stage, timeToEvent));
+		newEvents.add(new DiseaseProgressionEventPair(stage, timeToEvent));
 	}
 	
 	/**
@@ -46,7 +46,7 @@ public class DiseaseProgression {
 	 * Returns the list of new complications to be scheduled
 	 * @return the list of new complications to be scheduled
 	 */
-	public ArrayList<DiseaseProgressionPair> getNewEvents() {
+	public ArrayList<DiseaseProgressionEventPair> getNewEvents() {
 		return newEvents;
 	}
 

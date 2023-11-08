@@ -188,8 +188,8 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @return how this patient will progress from its current state with regards to this
 	 * chronic complication
 	 */
-	public DiseaseProgression getProgression(Patient pat) {
-		final DiseaseProgression prog = new DiseaseProgression();
+	public DiseaseProgressionEvents getProgression(Patient pat) {
+		final DiseaseProgressionEvents prog = new DiseaseProgressionEvents();
 		long limit = pat.getTimeToDeath();
 		final TreeSet<Manifestation> state = pat.getState();  
 		for (final Manifestation destManif : secParams.getRegisteredManifestations()) {
@@ -217,7 +217,7 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @param timeToEvent New time to event
 	 * @param previousTimeToEvent Previous time to event
 	 */
-	public void adjustProgression(DiseaseProgression prog, Manifestation stage, long timeToEvent, long previousTimeToEvent) {
+	public void adjustProgression(DiseaseProgressionEvents prog, Manifestation stage, long timeToEvent, long previousTimeToEvent) {
 		// Check previously scheduled events
 		if (timeToEvent != Long.MAX_VALUE) {
 			if (previousTimeToEvent < Long.MAX_VALUE) {
