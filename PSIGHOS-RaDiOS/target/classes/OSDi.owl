@@ -1329,6 +1329,64 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                 ] .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DiseaseProgression
+:DiseaseProgression rdf:type owl:Class ;
+                    rdfs:subClassOf :ModelItem ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasCost ;
+                                      owl:someValuesFrom :Cost
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasEndAge ;
+                                      owl:someValuesFrom :Parameter
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasIncreasedMortalityRate ;
+                                      owl:someValuesFrom :Parameter
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasInitialProportion ;
+                                      owl:someValuesFrom :Parameter
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasLifeExpectancyReduction ;
+                                      owl:someValuesFrom :Parameter
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasOnsetAge ;
+                                      owl:someValuesFrom :Parameter
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasPathway ;
+                                      owl:someValuesFrom :Pathway
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasProbabilityOfDeath ;
+                                      owl:someValuesFrom :Parameter
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasProbabilityOfDiagnosis ;
+                                      owl:someValuesFrom :Parameter
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasRiskCharacterization ;
+                                      owl:someValuesFrom :Parameter
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasUtility ;
+                                      owl:someValuesFrom :Utility
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasRefToICD ;
+                                      owl:someValuesFrom xsd:string
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasDescription ;
+                                      owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                      owl:onDataRange xsd:string
+                                    ] .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Drug
 :Drug rdf:type owl:Class ;
       rdfs:subClassOf :HealthTechnology ,
@@ -1553,8 +1611,8 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Manifestation
 :Manifestation rdf:type owl:Class ;
-               rdfs:subClassOf :GroupableModelItem ,
-                               :ModelItem ,
+               rdfs:subClassOf :DiseaseProgression ,
+                               :GroupableModelItem ,
                                [ rdf:type owl:Restriction ;
                                  owl:onProperty :belongsToGroup ;
                                  owl:someValuesFrom [ rdf:type owl:Restriction ;
@@ -1567,61 +1625,12 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                  owl:someValuesFrom :Manifestation
                                ] ,
                                [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasCost ;
-                                 owl:someValuesFrom :Cost
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasEndAge ;
-                                 owl:someValuesFrom :Parameter
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasIncreasedMortalityRate ;
-                                 owl:someValuesFrom :Parameter
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasInitialProportion ;
-                                 owl:someValuesFrom :Parameter
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasLifeExpectancyReduction ;
-                                 owl:someValuesFrom :Parameter
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasOnsetAge ;
-                                 owl:someValuesFrom :Parameter
-                               ] ,
-                               [ rdf:type owl:Restriction ;
                                  owl:onProperty :hasPathway ;
                                  owl:someValuesFrom :ManifestationPathway
                                ] ,
                                [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasProbabilityOfDeath ;
-                                 owl:someValuesFrom :Parameter
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasProbabilityOfDiagnosis ;
-                                 owl:someValuesFrom :Parameter
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasRiskCharacterization ;
-                                 owl:someValuesFrom :Parameter
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasUtility ;
-                                 owl:someValuesFrom :Utility
-                               ] ,
-                               [ rdf:type owl:Restriction ;
                                  owl:onProperty :hasFrequency ;
                                  owl:someValuesFrom xsd:double
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasRefToICD ;
-                                 owl:someValuesFrom xsd:string
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasDescription ;
-                                 owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                 owl:onDataRange xsd:string
                                ] ;
                rdfs:comment "Symptoms and signs of a Disease. They may be chronic or acute" .
 
@@ -1976,11 +1985,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Stage
 :Stage rdf:type owl:Class ;
-       rdfs:subClassOf :ModelItem ,
-                       [ rdf:type owl:Restriction ;
-                         owl:onProperty :hasCost ;
-                         owl:someValuesFrom :Cost
-                       ] ,
+       rdfs:subClassOf :DiseaseProgression ,
                        [ rdf:type owl:Restriction ;
                          owl:onProperty :hasManifestation ;
                          owl:someValuesFrom :Manifestation
@@ -1988,31 +1993,6 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                        [ rdf:type owl:Restriction ;
                          owl:onProperty :hasPathway ;
                          owl:someValuesFrom :StagePathway
-                       ] ,
-                       [ rdf:type owl:Restriction ;
-                         owl:onProperty :hasProbabilityOfDeath ;
-                         owl:someValuesFrom :Parameter
-                       ] ,
-                       [ rdf:type owl:Restriction ;
-                         owl:onProperty :hasProbabilityOfDiagnosis ;
-                         owl:someValuesFrom :Parameter
-                       ] ,
-                       [ rdf:type owl:Restriction ;
-                         owl:onProperty :hasRiskCharacterization ;
-                         owl:someValuesFrom :Parameter
-                       ] ,
-                       [ rdf:type owl:Restriction ;
-                         owl:onProperty :hasUtility ;
-                         owl:someValuesFrom :Utility
-                       ] ,
-                       [ rdf:type owl:Restriction ;
-                         owl:onProperty :hasRefToICD ;
-                         owl:someValuesFrom xsd:string
-                       ] ,
-                       [ rdf:type owl:Restriction ;
-                         owl:onProperty :hasDescription ;
-                         owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                         owl:onDataRange xsd:string
                        ] ;
        <http://ontologydesignpatterns.org/opla-sd#entityPosition> [ <http://ontologydesignpatterns.org/opla-sd#entityPositionX> "100.61244444225647"^^xsd:double ;
                                                                     <http://ontologydesignpatterns.org/opla-sd#entityPositionY> "133.2020154340692"^^xsd:double ;

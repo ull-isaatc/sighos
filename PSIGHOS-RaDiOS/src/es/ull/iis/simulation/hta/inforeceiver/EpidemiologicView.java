@@ -15,7 +15,7 @@ import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -90,7 +90,7 @@ public abstract class EpidemiologicView implements ExperimentListener {
 		final int nInterventions = interventions.length;
 		nDeaths = new double[nInterventions][nIntervals];
 		nBirths = new double[nInterventions][nIntervals];
-		nManifestation = new double[nInterventions][secParams.getRegisteredManifestations().length][nIntervals];
+		nManifestation = new double[nInterventions][secParams.getRegisteredDiseaseProgressions().length][nIntervals];
 		nDisease = new double[nInterventions][secParams.getRegisteredDiseases().length][nIntervals];
 		nDeathsByCause = new HashMap<>();
 		this.resultsReady = false;
@@ -115,7 +115,7 @@ public abstract class EpidemiologicView implements ExperimentListener {
 			for (Disease dis : secParams.getRegisteredDiseases()) {
 				str.append("\t" + name + "_").append(dis.name());
 			}
-			for (Manifestation comp : secParams.getRegisteredManifestations()) {
+			for (DiseaseProgression comp : secParams.getRegisteredDiseaseProgressions()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
 		}
@@ -196,8 +196,8 @@ public abstract class EpidemiologicView implements ExperimentListener {
 			nDeaths = new int[nIntervals];
 			nDeathsByCause = new HashMap<>();			
 			nBirths = new int[nIntervals];
-			nManifestation = new int[secParams.getRegisteredManifestations().length][nIntervals];
-			nEndManifestation = new int[secParams.getRegisteredManifestations().length][nIntervals];
+			nManifestation = new int[secParams.getRegisteredDiseaseProgressions().length][nIntervals];
+			nEndManifestation = new int[secParams.getRegisteredDiseaseProgressions().length][nIntervals];
 			nDisease = new int[secParams.getRegisteredDiseases().length][nIntervals];
 			nEndDisease = new int[secParams.getRegisteredDiseases().length][nIntervals];
 			patientDisease = new boolean[secParams.getRegisteredDiseases().length][nPatients];
@@ -226,17 +226,17 @@ public abstract class EpidemiologicView implements ExperimentListener {
 						}
 						break;
 					case START_MANIF:
-						nManifestation[pInfo.getManifestation().ordinal()][interval]++;
-						if (!patientDisease[pInfo.getManifestation().getDisease().ordinal()][pInfo.getPatient().getIdentifier()]) {
-							patientDisease[pInfo.getManifestation().getDisease().ordinal()][pInfo.getPatient().getIdentifier()] = true;
-							nDisease[pInfo.getManifestation().getDisease().ordinal()][interval]++;
+						nManifestation[pInfo.getDiseaseProgression().ordinal()][interval]++;
+						if (!patientDisease[pInfo.getDiseaseProgression().getDisease().ordinal()][pInfo.getPatient().getIdentifier()]) {
+							patientDisease[pInfo.getDiseaseProgression().getDisease().ordinal()][pInfo.getPatient().getIdentifier()] = true;
+							nDisease[pInfo.getDiseaseProgression().getDisease().ordinal()][interval]++;
 						}
 						break;
 					case END_MANIF:
 						if (interval == 0)
 							pat.error("Manifestation cannot end at timestamp #0");
 						else
-							nEndManifestation[pInfo.getManifestation().ordinal()][interval]++;
+							nEndManifestation[pInfo.getDiseaseProgression().ordinal()][interval]++;
 						break;
 					case DEATH:
 						if (interval == 0)
@@ -251,7 +251,7 @@ public abstract class EpidemiologicView implements ExperimentListener {
 								nDeathsByCause.get(cause)[interval]++;
 							}
 							// Removes the disease and manifestations of the patient from the total account 
-							for (Manifestation manif : pat.getState())
+							for (DiseaseProgression manif : pat.getState())
 								nEndManifestation[manif.ordinal()][interval]++;
 							nEndDisease[pat.getDisease().ordinal()][interval]++;
 						}

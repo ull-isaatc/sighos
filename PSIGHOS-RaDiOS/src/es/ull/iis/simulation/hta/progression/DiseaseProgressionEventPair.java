@@ -10,32 +10,32 @@ package es.ull.iis.simulation.hta.progression;
  *
  */
 public final class DiseaseProgressionEventPair {
-	/** A manifestation */
-	private final Manifestation manif;
-	/** The time when the complication stage is predicted to start */
+	/** A new stage, manifestation, group of manifestations... */
+	private final DiseaseProgression progression;
+	/** The time when the disease progression is predicted to start */
 	private final long timeToEvent;
 	
 	/**
-	 * Creates a new pair <manifestation, time>
-	 * @param manif A manifestation
-	 * @param timeToEvent The time when the manifestation is predicted to start 
+	 * Creates a new pair <DiseaseProgression, time>
+	 * @param progression A new stage, manifestation, group of manifestations...
+	 * @param timeToEvent The time when the disease progression is predicted to start 
 	 */
-	public DiseaseProgressionEventPair(Manifestation manif, long timeToEvent) {
-		this.manif = manif;
+	public DiseaseProgressionEventPair(DiseaseProgression progression, long timeToEvent) {
+		this.progression = progression;
 		this.timeToEvent = timeToEvent;
 	}
 	
 	/**
-	 * Returns the complication or acute event
-	 * @return a complication or acute event
+	 * Returns the progression of the disease
+	 * @return the progression of the disease
 	 */
-	public Manifestation getManifestation() {
-		return manif;
+	public DiseaseProgression getDiseaseProgression() {
+		return progression;
 	}
 	
 	/**
-	 * Returns the time when the complication is predicted to start
-	 * @return The time when the complication is predicted to start
+	 * Returns the time when the disease progression is predicted to start
+	 * @return The time when the disease progression is predicted to start
 	 */
 	public long getTimeToEvent() {
 		return timeToEvent;
@@ -43,6 +43,6 @@ public final class DiseaseProgressionEventPair {
 
 	@Override
 	public String toString() {
-		return manif.name() + "[" + timeToEvent + "]";
+		return progression.name() + "[" + timeToEvent + "]";
 	}
 }

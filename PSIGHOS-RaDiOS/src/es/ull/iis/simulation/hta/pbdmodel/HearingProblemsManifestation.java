@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.RandomVariateFactory;
 
@@ -16,7 +16,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class HearingProblemsManifestation extends Manifestation {
+public class HearingProblemsManifestation extends DiseaseProgression {
 	private final static int COST_YEAR = 2013;
 	private final static double DIAGNOSTIC_COST = 31169.95;
 	private final static double ANNUAL_COST = 155.14;
@@ -27,7 +27,7 @@ public class HearingProblemsManifestation extends Manifestation {
 	 * @param disease
 	 */
 	public HearingProblemsManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "#PBD_ManifestationHearingProblems", "Hearing problems", disease, Type.CHRONIC);
+		super(secParams, "#PBD_ManifestationHearingProblems", "Hearing problems", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override

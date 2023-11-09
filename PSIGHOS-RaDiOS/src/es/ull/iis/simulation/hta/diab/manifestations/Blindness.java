@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
@@ -15,7 +15,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla
  *
  */
-public class Blindness extends Manifestation {
+public class Blindness extends DiseaseProgression {
 	private static final double COST = 2405.35;
 	private static final int COSTYEAR = 2016;
 	private static final double[] DU = new double[] {0.074, (0.124 - 0.025) / 3.92};
@@ -26,7 +26,7 @@ public class Blindness extends Manifestation {
 	 * @param disease
 	 */
 	public Blindness(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Blindness", disease, Type.CHRONIC);
+		super(secParams, NAME, "Blindness", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override

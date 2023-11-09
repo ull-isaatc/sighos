@@ -17,7 +17,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 public class DiseaseProgressionSimulation extends Simulation {
 	private final static String DESCRIPTION = "Disease progression simulation";
 	/** Common parameters of the simulation to be used by simulated patients */
-	private final SecondOrderParamsRepository commonParams;
+	private final SecondOrderParamsRepository secParams;
 	/** Counter to assign a unique id to each patient */
 	private int patientCounter = 0;
 	/** The intervention assessed in this simulation */
@@ -35,18 +35,18 @@ public class DiseaseProgressionSimulation extends Simulation {
 	 * @param id Identifier of the simulation
 	 * @param intervention Simulated intervention
 	 * @param nPatients Amount of patients to create
-	 * @param commonParams Common parameters
+	 * @param secParams Common parameters
 	 * @param population A collection of populations that will serve to generate patients
 	 * @param timeHorizon Duration of the simulation (in years)
 	 */
-	public DiseaseProgressionSimulation(int id, Intervention intervention, SecondOrderParamsRepository commonParams, int timeHorizon) {
+	public DiseaseProgressionSimulation(int id, Intervention intervention, SecondOrderParamsRepository secParams, int timeHorizon) {
 		super(id, DESCRIPTION + " " + intervention.getDescription(), BasicConfigParams.SIMUNIT, 0L, BasicConfigParams.SIMUNIT.convert(timeHorizon, TimeUnit.YEAR));
-		this.commonParams = commonParams;
+		this.secParams = secParams;
 		this.cloned = false;
 		this.intervention = intervention;
-		this.nPatients = commonParams.getNPatients();
+		this.nPatients = secParams.getNPatients();
 		this.generatedPatients = new Patient[nPatients];	
-		new PatientGenerator(this, nPatients, intervention, commonParams.getPopulation());
+		new PatientGenerator(this, nPatients, intervention, secParams.getPopulation());
 	}
 
 	/**
@@ -60,17 +60,16 @@ public class DiseaseProgressionSimulation extends Simulation {
 		this.intervention = intervention;
 		this.nPatients = original.nPatients;
 		this.generatedPatients = new Patient[nPatients];
-		this.commonParams = original.commonParams;
-		commonParams.reset(original.id);
-		new PatientGenerator(this, original.generatedPatients, intervention, commonParams.getPopulation());
+		this.secParams = original.secParams;
+		new PatientGenerator(this, original.generatedPatients, intervention, secParams.getPopulation());
 	}
 
 	/**
 	 * Returns the common parameters used within this simulation
 	 * @return the common parameters used within this simulation
 	 */
-	public SecondOrderParamsRepository getCommonParams() {
-		return commonParams;
+	public SecondOrderParamsRepository getRepository() {
+		return secParams;
 	}
 
 	/**

@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * A viewer for the prevalence of manifestation of the simulated patients, which can be shown either relative or absolute (number of patients);
@@ -43,7 +43,7 @@ public class PrevalenceView extends EpidemiologicView {
 		// First process base time interval
 		double accDeaths = listener.getnDeaths()[0];
 		double accPatients = listener.getnBirths()[0];
-		final double []accManifestation = new double[secParams.getRegisteredManifestations().length];
+		final double []accManifestation = new double[secParams.getRegisteredDiseaseProgressions().length];
 		final double []accDisease = new double[secParams.getRegisteredDiseases().length];
 		final HashMap<Named, Double> accDeathsByCause = new HashMap<>();
 		for (final Named cause : listener.getCausesOfDeath()) {
@@ -56,7 +56,7 @@ public class PrevalenceView extends EpidemiologicView {
 			accDisease[j] = listener.getnDisease()[j][0];
 			nDisease[interventionId][j][0] += accDisease[j];
 		}
-		for (int j = 0; j < secParams.getRegisteredManifestations().length; j++) {
+		for (int j = 0; j < secParams.getRegisteredDiseaseProgressions().length; j++) {
 			accManifestation[j] = listener.getnManifestation()[j][0];
 			nManifestation[interventionId][j][0] += accManifestation[j];
 		}
@@ -74,7 +74,7 @@ public class PrevalenceView extends EpidemiologicView {
 				accDisease[j] += listener.getnDisease()[j][i] - listener.getnEndDisease()[j][i-1];
 				nDisease[interventionId][j][i] += accDisease[j];
 			}
-			for (int j = 0; j < secParams.getRegisteredManifestations().length; j++) {
+			for (int j = 0; j < secParams.getRegisteredDiseaseProgressions().length; j++) {
 				accManifestation[j] += listener.getnManifestation()[j][i] - listener.getnEndManifestation()[j][i-1];
 				nManifestation[interventionId][j][i] += accManifestation[j];
 			}
@@ -121,7 +121,7 @@ public class PrevalenceView extends EpidemiologicView {
 			for (Disease dis : secParams.getRegisteredDiseases()) {
 				str.append("\t" + name + "_").append(dis.name());
 			}
-			for (Manifestation comp : secParams.getRegisteredManifestations()) {
+			for (DiseaseProgression comp : secParams.getRegisteredDiseaseProgressions()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
 		}

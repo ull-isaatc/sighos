@@ -16,7 +16,7 @@ public class AnnualRateBasedTimeToEventCalculator implements TimeToEventCalculat
 	/** Incidence rate ratio calculator */
 	private final RRCalculator irr;
 	/** Manifestation to which progress */
-	private final Manifestation destManifestation;
+	private final DiseaseProgression destManifestation;
 	/** Repository of second order parameters */
 	private final SecondOrderParamsRepository secParams;
 	/** Name of the second order parameter that defines the patients-year rate */
@@ -29,7 +29,7 @@ public class AnnualRateBasedTimeToEventCalculator implements TimeToEventCalculat
 	 * @param destManifestation Manifestation to which progress
 	 * @param irr Incidence rate ratio calculator
 	 */
-	public AnnualRateBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, Manifestation destManifestation, RRCalculator irr) {
+	public AnnualRateBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, DiseaseProgression destManifestation, RRCalculator irr) {
 		this.irr = irr;
 		this.secParams = secParams;
 		this.destManifestation = destManifestation;
@@ -38,8 +38,8 @@ public class AnnualRateBasedTimeToEventCalculator implements TimeToEventCalculat
 
 	@Override
 	public long getTimeToEvent(Patient pat) {
-		final double rndValue = destManifestation.getRandomValue(pat);
+		final double rndValue = Math.log(pat.getRandomNumbersForIncidence(destManifestation));
 		return SecondOrderParamsRepository.getAnnualBasedTimeToEventFromRate(pat, secParams.getParameter(paramName, pat.getSimulation()), 
-				Math.log(rndValue), irr.getRR(pat));
+				rndValue, irr.getRR(pat));
 	}		
 }

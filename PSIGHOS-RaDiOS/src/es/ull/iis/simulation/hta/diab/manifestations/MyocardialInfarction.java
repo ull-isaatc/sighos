@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
@@ -17,7 +17,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class MyocardialInfarction extends Manifestation {
+public class MyocardialInfarction extends DiseaseProgression {
 	private static final double ANNUAL_COST = 948;
 	private static final double TRANS_COST = 23536 - ANNUAL_COST;
 	private static final int COSTYEAR = 2016;
@@ -31,7 +31,7 @@ public class MyocardialInfarction extends Manifestation {
 	 * @param disease
 	 */
 	public MyocardialInfarction(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Myocardial Infarction", disease, Type.CHRONIC);
+		super(secParams, NAME, "Myocardial Infarction", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override

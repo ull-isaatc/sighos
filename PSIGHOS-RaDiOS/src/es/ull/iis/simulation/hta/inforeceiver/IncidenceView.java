@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.inforeceiver;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * A viewer for the incidence of mortality and manifestation of the simulated patients, which can be shown either relative or absolute (number of patients);
@@ -56,11 +56,11 @@ public class IncidenceView extends EpidemiologicView {
 			// Patients at risk of developing the disease in the next time interval are those who are alive and has not the disease yet
 			nAtRiskDisease[j] = alive - listener.getnDisease()[j][0]; 
 		}
-		final double [] nAtRiskManifestation = new double[secParams.getRegisteredManifestations().length]; 
-		for (int j = 0; j < secParams.getRegisteredManifestations().length; j++) {
+		final double [] nAtRiskManifestation = new double[secParams.getRegisteredDiseaseProgressions().length]; 
+		for (int j = 0; j < secParams.getRegisteredDiseaseProgressions().length; j++) {
 			nManifestation[interventionId][j][0] += listener.getnManifestation()[j][0] * coef;
 			// Patients at risk of developing the manifestation in the next time interval are those who are alive and has not the manifestation yet, in case the manifestation is chronic
-			nAtRiskManifestation[j] = alive - (Manifestation.Type.CHRONIC.equals(secParams.getRegisteredManifestations()[j].getType()) ? listener.getnManifestation()[j][0] : 0); 
+			nAtRiskManifestation[j] = alive - (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(secParams.getRegisteredDiseaseProgressions()[j].getType()) ? listener.getnManifestation()[j][0] : 0); 
 		}
 		// Rest of intervals
 		for (int year = 1; year < nIntervals; year++) {
@@ -83,11 +83,11 @@ public class IncidenceView extends EpidemiologicView {
 				// Disease is supposed to be "chronic"; hence, the "end disease" group includes deceased individuals.
 				nAtRiskDisease[j] -= listener.getnEndDisease()[j][year];
 			}
-			for (int j = 0; j < secParams.getRegisteredManifestations().length; j++) {
+			for (int j = 0; j < secParams.getRegisteredDiseaseProgressions().length; j++) {
 				if (listener.getnManifestation()[j][year] != 0) {
 					nManifestation[interventionId][j][year] += listener.getnManifestation()[j][year] / (absolute ? 1.0 : nAtRiskManifestation[j]);
 					// People who start suffering a chronic manifestation must be excluded from the people at risk of suffering so
-					if (Manifestation.Type.CHRONIC.equals(secParams.getRegisteredManifestations()[j].getType()))
+					if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(secParams.getRegisteredDiseaseProgressions()[j].getType()))
 						nAtRiskManifestation[j] -= listener.getnManifestation()[j][year];					
 				}
 				// The account of "end manifestation" includes the decease individuals with the manifestation. Should be always 0 for acute ones

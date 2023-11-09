@@ -45,14 +45,14 @@ public interface DiseaseBuilder {
 		}
 		// Build manifestation pathways after creating all the manifestations
 		for (String manifestationName: manifestations) {
-			final Manifestation manif = disease.getManifestation(manifestationName);
+			final Manifestation manif = disease.getDiseaseProgression(manifestationName);
 			final Set<String> pathways = OSDiWrapper.ObjectProperty.HAS_PATHWAY.getValues(manifestationName, true);
 			for (String pathwayName : pathways)
 				ManifestationPathwayBuilder.getManifestationPathwayInstance(secParams, manif, pathwayName);
 			// Also include exclusions among manifestations
 			final Set<String> exclusions = OSDiWrapper.ObjectProperty.EXCLUDES_MANIFESTATION.getValues(manifestationName);
 			for (String excludedManif : exclusions) {
-				disease.addExclusion(manif, disease.getManifestation(excludedManif));
+				disease.addExclusion(manif, disease.getDiseaseProgression(excludedManif));
 			}
 		}
 		return disease;

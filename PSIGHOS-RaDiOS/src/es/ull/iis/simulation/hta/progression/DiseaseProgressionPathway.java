@@ -15,9 +15,9 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ManifestationPathway implements CreatesSecondOrderParameters {
+public class DiseaseProgressionPathway implements CreatesSecondOrderParameters {
 	/** Resulting manifestation */
-	private final Manifestation destManifestation;
+	private final DiseaseProgression nextProgression;
 	/** Condition that must be met progress to a manifestation */
 	private final Condition<Patient> condition;
 	/** Calculator of the time to event if the condition is met */
@@ -28,16 +28,16 @@ public class ManifestationPathway implements CreatesSecondOrderParameters {
 	/**
 	 * Creates a new pathway to a manifestation
 	 * @param secParams Repository for common parameters
-	 * @param destManifestation Resulting manifestation
+	 * @param nextProgression Resulting progression of the disease
 	 * @param condition A condition that the patient must met before he/she can progress to the manifestation
 	 * @param timeToEvent A way of computing the time that will take the patient to show the manifestation in case the condition is met 
 	 */
-	public ManifestationPathway(SecondOrderParamsRepository secParams, Manifestation destManifestation, Condition<Patient> condition, TimeToEventCalculator timeToEvent) {
-		this.destManifestation = destManifestation;
+	public DiseaseProgressionPathway(SecondOrderParamsRepository secParams, DiseaseProgression nextProgression, Condition<Patient> condition, TimeToEventCalculator timeToEvent) {
+		this.nextProgression = nextProgression;
 		this.secParams = secParams;
 		this.condition = condition;
 		this.timeToEvent = timeToEvent;
-		destManifestation.addPathway(this);
+		nextProgression.addPathway(this);
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class ManifestationPathway implements CreatesSecondOrderParameters {
 	 * @param destManifestation Resulting manifestion
 	 * @param timeToEvent A way of computing the time that will take the patient to show the manifestation in case the condition is met 
 	 */
-	public ManifestationPathway(SecondOrderParamsRepository secParams, Manifestation destManifestation, TimeToEventCalculator timeToEvent) {
+	public DiseaseProgressionPathway(SecondOrderParamsRepository secParams, DiseaseProgression destManifestation, TimeToEventCalculator timeToEvent) {
 		this(secParams, destManifestation, new TrueCondition<Patient>(), timeToEvent);
 	}
 	
@@ -72,8 +72,8 @@ public class ManifestationPathway implements CreatesSecondOrderParameters {
 	/**
 	 * @return the resulting manifestation
 	 */
-	public Manifestation getDestManifestation() {
-		return destManifestation;
+	public DiseaseProgression getNextProgression() {
+		return nextProgression;
 	}
 
 	@Override

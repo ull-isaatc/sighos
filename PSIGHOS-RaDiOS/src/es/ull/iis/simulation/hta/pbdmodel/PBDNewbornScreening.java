@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -32,7 +32,7 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
 		ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, this, "", 1.0);
 		ProbabilityParamDescriptions.SPECIFICITY.addParameter(secParams, this, "", 0.999935);
-		for (Manifestation manif : secParams.getRegisteredManifestations())
+		for (DiseaseProgression manif : secParams.getRegisteredDiseaseProgressions())
 			secParams.addModificationParam(this, Modification.Type.SET, ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif), "", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 	}
 

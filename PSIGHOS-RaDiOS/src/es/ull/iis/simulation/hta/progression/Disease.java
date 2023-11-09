@@ -13,7 +13,6 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
-import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
@@ -25,27 +24,27 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
  * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other.
  * The disease also defines whether the onset of a chronic manifestation excludes other manifestations. By default, any chronic manifestation
  * excludes the "asymptomatic" chronic manifestation.
- * By default, the progression is driven by @link {@link ManifestationPathway manifestation pathways}, but it can be changed by modifying the
+ * By default, the progression is driven by @link {@link DiseaseProgressionPathway manifestation pathways}, but it can be changed by modifying the
  * {@link #getProgression(Patient)} method. 
  * @author Iván Castilla Rodríguez
  */
-public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, Reseteable, PrettyPrintable, CostProducer, UtilityProducer {
+public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable, CostProducer, UtilityProducer {
 	/** Common parameters repository */
 	private final SecondOrderParamsRepository secParams;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
 	 * diseases defined to be used within a simulation */ 
 	private int ord = -1;
 	
-	/** Manifestations related to this disease */
-	protected final TreeMap<String, Manifestation> manifestations;
-	/** Manifestations that exclude another manifestation (generally, because they are more advance stages of the same condition */
-	protected final TreeMap<Manifestation, TreeSet<Manifestation>> exclusions;	
+	/** Progressions related to this disease */
+	protected final TreeMap<String, DiseaseProgression> progressions;
+	/** Disease progression that exclude another disease progression (generally, because they are more advance stages of the same condition */
+	protected final TreeMap<DiseaseProgression, TreeSet<DiseaseProgression>> exclusions;	
 	/** Short name of the disease */
 	private final String name;
 	/** Full description of the disease */
 	private final String description;
 	/** A collection of manifestations with a specific label */
-	protected final TreeMap<Named, ArrayList<Manifestation>> labeledManifestations;
+	protected final TreeMap<Named, ArrayList<DiseaseProgression>> labeledProgressions;
 	/** A collection of developments associated to the disease */
 	protected final ArrayList<Development> developments;
 	
@@ -54,11 +53,11 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 */
 	public Disease(final SecondOrderParamsRepository secParams, String name, String description) {
 		this.secParams = secParams;
-		this.manifestations = new TreeMap<>();
+		this.progressions = new TreeMap<>();
 		this.exclusions = new TreeMap<>();
 		this.name = name;
 		this.description = description;
-		this.labeledManifestations = new TreeMap<>();
+		this.labeledProgressions = new TreeMap<>();
 		this.developments = new ArrayList<>();
 		secParams.addDisease(this);
 	}
@@ -102,13 +101,6 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 			return -1;
 		return 0;
 	}
-	
-	@Override
-	public void reset(int id) {
-		for (final Manifestation manif : manifestations.values()) {
-			manif.reset(id);
-		}
-	}
 
 	/**
 	 * Adds a development to this disease and also to the repository.
@@ -122,16 +114,16 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	}
 	
 	/**
-	 * Adds a manifestation to this disease and also to the repository. 
-	 * @param manif New manifestation associated to this disease
-	 * @return The manifestation added
+	 * Adds a progression to this disease and also to the repository. 
+	 * @param progression New progression associated to this disease
+	 * @return The disease progression added
 	 */
-	public Manifestation addManifestation(Manifestation manif) {
-		manifestations.put(manif.name(), manif);
-		secParams.addManifestation(manif);
-		TreeSet<Manifestation> excManif = new TreeSet<>();
-		exclusions.put(manif, excManif);
-		return manif;
+	public DiseaseProgression addDiseaseProgression(DiseaseProgression progression) {
+		progressions.put(progression.name(), progression);
+		secParams.addDiseaseProgression(progression);
+		TreeSet<DiseaseProgression> excManif = new TreeSet<>();
+		exclusions.put(progression, excManif);
+		return progression;
 	}
 	
 	/**
@@ -139,10 +131,10 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @param label ÇA label that identifies related manifestations
 	 * @param manif A manifestation of the disease
 	 */
-	public void assignLabel(Named label, Manifestation manif) {
-		if (!labeledManifestations.containsKey(label))
-			labeledManifestations.put(label, new ArrayList<>());
-		labeledManifestations.get(label).add(manif);
+	public void assignLabel(Named label, DiseaseProgression manif) {
+		if (!labeledProgressions.containsKey(label))
+			labeledProgressions.put(label, new ArrayList<>());
+		labeledProgressions.get(label).add(manif);
 		manif.addLabel(label);
 	}
 	
@@ -151,10 +143,10 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @param label A label that identifies related manifestations
 	 * @return the manifestations labeled with label; an empty list in case the label has no related manifestations
 	 */
-	public ArrayList<Manifestation> getLabeledManifestations(Named label) {
-		if (!labeledManifestations.containsKey(label))
+	public ArrayList<DiseaseProgression> getLabeledManifestations(Named label) {
+		if (!labeledProgressions.containsKey(label))
 			return new ArrayList<>();
-		return labeledManifestations.get(label); 
+		return labeledProgressions.get(label); 
 	}
 	
 	/**
@@ -163,7 +155,7 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @param excluded The "excluded" manifestation
 	 * @return This disease
 	 */
-	public Disease addExclusion(Manifestation manif, Manifestation excluded) {
+	public Disease addExclusion(DiseaseProgression manif, DiseaseProgression excluded) {
 		exclusions.get(manif).add(excluded);
 		return this;
 	}
@@ -174,8 +166,8 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @param excluded The collection of "excluded" manifestations
 	 * @return This disease
 	 */
-	public Disease addExclusion(Manifestation manif, Collection<Manifestation> excluded) {
-		for (Manifestation exc : excluded)
+	public Disease addExclusion(DiseaseProgression manif, Collection<DiseaseProgression> excluded) {
+		for (DiseaseProgression exc : excluded)
 			exclusions.get(manif).add(exc);
 		return this;
 	}
@@ -191,10 +183,10 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	public DiseaseProgressionEvents getProgression(Patient pat) {
 		final DiseaseProgressionEvents prog = new DiseaseProgressionEvents();
 		long limit = pat.getTimeToDeath();
-		final TreeSet<Manifestation> state = pat.getState();  
-		for (final Manifestation destManif : secParams.getRegisteredManifestations()) {
+		final TreeSet<DiseaseProgression> state = pat.getState();  
+		for (final DiseaseProgression destManif : secParams.getRegisteredDiseaseProgressions()) {
 			if (!state.contains(destManif)) {
-				long prevTime = pat.getTimeToNextManifestation(destManif);
+				long prevTime = pat.getTimeToNextDiseaseProgression(destManif);
 				long newTime = destManif.getTimeTo(pat, limit);
 				// TODO: This condition requires further thinking. This condition works as long as we assume that the state of the patient can only get worse during the simulation
 				// OLD COMMENT: We are working with competitive risks. Hence, if the new time to event is lower than the previously scheduled, we rescheduled
@@ -217,7 +209,7 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @param timeToEvent New time to event
 	 * @param previousTimeToEvent Previous time to event
 	 */
-	public void adjustProgression(DiseaseProgressionEvents prog, Manifestation stage, long timeToEvent, long previousTimeToEvent) {
+	public void adjustProgression(DiseaseProgressionEvents prog, DiseaseProgression stage, long timeToEvent, long previousTimeToEvent) {
 		// Check previously scheduled events
 		if (timeToEvent != Long.MAX_VALUE) {
 			if (previousTimeToEvent < Long.MAX_VALUE) {
@@ -232,17 +224,17 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @param pat A patient
 	 * @return the initial set of stages that the patient will start with when this complication appears
 	 */
-	public TreeSet<Manifestation> getInitialStage(Patient pat) {
-		final TreeSet<Manifestation> init = new TreeSet<>();
-		final TreeSet<Manifestation> excluded = new TreeSet<>();
-		for (final Manifestation manif : manifestations.values()) {
-			if (manif.hasManifestationAtStart(pat)) {
+	public TreeSet<DiseaseProgression> getInitialStage(Patient pat) {
+		final TreeSet<DiseaseProgression> init = new TreeSet<>();
+		final TreeSet<DiseaseProgression> excluded = new TreeSet<>();
+		for (final DiseaseProgression manif : progressions.values()) {
+			if (pat.startsWithDiseaseProgression(manif)) {
 				init.add(manif);
 				excluded.addAll(getExcluded(manif));
 			}
 		}
 		// Check and remove exclusive manifestations
-		for (final Manifestation manifExcluded : excluded) {
+		for (final DiseaseProgression manifExcluded : excluded) {
 			init.remove(manifExcluded);
 		}		
 		return init;
@@ -261,7 +253,7 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 		// The disease may involve a non-specific cost
 		double cost =  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);;
 		// ... plus costs related to each manifestation
-		for (final Manifestation manif : pat.getState()) {
+		for (final DiseaseProgression manif : pat.getState()) {
 			cost +=  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initYear, endYear);
 		}
 		// ... plus specific treatment or follow-up costs 
@@ -273,7 +265,7 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	@Override
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
 		final double []result = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);;
-		for (final Manifestation manif : pat.getState()) {
+		for (final DiseaseProgression manif : pat.getState()) {
 			final double[] partial = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initYear, endYear);
 			for (int i = 0; i < result.length; i++)
 				result[i] += partial[i];
@@ -327,34 +319,34 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 * @return the number of stages used to model this complication
 	 */
 	public int getNManifestations() {
-		return manifestations.size();
+		return progressions.size();
 	}
 	
 	/**
 	 * Returns the manifestations used to model this disease
 	 * @return An array containing the manifestations used to model this disease 
 	 */
-	public Manifestation[] getManifestations() {
-		final Manifestation[] array = new Manifestation[manifestations.size()];
-		return (Manifestation[]) manifestations.values().toArray(array);
+	public DiseaseProgression[] getDiseaseProgressions() {
+		final DiseaseProgression[] array = new DiseaseProgression[progressions.size()];
+		return (DiseaseProgression[]) progressions.values().toArray(array);
 	}
 	
 	/**
-	 * Returns a specific manifestation identified by a short description
-	 * @param name Short description of the manifestation used as id 
-	 * @return a specific manifestation identified by a short description
+	 * Returns a specific disease progression identified by a short description
+	 * @param name Short description of the disease progression used as id 
+	 * @return a specific disease progression identified by a short description
 	 */
-	public Manifestation getManifestation(String name) {
-		return manifestations.get(name);
+	public DiseaseProgression getDiseaseProgression(String name) {
+		return progressions.get(name);
 	}
 	
 	/**
-	 * Returns the manifestations that are excluded by the specified manifestation, i.e. can not happen at the same time    
-	 * @param manif A manifestaion that may exclude others
-	 * @return the manifestations excluded by the specified manifestation
+	 * Returns the disease progressions that are excluded by the specified disease progression, i.e. can not happen at the same time    
+	 * @param progression A disease progression that may exclude others
+	 * @return the disease progressions excluded by the specified disease progression
 	 */
-	public TreeSet<Manifestation> getExcluded(Manifestation manif) {
-		return exclusions.get(manif);
+	public TreeSet<DiseaseProgression> getExcluded(DiseaseProgression progression) {
+		return exclusions.get(progression);
 	}
 	
 	@Override
@@ -373,15 +365,15 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 				str.append(development.prettyPrint(linePrefix + "\t"));
 			}
 		}
-		if (manifestations.size() > 0) {
+		if (progressions.size() > 0) {
 			str.append(linePrefix).append("MANIFESTATIONS").append(System.lineSeparator());
-			for (Manifestation manif : manifestations.values())
+			for (DiseaseProgression manif : progressions.values())
 				str.append(manif.prettyPrint(linePrefix + "\t"));
 			if (exclusions.size() > 0) {
 				str.append(linePrefix).append("EXCLUSIONS").append(System.lineSeparator());				
-				for (Manifestation manif : exclusions.keySet()) {
+				for (DiseaseProgression manif : exclusions.keySet()) {
 					str.append(linePrefix).append(manif).append(": ");
-					for (Manifestation excluded : exclusions.get(manif))
+					for (DiseaseProgression excluded : exclusions.get(manif))
 						str.append(excluded).append("\t");
 					str.append(System.lineSeparator());
 				}

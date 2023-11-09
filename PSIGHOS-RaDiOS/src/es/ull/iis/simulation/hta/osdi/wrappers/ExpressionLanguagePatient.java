@@ -27,7 +27,7 @@ public class ExpressionLanguagePatient extends MapContext {
 		set("DIAGNOSED", pat.isDiagnosed());
 		set("INTERVENTION", pat.getIntervention().name());
 		for (Manifestation manif : pat.getState()) {
-			set(manif.name(), pat.getTimeToManifestation(manif));
+			set(manif.name(), pat.getTimeToDiseaseProgression(manif));
 		}
 		final Collection<String> propNames = pat.getAttributeNames();
 		for (String propName : propNames)

@@ -16,7 +16,7 @@ public class AnnualRiskBasedTimeToEventCalculator implements TimeToEventCalculat
 	/** Relative risk calculator */
 	private final RRCalculator rr;
 	/** Manifestation to which progress */
-	private final Manifestation destManifestation;
+	private final DiseaseProgression destManifestation;
 	/** Repository of second order parameters */
 	private final SecondOrderParamsRepository secParams;
 	/** Name of the second order parameter that defines the annual risk */
@@ -29,7 +29,7 @@ public class AnnualRiskBasedTimeToEventCalculator implements TimeToEventCalculat
 	 * @param destManifestation Manifestation to which progress
 	 * @param rr Relative risk calculator
 	 */
-	public AnnualRiskBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, Manifestation destManifestation, RRCalculator rr) {
+	public AnnualRiskBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, DiseaseProgression destManifestation, RRCalculator rr) {
 		this.rr = rr;
 		this.secParams = secParams;
 		this.destManifestation = destManifestation;
@@ -42,14 +42,14 @@ public class AnnualRiskBasedTimeToEventCalculator implements TimeToEventCalculat
 	 * @param secParams Repository of second order parameters
 	 * @param destManifestation Manifestation to which progress
 	 */
-	public AnnualRiskBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, Manifestation destManifestation) {
+	public AnnualRiskBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, DiseaseProgression destManifestation) {
 		this(paramName, secParams, destManifestation, SecondOrderParamsRepository.NO_RR);
 	}
 
 	@Override
 	public long getTimeToEvent(Patient pat) {
-		final double rndValue = destManifestation.getRandomValue(pat);
+		final double rndValue = Math.log(pat.getRandomNumbersForIncidence(destManifestation));
 		return SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, 
-				secParams.getParameter(paramName, pat.getSimulation()), Math.log(rndValue), rr.getRR(pat));
+				secParams.getParameter(paramName, pat.getSimulation()), rndValue, rr.getRR(pat));
 	}		
 }

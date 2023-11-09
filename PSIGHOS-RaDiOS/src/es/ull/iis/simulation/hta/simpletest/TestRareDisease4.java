@@ -10,10 +10,10 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
-import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.ManifestationPathway;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
-import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
+import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
 
 /**
  * A disease with two chronic (and independent) manifestations, and one acute manifestation. The first chronic manifestation increases the risk of the second. 
@@ -27,11 +27,11 @@ public class TestRareDisease4 extends TemplateTestRareDisease {
 	final private static double P_MANIF2 = 0.02;
 	final private static double P_MANIF1_MANIF2 = 0.05;
 	/** The acute manifestation */
-	final private Manifestation acuteManif1;
+	final private DiseaseProgression acuteManif1;
 	/** First manifestation (mild) */
-	final private Manifestation manif1;
+	final private DiseaseProgression manif1;
 	/** Second manifestation (severe) */
-	final private Manifestation manif2;
+	final private DiseaseProgression manif2;
 	
 	/**
 	 * @param secParams Repository with common information about the disease 
@@ -42,14 +42,14 @@ public class TestRareDisease4 extends TemplateTestRareDisease {
 		manif2 = new TestManifestationStage2(secParams, this);
 		acuteManif1 = new TestAcuteManifestation1(secParams, this);
 		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1), secParams, manif1);
-		new ManifestationPathway(secParams, manif1, tte);
+		new DiseaseProgressionPathway(secParams, manif1, tte);
 		tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif2), secParams, manif2);
-		new ManifestationPathway(secParams, manif2, tte);
-		final Condition<Patient> cond = new PreviousManifestationCondition(manif1);
+		new DiseaseProgressionPathway(secParams, manif2, tte);
+		final Condition<Patient> cond = new PreviousDiseaseProgressionCondition(manif1);
 		tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1, manif2), secParams, manif2);
-		new ManifestationPathway(secParams, manif2, cond, tte); 
+		new DiseaseProgressionPathway(secParams, manif2, cond, tte); 
 		tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(acuteManif1), secParams, acuteManif1);
-		new ManifestationPathway(secParams, acuteManif1, tte);
+		new DiseaseProgressionPathway(secParams, acuteManif1, tte);
 	}
 
 	@Override

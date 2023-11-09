@@ -33,10 +33,10 @@ import es.ull.iis.simulation.hta.params.SingleSelectorParam;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.ManifestationPathway;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
-import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
+import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
@@ -127,20 +127,20 @@ public class T1DMDisease extends Disease {
 	private static final double P_HYPO = 0.0706690;
 	private static final double []P_HYPO_BETA = {9.9643, 131.0357};
 
-	final private Manifestation she;
-	final private Manifestation alb1;
-	final private Manifestation alb2;
-	final private Manifestation esrd;
-	final private Manifestation neu;
-	final private Manifestation lea;
-	final private Manifestation bgret;
-	final private Manifestation pret;
-	final private Manifestation me;
-	final private Manifestation bli;
-	final private Manifestation stroke;
-	final private Manifestation angina;
-	final private Manifestation hf;
-	final private Manifestation mi;
+	final private DiseaseProgression she;
+	final private DiseaseProgression alb1;
+	final private DiseaseProgression alb2;
+	final private DiseaseProgression esrd;
+	final private DiseaseProgression neu;
+	final private DiseaseProgression lea;
+	final private DiseaseProgression bgret;
+	final private DiseaseProgression pret;
+	final private DiseaseProgression me;
+	final private DiseaseProgression bli;
+	final private DiseaseProgression stroke;
+	final private DiseaseProgression angina;
+	final private DiseaseProgression hf;
+	final private DiseaseProgression mi;
 
 	// Flags for validation and comparison
 	private static final boolean DISABLE_CHD = true;
@@ -215,8 +215,8 @@ public class T1DMDisease extends Disease {
 				addProgression(neu, alb1, false);
 				// Manually adds a second extra risk from LEA, which uses the same probability as the other progression 
 				final TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(neu, alb1), secParams, alb1);
-				final Condition<Patient> cond = new PreviousManifestationCondition(lea);
-				new ManifestationPathway(secParams, alb1, cond, tte);
+				final Condition<Patient> cond = new PreviousDiseaseProgressionCondition(lea);
+				new DiseaseProgressionPathway(secParams, alb1, cond, tte);
 			}
 		}
 		
@@ -242,8 +242,8 @@ public class T1DMDisease extends Disease {
 			addProgression(bgret, me, true);
 			// Manually adds a second pathway to ME from PRET that uses the same risk than BGRET, in case BGRET is ommited 
 			final TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(bgret, me), secParams, me, new SheffieldComplicationRR(secParams, me.name()));
-			final Condition<Patient> cond = new PreviousManifestationCondition(pret);
-			new ManifestationPathway(secParams, me, cond, tte);
+			final Condition<Patient> cond = new PreviousDiseaseProgressionCondition(pret);
+			new DiseaseProgressionPathway(secParams, me, cond, tte);
 			addProgression(bli, false);
 			addProgression(bgret, bli, false);
 			addProgression(pret, bli, false);
@@ -280,39 +280,39 @@ public class T1DMDisease extends Disease {
 
 			// Defines a single pathway, but the calculator uses the different probabilities
 			int order = 0;
-			for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-				new ManifestationPathway(secParams, manifCHD, new CHDCondition(order++), tte);
+			for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
+				new DiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++), tte);
 			if (!DISABLE_NEU) {
 				tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName("NEU_CHD"), secParams, angina, rrCHD);
-				for (Manifestation manif : getLabeledManifestations(GroupOfManifestations.NEU)) {
+				for (DiseaseProgression manif : getLabeledManifestations(GroupOfManifestations.NEU)) {
 					order = 0;
-					for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-						new ManifestationPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
+					for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
+						new DiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
 					
 				}
 			}
 			if (!DISABLE_NPH) {
 				tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName("NPH_CHD"), secParams, angina, rrCHD);
-				for (Manifestation manif : getLabeledManifestations(GroupOfManifestations.NPH)) {
+				for (DiseaseProgression manif : getLabeledManifestations(GroupOfManifestations.NPH)) {
 					order = 0;
-					for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-						new ManifestationPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
+					for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
+						new DiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
 					
 				}
 			}
 			if (!DISABLE_RET) {
 				tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName("RET_CHD"), secParams, angina, rrCHD);
-				for (Manifestation manif : getLabeledManifestations(GroupOfManifestations.RET)) {
+				for (DiseaseProgression manif : getLabeledManifestations(GroupOfManifestations.RET)) {
 					order = 0;
-					for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-						new ManifestationPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
+					for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
+						new DiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
 					
 				}
 			}
 		}
 	}
 
-	private void addProgression(Manifestation fromManif, Manifestation toManif, boolean useSheffieldRR) {
+	private void addProgression(DiseaseProgression fromManif, DiseaseProgression toManif, boolean useSheffieldRR) {
 		final SecondOrderParamsRepository secParams = getRepository();
 		
 		TimeToEventCalculator tte;
@@ -320,11 +320,11 @@ public class T1DMDisease extends Disease {
 			tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(fromManif, toManif), secParams, toManif, new SheffieldComplicationRR(secParams, toManif.name()));
 		else
 			tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(fromManif, toManif), secParams, toManif);
-		final Condition<Patient> cond = new PreviousManifestationCondition(fromManif);
-		new ManifestationPathway(secParams, toManif, cond, tte);
+		final Condition<Patient> cond = new PreviousDiseaseProgressionCondition(fromManif);
+		new DiseaseProgressionPathway(secParams, toManif, cond, tte);
 	}
 
-	private void addProgression(Manifestation toManif, boolean useSheffieldRR) {
+	private void addProgression(DiseaseProgression toManif, boolean useSheffieldRR) {
 		final SecondOrderParamsRepository secParams = getRepository();
 		
 		TimeToEventCalculator tte;
@@ -332,7 +332,7 @@ public class T1DMDisease extends Disease {
 			tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(toManif), secParams, toManif, new SheffieldComplicationRR(secParams, toManif.name()));
 		else
 			tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(toManif), secParams, toManif);
-		new ManifestationPathway(secParams, toManif, tte);
+		new DiseaseProgressionPathway(secParams, toManif, tte);
 	}
 	
 	@Override
@@ -477,7 +477,7 @@ public class T1DMDisease extends Disease {
 		if (selectorsCHD[id] == null) {
 			final double [] coef = new double[4];
 			int order = 0;
-			for (Manifestation manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
+			for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
 				coef[order++] = ProbabilityParamDescriptions.PROBABILITY.getValue(secParams, manifCHD, pat.getSimulation());
 			selectorsCHD[id] = new SingleSelectorParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), coef);
 		}
@@ -562,7 +562,7 @@ public class T1DMDisease extends Disease {
 		/** Internal identifier of the manifestation */
 		private final int order;
 		/** Previous manifestation which is a prerequisite for this progression */  
-		private final Manifestation previousManif;
+		private final DiseaseProgression previousManif;
 
 		/**
 		 * Creates a condition to check whether this manifestation is the first one related to CHD  
@@ -576,15 +576,15 @@ public class T1DMDisease extends Disease {
 		 * Creates a condition to check whether this manifestation is the first one related to CHD. It also checks that the patient already has certain manifestation  
 		 * @param order The identifier for the manifestation.
 		 */
-		public CHDCondition(int order, Manifestation previousManif) {
+		public CHDCondition(int order, DiseaseProgression previousManif) {
 			this.order = order;
 			this.previousManif = previousManif;
 		}
 		
 		@Override
 		public boolean check(Patient pat) {
-			final TreeSet<Manifestation> state = pat.getState();
-			for (Manifestation manif : state) {
+			final TreeSet<DiseaseProgression> state = pat.getState();
+			for (DiseaseProgression manif : state) {
 				// If already has CHD, then nothing else to progress to
 				if (manif.definesLabel(GroupOfManifestations.CHD))
 					return false;

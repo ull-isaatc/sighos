@@ -21,9 +21,9 @@ public class AgeBasedTimeToEventCalculator implements TimeToEventCalculator {
 	/** Relative risk calculator */
 	private final RRCalculator rr;
 	/** Manifestation to which progress */
-	private final Manifestation destManifestation;
+	private final DiseaseProgression destManifestation;
 	
-	public AgeBasedTimeToEventCalculator(final Object[][] ageRisks, Manifestation destManifestation, RRCalculator rr) {
+	public AgeBasedTimeToEventCalculator(final Object[][] ageRisks, DiseaseProgression destManifestation, RRCalculator rr) {
 		this.ageRisks = ageRisks;
 		this.rr = rr;			
 		this.destManifestation = destManifestation;
@@ -41,7 +41,7 @@ public class AgeBasedTimeToEventCalculator implements TimeToEventCalculator {
 			interval++;
 		}
 		// Generates random numbers for each interval to analyze
-		List<Double> rndValues = destManifestation.getRandomValues(pat, ageRisks.length - interval + 1);
+		List<Double> rndValues = pat.getRandomNumbersForIncidence(destManifestation, ageRisks.length - interval + 1);
 		// Computes time to event within such interval
 		double time = Statistics.getAnnualBasedTimeToEvent((Double)ageRisks[interval][j+1], Math.log(rndValues.get(0)), rr.getRR(pat));
 		

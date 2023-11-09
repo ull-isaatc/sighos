@@ -9,8 +9,8 @@ import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.ManifestationPathway;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
 import simkit.random.RandomVariateFactory;
 
@@ -22,12 +22,12 @@ public class PBDDisease extends Disease {
 	final private static double DIAGNOSIS_COST = 509.65;
 	final private static double TREATMENT_COST = 66.2475;
 	final private static double FOLLOW_UP_COST = 616.75672;
-	final private Manifestation skinProblems;
-	final private Manifestation hypotonia;
-	final private Manifestation seizures;
-	final private Manifestation visionLoss;
-	final private Manifestation hearingProblems;
-	final private Manifestation mentalDelay;
+	final private DiseaseProgression skinProblems;
+	final private DiseaseProgression hypotonia;
+	final private DiseaseProgression seizures;
+	final private DiseaseProgression visionLoss;
+	final private DiseaseProgression hearingProblems;
+	final private DiseaseProgression mentalDelay;
 	/**
 	 * @param secParams
 	 * @param name
@@ -49,8 +49,8 @@ public class PBDDisease extends Disease {
 		registerBasicManifestation(secParams, mentalDelay);
 	}
 
-	private void registerBasicManifestation(SecondOrderParamsRepository secParams, Manifestation manif) {
-		new ManifestationPathway(secParams, manif, new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif), secParams, manif));
+	private void registerBasicManifestation(SecondOrderParamsRepository secParams, DiseaseProgression manif) {
+		new DiseaseProgressionPathway(secParams, manif, new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif), secParams, manif));
 	}
 	
 	@Override

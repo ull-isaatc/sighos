@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.info;
 
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.info.AsynchronousInfo;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.simulation.model.DiscreteEvent;
@@ -76,23 +76,23 @@ public class PatientInfo extends AsynchronousInfo {
 	 * Piece of information related to the onset of a manifestation
 	 * @param simul Simulation that emits this piece of information 
 	 * @param patient A patients
-	 * @param manifestation A manifestation
+	 * @param progression A disease progression
 	 * @param ts Simulation time when this piece of information occurs
 	 */
-	public PatientInfo(Simulation simul, Patient patient, Manifestation complication, long ts) {
-		this(simul, patient, complication, ts, false);
+	public PatientInfo(Simulation simul, Patient patient, DiseaseProgression progression, long ts) {
+		this(simul, patient, progression, ts, false);
 	}
 
 	/**
 	 * Piece of information related to the onset or ending of a manifestation
 	 * @param simul Simulation that emits this piece of information 
 	 * @param patient A patients
-	 * @param manifestation A manifestation
+	 * @param progression A disease progression
 	 * @param ts Simulation time when this piece of information occurs
 	 * @param end True if the piece of information refers to a manifestation that the patient will no longer suffer; false in the case of the onset of the manifestation
 	 */
-	public PatientInfo(Simulation simul, Patient patient, Manifestation complication, long ts, boolean end) {
-		this(simul, patient, end ? Type.END_MANIF : Type.START_MANIF, complication, ts);
+	public PatientInfo(Simulation simul, Patient patient, DiseaseProgression progression, long ts, boolean end) {
+		this(simul, patient, end ? Type.END_MANIF : Type.START_MANIF, progression, ts);
 	}
 
 	/**
@@ -116,8 +116,8 @@ public class PatientInfo extends AsynchronousInfo {
 	 * is not related to a chronic manifestation) 
 	 * @return the chronic manifestation
 	 */
-	public Manifestation getManifestation() {
-		return (Manifestation) cause;
+	public DiseaseProgression getDiseaseProgression() {
+		return (DiseaseProgression) cause;
 	}
 
 	/**

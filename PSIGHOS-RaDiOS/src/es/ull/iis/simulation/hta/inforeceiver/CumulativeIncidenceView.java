@@ -42,7 +42,7 @@ public class CumulativeIncidenceView extends EpidemiologicView {
 			for (int j = 0; j < secParams.getRegisteredDiseases().length; j++) {
 				nDisease[interventionId][j][year] += listener.getnDisease()[j][year];
 			}
-			for (int j = 0; j < secParams.getRegisteredManifestations().length; j++) {
+			for (int j = 0; j < secParams.getRegisteredDiseaseProgressions().length; j++) {
 				nManifestation[interventionId][j][year] += listener.getnManifestation()[j][year];
 			}
 		}			

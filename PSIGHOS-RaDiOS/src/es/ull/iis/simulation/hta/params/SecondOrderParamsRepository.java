@@ -8,21 +8,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
-import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Development;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionEvents;
-import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.ManifestationPathway;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
@@ -35,7 +35,7 @@ import simkit.random.RandomVariateFactory;
  * A repository should be created in two stages:
  * <ol>
  * <li>First, the basic components should be added: population ({@link #setPopulation(Population)}), death submodel ({@link #setDeathSubmodel(DeathSubmodel)},
- * one or more diseases ({@link #addDisease(Disease)}), one or more manifestations ({@link #addManifestation(Manifestation)}, which are generally defined within the constructor of the 
+ * one or more diseases ({@link #addDisease(Disease)}), one or more manifestations ({@link #addDiseaseProgression(Manifestation)}, which are generally defined within the constructor of the 
  * corresponding disease), and one or more interventions ({@link #addIntervention(Intervention)}).</li>
  * <li>All those basic components define a {@link CreatesSecondOrderParameters#registerSecondOrderParameters() method} to create and register second order parameters. Once all the basic 
  * components have been added to the repository, the method {@link #registerAllSecondOrderParams()} must be invoked.</li> 
@@ -52,7 +52,7 @@ import simkit.random.RandomVariateFactory;
  * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
  * @author Iván Castilla Rodríguez
  */
-public abstract class SecondOrderParamsRepository implements PrettyPrintable, Reseteable {
+public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public enum ParameterType {
 		PROBABILITY,
 		COST,
@@ -77,8 +77,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	private final TreeSet<Modification> modificationParams;
 	/** A random number generator for first order parameter values */
 	private static RandomNumber RNG_FIRST_ORDER = RandomNumberFactory.getInstance();
-	/** The collection of defined manifestations */
-	final protected ArrayList<Manifestation> registeredManifestations;
+	/** The collection of defined progressions */
+	final protected ArrayList<DiseaseProgression> registeredProgressions;
 	/** The collection of defined diseases */
 	final protected ArrayList<Disease> registeredDiseases;
 	/** The collection of defined developments */
@@ -122,7 +122,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 		this.nPatients = nPatients;
 		this.nRuns = nRuns;
 		this.studyYear = Year.now().getValue();
-		this.registeredManifestations = new ArrayList<>();
+		this.registeredProgressions = new ArrayList<>();
 		this.registeredDiseases = new ArrayList<>();
 		this.registeredDevelopments = new ArrayList<>();
 		this.registeredInterventions = new ArrayList<>();
@@ -162,9 +162,9 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 		registeredDeathSubmodel.registerSecondOrderParameters(this);
 		for (Disease disease : registeredDiseases)
 			disease.registerSecondOrderParameters(this);
-		for (Manifestation manif : registeredManifestations) {
-			manif.registerSecondOrderParameters(this);
-			for (ManifestationPathway pathway : manif.getPathways()) {
+		for (DiseaseProgression progression : registeredProgressions) {
+			progression.registerSecondOrderParameters(this);
+			for (DiseaseProgressionPathway pathway : progression.getPathways()) {
 				pathway.registerSecondOrderParameters(this);
 			}
 		}
@@ -202,12 +202,12 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	}
 
 	/**
-	 * Adds a new manifestation to this repository. This method is invoked from the method {@link Disease#addManifestation(Manifestation)} and should not be invoked elsewhere
-	 * @param manif New manifestation to be registered
+	 * Adds a new disease progression to this repository. This method is invoked from the method {@link Disease#addDiseaseProgression(DiseaseProgression)} and should not be invoked elsewhere
+	 * @param progression New disease progression to be registered
 	 */
-	public void addManifestation(Manifestation manif) {
-		manif.setOrder(registeredManifestations.size());
-		registeredManifestations.add(manif);
+	public void addDiseaseProgression(DiseaseProgression progression) {
+		progression.setOrder(registeredProgressions.size());
+		registeredProgressions.add(progression);
 	}
 
 	/**
@@ -250,40 +250,40 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 	}
 
 	/**
-	 * Returns a registered manifestation with the specified name; <code>null</code> is not found.
-	 * Currently implemented as a sequential search (not the most efficient method), but we assume that the number of manifestations is limited and this method is not used during simulations.
-	 * @param name Name of a manifestation
-	 * @return a registered manifestation with the specified name; <code>null</code> is not found.
+	 * Returns a registered disease progression with the specified name; <code>null</code> is not found.
+	 * Currently implemented as a sequential search (not the most efficient method), but we assume that the number of disease progressions is limited and this method is not used during simulations.
+	 * @param name Name of a progression
+	 * @return a registered disease progression with the specified name; <code>null</code> is not found.
 	 */
-	public Manifestation getManifestationByName(String name) {
-		for (Manifestation manif : registeredManifestations) {
-			if (manif.name().equals(name))
-				return manif;
+	public DiseaseProgression getDiseaseProgressionByName(String name) {
+		for (DiseaseProgression progression : registeredProgressions) {
+			if (progression.name().equals(name))
+				return progression;
 		}
 		return null;
 	}
 	
 	/**
-	 * Returns the already registered manifestations
-	 * @return The already registered manifestations
+	 * Returns the already registered disease progressions
+	 * @return The already registered disease progressions
 	 */
-	public Manifestation[] getRegisteredManifestations() {
-		final Manifestation[] array = new Manifestation[registeredManifestations.size()];
-		return (Manifestation[]) registeredManifestations.toArray(array);
+	public DiseaseProgression[] getRegisteredDiseaseProgressions() {
+		final DiseaseProgression[] array = new DiseaseProgression[registeredProgressions.size()];
+		return (DiseaseProgression[]) registeredProgressions.toArray(array);
 	}
 
 	/**
-	 * Returns the already registered manifestations of the specified type
-	 * @return The already registered manifestations of the specified type
+	 * Returns the already registered disease progressions of the specified type
+	 * @return The already registered disease progressions of the specified type
 	 */
-	public Manifestation[] getRegisteredManifestations(Manifestation.Type type) {
-		final ArrayList<Manifestation> arrayTyped = new ArrayList<>();
-		for (final Manifestation manif : registeredManifestations) {
+	public DiseaseProgression[] getRegisteredDiseaseProgressions(DiseaseProgression.Type type) {
+		final ArrayList<DiseaseProgression> arrayTyped = new ArrayList<>();
+		for (final DiseaseProgression manif : registeredProgressions) {
 			if (type.equals(manif.getType()))
 				arrayTyped.add(manif);
 		}
-		final Manifestation[] array = new Manifestation[arrayTyped.size()];
-		return (Manifestation[]) arrayTyped.toArray(array);
+		final DiseaseProgression[] array = new DiseaseProgression[arrayTyped.size()];
+		return (DiseaseProgression[]) arrayTyped.toArray(array);
 	}
 	
 	/**
@@ -384,7 +384,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 		}
 	}
 	
-	public void addModificationParam(Intervention interv, Modification.Type type, Manifestation fromManifestation, Manifestation toManifestation, String source, double detValue, RandomVariate rnd) {
+	public void addModificationParam(Intervention interv, Modification.Type type, DiseaseProgression fromManifestation, DiseaseProgression toManifestation, String source, double detValue, RandomVariate rnd) {
 		addParameter(new Modification(this, type, getModificationString(interv, fromManifestation, toManifestation), "Modification of probability of going from " + fromManifestation + " to " + toManifestation + " due to " + interv, source, detValue, rnd), SecondOrderParamsRepository.ParameterType.MODIFICATION);
 	}
 	
@@ -575,11 +575,5 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable, Re
 		for (SecondOrderParam param : modificationParams)
 			str.append(param.getValue(id)).append("\t");
 		return str.toString();
-	}
-
-	@Override
-	public void reset(int id) {
-		for (Disease dis : registeredDiseases)
-			dis.reset(id);
 	}
 }

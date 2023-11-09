@@ -163,13 +163,13 @@ public class AnnualCostView implements ExperimentListener {
 				final double endYear = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
 				switch(pInfo.getType()) {
 				case DIAGNOSIS:
-					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endYear] += pat.getDisease().getStartingCost(pat, endYear, discount);
+					diseaseCost[pInfo.getDiseaseProgression().getDisease().ordinal()][(int) endYear] += pat.getDisease().getStartingCost(pat, endYear, discount);
 					break;
 				case SCREEN:
 					interventionCost[(int) endYear] += pat.getIntervention().getStartingCost(pat, endYear, discount);
 					break;
 				case START_MANIF:
-					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endYear] += pInfo.getManifestation().getStartingCost(pat, endYear, discount);
+					diseaseCost[pInfo.getDiseaseProgression().getDisease().ordinal()][(int) endYear] += pInfo.getDiseaseProgression().getStartingCost(pat, endYear, discount);
 				case DEATH:
 				case START:
 					break;

@@ -19,10 +19,10 @@ import es.ull.iis.simulation.hta.inforeceiver.CostListener;
 import es.ull.iis.simulation.hta.inforeceiver.CumulativeIncidenceView;
 import es.ull.iis.simulation.hta.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.inforeceiver.IncidenceView;
-import es.ull.iis.simulation.hta.inforeceiver.PopulationAttributeListener;
 import es.ull.iis.simulation.hta.inforeceiver.IndividualTime2ManifestationView;
 import es.ull.iis.simulation.hta.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.inforeceiver.PatientInfoView;
+import es.ull.iis.simulation.hta.inforeceiver.PopulationAttributeListener;
 import es.ull.iis.simulation.hta.inforeceiver.PrevalenceView;
 import es.ull.iis.simulation.hta.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.inforeceiver.ScreeningTestPerformanceView;
@@ -32,7 +32,7 @@ import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * @author Iván Castilla
@@ -387,16 +387,16 @@ public abstract class HTAExperiment {
 			simul.run();
 		}
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
-			final Manifestation[] availableChronicManifestations = secParams.getRegisteredManifestations(Manifestation.Type.CHRONIC);
-			final Manifestation[] availableAcuteManifestations = secParams.getRegisteredManifestations(Manifestation.Type.ACUTE);
+			final DiseaseProgression[] availableChronicManifestations = secParams.getRegisteredDiseaseProgressions(DiseaseProgression.Type.CHRONIC_MANIFESTATION);
+			final DiseaseProgression[] availableAcuteManifestations = secParams.getRegisteredDiseaseProgressions(DiseaseProgression.Type.ACUTE_MANIFESTATION);
 			System.out.print("PAT");
 			for (int i = 0; i < nInterventions; i++) {
 				final String shortName = "_" + interventions[i].name();
 				System.out.print("\tCOST" + shortName + "\tLE" + shortName + "\tQALE" + shortName);
-				for (Manifestation comp : availableChronicManifestations) {
+				for (DiseaseProgression comp : availableChronicManifestations) {
 					System.out.print("\tT_" + comp.name() + shortName);
 				}			
-				for (Manifestation comp : availableAcuteManifestations) {
+				for (DiseaseProgression comp : availableAcuteManifestations) {
 					System.out.print("\tN_" + comp.name() + shortName);
 				}			
 			}

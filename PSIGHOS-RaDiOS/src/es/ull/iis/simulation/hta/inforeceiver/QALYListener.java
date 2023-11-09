@@ -77,7 +77,7 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {
 			case START_MANIF:
-				update(pat, -pInfo.getManifestation().getStartingDisutility(pat), endYear);
+				update(pat, -pInfo.getDiseaseProgression().getStartingDisutility(pat), endYear);
 			case DEATH:
 				// Update outcomes
 				if (endYear > initYear) {

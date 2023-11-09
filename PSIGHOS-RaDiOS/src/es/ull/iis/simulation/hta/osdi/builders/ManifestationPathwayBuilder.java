@@ -21,10 +21,10 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.ManifestationPathway;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
-import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCondition;
+import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -34,7 +34,7 @@ import es.ull.iis.simulation.hta.progression.condition.PreviousManifestationCond
 public interface ManifestationPathwayBuilder {
 
 	/**
-	 * Creates a {@link ManifestationPathway manifestation pathway}. If, for any reason, a manifestation pathway was already created for the specified name, returns the 
+	 * Creates a {@link DiseaseProgressionPathway manifestation pathway}. If, for any reason, a manifestation pathway was already created for the specified name, returns the 
 	 * previously created pathway.
 	 * @param ontology
 	 * @param secParams
@@ -44,13 +44,13 @@ public interface ManifestationPathwayBuilder {
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static ManifestationPathway getManifestationPathwayInstance(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName) throws MalformedOSDiModelException {
+	public static DiseaseProgressionPathway getManifestationPathwayInstance(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName) throws MalformedOSDiModelException {
 		final Disease disease = manifestation.getDisease();
 		final Condition<Patient> cond = createCondition(secParams, disease, pathwayName);
 		// TODO: Process parameters when a parameter requires another one or use complex expressions
 		final ParameterWrapper riskWrapper = createRiskWrapper(secParams, manifestation, pathwayName);
 		final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, manifestation, pathwayName, riskWrapper);
-		final ManifestationPathway pathway = new OSDiManifestationPathway(secParams, manifestation, cond, tte, pathwayName, riskWrapper);
+		final DiseaseProgressionPathway pathway = new OSDiManifestationPathway(secParams, manifestation, cond, tte, pathwayName, riskWrapper);
 		return pathway;
 	}
 	
@@ -70,9 +70,9 @@ public interface ManifestationPathwayBuilder {
 		if (strRequiredStuff.size() > 0) {
 			final List<Manifestation> manifList = new ArrayList<>();
 			for (String manifestationName: strRequiredStuff) {
-				manifList.add(disease.getManifestation(manifestationName));
+				manifList.add(disease.getDiseaseProgression(manifestationName));
 			}
-			condList.add(new PreviousManifestationCondition(manifList));
+			condList.add(new PreviousDiseaseProgressionCondition(manifList));
 		}
 		for (String strCond : strConditions)
 			condList.add(new ExpressionLanguageCondition(strCond));
@@ -163,7 +163,7 @@ public interface ManifestationPathwayBuilder {
 		return "Probability of developing " + manifestation + " due to " + pathwayName; 
 	}
 	
-	static class OSDiManifestationPathway extends ManifestationPathway {
+	static class OSDiManifestationPathway extends DiseaseProgressionPathway {
 		private final String pathwayName; 
 		private final ParameterWrapper riskWrapper;
 
@@ -180,7 +180,7 @@ public interface ManifestationPathwayBuilder {
 		
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-			final Manifestation manifestation = this.getDestManifestation();
+			final Manifestation manifestation = this.getNextProgression();
 			final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 			if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
 				ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, getProbString(manifestation, pathwayName), riskWrapper.getDescription(), riskWrapper.getSource(),

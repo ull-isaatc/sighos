@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.util.Statistics;
@@ -34,9 +34,9 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	private final static String STR_PREV = "PREV_";
 	
 	/** Inner structure to store time to chronic manifestations. For each mapped manifestation contains an array with t-uples <intervention, patient> */
-	private final TreeMap<Manifestation, long[][]> timeToEvents;
+	private final TreeMap<DiseaseProgression, long[][]> timeToEvents;
 	/** Inner structure to store number of acute events per patient. For each mapped manifestation contains an array with t-uples <intervention, patient> */
-	private final TreeMap<Manifestation, int[][]> nEvents;
+	private final TreeMap<DiseaseProgression, int[][]> nEvents;
 	/** For each intervention, number of patients that develop each chronic manifestation, including
 	 * those who started the simulated with such manifestation */  
 	private final int [][] prevalence;
@@ -50,7 +50,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	/** Number of patients simulated */
 	private final int nPatients;
 	/** Available chronic manifestations in the simulation */
-	private final Manifestation[] availableManifestations;
+	private final DiseaseProgression[] availableManifestations;
 
 	/**
 	 * 
@@ -61,13 +61,13 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		super("Standard patient viewer");
 		this.nInterventions = secParams.getNInterventions();
 		this.nPatients = secParams.getNPatients();
-		this.availableManifestations = secParams.getRegisteredManifestations();
+		this.availableManifestations = secParams.getRegisteredDiseaseProgressions();
 		prevalence = new int[nInterventions][availableManifestations.length];
 		incidence = new int[nInterventions][availableManifestations.length];
 		timeToEvents = new TreeMap<>();
 		nEvents = new TreeMap<>();
-		for (Manifestation manif : availableManifestations) {
-			if (Manifestation.Type.CHRONIC.equals(manif.getType()))
+		for (DiseaseProgression manif : availableManifestations) {
+			if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(manif.getType()))
 				timeToEvents.put(manif, new long[nInterventions][nPatients]);
 			else
 				nEvents.put(manif, new int[nInterventions][nPatients]);
@@ -88,9 +88,9 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		final StringBuilder str = new StringBuilder();
 		if (printFirstOrderVariance) {
 			for (Intervention inter : secParams.getRegisteredInterventions()) {
-				for (Manifestation manif : secParams.getRegisteredManifestations()) {
+				for (DiseaseProgression manif : secParams.getRegisteredDiseaseProgressions()) {
 					final String suf = manif.name() + "_" + inter.name() + SEP;
-					if (Manifestation.Type.CHRONIC.equals(manif.getType())) {
+					if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(manif.getType())) {
 						str.append(STR_INC).append(suf).append(STR_PREV).append(suf).append(STR_AVG_TIME).append(suf).append(STR_LCI_TIME).append(suf).append(STR_UCI_TIME).append(suf);
 					}
 					else {
@@ -101,9 +101,9 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		}
 		else {
 			for (Intervention inter : secParams.getRegisteredInterventions()) {
-				for (Manifestation manif : secParams.getRegisteredManifestations()) {
+				for (DiseaseProgression manif : secParams.getRegisteredDiseaseProgressions()) {
 					final String suf = manif.name() + "_" + inter.name() + SEP;
-					if (Manifestation.Type.CHRONIC.equals(manif.getType())) {
+					if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(manif.getType())) {
 						str.append(STR_INC).append(suf).append(STR_PREV).append(suf).append(STR_AVG_TIME).append(suf);
 					}
 					else {
@@ -120,7 +120,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		final StringBuilder str = new StringBuilder();
 		for (int i = 0; i < nInterventions; i++) {
 			for (int j = 0; j < availableManifestations.length; j++) {
-				if (Manifestation.Type.CHRONIC.equals(availableManifestations[j].getType())) {
+				if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(availableManifestations[j].getType())) {
 					str.append(incidence[i][j]).append(SEP).append(prevalence[i][j]).append(SEP);
 					final ArrayList<Long> validValues = getValidValues(timeToEvents.get(availableManifestations[j])[i]);
 					if (validValues.size() == 0) {
@@ -157,9 +157,9 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		if (pInfo.getType() == PatientInfo.Type.DEATH) {
 			// Check all the complications
 			for (int i = 0; i < availableManifestations.length; i++) {
-				final Manifestation manif = availableManifestations[i];
-				final long time = pat.getTimeToManifestation(manif);
-				if (Manifestation.Type.CHRONIC.equals(manif.getType())) {
+				final DiseaseProgression manif = availableManifestations[i];
+				final long time = pat.getTimeToDiseaseProgression(manif);
+				if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(manif.getType())) {
 					timeToEvents.get(manif)[nIntervention][pat.getIdentifier()] = time;
 					if (time == 0) {
 						prevalence[nIntervention][i]++;
@@ -170,7 +170,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 					}
 				}
 				else {
-					nEvents.get(manif)[nIntervention][pat.getIdentifier()] = pat.getNManifestations(manif);
+					nEvents.get(manif)[nIntervention][pat.getIdentifier()] = pat.getNDiseaseProgressions(manif);
 					incidence[nIntervention][i] += nEvents.get(manif)[nIntervention][pat.getIdentifier()];
 					
 				}

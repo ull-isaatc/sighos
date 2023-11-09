@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
@@ -25,9 +25,9 @@ public class IndividualTime2ManifestationView extends Listener implements Struct
 	/** Number of patients simulated */
 	private final int nPatients;
 	/** Available chronic manifestations in the simulation */
-	private final Manifestation[] availableChronicManifestations;
+	private final DiseaseProgression[] availableChronicManifestations;
 	/** Available acute manifestations in the simulation */
-	private final Manifestation[] availableAcuteManifestations;
+	private final DiseaseProgression[] availableAcuteManifestations;
 	/** Time to events (in years) for each patient, intervention and manifestation. NaN in case the patient never develops a manifestation */
 	private final double[][][]innerTimeTo;
 	/** Number of acute events for each patient, intervention and manifestation. */
@@ -41,8 +41,8 @@ public class IndividualTime2ManifestationView extends Listener implements Struct
 		super("Viewer of time to event per patient");
 		this.interventions = secParams.getRegisteredInterventions();
 		this.nPatients = secParams.getNPatients();
-		this.availableChronicManifestations = secParams.getRegisteredManifestations(Manifestation.Type.CHRONIC);
-		this.availableAcuteManifestations = secParams.getRegisteredManifestations(Manifestation.Type.ACUTE);
+		this.availableChronicManifestations = secParams.getRegisteredDiseaseProgressions(DiseaseProgression.Type.CHRONIC_MANIFESTATION);
+		this.availableAcuteManifestations = secParams.getRegisteredDiseaseProgressions(DiseaseProgression.Type.ACUTE_MANIFESTATION);
 		this.innerTimeTo = new double[nPatients][interventions.length][availableChronicManifestations.length];
 		this.innerNEvents = new int[nPatients][interventions.length][availableAcuteManifestations.length];
 		addGenerated(PatientInfo.class);
@@ -53,7 +53,7 @@ public class IndividualTime2ManifestationView extends Listener implements Struct
 	public String toString() {
 		final StringBuilder str = new StringBuilder("PAT\t");
 		for (Intervention inter : interventions) {
-			for (Manifestation comp : availableChronicManifestations) {
+			for (DiseaseProgression comp : availableChronicManifestations) {
 				str.append(comp.name()).append("_").append(inter.name()).append(SEP);
 			}			
 		}
@@ -94,11 +94,11 @@ public class IndividualTime2ManifestationView extends Listener implements Struct
 		if (pInfo.getType() == PatientInfo.Type.DEATH) {
 			final Patient pat = pInfo.getPatient();
 			for (int i = 0; i < availableChronicManifestations.length; i++) {
-				final long time = pat.getTimeToManifestation(availableChronicManifestations[i]);
+				final long time = pat.getTimeToDiseaseProgression(availableChronicManifestations[i]);
 				innerTimeTo[pat.getIdentifier()][pat.getnIntervention()][i] = (time == Long.MAX_VALUE) ? Double.NaN : ((double)time) /BasicConfigParams.YEAR_CONVERSION;
 			}
 			for (int i = 0; i < availableAcuteManifestations.length; i++) {
-				innerNEvents[pat.getIdentifier()][pat.getnIntervention()][i] = pat.getNManifestations(availableAcuteManifestations[i]);
+				innerNEvents[pat.getIdentifier()][pat.getnIntervention()][i] = pat.getNDiseaseProgressions(availableAcuteManifestations[i]);
 			}
 		}
 	}

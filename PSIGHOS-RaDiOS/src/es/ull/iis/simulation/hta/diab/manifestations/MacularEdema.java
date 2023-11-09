@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
@@ -15,7 +15,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla
  *
  */
-public class MacularEdema extends Manifestation {
+public class MacularEdema extends DiseaseProgression {
 	private static final double COST = 6785.16;
 	private static final int COSTYEAR = 2018;
 	private static final double[] DU = new double[] {0.04, (0.066 - 0.014) / 3.92};
@@ -26,7 +26,7 @@ public class MacularEdema extends Manifestation {
 	 * @param disease
 	 */
 	public MacularEdema(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Macular Edema", disease, Type.CHRONIC);
+		super(secParams, NAME, "Macular Edema", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override

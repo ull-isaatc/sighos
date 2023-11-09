@@ -16,13 +16,13 @@ import es.ull.iis.simulation.model.TimeUnit;
  */
 public class ProportionBasedTimeToEventCalculator implements TimeToEventCalculator {
 	/** Manifestation to which progress */
-	private final Manifestation destManifestation;
+	private final DiseaseProgression destManifestation;
 	/** Repository of second order parameters */
 	private final SecondOrderParamsRepository secParams;
 	/** Name of the second order parameter that defines the proportion */
 	private final String paramName;
 	
-	public ProportionBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, Manifestation destManifestation) {
+	public ProportionBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, DiseaseProgression destManifestation) {
 		this.secParams = secParams;
 		this.destManifestation = destManifestation;
 		this.paramName = paramName;
@@ -33,7 +33,7 @@ public class ProportionBasedTimeToEventCalculator implements TimeToEventCalculat
 	public long getTimeToEvent(Patient pat) {
 		final double proportion = secParams.getParameter(paramName, pat.getSimulation());
 		// Generates two random numbers: the first indicates whether the patient will suffer the problem; the second serves to compute time to event 
-		List<Double> rndValues = destManifestation.getRandomValues(pat, 2);
+		List<Double> rndValues = pat.getRandomNumbersForIncidence(destManifestation, 2);
 		// Do the patient suffers the problem?
 		if (proportion > rndValues.get(0)) {
 			final double age = pat.getAge();
