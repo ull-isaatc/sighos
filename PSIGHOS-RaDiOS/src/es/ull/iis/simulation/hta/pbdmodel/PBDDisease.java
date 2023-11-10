@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
-import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
+import es.ull.iis.simulation.hta.progression.SingleDiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
 import simkit.random.RandomVariateFactory;
 
@@ -50,7 +50,7 @@ public class PBDDisease extends Disease {
 	}
 
 	private void registerBasicManifestation(SecondOrderParamsRepository secParams, DiseaseProgression manif) {
-		new DiseaseProgressionPathway(secParams, manif, new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif), secParams, manif));
+		new SingleDiseaseProgressionPathway(secParams, manif, new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif), secParams, manif));
 	}
 	
 	@Override

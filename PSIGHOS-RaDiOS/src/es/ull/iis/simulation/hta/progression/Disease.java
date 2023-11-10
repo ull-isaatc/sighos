@@ -24,7 +24,7 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
  * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other.
  * The disease also defines whether the onset of a chronic manifestation excludes other manifestations. By default, any chronic manifestation
  * excludes the "asymptomatic" chronic manifestation.
- * By default, the progression is driven by @link {@link DiseaseProgressionPathway manifestation pathways}, but it can be changed by modifying the
+ * By default, the progression is driven by @link {@link SingleDiseaseProgressionPathway manifestation pathways}, but it can be changed by modifying the
  * {@link #getProgression(Patient)} method. 
  * @author Iván Castilla Rodríguez
  */

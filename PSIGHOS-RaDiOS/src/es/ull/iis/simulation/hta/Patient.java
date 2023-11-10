@@ -135,12 +135,20 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		nextProgressionEvents = new TreeMap<>();
 	}
 
+	public List<Double> getRandomNumbers(String key, int n) {
+		return commonRN.draw(key, n);
+	}
+
+	public double getRandomNumber(String key) {
+		return commonRN.draw(key);
+	}
+
 	public List<Double> getRandomNumbersForIncidence(DiseaseProgression progression, int n) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression), n);
+		return getRandomNumbers(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression), n);
 	}
 
 	public double getRandomNumbersForIncidence(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression));
+		return getRandomNumber(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression));
 	}
 
 	@Override

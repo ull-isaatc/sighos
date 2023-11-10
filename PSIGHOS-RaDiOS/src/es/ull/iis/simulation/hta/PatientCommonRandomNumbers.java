@@ -30,6 +30,10 @@ public class PatientCommonRandomNumbers {
 	 */
 	public List<Double> draw(String key, int n) {
 		ArrayList<Double> values = rndValues.get(key);
+		if (values == null) {
+			values = new ArrayList<>();
+			rndValues.put(key, values);
+		}
 		if (n > values.size()) {
 			for (int i = values.size(); i < n; i++) {
 				final double rnd = SecondOrderParamsRepository.getRNG_FIRST_ORDER().draw();
@@ -46,7 +50,9 @@ public class PatientCommonRandomNumbers {
 	 */
 	public double draw(String key) {
 		ArrayList<Double> values = rndValues.get(key);
-		if (values.size() == 0) {
+		if (values == null) {
+			values = new ArrayList<>();
+			rndValues.put(key, values);
 			final double rnd = SecondOrderParamsRepository.getRNG_FIRST_ORDER().draw();
 			values.add(rnd);
 			return rnd;

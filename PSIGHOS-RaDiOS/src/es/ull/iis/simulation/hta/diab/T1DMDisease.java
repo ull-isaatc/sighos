@@ -12,6 +12,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.Angina;
 import es.ull.iis.simulation.hta.diab.manifestations.BackgroundRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.Blindness;
+import es.ull.iis.simulation.hta.diab.manifestations.CoronaryHeartDisease;
 import es.ull.iis.simulation.hta.diab.manifestations.EndStageRenalDisease;
 import es.ull.iis.simulation.hta.diab.manifestations.HeartFailure;
 import es.ull.iis.simulation.hta.diab.manifestations.LowExtremityAmputation;
@@ -34,7 +35,7 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
-import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
+import es.ull.iis.simulation.hta.progression.SingleDiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
 import es.ull.iis.util.Statistics;
@@ -141,6 +142,7 @@ public class T1DMDisease extends Disease {
 	final private DiseaseProgression angina;
 	final private DiseaseProgression hf;
 	final private DiseaseProgression mi;
+	final private DiseaseProgression chd;
 
 	// Flags for validation and comparison
 	private static final boolean DISABLE_CHD = true;
@@ -216,7 +218,7 @@ public class T1DMDisease extends Disease {
 				// Manually adds a second extra risk from LEA, which uses the same probability as the other progression 
 				final TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(neu, alb1), secParams, alb1);
 				final Condition<Patient> cond = new PreviousDiseaseProgressionCondition(lea);
-				new DiseaseProgressionPathway(secParams, alb1, cond, tte);
+				new SingleDiseaseProgressionPathway(secParams, alb1, cond, tte);
 			}
 		}
 		
@@ -243,7 +245,7 @@ public class T1DMDisease extends Disease {
 			// Manually adds a second pathway to ME from PRET that uses the same risk than BGRET, in case BGRET is ommited 
 			final TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(bgret, me), secParams, me, new SheffieldComplicationRR(secParams, me.name()));
 			final Condition<Patient> cond = new PreviousDiseaseProgressionCondition(pret);
-			new DiseaseProgressionPathway(secParams, me, cond, tte);
+			new SingleDiseaseProgressionPathway(secParams, me, cond, tte);
 			addProgression(bli, false);
 			addProgression(bgret, bli, false);
 			addProgression(pret, bli, false);
@@ -260,6 +262,7 @@ public class T1DMDisease extends Disease {
 			stroke = null;
 			mi = null;
 			hf = null;
+			chd = null;
 			selectorsCHD = null;
 		}
 		else {
@@ -270,24 +273,32 @@ public class T1DMDisease extends Disease {
 			stroke = new Stroke(secParams, this);
 			mi = new MyocardialInfarction(secParams, this);
 			hf = new HeartFailure(secParams, this);
+			chd = new CoronaryHeartDisease(secParams, this);
 			assignLabel(GroupOfManifestations.CHD, stroke);
 			assignLabel(GroupOfManifestations.CHD, angina);
 			assignLabel(GroupOfManifestations.CHD, mi);
 			assignLabel(GroupOfManifestations.CHD, hf);
 			final RRCalculator rrCHD = new HbA1c1PPComplicationRR(secParams);
-			// I use angina as the "destination manifestation" in all cases to share the same random number 
-			TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName("CHD"), secParams, angina, rrCHD);
+			// The destination is the stage: CHD 
+			TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName("CHD"), secParams, chd, rrCHD);
+			new SingleDiseaseProgressionPathway(secParams, chd, tte);
 
+//			TreeMap<DiseaseProgression, String> mapping = new TreeMap<>();
+//			mapping.put(stroke, ProbabilityParamDescriptions.PROBABILITY.getParameterName(stroke));
+//			mapping.put(angina, ProbabilityParamDescriptions.PROBABILITY.getParameterName(angina));
+//			mapping.put(mi, ProbabilityParamDescriptions.PROBABILITY.getParameterName(mi));
+//			mapping.put(hf, ProbabilityParamDescriptions.PROBABILITY.getParameterName(hf));
+//			new ExclusiveChoiceDiseaseProgressionPathway(secParams, mapping, tte);
+			
+			
 			// Defines a single pathway, but the calculator uses the different probabilities
 			int order = 0;
-			for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-				new DiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++), tte);
 			if (!DISABLE_NEU) {
 				tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName("NEU_CHD"), secParams, angina, rrCHD);
 				for (DiseaseProgression manif : getLabeledManifestations(GroupOfManifestations.NEU)) {
 					order = 0;
 					for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-						new DiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
+						new SingleDiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
 					
 				}
 			}
@@ -296,7 +307,7 @@ public class T1DMDisease extends Disease {
 				for (DiseaseProgression manif : getLabeledManifestations(GroupOfManifestations.NPH)) {
 					order = 0;
 					for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-						new DiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
+						new SingleDiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
 					
 				}
 			}
@@ -305,7 +316,7 @@ public class T1DMDisease extends Disease {
 				for (DiseaseProgression manif : getLabeledManifestations(GroupOfManifestations.RET)) {
 					order = 0;
 					for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-						new DiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
+						new SingleDiseaseProgressionPathway(secParams, manifCHD, new CHDCondition(order++, manif), tte);
 					
 				}
 			}
@@ -321,7 +332,7 @@ public class T1DMDisease extends Disease {
 		else
 			tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(fromManif, toManif), secParams, toManif);
 		final Condition<Patient> cond = new PreviousDiseaseProgressionCondition(fromManif);
-		new DiseaseProgressionPathway(secParams, toManif, cond, tte);
+		new SingleDiseaseProgressionPathway(secParams, toManif, cond, tte);
 	}
 
 	private void addProgression(DiseaseProgression toManif, boolean useSheffieldRR) {
@@ -332,7 +343,7 @@ public class T1DMDisease extends Disease {
 			tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(toManif), secParams, toManif, new SheffieldComplicationRR(secParams, toManif.name()));
 		else
 			tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(toManif), secParams, toManif);
-		new DiseaseProgressionPathway(secParams, toManif, tte);
+		new SingleDiseaseProgressionPathway(secParams, toManif, tte);
 	}
 	
 	@Override

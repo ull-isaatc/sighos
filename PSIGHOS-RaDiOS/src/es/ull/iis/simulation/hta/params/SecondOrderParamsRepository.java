@@ -22,7 +22,7 @@ import es.ull.iis.simulation.hta.progression.Development;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionEvents;
-import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
+import es.ull.iis.simulation.hta.progression.SingleDiseaseProgressionPathway;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
@@ -164,7 +164,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 			disease.registerSecondOrderParameters(this);
 		for (DiseaseProgression progression : registeredProgressions) {
 			progression.registerSecondOrderParameters(this);
-			for (DiseaseProgressionPathway pathway : progression.getPathways()) {
+			for (SingleDiseaseProgressionPathway pathway : progression.getPathways()) {
 				pathway.registerSecondOrderParameters(this);
 			}
 		}
