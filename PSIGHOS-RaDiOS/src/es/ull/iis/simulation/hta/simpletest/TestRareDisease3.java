@@ -6,12 +6,11 @@ package es.ull.iis.simulation.hta.simpletest;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
-import es.ull.iis.simulation.hta.progression.SingleDiseaseProgressionPathway;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
 
@@ -38,12 +37,12 @@ public class TestRareDisease3 extends TemplateTestRareDisease {
 		manif1 = new TestManifestationStage1(secParams, this);
 		manif2 = new TestManifestationStage2(secParams, this);
 		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1), secParams, manif1);
-		new SingleDiseaseProgressionPathway(secParams, manif1, tte);
+		new DiseaseProgressionPathway(secParams, manif1, tte);
 		tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif2), secParams, manif2);
-		new SingleDiseaseProgressionPathway(secParams, manif2, tte);
-		final Condition<Patient> cond = new PreviousDiseaseProgressionCondition(manif1);
+		new DiseaseProgressionPathway(secParams, manif2, tte);
+		final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new PreviousDiseaseProgressionCondition(manif1);
 		tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif1, manif2), secParams, manif2);
-		new SingleDiseaseProgressionPathway(secParams, manif2, cond, tte); 
+		new DiseaseProgressionPathway(secParams, manif2, cond, tte); 
 	}
 
 	@Override

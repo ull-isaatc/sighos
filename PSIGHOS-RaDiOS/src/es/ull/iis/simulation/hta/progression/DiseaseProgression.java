@@ -51,7 +51,7 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	private int ord = -1;
 
 	/** The different ways to progress */
-	private final ArrayList<SingleDiseaseProgressionPathway> pathways;
+	private final ArrayList<DiseaseProgressionPathway> pathways;
 	/** A set of labels that may be assigned to this manifestation. Labels serve to group related manifestations */
 	private final TreeSet<Named> labels;
 
@@ -120,7 +120,7 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	 * Adds a pathway to the manifestation
 	 * @param pathway A new pathway that may lead to this manifestation 
 	 */
-	public void addPathway(SingleDiseaseProgressionPathway pathway) {
+	public void addPathway(DiseaseProgressionPathway pathway) {
 		pathways.add(pathway);		
 	}
 
@@ -128,7 +128,7 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	 * Returns the collection of pathways that lead to this progression
 	 * @return the collection of pathways that lead to this progression
 	 */
-	public ArrayList<SingleDiseaseProgressionPathway> getPathways() {
+	public ArrayList<DiseaseProgressionPathway> getPathways() {
 		return pathways;
 	}
 	
@@ -140,7 +140,7 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	 */
 	public long getTimeTo(Patient pat, long limit) {
 		long timeTo = Long.MAX_VALUE;
-		for (SingleDiseaseProgressionPathway path : pathways) {
+		for (DiseaseProgressionPathway path : pathways) {
 			long newTime = path.getTimeToEvent(pat, limit);
 			if (newTime < timeTo)
 				timeTo = newTime;

@@ -1,87 +1,47 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.progression;
+package es.ull.iis.simulation.hta.progression.condition;
 
 import java.util.Arrays;
 import java.util.Map;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.util.ExtendedMath;
 
 /**
- * @author Iván Castilla
+ * @author Iván Castilla Rodríguez
  *
  */
-public class ExclusiveChoiceDiseaseProgressionPathway implements DiseaseProgressionPathway {
-	/** Condition that must be met progress to a manifestation */
-	private final Condition<Patient> condition;
-	/** Calculator of the time to event if the condition is met */
-	private final TimeToEventCalculator timeToEvent;
+public class ExclusiveChoiceCondition extends Condition<DiseaseProgressionPathway.ConditionInformation> {
+	private final SingleSelector[] selectors;
+	private final Map<DiseaseProgression, String> paramsByProgression;
 	/** Common parameters repository */
 	private final SecondOrderParamsRepository secParams;
 
-	private final SingleSelector[] selectors;
-	private final Map<DiseaseProgression, String> paramsByProgression;
-	
 	/**
-	 * @param secParams
-	 * @param nextProgression
-	 * @param condition
-	 * @param timeToEvent
+	 * 
 	 */
-	public ExclusiveChoiceDiseaseProgressionPathway(SecondOrderParamsRepository secParams, Map<DiseaseProgression, String> paramsByProgression, Condition<Patient> condition, TimeToEventCalculator timeToEvent) {
-		this.secParams = secParams;
-		this.condition = condition;
-		this.timeToEvent = timeToEvent;
+	public ExclusiveChoiceCondition(SecondOrderParamsRepository secParams, Map<DiseaseProgression, String> paramsByProgression) {
+		super();
 		this.paramsByProgression = paramsByProgression;
 		this.selectors = new SingleSelector[secParams.getNRuns() + 1];
-		Arrays.fill(this.selectors, null); 
-	}
-
-	/**
-	 * @param secParams
-	 * @param nextProgression
-	 * @param timeToEvent
-	 */
-	public ExclusiveChoiceDiseaseProgressionPathway(SecondOrderParamsRepository secParams, Map<DiseaseProgression, String> paramsByProgression, TimeToEventCalculator timeToEvent) {
-		this(secParams, paramsByProgression, new TrueCondition<Patient>(), timeToEvent);
+		Arrays.fill(this.selectors, null); 		
+		this.secParams = secParams;
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-	}
-
-	@Override
-	public SecondOrderParamsRepository getRepository() {
-		return secParams;
-	}
-	
-	@Override
-	public long getTimeToEvent(Patient pat, long limit) {
-		if (condition.check(pat)) {
-			final long time = timeToEvent.getTimeToEvent(pat);
-			return (time >= limit) ? Long.MAX_VALUE : time;
-		}
-		return Long.MAX_VALUE;
-	}
-
-	@Override
-	public Condition<Patient> getCondition() {
-		return condition;
-	}
-
-	@Override
-	public DiseaseProgression getNextProgression(Patient pat) {
+	public boolean check(DiseaseProgressionPathway.ConditionInformation info) {
+		final Patient pat = info.getPatient();
 		if (selectors[pat.getSimulation().getIdentifier()] == null) {
 			selectors[pat.getSimulation().getIdentifier()] = new SingleSelector(pat);
 		}
-		return selectors[pat.getSimulation().getIdentifier()].getDiseaseProgression(pat);
+		return (info.getProgression().compareTo(selectors[pat.getSimulation().getIdentifier()].getDiseaseProgression(pat)) == 0);
 	}
-
 	/**
 	 * A parameter to select between N different options (labeled 0, 1, ..., N - 1). In a single simulation replication, the selection will be always the same for each patient
 	 * Adapted from "simkit.random.DiscreteIntegerVariate" (https://github.com/kastork/simkit-mirror/blob/master/src/simkit/random/DiscreteIntegerVariate.java)
@@ -98,10 +58,11 @@ public class ExclusiveChoiceDiseaseProgressionPathway implements DiseaseProgress
 		 * @param nPatients Number of patients simulated
 		 */
 		public SingleSelector(Patient pat) {
-			progressions = (DiseaseProgression[])paramsByProgression.keySet().toArray();
+			progressions = new DiseaseProgression[paramsByProgression.size()];
 			double[] frequencies = new double[progressions.length];
 			String rndKey = "PROP";
-	        for (int i = 1; i < progressions.length; i++) {
+	        for (int i = 0; i < progressions.length; i++) {
+	        	progressions[i] = (DiseaseProgression)paramsByProgression.keySet().toArray()[i];
 	        	frequencies[i] = secParams.getParameter(paramsByProgression.get(progressions[i]), pat.getSimulation());
 	        	rndKey += "_" + progressions[i].name();
 	        }
@@ -122,5 +83,5 @@ public class ExclusiveChoiceDiseaseProgressionPathway implements DiseaseProgress
 		}
 
 	}
-	
+
 }

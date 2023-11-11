@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
-import es.ull.iis.simulation.hta.progression.SingleDiseaseProgressionPathway;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 
 /**
@@ -29,7 +29,7 @@ public class TestRareDisease2 extends TemplateTestRareDisease {
 		super(secParams, "RD2", "Test rare disease 2");
 		acuteManif1 = new TestAcuteManifestation1(secParams, this);
 		TimeToEventCalculator tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(acuteManif1), secParams, acuteManif1);
-		new SingleDiseaseProgressionPathway(secParams, acuteManif1, tte);
+		new DiseaseProgressionPathway(secParams, acuteManif1, tte);
 	}
 
 	@Override

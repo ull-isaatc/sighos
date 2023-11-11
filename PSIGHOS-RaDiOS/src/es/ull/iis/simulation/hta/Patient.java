@@ -147,7 +147,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		return getRandomNumbers(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression), n);
 	}
 
-	public double getRandomNumbersForIncidence(DiseaseProgression progression) {
+	public double getRandomNumberForIncidence(DiseaseProgression progression) {
 		return getRandomNumber(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression));
 	}
 
@@ -553,21 +553,9 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 				this.cancel();
 			}
 			else {
-				// Add the event to the list of progression events
-				ArrayDeque<DiseaseProgressionEvent> events = null;
-				if (progressionEvents.get(progression) == null) {
-					events = new ArrayDeque<>();
-				}
-				else {
-					events = progressionEvents.get(progression);
-				}
-				events.add(this);
-				progressionEvents.put(progression, events);
-				// ...and remove it from the list of next events
-				nextProgressionEvents.remove(progression);
-				
+				updateProgressionEvents();				
 				simul.notifyInfo(new PatientInfo(simul, Patient.this, progression, this.getTs()));
-				if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(progression.getType())) {
+				if (!DiseaseProgression.Type.ACUTE_MANIFESTATION.equals(progression.getType())) {
 					Patient.this.state.add(progression);
 					// Removes chronic progressions excluded by the new one
 					for (DiseaseProgression excluded : getDisease().getExcluded(progression)) {
@@ -600,6 +588,22 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 					applyProgression(progs);
 				}
 			}
+		}
+		
+		private void updateProgressionEvents() {
+			final DiseaseProgression progression = progress.getDiseaseProgression();
+			// Add the event to the list of progression events
+			ArrayDeque<DiseaseProgressionEvent> events = null;
+			if (progressionEvents.get(progression) == null) {
+				events = new ArrayDeque<>();
+			}
+			else {
+				events = progressionEvents.get(progression);
+			}
+			events.add(this);
+			progressionEvents.put(progression, events);
+			// ...and remove it from the list of next events
+			nextProgressionEvents.remove(progression);
 		}
 		
 		@Override

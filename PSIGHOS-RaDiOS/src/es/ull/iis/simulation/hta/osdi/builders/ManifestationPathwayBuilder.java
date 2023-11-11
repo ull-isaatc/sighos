@@ -21,7 +21,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.SingleDiseaseProgressionPathway;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
@@ -34,7 +34,7 @@ import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressio
 public interface ManifestationPathwayBuilder {
 
 	/**
-	 * Creates a {@link SingleDiseaseProgressionPathway manifestation pathway}. If, for any reason, a manifestation pathway was already created for the specified name, returns the 
+	 * Creates a {@link DiseaseProgressionPathway manifestation pathway}. If, for any reason, a manifestation pathway was already created for the specified name, returns the 
 	 * previously created pathway.
 	 * @param ontology
 	 * @param secParams
@@ -44,13 +44,13 @@ public interface ManifestationPathwayBuilder {
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static SingleDiseaseProgressionPathway getManifestationPathwayInstance(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName) throws MalformedOSDiModelException {
+	public static DiseaseProgressionPathway getManifestationPathwayInstance(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName) throws MalformedOSDiModelException {
 		final Disease disease = manifestation.getDisease();
 		final Condition<Patient> cond = createCondition(secParams, disease, pathwayName);
 		// TODO: Process parameters when a parameter requires another one or use complex expressions
 		final ParameterWrapper riskWrapper = createRiskWrapper(secParams, manifestation, pathwayName);
 		final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, manifestation, pathwayName, riskWrapper);
-		final SingleDiseaseProgressionPathway pathway = new OSDiManifestationPathway(secParams, manifestation, cond, tte, pathwayName, riskWrapper);
+		final DiseaseProgressionPathway pathway = new OSDiManifestationPathway(secParams, manifestation, cond, tte, pathwayName, riskWrapper);
 		return pathway;
 	}
 	
@@ -163,7 +163,7 @@ public interface ManifestationPathwayBuilder {
 		return "Probability of developing " + manifestation + " due to " + pathwayName; 
 	}
 	
-	static class OSDiManifestationPathway extends SingleDiseaseProgressionPathway {
+	static class OSDiManifestationPathway extends DiseaseProgressionPathway {
 		private final String pathwayName; 
 		private final ParameterWrapper riskWrapper;
 
