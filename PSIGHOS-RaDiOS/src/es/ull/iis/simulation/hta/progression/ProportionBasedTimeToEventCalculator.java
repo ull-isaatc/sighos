@@ -31,7 +31,7 @@ public class ProportionBasedTimeToEventCalculator implements TimeToEventCalculat
 
 	@Override
 	public long getTimeToEvent(Patient pat) {
-		final double proportion = secParams.getParameter(paramName, pat.getSimulation());
+		final double proportion = secParams.getParameter(paramName, pat);
 		// Generates two random numbers: the first indicates whether the patient will suffer the problem; the second serves to compute time to event 
 		List<Double> rndValues = pat.getRandomNumbersForIncidence(destManifestation, 2);
 		// Do the patient suffers the problem?

@@ -18,6 +18,6 @@ public interface DefinesBaseUtility extends CreatesSecondOrderParameters, Named 
 	 * @return the base utility for the specified patient
 	 */
 	public default double getBaseUtility(Patient pat) {
-		return UtilityParamDescriptions.BASE_UTILITY.getValue(getRepository(), this, pat.getSimulation());
+		return UtilityParamDescriptions.BASE_UTILITY.getValue(getRepository(), this, pat);
 	}
 }

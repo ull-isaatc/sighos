@@ -31,6 +31,6 @@ public class SecondOrderInterventionSpecificRR implements RRCalculator {
 	public double getRR(Patient pat) {
 		if (pat.getnIntervention() - interventionOffset < 0)
 			return 1.0;
-		return rr[pat.getnIntervention() - interventionOffset].getValue(pat.getSimulation().getIdentifier());
+		return rr[pat.getnIntervention() - interventionOffset].getValue(pat);
 	}
 }

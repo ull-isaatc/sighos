@@ -154,7 +154,7 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	 * @return the maximum age when this progression appears
 	 */
 	public double getEndAge(Patient pat) {
-		return OtherParamDescriptions.END_AGE.getValue(secParams, this, pat.getSimulation());
+		return OtherParamDescriptions.END_AGE.getValue(secParams, this, pat);
 	}
 	
 	/**
@@ -163,44 +163,44 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	 * @return the minimum age when this progression appears
 	 */
 	public double getOnsetAge(Patient pat) {
-		return OtherParamDescriptions.ONSET_AGE.getValue(secParams, this, pat.getSimulation());
+		return OtherParamDescriptions.ONSET_AGE.getValue(secParams, this, pat);
 	}
 	
 	@Override
 	public double getCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
-		return discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);
+		return discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat), initYear, endYear);
 	}
 
 	@Override
 	public double getStartingCost(Patient pat, double time, Discount discountRate) {
-		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(secParams, this, pat.getSimulation()), time);
+		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(secParams, this, pat), time);
 	}
 
 	@Override
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
-		return discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);
+		return discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat), initYear, endYear);
 	}
 
 	@Override
 	public double getTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
-		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
+		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat);
 		return discountRate.applyDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
 	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
-		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
+		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat);
 		return discountRate.applyAnnualDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
 	public double getAnnualDisutility(Patient pat) {
-		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat.getSimulation());
+		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat);
 	}
 	
 	@Override
 	public double getStartingDisutility(Patient pat) {
-		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat.getSimulation());
+		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat);
 	}
 	
 	@Override

@@ -39,7 +39,7 @@ public class AnnualRateBasedTimeToEventCalculator implements TimeToEventCalculat
 	@Override
 	public long getTimeToEvent(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return SecondOrderParamsRepository.getAnnualBasedTimeToEventFromRate(pat, secParams.getParameter(paramName, pat.getSimulation()), 
+		return SecondOrderParamsRepository.getAnnualBasedTimeToEventFromRate(pat, secParams.getParameter(paramName, pat), 
 				rndValue, irr.getRR(pat));
 	}		
 }

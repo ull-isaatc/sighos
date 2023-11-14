@@ -63,7 +63,7 @@ public class ExclusiveChoiceCondition extends Condition<DiseaseProgressionPathwa
 			String rndKey = "PROP";
 	        for (int i = 0; i < progressions.length; i++) {
 	        	progressions[i] = (DiseaseProgression)paramsByProgression.keySet().toArray()[i];
-	        	frequencies[i] = secParams.getParameter(paramsByProgression.get(progressions[i]), pat.getSimulation());
+	        	frequencies[i] = secParams.getParameter(paramsByProgression.get(progressions[i]), pat);
 	        	rndKey += "_" + progressions[i].name();
 	        }
 	        this.rndKey = rndKey;

@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.params;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
@@ -16,58 +15,58 @@ import simkit.random.RandomVariate;
 public enum UtilityParamDescriptions implements DescribesParameter {
 	BASE_UTILITY("BASE_U", "Base utility for", 1.0) {
 		@Override
-		public double forceValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-			return getValue(secParams, name, simul);
+		public double forceValue(SecondOrderParamsRepository secParams, String name, Patient pat) {
+			return getValue(secParams, name, pat);
 		}
 	},
 	DISUTILITY("DU", "Disutility for", 0.0) {
 		@Override
-		public double forceValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-			double value = getValueIfExists(secParams, name, simul);
+		public double forceValue(SecondOrderParamsRepository secParams, String name, Patient pat) {
+			double value = getValueIfExists(secParams, name, pat);
 			if (!Double.isNaN(value))
 				return value;
-			value = UTILITY.getValueIfExists(secParams, name, simul);
+			value = UTILITY.getValueIfExists(secParams, name, pat);
 			if (!Double.isNaN(value)) {
-				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), simul) - value;
+				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), pat) - value;
 			}
 			return getParameterDefaultValue();
 		}
 	},
 	ONE_TIME_DISUTILITY("TDU", "One-time disutility for", 0.0) {
 		@Override
-		public double forceValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-			double value = getValueIfExists(secParams, name, simul);
+		public double forceValue(SecondOrderParamsRepository secParams, String name, Patient pat) {
+			double value = getValueIfExists(secParams, name, pat);
 			if (!Double.isNaN(value))
 				return value;
-			value = ONE_TIME_UTILITY.getValueIfExists(secParams, name, simul);
+			value = ONE_TIME_UTILITY.getValueIfExists(secParams, name, pat);
 			if (!Double.isNaN(value)) {
-				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), simul) - value;
+				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), pat) - value;
 			}
 			return getParameterDefaultValue();
 		}
 	},
 	ONE_TIME_UTILITY("TU", "One-time utility for", 1.0) {
 		@Override
-		public double forceValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-			double value = getValueIfExists(secParams, name, simul);
+		public double forceValue(SecondOrderParamsRepository secParams, String name, Patient pat) {
+			double value = getValueIfExists(secParams, name, pat);
 			if (!Double.isNaN(value))
 				return value;
-			value = ONE_TIME_DISUTILITY.getValueIfExists(secParams, name, simul);
+			value = ONE_TIME_DISUTILITY.getValueIfExists(secParams, name, pat);
 			if (!Double.isNaN(value)) {
-				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), simul) - value;
+				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), pat) - value;
 			}
 			return getParameterDefaultValue();
 		}
 	},
 	UTILITY("U", "Utility for", 1.0) {
 		@Override
-		public double forceValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-			double value = getValueIfExists(secParams, name, simul);
+		public double forceValue(SecondOrderParamsRepository secParams, String name, Patient pat) {
+			double value = getValueIfExists(secParams, name, pat);
 			if (!Double.isNaN(value))
 				return value;
-			value = DISUTILITY.getValue(secParams, name, simul);
+			value = DISUTILITY.getValue(secParams, name, pat);
 			if (!Double.isNaN(value)) {
-				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), simul) - value;
+				return BASE_UTILITY.getValue(secParams, secParams.getPopulation(), pat) - value;
 			}
 			return getParameterDefaultValue();
 		}
@@ -101,8 +100,8 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 		return defaultValue;
 	}
 
-	public double forceValue(SecondOrderParamsRepository secParams, Named instance, DiseaseProgressionSimulation simul) {
-		return forceValue(secParams, instance.name(), simul);
+	public double forceValue(SecondOrderParamsRepository secParams, Named instance, Patient pat) {
+		return forceValue(secParams, instance.name(), pat);
 	}
 	/**
 	 * Forces the return type to utility/disutility, depending on the enum item, i.e. if it does not find the "native" value, looks for the 
@@ -112,18 +111,18 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 	 * @param simul Current simulation
 	 * @return A utility/disutility value, according to the enum type.
 	 */
-	public abstract double forceValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul);
+	public abstract double forceValue(SecondOrderParamsRepository secParams, String name, Patient pat);
 	
 	public static double getDisutilityValue(SecondOrderParamsRepository secParams, String name, Patient pat, boolean oneTime) {
 		final UtilityParamDescriptions paramDisutility = oneTime ? UtilityParamDescriptions.ONE_TIME_DISUTILITY : UtilityParamDescriptions.DISUTILITY; 
 		final UtilityParamDescriptions paramUtility = oneTime ? UtilityParamDescriptions.ONE_TIME_UTILITY : UtilityParamDescriptions.UTILITY;
 		
 		// Uses the base disutility for the disease if available 
-		double du = paramDisutility.getValueIfExists(secParams, name, pat.getSimulation());
+		double du = paramDisutility.getValueIfExists(secParams, name, pat);
 		if (!Double.isNaN(du))
 			return du;
 		// If the disutility is not defined, looks for a utility
-		du = paramUtility.getValueIfExists(secParams, name, pat.getSimulation());
+		du = paramUtility.getValueIfExists(secParams, name, pat);
 		// If the utility is neither defined, uses 0.0
 		if (Double.isNaN(du))
 			return 0.0;

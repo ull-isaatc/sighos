@@ -128,11 +128,11 @@ public class Strategy implements PartOfStrategy, Reseteable {
 		double cost = 0.0;
 		// If the patient does not meet the condition, the strategy cannot be applied
 		if (condition.check(pat)) {
-			double partialCost = CostParamDescriptions.ANNUAL_COST.getValueIfExists(secParams, this, pat.getSimulation());
+			double partialCost = CostParamDescriptions.ANNUAL_COST.getValueIfExists(secParams, this, pat);
 			// If there is an annual cost defined, ignores the guideline
 			if (!Double.isNaN(partialCost))
 				cost += discountRate.applyDiscount(partialCost, startT, endT);
-			partialCost = CostParamDescriptions.ONE_TIME_COST.getValueIfExists(secParams, this, pat.getSimulation());
+			partialCost = CostParamDescriptions.ONE_TIME_COST.getValueIfExists(secParams, this, pat);
 			// In case a one-time cost is defined, it is used first to compute the cost of the strategy
 			if (!Double.isNaN(partialCost)) {
 				cost += discountRate.applyPunctualDiscount(partialCost, startT);

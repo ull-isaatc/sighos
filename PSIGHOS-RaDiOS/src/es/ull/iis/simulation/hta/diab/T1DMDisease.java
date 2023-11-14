@@ -505,7 +505,7 @@ public class T1DMDisease extends Disease {
 
 		@Override
 		public double getRR(Patient pat) {
-			final double beta = OtherParamDescriptions.RELATIVE_RISK.getValue(secParams, paramName, pat.getSimulation());
+			final double beta = OtherParamDescriptions.RELATIVE_RISK.getValue(secParams, paramName, pat);
 			return Math.pow(pat.getAttributeValue(T1DMRepository.STR_HBA1C).doubleValue()/10.0, beta);
 		}
 	}
@@ -537,7 +537,7 @@ public class T1DMDisease extends Disease {
 		@Override
 		public double getRR(Patient pat) {
 			// Gets The relative risk of the complication, associated to a 1 PP increment of HbA1c
-			final double referenceRR = OtherParamDescriptions.RELATIVE_RISK.getValue(secParams, "CHD", pat.getSimulation());
+			final double referenceRR = OtherParamDescriptions.RELATIVE_RISK.getValue(secParams, "CHD", pat);
 			final double diff = pat.getAttributeValue(T1DMRepository.STR_HBA1C).doubleValue() - REF_HBA1C;
 			return Math.pow(referenceRR, diff);
 		}

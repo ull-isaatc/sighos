@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.hta.params;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.model.Describable;
 
 /**
@@ -76,44 +76,44 @@ public interface DescribesParameter extends Named {
 	 * Returns the value of the parameter if it is registered in the repository; otherwise, should return a predefined default value
 	 * @param secParams Parameter repository
 	 * @param instance Named instance to be concatenated with the corresponding prefix
-	 * @param simul Current simulation
+	 * @param pat A patient
 	 * @return the value of the parameter if it is registered in the repository; otherwise, should return a predefined default value
 	 */
-	default double getValue(SecondOrderParamsRepository secParams, Named instance, DiseaseProgressionSimulation simul) {
-		return getValue(secParams, instance.name(), simul);		
+	default double getValue(SecondOrderParamsRepository secParams, Named instance, Patient pat) {
+		return getValue(secParams, instance.name(), pat);		
 	}
 
 	/**
 	 * Returns the value of the parameter if it is registered in the repository; otherwise, should return a predefined default value
 	 * @param secParams Parameter repository
 	 * @param name The name of the parameter to be concatenated with the corresponding prefix 
-	 * @param simul Current simulation
+	 * @param pat A patient
 	 * @return the value of the parameter if it is registered in the repository; otherwise, should return a predefined default value
 	 */
-	default double getValue(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-		return secParams.getParameter(name, getParameterDefaultValue(), simul);
+	default double getValue(SecondOrderParamsRepository secParams, String name, Patient pat) {
+		return secParams.getParameter(name, getParameterDefaultValue(), pat);
 	}
 	
 	/**
 	 * Returns the value of the parameter if it is registered in the repository; otherwise, should return Double.NaN
 	 * @param secParams Parameter repository
 	 * @param instance Named instance to be concatenated with the corresponding prefix
-	 * @param simul Current simulation
+	 * @param pat A patient
 	 * @return the value of the parameter if it is registered in the repository; otherwise, should return Double.NaN
 	 */
-	default double getValueIfExists(SecondOrderParamsRepository secParams, Named instance, DiseaseProgressionSimulation simul) {
-		return getValueIfExists(secParams, instance.name(), simul);		
+	default double getValueIfExists(SecondOrderParamsRepository secParams, Named instance, Patient pat) {
+		return getValueIfExists(secParams, instance.name(), pat);		
 	}
 	
 	/**
 	 * Returns the value of the parameter if it is registered in the repository; otherwise, should return Double.NaN
 	 * @param secParams Parameter repository
 	 * @param name The name of the parameter to be concatenated with the corresponding prefix 
-	 * @param simul Current simulation
+	 * @param pat A patient
 	 * @return the value of the parameter if it is registered in the repository; otherwise, should return Double.NaN
 	 */
-	default double getValueIfExists(SecondOrderParamsRepository secParams, String name, DiseaseProgressionSimulation simul) {
-		return secParams.getParameter(name, simul);
+	default double getValueIfExists(SecondOrderParamsRepository secParams, String name, Patient pat) {
+		return secParams.getParameter(name, pat);
 	}
 	
 	/**

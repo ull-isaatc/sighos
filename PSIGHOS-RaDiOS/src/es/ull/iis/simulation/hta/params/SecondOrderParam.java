@@ -2,6 +2,7 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.Arrays;
 
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -71,18 +72,23 @@ public class SecondOrderParam implements PrettyPrintable, Comparable<SecondOrder
 		this(secParams, name, description, source, detValue, RandomVariateFactory.getInstance("ConstantVariate", detValue));
 	}
 
+	public double getValue(Patient pat) {
+		return getValue(pat.getSimulation().getIdentifier());
+	}
+
 	/**
 	 * Returns a value for the parameter: if id = 0, returns the expected value (base case); otherwise returns a random-generated value. 
 	 * Always returns the same value for the same id.
 	 * @param id The identifier of the value to return (0: deterministic; other: random value)
 	 * @return if id = 0, returns the expected value (base case); otherwise returns a random-generated value
+	 * TODO: Remove to be consistent with the getter based on the patient. Left only to allow SecondOrderParamsRepository.print(int) work properly
 	 */
 	public double getValue(int id) {
 		if (Double.isNaN(generatedValues[id]))
 			generatedValues[id] = rnd.generate(); // FIXME: if the rnd function is null it gives a NullPointerException
 		return generatedValues[id];
 	}
-	
+
 	/**
 	 * Returns a value for the parameter, modified according to a {@link Modification}
 	 * Always returns the same value for the same id.
@@ -90,17 +96,17 @@ public class SecondOrderParam implements PrettyPrintable, Comparable<SecondOrder
 	 * @param modif A modification that affects the value
 	 * @return if id = 0, returns the expected value (base case); otherwise returns a random-generated value
 	 */
-	public double getValue(int id, Modification modif) {
-		double value = getValue(id);
+	public double getValue(Patient pat, Modification modif) {
+		double value = getValue(pat);
 		switch(modif.getType()) {
 		case DIFF:
-			value -= modif.getValue(id);
+			value -= modif.getValue(pat);
 			break;
 		case RR:
-			value *= modif.getValue(id);
+			value *= modif.getValue(pat);
 			break;
 		case SET:
-			value = modif.getValue(id);
+			value = modif.getValue(pat);
 			break;
 		default:
 			break;		

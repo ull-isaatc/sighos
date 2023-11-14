@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
@@ -169,27 +169,27 @@ public interface PopulationBuilder {
 		}
 
 		@Override
-		protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
+		protected DiscreteRandomVariate getSexVariate(Patient pat) {
 			return sexVariate;
 		}
 		
 		@Override
-		protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
+		protected DiscreteRandomVariate getDiseaseVariate(Patient pat) {
 			if (birthPrevalenceParam != null)
-				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(getRepository(), name(), simul));
+				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(getRepository(), name(), pat));
 			else if (prevalenceParam != null)
-				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.PREVALENCE.getValue(getRepository(), name(), simul));
+				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.PREVALENCE.getValue(getRepository(), name(), pat));
 			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 		}
 		
 		@Override
-		protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
+		protected DiscreteRandomVariate getDiagnosedVariate(Patient pat) {
 			// TODO Do something with true and apparent epidemiologic parameters
 			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 		}
 		
 		@Override
-		protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
+		protected RandomVariate getBaselineAgeVariate(Patient pat) {
 			return ageVariate;
 		}
 		

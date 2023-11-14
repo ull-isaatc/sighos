@@ -43,7 +43,7 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 
 	@Override
 	public double getStartingCost(Patient pat, double time, Discount discountRate) {
-		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(getRepository(), this, pat.getSimulation()), time);
+		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(getRepository(), this, pat), time);
 	}
 
 	@Override

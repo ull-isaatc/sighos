@@ -6,8 +6,8 @@ package es.ull.iis.simulation.hta.diab;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.HeartFailure;
 import es.ull.iis.simulation.hta.diab.manifestations.LowExtremityAmputation;
 import es.ull.iis.simulation.hta.diab.manifestations.MyocardialInfarction;
@@ -16,8 +16,8 @@ import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
+import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
@@ -68,17 +68,17 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	}
 
 	@Override
-	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
+	protected DiscreteRandomVariate getSexVariate(Patient pat) {
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 132.0 / 300.0);
 	}
 
 	@Override
-	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
+	protected DiscreteRandomVariate getDiseaseVariate(Patient pat) {
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 	}
 
 	@Override
-	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
+	protected DiscreteRandomVariate getDiagnosedVariate(Patient pat) {
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 	}
 
@@ -110,7 +110,7 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	}
 
 	@Override
-	protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
+	protected RandomVariate getBaselineAgeVariate(Patient pat) {
 		final double mode = Statistics.betaModeFromMeanSD(BASELINE_AGE[0], BASELINE_AGE[1]);
 		
 		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_AGE[0], mode, MIN_MAX_BASELINE_AGE[0], MIN_MAX_BASELINE_AGE[1]);

@@ -62,28 +62,28 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 		// Taking into account modification of death due to the intervention
 		final Modification modif = pat.getIntervention().getLifeExpectancyModification();
 		if (Modification.Type.SET.equals(modif.getType()))
-			return pat.getTs() + simul.getTimeUnit().convert(modif.getValue(simulId) - age, TimeUnit.YEAR);
+			return pat.getTs() + simul.getTimeUnit().convert(modif.getValue(pat) - age, TimeUnit.YEAR);
 		
 		double imr = 1.0;
 		double ler = 0.0;
 		for (final DiseaseProgression state : pat.getState()) {
-			final double newIMR = OtherParamDescriptions.INCREASED_MORTALITY_RATE.getValue(secParams, state, simul);
+			final double newIMR = OtherParamDescriptions.INCREASED_MORTALITY_RATE.getValue(secParams, state, pat);
 			if (newIMR > imr) {
 				imr = newIMR;
 			}
-			final double newLER = OtherParamDescriptions.LIFE_EXPECTANCY_REDUCTION.getValue(secParams, state, simul);
+			final double newLER = OtherParamDescriptions.LIFE_EXPECTANCY_REDUCTION.getValue(secParams, state, pat);
 			if (newLER > ler) {
 				ler = newLER;
 			}
 		}
 		// TODO: Check that this works properly
 		if (Modification.Type.RR.equals(modif.getType())) {
-			imr *= modif.getValue(simulId);
+			imr *= modif.getValue(pat);
 		}
 		final double time = Math.min(GompertzVariate.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), rnd[simulId][pat.getIdentifier()] / imr), BasicConfigParams.DEF_MAX_AGE - age);
 		// TODO: Check that this works properly
 		if (Modification.Type.DIFF.equals(modif.getType())) {
-			return pat.getTs() + simul.getTimeUnit().convert(Math.max(0.0,  Math.min(time - modif.getValue(simulId) - ler, BasicConfigParams.DEF_MAX_AGE - age)), TimeUnit.YEAR);			
+			return pat.getTs() + simul.getTimeUnit().convert(Math.max(0.0,  Math.min(time - modif.getValue(pat) - ler, BasicConfigParams.DEF_MAX_AGE - age)), TimeUnit.YEAR);			
 		}
 		return pat.getTs() + simul.getTimeUnit().convert(Math.max(0.0, time - ler), TimeUnit.YEAR);
 	}

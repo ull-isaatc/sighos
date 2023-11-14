@@ -194,7 +194,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return true if this patient starts in the simulation with the specified progression
 	 */
 	public boolean startsWithDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression)) < ProbabilityParamDescriptions.INITIAL_PROPORTION.getValue(getSimulation().getRepository(), progression, getSimulation());
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression)) < ProbabilityParamDescriptions.INITIAL_PROPORTION.getValue(getSimulation().getRepository(), progression, this);
 	}
 
 	/**
@@ -203,7 +203,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the acute onset of the progression produces the death of the patient
 	 */
 	public boolean deadsByDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DEATH.getKey(this, progression)) < ProbabilityParamDescriptions.PROBABILITY_DEATH.getValue(getSimulation().getRepository(), progression, getSimulation());
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DEATH.getKey(this, progression)) < ProbabilityParamDescriptions.PROBABILITY_DEATH.getValue(getSimulation().getRepository(), progression, this);
 	}
 	
 	/**
@@ -212,7 +212,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the acute onset of a progression leads to the diagnosis of the patient
 	 */
 	public boolean isDiagnosedByDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DIAGNOSE.getKey(this, progression)) < ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS.getValue(getSimulation().getRepository(), progression, getSimulation());
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DIAGNOSE.getKey(this, progression)) < ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS.getValue(getSimulation().getRepository(), progression, this);
 	}
 	
 	@Override
@@ -477,13 +477,13 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		double value = attributes.get(attribute).doubleValue(); 
 		switch(modif.getType()) {
 		case DIFF:
-			value -= modif.getValue(id);
+			value -= modif.getValue(this);
 			break;
 		case RR:
-			value *= modif.getValue(id);
+			value *= modif.getValue(this);
 			break;
 		case SET:
-			value = modif.getValue(id);
+			value = modif.getValue(this);
 			break;
 		default:
 			break;

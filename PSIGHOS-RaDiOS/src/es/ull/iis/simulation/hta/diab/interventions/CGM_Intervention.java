@@ -72,8 +72,8 @@ public class CGM_Intervention extends Intervention {
 	@Override
 	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		final SecondOrderParamsRepository secParams = getRepository();
-		return discountRate.applyDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat.getSimulation()) +
-				C_SENSOR_G5 * secParams.getParameter(STR_USE_SENSOR_G5, 0.0, pat.getSimulation())) * 365, initT, endT);
+		return discountRate.applyDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat) +
+				C_SENSOR_G5 * secParams.getParameter(STR_USE_SENSOR_G5, 0.0, pat)) * 365, initT, endT);
 	}
 
 	@Override
@@ -84,8 +84,8 @@ public class CGM_Intervention extends Intervention {
 	@Override
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		final SecondOrderParamsRepository secParams = getRepository();
-		return discountRate.applyAnnualDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat.getSimulation()) +
-				C_SENSOR_G5 * secParams.getParameter(STR_USE_SENSOR_G5, 0.0, pat.getSimulation())) * 365, initT, endT);
+		return discountRate.applyAnnualDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat) +
+				C_SENSOR_G5 * secParams.getParameter(STR_USE_SENSOR_G5, 0.0, pat)) * 365, initT, endT);
 	}
 
 	@Override

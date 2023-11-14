@@ -55,7 +55,7 @@ public class SMBG_Intervention extends Intervention {
 		final SecondOrderParamsRepository secParams = getRepository();
 
 		return discountRate.applyDiscount(
-				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat.getSimulation()) * 365, 
+				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat) * 365, 
 				initT, endT);
 	}
 
@@ -68,7 +68,7 @@ public class SMBG_Intervention extends Intervention {
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		final SecondOrderParamsRepository secParams = getRepository();
 		return discountRate.applyAnnualDiscount(
-				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat.getSimulation()) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat.getSimulation()) * 365, 
+				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat) * 365, 
 				initT, endT);
 	}
 

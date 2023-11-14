@@ -10,7 +10,6 @@ import java.util.TreeSet;
 
 import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
@@ -397,8 +396,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param name String identifier of the parameter
 	 * @return A value for the specified parameter; {@link Double#NaN} in case the parameter is not defined
 	 */
-	public double getParameter(String name, DiseaseProgressionSimulation simul) {
-		return getParameter(name, Double.NaN, simul);
+	public double getParameter(String name, Patient pat) {
+		return getParameter(name, Double.NaN, pat);
 	}
 
 	/**
@@ -407,13 +406,12 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param defaultValue Default value in case the parameter is not defined
 	 * @return A value for the specified parameter; the specified default value in case the parameter is not defined
 	 */
-	public double getParameter(String name, double defaultValue, DiseaseProgressionSimulation simul) {
-		final int id = simul.getIdentifier();
+	public double getParameter(String name, double defaultValue, Patient pat) {
 		final SecondOrderParam param = params.get(name);
 		if (param == null)
 			return defaultValue;
-		final Modification modif = (Modification) params.get(getModificationString(simul.getIntervention(), name));
-		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
+		final Modification modif = (Modification) params.get(getModificationString(pat.getSimulation().getIntervention(), name));
+		return (modif == null) ? param.getValue(pat) : param.getValue(pat, modif); 
 	}
 	
 	/**
@@ -562,6 +560,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		return str.toString();
 	}
 	
+	// TODO: The way values are obtained should change. Meanwhile, this method is left behind for convenience
 	public String print(int id) {
 		StringBuilder str = new StringBuilder();
 		for (SecondOrderParam param : probabilityParams)

@@ -42,7 +42,7 @@ public class HealthTechnology implements PartOfStrategy {
 	}
 
 	public double getUnitCost(Patient pat) {
-		return CostParamDescriptions.UNIT_COST.getValue(secParams, this, pat.getSimulation());
+		return CostParamDescriptions.UNIT_COST.getValue(secParams, this, pat);
 	}
 
 	/**
@@ -54,12 +54,12 @@ public class HealthTechnology implements PartOfStrategy {
 
 	@Override
 	public double getCostForPeriod(Patient pat, double startT, double endT, Discount discountRate) {
-		double cost = CostParamDescriptions.ANNUAL_COST.getValueIfExists(secParams, this, pat.getSimulation());
+		double cost = CostParamDescriptions.ANNUAL_COST.getValueIfExists(secParams, this, pat);
 		// If there is an annual cost defined, ignores the guideline
 		if (!Double.isNaN(cost))
 			return discountRate.applyDiscount(cost, startT, endT);
 		// Otherwise, looks for a unit cost to apply a guideline
-		cost = CostParamDescriptions.UNIT_COST.getValueIfExists(secParams, this, pat.getSimulation());
+		cost = CostParamDescriptions.UNIT_COST.getValueIfExists(secParams, this, pat);
 		if (!Double.isNaN(cost))
 			return guide.getCost(cost, startT, endT, discountRate);
 		return 0.0;

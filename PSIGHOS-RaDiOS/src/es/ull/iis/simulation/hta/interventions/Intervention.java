@@ -140,12 +140,12 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 
 	@Override
 	public double getAnnualDisutility(Patient pat) {
-		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat.getSimulation());
+		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat);
 	}
 	
 	@Override
 	public double getStartingDisutility(Patient pat) {
-		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat.getSimulation());
+		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat);
 	}
 	
 	/**

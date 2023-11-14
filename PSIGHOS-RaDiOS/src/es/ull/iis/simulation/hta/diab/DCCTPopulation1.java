@@ -6,13 +6,13 @@ package es.ull.iis.simulation.hta.diab;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
+import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
@@ -79,22 +79,22 @@ public class DCCTPopulation1 extends StdPopulation {
 	}
 
 	@Override
-	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
+	protected DiscreteRandomVariate getSexVariate(Patient pat) {
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), P_WOMAN);
 	}
 
 	@Override
-	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
+	protected DiscreteRandomVariate getDiseaseVariate(Patient pat) {
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 	}
 
 	@Override
-	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
+	protected DiscreteRandomVariate getDiagnosedVariate(Patient pat) {
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 	}
 
 	@Override
-	protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
+	protected RandomVariate getBaselineAgeVariate(Patient pat) {
 		if (T1DMDisease.FIXED_BASE_VALUES) {
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE_AVG);			
 		}

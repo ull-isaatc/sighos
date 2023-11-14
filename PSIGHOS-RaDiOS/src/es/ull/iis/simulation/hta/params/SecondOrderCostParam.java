@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.hta.params;
 
+import es.ull.iis.simulation.hta.Patient;
 import simkit.random.RandomVariate;
 
 /**
@@ -49,7 +50,8 @@ public class SecondOrderCostParam extends SecondOrderParam {
 	}
 
 	@Override
-	public double getValue(int id) {
+	public double getValue(Patient pat) {
+		final int id = pat.getSimulation().getIdentifier();
 		if (Double.isNaN(generatedValues[id])) {
 				generatedValues[id] = SpanishCPIUpdate.updateCost(rnd.generate(), year, secParams.getStudyYear());
 		}

@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.hta.pbdmodel;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
@@ -30,23 +30,23 @@ public class PBDPopulation extends StdPopulation {
 	}
 
 	@Override
-	protected DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul) {
+	protected DiscreteRandomVariate getSexVariate(Patient pat) {
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 0.5);
 	}
 
 	@Override
-	protected DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul) {
-		final double birthPrev = allAffected ? 1.0 : ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(getRepository(), disease, simul);
+	protected DiscreteRandomVariate getDiseaseVariate(Patient pat) {
+		final double birthPrev = allAffected ? 1.0 : ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(getRepository(), disease, pat);
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), birthPrev);
 	}
 
 	@Override
-	protected DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul) {
+	protected DiscreteRandomVariate getDiagnosedVariate(Patient pat) {
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 0.0);
 	}
 
 	@Override
-	protected RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul) {
+	protected RandomVariate getBaselineAgeVariate(Patient pat) {
 		return RandomVariateFactory.getInstance("ConstantVariate", 0.0);
 	}
 

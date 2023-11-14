@@ -3,9 +3,8 @@
  */
 package es.ull.iis.simulation.hta.populations;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -40,7 +39,7 @@ public abstract class StdPopulation extends Population {
 	public int getSex(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (rndSex[id] == null)
-			rndSex[id] = getSexVariate(pat.getSimulation());
+			rndSex[id] = getSexVariate(pat);
 		return rndSex[id].generateInt();
 	}
 
@@ -48,7 +47,7 @@ public abstract class StdPopulation extends Population {
 	public double getInitAge(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (rndBaselineAge[id] == null)
-			rndBaselineAge[id] = getBaselineAgeVariate(pat.getSimulation());
+			rndBaselineAge[id] = getBaselineAgeVariate(pat);
 		return Math.min(Math.max(rndBaselineAge[id].generate(), getMinAge()), getMaxAge());
 	}
 
@@ -56,7 +55,7 @@ public abstract class StdPopulation extends Population {
 	public Disease getDisease(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (rndDisease[id] == null)
-			rndDisease[id] = getDiseaseVariate(pat.getSimulation());
+			rndDisease[id] = getDiseaseVariate(pat);
 		return (rndDisease[id].generateInt() == 1) ? disease : getRepository().HEALTHY;
 	}
 
@@ -64,7 +63,7 @@ public abstract class StdPopulation extends Population {
 	public boolean isDiagnosedFromStart(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (rndDiagnosed[id] == null)
-			rndDiagnosed[id] = getDiagnosedVariate(pat.getSimulation());
+			rndDiagnosed[id] = getDiagnosedVariate(pat);
 		return rndDiagnosed[id].generateInt() == 1;
 	}
 	
@@ -76,7 +75,7 @@ public abstract class StdPopulation extends Population {
 	 * @param simul Current simulation replica
 	 * @return a distribution that represents the probability of having a disease according to the population characteristics
 	 */
-	protected abstract DiscreteRandomVariate getDiseaseVariate(DiseaseProgressionSimulation simul);
+	protected abstract DiscreteRandomVariate getDiseaseVariate(Patient pat);
 
 	/**
 	 * Creates and returns a distribution that should return {@link BasicConfigParams.MAN} if the patient is a male, 
@@ -84,7 +83,7 @@ public abstract class StdPopulation extends Population {
 	 * @param simul Current simulation replica
 	 * @return Distribution that should return 0 if the patient is a male, and 1 if she is a female.
 	 */
-	protected abstract DiscreteRandomVariate getSexVariate(DiseaseProgressionSimulation simul);
+	protected abstract DiscreteRandomVariate getSexVariate(Patient pat);
 	
 	/**
 	 * Creates and returns a distribution which returns 1 (true) if the patient will start with a diagnosis according 
@@ -93,12 +92,12 @@ public abstract class StdPopulation extends Population {
 	 * @return a distribution which returns 1 (true) if the patient will start with a diagnosis according 
 	 * to the population characteristics; and 0 (false) otherwise
 	 */
-	protected abstract DiscreteRandomVariate getDiagnosedVariate(DiseaseProgressionSimulation simul);	
+	protected abstract DiscreteRandomVariate getDiagnosedVariate(Patient pat);	
 	
 	/**
 	 * Creates and returns a function to assign the baseline age
 	 * @param simul Current simulation replica
 	 * @return a function to assign the baseline age
 	 */
-	protected abstract RandomVariate getBaselineAgeVariate(DiseaseProgressionSimulation simul);
+	protected abstract RandomVariate getBaselineAgeVariate(Patient pat);
 }

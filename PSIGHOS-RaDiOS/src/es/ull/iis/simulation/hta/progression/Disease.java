@@ -251,10 +251,10 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 */
 	public double getCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
 		// The disease may involve a non-specific cost
-		double cost =  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);;
+		double cost =  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat), initYear, endYear);;
 		// ... plus costs related to each manifestation
 		for (final DiseaseProgression manif : pat.getState()) {
-			cost +=  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initYear, endYear);
+			cost +=  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat), initYear, endYear);
 		}
 		// ... plus specific treatment or follow-up costs 
 		if (pat.isDiagnosed())
@@ -264,9 +264,9 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	
 	@Override
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
-		final double []result = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat.getSimulation()), initYear, endYear);;
+		final double []result = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat), initYear, endYear);;
 		for (final DiseaseProgression manif : pat.getState()) {
-			final double[] partial = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat.getSimulation()), initYear, endYear);
+			final double[] partial = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat), initYear, endYear);
 			for (int i = 0; i < result.length; i++)
 				result[i] += partial[i];
 		}
@@ -287,31 +287,31 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	 */
 	@Override
 	public double getStartingCost(Patient pat, double time, Discount discountRate) {
-		return discountRate.applyPunctualDiscount(CostParamDescriptions.DIAGNOSIS_COST.getValue(secParams, this, pat.getSimulation()), time);
+		return discountRate.applyPunctualDiscount(CostParamDescriptions.DIAGNOSIS_COST.getValue(secParams, this, pat), time);
 	}
 
 	@Override
 	public double getTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
 		// If common costs are defined, uses them
-		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
+		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat);
 		return discountRate.applyDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
 	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear,
 			Discount discountRate) {
-		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat.getSimulation()) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat.getSimulation());
+		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat);
 		return discountRate.applyAnnualDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
 	public double getAnnualDisutility(Patient pat) {
-		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat.getSimulation());
+		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat);
 	}
 
 	@Override
 	public double getStartingDisutility(Patient pat) {
-		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat.getSimulation());
+		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat);
 	}
 	
 	/** 
