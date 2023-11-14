@@ -3,9 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diab;
 
-import java.util.Arrays;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import es.ull.iis.simulation.condition.AndCondition;
 import es.ull.iis.simulation.condition.Condition;
@@ -32,7 +30,6 @@ import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SingleSelectorParam;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.ConstantTimeToEventCalculator;
@@ -156,9 +153,6 @@ public class T1DMDisease extends Disease {
 	public static final boolean DISABLE_SHE = true;
 	/** Uses fix values for initial age, HbA1c level and duration of diabetes */
 	public static final boolean FIXED_BASE_VALUES = true;
-
-	/** A selector for each simulation run */
-	private final SingleSelectorParam[] selectorsCHD;
 	
 	/**
 	 * @param secParams
@@ -267,11 +261,8 @@ public class T1DMDisease extends Disease {
 			mi = null;
 			hf = null;
 			chd = null;
-			selectorsCHD = null;
 		}
 		else {
-			selectorsCHD = new SingleSelectorParam[secParams.getNRuns() + 1];
-			Arrays.fill(selectorsCHD, null);
 			
 			angina = new Angina(secParams, this);
 			stroke = new Stroke(secParams, this);
@@ -299,7 +290,6 @@ public class T1DMDisease extends Disease {
 			
 			
 			// Defines a single pathway, but the calculator uses the different probabilities
-			int order = 0;
 			if (!DISABLE_NEU) {
 				tte = new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName("NEU_CHD"), secParams, chd, rrCHD);
 				new DiseaseProgressionPathway(secParams, chd, tte);
@@ -486,19 +476,6 @@ public class T1DMDisease extends Disease {
 		}
 	}
 
-	public int getCHDComplication(Patient pat) {
-		final SecondOrderParamsRepository secParams = getRepository();
-		final int id = pat.getSimulation().getIdentifier();
-		if (selectorsCHD[id] == null) {
-			final double [] coef = new double[4];
-			int order = 0;
-			for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-				coef[order++] = ProbabilityParamDescriptions.PROBABILITY.getValue(secParams, manifCHD, pat.getSimulation());
-			selectorsCHD[id] = new SingleSelectorParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getNPatients(), coef);
-		}
-		return selectorsCHD[id].getValue(pat);
-	}
-
 	@Override
 	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
 		// TODO
@@ -563,53 +540,6 @@ public class T1DMDisease extends Disease {
 			final double referenceRR = OtherParamDescriptions.RELATIVE_RISK.getValue(secParams, "CHD", pat.getSimulation());
 			final double diff = pat.getAttributeValue(T1DMRepository.STR_HBA1C).doubleValue() - REF_HBA1C;
 			return Math.pow(referenceRR, diff);
-		}
-		
-	}
-	
-	/**
-	 * A condition to check that the CHD manifestation is the first one. A condition of this type must be assigned to each pathway
-	 * leading to a CHD manifestation; each one with a different order (if there are N manifestations, 0, 1, 2, ... N-1).
-	 * @author Iván Castilla
-	 *
-	 */
-	public class CHDCondition extends Condition<Patient> {
-		/** Internal identifier of the manifestation */
-		private final int order;
-		/** Previous manifestation which is a prerequisite for this progression */  
-		private final DiseaseProgression previousManif;
-
-		/**
-		 * Creates a condition to check whether this manifestation is the first one related to CHD  
-		 * @param order The identifier for the manifestation.
-		 */
-		public CHDCondition(int order) {
-			this(order, null);
-		}
-
-		/**
-		 * Creates a condition to check whether this manifestation is the first one related to CHD. It also checks that the patient already has certain manifestation  
-		 * @param order The identifier for the manifestation.
-		 */
-		public CHDCondition(int order, DiseaseProgression previousManif) {
-			this.order = order;
-			this.previousManif = previousManif;
-		}
-		
-		@Override
-		public boolean check(Patient pat) {
-			final TreeSet<DiseaseProgression> state = pat.getState();
-			for (DiseaseProgression manif : state) {
-				// If already has CHD, then nothing else to progress to
-				if (manif.definesLabel(GroupOfManifestations.CHD))
-					return false;
-			}
-			if (previousManif != null) {
-				if (!state.contains(previousManif))
-					return false;
-			}
-			// Checks whether this should be the first CHD manifestation
-			return (order == getCHDComplication(pat));
 		}
 		
 	}
