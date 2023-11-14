@@ -7,10 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
-import es.ull.iis.simulation.hta.osdi.builders.ManifestationPathwayBuilder.OSDiManifestationPathway;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
@@ -22,39 +19,40 @@ import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * @author David Prieto González
  * @author Iván Castilla Rodríguez
  * TODO: Create pathways for manifestation pathways directly defined in the manifestation
  */
-public interface ManifestationBuilder {
+public interface DiseaseProgressionBuilder {
 
-	public static Manifestation getManifestationInstance(OSDiGenericRepository secParams, String manifestationName, Disease disease, String populationName) throws MalformedOSDiModelException {
+	public static DiseaseProgression getDiseaseProgressionInstance(OSDiGenericRepository secParams, String progressionIRI, Disease disease, String populationIRI) throws MalformedOSDiModelException {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		
-		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(manifestationName, "");
-		final Set<String> manifClazz = wrap.getClassesForIndividual(manifestationName);
-		if (manifClazz.contains(OSDiWrapper.Clazz.ACUTE_MANIFESTATION.getShortName()))
-			return new OSDiManifestation(secParams, manifestationName, description, disease, Manifestation.Type.ACUTE, populationName);			
-		return new OSDiManifestation(secParams, manifestationName, description,	disease, Manifestation.Type.CHRONIC, populationName);
+		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(progressionIRI, "");
+		final Set<String> progressionClazz = wrap.getClassesForIndividual(progressionIRI);
+		if (progressionClazz.contains(OSDiWrapper.Clazz.ACUTE_MANIFESTATION.getShortName()))
+			return new OSDiDiseaseProgression(secParams, progressionIRI, description, disease, DiseaseProgression.Type.ACUTE_MANIFESTATION, populationIRI);
+		else if (progressionClazz.contains(OSDiWrapper.Clazz.CHRONIC_MANIFESTATION.getShortName()))
+			return new OSDiDiseaseProgression(secParams, progressionIRI, description,	disease, DiseaseProgression.Type.CHRONIC_MANIFESTATION, populationIRI);
+		return new OSDiDiseaseProgression(secParams, progressionIRI, description,	disease, DiseaseProgression.Type.STAGE, populationIRI);
 	}
 
 	/**
 	 * 
 	 */
 	
-	static class OSDiManifestation extends Manifestation {
+	static class OSDiDiseaseProgression extends DiseaseProgression {
 		final private Map<OtherParamDescriptions, ParameterWrapper> otherParams;
 		final private Map<ProbabilityParamDescriptions, ParameterWrapper> probParams;
 		final private Map<CostParamDescriptions, CostParameterWrapper> costParams;
 		final private Map<UtilityParamDescriptions, UtilityParameterWrapper> utilityParams;
 		final private OSDiWrapper wrap;
 		
-		public OSDiManifestation(OSDiGenericRepository secParams, String name, String description,
-				Disease disease, Manifestation.Type type, String populationName) throws MalformedOSDiModelException {
+		public OSDiDiseaseProgression(OSDiGenericRepository secParams, String name, String description,
+				Disease disease, DiseaseProgression.Type type, String populationIRI) throws MalformedOSDiModelException {
 			super(secParams, name, description, disease, type);
 			otherParams = new TreeMap<>();
 			probParams = new TreeMap<>();
@@ -66,10 +64,9 @@ public interface ManifestationBuilder {
 			addCostParams();
 			addUtilityParams();
 			addMortalityParams();
-			addRiskCharacterization();
 			addProbabilityParam(OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS);
-			if (Manifestation.Type.CHRONIC.equals(type)) {
-				addInitialProportionParam(populationName);
+			if (!DiseaseProgression.Type.ACUTE_MANIFESTATION.equals(type)) {
+				addInitialProportionParam(populationIRI);
 			}
 
 		}
@@ -93,7 +90,7 @@ public interface ManifestationBuilder {
 			addProbabilityParam(OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH, ProbabilityParamDescriptions.PROBABILITY_DEATH);
 
 			// Acute manifestations are assumed not to involve further mortality parameters
-			if (Manifestation.Type.CHRONIC.equals(getType())) {
+			if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(getType())) {
 				addOtherParam(OSDiWrapper.ObjectProperty.HAS_INCREASED_MORTALITY_RATE, OtherParamDescriptions.INCREASED_MORTALITY_RATE);
 				addOtherParam(OSDiWrapper.ObjectProperty.HAS_LIFE_EXPECTANCY_REDUCTION, OtherParamDescriptions.LIFE_EXPECTANCY_REDUCTION);
 			}
@@ -132,21 +129,6 @@ public interface ManifestationBuilder {
 			}
 		}
 
-		private void addRiskCharacterization() throws MalformedOSDiModelException {
-			// Gets the manifestation parameters related to the working model
-			Set<String> manifestationParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(name(), true);
-			if (manifestationParams.size() > 0) {
-				String manifParam = (String)manifestationParams.toArray()[0];
-				if (manifestationParams.size() > 1) {
-					wrap.printWarning(manifParam, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestations should define a single risk characterization. Using " + manifParam);
-				}
-				final ParameterWrapper incidenceWrapper = new ParameterWrapper(wrap, manifParam, "Developing " + name());
-				OSDiGenericRepository OSDiParams = (OSDiGenericRepository) getRepository();
-				final TimeToEventCalculator tte = ManifestationPathwayBuilder.createTimeToEventCalculator(OSDiParams, this, "", incidenceWrapper);
-				final OSDiManifestationPathway pathway = new OSDiManifestationPathway(OSDiParams, this, new TrueCondition<Patient>(), tte, "", incidenceWrapper);
-			}
-		}
-
 		private OSDiWrapper.TemporalBehavior addCostParam(String costName, OSDiWrapper.TemporalBehavior expectedTemporalBehavior) throws MalformedOSDiModelException {
 			final CostParameterWrapper costParam = new CostParameterWrapper(wrap, costName, "Cost for manifestation " + name());
 			final OSDiWrapper.TemporalBehavior tempBehavior = costParam.getTemporalBehavior();
@@ -175,7 +157,7 @@ public interface ManifestationBuilder {
 			}
 			else {
 				// Checking coherence of number of costs and the type of manifestation		
-				boolean acute = Manifestation.Type.ACUTE.equals(getType());
+				boolean acute = DiseaseProgression.Type.ACUTE_MANIFESTATION.equals(getType());
 				if (acute) {
 					if (costs.size() > 1)
 						wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_COST, "Found more than one cost for an acute manifestation. Using " + costs.toArray()[0]);
@@ -226,7 +208,7 @@ public interface ManifestationBuilder {
 				wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "No utility defined for a manifestation. Creating a 0 disutility as a default value");				
 			}
 			else {
-				boolean acute = Manifestation.Type.ACUTE.equals(getType());
+				boolean acute = DiseaseProgression.Type.ACUTE_MANIFESTATION.equals(getType());
 				if (acute) {
 					if (utilities.size() > 1)
 						wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Found more than one (dis)utility for an acute manifestation. Using " + utilities.toArray()[0]);

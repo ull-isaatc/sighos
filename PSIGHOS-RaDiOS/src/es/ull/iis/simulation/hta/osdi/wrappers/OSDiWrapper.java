@@ -34,27 +34,54 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	private final Map<String, ParameterWrapper> parameterWrappers;
 	
 	private final static String STR_SEP = "_";
-	public final static String STR_MANIF_PREFIX = "Manif" + STR_SEP;
-	public final static String STR_MANIF_GROUP_PREFIX = "Group_Manif" + STR_SEP;
-	public final static String STR_POPULATION_PREFIX = "Population" + STR_SEP;
-	public final static String STR_INTERVENTION_PREFIX = "Intervention" + STR_SEP;	
-	public final static String STR_ATTRIBUTE_PREFIX = "Attribute" + STR_SEP;
-	public final static String STR_PARAM_UNCERTAINTY_SUFFIX = STR_SEP + "ParamUncertainty";
-	public final static String STR_STOCHASTIC_UNCERTAINTY_SUFFIX = STR_SEP + "StochasticUncertainty";
-	public final static String STR_HETEROGENEITY_SUFFIX = STR_SEP + "Heterogeneity";
-	public final static String STR_MODIFICATION_SUFFIX = STR_SEP + "Modification";
-	public final static String STR_L95CI_SUFFIX = STR_SEP + "L95CI";
-	public final static String STR_U95CI_SUFFIX = STR_SEP + "U95CI";
-	public final static String STR_ANNUAL_COST_SUFFIX = STR_SEP + "AC";
-	public final static String STR_ONETIME_COST_SUFFIX = STR_SEP + "TC";
-	public final static String STR_UTILITY_SUFFIX = STR_SEP + "U";
-	public final static String STR_EXPRESSION_SUFFIX = STR_SEP + "Expression";
-	public final static String STR_INCREASED_MORTALITY_RATE_SUFFIX = STR_SEP + "IMR";
-	public final static String STR_DEATH_PROBABILITY_SUFFIX = STR_SEP + "ProbDeath";
-	public final static String STR_INCIDENCE_SUFFIX = STR_SEP + "Incidence";
-	public final static String STR_PREVALENCE_SUFFIX = STR_SEP + "Prevalence";
-	public final static String STR_RELATIVE_RISK_SUFFIX = STR_SEP + "RR";
-	public final static String STR_PROPORTION_SUFFIX = STR_SEP + "Proportion";
+	public enum InstanceIRI {
+		/** In general, attributes do not use the prefix of the working model, since they should be defined for every disease and model */
+		ATTRIBUTE("Attribute_", ""),
+		DISEASE("", ""),
+		EXPRESSION("", "_Expression"),
+		INTERVENTION("Intervention_", ""),
+		MANIFESTATION("Manif_", ""),
+		MANIFESTATION_GROUP("Group_Manif_", ""),
+		MANIFESTATION_PATHWAY("Manif_Pathway_", ""),
+		PARAMETER("", ""),
+		POPULATION("Population_", ""),
+		STAGE("Stage_", ""),
+		STAGE_PATHWAY("Stage_Pathway_", ""),
+		PARAM_ANNUAL_COST("", "_AC"),
+		PARAM_DEATH_PROBABILITY("", "_ProbDeath"),
+		PARAM_INCREASED_MORTALITY_RATE("", "_IMR"),
+		PARAM_INCIDENCE("", "_Incidence"),
+		PARAM_ONE_TIME_COST("", "_TC"),
+		PARAM_PREVALENCE("", "_Prevalence"),
+		PARAM_PROPORTION("", "_Proportion"),
+		PARAM_RELATIVE_RISK("", "_RR"),
+		PARAM_UTILITY("", "_U"),
+		UNCERTAINTY_HETEREOGENEITY("", "_Heterogeneity"),
+		UNCERTAINTY_L95CI("", "_L95CI"),
+		UNCERTAINTY_PARAM("", "_ParamUncertainty"),
+		UNCERTAINTY_STOCHASTIC("", "_StochasticUncertainty"),
+		UNCERTAINTY_U95CI("", "_U95CI");
+		private final String prefix;
+		private final String suffix;
+		private InstanceIRI(String prefix, String suffix) {
+			this.prefix = prefix;
+			this.suffix = suffix;
+		}
+		public String getIRI(String instanceName) {
+			return this.getIRI(instanceName, true);
+		}
+		public String getIRI(String instanceName, InstanceIRI extraPrefix, InstanceIRI extraSuffix) {
+			return this.getIRI(instanceName, extraPrefix, extraSuffix, true);
+		}
+		public String getIRI(String instanceName, boolean useInstancePrefix) {
+			return (useInstancePrefix ? currentWrapper.getInstancePrefix() : "") + prefix + instanceName + suffix;
+		}
+		public String getIRI(String instanceName, InstanceIRI extraPrefix, InstanceIRI extraSuffix, boolean useInstancePrefix) {
+			return (useInstancePrefix ? currentWrapper.getInstancePrefix() : "") + prefix + (extraPrefix != null ? extraPrefix.prefix : "") + instanceName + (extraSuffix != null ? extraSuffix.suffix : "") + suffix;
+		}
+	}
+	
+	private final static String STR_MODIFICATION_SUFFIX = STR_SEP + "Modification";
 	private final static TreeMap<Clazz, ModelType> reverseModelType = new TreeMap<>(); 
 	private final static TreeMap<Clazz, InterventionType> reverseInterventionType = new TreeMap<>(); 
 	private static OSDiWrapper currentWrapper = null;
@@ -109,11 +136,12 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		}
 	}
 	
-	public enum ManifestationType {
-		ACUTE(Clazz.ACUTE_MANIFESTATION),
-		CHRONIC(Clazz.CHRONIC_MANIFESTATION);
+	public enum DiseaseProgressionType {
+		ACUTE_MANIFESTATION(Clazz.ACUTE_MANIFESTATION),
+		CHRONIC_MANIFESTATION(Clazz.CHRONIC_MANIFESTATION),
+		STAGE(Clazz.STAGE);
 		private final Clazz clazz;
-		private ManifestationType(Clazz clazz) {
+		private DiseaseProgressionType(Clazz clazz) {
 			this.clazz = clazz;
 		}
 		/**
@@ -266,6 +294,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		DISCRETE_EVENT_SIMULATION_MODEL("DiscreteEventSimulationModel"),
 		DISEASE("Disease"),
 		DISEASE_PATHWAY("DiseasePathway"),
+		DISEASE_PROGRESSION("DiseaseProgression"),
 		DRUG("Drug"),
 		EPIDEMIOLOGICAL_PARAMETER("EpidemiologicalParameter"),
 		EXPONENTIAL_DISTRIBUTION_EXPRESSION("ExponentialDistributionExpression"),
@@ -476,7 +505,6 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_ONSET_AGE("hasOnsetAge"),
 		HAS_PARAMETER("hasParameter"),
 		HAS_PARAMETER_UNCERTAINTY("hasParameterUncertainty"),
-		HAS_PATHWAY("hasPathway"),
 		HAS_PROBABILITY_OF_DEATH("hasProbabilityOfDeath"),
 		HAS_PROBABILITY_OF_DIAGNOSIS("hasProbabilityOfDiagnosis"),
 		HAS_PROPORTION_WITHIN_GROUP("hasProportionWithinGroup"),
@@ -502,7 +530,6 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		IS_PARAMETER_OF_DISEASE("isParameterOfDisease"),
 		IS_PARAMETER_OF_MANIFESTATION("isParameterOfManifestation"),
 		IS_PARAMETER_OF_POPULATION("isParameterOfPopulation"),
-		IS_PATHWAY_TO("isPathwayTo"),
 		IS_SUBPOPULATION_OF("isSubpopulationOf"),
 		IS_VALUE_OF_ATTRIBUTE("isValueOfAttribute"),
 		MODIFIES("modifies"),
@@ -706,194 +733,181 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public String getInstancePrefix() {
 		return instancePrefix;
 	}
-	
-	public String getDiseaseInstanceName(String diseaseName) {
-		return instancePrefix + diseaseName;
-	}
-	
-	public String getManifestationInstanceName(String manifName) {
-		return instancePrefix + STR_MANIF_PREFIX + manifName;
-	}
 
-	public String getManifestationGroupInstanceName(String groupName) {
-		return instancePrefix + STR_MANIF_GROUP_PREFIX + groupName;
-	}
-
-	public String getPopulationInstanceName(String populationName) {
-		return instancePrefix + STR_POPULATION_PREFIX + populationName;
-	}
-	
-	public String getInterventionInstanceName(String interventionName) {
-		return instancePrefix + STR_INTERVENTION_PREFIX + interventionName;
-	}
-	
-	/**
-	 * Returns the expected name for an attribute instance within the ontology. In general, attributes do not use the prefix of the working model, since they should be defined for every disease and model
-	 * @param attributeName The "raw" name of the attribute 
-	 * @return the expected name for an attribute instance within the ontology.
-	 */
-	public String getAttributeInstanceName(String attributeName) {
-		return STR_ATTRIBUTE_PREFIX + attributeName; 
-	}
-	
 	public String getPopulationAttributeValueInstanceName(String populationName, String attributeName) {
-		return getPopulationInstanceName(populationName) + STR_SEP + attributeName; 
-	}
-	
-	public String getParameterInstanceName(String paramName) {
-		return instancePrefix + paramName;
+		return OSDiWrapper.InstanceIRI.POPULATION.getIRI(populationName) + STR_SEP + attributeName; 
 	}
 	
 	public String getAttributeValueInstanceModificationName(String interventionName, String attributeName) {
-		return getInterventionInstanceName(interventionName) + STR_SEP + attributeName + STR_MODIFICATION_SUFFIX; 
+		return  OSDiWrapper.InstanceIRI.INTERVENTION.getIRI(interventionName) + STR_SEP + attributeName + STR_MODIFICATION_SUFFIX; 
 	}
 	
 	public String getParameterInstanceModificationName(String interventionName, String paramName) {
-		return getInterventionInstanceName(interventionName) + STR_SEP + paramName + STR_MODIFICATION_SUFFIX;
+		return OSDiWrapper.InstanceIRI.INTERVENTION.getIRI(interventionName) + STR_SEP + paramName + STR_MODIFICATION_SUFFIX;
 	}
 
 	/**
 	 * Common part of creating a valuable, independently of whether it is created by defining an expected value or an expression
-	 * @param instanceName Name of the valuable in the ontology
+	 * @param valuableIRI Name of the valuable in the ontology
 	 * @param clazz Specific class of the valuable in the ontology: Parameter, AttributeValue...
 	 * @param source Source of the value or expression
 	 * @param dataType Data type of the valuable
 	 */
-	private void createCommonPartOfValuable(String instanceName, Clazz clazz, String source, DataItemType dataType) {
-		clazz.add(instanceName);
-		ObjectProperty.HAS_DATA_ITEM_TYPE.add(instanceName, dataType.getInstanceName());
-		DataProperty.HAS_SOURCE.add(instanceName, source);
-		includeInModel(instanceName);
+	private void createCommonPartOfValuable(String valuableIRI, Clazz clazz, String source, DataItemType dataType) {
+		clazz.add(valuableIRI);
+		ObjectProperty.HAS_DATA_ITEM_TYPE.add(valuableIRI, dataType.getInstanceName());
+		DataProperty.HAS_SOURCE.add(valuableIRI, source);
+		includeInModel(valuableIRI);
 	}
 	
-	public void createValuable(String instanceName, Clazz clazz, String source, double value, DataItemType dataType) {
-		createCommonPartOfValuable(instanceName, clazz, source, dataType);
-		DataProperty.HAS_EXPECTED_VALUE.add(instanceName, Double.toString(value));
+	public void createValuable(String valuableIRI, Clazz clazz, String source, double value, DataItemType dataType) {
+		createCommonPartOfValuable(valuableIRI, clazz, source, dataType);
+		DataProperty.HAS_EXPECTED_VALUE.add(valuableIRI, Double.toString(value));
 	}
 	
-	public void createValuable(String instanceName, Clazz clazz, String source, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
-		createCommonPartOfValuable(instanceName, clazz, source, dataType);
-		final String expInstanceName = instanceName + STR_EXPRESSION_SUFFIX; 
+	public void createValuable(String valuableIRI, Clazz clazz, String source, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		createCommonPartOfValuable(valuableIRI, clazz, source, dataType);
+		final String expInstanceName = InstanceIRI.EXPRESSION.getIRI(valuableIRI, false); 
 		Clazz.AD_HOC_EXPRESSION.add(expInstanceName);
 		DataProperty.HAS_EXPRESSION_VALUE.add(expInstanceName, expression);
 		for (String attributeName : dependentAttributes) {
-			ObjectProperty.DEPENDS_ON_ATTRIBUTE.add(expInstanceName, getAttributeInstanceName(attributeName));
+			ObjectProperty.DEPENDS_ON_ATTRIBUTE.add(expInstanceName, InstanceIRI.ATTRIBUTE.getIRI(attributeName, false));
 		}
 		for (String parameterName : dependentParameters) {
-			ObjectProperty.DEPENDS_ON_PARAMETER.add(expInstanceName, getParameterInstanceName(parameterName));
+			ObjectProperty.DEPENDS_ON_PARAMETER.add(expInstanceName, InstanceIRI.PARAMETER.getIRI(parameterName));
 		}
-		ObjectProperty.HAS_EXPRESSION.add(instanceName, expInstanceName);
+		ObjectProperty.HAS_EXPRESSION.add(valuableIRI, expInstanceName);
 		includeInModel(expInstanceName);			
+	}
+
+	public void addValuable(String instanceIRI, ObjectProperty property, String valuableIRI, Clazz clazz, String source, double value, DataItemType dataType) {
+		createValuable(valuableIRI, clazz, source, value, dataType);
+		property.add(instanceIRI, valuableIRI);
+	}
+
+	public void addValuable(String instanceIRI, ObjectProperty property, String valuableIRI, Clazz clazz, String source, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		createValuable(valuableIRI, clazz, source, expression, dependentAttributes, dependentParameters, dataType);
+		property.add(instanceIRI, valuableIRI);
 	}
 
 	/**
 	 * Common part of creating a parameter, independently of whether it is created by defining an expected value or an expression
-	 * @param instanceName Name of the parameter in the ontology
+	 * @param paramIRI Name of the parameter in the ontology
 	 * @param description Description of the parameter
 	 * @param year Year of the parameter
 	 */
-	private void createCommonPartOfParameter(String instanceName, String description, int year) {
-		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
-		DataProperty.HAS_YEAR.add(instanceName, "" + year);
+	private void createCommonPartOfParameter(String paramIRI, String description, int year) {
+		DataProperty.HAS_DESCRIPTION.add(paramIRI, description);
+		DataProperty.HAS_YEAR.add(paramIRI, "" + year);
 	}
 	
-	public void createParameter(String instanceName, Clazz clazz, String description, String source, int year, double value, DataItemType dataType) {
-		createValuable(instanceName, clazz, source, value, dataType);
-		createCommonPartOfParameter(instanceName, description, year);
+	public void createParameter(String paramIRI, Clazz clazz, String description, String source, int year, double value, DataItemType dataType) {
+		createValuable(paramIRI, clazz, source, value, dataType);
+		createCommonPartOfParameter(paramIRI, description, year);
 	}
 	
-	public void createParameter(String instanceName, Clazz clazz, String description, String source, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
-		createValuable(instanceName, clazz, source, expression, dependentAttributes, dependentParameters, dataType);
-		createCommonPartOfParameter(instanceName, description, year);
+	public void createParameter(String paramIRI, Clazz clazz, String description, String source, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		createValuable(paramIRI, clazz, source, expression, dependentAttributes, dependentParameters, dataType);
+		createCommonPartOfParameter(paramIRI, description, year);
 	}
 
-	public void createAttributeValue(String instanceName, String attributeInstanceName, String source, double value, DataItemType dataType) {
-		createValuable(instanceName, Clazz.ATTRIBUTE_VALUE, source, value, dataType);
-		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(instanceName, attributeInstanceName);
+	public void addParameter(String instanceIRI, ObjectProperty property, String paramIRI, Clazz clazz, String description, String source, int year, double value, DataItemType dataType) {
+		createParameter(paramIRI, clazz, description, source, year, value, dataType);
+		property.add(instanceIRI, paramIRI);
 	}
 	
-	public void createAttributeValue(String instanceName, String attributeInstanceName, String source, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
-		createValuable(instanceName, Clazz.ATTRIBUTE_VALUE, source, expression, dependentAttributes, dependentParameters, dataType);
-		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(instanceName, attributeInstanceName);
+	public void addParameter(String instanceIRI, ObjectProperty property, String paramIRI, Clazz clazz, String description, String source, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		createParameter(paramIRI, clazz, description, source, year, expression, dependentAttributes, dependentParameters, dataType);
+		property.add(instanceIRI, paramIRI);
+	}
+
+	public void addAttributeValue(String instanceIRI, ObjectProperty property, String attributeValueIRI, String attributeIRI, String source, double value, DataItemType dataType) {
+		addValuable(instanceIRI, property, attributeValueIRI, Clazz.ATTRIBUTE_VALUE, source, value, dataType);
+		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(attributeValueIRI, attributeIRI);
 	}
 	
-	private void createCommonPartOfModification(String modificationInstanceName, String interventionInstanceName, String modifiedInstanceName) {
-		ObjectProperty.MODIFIES.add(modificationInstanceName, modifiedInstanceName);
-		ObjectProperty.IS_MODIFIED_BY.add(modifiedInstanceName, modificationInstanceName);
-		OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.add(interventionInstanceName, modificationInstanceName);
+	public void addAttributeValue(String instanceIRI, ObjectProperty property, String attributeValueIRI, String attributeIRI, String source, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		addValuable(instanceIRI, property, attributeValueIRI, Clazz.ATTRIBUTE_VALUE, source, expression, dependentAttributes, dependentParameters, dataType);
+		ObjectProperty.IS_VALUE_OF_ATTRIBUTE.add(attributeValueIRI, attributeIRI);
+	}
+	
+	private void createCommonPartOfModification(String modificationIRI, String interventionIRI, String modifiedInstanceIRI) {
+		ObjectProperty.MODIFIES.add(modificationIRI, modifiedInstanceIRI);
+		ObjectProperty.IS_MODIFIED_BY.add(modifiedInstanceIRI, modificationIRI);
 	}
 	
 
-	public void createAttributeValueModification(String instanceName, String interventionInstanceName, String modifiedAttributeValueInstanceName, String attributeInstanceName, String source, double value, DataItemType dataType) {
-		createAttributeValue(instanceName, attributeInstanceName, source, value, dataType);
-		createCommonPartOfModification(instanceName, interventionInstanceName, modifiedAttributeValueInstanceName);
+	public void addAttributeValueModification(String modificationIRI, String interventionIRI, String modifiedAttributeValueIRI, String attributeIRI, String source, double value, DataItemType dataType) {
+		addAttributeValue(interventionIRI, ObjectProperty.INVOLVES_MODIFICATION, modificationIRI, attributeIRI, source, value, dataType);
+		createCommonPartOfModification(modificationIRI, interventionIRI, modifiedAttributeValueIRI);
 	}
 	
-	public void createAttributeValueModification(String instanceName, String interventionInstanceName, String modifiedAttributeValueInstanceName, String attributeInstanceName, String source, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
-		createAttributeValue(instanceName, attributeInstanceName, source, expression, dependentAttributes, dependentParameters, dataType);		
-		createCommonPartOfModification(instanceName, interventionInstanceName, modifiedAttributeValueInstanceName);
+	public void addAttributeValueModification(String modificationIRI, String interventionIRI, String modifiedAttributeValueIRI, String attributeIRI, String source, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		addAttributeValue(interventionIRI, ObjectProperty.INVOLVES_MODIFICATION, modificationIRI, attributeIRI, source, expression, dependentAttributes, dependentParameters, dataType);		
+		createCommonPartOfModification(modificationIRI, interventionIRI, modifiedAttributeValueIRI);
 	}
 	
-	public void createParameterModification(String instanceName, String interventionInstanceName, String modifiedParameterInstanceName, Clazz clazz, String description, String source, int year, double value, DataItemType dataType) {
-		createParameter(instanceName, clazz, description, source, year, value, dataType);
-		createCommonPartOfModification(instanceName, interventionInstanceName, modifiedParameterInstanceName);
+	public void addParameterModification(String modificationIRI, String interventionIRI, String modifiedParameterIRI, Clazz clazz, String description, String source, int year, double value, DataItemType dataType) {
+		addParameter(interventionIRI, ObjectProperty.INVOLVES_MODIFICATION, modificationIRI, clazz, description, source, year, value, dataType);
+		createCommonPartOfModification(modificationIRI, interventionIRI, modifiedParameterIRI);
 	}
 	
-	public void createParameterModification(String instanceName, String interventionInstanceName, String modifiedParameterInstanceName, Clazz clazz, String description, String source, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
-		createParameter(instanceName, clazz, description, source, year, expression, dependentAttributes, dependentParameters, dataType);
-		createCommonPartOfModification(instanceName, interventionInstanceName, modifiedParameterInstanceName);
+	public void addParameterModification(String modificationIRI, String interventionIRI, String modifiedParameterIRI, Clazz clazz, String description, String source, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType dataType) {
+		addParameter(interventionIRI, ObjectProperty.INVOLVES_MODIFICATION, modificationIRI, clazz, description, source, year, expression, dependentAttributes, dependentParameters, dataType);
+		createCommonPartOfModification(modificationIRI, interventionIRI, modifiedParameterIRI);
 	}
 	
-	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, DataItemType currency) {
-		createParameter(instanceName, Clazz.COST, description, source, year, value, currency);
-		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
+	public void addCost(String instanceIRI, ObjectProperty property, String paramIRI, String description, String source, TemporalBehavior tmpBehavior, int year, double value, DataItemType currency) {
+		addParameter(instanceIRI, property, paramIRI, Clazz.COST, description, source, year, value, currency);
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(paramIRI, tmpBehavior.getShortName());
 	}
 	
-	public void createCost(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType currency) {
-		createParameter(instanceName, Clazz.COST, description, source, year, expression, dependentAttributes, dependentParameters, currency);
-		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
+	public void addCost(String instanceIRI, ObjectProperty property, String paramIRI, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, DataItemType currency) {
+		addParameter(instanceIRI, property, paramIRI, Clazz.COST, description, source, year, expression, dependentAttributes, dependentParameters, currency);
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(paramIRI, tmpBehavior.getShortName());
 	}
 
-	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, double value, UtilityType utilityType) {
-		createParameter(instanceName, Clazz.UTILITY, description, source, year, value, utilityType.getType());
-		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
+	public void addUtility(String instanceIRI, ObjectProperty property, String paramIRI, String description, String source, TemporalBehavior tmpBehavior, int year, double value, UtilityType utilityType) {
+		addParameter(instanceIRI, property, paramIRI, Clazz.UTILITY, description, source, year, value, utilityType.getType());
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(paramIRI, tmpBehavior.getShortName());
 	}
 
-	public void createUtility(String instanceName, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, UtilityType utilityType) {
-		createParameter(instanceName, Clazz.UTILITY, description, source, year, expression, dependentAttributes, dependentParameters, utilityType.getType());
-		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(instanceName, tmpBehavior.getShortName());
+	public void addUtility(String instanceIRI, ObjectProperty property, String paramIRI, String description, String source, TemporalBehavior tmpBehavior, int year, String expression, Set<String> dependentAttributes, Set<String> dependentParameters, UtilityType utilityType) {
+		addParameter(instanceIRI, property, paramIRI, Clazz.UTILITY, description, source, year, expression, dependentAttributes, dependentParameters, utilityType.getType());
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(paramIRI, tmpBehavior.getShortName());
 	}
 
-	public void createProbabilityDistributionExpression(String instanceName, ProbabilityDistributionExpression type, double[] parameters) {
+	public void addProbabilityDistributionExpression(String instanceIRI, ObjectProperty property, String expressionIRI, ProbabilityDistributionExpression type, double[] parameters) {
 		if (parameters.length != type.getnParameters())
 			throw new IllegalArgumentException("Creating a " + type.name() + " probability distribution requires " + type.getnParameters() + " parameters. Passed " + parameters.length);
-		type.getClazz().add(instanceName);
+		type.getClazz().add(expressionIRI);
 		switch(type) {
 		case BERNOULLI:
-			OSDiWrapper.DataProperty.HAS_PROBABILITY_PARAMETER.add(instanceName, "" + parameters[0]);		
+			OSDiWrapper.DataProperty.HAS_PROBABILITY_PARAMETER.add(expressionIRI, "" + parameters[0]);		
 			break;			
 		case BETA:
-			OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.add(instanceName, "" + parameters[0]);
-			OSDiWrapper.DataProperty.HAS_BETA_PARAMETER.add(instanceName, "" + parameters[1]);		
+			OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.add(expressionIRI, "" + parameters[0]);
+			OSDiWrapper.DataProperty.HAS_BETA_PARAMETER.add(expressionIRI, "" + parameters[1]);		
 			break;
 		case POISSON:
 		case EXPONENTIAL:
-			OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.add(instanceName, "" + parameters[0]);		
+			OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.add(expressionIRI, "" + parameters[0]);		
 			break;
 		case GAMMA:
-			OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.add(instanceName, "" + parameters[0]);
-			OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.add(instanceName, "" + parameters[1]);		
+			OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.add(expressionIRI, "" + parameters[0]);
+			OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.add(expressionIRI, "" + parameters[1]);		
 			break;
 		case UNIFORM:
-			OSDiWrapper.DataProperty.HAS_LOWER_LIMIT_PARAMETER.add(instanceName, "" + parameters[0]);
-			OSDiWrapper.DataProperty.HAS_UPPER_LIMIT_PARAMETER.add(instanceName, "" + parameters[1]);		
+			OSDiWrapper.DataProperty.HAS_LOWER_LIMIT_PARAMETER.add(expressionIRI, "" + parameters[0]);
+			OSDiWrapper.DataProperty.HAS_UPPER_LIMIT_PARAMETER.add(expressionIRI, "" + parameters[1]);		
 			break;
 		case NORMAL:
 		default:
-			OSDiWrapper.DataProperty.HAS_AVERAGE_PARAMETER.add(instanceName, "" + parameters[0]);
-			OSDiWrapper.DataProperty.HAS_STANDARD_DEVIATION_PARAMETER.add(instanceName, "" + parameters[1]);		
+			OSDiWrapper.DataProperty.HAS_AVERAGE_PARAMETER.add(expressionIRI, "" + parameters[0]);
+			OSDiWrapper.DataProperty.HAS_STANDARD_DEVIATION_PARAMETER.add(expressionIRI, "" + parameters[1]);		
 			break;		
 		}
+		property.add(instanceIRI, expressionIRI);
 	}
 
 	/**
@@ -926,13 +940,13 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		includeInModel(instanceName);
 	}
 	
-	public void createManifestation(String instanceName, ManifestationType type, String description, Set<String> exclusions, String diseaseInstanceName) {
+	public void createManifestation(String instanceName, DiseaseProgressionType type, String description, Set<String> exclusions, String diseaseInstanceName) {
 		type.getClazz().add(instanceName);		
 		DataProperty.HAS_DESCRIPTION.add(instanceName, description);
 		ObjectProperty.HAS_MANIFESTATION.add(diseaseInstanceName, instanceName);
 		includeInModel(instanceName);
 		for (String excludedManif : exclusions) {
-			ObjectProperty.EXCLUDES_MANIFESTATION.add(instanceName, getManifestationInstanceName(excludedManif));
+			ObjectProperty.EXCLUDES_MANIFESTATION.add(instanceName, InstanceIRI.MANIFESTATION.getIRI(excludedManif));
 		}
 	}
 	
@@ -940,8 +954,8 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		Clazz.GROUP.add(instanceName);
 		includeInModel(instanceName);
 		for (String manifestation : manifestationNames) {
-			ObjectProperty.HAS_COMPONENT.add(instanceName, getManifestationInstanceName(manifestation));			
-			ObjectProperty.BELONGS_TO_GROUP.add(getManifestationInstanceName(manifestation), instanceName);			
+			ObjectProperty.HAS_COMPONENT.add(instanceName, InstanceIRI.MANIFESTATION.getIRI(manifestation));			
+			ObjectProperty.BELONGS_TO_GROUP.add(InstanceIRI.MANIFESTATION.getIRI(manifestation), instanceName);			
 		}
 	}
 	
@@ -962,6 +976,27 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		
 		includeInModel(instanceName);
 	}
+
+	public void addUtilityFromAvgCI(String instanceIRI, ObjectProperty property, String utilityIRI, String description, String source, double[] values, TemporalBehavior tmpBehavior, int year, UtilityType utilityType) {
+		addUtility(instanceIRI, property, utilityIRI, description, source, tmpBehavior, year, values[0], utilityType);
+		final String[] params = addCIParameters(utilityIRI, Clazz.UTILITY, description, source, new double[] {values[1], values[2]}, year);
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(params[0], tmpBehavior.getShortName());
+		DataProperty.HAS_TEMPORAL_BEHAVIOR.add(params[1], tmpBehavior.getShortName());
+	}
+	
+	public String[] addCIParameters(String mainParamIRI, Clazz clazz, String description, String source, double[] values, int year) {
+		String []params = new String[2];
+		String paramUncertaintyIRI = InstanceIRI.UNCERTAINTY_L95CI.getIRI(mainParamIRI, false);
+		addParameter(mainParamIRI, ObjectProperty.HAS_PARAMETER_UNCERTAINTY, paramUncertaintyIRI, clazz, "Lower 95% confidence interval for " + description, 
+				source, year, values[0], DataItemType.DI_LOWER_95_CONFIDENCE_LIMIT);
+		params[0] = paramUncertaintyIRI;
+		paramUncertaintyIRI = InstanceIRI.UNCERTAINTY_U95CI.getIRI(mainParamIRI, false);
+		addParameter(mainParamIRI, ObjectProperty.HAS_PARAMETER_UNCERTAINTY, paramUncertaintyIRI, clazz, "Upper 95% confidence interval for " + description, 
+				source, year, values[1], DataItemType.DI_UPPER_95_CONFIDENCE_LIMIT);
+		params[1] = paramUncertaintyIRI;
+		return params;
+	}
+	
 	
 	private void includeInModel(String instanceName) {
 		ObjectProperty.INCLUDED_BY_MODEL.add(instanceName, workingModelInstance);
@@ -1039,27 +1074,18 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		printEverythingAsEnum("resources/OSDi.owl");
-		try {
-			final OSDiWrapper wrap = new OSDiWrapper("resources/OSDi.owl", "T1DM_StdModelDES", "T1DM_");
-			for (String str : wrap.getIndividuals("DataItemType"))
-				System.out.println(str);
-			for (String str : wrap.getClassesForIndividual("T1DM_StdModelDES"))
-				System.out.println(str);
-			System.out.println("TESTING ACCESSING TO DATA PROPERTIES");
-			System.out.println(DataProperty.HAS_REF_TO.getValue("T1DM_StdModelDES", "NOPE!"));
-//			for (String str : DataProperty.HAS_REF_TO_SNOMED.getValues(wrap, "T1DM_Disease")) {
+		printEverythingAsEnum("resources/OSDi.owl");
+//		try {
+//			final OSDiWrapper wrap = new OSDiWrapper("resources/OSDi.owl", "T1DM_StdModelDES", "T1DM_");
+//			for (String str : wrap.getIndividuals("DataItemType"))
 //				System.out.println(str);
-//			}
-//			for (String str : ObjectProperty.HAS_MANIFESTATION.getValues(wrap, "T1DM_Disease")) {
+//			for (String str : wrap.getClassesForIndividual("T1DM_StdModelDES"))
 //				System.out.println(str);
-//			}
-
-//			for (String  str : wrap.getEnglishCommentForClass(wrap.getObjectProperty(ObjectProperty.BELONGS_TO_AREA.getShortName()).getIRI()))
-//				System.out.println(str);
-		} catch (OWLOntologyCreationException e) {
-			e.printStackTrace();
-		}
+//			System.out.println("TESTING ACCESSING TO DATA PROPERTIES");
+//			System.out.println(DataProperty.HAS_REF_TO.getValue("T1DM_StdModelDES", "NOPE!"));
+//		} catch (OWLOntologyCreationException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 }

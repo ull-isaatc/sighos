@@ -77,7 +77,7 @@ public class DiseaseProgressionPathway implements CreatesSecondOrderParameters {
 	/**
 	 * @return the resulting disease progression
 	 */
-	public DiseaseProgression getNextProgression(Patient pat) {
+	public DiseaseProgression getNextProgression() {
 		return nextProgression;
 	}
 

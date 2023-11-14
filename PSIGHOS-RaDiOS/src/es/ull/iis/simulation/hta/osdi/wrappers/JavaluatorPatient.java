@@ -8,7 +8,7 @@ import java.util.Collection;
 import com.fathzer.soft.javaluator.StaticVariableSet;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -23,7 +23,7 @@ public class JavaluatorPatient extends StaticVariableSet<Double> {
 		set("AGE", pat.getAge());
 		set("SEX", (double)pat.getSex());
 		set("DIAGNOSED", pat.isDiagnosed() ? 1.0 : 0.0);
-		for (Manifestation manif : pat.getState()) {
+		for (DiseaseProgression manif : pat.getState()) {
 			set(manif.name(), (double)pat.getTimeToDiseaseProgression(manif));
 		}
 		final Collection<String> propNames = pat.getAttributeNames();

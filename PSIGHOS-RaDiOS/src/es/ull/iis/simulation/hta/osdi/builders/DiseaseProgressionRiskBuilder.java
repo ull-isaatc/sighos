@@ -10,7 +10,6 @@ import java.util.Set;
 import es.ull.iis.simulation.condition.AndCondition;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
@@ -20,7 +19,7 @@ import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
@@ -31,7 +30,7 @@ import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressio
  * @author David Prieto González
  * TODO: Process different types of combination of parameters (P + RR, TTE, ...) to create the time to event 
  */
-public interface ManifestationPathwayBuilder {
+public interface DiseaseProgressionRiskBuilder {
 
 	/**
 	 * Creates a {@link DiseaseProgressionPathway manifestation pathway}. If, for any reason, a manifestation pathway was already created for the specified name, returns the 
@@ -39,19 +38,31 @@ public interface ManifestationPathwayBuilder {
 	 * @param ontology
 	 * @param secParams
 	 * @param disease
-	 * @param manifestation
-	 * @param pathwayName
+	 * @param progression
+	 * @param riskIRI
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static DiseaseProgressionPathway getManifestationPathwayInstance(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName) throws MalformedOSDiModelException {
-		final Disease disease = manifestation.getDisease();
-		final Condition<Patient> cond = createCondition(secParams, disease, pathwayName);
-		// TODO: Process parameters when a parameter requires another one or use complex expressions
-		final ParameterWrapper riskWrapper = createRiskWrapper(secParams, manifestation, pathwayName);
-		final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, manifestation, pathwayName, riskWrapper);
-		final DiseaseProgressionPathway pathway = new OSDiManifestationPathway(secParams, manifestation, cond, tte, pathwayName, riskWrapper);
-		return pathway;
+	public static DiseaseProgressionPathway getPathwayInstance(OSDiGenericRepository secParams, DiseaseProgression progression, String riskIRI) throws MalformedOSDiModelException {
+		final Disease disease = progression.getDisease();
+		final OSDiWrapper wrap = ((OSDiGenericRepository)secParams).getOwlWrapper();
+		
+		Set<String> superclazzes = wrap.getClassesForIndividual(riskIRI);
+		
+		// If the risk is expressed as a pathway
+		if (superclazzes.contains(OSDiWrapper.Clazz.PATHWAY.getShortName())) {			
+			final Condition<DiseaseProgressionPathway.ConditionInformation> cond = createCondition(secParams, disease, riskIRI);
+			// TODO: Process parameters when a parameter requires another one or use complex expressions
+			final ParameterWrapper riskWrapper = createRiskWrapper(secParams, progression, riskIRI);
+			final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
+			return new OSDiManifestationPathway(secParams, progression, cond, tte, riskWrapper);
+		}
+		else if (superclazzes.contains(OSDiWrapper.Clazz.PARAMETER.getShortName())) {
+			final ParameterWrapper riskWrapper = new ParameterWrapper(wrap, riskIRI, "Developing " + progression.name());
+			final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
+			return new OSDiManifestationPathway(secParams, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
+		}
+		return null;
 	}
 	
 	/**
@@ -61,14 +72,14 @@ public interface ManifestationPathwayBuilder {
 	 * @param pathwayName The name of the pathway instance in the ontology
 	 * @return A condition for the pathway
 	 */
-	private static Condition<Patient> createCondition(OSDiGenericRepository secParams, Disease disease, String pathwayName) {
+	private static Condition<DiseaseProgressionPathway.ConditionInformation> createCondition(OSDiGenericRepository secParams, Disease disease, String pathwayName) {
 		final List<String> strConditions = OSDiWrapper.DataProperty.HAS_CONDITION.getValues(pathwayName);
 		
 		final Set<String> strRequiredStuff = OSDiWrapper.ObjectProperty.REQUIRES.getValues(pathwayName);
-		final ArrayList<Condition<Patient>> condList = new ArrayList<>();
+		final ArrayList<Condition<DiseaseProgressionPathway.ConditionInformation>> condList = new ArrayList<>();
 		// FIXME: Assuming that all preconditions refer to manifestations though they could be diseases, developments, stages or even interventions
 		if (strRequiredStuff.size() > 0) {
-			final List<Manifestation> manifList = new ArrayList<>();
+			final List<DiseaseProgression> manifList = new ArrayList<>();
 			for (String manifestationName: strRequiredStuff) {
 				manifList.add(disease.getDiseaseProgression(manifestationName));
 			}
@@ -78,14 +89,14 @@ public interface ManifestationPathwayBuilder {
 			condList.add(new ExpressionLanguageCondition(strCond));
 		// After going through for previous manifestations and other conditions, checks how many conditions were created
 		if (condList.size() == 0)
-			return new TrueCondition<Patient>();
+			return new TrueCondition<DiseaseProgressionPathway.ConditionInformation>();
 		if (condList.size() == 1)
 			return condList.get(0);
-		return new AndCondition<Patient>(condList);
+		return new AndCondition<DiseaseProgressionPathway.ConditionInformation>(condList);
 	}
 	
 	
-	private static ParameterWrapper createRiskWrapper(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName) throws MalformedOSDiModelException {
+	private static ParameterWrapper createRiskWrapper(OSDiGenericRepository secParams, DiseaseProgression progression, String pathwayName) throws MalformedOSDiModelException {
 		final OSDiWrapper wrap = ((OSDiGenericRepository)secParams).getOwlWrapper();
 		
 		// Gets the manifestation pathway parameters related to the working model
@@ -97,31 +108,29 @@ public interface ManifestationPathwayBuilder {
 		if (pathwayParams.size() > 1) {
 			wrap.printWarning(pathwayName, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestation pathways should define a single risk characterization. Using " + pathwayParam);
 		}
-		return new ParameterWrapper(wrap, pathwayParam, "Developing " + manifestation + " due to " + pathwayName);
+		return new ParameterWrapper(wrap, pathwayParam, "Developing " + progression + " due to " + pathwayName);
 	}
 	/**
 	 * Creates the calculator for the time to event associated to this pathway. Currently only allows the time to be expressed as an annual risk and, consequently, uses 
 	 * a {@link AnnualRiskBasedTimeToEventCalculator}. 
-	 * @param ontology The preloaded ontology
 	 * @param secParams Repository
-	 * @param manifestation The destination manifestation for this pathway
-	 * @param pathwayName The name of the pathway instance in the ontology
+	 * @param progression The destination progression for this pathway
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static TimeToEventCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, Manifestation manifestation, String pathwayName, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
+	public static TimeToEventCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, DiseaseProgression progression, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
 		
 		final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 		
 		if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
-			return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
+			return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(riskWrapper.getParamId()), secParams, progression);
 			// FIXME: Currently not using anything more complex than a value
 //			final String strRRManif = OSDiNames.DataProperty.HAS_RELATIVE_RISK.getValue(pathwayName);
 //			if (strRRManif == null)
 //				return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
 		}
 		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
-			return new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROPORTION.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
+			return new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROPORTION.getParameterName(riskWrapper.getParamId()), secParams, progression);
 		}
 		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_TIME_TO_EVENT)) {
 			// FIXME: Currently not using time to
@@ -131,7 +140,7 @@ public interface ManifestationPathwayBuilder {
 //			tte = new AgeBasedTimeToEventCalculator(datatableMatrix, manifestation, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix));
 		}
 		else {
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, pathwayName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item types");			
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, riskWrapper.getParamId(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item types");			
 		}
 		return null;
 	}
@@ -144,7 +153,7 @@ public interface ManifestationPathwayBuilder {
 	 * @param pathwayName The name of the pathway instance in the ontology
 	 * @return a proper name for the second-order parameter that represents the probability associated to this pathway
 	 */
-	public static String getProbString(Manifestation manifestation, String pathwayName) {
+	public static String getProbString(DiseaseProgression manifestation, String pathwayName) {
 		if (pathwayName.contains(manifestation.name())) {
 			return pathwayName; 
 		}
@@ -159,35 +168,28 @@ public interface ManifestationPathwayBuilder {
 	 * @param pathwayName The name of the pathway instance in the ontology
 	 * @return a proper description for the second-order parameter that represents the probability associated to this pathway
 	 */
-	public static String getDescriptionString(Manifestation manifestation, String pathwayName) {
+	public static String getDescriptionString(DiseaseProgression manifestation, String pathwayName) {
 		return "Probability of developing " + manifestation + " due to " + pathwayName; 
 	}
 	
 	static class OSDiManifestationPathway extends DiseaseProgressionPathway {
-		private final String pathwayName; 
 		private final ParameterWrapper riskWrapper;
 
-		public OSDiManifestationPathway(SecondOrderParamsRepository secParams, Manifestation destManifestation,
-				Condition<Patient> condition, TimeToEventCalculator timeToEvent, String pathwayName, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
+		public OSDiManifestationPathway(SecondOrderParamsRepository secParams, DiseaseProgression destManifestation,
+				Condition<DiseaseProgressionPathway.ConditionInformation> condition, TimeToEventCalculator timeToEvent, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
 			super(secParams, destManifestation, condition, timeToEvent);
-			this.pathwayName = pathwayName;
 			this.riskWrapper = riskWrapper;
-			final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
-			if (!dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY) && !dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
-				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, pathwayName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item types");
-			}
 		}
 		
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-			final Manifestation manifestation = this.getNextProgression();
 			final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 			if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
-				ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, getProbString(manifestation, pathwayName), riskWrapper.getDescription(), riskWrapper.getSource(),
+				ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, riskWrapper.getParamId(), riskWrapper.getDescription(), riskWrapper.getSource(),
 						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
 			}
 			else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
-				ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, getProbString(manifestation, pathwayName), riskWrapper.getDescription(), riskWrapper.getSource(),
+				ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, riskWrapper.getParamId(), riskWrapper.getDescription(), riskWrapper.getSource(),
 						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
 			}
 		}

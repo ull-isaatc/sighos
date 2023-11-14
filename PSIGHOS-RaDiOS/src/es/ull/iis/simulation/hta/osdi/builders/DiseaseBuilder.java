@@ -13,7 +13,7 @@ import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * Allows the creation of a {@link StandardDisease} based on the information stored in the ontology
@@ -25,13 +25,13 @@ public interface DiseaseBuilder {
 	 * Creates an instance of a disease from the information stored in the ontology. The population is required because some parameters are population-dependant; 
 	 * e.g. initial proportion of manifestations should be related both to a manifestation and a population.
 	 * @param secParams Common parameters repository
-	 * @param diseaseName Name of the disease, used as IRI in the ontology
-	 * @param populationName Name of the population, used as IRI in the ontology. 
+	 * @param diseaseIRI Name of the disease, used as IRI in the ontology
+	 * @param populationIRI Name of the population, used as IRI in the ontology. 
 	 * @return An instance of a disease 
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseName, String populationName) throws MalformedOSDiModelException {
-		final Disease disease = new OSDiDisease(secParams, diseaseName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(diseaseName, ""));
+	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseIRI, String populationIRI) throws MalformedOSDiModelException {
+		final Disease disease = new OSDiDisease(secParams, diseaseIRI, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(diseaseIRI, ""));
 		// Build developments
 		final Set<String> developments = OSDiWrapper.Clazz.DEVELOPMENT.getIndividuals(true);
 		for (String developmentName : developments) {
@@ -39,20 +39,20 @@ public interface DiseaseBuilder {
 		}
 		
 		// Build manifestations
-		final Set<String> manifestations = OSDiWrapper.Clazz.MANIFESTATION.getIndividuals(true);
-		for (String manifestationName: manifestations) {
-			ManifestationBuilder.getManifestationInstance(secParams, manifestationName, disease, populationName);
+		final Set<String> progressions = OSDiWrapper.Clazz.DISEASE_PROGRESSION.getIndividuals(true);
+		for (String progressionIRI: progressions) {
+			DiseaseProgressionBuilder.getDiseaseProgressionInstance(secParams, progressionIRI, disease, populationIRI);
 		}
-		// Build manifestation pathways after creating all the manifestations
-		for (String manifestationName: manifestations) {
-			final Manifestation manif = disease.getDiseaseProgression(manifestationName);
-			final Set<String> pathways = OSDiWrapper.ObjectProperty.HAS_PATHWAY.getValues(manifestationName, true);
-			for (String pathwayName : pathways)
-				ManifestationPathwayBuilder.getManifestationPathwayInstance(secParams, manif, pathwayName);
-			// Also include exclusions among manifestations
-			final Set<String> exclusions = OSDiWrapper.ObjectProperty.EXCLUDES_MANIFESTATION.getValues(manifestationName);
+		// Build progression pathways after creating all the manifestations
+		for (String progressionIRI: progressions) {
+			final DiseaseProgression progression = disease.getDiseaseProgression(progressionIRI);
+			final Set<String> risks = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(progressionIRI, true);
+			for (String riskIRI : risks)
+				DiseaseProgressionRiskBuilder.getPathwayInstance(secParams, progression, riskIRI);
+			// Also include exclusions among progressions
+			final Set<String> exclusions = OSDiWrapper.ObjectProperty.EXCLUDES_MANIFESTATION.getValues(progressionIRI);
 			for (String excludedManif : exclusions) {
-				disease.addExclusion(manif, disease.getDiseaseProgression(excludedManif));
+				disease.addExclusion(progression, disease.getDiseaseProgression(excludedManif));
 			}
 		}
 		return disease;

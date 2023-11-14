@@ -8,14 +8,14 @@ import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 
 /**
  * @author Iván Castilla
  *
  */
-public class ExpressionLanguageCondition extends Condition<Patient> {
+public class ExpressionLanguageCondition extends Condition<DiseaseProgressionPathway.ConditionInformation> {
 	
 	private final JexlExpression exprToEvaluate;
 	/**
@@ -26,8 +26,8 @@ public class ExpressionLanguageCondition extends Condition<Patient> {
 	}
 	
 	@Override
-	public boolean check(Patient pat) {
-		final MapContext jc = new ExpressionLanguagePatient(pat);
+	public boolean check(DiseaseProgressionPathway.ConditionInformation info) {
+		final MapContext jc = new ExpressionLanguagePatient(info.getPatient());
 		boolean result = false;
 		try {
 			result = (boolean) exprToEvaluate.evaluate(jc);

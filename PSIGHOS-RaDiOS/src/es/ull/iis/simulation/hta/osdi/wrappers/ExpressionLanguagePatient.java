@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.commons.jexl3.MapContext;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -26,7 +26,7 @@ public class ExpressionLanguagePatient extends MapContext {
 		set("DISEASE", pat.getDisease().name());
 		set("DIAGNOSED", pat.isDiagnosed());
 		set("INTERVENTION", pat.getIntervention().name());
-		for (Manifestation manif : pat.getState()) {
+		for (DiseaseProgression manif : pat.getState()) {
 			set(manif.name(), pat.getTimeToDiseaseProgression(manif));
 		}
 		final Collection<String> propNames = pat.getAttributeNames();

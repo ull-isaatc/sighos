@@ -101,8 +101,6 @@
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasParameterUncertainty
 # 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasPathway
-# 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasProbabilityOfDeath
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasProbabilityOfDiagnosis
@@ -152,8 +150,6 @@
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#isParameterOfManifestation
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#isParameterOfPopulation
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#isPathwayTo
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#isSubpopulationOf
 # 
@@ -638,30 +634,41 @@ _:genid51 a rdf:List;
 
 :hasInitialProportion a owl:ObjectProperty;
   rdfs:subPropertyOf :hasParameter;
-  rdfs:domain :Manifestation, :Population;
+  rdfs:domain :Population, _:genid53;
   rdfs:range :Parameter;
   rdfs:comment "The initial proportion of patients of a population that already present certain manifestation"@en .
+
+_:genid53 a owl:Class;
+  owl:unionOf _:genid55 .
+
+_:genid55 a rdf:List;
+  rdf:first :ChronicManifestation;
+  rdf:rest _:genid54 .
+
+_:genid54 a rdf:List;
+  rdf:first :Stage;
+  rdf:rest rdf:nil .
 
 :hasIntervention a owl:ObjectProperty;
   rdfs:domain :Disease;
   rdfs:range :Intervention .
 
 :hasLifeExpectancy a owl:ObjectProperty;
-  rdfs:domain _:genid53;
+  rdfs:domain _:genid56;
   rdfs:range :AttributeValue .
 
-_:genid53 a owl:Class;
-  owl:unionOf _:genid56 .
+_:genid56 a owl:Class;
+  owl:unionOf _:genid59 .
 
-_:genid56 a rdf:List;
+_:genid59 a rdf:List;
   rdf:first :Development;
-  rdf:rest _:genid55 .
+  rdf:rest _:genid58 .
 
-_:genid55 a rdf:List;
+_:genid58 a rdf:List;
   rdf:first :Disease;
-  rdf:rest _:genid54 .
+  rdf:rest _:genid57 .
 
-_:genid54 a rdf:List;
+_:genid57 a rdf:List;
   rdf:first :Population;
   rdf:rest rdf:nil .
 
@@ -672,63 +679,63 @@ _:genid54 a rdf:List;
 
 :hasLineOfTherapy a owl:ObjectProperty;
   rdfs:subPropertyOf :hasStrategy;
-  rdfs:domain _:genid57;
-  rdfs:range _:genid63 .
+  rdfs:domain _:genid60;
+  rdfs:range _:genid66 .
 
-_:genid57 a owl:Class;
-  owl:unionOf _:genid62 .
+_:genid60 a owl:Class;
+  owl:unionOf _:genid65 .
 
-_:genid62 a rdf:List;
+_:genid65 a rdf:List;
   rdf:first :Development;
-  rdf:rest _:genid61 .
-
-_:genid61 a rdf:List;
-  rdf:first :Disease;
-  rdf:rest _:genid60 .
-
-_:genid60 a rdf:List;
-  rdf:first :LineOfTherapy;
-  rdf:rest _:genid59 .
-
-_:genid59 a rdf:List;
-  rdf:first :Manifestation;
-  rdf:rest _:genid58 .
-
-_:genid58 a rdf:List;
-  rdf:first :TherapeuticIntervention;
-  rdf:rest rdf:nil .
-
-_:genid63 a owl:Class;
-  owl:unionOf _:genid66 .
-
-_:genid66 a rdf:List;
-  rdf:first :LineOfTherapy;
   rdf:rest _:genid64 .
 
 _:genid64 a rdf:List;
-  rdf:first _:genid65;
+  rdf:first :Disease;
+  rdf:rest _:genid63 .
+
+_:genid63 a rdf:List;
+  rdf:first :LineOfTherapy;
+  rdf:rest _:genid62 .
+
+_:genid62 a rdf:List;
+  rdf:first :Manifestation;
+  rdf:rest _:genid61 .
+
+_:genid61 a rdf:List;
+  rdf:first :TherapeuticIntervention;
   rdf:rest rdf:nil .
 
-_:genid65 a owl:Restriction;
+_:genid66 a owl:Class;
+  owl:unionOf _:genid69 .
+
+_:genid69 a rdf:List;
+  rdf:first :LineOfTherapy;
+  rdf:rest _:genid67 .
+
+_:genid67 a rdf:List;
+  rdf:first _:genid68;
+  rdf:rest rdf:nil .
+
+_:genid68 a owl:Restriction;
   owl:allValuesFrom :LineOfTherapy;
   owl:onProperty :hasComponent .
 
 :hasManifestation a owl:ObjectProperty;
-  rdfs:domain _:genid67;
+  rdfs:domain _:genid70;
   rdfs:range :Manifestation .
 
-_:genid67 a owl:Class;
-  owl:unionOf _:genid70 .
+_:genid70 a owl:Class;
+  owl:unionOf _:genid73 .
 
-_:genid70 a rdf:List;
+_:genid73 a rdf:List;
   rdf:first :Development;
-  rdf:rest _:genid69 .
+  rdf:rest _:genid72 .
 
-_:genid69 a rdf:List;
+_:genid72 a rdf:List;
   rdf:first :Disease;
-  rdf:rest _:genid68 .
+  rdf:rest _:genid71 .
 
-_:genid68 a rdf:List;
+_:genid71 a rdf:List;
   rdf:first :Stage;
   rdf:rest rdf:nil .
 
@@ -745,23 +752,18 @@ _:genid68 a rdf:List;
 
 :hasParameterUncertainty a owl:ObjectProperty;
   rdfs:domain :Parameter;
-  rdfs:range _:genid71 .
+  rdfs:range _:genid74 .
 
-_:genid71 a owl:Class;
-  owl:unionOf _:genid73 .
+_:genid74 a owl:Class;
+  owl:unionOf _:genid76 .
 
-_:genid73 a rdf:List;
+_:genid76 a rdf:List;
   rdf:first :Expression;
-  rdf:rest _:genid72 .
+  rdf:rest _:genid75 .
 
-_:genid72 a rdf:List;
+_:genid75 a rdf:List;
   rdf:first :Parameter;
   rdf:rest rdf:nil .
-
-:hasPathway a owl:ObjectProperty;
-  owl:inverseOf :isPathwayTo;
-  rdfs:domain :Manifestation;
-  rdfs:range :ManifestationPathway .
 
 :hasProbabilityOfDeath a owl:ObjectProperty;
   rdfs:subPropertyOf :hasParameter;
@@ -780,131 +782,142 @@ _:genid72 a rdf:List;
 
 :hasRiskCharacterization a owl:ObjectProperty;
   rdfs:subPropertyOf :hasParameter;
-  rdfs:domain :Manifestation;
-  rdfs:range :Parameter;
+  rdfs:domain :DiseaseProgression;
+  rdfs:range _:genid77;
   :TODO "Check if this is the best name for the property" .
+
+_:genid77 a owl:Class;
+  owl:unionOf _:genid79 .
+
+_:genid79 a rdf:List;
+  rdf:first :Parameter;
+  rdf:rest _:genid78 .
+
+_:genid78 a rdf:List;
+  rdf:first :Pathway;
+  rdf:rest rdf:nil .
 
 :hasScreeningCost a owl:ObjectProperty;
   rdfs:subPropertyOf :hasCost;
-  rdfs:domain _:genid74;
+  rdfs:domain _:genid80;
   rdfs:range :Cost .
 
-_:genid74 a owl:Class;
-  owl:unionOf _:genid76 .
+_:genid80 a owl:Class;
+  owl:unionOf _:genid82 .
 
-_:genid76 a rdf:List;
+_:genid82 a rdf:List;
   rdf:first :Development;
-  rdf:rest _:genid75 .
+  rdf:rest _:genid81 .
 
-_:genid75 a rdf:List;
+_:genid81 a rdf:List;
   rdf:first :Disease;
   rdf:rest rdf:nil .
 
 :hasScreeningStrategy a owl:ObjectProperty;
   rdfs:subPropertyOf :hasStrategy;
-  rdfs:domain _:genid77;
-  rdfs:range _:genid81 .
+  rdfs:domain _:genid83;
+  rdfs:range _:genid87 .
 
-_:genid77 a owl:Class;
-  owl:unionOf _:genid80 .
+_:genid83 a owl:Class;
+  owl:unionOf _:genid86 .
 
-_:genid80 a rdf:List;
+_:genid86 a rdf:List;
   rdf:first :Disease;
-  rdf:rest _:genid79 .
+  rdf:rest _:genid85 .
 
-_:genid79 a rdf:List;
+_:genid85 a rdf:List;
   rdf:first :ScreeningIntervention;
-  rdf:rest _:genid78 .
-
-_:genid78 a rdf:List;
-  rdf:first :ScreeningStrategy;
-  rdf:rest rdf:nil .
-
-_:genid81 a owl:Class;
-  owl:unionOf _:genid84 .
+  rdf:rest _:genid84 .
 
 _:genid84 a rdf:List;
   rdf:first :ScreeningStrategy;
-  rdf:rest _:genid82 .
-
-_:genid82 a rdf:List;
-  rdf:first _:genid83;
   rdf:rest rdf:nil .
 
-_:genid83 a owl:Restriction;
+_:genid87 a owl:Class;
+  owl:unionOf _:genid90 .
+
+_:genid90 a rdf:List;
+  rdf:first :ScreeningStrategy;
+  rdf:rest _:genid88 .
+
+_:genid88 a rdf:List;
+  rdf:first _:genid89;
+  rdf:rest rdf:nil .
+
+_:genid89 a owl:Restriction;
   owl:allValuesFrom :ScreeningStrategy;
   owl:onProperty :hasComponent .
 
 :hasSensitivity a owl:ObjectProperty;
   rdfs:subPropertyOf :hasParameter;
-  rdfs:domain _:genid85;
+  rdfs:domain _:genid91;
   rdfs:range :Parameter;
   rdfs:comment "The Sensitivity in epidemiology is the Probability of correctly classifying a sick individual, that is, the Probability that a positive result will be obtained in a diagnostic test for a sick subject. The Sensitivity is, therefore, the ability of the complementary test to detect the disease. Sensitivity is the percentage of true positives or the Probability that the test is positive if the disease is present; False negatives are sick subjects diagnosed as healthy." .
 
-_:genid85 a owl:Class;
-  owl:unionOf _:genid87 .
+_:genid91 a owl:Class;
+  owl:unionOf _:genid93 .
 
-_:genid87 a rdf:List;
+_:genid93 a rdf:List;
   rdf:first :DetectionIntervention;
-  rdf:rest _:genid86 .
+  rdf:rest _:genid92 .
 
-_:genid86 a rdf:List;
+_:genid92 a rdf:List;
   rdf:first :DetectionStrategy;
   rdf:rest rdf:nil .
 
 :hasSex a owl:ObjectProperty;
   rdfs:subPropertyOf :hasAttributeValue;
   rdfs:domain :Population;
-  rdfs:range _:genid88 .
+  rdfs:range _:genid94 .
 
-_:genid88 a owl:Restriction;
+_:genid94 a owl:Restriction;
   owl:hasValue :Attribute_Sex;
   owl:onProperty :isValueOfAttribute .
 
 :hasSpecificity a owl:ObjectProperty;
   rdfs:subPropertyOf :hasParameter;
-  rdfs:domain _:genid89;
+  rdfs:domain _:genid95;
   rdfs:range :Parameter;
   rdfs:comment "Start Age", "The Specificity of a test is the Probability that a healthy subject will have a negative test result. Specificity is the percentage of true negatives or the Probability that the test will be negative if the disease is not present. False positives are healthy subjects diagnosed as sick." .
-
-_:genid89 a owl:Class;
-  owl:unionOf _:genid91 .
-
-_:genid91 a rdf:List;
-  rdf:first :DetectionIntervention;
-  rdf:rest _:genid90 .
-
-_:genid90 a rdf:List;
-  rdf:first :DetectionStrategy;
-  rdf:rest rdf:nil .
-
-:hasStage a owl:ObjectProperty;
-  rdfs:domain _:genid92;
-  rdfs:range :Stage .
-
-_:genid92 a owl:Class;
-  owl:unionOf _:genid94 .
-
-_:genid94 a rdf:List;
-  rdf:first :Development;
-  rdf:rest _:genid93 .
-
-_:genid93 a rdf:List;
-  rdf:first :Disease;
-  rdf:rest rdf:nil .
-
-:hasStochasticUncertainty a owl:ObjectProperty;
-  rdfs:domain :Valuable;
-  rdfs:range _:genid95 .
 
 _:genid95 a owl:Class;
   owl:unionOf _:genid97 .
 
 _:genid97 a rdf:List;
-  rdf:first :Expression;
+  rdf:first :DetectionIntervention;
   rdf:rest _:genid96 .
 
 _:genid96 a rdf:List;
+  rdf:first :DetectionStrategy;
+  rdf:rest rdf:nil .
+
+:hasStage a owl:ObjectProperty;
+  rdfs:domain _:genid98;
+  rdfs:range :Stage .
+
+_:genid98 a owl:Class;
+  owl:unionOf _:genid100 .
+
+_:genid100 a rdf:List;
+  rdf:first :Development;
+  rdf:rest _:genid99 .
+
+_:genid99 a rdf:List;
+  rdf:first :Disease;
+  rdf:rest rdf:nil .
+
+:hasStochasticUncertainty a owl:ObjectProperty;
+  rdfs:domain :Valuable;
+  rdfs:range _:genid101 .
+
+_:genid101 a owl:Class;
+  owl:unionOf _:genid103 .
+
+_:genid103 a rdf:List;
+  rdf:first :Expression;
+  rdf:rest _:genid102 .
+
+_:genid102 a rdf:List;
   rdf:first :Valuable;
   rdf:rest rdf:nil .
 
@@ -920,57 +933,57 @@ _:genid96 a rdf:List;
 
 :hasTreatmentCost a owl:ObjectProperty;
   rdfs:subPropertyOf :hasCost;
-  rdfs:domain _:genid98;
+  rdfs:domain _:genid104;
   rdfs:range :Cost .
 
-_:genid98 a owl:Class;
-  owl:unionOf _:genid101 .
+_:genid104 a owl:Class;
+  owl:unionOf _:genid107 .
 
-_:genid101 a rdf:List;
+_:genid107 a rdf:List;
   rdf:first :Development;
-  rdf:rest _:genid100 .
+  rdf:rest _:genid106 .
 
-_:genid100 a rdf:List;
+_:genid106 a rdf:List;
   rdf:first :Disease;
-  rdf:rest _:genid99 .
+  rdf:rest _:genid105 .
 
-_:genid99 a rdf:List;
+_:genid105 a rdf:List;
   rdf:first :Manifestation;
   rdf:rest rdf:nil .
 
 :hasUtility a owl:ObjectProperty;
   rdfs:subPropertyOf :hasParameter;
-  rdfs:domain _:genid102;
+  rdfs:domain _:genid108;
   rdfs:range :Utility .
 
-_:genid102 a owl:Class;
-  owl:unionOf _:genid109 .
+_:genid108 a owl:Class;
+  owl:unionOf _:genid115 .
+
+_:genid115 a rdf:List;
+  rdf:first :Development;
+  rdf:rest _:genid114 .
+
+_:genid114 a rdf:List;
+  rdf:first :Disease;
+  rdf:rest _:genid113 .
+
+_:genid113 a rdf:List;
+  rdf:first :Guideline;
+  rdf:rest _:genid112 .
+
+_:genid112 a rdf:List;
+  rdf:first :Intervention;
+  rdf:rest _:genid111 .
+
+_:genid111 a rdf:List;
+  rdf:first :Manifestation;
+  rdf:rest _:genid110 .
+
+_:genid110 a rdf:List;
+  rdf:first :Population;
+  rdf:rest _:genid109 .
 
 _:genid109 a rdf:List;
-  rdf:first :Development;
-  rdf:rest _:genid108 .
-
-_:genid108 a rdf:List;
-  rdf:first :Disease;
-  rdf:rest _:genid107 .
-
-_:genid107 a rdf:List;
-  rdf:first :Guideline;
-  rdf:rest _:genid106 .
-
-_:genid106 a rdf:List;
-  rdf:first :Intervention;
-  rdf:rest _:genid105 .
-
-_:genid105 a rdf:List;
-  rdf:first :Manifestation;
-  rdf:rest _:genid104 .
-
-_:genid104 a rdf:List;
-  rdf:first :Population;
-  rdf:rest _:genid103 .
-
-_:genid103 a rdf:List;
   rdf:first :Stage;
   rdf:rest rdf:nil .
 
@@ -1012,56 +1025,6 @@ _:genid103 a rdf:List;
   rdfs:subPropertyOf :isParameterOf;
   rdfs:range :Population .
 
-:isPathwayTo a owl:ObjectProperty;
-  rdfs:domain _:genid110;
-  rdfs:range _:genid115 .
-
-_:genid110 a owl:Class;
-  owl:unionOf _:genid114 .
-
-_:genid114 a rdf:List;
-  rdf:first :DevelopmentPathway;
-  rdf:rest _:genid113 .
-
-_:genid113 a rdf:List;
-  rdf:first :DiseasePathway;
-  rdf:rest _:genid112 .
-
-_:genid112 a rdf:List;
-  rdf:first :ManifestationPathway;
-  rdf:rest _:genid111 .
-
-_:genid111 a rdf:List;
-  rdf:first :StagePathway;
-  rdf:rest rdf:nil .
-
-_:genid115 a owl:Class;
-  owl:unionOf _:genid121 .
-
-_:genid121 a rdf:List;
-  rdf:first :Development;
-  rdf:rest _:genid120 .
-
-_:genid120 a rdf:List;
-  rdf:first :Disease;
-  rdf:rest _:genid119 .
-
-_:genid119 a rdf:List;
-  rdf:first :Manifestation;
-  rdf:rest _:genid118 .
-
-_:genid118 a rdf:List;
-  rdf:first :Stage;
-  rdf:rest _:genid116 .
-
-_:genid116 a rdf:List;
-  rdf:first _:genid117;
-  rdf:rest rdf:nil .
-
-_:genid117 a owl:Restriction;
-  owl:allValuesFrom :Manifestation;
-  owl:onProperty :hasComponent .
-
 :isSubpopulationOf a owl:ObjectProperty;
   rdfs:domain :Population;
   rdfs:range :Population .
@@ -1076,24 +1039,24 @@ _:genid117 a owl:Restriction;
 
 :requires a owl:ObjectProperty;
   rdfs:domain :ManifestationPathway;
-  rdfs:range _:genid122 .
+  rdfs:range _:genid116 .
 
-_:genid122 a owl:Class;
-  owl:unionOf _:genid126 .
+_:genid116 a owl:Class;
+  owl:unionOf _:genid120 .
 
-_:genid126 a rdf:List;
+_:genid120 a rdf:List;
   rdf:first :Development;
-  rdf:rest _:genid125 .
+  rdf:rest _:genid119 .
 
-_:genid125 a rdf:List;
+_:genid119 a rdf:List;
   rdf:first :Intervention;
-  rdf:rest _:genid124 .
+  rdf:rest _:genid118 .
 
-_:genid124 a rdf:List;
+_:genid118 a rdf:List;
   rdf:first :Manifestation;
-  rdf:rest _:genid123 .
+  rdf:rest _:genid117 .
 
-_:genid123 a rdf:List;
+_:genid117 a rdf:List;
   rdf:first :Stage;
   rdf:rest rdf:nil .
 
@@ -1149,16 +1112,16 @@ _:genid123 a rdf:List;
 
 :hasDisutilityCombinationMethod a owl:DatatypeProperty;
   rdfs:domain :Model;
-  rdfs:range _:genid127 .
+  rdfs:range _:genid121 .
 
-_:genid127 a rdfs:Datatype;
-  owl:oneOf _:genid129 .
+_:genid121 a rdfs:Datatype;
+  owl:oneOf _:genid123 .
 
-_:genid129 a rdf:List;
+_:genid123 a rdf:List;
   rdf:first "ADD";
-  rdf:rest _:genid128 .
+  rdf:rest _:genid122 .
 
-_:genid128 a rdf:List;
+_:genid122 a rdf:List;
   rdf:first "MAX";
   rdf:rest rdf:nil .
 
@@ -1178,21 +1141,21 @@ _:genid128 a rdf:List;
 By default = 1, for the Manifestations.""" .
 
 :hasGeographicalContext a owl:DatatypeProperty;
-  rdfs:domain _:genid130;
+  rdfs:domain _:genid124;
   rdfs:range xsd:string .
 
-_:genid130 a owl:Class;
-  owl:unionOf _:genid133 .
+_:genid124 a owl:Class;
+  owl:unionOf _:genid127 .
 
-_:genid133 a rdf:List;
+_:genid127 a rdf:List;
   rdf:first :Model;
-  rdf:rest _:genid132 .
+  rdf:rest _:genid126 .
 
-_:genid132 a rdf:List;
+_:genid126 a rdf:List;
   rdf:first :Population;
-  rdf:rest _:genid131 .
+  rdf:rest _:genid125 .
 
-_:genid131 a rdf:List;
+_:genid125 a rdf:List;
   rdf:first :Valuable;
   rdf:rest rdf:nil .
 
@@ -1201,16 +1164,16 @@ _:genid131 a rdf:List;
 
 :hasLambdaParameter a owl:DatatypeProperty;
   rdfs:subPropertyOf :hasProbabilityDistributionParameter;
-  rdfs:domain _:genid134 .
+  rdfs:domain _:genid128 .
 
-_:genid134 a owl:Class;
-  owl:unionOf _:genid136 .
+_:genid128 a owl:Class;
+  owl:unionOf _:genid130 .
 
-_:genid136 a rdf:List;
+_:genid130 a rdf:List;
   rdf:first :ExponentialDistributionExpression;
-  rdf:rest _:genid135 .
+  rdf:rest _:genid129 .
 
-_:genid135 a rdf:List;
+_:genid129 a rdf:List;
   rdf:first :PoissonDistributionExpression;
   rdf:rest rdf:nil .
 
@@ -1225,17 +1188,17 @@ _:genid135 a rdf:List;
   rdfs:subPropertyOf owl:topDataProperty .
 
 :hasName a owl:DatatypeProperty;
-  rdfs:domain _:genid137;
+  rdfs:domain _:genid131;
   rdfs:range xsd:string .
 
-_:genid137 a owl:Class;
-  owl:unionOf _:genid139 .
+_:genid131 a owl:Class;
+  owl:unionOf _:genid133 .
 
-_:genid139 a rdf:List;
+_:genid133 a rdf:List;
   rdf:first :Attribute;
-  rdf:rest _:genid138 .
+  rdf:rest _:genid132 .
 
-_:genid138 a rdf:List;
+_:genid132 a rdf:List;
   rdf:first :DataItemType;
   rdf:rest rdf:nil .
 
@@ -1302,18 +1265,18 @@ Examples:
   rdfs:domain :ProbabilityDistributionExpression .
 
 :hasTemporalBehavior a owl:DatatypeProperty;
-  rdfs:range _:genid140;
+  rdfs:range _:genid134;
   rdfs:comment """ONETIME: the cost/utility applies only once at the time of the event.
 ANNUAL: the cost/utility indicates that the indicated value affects annually throughout the patient's life.""" .
 
-_:genid140 a rdfs:Datatype;
-  owl:oneOf _:genid142 .
+_:genid134 a rdfs:Datatype;
+  owl:oneOf _:genid136 .
 
-_:genid142 a rdf:List;
+_:genid136 a rdf:List;
   rdf:first "ANNUAL";
-  rdf:rest _:genid141 .
+  rdf:rest _:genid135 .
 
-_:genid141 a rdf:List;
+_:genid135 a rdf:List;
   rdf:first "ONETIME";
   rdf:rest rdf:nil .
 
@@ -1333,24 +1296,24 @@ _:genid141 a rdf:List;
 
 :AcuteManifestation a owl:Class;
   rdfs:subClassOf :Manifestation;
-  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid143 .
+  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid137 .
 
-_:genid143 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
+_:genid137 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionY> 1.1101194217726372E2;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionX> 1.3771094492073297E2 .
 
 :AdHocExpression a owl:Class;
-  rdfs:subClassOf :Expression, _:genid144, _:genid145, _:genid146 .
+  rdfs:subClassOf :Expression, _:genid138, _:genid139, _:genid140 .
 
-_:genid144 a owl:Restriction;
+_:genid138 a owl:Restriction;
   owl:someValuesFrom :Attribute;
   owl:onProperty :dependsOnAttribute .
 
-_:genid145 a owl:Restriction;
+_:genid139 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :dependsOnParameter .
 
-_:genid146 a owl:Restriction;
+_:genid140 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasExpressionValue .
@@ -1359,59 +1322,59 @@ _:genid146 a owl:Restriction;
   rdfs:subClassOf :Model .
 
 :Attribute a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid147, _:genid148, _:genid149;
-  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid150;
+  rdfs:subClassOf :ModelItem, _:genid141, _:genid142, _:genid143;
+  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid144;
   rdfs:comment "Clinical parameters that define the state of a patient and whose value may modify the evolution of the Disease and/or specific manifestations" .
 
-_:genid147 a owl:Restriction;
+_:genid141 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToSNOMED .
 
-_:genid148 a owl:Restriction;
+_:genid142 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasName .
 
-_:genid149 a owl:Restriction;
+_:genid143 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
-_:genid150 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
+_:genid144 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionY> 3.559904284310582E1;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionX> 2.6453086737911997E2 .
 
 :AttributeValue a owl:Class;
-  rdfs:subClassOf :Valuable, _:genid151;
-  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid152;
+  rdfs:subClassOf :Valuable, _:genid145;
+  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid146;
   rdfs:comment "The value of an individual parameter for a specific class, such as a Disease, Development or Population" .
 
-_:genid151 a owl:Restriction;
+_:genid145 a owl:Restriction;
   owl:onClass :Attribute;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :isValueOfAttribute .
 
-_:genid152 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
+_:genid146 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionY> 2.572295616088946E2;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionX> 8.067230303494442E1 .
 
 :BernoulliDistributionExpression a owl:Class;
-  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid153 .
+  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid147 .
 
-_:genid153 a owl:Restriction;
+_:genid147 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasProbabilityParameter .
 
 :BetaDistributionExpression a owl:Class;
-  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid154, _:genid155 .
+  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid148, _:genid149 .
 
-_:genid154 a owl:Restriction;
+_:genid148 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasAlfaParameter .
 
-_:genid155 a owl:Restriction;
+_:genid149 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasBetaParameter .
@@ -1420,65 +1383,69 @@ _:genid155 a owl:Restriction;
   rdfs:subClassOf :EpidemiologicalParameter .
 
 :ChronicManifestation a owl:Class;
-  rdfs:subClassOf :Manifestation;
-  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid156 .
+  rdfs:subClassOf :Manifestation, _:genid150;
+  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid151 .
 
-_:genid156 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
+_:genid150 a owl:Restriction;
+  owl:someValuesFrom :Parameter;
+  owl:onProperty :hasInitialProportion .
+
+_:genid151 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionY> 4.9815693558255685E0;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionX> 6.605568696358739E1 .
 
 :Cost a owl:Class;
-  rdfs:subClassOf :Parameter, _:genid157, _:genid158;
+  rdfs:subClassOf :Parameter, _:genid152, _:genid153;
   rdfs:comment "Cost related to any class" .
 
-_:genid157 a owl:Restriction;
+_:genid152 a owl:Restriction;
   owl:onClass :Currency;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDataItemType .
 
-_:genid158 a owl:Restriction;
-  owl:onDataRange _:genid159;
+_:genid153 a owl:Restriction;
+  owl:onDataRange _:genid154;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasTemporalBehavior .
 
-_:genid159 a rdfs:Datatype;
-  owl:oneOf _:genid161 .
+_:genid154 a rdfs:Datatype;
+  owl:oneOf _:genid156 .
 
-_:genid161 a rdf:List;
+_:genid156 a rdf:List;
   rdf:first "ANNUAL";
-  rdf:rest _:genid160 .
+  rdf:rest _:genid155 .
 
-_:genid160 a rdf:List;
+_:genid155 a rdf:List;
   rdf:first "ONETIME";
   rdf:rest rdf:nil .
 
 :Currency a owl:Class;
-  rdfs:subClassOf :MeasuredDataItemType, _:genid162 .
+  rdfs:subClassOf :MeasuredDataItemType, _:genid157 .
 
-_:genid162 a owl:Restriction;
+_:genid157 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasRefToWikidata .
 
 :DataItemType a owl:Class;
-  rdfs:subClassOf _:genid163, _:genid164, _:genid165;
-  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid166 .
+  rdfs:subClassOf _:genid158, _:genid159, _:genid160;
+  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid161 .
 
-_:genid163 a owl:Restriction;
+_:genid158 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasDescription .
 
-_:genid164 a owl:Restriction;
+_:genid159 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasName .
 
-_:genid165 a owl:Restriction;
+_:genid160 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasRefToSTATO .
 
-_:genid166 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
+_:genid161 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionY> 1.3884426031710573E1;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionX> 1.639652551238964E2 .
 
@@ -1486,104 +1453,99 @@ _:genid166 rdfs:comment "This is an entity positioning annotation generated by C
   rdfs:subClassOf :Model .
 
 :DetectionIntervention a owl:Class;
-  rdfs:subClassOf :Intervention, _:genid167, _:genid169;
+  rdfs:subClassOf :Intervention, _:genid162, _:genid164;
   rdfs:comment "An intervention intended to detect the presence of a disease or condition in a person" .
 
-_:genid167 a owl:Restriction;
-  owl:someValuesFrom _:genid168;
+_:genid162 a owl:Restriction;
+  owl:someValuesFrom _:genid163;
   owl:onProperty :hasSensitivity .
 
-_:genid168 a owl:Restriction;
+_:genid163 a owl:Restriction;
   owl:hasValue :DI_Sensitivity;
   owl:onProperty :hasDataItemType .
 
-_:genid169 a owl:Restriction;
-  owl:someValuesFrom _:genid170;
+_:genid164 a owl:Restriction;
+  owl:someValuesFrom _:genid165;
   owl:onProperty :hasSpecificity .
 
-_:genid170 a owl:Restriction;
+_:genid165 a owl:Restriction;
   owl:hasValue :DI_Specificity;
   owl:onProperty :hasDataItemType .
 
 :DetectionStrategy a owl:Class;
-  rdfs:subClassOf :Strategy, _:genid171, _:genid173, _:genid174 .
+  rdfs:subClassOf :Strategy, _:genid166, _:genid168, _:genid169 .
 
-_:genid171 a owl:Restriction;
-  owl:someValuesFrom _:genid172;
+_:genid166 a owl:Restriction;
+  owl:someValuesFrom _:genid167;
   owl:onProperty :belongsToGroup .
 
-_:genid172 a owl:Restriction;
+_:genid167 a owl:Restriction;
   owl:allValuesFrom :DetectionStrategy;
   owl:onProperty :hasComponent .
 
-_:genid173 a owl:Restriction;
+_:genid168 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasSensitivity .
 
-_:genid174 a owl:Restriction;
+_:genid169 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasSpecificity .
 
 :Development a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid175, _:genid176, _:genid177, _:genid178, _:genid179,
-    _:genid180, _:genid181;
+  rdfs:subClassOf :ModelItem, _:genid170, _:genid171, _:genid172, _:genid173, _:genid174,
+    _:genid175, _:genid176;
   rdfs:comment "Certain progression of a Disease that comprises a specific set of manifestations or a set of pathways to such manifestations" .
 
-_:genid175 a owl:Restriction;
+_:genid170 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid176 a owl:Restriction;
+_:genid171 a owl:Restriction;
   owl:someValuesFrom :AttributeValue;
   owl:onProperty :hasLifeExpectancy .
 
-_:genid177 a owl:Restriction;
+_:genid172 a owl:Restriction;
   owl:someValuesFrom :Manifestation;
   owl:onProperty :hasManifestation .
 
-_:genid178 a owl:Restriction;
+_:genid173 a owl:Restriction;
   owl:someValuesFrom :Stage;
   owl:onProperty :hasStage .
 
-_:genid179 a owl:Restriction;
+_:genid174 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid180 a owl:Restriction;
+_:genid175 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasCondition .
 
-_:genid181 a owl:Restriction;
+_:genid176 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :DevelopmentPathway a owl:Class;
-  rdfs:subClassOf :Pathway, _:genid182 .
-
-_:genid182 a owl:Restriction;
-  owl:onClass :Development;
-  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :isPathwayTo .
+  rdfs:subClassOf :Pathway .
 
 :DiagnosisIntervention a owl:Class;
-  rdfs:subClassOf :DetectionIntervention, _:genid183;
+  rdfs:subClassOf :DetectionIntervention, _:genid177;
   owl:disjointWith :ScreeningIntervention;
   rdfs:comment "An intervention intended to establish the presence/absence of certain disease or condition" .
 
-_:genid183 a owl:Restriction;
+_:genid177 a owl:Restriction;
   owl:onClass :DiagnosisStrategy;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDiagnosisStrategy .
 
 :DiagnosisStrategy a owl:Class;
-  rdfs:subClassOf :DetectionStrategy, _:genid184 .
+  rdfs:subClassOf :DetectionStrategy, _:genid178 .
 
-_:genid184 a owl:Restriction;
-  owl:someValuesFrom _:genid185;
+_:genid178 a owl:Restriction;
+  owl:someValuesFrom _:genid179;
   owl:onProperty :belongsToGroup .
 
-_:genid185 a owl:Restriction;
+_:genid179 a owl:Restriction;
   owl:allValuesFrom :DiagnosisStrategy;
   owl:onProperty :hasComponent .
 
@@ -1591,32 +1553,60 @@ _:genid185 a owl:Restriction;
   rdfs:subClassOf :Model .
 
 :Disease a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid186, _:genid187, _:genid188, _:genid189, _:genid190,
-    _:genid191 .
+  rdfs:subClassOf :ModelItem, _:genid180, _:genid181, _:genid182, _:genid183, _:genid184,
+    _:genid185, _:genid186, _:genid187, _:genid188, _:genid189, _:genid190, _:genid191 .
 
-_:genid186 a owl:Restriction;
+_:genid180 a owl:Restriction;
   owl:someValuesFrom :AttributeValue;
   owl:onProperty :hasAttributeValue .
 
-_:genid187 a owl:Restriction;
+_:genid181 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid188 a owl:Restriction;
+_:genid182 a owl:Restriction;
   owl:someValuesFrom :Development;
   owl:onProperty :hasDevelopment .
 
-_:genid189 a owl:Restriction;
+_:genid183 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasDiagnosisCost .
 
-_:genid190 a owl:Restriction;
+_:genid184 a owl:Restriction;
   owl:someValuesFrom :DiagnosisStrategy;
   owl:onProperty :hasDiagnosisStrategy .
 
-_:genid191 owl:someValuesFrom :EpidemiologicalParameter .
+_:genid185 a owl:Restriction;
+  owl:someValuesFrom :EpidemiologicalParameter;
+  owl:onProperty :hasEpidemiologicalParameter .
+
+_:genid186 a owl:Restriction;
+  owl:someValuesFrom :Cost;
+  owl:onProperty :hasFollowUpCost .
+
+_:genid187 a owl:Restriction;
+  owl:someValuesFrom :FollowUpStrategy;
+  owl:onProperty :hasFollowUpStrategy .
+
+_:genid188 a owl:Restriction;
+  owl:someValuesFrom :Intervention;
+  owl:onProperty :hasIntervention .
+
+_:genid189 a owl:Restriction;
+  owl:someValuesFrom :AttributeValue;
+  owl:onProperty :hasLifeExpectancy .
+
+_:genid190 a owl:Restriction;
+  owl:someValuesFrom :LineOfTherapy;
+  owl:onProperty :hasLineOfTherapy .
+
+_:genid191 a owl:Restriction;
+  owl:someValuesFrom :Manifestation;
+  owl:onProperty :hasManifestation .
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#DiseasePathway
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#DiseaseProgression
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#Drug
 # 
@@ -1768,111 +1758,148 @@ _:genid191 owl:someValuesFrom :EpidemiologicalParameter .
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_Utility
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#GuidelineLifetimeAnual
-
-_:genid191 a owl:Restriction;
-  owl:onProperty :hasEpidemiologicalParameter .
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_DCCT1_ComplicationsFree_U
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_DCCT1_ComplicationsFree_U_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_DCCT1_ComplicationsFree_U_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Disease
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Disease_AC
 
 :Disease rdfs:subClassOf _:genid192, _:genid193, _:genid194, _:genid195, _:genid196,
-    _:genid197, _:genid198, _:genid199, _:genid200, _:genid201, _:genid202, _:genid203,
-    _:genid204, _:genid205, _:genid206, _:genid207, _:genid208 .
+    _:genid197, _:genid198, _:genid199, _:genid200, _:genid201, _:genid202 .
 
 _:genid192 a owl:Restriction;
-  owl:someValuesFrom :Cost;
-  owl:onProperty :hasFollowUpCost .
-
-_:genid193 a owl:Restriction;
-  owl:someValuesFrom :FollowUpStrategy;
-  owl:onProperty :hasFollowUpStrategy .
-
-_:genid194 a owl:Restriction;
-  owl:someValuesFrom :Intervention;
-  owl:onProperty :hasIntervention .
-
-_:genid195 a owl:Restriction;
-  owl:someValuesFrom :AttributeValue;
-  owl:onProperty :hasLifeExpectancy .
-
-_:genid196 a owl:Restriction;
-  owl:someValuesFrom :LineOfTherapy;
-  owl:onProperty :hasLineOfTherapy .
-
-_:genid197 a owl:Restriction;
-  owl:someValuesFrom :Manifestation;
-  owl:onProperty :hasManifestation .
-
-_:genid198 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasParameter .
 
-_:genid199 a owl:Restriction;
+_:genid193 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasScreeningCost .
 
-_:genid200 a owl:Restriction;
+_:genid194 a owl:Restriction;
   owl:someValuesFrom :ScreeningStrategy;
   owl:onProperty :hasScreeningStrategy .
 
-_:genid201 a owl:Restriction;
+_:genid195 a owl:Restriction;
   owl:someValuesFrom :Stage;
   owl:onProperty :hasStage .
 
-_:genid202 a owl:Restriction;
+_:genid196 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasTreatmentCost .
 
-_:genid203 a owl:Restriction;
+_:genid197 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid204 a owl:Restriction;
+_:genid198 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToDO .
 
-_:genid205 a owl:Restriction;
+_:genid199 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToICD .
 
-_:genid206 a owl:Restriction;
+_:genid200 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToOMIM .
 
-_:genid207 a owl:Restriction;
+_:genid201 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToSNOMED .
 
-_:genid208 a owl:Restriction;
+_:genid202 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :DiseasePathway a owl:Class;
-  rdfs:subClassOf :Pathway, _:genid209 .
+  rdfs:subClassOf :Pathway .
+
+:DiseaseProgression a owl:Class;
+  rdfs:subClassOf :ModelItem, _:genid203, _:genid204, _:genid205, _:genid206, _:genid207,
+    _:genid208, _:genid209, _:genid210, _:genid214, _:genid215, _:genid216 .
+
+_:genid203 a owl:Restriction;
+  owl:someValuesFrom :Cost;
+  owl:onProperty :hasCost .
+
+_:genid204 a owl:Restriction;
+  owl:someValuesFrom :Parameter;
+  owl:onProperty :hasEndAge .
+
+_:genid205 a owl:Restriction;
+  owl:someValuesFrom :Parameter;
+  owl:onProperty :hasIncreasedMortalityRate .
+
+_:genid206 a owl:Restriction;
+  owl:someValuesFrom :Parameter;
+  owl:onProperty :hasLifeExpectancyReduction .
+
+_:genid207 a owl:Restriction;
+  owl:someValuesFrom :Parameter;
+  owl:onProperty :hasOnsetAge .
+
+_:genid208 a owl:Restriction;
+  owl:someValuesFrom :Parameter;
+  owl:onProperty :hasProbabilityOfDeath .
 
 _:genid209 a owl:Restriction;
-  owl:onClass :Disease;
-  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :isPathwayTo .
-
-:Drug a owl:Class;
-  rdfs:subClassOf :HealthTechnology, _:genid210;
-  rdfs:comment "A natural or synthetic remedy for a disease or manifestation" .
+  owl:someValuesFrom :Parameter;
+  owl:onProperty :hasProbabilityOfDiagnosis .
 
 _:genid210 a owl:Restriction;
+  owl:someValuesFrom _:genid211;
+  owl:onProperty :hasRiskCharacterization .
+
+_:genid211 a owl:Class;
+  owl:unionOf _:genid213 .
+
+_:genid213 a rdf:List;
+  rdf:first :Parameter;
+  rdf:rest _:genid212 .
+
+_:genid212 a rdf:List;
+  rdf:first :Pathway;
+  rdf:rest rdf:nil .
+
+_:genid214 a owl:Restriction;
+  owl:someValuesFrom :Utility;
+  owl:onProperty :hasUtility .
+
+_:genid215 a owl:Restriction;
+  owl:someValuesFrom xsd:string;
+  owl:onProperty :hasRefToICD .
+
+_:genid216 a owl:Restriction;
+  owl:onDataRange xsd:string;
+  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasDescription .
+
+:Drug a owl:Class;
+  rdfs:subClassOf :HealthTechnology, _:genid217;
+  rdfs:comment "A natural or synthetic remedy for a disease or manifestation" .
+
+_:genid217 a owl:Restriction;
   owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
 
 :EpidemiologicalParameter a owl:Class;
-  rdfs:subClassOf :Parameter, _:genid211 .
+  rdfs:subClassOf :Parameter, _:genid218 .
 
-_:genid211 a owl:Restriction;
+_:genid218 a owl:Restriction;
   owl:onDataRange xsd:boolean;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :isTrueEpidemiologicalParameterEstimate .
 
 :ExponentialDistributionExpression a owl:Class;
-  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid212 .
+  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid219 .
 
-_:genid212 a owl:Restriction;
+_:genid219 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasLambdaParameter .
@@ -1881,115 +1908,115 @@ _:genid212 a owl:Restriction;
   rdfs:subClassOf :ModelItem .
 
 :FollowUpStrategy a owl:Class;
-  rdfs:subClassOf :Strategy, _:genid213, _:genid215, _:genid216 .
+  rdfs:subClassOf :Strategy, _:genid220, _:genid222, _:genid223 .
 
-_:genid213 a owl:Restriction;
-  owl:someValuesFrom _:genid214;
+_:genid220 a owl:Restriction;
+  owl:someValuesFrom _:genid221;
   owl:onProperty :belongsToGroup .
 
-_:genid214 a owl:Restriction;
+_:genid221 a owl:Restriction;
   owl:allValuesFrom :FollowUpStrategy;
   owl:onProperty :hasComponent .
 
-_:genid215 a owl:Restriction;
+_:genid222 a owl:Restriction;
   owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
 
-_:genid216 a owl:Restriction;
+_:genid223 a owl:Restriction;
   owl:allValuesFrom :FollowUpTest;
   owl:onProperty :usesHealthTechnology .
 
 :FollowUpTest a owl:Class;
-  rdfs:subClassOf :HealthTechnology, _:genid217;
+  rdfs:subClassOf :HealthTechnology, _:genid224;
   rdfs:comment "Tests performed to monitor the state of a patient" .
-
-_:genid217 a owl:Restriction;
-  owl:someValuesFrom :Guideline;
-  owl:onProperty :hasGuideline .
-
-:GammaDistributionExpression a owl:Class;
-  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid218, _:genid219 .
-
-_:genid218 a owl:Restriction;
-  owl:onDataRange xsd:double;
-  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasAlfaParameter .
-
-_:genid219 a owl:Restriction;
-  owl:onDataRange xsd:double;
-  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasLambdaParameter .
-
-:Group a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid220, _:genid221 .
-
-_:genid220 a owl:Restriction;
-  owl:someValuesFrom :GroupableModelItem;
-  owl:onProperty :hasComponent .
-
-_:genid221 a owl:Restriction;
-  owl:onDataRange xsd:string;
-  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasDescription .
-
-:GroupableModelItem a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid222, _:genid223 .
-
-_:genid222 a owl:Restriction;
-  owl:someValuesFrom :Group;
-  owl:onProperty :belongsToGroup .
-
-_:genid223 a owl:Restriction;
-  owl:someValuesFrom :ProportionWithinGroup;
-  owl:onProperty :hasProportionWithinGroup .
-
-:Guideline a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid224, _:genid225, _:genid226, _:genid227, _:genid228,
-    _:genid229, _:genid230;
-  rdfs:comment "The way a treatment, drug, test... is applied. It defines a period of time (range), dose, frequency, etc." .
 
 _:genid224 a owl:Restriction;
   owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
 
+:GammaDistributionExpression a owl:Class;
+  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid225, _:genid226 .
+
 _:genid225 a owl:Restriction;
-  owl:someValuesFrom xsd:string;
-  owl:onProperty :hasCondition .
+  owl:onDataRange xsd:double;
+  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasAlfaParameter .
 
 _:genid226 a owl:Restriction;
-  owl:onDataRange xsd:string;
-  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasRange .
+  owl:onDataRange xsd:double;
+  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasLambdaParameter .
+
+:Group a owl:Class;
+  rdfs:subClassOf :ModelItem, _:genid227, _:genid228 .
 
 _:genid227 a owl:Restriction;
-  owl:onDataRange xsd:string;
-  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasDescription .
+  owl:someValuesFrom :GroupableModelItem;
+  owl:onProperty :hasComponent .
 
 _:genid228 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasDose .
+  owl:onProperty :hasDescription .
+
+:GroupableModelItem a owl:Class;
+  rdfs:subClassOf :ModelItem, _:genid229 .
 
 _:genid229 a owl:Restriction;
+  owl:someValuesFrom :Group;
+  owl:onProperty :belongsToGroup .
+
+:Guideline a owl:Class;
+  rdfs:subClassOf :ModelItem, _:genid230, _:genid231, _:genid232, _:genid233, _:genid234,
+    _:genid235, _:genid236;
+  rdfs:comment "The way a treatment, drug, test... is applied. It defines a period of time (range), dose, frequency, etc." .
+
+_:genid230 a owl:Restriction;
+  owl:someValuesFrom :Guideline;
+  owl:onProperty :hasGuideline .
+
+_:genid231 a owl:Restriction;
+  owl:someValuesFrom xsd:string;
+  owl:onProperty :hasCondition .
+
+_:genid232 a owl:Restriction;
+  owl:onDataRange xsd:string;
+  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasRange .
+
+_:genid233 a owl:Restriction;
+  owl:onDataRange xsd:string;
+  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasDescription .
+
+_:genid234 a owl:Restriction;
+  owl:onDataRange xsd:string;
+  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
+  owl:onProperty :hasDose .
+
+_:genid235 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasFrequency .
 
-_:genid230 a owl:Restriction;
+_:genid236 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasHoursInterval .
 
 :HealthTechnology a owl:Class;
-  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid231, _:genid232;
+  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid237, _:genid238, _:genid239;
   rdfs:comment "Any treatment, drug, test... that may be applied to a patient" .
 
-_:genid231 a owl:Restriction;
+_:genid237 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid232 a owl:Restriction;
+_:genid238 a owl:Restriction;
+  owl:someValuesFrom :Group;
+  owl:onProperty :hasProportionWithinGroup .
+
+_:genid239 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
@@ -1998,186 +2025,107 @@ _:genid232 a owl:Restriction;
   rdfs:subClassOf :EpidemiologicalParameter .
 
 :Intervention a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid233, _:genid234, _:genid235, _:genid237;
+  rdfs:subClassOf :ModelItem, _:genid240, _:genid241, _:genid242, _:genid244;
   rdfs:comment "Some kind of treatment, drug, surgical procedure... used to modify the development of a Disease" .
 
-_:genid233 a owl:Restriction;
+_:genid240 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid234 a owl:Restriction;
+_:genid241 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid235 a owl:Restriction;
-  owl:someValuesFrom _:genid236;
+_:genid242 a owl:Restriction;
+  owl:someValuesFrom _:genid243;
   owl:onProperty :involvesModification .
 
-_:genid236 a owl:Restriction;
+_:genid243 a owl:Restriction;
   owl:onClass :Valuable;
   owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :modifies .
 
-_:genid237 a owl:Restriction;
+_:genid244 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :LineOfTherapy a owl:Class;
-  rdfs:subClassOf :Strategy, _:genid238, _:genid240, _:genid241, _:genid245 .
+  rdfs:subClassOf :Strategy, _:genid245, _:genid247, _:genid248, _:genid252 .
 
-_:genid238 a owl:Restriction;
-  owl:someValuesFrom _:genid239;
+_:genid245 a owl:Restriction;
+  owl:someValuesFrom _:genid246;
   owl:onProperty :belongsToGroup .
 
-_:genid239 a owl:Restriction;
+_:genid246 a owl:Restriction;
   owl:allValuesFrom :LineOfTherapy;
   owl:onProperty :hasComponent .
 
-_:genid240 a owl:Restriction;
+_:genid247 a owl:Restriction;
   owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
 
-_:genid241 a owl:Restriction;
-  owl:allValuesFrom _:genid242;
+_:genid248 a owl:Restriction;
+  owl:allValuesFrom _:genid249;
   owl:onProperty :usesHealthTechnology .
 
-_:genid242 a owl:Class;
-  owl:unionOf _:genid244 .
+_:genid249 a owl:Class;
+  owl:unionOf _:genid251 .
 
-_:genid244 a rdf:List;
+_:genid251 a rdf:List;
   rdf:first :Drug;
-  rdf:rest _:genid243 .
+  rdf:rest _:genid250 .
 
-_:genid243 a rdf:List;
+_:genid250 a rdf:List;
   rdf:first :Treatment;
   rdf:rest rdf:nil .
 
-_:genid245 a owl:Restriction;
+_:genid252 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :failsIf .
 
 :Manifestation a owl:Class;
-  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid246, _:genid248, _:genid249,
-    _:genid250, _:genid251, _:genid252, _:genid253, _:genid254, _:genid255, _:genid256,
-    _:genid257, _:genid258, _:genid259, _:genid260, _:genid261, _:genid262;
+  rdfs:subClassOf :DiseaseProgression, :GroupableModelItem, _:genid253, _:genid255,
+    _:genid256;
   rdfs:comment "Symptoms and signs of a Disease. They may be chronic or acute" .
 
-_:genid246 a owl:Restriction;
-  owl:someValuesFrom _:genid247;
+_:genid253 a owl:Restriction;
+  owl:someValuesFrom _:genid254;
   owl:onProperty :belongsToGroup .
 
-_:genid247 a owl:Restriction;
+_:genid254 a owl:Restriction;
   owl:allValuesFrom :Manifestation;
   owl:onProperty :hasComponent .
 
-_:genid248 a owl:Restriction;
+_:genid255 a owl:Restriction;
   owl:someValuesFrom :Manifestation;
   owl:onProperty :excludesManifestation .
 
-_:genid249 a owl:Restriction;
-  owl:someValuesFrom :Cost;
-  owl:onProperty :hasCost .
-
-_:genid250 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasEndAge .
-
-_:genid251 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasIncreasedMortalityRate .
-
-_:genid252 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasInitialProportion .
-
-_:genid253 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasLifeExpectancyReduction .
-
-_:genid254 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasOnsetAge .
-
-_:genid255 a owl:Restriction;
-  owl:someValuesFrom :ManifestationPathway;
-  owl:onProperty :hasPathway .
-
 _:genid256 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasProbabilityOfDeath .
-
-_:genid257 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasProbabilityOfDiagnosis .
-
-_:genid258 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasRiskCharacterization .
-
-_:genid259 a owl:Restriction;
-  owl:someValuesFrom :Utility;
-  owl:onProperty :hasUtility .
-
-_:genid260 a owl:Restriction;
   owl:someValuesFrom xsd:double;
   owl:onProperty :hasFrequency .
 
-_:genid261 a owl:Restriction;
-  owl:someValuesFrom xsd:string;
-  owl:onProperty :hasRefToICD .
-
-_:genid262 a owl:Restriction;
-  owl:onDataRange xsd:string;
-  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasDescription .
-
 :ManifestationPathway a owl:Class;
-  rdfs:subClassOf :Pathway, _:genid263, _:genid264, _:genid265, _:genid266, _:genid267,
-    _:genid269;
+  rdfs:subClassOf :Pathway, _:genid257, _:genid258, _:genid259, _:genid260;
   rdfs:comment "The way a manifestation appears. It may be a probability, time to event, a proportion of people affected..., and it may change depending on the Development of the Disease or a specific Intervention" .
 
-_:genid263 a owl:Restriction;
+_:genid257 a owl:Restriction;
   owl:someValuesFrom :Development;
   owl:onProperty :requires .
 
-_:genid264 a owl:Restriction;
+_:genid258 a owl:Restriction;
+  owl:someValuesFrom :DiseaseProgression;
+  owl:onProperty :requires .
+
+_:genid259 a owl:Restriction;
   owl:someValuesFrom :Intervention;
   owl:onProperty :requires .
 
-_:genid265 a owl:Restriction;
-  owl:someValuesFrom :Manifestation;
+_:genid260 a owl:Restriction;
+  owl:someValuesFrom _:genid261;
   owl:onProperty :requires .
 
-_:genid266 a owl:Restriction;
-  owl:someValuesFrom :Stage;
-  owl:onProperty :requires .
-
-_:genid267 a owl:Restriction;
-  owl:someValuesFrom _:genid268;
-  owl:onProperty :requires .
-
-_:genid268 a owl:Restriction;
-  owl:allValuesFrom :Manifestation;
-  owl:onProperty :hasComponent .
-
-_:genid269 a owl:Restriction;
-  owl:onClass _:genid270;
-  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :isPathwayTo .
-
-_:genid270 a owl:Class;
-  owl:unionOf _:genid273 .
-
-_:genid273 a rdf:List;
-  rdf:first :Manifestation;
-  rdf:rest _:genid271 .
-
-_:genid271 a rdf:List;
-  rdf:first _:genid272;
-  rdf:rest rdf:nil .
-
-_:genid272 a owl:Restriction;
+_:genid261 a owl:Restriction;
   owl:allValuesFrom :Manifestation;
   owl:onProperty :hasComponent .
 
@@ -2185,62 +2133,62 @@ _:genid272 a owl:Restriction;
   rdfs:subClassOf :Model .
 
 :MeasuredDataItemType a owl:Class;
-  rdfs:subClassOf :DataItemType, _:genid274 .
+  rdfs:subClassOf :DataItemType, _:genid262 .
 
-_:genid274 a owl:Restriction;
+_:genid262 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasUnit .
 
 :Model a owl:Class;
-  rdfs:subClassOf _:genid275, _:genid276, _:genid277, _:genid278, _:genid279, _:genid280,
-    _:genid284 .
+  rdfs:subClassOf _:genid263, _:genid264, _:genid265, _:genid266, _:genid267, _:genid268,
+    _:genid272 .
 
-_:genid275 a owl:Restriction;
+_:genid263 a owl:Restriction;
   owl:someValuesFrom :Model;
   owl:onProperty :usesSameModelItemsAs .
 
-_:genid276 a owl:Restriction;
+_:genid264 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasAuthor .
 
-_:genid277 a owl:Restriction;
+_:genid265 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasGeographicalContext .
 
-_:genid278 a owl:Restriction;
+_:genid266 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefTo .
 
-_:genid279 a owl:Restriction;
+_:genid267 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasYear .
 
-_:genid280 a owl:Restriction;
-  owl:onDataRange _:genid281;
+_:genid268 a owl:Restriction;
+  owl:onDataRange _:genid269;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDisutilityCombinationMethod .
 
-_:genid281 a rdfs:Datatype;
-  owl:oneOf _:genid283 .
+_:genid269 a rdfs:Datatype;
+  owl:oneOf _:genid271 .
 
-_:genid283 a rdf:List;
+_:genid271 a rdf:List;
   rdf:first "ADD";
-  rdf:rest _:genid282 .
+  rdf:rest _:genid270 .
 
-_:genid282 a rdf:List;
+_:genid270 a rdf:List;
   rdf:first "MAX";
   rdf:rest rdf:nil .
 
-_:genid284 a owl:Restriction;
+_:genid272 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :ModelItem a owl:Class;
-  rdfs:subClassOf _:genid285 .
+  rdfs:subClassOf _:genid273 .
 
-_:genid285 a owl:Restriction;
+_:genid273 a owl:Restriction;
   owl:someValuesFrom :Model;
   owl:onProperty :includedByModel .
 
@@ -2248,154 +2196,154 @@ _:genid285 a owl:Restriction;
   rdfs:subClassOf :ProbabilityDistributionExpression .
 
 :Parameter a owl:Class;
-  rdfs:subClassOf :Valuable, _:genid286, _:genid290, _:genid291, _:genid292, _:genid293,
-    _:genid294;
+  rdfs:subClassOf :Valuable, _:genid274, _:genid278, _:genid279, _:genid280, _:genid281,
+    _:genid282;
   rdfs:comment "Parameters used for computing outcomes or characterize certain class. They have a source, a geographical context, year, description and value." .
 
-_:genid286 a owl:Restriction;
-  owl:someValuesFrom _:genid287;
+_:genid274 a owl:Restriction;
+  owl:someValuesFrom _:genid275;
   owl:onProperty :hasParameterUncertainty .
 
-_:genid287 a owl:Class;
-  owl:unionOf _:genid289 .
+_:genid275 a owl:Class;
+  owl:unionOf _:genid277 .
 
-_:genid289 a rdf:List;
+_:genid277 a rdf:List;
   rdf:first :Expression;
-  rdf:rest _:genid288 .
+  rdf:rest _:genid276 .
 
-_:genid288 a rdf:List;
+_:genid276 a rdf:List;
   rdf:first :Parameter;
   rdf:rest rdf:nil .
 
-_:genid290 a owl:Restriction;
+_:genid278 a owl:Restriction;
   owl:someValuesFrom :Disease;
   owl:onProperty :isParameterOfDisease .
 
-_:genid291 a owl:Restriction;
+_:genid279 a owl:Restriction;
   owl:someValuesFrom :Manifestation;
   owl:onProperty :isParameterOfManifestation .
 
-_:genid292 a owl:Restriction;
+_:genid280 a owl:Restriction;
   owl:someValuesFrom :Population;
   owl:onProperty :isParameterOfPopulation .
 
-_:genid293 a owl:Restriction;
+_:genid281 a owl:Restriction;
   owl:someValuesFrom xsd:short;
   owl:onProperty :hasYear .
 
-_:genid294 a owl:Restriction;
+_:genid282 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :Pathway a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid295, _:genid296, _:genid297, _:genid298;
+  rdfs:subClassOf :ModelItem, _:genid283, _:genid284, _:genid285, _:genid286;
   rdfs:comment "The way a disease, development, manifestation or stage appears, i.e., the conditions that must be met to lead to any of these."@en .
 
-_:genid295 a owl:Restriction;
+_:genid283 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid296 a owl:Restriction;
+_:genid284 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasRiskCharacterization .
 
-_:genid297 a owl:Restriction;
+_:genid285 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid298 a owl:Restriction;
+_:genid286 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasCondition .
 
 :PoissonDistributionExpression a owl:Class;
-  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid299 .
+  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid287 .
 
-_:genid299 a owl:Restriction;
+_:genid287 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasLambdaParameter .
 
 :Population a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid300, _:genid301, _:genid302, _:genid303, _:genid304,
-    _:genid305, _:genid306, _:genid307, _:genid309, _:genid311, _:genid312, _:genid313,
-    _:genid314, _:genid315, _:genid316, _:genid317 .
+  rdfs:subClassOf :ModelItem, _:genid288, _:genid289, _:genid290, _:genid291, _:genid292,
+    _:genid293, _:genid294, _:genid295, _:genid297, _:genid299, _:genid300, _:genid301,
+    _:genid302, _:genid303, _:genid304, _:genid305 .
 
-_:genid300 a owl:Restriction;
+_:genid288 a owl:Restriction;
   owl:someValuesFrom :AttributeValue;
   owl:onProperty :hasAttributeValue .
 
-_:genid301 a owl:Restriction;
+_:genid289 a owl:Restriction;
   owl:someValuesFrom :EpidemiologicalParameter;
   owl:onProperty :hasEpidemiologicalParameter .
 
-_:genid302 a owl:Restriction;
+_:genid290 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasInitialProportion .
 
-_:genid303 a owl:Restriction;
+_:genid291 a owl:Restriction;
   owl:someValuesFrom :AttributeValue;
   owl:onProperty :hasLifeExpectancy .
 
-_:genid304 a owl:Restriction;
+_:genid292 a owl:Restriction;
   owl:someValuesFrom :Parameter;
   owl:onProperty :hasParameter .
 
-_:genid305 a owl:Restriction;
+_:genid293 a owl:Restriction;
   owl:someValuesFrom :Population;
   owl:onProperty :hasSubpopulation .
 
-_:genid306 a owl:Restriction;
+_:genid294 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid307 a owl:Restriction;
-  owl:onClass _:genid308;
+_:genid295 a owl:Restriction;
+  owl:onClass _:genid296;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasAge .
 
-_:genid308 a owl:Restriction;
+_:genid296 a owl:Restriction;
   owl:hasValue :Attribute_Age;
   owl:onProperty :isValueOfAttribute .
 
-_:genid309 a owl:Restriction;
-  owl:onClass _:genid310;
+_:genid297 a owl:Restriction;
+  owl:onClass _:genid298;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasSex .
 
-_:genid310 a owl:Restriction;
+_:genid298 a owl:Restriction;
   owl:hasValue :Attribute_Sex;
   owl:onProperty :isValueOfAttribute .
 
-_:genid311 a owl:Restriction;
+_:genid299 a owl:Restriction;
   owl:onClass :Population;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :isSubpopulationOf .
 
-_:genid312 a owl:Restriction;
+_:genid300 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasGeographicalContext .
 
-_:genid313 a owl:Restriction;
+_:genid301 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasYear .
 
-_:genid314 a owl:Restriction;
+_:genid302 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
-_:genid315 a owl:Restriction;
+_:genid303 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasMaxAge .
 
-_:genid316 a owl:Restriction;
+_:genid304 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasMinAge .
 
-_:genid317 a owl:Restriction;
+_:genid305 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasSize .
@@ -2404,314 +2352,283 @@ _:genid317 a owl:Restriction;
   rdfs:subClassOf :EpidemiologicalParameter .
 
 :ProbabilityDistributionExpression a owl:Class;
-  rdfs:subClassOf :Expression, _:genid318, _:genid319, _:genid320, _:genid321 .
+  rdfs:subClassOf :Expression, _:genid306, _:genid307, _:genid308, _:genid309 .
 
-_:genid318 a owl:Restriction;
+_:genid306 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasAverageParameter .
 
-_:genid319 a owl:Restriction;
+_:genid307 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasOffsetParameter .
 
-_:genid320 a owl:Restriction;
+_:genid308 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasScaleParameter .
 
-_:genid321 a owl:Restriction;
+_:genid309 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasStandardDeviationParameter .
 
 :ProportionWithinGroup a owl:Class;
-  rdfs:subClassOf :Parameter, _:genid322 .
+  rdfs:subClassOf :Parameter, _:genid310 .
 
-_:genid322 a owl:Restriction;
+_:genid310 a owl:Restriction;
   owl:onClass :Group;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :belongsToGroup .
 
 :RareDisease a owl:Class;
-  rdfs:subClassOf :Disease, _:genid323, _:genid324;
+  rdfs:subClassOf :Disease, _:genid311, _:genid312;
   rdfs:comment "A Disease with very low  prevalence" .
 
-_:genid323 a owl:Restriction;
+_:genid311 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToGARD .
 
-_:genid324 a owl:Restriction;
+_:genid312 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasRefToORDO .
 
 :ScreeningIntervention a owl:Class;
-  rdfs:subClassOf :DetectionIntervention, _:genid325, _:genid326;
+  rdfs:subClassOf :DetectionIntervention, _:genid313, _:genid314;
   rdfs:comment "An intervention to identifiy the subset of population who may have certain disease or condition and require further testing to obtain a final diagnosis" .
 
-_:genid325 a owl:Restriction;
+_:genid313 a owl:Restriction;
   owl:onClass :DiagnosisStrategy;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDiagnosisStrategy .
 
-_:genid326 a owl:Restriction;
+_:genid314 a owl:Restriction;
   owl:onClass :ScreeningStrategy;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasScreeningStrategy .
 
 :ScreeningStrategy a owl:Class;
-  rdfs:subClassOf :DetectionStrategy, _:genid327, _:genid329;
+  rdfs:subClassOf :DetectionStrategy, _:genid315, _:genid317;
   rdfs:comment "A test used to identify persons potentially suffering a disease among a population" .
 
-_:genid327 a owl:Restriction;
-  owl:someValuesFrom _:genid328;
+_:genid315 a owl:Restriction;
+  owl:someValuesFrom _:genid316;
   owl:onProperty :belongsToGroup .
 
-_:genid328 a owl:Restriction;
+_:genid316 a owl:Restriction;
   owl:allValuesFrom :ScreeningStrategy;
   owl:onProperty :hasComponent .
 
-_:genid329 a owl:Restriction;
+_:genid317 a owl:Restriction;
   owl:onClass :Parameter;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasTemporaryThreshold .
 
 :Stage a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid330, _:genid331, _:genid332, _:genid333, _:genid334,
-    _:genid335, _:genid336, _:genid337, _:genid338;
-  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid339;
+  rdfs:subClassOf :DiseaseProgression, _:genid318, _:genid319;
+  <http://ontologydesignpatterns.org/opla-sd#entityPosition> _:genid320;
   rdfs:comment "A phase or step in the progression of a disease" .
 
-_:genid330 a owl:Restriction;
-  owl:someValuesFrom :Cost;
-  owl:onProperty :hasCost .
+_:genid318 a owl:Restriction;
+  owl:someValuesFrom :Parameter;
+  owl:onProperty :hasInitialProportion .
 
-_:genid331 a owl:Restriction;
+_:genid319 a owl:Restriction;
   owl:someValuesFrom :Manifestation;
   owl:onProperty :hasManifestation .
 
-_:genid332 a owl:Restriction;
-  owl:someValuesFrom :StagePathway;
-  owl:onProperty :hasPathway .
-
-_:genid333 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasProbabilityOfDeath .
-
-_:genid334 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasProbabilityOfDiagnosis .
-
-_:genid335 a owl:Restriction;
-  owl:someValuesFrom :Parameter;
-  owl:onProperty :hasRiskCharacterization .
-
-_:genid336 a owl:Restriction;
-  owl:someValuesFrom :Utility;
-  owl:onProperty :hasUtility .
-
-_:genid337 a owl:Restriction;
-  owl:someValuesFrom xsd:string;
-  owl:onProperty :hasRefToICD .
-
-_:genid338 a owl:Restriction;
-  owl:onDataRange xsd:string;
-  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :hasDescription .
-
-_:genid339 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
+_:genid320 rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionY> 1.332020154340692E2;
   <http://ontologydesignpatterns.org/opla-sd#entityPositionX> 1.0061244444225647E2 .
 
 :StagePathway a owl:Class;
-  rdfs:subClassOf :Pathway, _:genid340, _:genid341, _:genid342, _:genid343 .
+  rdfs:subClassOf :Pathway, _:genid321, _:genid322, _:genid323 .
 
-_:genid340 a owl:Restriction;
+_:genid321 a owl:Restriction;
   owl:someValuesFrom :Development;
   owl:onProperty :requires .
 
-_:genid341 a owl:Restriction;
+_:genid322 a owl:Restriction;
+  owl:someValuesFrom :DiseaseProgression;
+  owl:onProperty :requires .
+
+_:genid323 a owl:Restriction;
   owl:someValuesFrom :Intervention;
   owl:onProperty :requires .
 
-_:genid342 a owl:Restriction;
-  owl:someValuesFrom :Stage;
-  owl:onProperty :requires .
-
-_:genid343 a owl:Restriction;
-  owl:onClass :Stage;
-  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
-  owl:onProperty :isPathwayTo .
-
 :Strategy a owl:Class;
-  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid344, _:genid346, _:genid351,
-    _:genid352, _:genid353, _:genid354 .
+  rdfs:subClassOf :GroupableModelItem, :ModelItem, _:genid324, _:genid326, _:genid331,
+    _:genid332, _:genid333, _:genid334, _:genid335 .
 
-_:genid344 a owl:Restriction;
-  owl:someValuesFrom _:genid345;
+_:genid324 a owl:Restriction;
+  owl:someValuesFrom _:genid325;
   owl:onProperty :belongsToGroup .
 
-_:genid345 a owl:Restriction;
+_:genid325 a owl:Restriction;
   owl:allValuesFrom :Strategy;
   owl:onProperty :hasComponent .
 
-_:genid346 a owl:Restriction;
-  owl:someValuesFrom _:genid347;
+_:genid326 a owl:Restriction;
+  owl:someValuesFrom _:genid327;
   owl:onProperty :followedByStrategy .
 
-_:genid347 a owl:Class;
-  owl:unionOf _:genid350 .
+_:genid327 a owl:Class;
+  owl:unionOf _:genid330 .
 
-_:genid350 a rdf:List;
+_:genid330 a rdf:List;
   rdf:first :Strategy;
-  rdf:rest _:genid348 .
+  rdf:rest _:genid328 .
 
-_:genid348 a rdf:List;
-  rdf:first _:genid349;
+_:genid328 a rdf:List;
+  rdf:first _:genid329;
   rdf:rest rdf:nil .
 
-_:genid349 a owl:Restriction;
+_:genid329 a owl:Restriction;
   owl:allValuesFrom :Strategy;
   owl:onProperty :hasComponent .
 
-_:genid351 a owl:Restriction;
+_:genid331 a owl:Restriction;
   owl:someValuesFrom :Cost;
   owl:onProperty :hasCost .
 
-_:genid352 a owl:Restriction;
+_:genid332 a owl:Restriction;
+  owl:someValuesFrom :Group;
+  owl:onProperty :hasProportionWithinGroup .
+
+_:genid333 a owl:Restriction;
   owl:someValuesFrom :Utility;
   owl:onProperty :hasUtility .
 
-_:genid353 a owl:Restriction;
+_:genid334 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasCondition .
 
-_:genid354 a owl:Restriction;
+_:genid335 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDescription .
 
 :TherapeuticIntervention a owl:Class;
-  rdfs:subClassOf :Intervention, _:genid355, _:genid356 .
+  rdfs:subClassOf :Intervention, _:genid336, _:genid337 .
 
-_:genid355 a owl:Restriction;
+_:genid336 a owl:Restriction;
   owl:onClass :FollowUpStrategy;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasFollowUpStrategy .
 
-_:genid356 a owl:Restriction;
+_:genid337 a owl:Restriction;
   owl:onClass :LineOfTherapy;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasLineOfTherapy .
 
 :Treatment a owl:Class;
-  rdfs:subClassOf :HealthTechnology, _:genid357;
+  rdfs:subClassOf :HealthTechnology, _:genid338;
   rdfs:comment "Any non-drug intervention used to treat a disease or manifestation" .
 
-_:genid357 a owl:Restriction;
+_:genid338 a owl:Restriction;
   owl:someValuesFrom :Guideline;
   owl:onProperty :hasGuideline .
 
 :UniformDistributionExpression a owl:Class;
-  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid358, _:genid359 .
+  rdfs:subClassOf :ProbabilityDistributionExpression, _:genid339, _:genid340 .
 
-_:genid358 a owl:Restriction;
+_:genid339 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasLowerLimitParameter .
 
-_:genid359 a owl:Restriction;
+_:genid340 a owl:Restriction;
   owl:onDataRange xsd:double;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasUpperLimitParameter .
 
 :Utility a owl:Class;
-  rdfs:subClassOf :Parameter, _:genid360, _:genid364 .
+  rdfs:subClassOf :Parameter, _:genid341, _:genid345 .
 
-_:genid360 a owl:Restriction;
-  owl:onDataRange _:genid361;
+_:genid341 a owl:Restriction;
+  owl:onDataRange _:genid342;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasTemporalBehavior .
 
-_:genid361 a rdfs:Datatype;
-  owl:oneOf _:genid363 .
+_:genid342 a rdfs:Datatype;
+  owl:oneOf _:genid344 .
 
-_:genid363 a rdf:List;
+_:genid344 a rdf:List;
   rdf:first "ANNUAL";
-  rdf:rest _:genid362 .
+  rdf:rest _:genid343 .
 
-_:genid362 a rdf:List;
+_:genid343 a rdf:List;
   rdf:first "ONETIME";
   rdf:rest rdf:nil .
 
-_:genid364 a owl:Restriction;
+_:genid345 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasCalculationMethod .
 
 :Valuable a owl:Class;
-  rdfs:subClassOf :ModelItem, _:genid365, _:genid369, _:genid373, _:genid374, _:genid375,
-    _:genid376, _:genid377, _:genid378, _:genid379 .
+  rdfs:subClassOf :ModelItem, _:genid346, _:genid350, _:genid354, _:genid355, _:genid356,
+    _:genid357, _:genid358, _:genid359, _:genid360 .
 
-_:genid365 a owl:Restriction;
-  owl:someValuesFrom _:genid366;
+_:genid346 a owl:Restriction;
+  owl:someValuesFrom _:genid347;
   owl:onProperty :hasHeterogeneity .
 
-_:genid366 a owl:Class;
-  owl:unionOf _:genid368 .
+_:genid347 a owl:Class;
+  owl:unionOf _:genid349 .
 
-_:genid368 a rdf:List;
+_:genid349 a rdf:List;
   rdf:first :Expression;
-  rdf:rest _:genid367 .
+  rdf:rest _:genid348 .
 
-_:genid367 a rdf:List;
+_:genid348 a rdf:List;
   rdf:first :Valuable;
   rdf:rest rdf:nil .
 
-_:genid369 a owl:Restriction;
-  owl:someValuesFrom _:genid370;
+_:genid350 a owl:Restriction;
+  owl:someValuesFrom _:genid351;
   owl:onProperty :hasStochasticUncertainty .
 
-_:genid370 a owl:Class;
-  owl:unionOf _:genid372 .
+_:genid351 a owl:Class;
+  owl:unionOf _:genid353 .
 
-_:genid372 a rdf:List;
+_:genid353 a rdf:List;
   rdf:first :Expression;
-  rdf:rest _:genid371 .
+  rdf:rest _:genid352 .
 
-_:genid371 a rdf:List;
+_:genid352 a rdf:List;
   rdf:first :Valuable;
   rdf:rest rdf:nil .
 
-_:genid373 a owl:Restriction;
+_:genid354 a owl:Restriction;
   owl:someValuesFrom :Valuable;
   owl:onProperty :isModifiedBy .
 
-_:genid374 a owl:Restriction;
+_:genid355 a owl:Restriction;
   owl:someValuesFrom :Valuable;
   owl:onProperty :modifies .
 
-_:genid375 a owl:Restriction;
+_:genid356 a owl:Restriction;
   owl:onClass :DataItemType;
   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasDataItemType .
 
-_:genid376 a owl:Restriction;
+_:genid357 a owl:Restriction;
   owl:onClass :Expression;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasExpression .
 
-_:genid377 a owl:Restriction;
+_:genid358 a owl:Restriction;
   owl:someValuesFrom xsd:string;
   owl:onProperty :hasGeographicalContext .
 
-_:genid378 a owl:Restriction;
+_:genid359 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasExpectedValue .
 
-_:genid379 a owl:Restriction;
+_:genid360 a owl:Restriction;
   owl:onDataRange xsd:string;
   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger;
   owl:onProperty :hasSource .
@@ -2751,6 +2668,23 @@ _:genid379 a owl:Restriction;
   :isParameterOfPopulation :T1DM_Population_DCCT1;
   :hasExpectedValue 1.0E0;
   :isTrueEpidemiologicalParameterEstimate true .
+
+:T1DM_Disease a owl:NamedIndividual, :Disease;
+  :hasEpidemiologicalParameter :Constant_Prevalence1;
+  :hasFollowUpCost :T1DM_Disease_AC;
+  :hasIntervention :T1DM_Intervention_DCCTIntensive;
+  :hasManifestation :T1DM_Manif_ALB1, :T1DM_Manif_ALB2, :T1DM_Manif_ANGINA, :T1DM_Manif_BGRET,
+    :T1DM_Manif_BLI, :T1DM_Manif_ESRD, :T1DM_Manif_HF, :T1DM_Manif_LEA, :T1DM_Manif_ME,
+    :T1DM_Manif_MI, :T1DM_Manif_NEU, :T1DM_Manif_PRET, :T1DM_Manif_SHE, :T1DM_Manif_STROKE,
+    :T1DM_Stage_CHD;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Type I Diabetes Mellitus";
+  :hasRefToDO "do:9744";
+  :hasRefToICD "icd:E10";
+  :hasRefToOMIM "omim:222100";
+  :hasRefToSNOMED "snomed:46635009" .
+
+:T1DM_Population_DCCT1 a owl:NamedIndividual .
 
 :Constant_Probability0 a owl:NamedIndividual, :Parameter;
   :hasDataItemType :DI_Probability;
@@ -2858,187 +2792,8 @@ _:genid379 a owl:Restriction;
   :hasName "Utility" .
 
 :GuidelineLifetimeAnual a owl:NamedIndividual, :Guideline;
-  :hasFrequency "1y" .
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_DCCT1_ComplicationsFree_U
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_DCCT1_ComplicationsFree_U_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_DCCT1_ComplicationsFree_U_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Disease
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Disease_AC
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_BASE_RR
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_BASE_RR_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_BASE_RR_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_Base_RR
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_Base_RR_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_Base_RR_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_RR
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_RR_Expression
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD_Incidence_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_HYPO
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_NEU
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_NPH
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_RET
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Intervention_DCCTIntensive
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Intervention_DCCTIntensive_HbA1c_Modification
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Intervention_DCCTIntensive_HbA1c_Modification_StochasticUncertainty
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB1
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_AC
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_IMR
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_IMR_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_IMR_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_Proportion
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_Proportion_ParamUncertainty
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_TC
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_U
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_U_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_U_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_BGRET
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_BLI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_AC
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_IMR
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_IMR_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_IMR_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_Proportion
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_Proportion_ParamUncertainty
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_TC
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_LEA
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ME
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_AC
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_IMR
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_IMR_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_IMR_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_ProbDeath
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_Proportion
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_Proportion_ParamUncertainty
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_TC
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_U
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_U_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_U_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_NEU
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_PRET
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_SHE
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_AC
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_IMR
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_IMR_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_IMR_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_ProbDeath
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_Proportion
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_Proportion_ParamUncertainty
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_TC
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_U
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_U_L95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_U_U95CI
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_Age
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_DurationOfDiabetes
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_DurationOfDiabetes_StochasticUncertainty
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_HbA1c
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_Sex
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_Sex_StochasticUncertainty
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_StdModelDES
-# 
-# Generated by the OWL API (version 5.5.0.2023-01-14T12:41:38Z) https://github.com/owlcs/owlapi/
-
-:GuidelineLifetimeAnual :hasRange "0y-*" .
+  :hasFrequency "1y";
+  :hasRange "0y-*" .
 
 :T1DM_DCCT1_ComplicationsFree_U a owl:NamedIndividual, :Utility;
   :hasDataItemType :DI_Utility;
@@ -3068,123 +2823,207 @@ _:genid379 a owl:Restriction;
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2015" .
 
-:T1DM_Disease a owl:NamedIndividual, :Disease;
-  :hasEpidemiologicalParameter :Constant_Prevalence1;
-  :hasFollowUpCost :T1DM_Disease_AC;
-  :hasIntervention :T1DM_Intervention_DCCTIntensive;
-  :hasManifestation :T1DM_Manif_ALB1, :T1DM_Manif_ALB2, :T1DM_Manif_ANGINA, :T1DM_Manif_BGRET,
-    :T1DM_Manif_BLI, :T1DM_Manif_ESRD, :T1DM_Manif_HF, :T1DM_Manif_LEA, :T1DM_Manif_ME,
-    :T1DM_Manif_MI, :T1DM_Manif_NEU, :T1DM_Manif_PRET, :T1DM_Manif_SHE, :T1DM_Manif_STROKE;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Type I Diabetes Mellitus";
-  :hasRefToDO "do:9744";
-  :hasRefToICD "icd:E10";
-  :hasRefToOMIM "omim:222100";
-  :hasRefToSNOMED "snomed:46635009" .
+:T1DM_StdModelDES a owl:NamedIndividual .
 
 :T1DM_Disease_AC a owl:NamedIndividual, :Cost;
   :hasDataItemType :Currency_Euro;
   :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population";
-  :hasExpectedValue "1116.733023";
+  :hasDescription "Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population" .
+
+:T1DM_Intervention_DCCTIntensive a owl:NamedIndividual .
+
+:T1DM_Manif_ALB1 a owl:NamedIndividual .
+
+:T1DM_Manif_ALB2 a owl:NamedIndividual .
+
+:T1DM_Manif_ANGINA a owl:NamedIndividual .
+
+:T1DM_Manif_BGRET a owl:NamedIndividual .
+
+:T1DM_Manif_BLI a owl:NamedIndividual .
+
+:T1DM_Manif_ESRD a owl:NamedIndividual .
+
+:T1DM_Manif_HF a owl:NamedIndividual .
+
+:T1DM_Manif_LEA a owl:NamedIndividual .
+
+:T1DM_Manif_ME a owl:NamedIndividual .
+
+:T1DM_Manif_MI a owl:NamedIndividual .
+
+:T1DM_Manif_NEU a owl:NamedIndividual .
+
+:T1DM_Manif_PRET a owl:NamedIndividual .
+
+:T1DM_Manif_SHE a owl:NamedIndividual .
+
+:T1DM_Manif_STROKE a owl:NamedIndividual .
+
+:T1DM_Stage_CHD a owl:NamedIndividual .
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_HYPO
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_NEU
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_NPH
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_RET
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Intervention_DCCTIntensive
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Intervention_DCCTIntensive_HbA1c_Modification
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Intervention_DCCTIntensive_HbA1c_Modification_StochasticUncertainty
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB1
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_AC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_Proportion
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_Proportion_ParamUncertainty
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_TC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_U
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_U_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_U_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_BGRET
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_BLI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_AC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_Proportion
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_Proportion_ParamUncertainty
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_TC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF_U_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_LEA
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ME
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_AC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_ProbDeath
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_Proportion
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_Proportion_ParamUncertainty
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_TC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_U
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_U_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_MI_U_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_NEU
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_PRET
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ANGINA
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_HF
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_MI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_STROKE
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_SHE
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_AC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_ProbDeath
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_Proportion
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_Proportion_ParamUncertainty
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_TC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_U
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_U_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_STROKE_U_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_Age
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_DurationOfDiabetes
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_DurationOfDiabetes_StochasticUncertainty
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_HbA1c
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_Sex
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Population_DCCT1_Sex_StochasticUncertainty
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_IMR
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_IMR_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_IMR_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_Incidence
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_IncidenceBase_RR
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_IncidenceBase_RR_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_IncidenceBase_RR_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_Incidence_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_Incidence_RR
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_Incidence_RR_Expression
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_Incidence_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_StdModelDES
+# 
+# Generated by the OWL API (version 5.5.0.2023-01-14T12:41:38Z) https://github.com/owlcs/owlapi/
+
+:T1DM_Disease_AC :hasExpectedValue "1116.733023";
   :hasSource "Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007";
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2012" .
 
 :T1DM_Group_Manif_CHD a owl:NamedIndividual, :Group;
   :hasComponent :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
-  :hasRiskCharacterization :T1DM_Group_Manif_CHD_Incidence, :T1DM_Group_Manif_CHD_Incidence_RR;
   :includedByModel :T1DM_StdModelDES .
-
-:T1DM_Group_Manif_CHD_Incidence a owl:NamedIndividual, :Incidence;
-  :hasDataItemType :DI_Probability;
-  :hasParameterUncertainty :T1DM_Group_Manif_CHD_Incidence_L95CI, :T1DM_Group_Manif_CHD_Incidence_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Base incidence of any manifestation related to CHD when HbA1c is 9.1";
-  :hasExpectedValue "0.0045";
-  :hasSource "Hoerger 2004";
-  :hasYear "2004" .
-
-:T1DM_Group_Manif_CHD_Incidence_BASE_RR a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasParameterUncertainty :T1DM_Group_Manif_CHD_Incidence_BASE_RR_L95CI, :T1DM_Group_Manif_CHD_Incidence_BASE_RR_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
-  :hasExpectedValue "1.15";
-  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
-  :hasYear "2004" .
-
-:T1DM_Group_Manif_CHD_Incidence_BASE_RR_L95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
-  :hasExpectedValue "0.92";
-  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
-  :hasYear "2004" .
-
-:T1DM_Group_Manif_CHD_Incidence_BASE_RR_U95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
-  :hasExpectedValue "1.43";
-  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
-  :hasYear "2004" .
-
-:T1DM_Group_Manif_CHD_Incidence_Base_RR a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasParameterUncertainty :T1DM_Group_Manif_CHD_Incidence_Base_RR_L95CI, :T1DM_Group_Manif_CHD_Incidence_Base_RR_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
-  :hasExpectedValue "1.15";
-  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
-  :hasYear "2004" .
-
-:T1DM_Group_Manif_CHD_Incidence_Base_RR_L95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
-  :hasExpectedValue "0.92";
-  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
-  :hasYear "2004" .
-
-:T1DM_Group_Manif_CHD_Incidence_Base_RR_U95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
-  :hasExpectedValue "1.43";
-  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
-  :hasYear "2004" .
-
-:T1DM_Group_Manif_CHD_Incidence_L95CI a owl:NamedIndividual, :Incidence;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Base incidence of any manifestation related to CHD when HbA1c is 9.1";
-  :hasExpectedValue "0.001";
-  :hasSource "Hoerger 2004";
-  :hasYear "2004" .
-
-:T1DM_Group_Manif_CHD_Incidence_RR a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasExpression :T1DM_Group_Manif_CHD_Incidence_RR_Expression;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
-  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
-  :hasYear "2004" .
-
-:T1DM_Group_Manif_CHD_Incidence_RR_Expression a owl:NamedIndividual, :AdHocExpression;
-  :dependsOnAttribute :Attribute_HbA1c;
-  :dependsOnParameter :T1DM_Group_Manif_CHD_Incidence_BASE_RR, :T1DM_Group_Manif_CHD_Incidence_Base_RR;
-  :includedByModel :T1DM_StdModelDES;
-  :hasExpressionValue "T1DM_Group_Manif_CHD_Incidence_BASE_RR^(Attribute_HbA1c - 9.1)",
-    "T1DM_Group_Manif_CHD_Incidence_Base_RR^(Attribute_HbA1c - 9.1)" .
-
-:T1DM_Group_Manif_CHD_Incidence_U95CI a owl:NamedIndividual, :Incidence;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Base incidence of any manifestation related to CHD when HbA1c is 9.1";
-  :hasExpectedValue "0.0084";
-  :hasSource "Hoerger 2004";
-  :hasYear "2004" .
 
 :T1DM_Group_Manif_HYPO a owl:NamedIndividual, :Group;
   :hasComponent :T1DM_Manif_SHE;
@@ -3202,7 +3041,7 @@ _:genid379 a owl:Restriction;
   :hasComponent :T1DM_Manif_BGRET, :T1DM_Manif_BLI, :T1DM_Manif_ME, :T1DM_Manif_PRET;
   :includedByModel :T1DM_StdModelDES .
 
-:T1DM_Intervention_DCCTIntensive a owl:NamedIndividual, :TherapeuticIntervention;
+:T1DM_Intervention_DCCTIntensive a :TherapeuticIntervention;
   :includedByModel :T1DM_StdModelDES;
   :involvesModification :T1DM_Intervention_DCCTIntensive_HbA1c_Modification;
   :hasDescription "DCCT intensive arm" .
@@ -3221,23 +3060,30 @@ _:genid379 a owl:Restriction;
   :hasAverageParameter "1.5";
   :hasStandardDeviationParameter "1.1" .
 
-:T1DM_Manif_ALB1 a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Population_DCCT1_HbA1c a owl:NamedIndividual, :AttributeValue;
+  :hasDataItemType :DI_Other;
+  :includedByModel :T1DM_StdModelDES;
+  :isModifiedBy :T1DM_Intervention_DCCTIntensive_HbA1c_Modification;
+  :isValueOfAttribute :Attribute_HbA1c;
+  :hasExpectedValue "8.8";
+  :hasSource "Own calculation from: Design of DCCT (http://diabetes.diabetesjournals.org/content/35/5/530) and DCCT (https://www.nejm.org/doi/10.1056/NEJM199309303291401)" .
+
+:T1DM_Manif_ALB1 a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_NPH;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Microalbuminuria" .
 
-:T1DM_Manif_ALB2 a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_ALB2 a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_NPH;
   :excludesManifestation :T1DM_Manif_ALB1;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Macroalbuminuria" .
 
-:T1DM_Manif_ANGINA a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_ANGINA a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_CHD;
   :excludesManifestation :T1DM_Manif_HF, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
   :hasCost :T1DM_Manif_ANGINA_AC, :T1DM_Manif_ANGINA_TC;
-  :hasIncreasedMortalityRate :T1DM_Manif_ANGINA_IMR;
-  :hasProportionWithinGroup :T1DM_Manif_ANGINA_Proportion;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_ANGINA;
   :hasUtility :T1DM_Manif_ANGINA_U;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Angina" .
@@ -3251,29 +3097,27 @@ _:genid379 a owl:Restriction;
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2016" .
 
-:T1DM_Manif_ANGINA_IMR a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasParameterUncertainty :T1DM_Manif_ANGINA_IMR_L95CI, :T1DM_Manif_ANGINA_IMR_U95CI;
+:T1DM_Manif_ANGINA_TC a owl:NamedIndividual, :Cost;
+  :hasDataItemType :Currency_Euro;
   :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Increased mortality rate for Angina";
-  :hasExpectedValue "1.96";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
+  :hasDescription "Episode of Angina";
+  :hasExpectedValue "1985.96";
+  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
+  :hasTemporalBehavior "ONETIME";
+  :hasYear "2016" .
 
-:T1DM_Manif_ANGINA_IMR_L95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Increased mortality rate for Angina";
-  :hasExpectedValue "1.33";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
+:T1DM_Manif_Pathway_ANGINA a owl:NamedIndividual, :ManifestationPathway;
+  :hasRiskCharacterization :T1DM_Manif_ANGINA_Proportion;
+  :requires :T1DM_Stage_CHD .
 
-:T1DM_Manif_ANGINA_IMR_U95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
+:T1DM_Manif_ANGINA_U a owl:NamedIndividual, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :hasParameterUncertainty :T1DM_Manif_ANGINA_U_L95CI, :T1DM_Manif_ANGINA_U_U95CI;
   :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Increased mortality rate for Angina";
-  :hasExpectedValue "2.89";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasDescription "Annual disutility of Angina";
+  :hasExpectedValue "0.09";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasTemporalBehavior "ANNUAL";
   :hasYear "2005" .
 
 :T1DM_Manif_ANGINA_Proportion a owl:NamedIndividual, :ProportionWithinGroup;
@@ -3289,25 +3133,6 @@ _:genid379 a owl:Restriction;
 :T1DM_Manif_ANGINA_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
   :hasAlfaParameter "1.0";
   :hasLambdaParameter "0.28" .
-
-:T1DM_Manif_ANGINA_TC a owl:NamedIndividual, :Cost;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Episode of Angina";
-  :hasExpectedValue "1985.96";
-  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
-  :hasTemporalBehavior "ONETIME";
-  :hasYear "2016" .
-
-:T1DM_Manif_ANGINA_U a owl:NamedIndividual, :Utility;
-  :hasDataItemType :DI_Disutility;
-  :hasParameterUncertainty :T1DM_Manif_ANGINA_U_L95CI, :T1DM_Manif_ANGINA_U_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Annual disutility of Angina";
-  :hasExpectedValue "0.09";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasTemporalBehavior "ANNUAL";
-  :hasYear "2005" .
 
 :T1DM_Manif_ANGINA_U_L95CI a owl:NamedIndividual, :Utility;
   :hasDataItemType :DI_Lower95ConfidenceLimit;
@@ -3327,29 +3152,28 @@ _:genid379 a owl:Restriction;
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2005" .
 
-:T1DM_Manif_BGRET a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_BGRET a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_RET;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Background Retinopathy" .
 
-:T1DM_Manif_BLI a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_BLI a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_RET;
   :excludesManifestation :T1DM_Manif_BGRET, :T1DM_Manif_ME, :T1DM_Manif_PRET;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Blindness" .
 
-:T1DM_Manif_ESRD a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_ESRD a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_NPH;
   :excludesManifestation :T1DM_Manif_ALB1, :T1DM_Manif_ALB2;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "End-Stage Renal Disease" .
 
-:T1DM_Manif_HF a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_HF a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_CHD;
   :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
   :hasCost :T1DM_Manif_HF_AC, :T1DM_Manif_HF_TC;
-  :hasIncreasedMortalityRate :T1DM_Manif_HF_IMR;
-  :hasProportionWithinGroup :T1DM_Manif_HF_Proportion;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_HF;
   :hasUtility :T1DM_Manif_HF_U;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Heart Failure" .
@@ -3363,29 +3187,27 @@ _:genid379 a owl:Restriction;
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2016" .
 
-:T1DM_Manif_HF_IMR a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasParameterUncertainty :T1DM_Manif_HF_IMR_L95CI, :T1DM_Manif_HF_IMR_U95CI;
+:T1DM_Manif_HF_TC a owl:NamedIndividual, :Cost;
+  :hasDataItemType :Currency_Euro;
   :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Increased mortality rate for heart failure";
-  :hasExpectedValue "1.96";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
+  :hasDescription "Episode of heart failure";
+  :hasExpectedValue "4503.24";
+  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
+  :hasTemporalBehavior "ONETIME";
+  :hasYear "2016" .
 
-:T1DM_Manif_HF_IMR_L95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Increased mortality rate for heart failure";
-  :hasExpectedValue "1.33";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
+:T1DM_Manif_Pathway_HF a owl:NamedIndividual, :ManifestationPathway;
+  :hasRiskCharacterization :T1DM_Manif_HF_Proportion;
+  :requires :T1DM_Stage_CHD .
 
-:T1DM_Manif_HF_IMR_U95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
+:T1DM_Manif_HF_U a owl:NamedIndividual, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :hasParameterUncertainty :T1DM_Manif_HF_U_L95CI, :T1DM_Manif_HF_U_U95CI;
   :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Increased mortality rate for heart failure";
-  :hasExpectedValue "2.89";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasDescription "Annual disutility of heart failure";
+  :hasExpectedValue "0.108";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasTemporalBehavior "ANNUAL";
   :hasYear "2005" .
 
 :T1DM_Manif_HF_Proportion a owl:NamedIndividual, :ProportionWithinGroup;
@@ -3401,25 +3223,6 @@ _:genid379 a owl:Restriction;
 :T1DM_Manif_HF_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
   :hasAlfaParameter "1.0";
   :hasLambdaParameter "0.12" .
-
-:T1DM_Manif_HF_TC a owl:NamedIndividual, :Cost;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Episode of heart failure";
-  :hasExpectedValue "4503.24";
-  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
-  :hasTemporalBehavior "ONETIME";
-  :hasYear "2016" .
-
-:T1DM_Manif_HF_U a owl:NamedIndividual, :Utility;
-  :hasDataItemType :DI_Disutility;
-  :hasParameterUncertainty :T1DM_Manif_HF_U_L95CI, :T1DM_Manif_HF_U_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Annual disutility of heart failure";
-  :hasExpectedValue "0.108";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasTemporalBehavior "ANNUAL";
-  :hasYear "2005" .
 
 :T1DM_Manif_HF_U_L95CI a owl:NamedIndividual, :Utility;
   :hasDataItemType :DI_Lower95ConfidenceLimit;
@@ -3439,24 +3242,23 @@ _:genid379 a owl:Restriction;
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2005" .
 
-:T1DM_Manif_LEA a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_LEA a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_NEU;
   :excludesManifestation :T1DM_Manif_NEU;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Lower Extremity Amputation" .
 
-:T1DM_Manif_ME a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_ME a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_RET;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Macular Edema" .
 
-:T1DM_Manif_MI a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_MI a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_CHD;
   :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_STROKE;
   :hasCost :T1DM_Manif_MI_AC, :T1DM_Manif_MI_TC;
-  :hasIncreasedMortalityRate :T1DM_Manif_MI_IMR;
   :hasProbabilityOfDeath :T1DM_Manif_MI_ProbDeath;
-  :hasProportionWithinGroup :T1DM_Manif_MI_Proportion;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_MI;
   :hasUtility :T1DM_Manif_MI_U;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Myocardial Infarction" .
@@ -3470,30 +3272,14 @@ _:genid379 a owl:Restriction;
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2016" .
 
-:T1DM_Manif_MI_IMR a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasParameterUncertainty :T1DM_Manif_MI_IMR_L95CI, :T1DM_Manif_MI_IMR_U95CI;
+:T1DM_Manif_MI_TC a owl:NamedIndividual, :Cost;
+  :hasDataItemType :Currency_Euro;
   :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Increased mortality rate for myocardial infarction";
-  :hasExpectedValue "1.96";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_MI_IMR_L95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Increased mortality rate for myocardial infarction";
-  :hasExpectedValue "1.33";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_MI_IMR_U95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Increased mortality rate for myocardial infarction";
-  :hasExpectedValue "2.89";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
+  :hasDescription "Episode of myocardial infarction";
+  :hasExpectedValue "22588.0";
+  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
+  :hasTemporalBehavior "ONETIME";
+  :hasYear "2016" .
 
 :T1DM_Manif_MI_ProbDeath a owl:NamedIndividual, :Parameter;
   :hasDataItemType :DI_Probability;
@@ -3501,6 +3287,20 @@ _:genid379 a owl:Restriction;
   :hasDescription "Probability of sudden death after MI (average men-women)";
   :hasExpectedValue "0.3785";
   :hasSource "As in CORE Model";
+  :hasYear "2005" .
+
+:T1DM_Manif_Pathway_MI a owl:NamedIndividual, :ManifestationPathway;
+  :hasRiskCharacterization :T1DM_Manif_MI_Proportion;
+  :requires :T1DM_Stage_CHD .
+
+:T1DM_Manif_MI_U a owl:NamedIndividual, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :hasParameterUncertainty :T1DM_Manif_MI_U_L95CI, :T1DM_Manif_MI_U_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Annual disutility of stroke";
+  :hasExpectedValue "0.164";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasTemporalBehavior "ANNUAL";
   :hasYear "2005" .
 
 :T1DM_Manif_MI_Proportion a owl:NamedIndividual, :ProportionWithinGroup;
@@ -3516,25 +3316,6 @@ _:genid379 a owl:Restriction;
 :T1DM_Manif_MI_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
   :hasAlfaParameter "1.0";
   :hasLambdaParameter "0.53" .
-
-:T1DM_Manif_MI_TC a owl:NamedIndividual, :Cost;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Episode of myocardial infarction";
-  :hasExpectedValue "22588.0";
-  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
-  :hasTemporalBehavior "ONETIME";
-  :hasYear "2016" .
-
-:T1DM_Manif_MI_U a owl:NamedIndividual, :Utility;
-  :hasDataItemType :DI_Disutility;
-  :hasParameterUncertainty :T1DM_Manif_MI_U_L95CI, :T1DM_Manif_MI_U_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Annual disutility of stroke";
-  :hasExpectedValue "0.164";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasTemporalBehavior "ANNUAL";
-  :hasYear "2005" .
 
 :T1DM_Manif_MI_U_L95CI a owl:NamedIndividual, :Utility;
   :hasDataItemType :DI_Lower95ConfidenceLimit;
@@ -3554,29 +3335,42 @@ _:genid379 a owl:Restriction;
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2005" .
 
-:T1DM_Manif_NEU a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_NEU a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_NEU;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Neuropathy" .
 
-:T1DM_Manif_PRET a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_PRET a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_RET;
   :excludesManifestation :T1DM_Manif_BGRET;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Proliferative Retinopathy" .
 
-:T1DM_Manif_SHE a owl:NamedIndividual, :AcuteManifestation;
+:T1DM_Manif_Pathway_STROKE a owl:NamedIndividual, :ManifestationPathway;
+  :hasRiskCharacterization :T1DM_Manif_STROKE_Proportion;
+  :requires :T1DM_Stage_CHD .
+
+:T1DM_Manif_STROKE_Proportion a owl:NamedIndividual, :ProportionWithinGroup;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :hasDataItemType :DI_Proportion;
+  :hasParameterUncertainty :T1DM_Manif_STROKE_Proportion_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Proportion of stroke within CHD complications";
+  :hasExpectedValue "0.07";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "2005" .
+
+:T1DM_Manif_SHE a :AcuteManifestation;
   :belongsToGroup :T1DM_Group_Manif_HYPO;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Severe Hypoglycemic Episode" .
 
-:T1DM_Manif_STROKE a owl:NamedIndividual, :ChronicManifestation;
+:T1DM_Manif_STROKE a :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_CHD;
   :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_MI;
   :hasCost :T1DM_Manif_STROKE_AC, :T1DM_Manif_STROKE_TC;
-  :hasIncreasedMortalityRate :T1DM_Manif_STROKE_IMR;
   :hasProbabilityOfDeath :T1DM_Manif_STROKE_ProbDeath;
-  :hasProportionWithinGroup :T1DM_Manif_STROKE_Proportion;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_STROKE;
   :hasUtility :T1DM_Manif_STROKE_U;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Stroke" .
@@ -3590,53 +3384,6 @@ _:genid379 a owl:Restriction;
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2016" .
 
-:T1DM_Manif_STROKE_IMR a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasParameterUncertainty :T1DM_Manif_STROKE_IMR_L95CI, :T1DM_Manif_STROKE_IMR_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Increased mortality rate for stroke";
-  :hasExpectedValue "1.96";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_STROKE_IMR_L95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Increased mortality rate for stroke";
-  :hasExpectedValue "1.33";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_STROKE_IMR_U95CI a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Increased mortality rate for stroke";
-  :hasExpectedValue "2.89";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_STROKE_ProbDeath a owl:NamedIndividual, :Parameter;
-  :hasDataItemType :DI_Probability;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Probability of sudden death after Stroke (average men-women)";
-  :hasExpectedValue "0.124";
-  :hasSource "As in CORE Model";
-  :hasYear "2005" .
-
-:T1DM_Manif_STROKE_Proportion a owl:NamedIndividual, :ProportionWithinGroup;
-  :belongsToGroup :T1DM_Group_Manif_CHD;
-  :hasDataItemType :DI_Proportion;
-  :hasParameterUncertainty :T1DM_Manif_STROKE_Proportion_ParamUncertainty;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Proportion of stroke within CHD complications";
-  :hasExpectedValue "0.07";
-  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
-  :hasYear "2005" .
-
-:T1DM_Manif_STROKE_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
-  :hasAlfaParameter "1.0";
-  :hasLambdaParameter "0.07" .
-
 :T1DM_Manif_STROKE_TC a owl:NamedIndividual, :Cost;
   :hasDataItemType :Currency_Euro;
   :includedByModel :T1DM_StdModelDES;
@@ -3645,6 +3392,14 @@ _:genid379 a owl:Restriction;
   :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
   :hasTemporalBehavior "ONETIME";
   :hasYear "2016" .
+
+:T1DM_Manif_STROKE_ProbDeath a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Probability;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Probability of sudden death after Stroke (average men-women)";
+  :hasExpectedValue "0.124";
+  :hasSource "As in CORE Model";
+  :hasYear "2005" .
 
 :T1DM_Manif_STROKE_U a owl:NamedIndividual, :Utility;
   :hasDataItemType :DI_Disutility;
@@ -3655,6 +3410,10 @@ _:genid379 a owl:Restriction;
   :hasSource "Bagust and Beale (10.1002/hec.910)";
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2005" .
+
+:T1DM_Manif_STROKE_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
+  :hasAlfaParameter "1.0";
+  :hasLambdaParameter "0.07" .
 
 :T1DM_Manif_STROKE_U_L95CI a owl:NamedIndividual, :Utility;
   :hasDataItemType :DI_Lower95ConfidenceLimit;
@@ -3674,7 +3433,7 @@ _:genid379 a owl:Restriction;
   :hasTemporalBehavior "ANNUAL";
   :hasYear "2005" .
 
-:T1DM_Population_DCCT1 a owl:NamedIndividual, :Population;
+:T1DM_Population_DCCT1 a :Population;
   :hasAge :T1DM_Population_DCCT1_Age;
   :hasAttributeValue :T1DM_Population_DCCT1_DurationOfDiabetes, :T1DM_Population_DCCT1_HbA1c;
   :hasEpidemiologicalParameter :Constant_Prevalence1;
@@ -3702,19 +3461,6 @@ _:genid379 a owl:Restriction;
   :hasExpectedValue "2.6";
   :hasSource "DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401" .
 
-:T1DM_Population_DCCT1_DurationOfDiabetes_StochasticUncertainty a owl:NamedIndividual,
-    :NormalDistributionExpression;
-  :hasAverageParameter "2.6";
-  :hasStandardDeviationParameter "1.4" .
-
-:T1DM_Population_DCCT1_HbA1c a owl:NamedIndividual, :AttributeValue;
-  :hasDataItemType :DI_Other;
-  :includedByModel :T1DM_StdModelDES;
-  :isModifiedBy :T1DM_Intervention_DCCTIntensive_HbA1c_Modification;
-  :isValueOfAttribute :Attribute_HbA1c;
-  :hasExpectedValue "8.8";
-  :hasSource "Own calculation from: Design of DCCT (http://diabetes.diabetesjournals.org/content/35/5/530) and DCCT (https://www.nejm.org/doi/10.1056/NEJM199309303291401)" .
-
 :T1DM_Population_DCCT1_Sex a owl:NamedIndividual, :AttributeValue;
   :hasDataItemType :DI_Proportion;
   :hasStochasticUncertainty :T1DM_Population_DCCT1_Sex_StochasticUncertainty;
@@ -3723,33 +3469,128 @@ _:genid379 a owl:Restriction;
   :hasExpectedValue "0.0";
   :hasSource "Proportion of female population in DCCT" .
 
+:T1DM_Population_DCCT1_DurationOfDiabetes_StochasticUncertainty a owl:NamedIndividual,
+    :NormalDistributionExpression;
+  :hasAverageParameter "2.6";
+  :hasStandardDeviationParameter "1.4" .
+
 :T1DM_Population_DCCT1_Sex_StochasticUncertainty a owl:NamedIndividual, :BernoulliDistributionExpression;
   :hasProbabilityParameter "0.483966942" .
 
-:T1DM_StdModelDES a owl:NamedIndividual, :DiscreteEventSimulationModel;
+:T1DM_Stage_CHD a :Stage;
+  :hasIncreasedMortalityRate :T1DM_Stage_CHD_IMR;
+  :hasRiskCharacterization :T1DM_Stage_CHD_Incidence, :T1DM_Stage_CHD_Incidence_RR;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Coronary Heart Disease" .
+
+:T1DM_Stage_CHD_IMR a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasParameterUncertainty :T1DM_Stage_CHD_IMR_L95CI, :T1DM_Stage_CHD_IMR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Increased mortality rate for CHD";
+  :hasExpectedValue "1.96";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Stage_CHD_Incidence a owl:NamedIndividual, :Incidence;
+  :hasDataItemType :DI_Probability;
+  :hasParameterUncertainty :T1DM_Stage_CHD_Incidence_L95CI, :T1DM_Stage_CHD_Incidence_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Base incidence of any manifestation related to CHD when HbA1c is 9.1";
+  :hasExpectedValue "0.0045";
+  :hasSource "Hoerger 2004";
+  :hasYear "2004" .
+
+:T1DM_Stage_CHD_Incidence_RR a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasExpression :T1DM_Stage_CHD_Incidence_RR_Expression;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Stage_CHD_IMR_L95CI a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Increased mortality rate for CHD";
+  :hasExpectedValue "1.33";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Stage_CHD_IMR_U95CI a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Increased mortality rate for CHD";
+  :hasExpectedValue "2.89";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Stage_CHD_Incidence_L95CI a owl:NamedIndividual, :Incidence;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Base incidence of any manifestation related to CHD when HbA1c is 9.1";
+  :hasExpectedValue "0.001";
+  :hasSource "Hoerger 2004";
+  :hasYear "2004" .
+
+:T1DM_Stage_CHD_Incidence_U95CI a owl:NamedIndividual, :Incidence;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Base incidence of any manifestation related to CHD when HbA1c is 9.1";
+  :hasExpectedValue "0.0084";
+  :hasSource "Hoerger 2004";
+  :hasYear "2004" .
+
+:T1DM_Stage_CHD_IncidenceBase_RR a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasParameterUncertainty :T1DM_Stage_CHD_IncidenceBase_RR_L95CI, :T1DM_Stage_CHD_IncidenceBase_RR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasExpectedValue "1.15";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Stage_CHD_IncidenceBase_RR_L95CI a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasExpectedValue "0.92";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Stage_CHD_IncidenceBase_RR_U95CI a owl:NamedIndividual, :Parameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Base RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasExpectedValue "1.43";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Stage_CHD_Incidence_RR_Expression a owl:NamedIndividual, :AdHocExpression;
+  :dependsOnAttribute :Attribute_HbA1c;
+  :dependsOnParameter :T1DM_Stage_CHD_IncidenceBase_RR;
+  :includedByModel :T1DM_StdModelDES;
+  :hasExpressionValue "T1DM_Stage_CHD_IncidenceBase_RR^(Attribute_HbA1c - 9.1)" .
+
+:T1DM_StdModelDES a :DiscreteEventSimulationModel;
   :includesModelItem :T1DM_DCCT1_ComplicationsFree_U, :T1DM_DCCT1_ComplicationsFree_U_L95CI,
     :T1DM_DCCT1_ComplicationsFree_U_U95CI, :T1DM_Disease, :T1DM_Disease_AC, :T1DM_Group_Manif_CHD,
-    :T1DM_Group_Manif_CHD_Incidence, :T1DM_Group_Manif_CHD_Incidence_BASE_RR, :T1DM_Group_Manif_CHD_Incidence_BASE_RR_L95CI,
-    :T1DM_Group_Manif_CHD_Incidence_BASE_RR_U95CI, :T1DM_Group_Manif_CHD_Incidence_Base_RR,
-    :T1DM_Group_Manif_CHD_Incidence_Base_RR_L95CI, :T1DM_Group_Manif_CHD_Incidence_Base_RR_U95CI,
-    :T1DM_Group_Manif_CHD_Incidence_L95CI, :T1DM_Group_Manif_CHD_Incidence_RR, :T1DM_Group_Manif_CHD_Incidence_RR_Expression,
-    :T1DM_Group_Manif_CHD_Incidence_U95CI, :T1DM_Group_Manif_HYPO, :T1DM_Group_Manif_NEU,
-    :T1DM_Group_Manif_NPH, :T1DM_Group_Manif_RET, :T1DM_Intervention_DCCTIntensive, :T1DM_Intervention_DCCTIntensive_HbA1c_Modification,
-    :T1DM_Manif_ALB1, :T1DM_Manif_ALB2, :T1DM_Manif_ANGINA, :T1DM_Manif_ANGINA_AC, :T1DM_Manif_ANGINA_IMR,
-    :T1DM_Manif_ANGINA_IMR_L95CI, :T1DM_Manif_ANGINA_IMR_U95CI, :T1DM_Manif_ANGINA_Proportion,
+    :T1DM_Group_Manif_HYPO, :T1DM_Group_Manif_NEU, :T1DM_Group_Manif_NPH, :T1DM_Group_Manif_RET,
+    :T1DM_Intervention_DCCTIntensive, :T1DM_Intervention_DCCTIntensive_HbA1c_Modification,
+    :T1DM_Manif_ALB1, :T1DM_Manif_ALB2, :T1DM_Manif_ANGINA, :T1DM_Manif_ANGINA_AC, :T1DM_Manif_ANGINA_Proportion,
     :T1DM_Manif_ANGINA_TC, :T1DM_Manif_ANGINA_U, :T1DM_Manif_ANGINA_U_L95CI, :T1DM_Manif_ANGINA_U_U95CI,
     :T1DM_Manif_BGRET, :T1DM_Manif_BLI, :T1DM_Manif_ESRD, :T1DM_Manif_HF, :T1DM_Manif_HF_AC,
-    :T1DM_Manif_HF_IMR, :T1DM_Manif_HF_IMR_L95CI, :T1DM_Manif_HF_IMR_U95CI, :T1DM_Manif_HF_Proportion,
-    :T1DM_Manif_HF_TC, :T1DM_Manif_HF_U, :T1DM_Manif_HF_U_L95CI, :T1DM_Manif_HF_U_U95CI,
-    :T1DM_Manif_LEA, :T1DM_Manif_ME, :T1DM_Manif_MI, :T1DM_Manif_MI_AC, :T1DM_Manif_MI_IMR,
-    :T1DM_Manif_MI_IMR_L95CI, :T1DM_Manif_MI_IMR_U95CI, :T1DM_Manif_MI_ProbDeath, :T1DM_Manif_MI_Proportion,
-    :T1DM_Manif_MI_TC, :T1DM_Manif_MI_U, :T1DM_Manif_MI_U_L95CI, :T1DM_Manif_MI_U_U95CI,
-    :T1DM_Manif_NEU, :T1DM_Manif_PRET, :T1DM_Manif_SHE, :T1DM_Manif_STROKE, :T1DM_Manif_STROKE_AC,
-    :T1DM_Manif_STROKE_IMR, :T1DM_Manif_STROKE_IMR_L95CI, :T1DM_Manif_STROKE_IMR_U95CI,
-    :T1DM_Manif_STROKE_ProbDeath, :T1DM_Manif_STROKE_Proportion, :T1DM_Manif_STROKE_TC,
-    :T1DM_Manif_STROKE_U, :T1DM_Manif_STROKE_U_L95CI, :T1DM_Manif_STROKE_U_U95CI, :T1DM_Population_DCCT1,
-    :T1DM_Population_DCCT1_Age, :T1DM_Population_DCCT1_DurationOfDiabetes, :T1DM_Population_DCCT1_HbA1c,
-    :T1DM_Population_DCCT1_Sex;
+    :T1DM_Manif_HF_Proportion, :T1DM_Manif_HF_TC, :T1DM_Manif_HF_U, :T1DM_Manif_HF_U_L95CI,
+    :T1DM_Manif_HF_U_U95CI, :T1DM_Manif_LEA, :T1DM_Manif_ME, :T1DM_Manif_MI, :T1DM_Manif_MI_AC,
+    :T1DM_Manif_MI_ProbDeath, :T1DM_Manif_MI_Proportion, :T1DM_Manif_MI_TC, :T1DM_Manif_MI_U,
+    :T1DM_Manif_MI_U_L95CI, :T1DM_Manif_MI_U_U95CI, :T1DM_Manif_NEU, :T1DM_Manif_PRET,
+    :T1DM_Manif_SHE, :T1DM_Manif_STROKE, :T1DM_Manif_STROKE_AC, :T1DM_Manif_STROKE_ProbDeath,
+    :T1DM_Manif_STROKE_Proportion, :T1DM_Manif_STROKE_TC, :T1DM_Manif_STROKE_U, :T1DM_Manif_STROKE_U_L95CI,
+    :T1DM_Manif_STROKE_U_U95CI, :T1DM_Population_DCCT1, :T1DM_Population_DCCT1_Age, :T1DM_Population_DCCT1_DurationOfDiabetes,
+    :T1DM_Population_DCCT1_HbA1c, :T1DM_Population_DCCT1_Sex, :T1DM_Stage_CHD, :T1DM_Stage_CHD_IMR,
+    :T1DM_Stage_CHD_IMR_L95CI, :T1DM_Stage_CHD_IMR_U95CI, :T1DM_Stage_CHD_Incidence, :T1DM_Stage_CHD_IncidenceBase_RR,
+    :T1DM_Stage_CHD_IncidenceBase_RR_L95CI, :T1DM_Stage_CHD_IncidenceBase_RR_U95CI, :T1DM_Stage_CHD_Incidence_L95CI,
+    :T1DM_Stage_CHD_Incidence_RR, :T1DM_Stage_CHD_Incidence_RR_Expression, :T1DM_Stage_CHD_Incidence_U95CI;
   :hasAuthor "ICR";
   :hasDescription "First example of T1DM model";
   :hasDisutilityCombinationMethod "ADD";

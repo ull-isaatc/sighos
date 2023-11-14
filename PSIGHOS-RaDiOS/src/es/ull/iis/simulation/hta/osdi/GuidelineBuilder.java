@@ -15,6 +15,7 @@ import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.RangeWrapper;
 import es.ull.iis.simulation.hta.outcomes.Guideline;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -27,18 +28,18 @@ public interface GuidelineBuilder {
 		return guide;
 	}
 
-	private static Condition<Patient> createCondition(OSDiGenericRepository secParams, String guidelineName) {
+	private static Condition<DiseaseProgressionPathway.ConditionInformation> createCondition(OSDiGenericRepository secParams, String guidelineName) {
 		final List<String> strConditions = OSDiWrapper.DataProperty.HAS_CONDITION.getValues(guidelineName);
-		final ArrayList<Condition<Patient>> condList = new ArrayList<>();
+		final ArrayList<Condition<DiseaseProgressionPathway.ConditionInformation>> condList = new ArrayList<>();
 		for (String strCond : strConditions)
 			condList.add(new ExpressionLanguageCondition(strCond));
 		// Checks how many conditions were created
 		if (condList.size() == 0)
-			return new TrueCondition<Patient>();
+			return new TrueCondition<DiseaseProgressionPathway.ConditionInformation>();
 		if (condList.size() == 1)
 			return condList.get(0);
 		// If more than one condition were added, merges them with a logical AND
-		return new AndCondition<Patient>(condList);
+		return new AndCondition<DiseaseProgressionPathway.ConditionInformation>(condList);
 	}
 	
 	private static void createGuidelineRanges(OSDiGenericRepository secParams, Guideline guide) throws TranspilerException {
