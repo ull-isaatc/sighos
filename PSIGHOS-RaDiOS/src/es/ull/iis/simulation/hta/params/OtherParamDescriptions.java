@@ -46,32 +46,32 @@ public enum OtherParamDescriptions implements DescribesParameter {
 		return defaultValue;
 	}
 	
-	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue) {
-		this.addParameter(secParams, instance.name(), instance.getDescription(), source, detValue);
+	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue) {
+		return this.addParameter(secParams, instance.name(), instance.getDescription(), source, detValue);
 	}
 	
-	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed from, NamedAndDescribed to, String source, double detValue) {
-		this.addParameter(secParams, DescribesParameter.getTransitionName(from, to), DescribesParameter.getTransitionDescription(from, to), source, detValue);
+	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed from, NamedAndDescribed to, String source, double detValue) {
+		return this.addParameter(secParams, DescribesParameter.getTransitionName(from, to), DescribesParameter.getTransitionDescription(from, to), source, detValue);
 	}
 	
-	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
-		addParameter(secParams, name, description, source, new ConstantParameterCalculator(detValue));
+	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
+		final String paramName = getParameterName(name);
+		secParams.addParameter(new ConstantParameter(secParams, this, paramName, getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.OTHER);
+		return paramName; 
 	}
 	
-	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
-		this.addParameter(secParams, instance.name(), instance.getDescription(), source, detValue, rnd);
+	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
+		return this.addParameter(secParams, instance.name(), instance.getDescription(), source, detValue, rnd);
 	}
 	
-	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed from, NamedAndDescribed to, String source, double detValue, RandomVariate rnd) {
-		this.addParameter(secParams, DescribesParameter.getTransitionName(from, to), DescribesParameter.getTransitionDescription(from, to), source, detValue, rnd);
+	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed from, NamedAndDescribed to, String source, double detValue, RandomVariate rnd) {
+		return this.addParameter(secParams, DescribesParameter.getTransitionName(from, to), DescribesParameter.getTransitionDescription(from, to), source, detValue, rnd);
 	}
 	
-	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
-		addParameter(secParams, name, description, source, new SecondOrderParameterCalculator(secParams, detValue, rnd));
-	}
-
-	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, ParameterCalculator calc) {
-		secParams.addParameter(new Parameter(secParams, this, getParameterName(name), getParameterDescription(description), source, calc), SecondOrderParamsRepository.ParameterType.OTHER);
+	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
+		final String paramName = getParameterName(name);
+		secParams.addParameter(new SecondOrderParameter(secParams, this, paramName, getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.OTHER);
+		return paramName; 
 	}
 
 }

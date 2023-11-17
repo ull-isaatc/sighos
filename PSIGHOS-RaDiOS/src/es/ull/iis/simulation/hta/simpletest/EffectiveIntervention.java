@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.FactorParameterModifier;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.SecondOrderParameterCalculator;
+import es.ull.iis.simulation.hta.params.SecondOrderParameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import simkit.random.RandomVariateFactory;
 
@@ -31,7 +31,7 @@ public class EffectiveIntervention extends Intervention {
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		for (String paramName : modifiedParams) {
 			Parameter modParam = new Parameter(secParams, OtherParamDescriptions.RELATIVE_RISK, "Test", "Test", "", 
-					new SecondOrderParameterCalculator(secParams, RR, RandomVariateFactory.getInstance("UniformVariate", RR * 0.8, RR * 1.2)));
+					new SecondOrderParameter(secParams, RR, RandomVariateFactory.getInstance("UniformVariate", RR * 0.8, RR * 1.2)));
 			secParams.addParameterModifier(paramName, this, new FactorParameterModifier(modParam));
 		}
 	}

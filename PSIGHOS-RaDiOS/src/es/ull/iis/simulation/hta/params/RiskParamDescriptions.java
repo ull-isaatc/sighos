@@ -86,7 +86,9 @@ public enum RiskParamDescriptions implements DescribesParameter {
 	 * @return The name assigned to the parameter in the repository
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
-		return this.addParameter(secParams, name, description, source, new ConstantParameterCalculator(detValue));
+		final String paramName = getParameterName(name);
+		secParams.addParameter(new ConstantParameter(secParams, this, paramName, getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.PROBABILITY);
+		return paramName; 
 	}
 	
 	/**
@@ -127,16 +129,8 @@ public enum RiskParamDescriptions implements DescribesParameter {
 	 * @return The name assigned to the parameter in the repository
 	 */	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
-		return this.addParameter(secParams, name, description, source, new SecondOrderParameterCalculator(secParams, detValue, rnd));
-	}
-
-	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, ParameterCalculator calc) {
-		return this.addParameter(secParams, instance.name(), instance.getDescription(), source, calc);
-	}
-
-	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, ParameterCalculator calc) {
 		final String paramName = getParameterName(name);
-		secParams.addParameter(new Parameter(secParams, this, paramName, getParameterDescription(description), source, calc), SecondOrderParamsRepository.ParameterType.PROBABILITY);
-		return paramName;		
+		secParams.addParameter(new SecondOrderParameter(secParams, this, paramName, getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.PROBABILITY);
+		return paramName; 
 	}
 }

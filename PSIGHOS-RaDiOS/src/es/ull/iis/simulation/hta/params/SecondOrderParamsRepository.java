@@ -528,7 +528,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		StringBuilder str = new StringBuilder();
 		for (ParameterType type : ParameterType.values()) {
 			for (Parameter param : type.getParameters()) {
-				if (param.getCalculator() instanceof SecondOrderParameterCalculator) {
+				if (param instanceof SecondOrderParameter) {
 					str.append(param.getName()).append("\t");
 				}
 			}
@@ -551,8 +551,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		StringBuilder str = new StringBuilder();
 		for (ParameterType type : ParameterType.values()) {
 			for (Parameter param : type.getParameters()) {
-				if (param.getCalculator() instanceof SecondOrderParameterCalculator)
-					str.append(((SecondOrderParameterCalculator)param.getCalculator()).getValue(id)).append("\t");
+				if (param instanceof SecondOrderParameter)
+					str.append(((SecondOrderParameter)param).getValue(id)).append("\t");
 			}
 		}
 		return str.toString();

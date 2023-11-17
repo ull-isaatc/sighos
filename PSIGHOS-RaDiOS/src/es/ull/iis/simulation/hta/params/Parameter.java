@@ -12,9 +12,9 @@ import es.ull.iis.simulation.hta.interventions.Intervention;
  * @author Iván Castilla Rodríguez
  *
  */
-public class Parameter implements PrettyPrintable, Comparable<Parameter> {
+public abstract class Parameter implements PrettyPrintable, Comparable<Parameter> {
 	/** Common parameters repository */
-	protected final SecondOrderParamsRepository secParams;
+	private final SecondOrderParamsRepository secParams;
 	/** Short name and identifier of the parameter */
 	private final String name;
 	/** Full description of the parameter */
@@ -22,7 +22,6 @@ public class Parameter implements PrettyPrintable, Comparable<Parameter> {
 	/** The reference from which this parameter was estimated/taken */
 	private final String source;
 	private final DescribesParameter type;
-	private final ParameterCalculator calc;	
 	private final ParameterModifier[] modificationPerIntervention;
 
 	/**
@@ -34,13 +33,12 @@ public class Parameter implements PrettyPrintable, Comparable<Parameter> {
 	 * @param detValue Deterministic/expected value
 	 * @param calc The way the value of the parameter is calculated
 	 */
-	public Parameter(final SecondOrderParamsRepository secParams, DescribesParameter type, String name, String description, String source, ParameterCalculator calc) {
+	public Parameter(final SecondOrderParamsRepository secParams, DescribesParameter type, String name, String description, String source) {
 		this.secParams = secParams;
 		this.name = name;
 		this.description = description;
 		this.source = source;
 		this.type = type;
-		this.calc = calc;
 		this.modificationPerIntervention = new ParameterModifier[secParams.getRegisteredInterventions().length];
 		Arrays.fill(this.modificationPerIntervention, null);
 	}
@@ -56,12 +54,14 @@ public class Parameter implements PrettyPrintable, Comparable<Parameter> {
 	 */
 	
 	public double getValue(Patient pat) {
-		double value = calc.getValue(pat);
+		double value = calculateValue(pat);
 		if (modificationPerIntervention[pat.getnIntervention()] != null)
 			return modificationPerIntervention[pat.getnIntervention()].getModifiedValue(pat, value);
 		return value;
 	}
 
+	public abstract double calculateValue(Patient pat);
+	
 	/**
 	 * Returns the short name and identifier of the parameter
 	 * @return the short name and identifier of the parameter
@@ -93,11 +93,11 @@ public class Parameter implements PrettyPrintable, Comparable<Parameter> {
 	public DescribesParameter getType() {
 		return type;
 	}
-	
-	public ParameterCalculator getCalculator() {
-		return calc;
-	}
 
+	public SecondOrderParamsRepository getRepository() {
+		return secParams;
+	}
+	
 	@Override
 	public String prettyPrint(String linePrefix) {
 		StringBuilder sb = new StringBuilder(linePrefix).append(name);

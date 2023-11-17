@@ -81,7 +81,7 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @return The name assigned to the parameter in the repository
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, Named instance, String description, String source, int year, double detValue) {
-		return this.addParameter(secParams, instance.name(), description, source, year, new ConstantParameterCalculator(detValue));
+		return this.addParameter(secParams, instance.name(), description, source, year, detValue);
 	}
 	
 	/**
@@ -95,7 +95,10 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @return The name assigned to the parameter in the repository
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue) {
-		return this.addParameter(secParams, name, description, source, year, new ConstantParameterCalculator(detValue));
+		final String paramName = getParameterName(name);
+		final Parameter originalParameter = new ConstantParameter(secParams, this, paramName, getParameterDescription(description), source, detValue);
+		secParams.addParameter(new CostParameter(year, originalParameter), SecondOrderParamsRepository.ParameterType.COST);
+		return paramName; 
 	}
 
 	/**
@@ -125,7 +128,7 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @return The name assigned to the parameter in the repository
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, Named instance, String description, String source, int year, double detValue, RandomVariate rnd) {
-		return this.addParameter(secParams, instance.name(), description, source, year, new SecondOrderParameterCalculator(secParams, detValue, rnd));
+		return this.addParameter(secParams, instance.name(), description, source, year, detValue, rnd);
 	}
 	
 	/**
@@ -140,13 +143,9 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @return The name assigned to the parameter in the repository
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
-		return this.addParameter(secParams, name, description, source, year, new SecondOrderParameterCalculator(secParams, detValue, rnd));
-	}
-	
-	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, ParameterCalculator calc) {
 		final String paramName = getParameterName(name);
-		final ParameterCalculator costCalc = new CostCalculator(year, calc);
-		secParams.addParameter(new Parameter(secParams, this, paramName, getParameterDescription(description), source, costCalc), SecondOrderParamsRepository.ParameterType.COST);
-		return paramName;
+		final Parameter originalParameter = new SecondOrderParameter(secParams, this, paramName, getParameterDescription(description), source, detValue, rnd);
+		secParams.addParameter(new CostParameter(year, originalParameter), SecondOrderParamsRepository.ParameterType.COST);
+		return paramName; 
 	}
 }

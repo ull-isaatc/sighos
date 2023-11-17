@@ -7,8 +7,6 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.ParameterCalculator;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
@@ -33,11 +31,12 @@ public class DiseaseProgressionPathway implements CreatesSecondOrderParameters {
 	 * @param condition A condition that the patient must met before he/she can progress to the manifestation
 	 * @param timeToEvent A way of computing the time that will take the patient to show the manifestation in case the condition is met 
 	 */
-	public DiseaseProgressionPathway(SecondOrderParamsRepository secParams, DiseaseProgression nextProgression, Condition<ConditionInformation> condition, ParameterCalculator timeToEvent) {
+	public DiseaseProgressionPathway(SecondOrderParamsRepository secParams, DiseaseProgression nextProgression, Condition<ConditionInformation> condition, String timeToEventParameterName) {
 		this.nextProgression = nextProgression;
 		this.secParams = secParams;
 		this.condition = condition;
-		this.timeToEventParameterName = RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, nextProgression, "", timeToEvent);
+//		this.timeToEventParameterName = RiskParamDescriptions.TIME_TO_EVENT.getaddParameter(secParams, nextProgression, "", timeToEvent);
+		this.timeToEventParameterName = timeToEventParameterName;
 		nextProgression.addPathway(this);
 	}
 
@@ -47,8 +46,8 @@ public class DiseaseProgressionPathway implements CreatesSecondOrderParameters {
 	 * @param nextProgression Resulting progression of the disease
 	 * @param timeToEvent A way of computing the time that will take the patient to show the manifestation in case the condition is met 
 	 */
-	public DiseaseProgressionPathway(SecondOrderParamsRepository secParams, DiseaseProgression nextProgression, ParameterCalculator timeToEvent) {
-		this(secParams, nextProgression, new TrueCondition<ConditionInformation>(), timeToEvent);
+	public DiseaseProgressionPathway(SecondOrderParamsRepository secParams, DiseaseProgression nextProgression, String timeToEventParameterName) {
+		this(secParams, nextProgression, new TrueCondition<ConditionInformation>(), timeToEventParameterName);
 	}
 	
 	
