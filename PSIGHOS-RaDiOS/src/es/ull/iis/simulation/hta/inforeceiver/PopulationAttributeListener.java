@@ -3,12 +3,12 @@
  */
 package es.ull.iis.simulation.hta.inforeceiver;
 
-import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
-import es.ull.iis.simulation.hta.populations.PopulationAttribute;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.util.Statistics;
@@ -28,15 +28,15 @@ public class PopulationAttributeListener extends Listener implements StructuredO
 	/**
 	 * @param description
 	 */
-	public PopulationAttributeListener(int nPatients, List<PopulationAttribute> attributeList) {
+	public PopulationAttributeListener(int nPatients, Map<String, Parameter> attributeList) {
 		super("Listener for individual parameters");
 		this.nPatients = nPatients;
 		this.values = new TreeMap<>();
-		attributeNames = new String[attributeList.size()];
+		attributeNames = attributeList.keySet().toArray(new String[attributeList.size()]);
 		this.aggregated = new TreeMap<>();
+		
 		for (int i = 0; i < attributeList.size(); i++) {
-			final PopulationAttribute attribute = attributeList.get(i);
-			attributeNames[i] = attribute.name();
+			final Parameter attribute = attributeList.get(attributeNames[i]);
 			values.put(attributeNames[i], new double[nPatients]);
 			aggregated.put(attributeNames[i], 0.0);
 		}
@@ -88,12 +88,12 @@ public class PopulationAttributeListener extends Listener implements StructuredO
 		return results;
 	}
 	
-	public static String getStrHeader(String intervention, List<PopulationAttribute> paramList) {
+	public static String getStrHeader(String intervention, Map<String, Parameter> paramList) {
 		final StringBuilder str = new StringBuilder();
 		str.append(STR_AVG_PREFIX + "INITAGE_" + intervention + SEP);
 		str.append(STR_L95CI_PREFIX + "INITAGE_" + intervention + SEP);
 		str.append(STR_U95CI_PREFIX + "INITAGE_" + intervention + SEP);
-		for (PopulationAttribute param : paramList) {
+		for (Parameter param : paramList.values()) {
 			str.append(STR_AVG_PREFIX + param.name() + "_" + intervention + SEP);
 			str.append(STR_L95CI_PREFIX + param.name() + "_" + intervention + SEP);
 			str.append(STR_U95CI_PREFIX + param.name() + "_" + intervention + SEP);

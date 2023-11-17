@@ -2,9 +2,12 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.Arrays;
 
+import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import simkit.random.RandomVariate;
+import simkit.random.RandomVariateFactory;
 
 /**
  * A parameter that defines a value for each patient. It may define a fixed value (constant parameter), a different value per simulation (second-order uncertainty), 
@@ -12,7 +15,7 @@ import es.ull.iis.simulation.hta.interventions.Intervention;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Parameter implements PrettyPrintable, Comparable<Parameter> {
+public class Parameter implements Named, PrettyPrintable, Comparable<Parameter> {
 	/** Common parameters repository */
 	private final SecondOrderParamsRepository secParams;
 	/** Short name and identifier of the parameter */
@@ -21,7 +24,7 @@ public abstract class Parameter implements PrettyPrintable, Comparable<Parameter
 	private final String description;
 	/** The reference from which this parameter was estimated/taken */
 	private final String source;
-	private final DescribesParameter type;
+	private final ParameterCalculator calc;	
 	private final ParameterModifier[] modificationPerIntervention;
 
 	/**
@@ -32,22 +35,39 @@ public abstract class Parameter implements PrettyPrintable, Comparable<Parameter
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param detValue Deterministic/expected value
 	 */
-	public Parameter(final SecondOrderParamsRepository secParams, DescribesParameter type, String name, String description, String source) {
+	public Parameter(final SecondOrderParamsRepository secParams, String name, String description, String source, ParameterCalculator calc) {
 		this.secParams = secParams;
 		this.name = name;
 		this.description = description;
 		this.source = source;
-		this.type = type;
+		this.calc = calc;
 		this.modificationPerIntervention = new ParameterModifier[secParams.getRegisteredInterventions().length];
 		Arrays.fill(this.modificationPerIntervention, null);
+	}
+
+	public Parameter(final SecondOrderParamsRepository secParams, String name, String description, String source, double value) {
+		this(secParams, name, description, source, new ConstantParameterCalculator(value));
+	}
+
+	/**
+	 * 
+	 */
+	public Parameter(final SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
+		this(secParams, name, description, source, new SecondOrderParameterCalculator(secParams, detValue, rnd));
+	}
+
+	public Parameter(final SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, String rndFunction, Object... params) {
+		this(secParams, name, description, source, detValue, RandomVariateFactory.getInstance(rndFunction, params));		
 	}
 	
 	public void addModifier(Intervention intervention, ParameterModifier modification) {
 		modificationPerIntervention[intervention.ordinal()] = modification;
 	}
 
-	public abstract double calculateValue(Patient pat);
-	
+	public ParameterCalculator getCalculator() {
+		return calc;
+	}
+		
 	/**
 	 * Returns the value of the parameter for a specific patient, modified according to the intervention
 	 * @param pat A patient
@@ -55,7 +75,7 @@ public abstract class Parameter implements PrettyPrintable, Comparable<Parameter
 	 */
 	
 	public double getValue(Patient pat) {
-		double value = calculateValue(pat);
+		double value = calc.getValue(pat);
 		if (modificationPerIntervention[pat.getnIntervention()] != null)
 			return modificationPerIntervention[pat.getnIntervention()].getModifiedValue(pat, value);
 		return value;
@@ -65,7 +85,7 @@ public abstract class Parameter implements PrettyPrintable, Comparable<Parameter
 	 * Returns the short name and identifier of the parameter
 	 * @return the short name and identifier of the parameter
 	 */
-	public String getName() {
+	public String name() {
 		return name;
 	}
 
@@ -85,14 +105,6 @@ public abstract class Parameter implements PrettyPrintable, Comparable<Parameter
 		return source;
 	}
 
-	/**
-	 * Returns the type of parameter. Affects its temporal behavior, among other issues
-	 * @return the type of parameter
-	 */
-	public DescribesParameter getType() {
-		return type;
-	}
-
 	public SecondOrderParamsRepository getRepository() {
 		return secParams;
 	}
@@ -100,7 +112,6 @@ public abstract class Parameter implements PrettyPrintable, Comparable<Parameter
 	@Override
 	public String prettyPrint(String linePrefix) {
 		StringBuilder sb = new StringBuilder(linePrefix).append(name);
-		sb.append(PrettyPrintable.SEPARATOR).append(type);
 		return sb.toString();		
 	}
 

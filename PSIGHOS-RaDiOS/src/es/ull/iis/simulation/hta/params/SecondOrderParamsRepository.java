@@ -6,7 +6,8 @@ package es.ull.iis.simulation.hta.params;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.TreeMap;
 
 import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
@@ -53,6 +54,7 @@ import simkit.random.RandomVariateFactory;
  */
 public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public enum ParameterType {
+		ATTRIBUTE,
 		/** The collection of risk parameters */
 		RISK,
 		/** The collection of cost parameters */
@@ -62,8 +64,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		MODIFICATION,
 		/** The collection of miscellaneous parameters */
 		OTHER;
-		final private TreeSet<Parameter> parameters = new TreeSet<>();
-		TreeSet<Parameter> getParameters() {
+		final private Map<String, Parameter> parameters = new TreeMap<>();
+		public Map<String, Parameter> getParameters() {
 			return parameters;
 		}
 	}
@@ -412,8 +414,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param type Type of the parameter
 	 */
 	public void addParameter(Parameter param, ParameterType type) {		
-		params.put(param.getName(), param);
-		type.getParameters().add(param);
+		params.put(param.name(), param);
+		type.getParameters().put(param.name(), param);
 	}
 	
 	public void addParameterModifier(String paramName, Intervention interv, ParameterModifier modifier) {
@@ -527,9 +529,9 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public String getStrHeader() {
 		StringBuilder str = new StringBuilder();
 		for (ParameterType type : ParameterType.values()) {
-			for (Parameter param : type.getParameters()) {
-				if (param instanceof SecondOrderParameter) {
-					str.append(param.getName()).append("\t");
+			for (Parameter param : type.getParameters().values()) {
+				if (param.getCalculator() instanceof SecondOrderParameterCalculator) {
+					str.append(param.name()).append("\t");
 				}
 			}
 		}
@@ -540,7 +542,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public String prettyPrint(String linePrefix) {
 		StringBuilder str = new StringBuilder();
 		for (ParameterType type : ParameterType.values()) {
-			for (Parameter param : type.getParameters()) {
+			for (Parameter param : type.getParameters().values()) {
 				str.append(param.prettyPrint(linePrefix)).append("\n");
 			}
 		}
@@ -550,9 +552,9 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public String print(int id) {
 		StringBuilder str = new StringBuilder();
 		for (ParameterType type : ParameterType.values()) {
-			for (Parameter param : type.getParameters()) {
-				if (param instanceof SecondOrderParameter)
-					str.append(((SecondOrderParameter)param).getValue(id)).append("\t");
+			for (Parameter param : type.getParameters().values()) {
+				if (param.getCalculator() instanceof SecondOrderParameterCalculator)
+					str.append(((SecondOrderParameterCalculator)param.getCalculator()).getValue(id)).append("\t");
 			}
 		}
 		return str.toString();

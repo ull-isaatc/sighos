@@ -32,6 +32,7 @@ import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
@@ -288,7 +289,7 @@ public abstract class HTAExperiment {
 			str.append(CostListener.getStrHeader(shortName));
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
-			str.append(PopulationAttributeListener.getStrHeader(shortName, secParams.getPopulation().getPatientAttributes()));
+			str.append(PopulationAttributeListener.getStrHeader(shortName, SecondOrderParamsRepository.ParameterType.ATTRIBUTE.getParameters()));
 			if (interventions[i] instanceof ScreeningIntervention)
 				str.append(ScreeningTestPerformanceView.getStrHeader(shortName));
 		}
@@ -332,7 +333,7 @@ public abstract class HTAExperiment {
 
 		for (int i = 0; i < nInterventions; i++) {
 			costListeners[i] = new CostListener(discountCost, nPatients);
-			paramListeners[i] = new PopulationAttributeListener(nPatients, secParams.getPopulation().getPatientAttributes());
+			paramListeners[i] = new PopulationAttributeListener(nPatients, SecondOrderParamsRepository.ParameterType.ATTRIBUTE.getParameters());
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getDisutilityCombinationMethod(), discountEffect, nPatients);
 			screenListeners[i] = (interventions[i] instanceof ScreeningIntervention) ? new ScreeningTestPerformanceView(secParams) : null;

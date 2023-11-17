@@ -56,7 +56,7 @@ public enum OtherParamDescriptions implements DescribesParameter {
 	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
 		final String paramName = getParameterName(name);
-		secParams.addParameter(new ConstantParameter(secParams, this, paramName, getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.OTHER);
+		secParams.addParameter(new Parameter(secParams, paramName, getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.OTHER);
 		return paramName;		
 	}
 	
@@ -70,13 +70,13 @@ public enum OtherParamDescriptions implements DescribesParameter {
 	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
 		final String paramName = getParameterName(name);
-		secParams.addParameter(new SecondOrderParameter(secParams, this, paramName, getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.OTHER);
+		secParams.addParameter(new Parameter(secParams, paramName, getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.OTHER);
 		return paramName;		
 	}
 
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, ParameterCalculator calc) {
 		final String paramName = getParameterName(name);
-		secParams.addParameter(new CalculatedParameter(secParams, this, paramName, getParameterDescription(description), source, calc), SecondOrderParamsRepository.ParameterType.OTHER);
+		secParams.addParameter(new Parameter(secParams, paramName, getParameterDescription(description), source, calc), SecondOrderParamsRepository.ParameterType.OTHER);
 		return paramName;		
 	}
 

@@ -6,9 +6,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.FactorParameterModifier;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.SecondOrderParameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import simkit.random.RandomVariateFactory;
 
@@ -30,7 +28,7 @@ public class EffectiveIntervention extends Intervention {
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		for (String paramName : modifiedParams) {
-			Parameter modParam = new SecondOrderParameter(secParams, OtherParamDescriptions.RELATIVE_RISK, "Test", "Test", "", 
+			Parameter modParam = new Parameter(secParams, "Test", "Test", "", 
 					RR, RandomVariateFactory.getInstance("UniformVariate", RR * 0.8, RR * 1.2));
 			secParams.addParameterModifier(paramName, this, new FactorParameterModifier(modParam));
 		}

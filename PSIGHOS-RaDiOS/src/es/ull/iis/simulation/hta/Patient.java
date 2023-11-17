@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta;
 
 import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -12,12 +11,9 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
-import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionEventPair;
@@ -68,8 +64,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	private final long simulInitAge;
 	/** {@link Disease} of the patient or {@link Disease.HEALTHY} in case the patient is healthy */ 
 	private final Disease disease;
-	/** A collection of attributes */
-	private final TreeMap<String, Number> attributes;
 	
 	// Events
 	/** Events that this patient has suffered related to each disease progression */
@@ -104,9 +98,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.initAge = population.getInitAge(this);
 		this.simulInitAge = simul.getTimeUnit().convert(initAge, TimeUnit.YEAR);
 		this.disease = population.getDisease(this);
-		this.attributes = new TreeMap<>();
-		for (PopulationAttribute attribute : population.getPatientAttributes())
-			addAttribute(attribute.name(), attribute.getInitialValue(this, simul));
 		progressionEvents = new TreeMap<>();
 		nextProgressionEvents = new TreeMap<>();
 		commonRN = new PatientCommonRandomNumbers();
@@ -130,7 +121,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.initAge = original.initAge;
 		this.simulInitAge = original.simulInitAge;
 		this.disease = original.disease;
-		this.attributes = original.attributes;
 		this.commonRN = original.commonRN;
 		progressionEvents = new TreeMap<>();
 		nextProgressionEvents = new TreeMap<>();
@@ -473,42 +463,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return the value associated to the specified attribute
 	 */
 	public Number getAttributeValue(String attribute) {
-		final int id = getSimulation().getIdentifier();
-		final Modification modif = getSimulation().getIntervention().getClinicalParameterModification(attribute);
-		double value = attributes.get(attribute).doubleValue(); 
-		switch(modif.getType()) {
-		case DIFF:
-			value -= modif.getValue(this);
-			break;
-		case RR:
-			value *= modif.getValue(this);
-			break;
-		case SET:
-			value = modif.getValue(this);
-			break;
-		default:
-			break;
-		}
-		return value;
-	}
-
-	/**
-	 * Sets the value of the specified attribute. Replaces the attribute value if already declared.
-	 * @param attribute The name of the attribute
-	 * @param value The new value of the attribute
-	 * @return This patient, so you can concatenate calls to this method 
-	 */
-	public Patient addAttribute(String attribute, Number value) {
-		attributes.put(attribute, value);
-		return this;
-	}
-
-	/**
-	 * Returns the list of attributes defined for this patient 	
-	 * @return the list of attributes defined for this patient
-	 */
-	public Collection<String> getAttributeNames() {
-		return attributes.keySet();
+		return getSimulation().getRepository().getParameterValue(attribute, this);
 	}
 
 	/**

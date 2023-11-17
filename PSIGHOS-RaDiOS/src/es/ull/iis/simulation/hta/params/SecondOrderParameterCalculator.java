@@ -13,17 +13,16 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SecondOrderParameter extends Parameter {
+public class SecondOrderParameterCalculator implements ParameterCalculator {
 	/** The probability distribution that characterizes the uncertainty on the parameter */
-	protected final RandomVariate rnd;
+	private final RandomVariate rnd;
 	/** All the generated values for this parameter. Index 0 is the deterministic/expected value */
-	protected final double[] generatedValues;
+	private final double[] generatedValues;
 
 	/**
 	 * 
 	 */
-	public SecondOrderParameter(final SecondOrderParamsRepository secParams, DescribesParameter type, String name, String description, String source, double detValue, RandomVariate rnd) {
-		super(secParams, type, name, description, source);
+	public SecondOrderParameterCalculator(final SecondOrderParamsRepository secParams, double detValue, RandomVariate rnd) {
 		this.rnd = rnd;
 		if (rnd == null)
 			throw new IllegalArgumentException("rnd cannot be null");
@@ -32,12 +31,12 @@ public class SecondOrderParameter extends Parameter {
 		generatedValues[0] = detValue;
 	}
 
-	public SecondOrderParameter(final SecondOrderParamsRepository secParams, DescribesParameter type, String name, String description, String source, double detValue, String rndFunction, Object... params) {
-		this(secParams, type, name, description, source, detValue, RandomVariateFactory.getInstance(rndFunction, params));		
+	public SecondOrderParameterCalculator(final SecondOrderParamsRepository secParams, double detValue, String rndFunction, Object... params) {
+		this(secParams, detValue, RandomVariateFactory.getInstance(rndFunction, params));		
 	}
 
 	@Override
-	public double calculateValue(Patient pat) {
+	public double getValue(Patient pat) {
 		return getValue(pat.getSimulation().getIdentifier());
 	}
 

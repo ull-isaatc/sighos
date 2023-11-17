@@ -3,13 +3,10 @@
  */
 package es.ull.iis.simulation.hta.populations;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
+import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.DefinesBaseUtility;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -28,15 +25,12 @@ public abstract class Population extends GenerationInfo implements CreatesSecond
 	private final String name;
 	private final String description;
 	private final SecondOrderParamsRepository secParams;
-	/** Clinical parameters or other characteristics required to be defined for patients from this population */
-	private final List<PopulationAttribute> attributes;
 
 	public Population(String name, String description, SecondOrderParamsRepository secParams) throws MalformedSimulationModelException {
 		super(1.0);
 		this.name = name;
 		this.description = description;
 		this.secParams = secParams;
-		this.attributes = initializePatientAttributeList();
 		rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 	}
 
@@ -104,12 +98,4 @@ public abstract class Population extends GenerationInfo implements CreatesSecond
 	 * @return true if the patient is diagnosed from the start
 	 */
 	public abstract boolean isDiagnosedFromStart(Patient pat);
-
-	protected List<PopulationAttribute> initializePatientAttributeList() throws MalformedSimulationModelException {
-		return new ArrayList<>();
-	}
-
-	public List<PopulationAttribute> getPatientAttributes() {
-		return attributes;
-	}
 }

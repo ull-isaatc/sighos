@@ -3,15 +3,12 @@
  */
 package es.ull.iis.simulation.hta.diab;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
-import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.DiscreteRandomVariate;
@@ -48,18 +45,12 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+		secParams.addParameter(new Parameter(getRepository(), T1DMRepository.STR_HBA1C, T1DMRepository.STR_HBA1C, "", BASELINE_HBA1C), ParameterType.ATTRIBUTE);
+		secParams.addParameter(new Parameter(getRepository(), T1DMRepository.STR_DURATION, T1DMRepository.STR_DURATION, "", BASELINE_DURATION), ParameterType.ATTRIBUTE);
+		
 		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);
 	}
 
-	@Override
-	protected List<PopulationAttribute> initializePatientAttributeList() throws MalformedSimulationModelException {
-		final ArrayList<PopulationAttribute> paramList = new ArrayList<>();
-
-		paramList.add(new InitiallySetPopulationAttribute(T1DMRepository.STR_HBA1C, RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C)));
-		paramList.add(new InitiallySetPopulationAttribute(T1DMRepository.STR_DURATION, RandomVariateFactory.getInstance("ConstantVariate", BASELINE_DURATION)));
-		return paramList;
-	}
-	
 	@Override
 	protected DiscreteRandomVariate getSexVariate(Patient pat) {
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 132.0 / 300.0);

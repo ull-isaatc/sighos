@@ -11,20 +11,8 @@ import simkit.random.RandomVariate;
  *
  */
 public class CostParameter extends Parameter {
-	private final Parameter originalParameter;
 	/** Year when the calculated cost was originally estimated */
 	private final int year;
-
-	/**
-	 * 
-	 * @param originalParameter
-	 * @param year
-	 */
-	public CostParameter(Parameter originalParameter, int year) {
-		super(originalParameter.getRepository(), originalParameter.getType(), originalParameter.getName(), originalParameter.getDescription(), originalParameter.getSource());
-		this.originalParameter = originalParameter;
-		this.year = year;
-	}
 
 	/**
 	 * 
@@ -36,8 +24,9 @@ public class CostParameter extends Parameter {
 	 * @param value
 	 * @param year
 	 */
-	public CostParameter(final SecondOrderParamsRepository secParams, DescribesParameter type, String name, String description, String source, double value, int year) {
-		this(new ConstantParameter(secParams, type, name, description, source, value), year);
+	public CostParameter(final SecondOrderParamsRepository secParams, String name, String description, String source, double value, int year) {
+		super(secParams, name, description, source, new ConstantParameterCalculator(value));
+		this.year = year;
 	}
 
 	/**
@@ -51,8 +40,9 @@ public class CostParameter extends Parameter {
 	 * @param rnd
 	 * @param year
 	 */
-	public CostParameter(final SecondOrderParamsRepository secParams, DescribesParameter type, String name, String description, String source, double detValue, RandomVariate rnd, int year) {
-		this(new SecondOrderParameter(secParams, type, name, description, source, detValue, rnd), year);
+	public CostParameter(final SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd, int year) {
+		super(secParams, name, description, source, new SecondOrderParameterCalculator(secParams, detValue, rnd));
+		this.year = year;
 	}
 
 	/**
@@ -65,14 +55,14 @@ public class CostParameter extends Parameter {
 	 * @param calc
 	 * @param year
 	 */
-	public CostParameter(SecondOrderParamsRepository secParams, DescribesParameter type, String name,
-			String description, String source, ParameterCalculator calc, int year) {
-		this(new CalculatedParameter(secParams, type, name, description, source, calc), year);
+	public CostParameter(SecondOrderParamsRepository secParams, String name, String description, String source, ParameterCalculator calc, int year) {
+		super(secParams, name, description, source, calc);
+		this.year = year;		
 	}
 	
 	@Override
-	public double calculateValue(Patient pat) {
-		return SpanishCPIUpdate.updateCost(originalParameter.getValue(pat), year, SecondOrderParamsRepository.getStudyYear());
+	public double getValue(Patient pat) {
+		return SpanishCPIUpdate.updateCost(super.getValue(pat), year, SecondOrderParamsRepository.getStudyYear());
 	}
 	
 	/**

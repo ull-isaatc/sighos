@@ -3,9 +3,6 @@
  */
 package es.ull.iis.simulation.hta.diab;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.HeartFailure;
@@ -13,11 +10,13 @@ import es.ull.iis.simulation.hta.diab.manifestations.LowExtremityAmputation;
 import es.ull.iis.simulation.hta.diab.manifestations.MyocardialInfarction;
 import es.ull.iis.simulation.hta.diab.manifestations.ProliferativeRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
+import es.ull.iis.simulation.hta.params.FirstOrderParameterCalculator;
+import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.ParameterCalculator;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
-import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
@@ -84,6 +83,15 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+		final double mode = Statistics.betaModeFromMeanSD(BASELINE_HBA1C[0], BASELINE_HBA1C[1]);
+		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_HBA1C[0], mode, MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[1]);
+		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);			
+
+		ParameterCalculator calc = new FirstOrderParameterCalculator(getRepository(), RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_BASELINE_HBA1C[1] - MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[0])); 
+		secParams.addParameter(new Parameter(getRepository(), T1DMRepository.STR_HBA1C, T1DMRepository.STR_HBA1C, "", calc), ParameterType.ATTRIBUTE);
+		calc = new FirstOrderParameterCalculator(getRepository(), RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION[0], BASELINE_DURATION[1]));
+		secParams.addParameter(new Parameter(getRepository(), T1DMRepository.STR_DURATION, T1DMRepository.STR_DURATION, "", calc), ParameterType.ATTRIBUTE);
+
 		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);
 		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(ProliferativeRetinopathy.NAME), 
 				"GOLD", P_INI_PRET_BETA[0] / (P_INI_PRET_BETA[0] + P_INI_PRET_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_PRET_BETA[0], P_INI_PRET_BETA[1]));
@@ -95,18 +103,6 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 				"GOLD", P_INI_STROKE_BETA[0] / (P_INI_STROKE_BETA[0] + P_INI_STROKE_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_STROKE_BETA[0], P_INI_STROKE_BETA[1]));
 		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(HeartFailure.NAME), 
 				"GOLD", P_INI_HF_BETA[0] / (P_INI_HF_BETA[0] + P_INI_HF_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_HF_BETA[0], P_INI_HF_BETA[1]));
-	}
-
-	@Override
-	protected List<PopulationAttribute> initializePatientAttributeList() throws MalformedSimulationModelException {
-		final ArrayList<PopulationAttribute> paramList = new ArrayList<>();
-		final double mode = Statistics.betaModeFromMeanSD(BASELINE_HBA1C[0], BASELINE_HBA1C[1]);
-		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_HBA1C[0], mode, MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[1]);
-		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);			
-
-		paramList.add(new InitiallySetPopulationAttribute(T1DMRepository.STR_HBA1C, RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_BASELINE_HBA1C[1] - MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[0])));
-		paramList.add(new InitiallySetPopulationAttribute(T1DMRepository.STR_DURATION, RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION[0], BASELINE_DURATION[1])));
-		return paramList;
 	}
 
 	@Override
