@@ -8,8 +8,8 @@ import java.util.Arrays;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
+import es.ull.iis.simulation.hta.params.ParameterModifier;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
@@ -20,7 +20,7 @@ import simkit.random.RandomNumber;
  * @author Iván Castilla Rodríguez
  *
  */
-public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
+public class EmpiricalSpainDeathSubmodel extends DiseaseProgression {
 	/** Survival for men and women, in inverse order (the first value is the survival at 100 years old). Survival is computed by
 	 * iteratively applying the mortality risk from the INE table to a hypotethical population of 10000 individuals */
 	private static double[][] INV_SURVIVAL = {
@@ -78,6 +78,7 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 	};
 	private final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 	/** A random value [0, 1] for each patient (useful for common numbers techniques) and simulation */
+	// FIXME: To be coherent, the same value should be generated for the same patient in every simulation
 	private final double[][] rnd;
 
 	/**
@@ -85,8 +86,8 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 	 * @param rng A random number generator
 	 * @param nPatients Number of simulated patients
 	 */
-	public EmpiricalSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
-		super(secParams);
+	public EmpiricalSpainDeathSubmodel(SecondOrderParamsRepository secParams, Disease disease) {
+		super(secParams, "DEATH", "Death according to the Spanish 2017 Mortality risk from the Instituto Nacional de Estadística (INE)", disease, DiseaseProgression.Type.DEATH);
 		rnd = new double[secParams.getNRuns() + 1][secParams.getNPatients()];
 		for (int i = 0; i < secParams.getNRuns() + 1; i++)
 			for (int j = 0; j < secParams.getNPatients(); j++) {
@@ -105,16 +106,13 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 	 * @return Simulation time to death of the patient or to MAX_AGE 
 	 */
 	@Override
-	public long getTimeToDeath(Patient pat) {
+	public long getTimeTo(Patient pat, long limit) {
 		final SecondOrderParamsRepository secParams = getRepository();
 
 		final DiseaseProgressionSimulation simul = pat.getSimulation();
 		final int simulId = simul.getIdentifier();
 		final double age = pat.getAge();
-		// Taking into account modification of death due to the intervention
-		final Modification modif = pat.getIntervention().getLifeExpectancyModification();
-		if (Modification.Type.SET.equals(modif.getType()))
-			return pat.getTs() + simul.getTimeUnit().convert(modif.getValue(pat) - age, TimeUnit.YEAR);
+		
 		double imr = 1.0;
 		double ler = 0.0;
 		for (final DiseaseProgression state : pat.getState()) {
@@ -127,10 +125,13 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 				ler = newLER;
 			}
 		}
-		// TODO: Check that this works properly
-		if (Modification.Type.RR.equals(modif.getType())) {
-			imr *= modif.getValue(pat);
-		}
+		
+		// Taking into account modification of death due to the intervention
+		final ParameterModifier leModif = pat.getIntervention().getLifeExpectancyModification();
+		// Taking into account modification of death due to the intervention
+		final ParameterModifier imrModif = pat.getIntervention().getMortalityRiskModification();
+		imr = imrModif.getModifiedValue(pat, imr);
+		
 		final int sex = pat.getSex();
 		final double rnd = this.rnd[simulId][pat.getIdentifier()];
 		
@@ -139,11 +140,7 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 		final int ageToDeath = 101 - Math.abs(Arrays.binarySearch(INV_SURVIVAL[sex], index));
 		final double time = Math.min((ageToDeath > age) ? ageToDeath - age + rnd : rnd, BasicConfigParams.DEF_MAX_AGE - age);
 		// TODO: Check that this works properly
-		if (Modification.Type.DIFF.equals(modif.getType())) {
-			final double newTime = Math.max(0.0,  Math.min(time - modif.getValue(pat) - ler, BasicConfigParams.DEF_MAX_AGE - age));
-			return pat.getTs() + simul.getTimeUnit().convert(newTime, TimeUnit.YEAR);			
-		}
-
-		return pat.getTs() + simul.getTimeUnit().convert(Math.max(0.0, time - ler), TimeUnit.YEAR);
+		final double newTime = Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, time - ler), BasicConfigParams.DEF_MAX_AGE - age));
+		return pat.getTs() + simul.getTimeUnit().convert(newTime, TimeUnit.YEAR);			
 	}
 }

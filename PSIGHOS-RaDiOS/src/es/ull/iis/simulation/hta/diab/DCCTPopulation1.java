@@ -14,6 +14,8 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.util.Statistics;
 import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
@@ -96,6 +98,11 @@ public class DCCTPopulation1 extends StdPopulation {
 			final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", getCommonRandomNumber(), betaParams[0], betaParams[1]); 
 			return RandomVariateFactory.getInstance("ScaledVariate", rnd, BASELINE_AGE_MAX - BASELINE_AGE_MIN, BASELINE_AGE_MIN);
 		}
+	}
+
+	@Override
+	public DiseaseProgression getDeathCharacterization() {
+		return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
 	}
 
 }

@@ -11,6 +11,8 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterTyp
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -69,6 +71,11 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	@Override
 	protected RandomVariate getBaselineAgeVariate(Patient pat) {
 		return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE);			
+	}
+
+	@Override
+	public DiseaseProgression getDeathCharacterization() {
+		return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
 	}
 	
 }

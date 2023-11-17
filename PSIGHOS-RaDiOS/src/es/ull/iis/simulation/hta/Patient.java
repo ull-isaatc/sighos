@@ -383,10 +383,11 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	
 	/**
 	 * Recomputes time to death in case the risk increases
-	 * @param progression Manifestation that (potentially) induces a change in the risk of death 
+	 * @param progression Manifestation that (potentially) induces a change in the risk of death
+	 * FIXME: Currently it does not allow death to happen later 
 	 */
 	private void readjustDeath(DiseaseProgression progression) {
-		final long newTimeToDeath = ((DiseaseProgressionSimulation) simul).getRepository().getTimeToDeath(this);
+		final long newTimeToDeath = population.getDeathCharacterization().getTimeTo(this, deathEvent.getTs());
 		if (newTimeToDeath < deathEvent.getTs()) {
 			deathEvent.cancel();
 			deathEvent = new DeathEvent(newTimeToDeath, progression);
@@ -425,7 +426,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		simul.notifyInfo(new PatientInfo(simul, this, PatientInfo.Type.START, getTs()));
 
 		// Assign death event
-		final long timeToDeath = ((DiseaseProgressionSimulation) simul).getRepository().getTimeToDeath(this);
+		final long timeToDeath = population.getDeathCharacterization().getTimeTo(this, Long.MAX_VALUE);
 		deathEvent = new DeathEvent(timeToDeath);
 		simul.addEvent(deathEvent);
 		

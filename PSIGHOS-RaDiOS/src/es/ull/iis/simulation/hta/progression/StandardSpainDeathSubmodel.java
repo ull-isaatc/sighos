@@ -6,8 +6,8 @@ package es.ull.iis.simulation.hta.progression;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.Modification;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
+import es.ull.iis.simulation.hta.params.ParameterModifier;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.GompertzVariate;
@@ -19,13 +19,14 @@ import simkit.random.RandomNumber;
  * @author Iván Castilla Rodríguez
  *
  */
-public class StandardSpainDeathSubmodel extends DeathSubmodel {
+public class StandardSpainDeathSubmodel extends DiseaseProgression {
 	/** Alpha parameter for a Gompertz distribution on the mortality risk for men and women */
 	private final static double ALPHA_DEATH[] = new double[] {Math.exp(-10.43996654), Math.exp(-11.43877681)};
 	/** Beta parameter for a Gompertz distribution on the mortality risk for men and women */
 	private final static double BETA_DEATH[] = new double[] {0.093286762, 0.099683525};
 	private final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 	/** A random value [0, 1] for each patient (useful for common numbers techniques) and simulation */
+	// FIXME: To be coherent, the same value should be generated for the same patient in every simulation
 	private final double[][] rnd;
 
 	/**
@@ -33,8 +34,8 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	 * @param rng A random number generator
 	 * @param nPatients Number of simulated patients
 	 */
-	public StandardSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
-		super(secParams);
+	public StandardSpainDeathSubmodel(SecondOrderParamsRepository secParams, Disease disease) {
+		super(secParams, "DEATH", "Death according to the Spanish 2017 Mortality risk from the Instituto Nacional de Estadística (INE), modelled with a Gompertz distribution", disease, DiseaseProgression.Type.DEATH);
 		rnd = new double[secParams.getNRuns() + 1][secParams.getNPatients()];
 		for (int i = 0; i < secParams.getNRuns() + 1; i++)
 			for (int j = 0; j < secParams.getNPatients(); j++) {
@@ -53,17 +54,12 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	 * @return Simulation time to death of the patient or to MAX_AGE 
 	 */
 	@Override
-	public long getTimeToDeath(Patient pat) {
+	public long getTimeTo(Patient pat, long limit) {
 		final SecondOrderParamsRepository secParams = getRepository();
 		
 		final DiseaseProgressionSimulation simul = pat.getSimulation();
 		final int simulId = simul.getIdentifier();
 		final double age = pat.getAge();
-		// Taking into account modification of death due to the intervention
-		final Modification modif = pat.getIntervention().getLifeExpectancyModification();
-		if (Modification.Type.SET.equals(modif.getType()))
-			return pat.getTs() + simul.getTimeUnit().convert(modif.getValue(pat) - age, TimeUnit.YEAR);
-		
 		double imr = 1.0;
 		double ler = 0.0;
 		for (final DiseaseProgression state : pat.getState()) {
@@ -76,15 +72,15 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 				ler = newLER;
 			}
 		}
-		// TODO: Check that this works properly
-		if (Modification.Type.RR.equals(modif.getType())) {
-			imr *= modif.getValue(pat);
-		}
+		
+		// Taking into account modification of death due to the intervention
+		final ParameterModifier leModif = pat.getIntervention().getLifeExpectancyModification();
+		// Taking into account modification of death due to the intervention
+		final ParameterModifier imrModif = pat.getIntervention().getMortalityRiskModification();
+		imr = imrModif.getModifiedValue(pat, imr);
+		
 		final double time = Math.min(GompertzVariate.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), rnd[simulId][pat.getIdentifier()] / imr), BasicConfigParams.DEF_MAX_AGE - age);
 		// TODO: Check that this works properly
-		if (Modification.Type.DIFF.equals(modif.getType())) {
-			return pat.getTs() + simul.getTimeUnit().convert(Math.max(0.0,  Math.min(time - modif.getValue(pat) - ler, BasicConfigParams.DEF_MAX_AGE - age)), TimeUnit.YEAR);			
-		}
-		return pat.getTs() + simul.getTimeUnit().convert(Math.max(0.0, time - ler), TimeUnit.YEAR);
+		return pat.getTs() + simul.getTimeUnit().convert(Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, time) - ler, BasicConfigParams.DEF_MAX_AGE - age)), TimeUnit.YEAR);			
 	}
 }

@@ -10,6 +10,8 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -61,5 +63,10 @@ public class PBDPopulation extends StdPopulation {
 	@Override
 	public int getMinAge() {
 		return 0;
+	}
+
+	@Override
+	public DiseaseProgression getDeathCharacterization() {
+		return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
 	}
 }

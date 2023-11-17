@@ -9,7 +9,6 @@ import es.ull.iis.simulation.hta.params.DiffConstantParameterModifier;
 import es.ull.iis.simulation.hta.params.FactorConstantParameterModifier;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SetConstantParameterModifier;
-import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -72,7 +71,6 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 				new DoNothingIntervention(this);
 				break;
 			}
-			setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 		} catch(MalformedSimulationModelException e) {
 			e.printStackTrace();			
 		}

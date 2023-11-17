@@ -31,7 +31,8 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	public enum Type {
 		ACUTE_MANIFESTATION,
 		CHRONIC_MANIFESTATION,
-		STAGE
+		STAGE,
+		DEATH
 	}
 	/** Type of manifestation */
 	private final Type type;

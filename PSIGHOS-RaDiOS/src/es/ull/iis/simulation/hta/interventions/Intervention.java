@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.interventions;
 
 import java.util.ArrayList;
-import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
@@ -37,8 +36,8 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	private final SecondOrderParamsRepository secParams;
 
 	private ParameterModifier lifeExpectancyModification;
+	private ParameterModifier mortalityRiskModification;
 	private ParameterModifier allParameterModification;
-	private final TreeMap<String, ParameterModifier> attributeModifications;
 	private final Strategy strategy;
 	
 	/**
@@ -60,8 +59,8 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 		this.name = name;
 		this.description = description;
 		lifeExpectancyModification = ParameterModifier.NULL_MODIFIER;
+		mortalityRiskModification = ParameterModifier.NULL_MODIFIER;
 		allParameterModification = ParameterModifier.NULL_MODIFIER;
-		attributeModifications = new TreeMap<>();
 		this.strategy = strategy;
 		secParams.addIntervention(this);
 	}
@@ -163,6 +162,22 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 		this.lifeExpectancyModification = lifeExpectancyModification;
 		return this;
 	}
+	
+	/**
+	 * @return the mortalityRiskModification
+	 */
+	public ParameterModifier getMortalityRiskModification() {
+		return mortalityRiskModification;
+	}
+
+	/**
+	 * @param mortalityRiskModification the mortalityRiskModification to set
+	 * @return This intervention
+	 */
+	public Intervention setMortalityRiskModification(ParameterModifier mortalityRiskModification) {
+		this.mortalityRiskModification = mortalityRiskModification;
+		return this;
+	}
 
 	/**
 	 * @return the allParameterModification
@@ -180,27 +195,6 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 		return this;
 	}
 
-	/**
-	 * Adds a modification that affects an attribute of the patient 
-	 * @param attributeName Name of the attribute
-	 * @param modif Modification that affects the value of the attribute
-	 * @return This intervention
-	 */
-	public Intervention addAttributeModification(String attributeName, ParameterModifier modif) {
-		attributeModifications.put(attributeName, modif);
-		return this;
-	}
-	
-	/**
-	 * Return a modification that affects the value of an attribute
-	 * @param attributeName Name of the attribute
-	 * @return a modification that affects the value of an attribute
-	 */
-	public ParameterModifier getClinicalParameterModification(String attributeName) {
-		if (attributeModifications.containsKey(attributeName))
-			return attributeModifications.get(attributeName);
-		return ParameterModifier.NULL_MODIFIER;
-	}
 	/**
 	 * @return the strategy
 	 */

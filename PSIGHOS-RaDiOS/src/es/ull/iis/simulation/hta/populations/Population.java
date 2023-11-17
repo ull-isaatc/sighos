@@ -11,6 +11,7 @@ import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.DefinesBaseUtility;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.model.Generator.GenerationInfo;
 import simkit.random.RandomNumber;
 
@@ -98,4 +99,10 @@ public abstract class Population extends GenerationInfo implements CreatesSecond
 	 * @return true if the patient is diagnosed from the start
 	 */
 	public abstract boolean isDiagnosedFromStart(Patient pat);
+	
+	/**
+	 * Returns the characterization of the time to death for patients belonging to this population
+	 * @return the characterization of the time to death for patients belonging to this population
+	 */
+	public abstract DiseaseProgression getDeathCharacterization();
 }

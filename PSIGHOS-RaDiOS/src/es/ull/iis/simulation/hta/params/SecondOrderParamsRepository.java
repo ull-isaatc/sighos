@@ -17,7 +17,6 @@ import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.populations.Population;
-import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Development;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -34,7 +33,7 @@ import simkit.random.RandomVariateFactory;
  * A repository to define the second order parameters for the simulation, as well as the basic components to be simulated. 
  * A repository should be created in two stages:
  * <ol>
- * <li>First, the basic components should be added: population ({@link #setPopulation(Population)}), death submodel ({@link #setDeathSubmodel(DeathSubmodel)},
+ * <li>First, the basic components should be added: population ({@link #setPopulation(Population)}),
  * one or more diseases ({@link #addDisease(Disease)}), one or more manifestations ({@link #addDiseaseProgression(Manifestation)}, which are generally defined within the constructor of the 
  * corresponding disease), and one or more interventions ({@link #addIntervention(Intervention)}).</li>
  * <li>All those basic components define a {@link CreatesSecondOrderParameters#registerSecondOrderParameters() method} to create and register second order parameters. Once all the basic 
@@ -83,10 +82,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	/** The collection of defined developments */
 	final protected ArrayList<Development> registeredDevelopments;
 	
-	/** The death submodel to be used 
-	 * TODO: Conceptually, the death submodel should be linked to the population, not to the repository
-	 * */
-	protected DeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
 	final protected ArrayList<Intervention> registeredInterventions;
 	// TODO: Change by scenarios: each parameter could be defined according to an scenario. This woulud require adding a factory to secondOrderParams and allowing a user to add several parameter settings
@@ -143,8 +138,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		if (registeredInterventions.size() == 0) {
 			str.append("At least one intervention must be defined").append(System.lineSeparator());
 		}
-		if (registeredDeathSubmodel == null) {
-			str.append("No death submodel defined").append(System.lineSeparator());
+		if (registeredPopulation == null) {
+			str.append("No population defined").append(System.lineSeparator());
 		}
 		return (str.length() > 0) ? str.toString() : null;
 	}
@@ -155,7 +150,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 */
 	public void registerAllSecondOrderParams() {
 		registeredPopulation.registerSecondOrderParameters(this);
-		registeredDeathSubmodel.registerSecondOrderParameters(this);
 		for (Disease disease : registeredDiseases)
 			disease.registerSecondOrderParameters(this);
 		for (DiseaseProgression progression : registeredProgressions) {
@@ -213,18 +207,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public void addIntervention(Intervention intervention) {
 		intervention.setOrder(registeredInterventions.size());
 		registeredInterventions.add(intervention);
-	}
-
-	/**
-	 * Sets the death submodel that will be used during the simulation. Returns false if there was an already registered death submodel
-	 * @param deathSubmodel Death submodel to be used
-	 * @return false if there was an already registered death submodel; true otherwise
-	 */
-	public boolean setDeathSubmodel(DeathSubmodel deathSubmodel) {
-		if (registeredDeathSubmodel != null)
-			return false;
-		registeredDeathSubmodel = deathSubmodel;
-		return true;
 	}
 	
 	/**
@@ -291,14 +273,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		return (Intervention[]) registeredInterventions.toArray(array);
 	}
 	
-	/**
-	 * Returns the registered death submodel; null if no submodel was registered
-	 * @return the registered death submodel; null if no submodel was registered
-	 */
-	public DeathSubmodel getRegisteredDeathSubmodel() {
-		return registeredDeathSubmodel;
-	}
-
 	/**
 	 * Returns the number of patients that will be generated during the simulation
 	 * @return the number of patients that will be generated during the simulation
@@ -442,15 +416,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		if (param == null)
 			return defaultValue;
 		return param.getValue(pat); 
-	}
-	
-	/**
-	 * Returns the time to death of the specified patient
-	 * @param pat A patient
-	 * @return the time to death of the specified patient
-	 */
-	public long getTimeToDeath(Patient pat) {
-		return registeredDeathSubmodel.getTimeToDeath(pat);
 	}
 	
 	/**

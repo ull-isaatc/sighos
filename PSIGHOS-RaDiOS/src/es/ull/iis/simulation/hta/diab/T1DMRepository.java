@@ -8,7 +8,6 @@ import es.ull.iis.simulation.hta.diab.interventions.DCCT_ConventionalInterventio
 import es.ull.iis.simulation.hta.diab.interventions.DCCT_IntensiveIntervention;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -26,7 +25,6 @@ public class T1DMRepository extends SecondOrderParamsRepository {
 //		new CGM_Intervention(this);
 		try {
 			setPopulation(new DCCTPopulation1(this, dis));
-			setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 			new DCCT_ConventionalIntervention(this);
 			new DCCT_IntensiveIntervention(this);
 		} catch (MalformedSimulationModelException e) {

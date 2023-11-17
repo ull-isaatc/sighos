@@ -19,6 +19,8 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterTyp
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.util.Statistics;
 import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
@@ -122,6 +124,11 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	@Override
 	public int getMaxAge() {
 		return (int)MIN_MAX_BASELINE_AGE[1];
+	}
+
+	@Override
+	public DiseaseProgression getDeathCharacterization() {
+		return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
 	}
 	
 }
