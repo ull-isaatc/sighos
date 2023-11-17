@@ -87,8 +87,8 @@ public enum RiskParamDescriptions implements DescribesParameter {
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
 		final String paramName = getParameterName(name);
-		secParams.addParameter(new ConstantParameter(secParams, this, paramName, getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.PROBABILITY);
-		return paramName; 
+		secParams.addParameter(new ConstantParameter(secParams, this, paramName, getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.RISK);
+		return paramName;		
 	}
 	
 	/**
@@ -130,7 +130,17 @@ public enum RiskParamDescriptions implements DescribesParameter {
 	 */	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
 		final String paramName = getParameterName(name);
-		secParams.addParameter(new SecondOrderParameter(secParams, this, paramName, getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.PROBABILITY);
-		return paramName; 
+		secParams.addParameter(new SecondOrderParameter(secParams, this, paramName, getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.RISK);
+		return paramName;		
+	}
+
+	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, ParameterCalculator calc) {
+		return this.addParameter(secParams, instance.name(), instance.getDescription(), source, calc);
+	}
+
+	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, ParameterCalculator calc) {
+		final String paramName = getParameterName(name);
+		secParams.addParameter(new CalculatedParameter(secParams, this, paramName, getParameterDescription(description), source, calc), SecondOrderParamsRepository.ParameterType.RISK);
+		return paramName;		
 	}
 }

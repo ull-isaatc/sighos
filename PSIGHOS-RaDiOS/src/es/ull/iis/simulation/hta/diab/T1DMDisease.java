@@ -25,7 +25,7 @@ import es.ull.iis.simulation.hta.diab.manifestations.ProliferativeRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.SevereHypoglycemiaEvent;
 import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
 import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventCalculator;
-import es.ull.iis.simulation.hta.params.ConstantParameter;
+import es.ull.iis.simulation.hta.params.ConstantParameterCalculator;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
@@ -285,7 +285,7 @@ public class T1DMDisease extends Disease {
 					new ExclusiveChoiceCondition(secParams, mapping), 
 					new PreviousDiseaseProgressionCondition(chd));
 			for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-				new DiseaseProgressionPathway(secParams, manifCHD, cond, ConstantParameter.ZERO_PARAMETER);
+				new DiseaseProgressionPathway(secParams, manifCHD, cond, new ConstantParameterCalculator(0));
 			
 			
 			// Defines a single pathway, but the calculator uses the different probabilities

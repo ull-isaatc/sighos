@@ -53,8 +53,8 @@ import simkit.random.RandomVariateFactory;
  */
 public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public enum ParameterType {
-		/** The collection of probability parameters */
-		PROBABILITY,
+		/** The collection of risk parameters */
+		RISK,
 		/** The collection of cost parameters */
 		COST,
 		/** The collection of utility parameters */

@@ -57,21 +57,27 @@ public enum OtherParamDescriptions implements DescribesParameter {
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
 		final String paramName = getParameterName(name);
 		secParams.addParameter(new ConstantParameter(secParams, this, paramName, getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.OTHER);
-		return paramName; 
+		return paramName;		
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
 		return this.addParameter(secParams, instance.name(), instance.getDescription(), source, detValue, rnd);
 	}
 	
-	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed from, NamedAndDescribed to, String source, double detValue, RandomVariate rnd) {
+	public String  addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed from, NamedAndDescribed to, String source, double detValue, RandomVariate rnd) {
 		return this.addParameter(secParams, DescribesParameter.getTransitionName(from, to), DescribesParameter.getTransitionDescription(from, to), source, detValue, rnd);
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
 		final String paramName = getParameterName(name);
 		secParams.addParameter(new SecondOrderParameter(secParams, this, paramName, getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.OTHER);
-		return paramName; 
+		return paramName;		
+	}
+
+	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, ParameterCalculator calc) {
+		final String paramName = getParameterName(name);
+		secParams.addParameter(new CalculatedParameter(secParams, this, paramName, getParameterDescription(description), source, calc), SecondOrderParamsRepository.ParameterType.OTHER);
+		return paramName;		
 	}
 
 }

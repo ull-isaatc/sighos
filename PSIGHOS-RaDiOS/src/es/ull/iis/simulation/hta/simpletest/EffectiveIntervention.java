@@ -30,8 +30,8 @@ public class EffectiveIntervention extends Intervention {
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		for (String paramName : modifiedParams) {
-			Parameter modParam = new Parameter(secParams, OtherParamDescriptions.RELATIVE_RISK, "Test", "Test", "", 
-					new SecondOrderParameter(secParams, RR, RandomVariateFactory.getInstance("UniformVariate", RR * 0.8, RR * 1.2)));
+			Parameter modParam = new SecondOrderParameter(secParams, OtherParamDescriptions.RELATIVE_RISK, "Test", "Test", "", 
+					RR, RandomVariateFactory.getInstance("UniformVariate", RR * 0.8, RR * 1.2));
 			secParams.addParameterModifier(paramName, this, new FactorParameterModifier(modParam));
 		}
 	}

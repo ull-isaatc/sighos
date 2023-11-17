@@ -31,7 +31,6 @@ public abstract class Parameter implements PrettyPrintable, Comparable<Parameter
 	 * @param description Full description of the parameter
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param detValue Deterministic/expected value
-	 * @param calc The way the value of the parameter is calculated
 	 */
 	public Parameter(final SecondOrderParamsRepository secParams, DescribesParameter type, String name, String description, String source) {
 		this.secParams = secParams;
@@ -47,6 +46,8 @@ public abstract class Parameter implements PrettyPrintable, Comparable<Parameter
 		modificationPerIntervention[intervention.ordinal()] = modification;
 	}
 
+	public abstract double calculateValue(Patient pat);
+	
 	/**
 	 * Returns the value of the parameter for a specific patient, modified according to the intervention
 	 * @param pat A patient
@@ -60,8 +61,6 @@ public abstract class Parameter implements PrettyPrintable, Comparable<Parameter
 		return value;
 	}
 
-	public abstract double calculateValue(Patient pat);
-	
 	/**
 	 * Returns the short name and identifier of the parameter
 	 * @return the short name and identifier of the parameter
