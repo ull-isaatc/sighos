@@ -13,7 +13,7 @@ import es.ull.iis.simulation.hta.diab.manifestations.LowExtremityAmputation;
 import es.ull.iis.simulation.hta.diab.manifestations.MyocardialInfarction;
 import es.ull.iis.simulation.hta.diab.manifestations.ProliferativeRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
@@ -85,15 +85,15 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);
-		ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(ProliferativeRetinopathy.NAME), 
+		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(ProliferativeRetinopathy.NAME), 
 				"GOLD", P_INI_PRET_BETA[0] / (P_INI_PRET_BETA[0] + P_INI_PRET_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_PRET_BETA[0], P_INI_PRET_BETA[1]));
-		ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(LowExtremityAmputation.NAME), 
+		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(LowExtremityAmputation.NAME), 
 				"GOLD", P_INI_LEA_BETA[0] / (P_INI_LEA_BETA[0] + P_INI_LEA_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_LEA_BETA[0], P_INI_LEA_BETA[1]));
-		ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(MyocardialInfarction.NAME), 
+		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(MyocardialInfarction.NAME), 
 				"GOLD", P_INI_MI_BETA[0] / (P_INI_MI_BETA[0] + P_INI_MI_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_MI_BETA[0], P_INI_MI_BETA[1]));
-		ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(Stroke.NAME), 
+		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(Stroke.NAME), 
 				"GOLD", P_INI_STROKE_BETA[0] / (P_INI_STROKE_BETA[0] + P_INI_STROKE_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_STROKE_BETA[0], P_INI_STROKE_BETA[1]));
-		ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(HeartFailure.NAME), 
+		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(HeartFailure.NAME), 
 				"GOLD", P_INI_HF_BETA[0] / (P_INI_HF_BETA[0] + P_INI_HF_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_HF_BETA[0], P_INI_HF_BETA[1]));
 	}
 

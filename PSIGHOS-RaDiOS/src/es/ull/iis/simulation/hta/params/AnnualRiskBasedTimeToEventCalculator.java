@@ -1,18 +1,18 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.progression;
+package es.ull.iis.simulation.hta.params;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.RRCalculator;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.util.Statistics;
 
 /**
  * Calculates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event. 
  * @author Iván Castilla Rodríguez
  *
  */
-public class AnnualRiskBasedTimeToEventCalculator implements TimeToEventCalculator {
+public class AnnualRiskBasedTimeToEventCalculator implements ParameterCalculator {
 	/** Relative risk calculator */
 	private final RRCalculator rr;
 	/** Manifestation to which progress */
@@ -47,9 +47,8 @@ public class AnnualRiskBasedTimeToEventCalculator implements TimeToEventCalculat
 	}
 
 	@Override
-	public long getTimeToEvent(Patient pat) {
+	public double getValue(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, 
-				secParams.getParameter(paramName, pat), rndValue, rr.getRR(pat));
+		return Statistics.getAnnualBasedTimeToEvent(secParams.getParameterValue(paramName, pat), rndValue, rr.getRR(pat));
 	}		
 }

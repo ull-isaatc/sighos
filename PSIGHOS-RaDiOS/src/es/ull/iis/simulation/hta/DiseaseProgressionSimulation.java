@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta;
 
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -40,7 +39,7 @@ public class DiseaseProgressionSimulation extends Simulation {
 	 * @param timeHorizon Duration of the simulation (in years)
 	 */
 	public DiseaseProgressionSimulation(int id, Intervention intervention, SecondOrderParamsRepository secParams, int timeHorizon) {
-		super(id, DESCRIPTION + " " + intervention.getDescription(), BasicConfigParams.SIMUNIT, 0L, BasicConfigParams.SIMUNIT.convert(timeHorizon, TimeUnit.YEAR));
+		super(id, DESCRIPTION + " " + intervention.getDescription(), SecondOrderParamsRepository.getSimulationTimeUnit(), 0L, SecondOrderParamsRepository.adjustTimeToEvent(timeHorizon, TimeUnit.YEAR));
 		this.secParams = secParams;
 		this.cloned = false;
 		this.intervention = intervention;

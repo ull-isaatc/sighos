@@ -147,7 +147,7 @@ public class AnnualCostView implements ExperimentListener {
 						final Patient pat = (Patient)simul.getGeneratedPatient(i);
 						if (!pat.isDead()) {
 							final double initYear = lastYear[pat.getIdentifier()]; 
-							final double endYear = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+							final double endYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 							updateAll(pat, initYear, endYear);
 						}
 					}
@@ -160,7 +160,7 @@ public class AnnualCostView implements ExperimentListener {
 				final long ts = pInfo.getTs();
 				final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
 				final double initYear = lastYear[pat.getIdentifier()]; 
-				final double endYear = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+				final double endYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 				switch(pInfo.getType()) {
 				case DIAGNOSIS:
 					diseaseCost[pInfo.getDiseaseProgression().getDisease().ordinal()][(int) endYear] += pat.getDisease().getStartingCost(pat, endYear, discount);

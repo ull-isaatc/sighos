@@ -14,7 +14,7 @@ import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.Strategy;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.Modification;
+import es.ull.iis.simulation.hta.params.ParameterModifier;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.model.DiscreteEvent;
@@ -36,9 +36,9 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	/** Common parameters repository */
 	private final SecondOrderParamsRepository secParams;
 
-	private Modification lifeExpectancyModification;
-	private Modification allParameterModification;
-	private final TreeMap<String, Modification> attributeModifications;
+	private ParameterModifier lifeExpectancyModification;
+	private ParameterModifier allParameterModification;
+	private final TreeMap<String, ParameterModifier> attributeModifications;
 	private final Strategy strategy;
 	
 	/**
@@ -59,8 +59,8 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 		this.secParams = secParams;
 		this.name = name;
 		this.description = description;
-		lifeExpectancyModification = secParams.NO_MODIF;
-		allParameterModification = secParams.NO_MODIF;
+		lifeExpectancyModification = ParameterModifier.NULL_MODIFIER;
+		allParameterModification = ParameterModifier.NULL_MODIFIER;
 		attributeModifications = new TreeMap<>();
 		this.strategy = strategy;
 		secParams.addIntervention(this);
@@ -81,8 +81,8 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	}
 
 	/**
-	 * Returns the order assigned to this stage in a simulation.
-	 * @return the order assigned to this stage in a simulation
+	 * Returns the order assigned to this intervention in a simulation.
+	 * @return the order assigned to this intervention in a simulation
 	 */
 	public int ordinal() {
 		return ord;
@@ -151,7 +151,7 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	/**
 	 * @return the lifeExpectancyModification
 	 */
-	public Modification getLifeExpectancyModification() {
+	public ParameterModifier getLifeExpectancyModification() {
 		return lifeExpectancyModification;
 	}
 
@@ -159,7 +159,7 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	 * @param lifeExpectancyModification the lifeExpectancyModification to set
 	 * @return This intervention
 	 */
-	public Intervention setLifeExpectancyModification(Modification lifeExpectancyModification) {
+	public Intervention setLifeExpectancyModification(ParameterModifier lifeExpectancyModification) {
 		this.lifeExpectancyModification = lifeExpectancyModification;
 		return this;
 	}
@@ -167,7 +167,7 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	/**
 	 * @return the allParameterModification
 	 */
-	public Modification getAllParameterModification() {
+	public ParameterModifier getAllParameterModification() {
 		return allParameterModification;
 	}
 
@@ -175,7 +175,7 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	 * @param allParameterModification the allParameterModification to set
 	 * @return This intervention
 	 */
-	public Intervention setAllParameterModification(Modification allParameterModification) {
+	public Intervention setAllParameterModification(ParameterModifier allParameterModification) {
 		this.allParameterModification = allParameterModification;
 		return this;
 	}
@@ -186,7 +186,7 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	 * @param modif Modification that affects the value of the attribute
 	 * @return This intervention
 	 */
-	public Intervention addAttributeModification(String attributeName, Modification modif) {
+	public Intervention addAttributeModification(String attributeName, ParameterModifier modif) {
 		attributeModifications.put(attributeName, modif);
 		return this;
 	}
@@ -196,10 +196,10 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	 * @param attributeName Name of the attribute
 	 * @return a modification that affects the value of an attribute
 	 */
-	public Modification getClinicalParameterModification(String attributeName) {
+	public ParameterModifier getClinicalParameterModification(String attributeName) {
 		if (attributeModifications.containsKey(attributeName))
 			return attributeModifications.get(attributeName);
-		return secParams.NO_MODIF;
+		return ParameterModifier.NULL_MODIFIER;
 	}
 	/**
 	 * @return the strategy

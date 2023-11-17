@@ -6,12 +6,12 @@ package es.ull.iis.simulation.hta.pbdmodel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.ProportionBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
-import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -50,17 +50,17 @@ public class PBDDisease extends Disease {
 	}
 
 	private void registerBasicManifestation(SecondOrderParamsRepository secParams, DiseaseProgression manif) {
-		new DiseaseProgressionPathway(secParams, manif, new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif), secParams, manif));
+		new DiseaseProgressionPathway(secParams, manif, new ProportionBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(manif), secParams, manif));
 	}
 	
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, skinProblems, "Test", 0.41, RandomVariateFactory.getInstance("BetaVariate", 24, 34));
-		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, hypotonia, "Test", 0.457, RandomVariateFactory.getInstance("BetaVariate", 17, 20));
-		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, seizures, "Test", 0.564, RandomVariateFactory.getInstance("BetaVariate", 65, 50));
-		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
-		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
-		ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
+		RiskParamDescriptions.PROBABILITY.addParameter(secParams, skinProblems, "Test", 0.41, RandomVariateFactory.getInstance("BetaVariate", 24, 34));
+		RiskParamDescriptions.PROBABILITY.addParameter(secParams, hypotonia, "Test", 0.457, RandomVariateFactory.getInstance("BetaVariate", 17, 20));
+		RiskParamDescriptions.PROBABILITY.addParameter(secParams, seizures, "Test", 0.564, RandomVariateFactory.getInstance("BetaVariate", 65, 50));
+		RiskParamDescriptions.PROBABILITY.addParameter(secParams, visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
+		RiskParamDescriptions.PROBABILITY.addParameter(secParams, hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
+		RiskParamDescriptions.PROBABILITY.addParameter(secParams, mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
 		CostParamDescriptions.DIAGNOSIS_COST.addParameter(secParams, this, "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65));
 		CostParamDescriptions.TREATMENT_COST.addParameter(secParams, this, "", 2013, TREATMENT_COST);
 		CostParamDescriptions.FOLLOW_UP_COST.addParameter(secParams, this, "", 2013, FOLLOW_UP_COST);

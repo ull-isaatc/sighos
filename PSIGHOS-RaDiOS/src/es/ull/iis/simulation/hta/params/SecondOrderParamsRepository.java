@@ -22,8 +22,8 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionEvents;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
+import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 import simkit.random.RandomVariate;
@@ -39,7 +39,7 @@ import simkit.random.RandomVariateFactory;
  * <li>All those basic components define a {@link CreatesSecondOrderParameters#registerSecondOrderParameters() method} to create and register second order parameters. Once all the basic 
  * components have been added to the repository, the method {@link #registerAllSecondOrderParams()} must be invoked.</li> 
  * </ol> 
- * {@link SecondOrderParam Second order parameters} are stored in a number of "standard" collections, grouped by type: probability, {@link SecondOrderCostParam cost} and utility. There is also 
+ * {@link Parameter Second order parameters} are stored in a number of "standard" collections, grouped by type: probability, {@link SecondOrderCostParam cost} and utility. There is also 
  * a miscellaneous category (others) for all other parameters which do not fit in the former collections. To add a parameter:
  * <ol>
  * <li>Create a constant name</li>
@@ -53,27 +53,25 @@ import simkit.random.RandomVariateFactory;
  */
 public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public enum ParameterType {
+		/** The collection of probability parameters */
 		PROBABILITY,
+		/** The collection of cost parameters */
 		COST,
+		/** The collection of utility parameters */
 		UTILITY,
 		MODIFICATION,
-		OTHER
+		/** The collection of miscellaneous parameters */
+		OTHER;
+		final private TreeSet<Parameter> parameters = new TreeSet<>();
+		TreeSet<Parameter> getParameters() {
+			return parameters;
+		}
 	}
 	public static final String STR_MOD_PREFIX = "MOD_";
 	/** A null relative risk, i.e., RR = 1.0 */
 	public static final RRCalculator NO_RR = new StdComplicationRR(1.0);
 	
-	final protected HashMap<String, SecondOrderParam> params;
-	/** The collection of probability parameters */
-	final protected TreeSet<SecondOrderParam> probabilityParams;
-	/** The collection of cost parameters */
-	final protected TreeSet<SecondOrderCostParam> costParams;
-	/** The collection of utility parameters */
-	final protected TreeSet<SecondOrderParam> utilParams;
-	/** The collection of miscellaneous parameters */
-	final protected TreeSet<SecondOrderParam> otherParams;
-	/** A map where the key is the name of a parameter, and the value is a modification */
-	private final TreeSet<Modification> modificationParams;
+	final protected HashMap<String, Parameter> params;
 	/** A random number generator for first order parameter values */
 	private static RandomNumber RNG_FIRST_ORDER = RandomNumberFactory.getInstance();
 	/** The collection of defined progressions */
@@ -100,27 +98,25 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	private static final DiseaseProgressionEvents NULL_PROGRESSION = new DiseaseProgressionEvents(); 
 	/** A dummy disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
 	public final Disease HEALTHY;
-	/** A dummy modification that do not modify anything */
-	public final Modification NO_MODIF;
 	/** The method to combine different disutilities. {@link DisutilityCombinationMethod#ADD} by default */
 	private DisutilityCombinationMethod method = DisutilityCombinationMethod.ADD;
 	/** Year used to update the costs */
-	private int studyYear;
+	private static int studyYear = Year.now().getValue();
+	/** Simulation time unit: defines the finest grain */
+	private static TimeUnit simulationTimeUnit = TimeUnit.DAY;
+	/** Minimum time among consecutive events. */
+	private static long minTimeToEvent = simulationTimeUnit.convert(TimeStamp.getMonth());
+
 	
+
 	/**
 	 * Creates a repository of second order parameters. By default, generates the base case values.
 	 * @param nPatients Number of patients to create
 	 */
 	protected SecondOrderParamsRepository(final int nRuns, final int nPatients) {
 		this.params = new HashMap<>();
-		this.probabilityParams = new TreeSet<>();
-		this.costParams = new TreeSet<>();
-		this.otherParams = new TreeSet<>();
-		this.utilParams = new TreeSet<>();
-		this.modificationParams = new TreeSet<>();
 		this.nPatients = nPatients;
 		this.nRuns = nRuns;
-		this.studyYear = Year.now().getValue();
 		this.registeredProgressions = new ArrayList<>();
 		this.registeredDiseases = new ArrayList<>();
 		this.registeredDevelopments = new ArrayList<>();
@@ -132,7 +128,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 				return NULL_PROGRESSION;
 			}
 		};
-		this.NO_MODIF = new Modification(this, Modification.Type.DIFF, "NOMOD", "Null modification", "", 0.0);
 	}
 
 	/**
@@ -342,16 +337,73 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * Return the year that is used to update the cost parameters
 	 * @return the year that is used to update the cost parameters
 	 */
-	public int getStudyYear() {
+	public static int getStudyYear() {
 		return studyYear;
 	}
 
 	/**
 	 * Sets the value of the year that is used to update the cost parameters
-	 * @param studyYear The new year of study
+	 * @param year The new year of study
 	 */
-	public void setStudyYear(int studyYear) {
-		this.studyYear = studyYear;
+	public static void setStudyYear(int year) {
+		studyYear = year;
+	}
+
+	/**
+	 * @return the simulationTimeUnit
+	 */
+	public static TimeUnit getSimulationTimeUnit() {
+		return simulationTimeUnit;
+	}
+
+	/**
+	 * @param simulationTimeUnit the simulationTimeUnit to set
+	 */
+	public static void setSimulationTimeUnit(TimeUnit timeUnit) {
+		simulationTimeUnit = timeUnit;
+	}
+
+	/**
+	 * Returns an internal simulation time stamp expressed as years
+	 * @param internalTs Internal time stamp
+	 * @return an internal simulation time stamp expressed as years
+	 */
+	public static double simulationTimeToYears(long internalTs) {
+		return simulationTimeToYears((double)internalTs);
+	}
+
+	/**
+	 * Returns an internal simulation time stamp expressed as years
+	 * @param ts Internal time stamp
+	 * @return an internal simulation time stamp expressed as years
+	 */
+	public static double simulationTimeToYears(double ts) {
+		return ts / (double)simulationTimeUnit.convert(TimeStamp.getYear());
+	}
+
+	/**
+	 * If the specified timestamp is less than the minimum time to event described in this repository, returns such minimum time.
+	 * @param ts Time stamp that represents a time to event.
+	 * @return the highest value between the minimum time to event described in this repository and the specified timestamp
+	 */
+	public static long adjustTimeToEvent(long timeToEvent) {
+		return Math.max(minTimeToEvent, timeToEvent);
+	}
+
+	/**
+	 * If the specified timestamp is less than the minimum time to event described in this repository, returns such minimum time.
+	 * @param ts Time stamp that represents a time to event.
+	 * @return the highest value between the minimum time to event described in this repository and the specified timestamp
+	 */
+	public static long adjustTimeToEvent(double timeToEvent, TimeUnit unit) {
+		return adjustTimeToEvent(simulationTimeUnit.convert(timeToEvent, unit));
+	}
+
+	/**
+	 * @param minTimeToEvent the minTimeToEvent to set
+	 */
+	public static void setMinTimeToEvent(TimeStamp minTime) {
+		minTimeToEvent = simulationTimeUnit.convert(minTime);
 	}
 
 	/**
@@ -359,36 +411,13 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param param Parameter
 	 * @param type Type of the parameter
 	 */
-	public void addParameter(SecondOrderParam param, ParameterType type) {		
+	public void addParameter(Parameter param, ParameterType type) {		
 		params.put(param.getName(), param);
-		switch(type) {
-		case COST:
-			costParams.add((SecondOrderCostParam) param);
-			break;
-		case MODIFICATION:
-			modificationParams.add((Modification) param);
-			break;
-		case OTHER:
-			otherParams.add(param);
-			break;
-		case PROBABILITY:
-			probabilityParams.add(param);
-			break;
-		case UTILITY:
-			utilParams.add(param);
-			break;
-		default:
-			break;
-		
-		}
+		type.getParameters().add(param);
 	}
 	
-	public void addModificationParam(Intervention interv, Modification.Type type, DiseaseProgression fromManifestation, DiseaseProgression toManifestation, String source, double detValue, RandomVariate rnd) {
-		addParameter(new Modification(this, type, getModificationString(interv, fromManifestation, toManifestation), "Modification of probability of going from " + fromManifestation + " to " + toManifestation + " due to " + interv, source, detValue, rnd), SecondOrderParamsRepository.ParameterType.MODIFICATION);
-	}
-	
-	public void addModificationParam(Intervention interv, Modification.Type type, String paramName, String source, double detValue, RandomVariate rnd) {
-		addParameter(new Modification(this, type, getModificationString(interv, paramName), "Modification of parameter " + paramName + " due to " + interv, source, detValue, rnd), SecondOrderParamsRepository.ParameterType.MODIFICATION);
+	public void addParameterModifier(String paramName, Intervention interv, ParameterModifier modifier) {
+		params.get(paramName).addModifier(interv, modifier);
 	}
 
 	/**
@@ -396,8 +425,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param name String identifier of the parameter
 	 * @return A value for the specified parameter; {@link Double#NaN} in case the parameter is not defined
 	 */
-	public double getParameter(String name, Patient pat) {
-		return getParameter(name, Double.NaN, pat);
+	public double getParameterValue(String name, Patient pat) {
+		return getParameterValue(name, Double.NaN, pat);
 	}
 
 	/**
@@ -406,12 +435,11 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param defaultValue Default value in case the parameter is not defined
 	 * @return A value for the specified parameter; the specified default value in case the parameter is not defined
 	 */
-	public double getParameter(String name, double defaultValue, Patient pat) {
-		final SecondOrderParam param = params.get(name);
+	public double getParameterValue(String name, double defaultValue, Patient pat) {
+		final Parameter param = params.get(name);
 		if (param == null)
 			return defaultValue;
-		final Modification modif = (Modification) params.get(getModificationString(pat.getSimulation().getIntervention(), name));
-		return (modif == null) ? param.getValue(pat) : param.getValue(pat, modif); 
+		return param.getValue(pat); 
 	}
 	
 	/**
@@ -456,7 +484,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	}
 
 	public static String getModificationString(Intervention interv, Named from, Named to) {
-		return getModificationString(interv, ProbabilityParamDescriptions.PROBABILITY.getParameterName(from, to));
+		return getModificationString(interv, RiskParamDescriptions.PROBABILITY.getParameterName(from, to));
 	}
 	
 	public static String getModificationString(Intervention interv, String name) {
@@ -491,34 +519,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		final double instRate = -Math.log(1 - detProb);
 		return RandomVariateFactory.getInstance("UniformVariate", 1 - Math.exp(-instRate * (1 - BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY)), 1 - Math.exp(-instRate * (1 + BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY)));
 	}
-
-	/**
-	 * Generates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event. 
-	 * @param pat A patient
-	 * @param annualRisk Annual risk of the event)
-	 * @param logRnd The natural log of a random number (0,1)
-	 * @param rr Relative risk for the patient
-	 * @return a time to event based on annual risk
-	 */
-	public static long getAnnualBasedTimeToEvent(Patient pat, double annualRisk, double logRnd, double rr) {
-		final double time = Statistics.getAnnualBasedTimeToEvent(annualRisk, logRnd, rr);
-	
-		return (time >= (pat.getAgeAtDeath() - pat.getAge())) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
-	}
-	
-	/**
-	 * Generates a time to event based on annual rate. The time to event is absolute, i.e., can be used directly to schedule a new event. 
-	 * @param pat A patient
-	 * @param annualRate Annual rate of the event
-	 * @param logRnd The natural log of a random number (0,1)
-	 * @param irr Incidence rate ratio for the patient
-	 * @return a time to event based on annual rate
-	 */
-	public static long getAnnualBasedTimeToEventFromRate(Patient pat, double annualRate, double logRnd, double irr) {
-		final double time = Statistics.getAnnualBasedTimeToEventFromRate(annualRate, logRnd, irr);
-	
-		return (time >= (pat.getAgeAtDeath() - pat.getAge())) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
-	}
 	
 	/**
 	 * Creates a string that contains a tab separated list of the parameter names defined in this repository
@@ -526,53 +526,35 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 */
 	public String getStrHeader() {
 		StringBuilder str = new StringBuilder();
-		for (SecondOrderParam param : probabilityParams)
-			str.append(param.getName()).append("\t");
-		for (SecondOrderParam param : costParams)
-			str.append(param.getName()).append("\t");
-		for (SecondOrderParam param : utilParams)
-			str.append(param.getName()).append("\t");
-		for (SecondOrderParam param : otherParams)
-			str.append(param.getName()).append("\t");
-		for (SecondOrderParam param : modificationParams)
-			str.append(param.getName()).append("\t");
+		for (ParameterType type : ParameterType.values()) {
+			for (Parameter param : type.getParameters()) {
+				if (param.getCalculator() instanceof SecondOrderParameterCalculator) {
+					str.append(param.getName()).append("\t");
+				}
+			}
+		}
 		return str.toString();
 	}
 	
 	@Override
 	public String prettyPrint(String linePrefix) {
 		StringBuilder str = new StringBuilder();
-		for (SecondOrderParam param : probabilityParams) {
-			str.append(param.prettyPrint(linePrefix)).append("\n");
-		}			
-		for (SecondOrderParam param : costParams) {
-			str.append(param.prettyPrint(linePrefix)).append("\n");
-		}
-		for (SecondOrderParam param : utilParams) {
-			str.append(param.prettyPrint(linePrefix)).append("\n");
-		}
-		for (SecondOrderParam param : otherParams) {
-			str.append(param.prettyPrint(linePrefix)).append("\n");
-		}
-		for (SecondOrderParam param : modificationParams) {
-			str.append(param.prettyPrint(linePrefix)).append("\n");
+		for (ParameterType type : ParameterType.values()) {
+			for (Parameter param : type.getParameters()) {
+				str.append(param.prettyPrint(linePrefix)).append("\n");
+			}
 		}
 		return str.toString();
 	}
 	
-	// TODO: The way values are obtained should change. Meanwhile, this method is left behind for convenience
 	public String print(int id) {
 		StringBuilder str = new StringBuilder();
-		for (SecondOrderParam param : probabilityParams)
-			str.append(param.getValue(id)).append("\t");
-		for (SecondOrderParam param : costParams)
-			str.append(param.getValue(id)).append("\t");
-		for (SecondOrderParam param : utilParams)
-			str.append(param.getValue(id)).append("\t");
-		for (SecondOrderParam param : otherParams)
-			str.append(param.getValue(id)).append("\t");
-		for (SecondOrderParam param : modificationParams)
-			str.append(param.getValue(id)).append("\t");
+		for (ParameterType type : ParameterType.values()) {
+			for (Parameter param : type.getParameters()) {
+				if (param.getCalculator() instanceof SecondOrderParameterCalculator)
+					str.append(((SecondOrderParameterCalculator)param.getCalculator()).getValue(id)).append("\t");
+			}
+		}
 		return str.toString();
 	}
 }

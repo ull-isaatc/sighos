@@ -1,20 +1,18 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.progression;
+package es.ull.iis.simulation.hta.params;
 
 import java.util.List;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class ProportionBasedTimeToEventCalculator implements TimeToEventCalculator {
+public class ProportionBasedTimeToEventCalculator implements ParameterCalculator {
 	/** Manifestation to which progress */
 	private final DiseaseProgression destManifestation;
 	/** Repository of second order parameters */
@@ -30,8 +28,8 @@ public class ProportionBasedTimeToEventCalculator implements TimeToEventCalculat
 	}
 
 	@Override
-	public long getTimeToEvent(Patient pat) {
-		final double proportion = secParams.getParameter(paramName, pat);
+	public double getValue(Patient pat) {
+		final double proportion = secParams.getParameterValue(paramName, pat);
 		// Generates two random numbers: the first indicates whether the patient will suffer the problem; the second serves to compute time to event 
 		List<Double> rndValues = pat.getRandomNumbersForIncidence(destManifestation, 2);
 		// Do the patient suffers the problem?
@@ -45,11 +43,10 @@ public class ProportionBasedTimeToEventCalculator implements TimeToEventCalculat
 			if (endAge > age && onsetAge < deathAge) {
 				final double minRef = Math.max(age, onsetAge);
 				final double maxRef = Math.min(deathAge, endAge);
-				final double time = rndValues.get(1) * (maxRef - minRef) + (minRef - age);
-				return pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+				return rndValues.get(1) * (maxRef - minRef) + (minRef - age);
 			}
 		}				
-		return Long.MAX_VALUE;
+		return Double.NaN;
 	}
 
 }

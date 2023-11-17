@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -32,7 +32,7 @@ public class HypotoniaManifestation extends DiseaseProgression {
 		OtherParamDescriptions.ONSET_AGE.addParameter(secParams, this, "", 0.0);			
 		OtherParamDescriptions.END_AGE.addParameter(secParams, this, "", 1.0);			
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "Test", COST_YEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));		
-		ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(secParams, this, "Assumption", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));
+		RiskParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(secParams, this, "Assumption", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));
 	}
 
 }

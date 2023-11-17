@@ -14,7 +14,7 @@ import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Modification;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
@@ -143,7 +143,7 @@ public interface InterventionBuilder {
 		final Set<String> strSensitivities = OSDiWrapper.ObjectProperty.HAS_SENSITIVITY.getValues(intervention.name(), true);
 		if (strSensitivities.size() == 0) {
 			wrap.printWarning(intervention.name(), OSDiWrapper.ObjectProperty.HAS_SENSITIVITY, "Sensitivity not defined for a screening intervention. Using 1.0");						
-			ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, "", 1.0);
+			RiskParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, "", 1.0);
 		}
 		else {
 			final String sensitivityParamName = (String) strSensitivities.toArray()[0];
@@ -154,14 +154,14 @@ public interface InterventionBuilder {
 			if (!sensitivityWrapper.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_SENSITIVITY)) {
 				wrap.printWarning(sensitivityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiWrapper.DataItemType.DI_SENSITIVITY.getInstanceName());			
 			}
-			ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, sensitivityWrapper.getDescription(),  
+			RiskParamDescriptions.SENSITIVITY.addParameter(secParams, intervention, sensitivityWrapper.getDescription(),  
 					sensitivityWrapper.getDeterministicValue(), sensitivityWrapper.getProbabilisticValue());
 		}
 		// Specificity
 		final Set<String> strSpecificities = OSDiWrapper.ObjectProperty.HAS_SPECIFICITY.getValues(intervention.name(), true);
 		if (strSpecificities.size() == 0) {
 			wrap.printWarning(intervention.name(), OSDiWrapper.ObjectProperty.HAS_SPECIFICITY, "Specificity not defined for a screening intervention. Using 1.0");						
-			ProbabilityParamDescriptions.SPECIFICITY.addParameter(secParams, intervention, "", 1.0);
+			RiskParamDescriptions.SPECIFICITY.addParameter(secParams, intervention, "", 1.0);
 		}
 		else {
 			final String specificityParamName = (String) strSpecificities.toArray()[0];
@@ -172,7 +172,7 @@ public interface InterventionBuilder {
 			if (!specificityWrapper.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_SPECIFICITY)) {
 				wrap.printWarning(specificityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiWrapper.DataItemType.DI_SPECIFICITY.getInstanceName());			
 			}
-			ProbabilityParamDescriptions.SPECIFICITY.addParameter(secParams, intervention, specificityWrapper.getDescription(),  
+			RiskParamDescriptions.SPECIFICITY.addParameter(secParams, intervention, specificityWrapper.getDescription(),  
 					specificityWrapper.getDeterministicValue(), specificityWrapper.getProbabilisticValue());
 		}
 	}

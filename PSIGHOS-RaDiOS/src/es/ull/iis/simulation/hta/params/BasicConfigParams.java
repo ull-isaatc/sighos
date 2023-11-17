@@ -3,9 +3,6 @@
  */
 package es.ull.iis.simulation.hta.params;
 
-import es.ull.iis.simulation.model.TimeStamp;
-import es.ull.iis.simulation.model.TimeUnit;
-
 /**
  * Basic configuration parameters for the simulation study.
  * @author Iván Castilla Rodríguez
@@ -13,16 +10,11 @@ import es.ull.iis.simulation.model.TimeUnit;
  */
 public class BasicConfigParams {
 	public final static String STR_SEP = "----------------------------------------------------------------------------------------------------------------";
-	/** Simulation time unit: defines the finest grain */
-	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
-	/** The factor to expressed a simulation timestamp in years */ 
-	public final static double YEAR_CONVERSION = SIMUNIT.convert(TimeStamp.getYear());
+	
 	/** Identifier code for men */
 	public final static int MAN = 0;
 	/** Identifier code for women */
 	public final static int WOMAN = 1;
-	/** Minimum time among consecutive events. */  
-	public final static long MIN_TIME_TO_EVENT = SIMUNIT.convert(TimeStamp.getMonth());
 
 	/** Default number of runs for each simulation experiment */
 	public final static int N_RUNS = 100;
@@ -61,9 +53,7 @@ public class BasicConfigParams {
 	 * for each parameter
 	 */
 	public static String printOptions() {
-		final StringBuilder str = new StringBuilder("Basic Configuration Options:");
-		str.append(System.lineSeparator()).append("SIMUNIT:\t").append(SIMUNIT).append(System.lineSeparator());
-		str.append("MIN_TIME_TO_EVENT:\t").append(MIN_TIME_TO_EVENT).append(System.lineSeparator());
+		final StringBuilder str = new StringBuilder("Basic Configuration Options:").append(System.lineSeparator());
 		str.append("N_RUNS:\t").append(N_RUNS).append(System.lineSeparator());
 		str.append("N_PATIENTS:\t").append(DEF_N_PATIENTS).append(System.lineSeparator());
 		str.append("MIN_AGE:\t").append(DEF_MIN_AGE).append(System.lineSeparator());

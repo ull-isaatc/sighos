@@ -15,7 +15,7 @@ import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -46,7 +46,7 @@ public interface DiseaseProgressionBuilder {
 	
 	static class OSDiDiseaseProgression extends DiseaseProgression {
 		final private Map<OtherParamDescriptions, ParameterWrapper> otherParams;
-		final private Map<ProbabilityParamDescriptions, ParameterWrapper> probParams;
+		final private Map<RiskParamDescriptions, ParameterWrapper> probParams;
 		final private Map<CostParamDescriptions, CostParameterWrapper> costParams;
 		final private Map<UtilityParamDescriptions, UtilityParameterWrapper> utilityParams;
 		final private OSDiWrapper wrap;
@@ -64,14 +64,14 @@ public interface DiseaseProgressionBuilder {
 			addCostParams();
 			addUtilityParams();
 			addMortalityParams();
-			addProbabilityParam(OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS);
+			addProbabilityParam(OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DIAGNOSIS, RiskParamDescriptions.PROBABILITY_DIAGNOSIS);
 			if (!DiseaseProgression.Type.ACUTE_MANIFESTATION.equals(type)) {
 				addInitialProportionParam(populationIRI);
 			}
 
 		}
 
-		private void addProbabilityParam(OSDiWrapper.ObjectProperty objProperty, ProbabilityParamDescriptions paramDescription) throws MalformedOSDiModelException {
+		private void addProbabilityParam(OSDiWrapper.ObjectProperty objProperty, RiskParamDescriptions paramDescription) throws MalformedOSDiModelException {
 			final String paramName = objProperty.getValue(name(), true);
 			if (paramName != null)
 				probParams.put(paramDescription, new ParameterWrapper(wrap, paramName, ""));			
@@ -87,7 +87,7 @@ public interface DiseaseProgressionBuilder {
 			// Chronic manifestations may have increased mortality rates, reductions of life expectancy
 			// FIXME: Currently, we are accepting even a probability of death. Conceptually this could only happen when the chronic manifestation is preceded by an acute manifestation 
 			// (actually, the acute manifestation would be the one with such probability). We are doing so to simplify modeling, but it is inaccurate
-			addProbabilityParam(OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH, ProbabilityParamDescriptions.PROBABILITY_DEATH);
+			addProbabilityParam(OSDiWrapper.ObjectProperty.HAS_PROBABILITY_OF_DEATH, RiskParamDescriptions.PROBABILITY_DEATH);
 
 			// Acute manifestations are assumed not to involve further mortality parameters
 			if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(getType())) {
@@ -106,7 +106,7 @@ public interface DiseaseProgressionBuilder {
 				if (!OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION.getValues(manifParam, true).contains(populationName))
 					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, manifParam, OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_POPULATION, 
 							"Parameters characterizing initial proportions must be related to the population: " + populationName);
-				probParams.put(ProbabilityParamDescriptions.INITIAL_PROPORTION, new ParameterWrapper(wrap, manifParam, "Initial proportion of " + name()));
+				probParams.put(RiskParamDescriptions.INITIAL_PROPORTION, new ParameterWrapper(wrap, manifParam, "Initial proportion of " + name()));
 			}
 		}
 		
@@ -230,7 +230,7 @@ public interface DiseaseProgressionBuilder {
 		
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-			for (ProbabilityParamDescriptions desc : probParams.keySet()) {
+			for (RiskParamDescriptions desc : probParams.keySet()) {
 				final ParameterWrapper probParam = probParams.get(desc);					
 				desc.addParameter(secParams, this, probParam.getSource(), probParam.getDeterministicValue(), probParam.getProbabilisticValue());
 			}
@@ -239,7 +239,7 @@ public interface DiseaseProgressionBuilder {
 				desc.addParameter(secParams, this, otherParam.getSource(), otherParam.getDeterministicValue(), otherParam.getProbabilisticValue());
 			}
 			if (costParams.size() == 0) {
-				CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Not defined. Assumption", secParams.getStudyYear(), 0.0);
+				CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Not defined. Assumption", SecondOrderParamsRepository.getStudyYear(), 0.0);
 			}
 			else {
 				for (CostParamDescriptions desc : costParams.keySet()) {

@@ -14,7 +14,8 @@ import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Modification;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -101,7 +102,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.state = new TreeSet<>();
 		this.sex = population.getSex(this);
 		this.initAge = population.getInitAge(this);
-		this.simulInitAge = BasicConfigParams.SIMUNIT.convert(initAge, TimeUnit.YEAR);
+		this.simulInitAge = simul.getTimeUnit().convert(initAge, TimeUnit.YEAR);
 		this.disease = population.getDisease(this);
 		this.attributes = new TreeMap<>();
 		for (PopulationAttribute attribute : population.getPatientAttributes())
@@ -194,7 +195,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return true if this patient starts in the simulation with the specified progression
 	 */
 	public boolean startsWithDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression)) < ProbabilityParamDescriptions.INITIAL_PROPORTION.getValue(getSimulation().getRepository(), progression, this);
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression)) < RiskParamDescriptions.INITIAL_PROPORTION.getValue(getSimulation().getRepository(), progression, this);
 	}
 
 	/**
@@ -203,7 +204,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the acute onset of the progression produces the death of the patient
 	 */
 	public boolean deadsByDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DEATH.getKey(this, progression)) < ProbabilityParamDescriptions.PROBABILITY_DEATH.getValue(getSimulation().getRepository(), progression, this);
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DEATH.getKey(this, progression)) < RiskParamDescriptions.PROBABILITY_DEATH.getValue(getSimulation().getRepository(), progression, this);
 	}
 	
 	/**
@@ -212,7 +213,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the acute onset of a progression leads to the diagnosis of the patient
 	 */
 	public boolean isDiagnosedByDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DIAGNOSE.getKey(this, progression)) < ProbabilityParamDescriptions.PROBABILITY_DIAGNOSIS.getValue(getSimulation().getRepository(), progression, this);
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DIAGNOSE.getKey(this, progression)) < RiskParamDescriptions.PROBABILITY_DIAGNOSIS.getValue(getSimulation().getRepository(), progression, this);
 	}
 	
 	@Override
@@ -309,7 +310,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return The current age of the patient
 	 */
 	public double getAge() {
-		return ((double)(simulInitAge + simul.getSimulationEngine().getTs() - startTs)) / BasicConfigParams.YEAR_CONVERSION;
+		return initAge + SecondOrderParamsRepository.simulationTimeToYears(simul.getSimulationEngine().getTs() - startTs);
 	}
 	
 	
@@ -343,7 +344,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 */
 	public double getAgeAtDeath() {
 		final long timeToDeath = getTimeToDeath();
-		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : (((double)(simulInitAge + timeToDeath)) / BasicConfigParams.YEAR_CONVERSION);
+		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : initAge + SecondOrderParamsRepository.simulationTimeToYears(timeToDeath);
 	}
 	
 	/**

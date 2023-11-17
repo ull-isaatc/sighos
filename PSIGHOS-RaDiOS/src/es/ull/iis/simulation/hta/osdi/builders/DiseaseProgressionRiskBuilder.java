@@ -15,14 +15,14 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.params.ProportionBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.progression.AnnualRiskBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.params.TimeToEventParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
-import es.ull.iis.simulation.hta.progression.ProportionBasedTimeToEventCalculator;
-import es.ull.iis.simulation.hta.progression.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
 
 /**
@@ -54,12 +54,12 @@ public interface DiseaseProgressionRiskBuilder {
 			final Condition<DiseaseProgressionPathway.ConditionInformation> cond = createCondition(secParams, disease, riskIRI);
 			// TODO: Process parameters when a parameter requires another one or use complex expressions
 			final ParameterWrapper riskWrapper = createRiskWrapper(secParams, progression, riskIRI);
-			final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
+			final TimeToEventParameter tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
 			return new OSDiManifestationPathway(secParams, progression, cond, tte, riskWrapper);
 		}
 		else if (superclazzes.contains(OSDiWrapper.Clazz.PARAMETER.getShortName())) {
 			final ParameterWrapper riskWrapper = new ParameterWrapper(wrap, riskIRI, "Developing " + progression.name());
-			final TimeToEventCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
+			final TimeToEventParameter tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
 			return new OSDiManifestationPathway(secParams, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
 		}
 		return null;
@@ -118,19 +118,19 @@ public interface DiseaseProgressionRiskBuilder {
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static TimeToEventCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, DiseaseProgression progression, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
+	public static TimeToEventParameter createTimeToEventCalculator(OSDiGenericRepository secParams, DiseaseProgression progression, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
 		
 		final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 		
 		if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
-			return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(riskWrapper.getParamId()), secParams, progression);
+			return new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(riskWrapper.getParamId()), secParams, progression);
 			// FIXME: Currently not using anything more complex than a value
 //			final String strRRManif = OSDiNames.DataProperty.HAS_RELATIVE_RISK.getValue(pathwayName);
 //			if (strRRManif == null)
 //				return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
 		}
 		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
-			return new ProportionBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROPORTION.getParameterName(riskWrapper.getParamId()), secParams, progression);
+			return new ProportionBasedTimeToEventCalculator(RiskParamDescriptions.PROPORTION.getParameterName(riskWrapper.getParamId()), secParams, progression);
 		}
 		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_TIME_TO_EVENT)) {
 			// FIXME: Currently not using time to
@@ -176,7 +176,7 @@ public interface DiseaseProgressionRiskBuilder {
 		private final ParameterWrapper riskWrapper;
 
 		public OSDiManifestationPathway(SecondOrderParamsRepository secParams, DiseaseProgression destManifestation,
-				Condition<DiseaseProgressionPathway.ConditionInformation> condition, TimeToEventCalculator timeToEvent, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
+				Condition<DiseaseProgressionPathway.ConditionInformation> condition, TimeToEventParameter timeToEvent, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
 			super(secParams, destManifestation, condition, timeToEvent);
 			this.riskWrapper = riskWrapper;
 		}
@@ -185,11 +185,11 @@ public interface DiseaseProgressionRiskBuilder {
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 			if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
-				ProbabilityParamDescriptions.PROBABILITY.addParameter(secParams, riskWrapper.getParamId(), riskWrapper.getDescription(), riskWrapper.getSource(),
+				RiskParamDescriptions.PROBABILITY.addParameter(secParams, riskWrapper.getParamId(), riskWrapper.getDescription(), riskWrapper.getSource(),
 						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
 			}
 			else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
-				ProbabilityParamDescriptions.PROPORTION.addParameter(secParams, riskWrapper.getParamId(), riskWrapper.getDescription(), riskWrapper.getSource(),
+				RiskParamDescriptions.PROPORTION.addParameter(secParams, riskWrapper.getParamId(), riskWrapper.getDescription(), riskWrapper.getSource(),
 						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
 			}
 		}

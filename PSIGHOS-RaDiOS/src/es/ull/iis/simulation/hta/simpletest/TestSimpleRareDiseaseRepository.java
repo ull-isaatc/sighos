@@ -5,8 +5,10 @@ package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
-import es.ull.iis.simulation.hta.params.Modification;
+import es.ull.iis.simulation.hta.params.DiffConstantParameterModifier;
+import es.ull.iis.simulation.hta.params.FactorConstantParameterModifier;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.SetConstantParameterModifier;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
@@ -46,18 +48,19 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 			default:
 				setPopulation(new TestPopulation(this, testDisease)); break;		
 			}
+			
 			switch(TEST_INTERVENTIONS) {
 			case 2:
 				new DoNothingIntervention(this);
-				new MortalityReductionIntervention(this, Modification.Type.DIFF);
+				new MortalityReductionIntervention(this, new DiffConstantParameterModifier(-5.0));
 				break;
 			case 3:
 				new DoNothingIntervention(this);
-				new MortalityReductionIntervention(this, Modification.Type.RR);
+				new MortalityReductionIntervention(this, new FactorConstantParameterModifier(1.2));
 				break;
 			case 4:
 				new DoNothingIntervention(this);
-				new MortalityReductionIntervention(this, Modification.Type.SET);
+				new MortalityReductionIntervention(this, new SetConstantParameterModifier(90.0));
 				break;
 			case 5:
 				new DoNothingIntervention(this);

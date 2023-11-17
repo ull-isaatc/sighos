@@ -15,7 +15,8 @@ public enum OtherParamDescriptions implements DescribesParameter {
 	INCREASED_MORTALITY_RATE("IMR", "Increased mortality rate for", 1.0),
 	LIFE_EXPECTANCY_REDUCTION("LER", "Life expectancy reduction for", 0.0),
 	ONSET_AGE("ONSET_AGE", "Onset age for", 0.0),
-	RELATIVE_RISK("RR", "Relative risk of", 1.0);
+	RELATIVE_RISK("RR", "Relative risk of", 1.0),
+	RESOURCE_USAGE("USAGE", "Use of", 1.0);
 
 	private final String shortPrefix;
 	private final String longPrefix;
@@ -54,7 +55,7 @@ public enum OtherParamDescriptions implements DescribesParameter {
 	}
 	
 	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
-		secParams.addParameter(new SecondOrderParam(secParams, getParameterName(name), getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.OTHER);
+		addParameter(secParams, name, description, source, new ConstantParameterCalculator(detValue));
 	}
 	
 	public void addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
@@ -66,7 +67,11 @@ public enum OtherParamDescriptions implements DescribesParameter {
 	}
 	
 	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
-		secParams.addParameter(new SecondOrderParam(secParams, getParameterName(name), getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.OTHER);
+		addParameter(secParams, name, description, source, new SecondOrderParameterCalculator(secParams, detValue, rnd));
 	}
-	
+
+	public void addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, ParameterCalculator calc) {
+		secParams.addParameter(new Parameter(secParams, this, getParameterName(name), getParameterDescription(description), source, calc), SecondOrderParamsRepository.ParameterType.OTHER);
+	}
+
 }

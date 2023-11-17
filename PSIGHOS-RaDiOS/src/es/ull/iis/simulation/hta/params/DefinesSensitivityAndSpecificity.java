@@ -16,13 +16,13 @@ public interface DefinesSensitivityAndSpecificity extends CreatesSecondOrderPara
 	 * @return the specificity
 	 */
 	public default double getSpecificity(Patient pat) {
-		return ProbabilityParamDescriptions.SPECIFICITY.getValueIfExists(getRepository(), this, pat);
+		return RiskParamDescriptions.SPECIFICITY.getValueIfExists(getRepository(), this, pat);
 	}
 	
 	/**
 	 * @return the sensitivity
 	 */
 	public default double getSensitivity(Patient pat) {
-		return ProbabilityParamDescriptions.SENSITIVITY.getValueIfExists(getRepository(), this, pat);
+		return RiskParamDescriptions.SENSITIVITY.getValueIfExists(getRepository(), this, pat);
 	}
 }

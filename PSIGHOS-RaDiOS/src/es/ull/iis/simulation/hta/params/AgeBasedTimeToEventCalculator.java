@@ -1,21 +1,19 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.progression;
+package es.ull.iis.simulation.hta.params;
 
 import java.util.List;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.RRCalculator;
-import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.util.Statistics;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class AgeBasedTimeToEventCalculator implements TimeToEventCalculator {
+public class AgeBasedTimeToEventCalculator implements ParameterCalculator {
 	/** Annual risks of the events */
 	private final Object[][] ageRisks;
 	/** Relative risk calculator */
@@ -30,9 +28,8 @@ public class AgeBasedTimeToEventCalculator implements TimeToEventCalculator {
 	}
 	
 	@Override
-	public long getTimeToEvent(Patient pat) {
+	public double getValue(Patient pat) {
 		final double age = pat.getAge();
-		final double lifetime = pat.getAgeAtDeath() - age;
 		
 		// Searches the corresponding age interval
 		int j = (ageRisks[0].length == 3) ? 1 : 0;
@@ -51,7 +48,7 @@ public class AgeBasedTimeToEventCalculator implements TimeToEventCalculator {
 			if ((newTime != Double.MAX_VALUE) && ((Double) ageRisks[interval][j] - age + newTime < time))
 				time = (Double) ageRisks[interval][j] - age + newTime;
 		}
-		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+		return time;
 	}
 
 }

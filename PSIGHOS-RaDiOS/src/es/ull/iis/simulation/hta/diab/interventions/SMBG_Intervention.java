@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderParam;
+import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariate;
@@ -39,9 +39,8 @@ public class SMBG_Intervention extends Intervention {
 		double mode = Statistics.betaModeFromMeanSD(USE_STRIPS[0], USE_STRIPS[1]);
 		double[] betaParams = Statistics.betaParametersFromEmpiricData(USE_STRIPS[0], mode, MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[1]);
 		RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);
-		secParams.addParameter(new SecondOrderParam(secParams, STR_USE_STRIPS, "Use of strips in " + getDescription(), 
-				"DIAMOND 10.1001/jama.2016.19975", USE_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_USE_STRIPS[1] - MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[0])), 
-				SecondOrderParamsRepository.ParameterType.OTHER);
+		OtherParamDescriptions.RESOURCE_USAGE.addParameter(secParams, STR_USE_STRIPS, "Use of strips in " + getDescription(), 
+				"DIAMOND 10.1001/jama.2016.19975", USE_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_USE_STRIPS[1] - MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[0]));
 		
 		mode = Statistics.betaModeFromMeanSD(C_STRIPS[0], C_STRIPS[1]);
 		betaParams = Statistics.betaParametersFromEmpiricData(C_STRIPS[0], mode, MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[1]);
@@ -55,7 +54,7 @@ public class SMBG_Intervention extends Intervention {
 		final SecondOrderParamsRepository secParams = getRepository();
 
 		return discountRate.applyDiscount(
-				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat) * 365, 
+				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat) * OtherParamDescriptions.RESOURCE_USAGE.getValue(secParams, STR_USE_STRIPS, pat) * 365, 
 				initT, endT);
 	}
 
@@ -68,7 +67,7 @@ public class SMBG_Intervention extends Intervention {
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		final SecondOrderParamsRepository secParams = getRepository();
 		return discountRate.applyAnnualDiscount(
-				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat) * secParams.getParameter(STR_USE_STRIPS, 0.0, pat) * 365, 
+				CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat) * OtherParamDescriptions.RESOURCE_USAGE.getValue(secParams, STR_USE_STRIPS, pat) * 365, 
 				initT, endT);
 	}
 

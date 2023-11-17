@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.BackgroundRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
 import es.ull.iis.simulation.hta.populations.PopulationAttribute;
@@ -50,9 +50,9 @@ public class DCCTPopulation2 extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(BackgroundRetinopathy.NAME), 
+		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(BackgroundRetinopathy.NAME), 
 				"DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));
-		ProbabilityParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(Neuropathy.NAME), 
+		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(Neuropathy.NAME), 
 				"DCCT", P_INI_NEU_BETA[0] / (P_INI_NEU_BETA[0] + P_INI_NEU_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_NEU_BETA[0], P_INI_NEU_BETA[1]));
 	}
 

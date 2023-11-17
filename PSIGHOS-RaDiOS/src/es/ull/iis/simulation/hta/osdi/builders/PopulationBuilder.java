@@ -15,7 +15,7 @@ import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
@@ -125,9 +125,9 @@ public interface PopulationBuilder {
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			if (prevalenceParam != null)
-				ProbabilityParamDescriptions.PREVALENCE.addParameter(secParams, this, prevalenceParam.getSource(), prevalenceParam.getDeterministicValue(), prevalenceParam.getProbabilisticValue());
+				RiskParamDescriptions.PREVALENCE.addParameter(secParams, this, prevalenceParam.getSource(), prevalenceParam.getDeterministicValue(), prevalenceParam.getProbabilisticValue());
 			else if (birthPrevalenceParam != null)
-				ProbabilityParamDescriptions.BIRTH_PREVALENCE.addParameter(secParams, this, birthPrevalenceParam.getSource(), birthPrevalenceParam.getDeterministicValue(), birthPrevalenceParam.getProbabilisticValue());
+				RiskParamDescriptions.BIRTH_PREVALENCE.addParameter(secParams, this, birthPrevalenceParam.getSource(), birthPrevalenceParam.getDeterministicValue(), birthPrevalenceParam.getProbabilisticValue());
 
 			if (utilityParam != null)
 				UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, name(), utilityParam.getDescription(), utilityParam.getSource(), 
@@ -176,9 +176,9 @@ public interface PopulationBuilder {
 		@Override
 		protected DiscreteRandomVariate getDiseaseVariate(Patient pat) {
 			if (birthPrevalenceParam != null)
-				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.BIRTH_PREVALENCE.getValue(getRepository(), name(), pat));
+				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), RiskParamDescriptions.BIRTH_PREVALENCE.getValue(getRepository(), name(), pat));
 			else if (prevalenceParam != null)
-				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), ProbabilityParamDescriptions.PREVALENCE.getValue(getRepository(), name(), pat));
+				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), RiskParamDescriptions.PREVALENCE.getValue(getRepository(), name(), pat));
 			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 		}
 		

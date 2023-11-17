@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta;
 
-import es.ull.iis.simulation.hta.params.SecondOrderParam;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
@@ -13,7 +13,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  */
 public interface CreatesSecondOrderParameters {
 	/**
-	 * This method should register {@link SecondOrderParam second order parameters} into a {@link SecondOrderParamsRepository repository}
+	 * This method should register {@link Parameter second order parameters} into a {@link SecondOrderParamsRepository repository}
 	 * @param secParams Repository
 	 */
 	void registerSecondOrderParameters(SecondOrderParamsRepository secParams);

@@ -1,18 +1,18 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.progression;
+package es.ull.iis.simulation.hta.params;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.RRCalculator;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.util.Statistics;
 
 /**
  * Calculates a time to event based on patients-year rate. The time to event is absolute, i.e., can be used directly to schedule a new event. 
  * @author Iván Castilla Rodríguez
  *
  */
-public class AnnualRateBasedTimeToEventCalculator implements TimeToEventCalculator {
+public class AnnualRateBasedTimeToEventCalculator implements ParameterCalculator {
 	/** Incidence rate ratio calculator */
 	private final RRCalculator irr;
 	/** Manifestation to which progress */
@@ -37,9 +37,8 @@ public class AnnualRateBasedTimeToEventCalculator implements TimeToEventCalculat
 	}
 
 	@Override
-	public long getTimeToEvent(Patient pat) {
+	public double getValue(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return SecondOrderParamsRepository.getAnnualBasedTimeToEventFromRate(pat, secParams.getParameter(paramName, pat), 
-				rndValue, irr.getRR(pat));
+		return Statistics.getAnnualBasedTimeToEventFromRate(secParams.getParameterValue(paramName, pat), rndValue, irr.getRR(pat));
 	}		
 }

@@ -7,9 +7,10 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.Modification;
-import es.ull.iis.simulation.hta.params.ProbabilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.ParameterModifier;
+import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.SetConstantParameterModifier;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import simkit.random.RandomVariateFactory;
 
@@ -30,10 +31,11 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
-		ProbabilityParamDescriptions.SENSITIVITY.addParameter(secParams, this, "", 1.0);
-		ProbabilityParamDescriptions.SPECIFICITY.addParameter(secParams, this, "", 0.999935);
+		RiskParamDescriptions.SENSITIVITY.addParameter(secParams, this, "", 1.0);
+		RiskParamDescriptions.SPECIFICITY.addParameter(secParams, this, "", 0.999935);
+		final ParameterModifier modifier = new SetConstantParameterModifier(0.0); 
 		for (DiseaseProgression manif : secParams.getRegisteredDiseaseProgressions())
-			secParams.addModificationParam(this, Modification.Type.SET, ProbabilityParamDescriptions.PROBABILITY.getParameterName(manif), "", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
+			secParams.addParameterModifier(RiskParamDescriptions.PROBABILITY.getParameterName(manif), this, modifier);
 	}
 
 	@Override

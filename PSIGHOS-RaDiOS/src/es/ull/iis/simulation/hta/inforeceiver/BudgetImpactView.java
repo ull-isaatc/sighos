@@ -89,7 +89,7 @@ public class BudgetImpactView implements ExperimentListener {
 						final long ts = tInfo.getTs();
 						final DiseaseProgressionSimulation simul = (DiseaseProgressionSimulation)tInfo.getSimul();
 						final TimeUnit simUnit = simul.getTimeUnit();
-						final double endYear = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+						final double endYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 						for (int i = 0; i < lastYear.length; i++) {
 							final Patient pat = (Patient)simul.getGeneratedPatient(i);
 							if (!pat.isDead()) {
@@ -106,7 +106,7 @@ public class BudgetImpactView implements ExperimentListener {
 				else if (info instanceof PatientInfo) {
 					final PatientInfo pInfo = (PatientInfo) info;
 					final DiseaseProgressionSimulation simul = (DiseaseProgressionSimulation)pInfo.getSimul();
-					final double endYear = TimeUnit.DAY.convert(pInfo.getTs(), simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
+					final double endYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(pInfo.getTs(), simul.getTimeUnit()));
 					if (endYear > nYears) {
 						for (int i = 0; i < nPatients; i++) {
 							final Patient pat = simul.getGeneratedPatient(i);
