@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
@@ -15,13 +14,17 @@ import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
+import es.ull.iis.simulation.hta.params.FirstOrderParameterCalculator;
+import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.ParameterCalculator;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
-import es.ull.iis.simulation.hta.populations.InitiallySetPopulationAttribute;
-import es.ull.iis.simulation.hta.populations.PopulationAttribute;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -53,6 +56,7 @@ public interface PopulationBuilder {
 		private final int minAge; 
 		private final int maxAge; 
 		private final UtilityParameterWrapper utilityParam;
+		private final ArrayList<AttributeValueWrapper> attributeValues;
 		private final OSDiWrapper wrap;
 		
 		public OSDiPopulation(OSDiGenericRepository secParams, String populationName, String populationDescription, Disease disease) throws MalformedSimulationModelException {
@@ -120,10 +124,24 @@ public interface PopulationBuilder {
 					}
 				}
 			}
+			
+			// Process other attribute values
+			attributeValues = new ArrayList<>();
+			final Set<String> attributeValueNames = OSDiWrapper.ObjectProperty.HAS_ATTRIBUTE_VALUE.getValues(populationName, true);
+			for (String attrValueName : attributeValueNames) {
+				attributeValues.add(new AttributeValueWrapper(wrap, attrValueName)); 
+			}
 		}
 		
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+			for (AttributeValueWrapper attrWrapper : attributeValues) {
+				final String attributeName = OSDiWrapper.DataProperty.HAS_NAME.getValue(attrWrapper.getAttributeId(), attrWrapper.getAttributeId());
+				final String attributeDescription = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(attrWrapper.getAttributeId(), attrWrapper.getAttributeId());
+				ParameterCalculator calc = new FirstOrderParameterCalculator(getRepository(), attrWrapper.getProbabilisticValue()); 
+
+				secParams.addParameter(new Parameter(getRepository(), attributeName, attributeDescription, attrWrapper.getSource(), calc), ParameterType.ATTRIBUTE);
+			}
 			if (prevalenceParam != null)
 				RiskParamDescriptions.PREVALENCE.addParameter(secParams, this, prevalenceParam.getSource(), prevalenceParam.getDeterministicValue(), prevalenceParam.getProbabilisticValue());
 			else if (birthPrevalenceParam != null)
@@ -204,22 +222,9 @@ public interface PopulationBuilder {
 		}
 
 		@Override
-		protected List<PopulationAttribute> initializePatientAttributeList() throws MalformedSimulationModelException {
-			final OSDiGenericRepository OSDiParams = ((OSDiGenericRepository)getRepository()); 
-			final OSDiWrapper wrap = OSDiParams.getOwlWrapper();
-
-			final Set<String> attributes = OSDiWrapper.ObjectProperty.HAS_ATTRIBUTE_VALUE.getValues(name(), true);
-			final ArrayList<PopulationAttribute> attributeList = new ArrayList<>();
-			try {
-				for (String attribute : attributes) {
-					final AttributeValueWrapper attWrapper = new AttributeValueWrapper(wrap, attribute);
-					final String attributeName = OSDiWrapper.DataProperty.HAS_NAME.getValue(attWrapper.getAttributeId(), attWrapper.getAttributeId());
-					attributeList.add(new InitiallySetPopulationAttribute(attributeName, attWrapper.getProbabilisticValue()));										
-				}
-			} catch(MalformedOSDiModelException ex) {
-				throw new MalformedSimulationModelException("Error parsing attribute value from ontology. Caused by " + ex.getMessage());
-			}
-			return attributeList;
+		public DiseaseProgression getDeathCharacterization() {
+			// TODO: Death submodel should be context specific, depending on the population
+			return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
 		}
 
 	}

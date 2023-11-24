@@ -22,7 +22,6 @@ import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -86,8 +85,6 @@ public class OSDiGenericRepository extends SecondOrderParamsRepository {
 		// TODO: Adapt the rest to use the wrapper
 
 		
-		// TODO: Death submodel should be context specific, depending on the population
-		setDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 		// Build interventions that belong to the model
 //		final Set<String> interventionNames = OSDiWrapper.Clazz.INTERVENTION.getIndividuals(true); 
 //		if (interventionNames.size() == 0)
