@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.params.calculators;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.util.Statistics;
@@ -16,7 +15,7 @@ import es.ull.iis.util.Statistics;
  */
 public class AnnualRateBasedTimeToEventCalculator implements ParameterCalculator {
 	/** Incidence rate ratio calculator */
-	private final RRCalculator irr;
+	private final ParameterCalculator irrCalculator;
 	/** Manifestation to which progress */
 	private final DiseaseProgression destManifestation;
 	/** Repository of second order parameters */
@@ -29,10 +28,10 @@ public class AnnualRateBasedTimeToEventCalculator implements ParameterCalculator
 	 * @param paramName Name of the second order parameter that defines the patients-year rate
 	 * @param secParams Repository of second order parameters
 	 * @param destManifestation Manifestation to which progress
-	 * @param irr Incidence rate ratio calculator
+	 * @param irrCalculator Incidence rate ratio calculator
 	 */
-	public AnnualRateBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, DiseaseProgression destManifestation, RRCalculator irr) {
-		this.irr = irr;
+	public AnnualRateBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, DiseaseProgression destManifestation, ParameterCalculator irrCalculator) {
+		this.irrCalculator = irrCalculator;
 		this.secParams = secParams;
 		this.destManifestation = destManifestation;
 		this.paramName = paramName;
@@ -41,6 +40,6 @@ public class AnnualRateBasedTimeToEventCalculator implements ParameterCalculator
 	@Override
 	public double getValue(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return Statistics.getAnnualBasedTimeToEventFromRate(secParams.getParameterValue(paramName, pat), rndValue, irr.getRR(pat));
+		return Statistics.getAnnualBasedTimeToEventFromRate(secParams.getParameterValue(paramName, pat), rndValue, irrCalculator.getValue(pat));
 	}		
 }

@@ -27,7 +27,6 @@ import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
@@ -242,7 +241,7 @@ public class T1DMDisease extends Disease {
 			addProgression(me, true);
 			addProgression(bgret, me, true);
 			// Manually adds a second pathway to ME from PRET that uses the same risk than BGRET, in case BGRET is ommited 
-			final ParameterCalculator tte = new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(bgret, me), secParams, me, new SheffieldComplicationRR(secParams, me.name()));
+			final ParameterCalculator tte = new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(bgret, me), secParams, me, new SheffieldRRCalculator(secParams, me.name()));
 			final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new PreviousDiseaseProgressionCondition(pret);
 			new DiseaseProgressionPathway(secParams, me, cond, tte);
 			addProgression(bli, false);
@@ -274,7 +273,7 @@ public class T1DMDisease extends Disease {
 			assignLabel(GroupOfManifestations.CHD, angina);
 			assignLabel(GroupOfManifestations.CHD, mi);
 			assignLabel(GroupOfManifestations.CHD, hf);
-			final RRCalculator rrCHD = new HbA1c1PPComplicationRR(secParams);
+			final ParameterCalculator rrCHD = new HbA1c1ppRRCalculator(secParams);
 			// The destination is the stage: CHD 
 			new DiseaseProgressionPathway(secParams, chd, new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName("CHD"), secParams, chd, rrCHD));
 
@@ -306,7 +305,7 @@ public class T1DMDisease extends Disease {
 		
 		ParameterCalculator tte;
 		if (useSheffieldRR)
-			tte = new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(fromManif, toManif), secParams, toManif, new SheffieldComplicationRR(secParams, toManif.name()));
+			tte = new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(fromManif, toManif), secParams, toManif, new SheffieldRRCalculator(secParams, toManif.name()));
 		else
 			tte = new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(fromManif, toManif), secParams, toManif);
 		final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new PreviousDiseaseProgressionCondition(fromManif);
@@ -318,7 +317,7 @@ public class T1DMDisease extends Disease {
 		
 		ParameterCalculator tte;
 		if (useSheffieldRR)
-			tte = new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(toManif), secParams, toManif, new SheffieldComplicationRR(secParams, toManif.name()));
+			tte = new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(toManif), secParams, toManif, new SheffieldRRCalculator(secParams, toManif.name()));
 		else
 			tte = new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(toManif), secParams, toManif);
 		new DiseaseProgressionPathway(secParams, toManif, tte);
@@ -476,19 +475,19 @@ public class T1DMDisease extends Disease {
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	public static class SheffieldComplicationRR implements RRCalculator {
+	public static class SheffieldRRCalculator implements ParameterCalculator {
 		private final String paramName;
 		private final SecondOrderParamsRepository secParams;
 		/**
 		 * Creates a relative risk computed as described in the Sheffield's T1DM model
 		 */
-		public SheffieldComplicationRR(SecondOrderParamsRepository secParams, String paramName) {
+		public SheffieldRRCalculator(SecondOrderParamsRepository secParams, String paramName) {
 			this.paramName = paramName;
 			this.secParams = secParams;
 		}
 
 		@Override
-		public double getRR(Patient pat) {
+		public double getValue(Patient pat) {
 			final double beta = OtherParamDescriptions.RELATIVE_RISK.getValue(secParams, paramName, pat);
 			return Math.pow(pat.getAttributeValue(T1DMRepository.STR_HBA1C).doubleValue()/10.0, beta);
 		}
@@ -506,7 +505,7 @@ public class T1DMDisease extends Disease {
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	public static class HbA1c1PPComplicationRR implements RRCalculator {
+	public static class HbA1c1ppRRCalculator implements ParameterCalculator {
 		/** The reference HbA1c from which the relative risk is applied */
 		private static final double REF_HBA1C = 9.1; 
 		private final SecondOrderParamsRepository secParams;
@@ -514,12 +513,12 @@ public class T1DMDisease extends Disease {
 		/**
 		 * Creates a relative risk associated  to a 1 percentage point increment of HbA1c
 		 */
-		public HbA1c1PPComplicationRR(SecondOrderParamsRepository secParams) {
+		public HbA1c1ppRRCalculator(SecondOrderParamsRepository secParams) {
 			this.secParams = secParams;
 		}
 
 		@Override
-		public double getRR(Patient pat) {
+		public double getValue(Patient pat) {
 			// Gets The relative risk of the complication, associated to a 1 PP increment of HbA1c
 			final double referenceRR = OtherParamDescriptions.RELATIVE_RISK.getValue(secParams, "CHD", pat);
 			final double diff = pat.getAttributeValue(T1DMRepository.STR_HBA1C).doubleValue() - REF_HBA1C;

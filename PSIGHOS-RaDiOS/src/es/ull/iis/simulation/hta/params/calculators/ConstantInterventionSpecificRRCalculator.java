@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params;
+package es.ull.iis.simulation.hta.params.calculators;
 
 import es.ull.iis.simulation.hta.Patient;
 
@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.Patient;
  * @author Iván Castilla Rodríguez
  *
  */
-public class InterventionSpecificComplicationRR implements RRCalculator {
+public class ConstantInterventionSpecificRRCalculator implements ParameterCalculator {
 	/** The relative risk values associated to each intervention */
 	final private double[] rr; 
 
@@ -19,12 +19,12 @@ public class InterventionSpecificComplicationRR implements RRCalculator {
 	 * Creates a relative risk that associates a value to each intervention
 	 * @param rr The relative risk values associated to each intervention (length of rr must be equal to the number of interventions)
 	 */
-	public InterventionSpecificComplicationRR(double[] rr) {
+	public ConstantInterventionSpecificRRCalculator(double[] rr) {
 		this.rr = rr;
 	}
 
 	@Override
-	public double getRR(Patient pat) {
+	public double getValue(Patient pat) {
 		return rr[pat.getnIntervention()];
 	}
 

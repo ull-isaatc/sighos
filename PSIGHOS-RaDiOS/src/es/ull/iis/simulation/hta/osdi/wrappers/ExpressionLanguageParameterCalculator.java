@@ -9,23 +9,23 @@ import org.apache.commons.jexl3.MapContext;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
-import es.ull.iis.simulation.hta.params.RRCalculator;
+import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class ExpressionLanguageRR implements RRCalculator {
+public class ExpressionLanguageParameterCalculator implements ParameterCalculator {
 	private final JexlExpression exprToEvaluate;
 	/**
 	 * 
 	 */
-	public ExpressionLanguageRR(String expression) {
+	public ExpressionLanguageParameterCalculator(String expression) {
 		exprToEvaluate = OSDiGenericRepository.JEXL.createExpression(expression);
 	}
 
 	@Override
-	public double getRR(Patient pat) {
+	public double getValue(Patient pat) {
 		final MapContext jc = new ExpressionLanguagePatient(pat);
 		double result = 1.0;
 		try {

@@ -16,6 +16,8 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.params.calculators.ConstantParameterCalculator;
+import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 import es.ull.iis.simulation.hta.params.calculators.SecondOrderParameterCalculator;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.hta.populations.Population;
@@ -72,7 +74,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	}
 	public static final String STR_MOD_PREFIX = "MOD_";
 	/** A null relative risk, i.e., RR = 1.0 */
-	public static final RRCalculator NO_RR = new StdComplicationRR(1.0);
+	public static final ParameterCalculator NO_RR = new ConstantParameterCalculator(1.0);
 	
 	final protected HashMap<String, Parameter> params;
 	/** A random number generator for first order parameter values */

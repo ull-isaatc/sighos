@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.params.calculators;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.util.Statistics;
@@ -16,7 +15,7 @@ import es.ull.iis.util.Statistics;
  */
 public class AnnualRiskBasedTimeToEventCalculator implements ParameterCalculator {
 	/** Relative risk calculator */
-	private final RRCalculator rr;
+	private final ParameterCalculator rrCalculator;
 	/** Manifestation to which progress */
 	private final DiseaseProgression destManifestation;
 	/** Repository of second order parameters */
@@ -29,10 +28,10 @@ public class AnnualRiskBasedTimeToEventCalculator implements ParameterCalculator
 	 * @param paramName Name of the second order parameter that defines the annual risk
 	 * @param secParams Repository of second order parameters
 	 * @param destManifestation Manifestation to which progress
-	 * @param rr Relative risk calculator
+	 * @param rrCalculator Relative risk calculator
 	 */
-	public AnnualRiskBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, DiseaseProgression destManifestation, RRCalculator rr) {
-		this.rr = rr;
+	public AnnualRiskBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, DiseaseProgression destManifestation, ParameterCalculator rrCalculator) {
+		this.rrCalculator = rrCalculator;
 		this.secParams = secParams;
 		this.destManifestation = destManifestation;
 		this.paramName = paramName;
@@ -51,6 +50,6 @@ public class AnnualRiskBasedTimeToEventCalculator implements ParameterCalculator
 	@Override
 	public double getValue(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return Statistics.getAnnualBasedTimeToEvent(secParams.getParameterValue(paramName, pat), rndValue, rr.getRR(pat));
+		return Statistics.getAnnualBasedTimeToEvent(secParams.getParameterValue(paramName, pat), rndValue, rrCalculator.getValue(pat));
 	}		
 }
