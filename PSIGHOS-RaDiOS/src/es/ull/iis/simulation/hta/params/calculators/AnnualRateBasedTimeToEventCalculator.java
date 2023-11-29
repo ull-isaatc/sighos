@@ -1,9 +1,11 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params;
+package es.ull.iis.simulation.hta.params.calculators;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.RRCalculator;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.util.Statistics;
 

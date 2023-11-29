@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.params;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 import simkit.random.RandomVariate;
 
 /**

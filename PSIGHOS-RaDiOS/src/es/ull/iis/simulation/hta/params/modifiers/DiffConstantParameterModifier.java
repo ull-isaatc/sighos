@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params;
+package es.ull.iis.simulation.hta.params.modifiers;
 
 import es.ull.iis.simulation.hta.Patient;
 
@@ -9,18 +9,19 @@ import es.ull.iis.simulation.hta.Patient;
  * @author Iván Castilla
  *
  */
-public class SetConstantParameterModifier implements ParameterModifier {
+public class DiffConstantParameterModifier implements ParameterModifier {
 	final private double value;
+
 	/**
 	 * 
 	 */
-	public SetConstantParameterModifier(double value) {
+	public DiffConstantParameterModifier(double value) {
 		this.value = value;
 	}
 
 	@Override
 	public double getModifiedValue(Patient pat, double originalValue) {
-		return value;
+		return originalValue - value;
 	}
 
 }

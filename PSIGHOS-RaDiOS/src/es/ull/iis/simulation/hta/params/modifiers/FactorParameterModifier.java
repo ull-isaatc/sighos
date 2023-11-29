@@ -1,9 +1,10 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params;
+package es.ull.iis.simulation.hta.params.modifiers;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.Parameter;
 
 /**
  * @author Iván Castilla

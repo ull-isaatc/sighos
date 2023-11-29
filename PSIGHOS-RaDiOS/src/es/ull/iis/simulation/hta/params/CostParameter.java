@@ -4,6 +4,9 @@
 package es.ull.iis.simulation.hta.params;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.calculators.ConstantParameterCalculator;
+import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
+import es.ull.iis.simulation.hta.params.calculators.SecondOrderParameterCalculator;
 import simkit.random.RandomVariate;
 
 /**

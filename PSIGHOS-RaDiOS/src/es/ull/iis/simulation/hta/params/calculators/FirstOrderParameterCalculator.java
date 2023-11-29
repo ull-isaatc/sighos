@@ -1,11 +1,12 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params;
+package es.ull.iis.simulation.hta.params.calculators;
 
 import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 

@@ -7,12 +7,12 @@ import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.BackgroundRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
-import es.ull.iis.simulation.hta.params.FirstOrderParameterCalculator;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.ParameterCalculator;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
+import es.ull.iis.simulation.hta.params.calculators.FirstOrderParameterCalculator;
+import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;

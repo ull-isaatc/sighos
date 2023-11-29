@@ -5,10 +5,10 @@ package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
-import es.ull.iis.simulation.hta.params.DiffConstantParameterModifier;
-import es.ull.iis.simulation.hta.params.FactorConstantParameterModifier;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SetConstantParameterModifier;
+import es.ull.iis.simulation.hta.params.modifiers.DiffConstantParameterModifier;
+import es.ull.iis.simulation.hta.params.modifiers.FactorConstantParameterModifier;
+import es.ull.iis.simulation.hta.params.modifiers.SetConstantParameterModifier;
 
 /**
  * @author Iván Castilla Rodríguez

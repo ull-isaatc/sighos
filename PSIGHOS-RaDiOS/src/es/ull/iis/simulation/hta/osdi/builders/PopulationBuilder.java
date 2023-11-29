@@ -14,12 +14,12 @@ import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
-import es.ull.iis.simulation.hta.params.FirstOrderParameterCalculator;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.ParameterCalculator;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
+import es.ull.iis.simulation.hta.params.calculators.FirstOrderParameterCalculator;
+import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -70,7 +70,7 @@ public interface PopulationBuilder {
 			}
 			final String strMaxAge = OSDiWrapper.DataProperty.HAS_MAX_AGE.getValue(populationName, "" + super.getMaxAge());
 			try {
-			maxAge = Integer.parseInt(strMaxAge);
+				maxAge = Integer.parseInt(strMaxAge);
 			} catch(NumberFormatException ex) {
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.POPULATION, populationName, OSDiWrapper.DataProperty.HAS_MAX_AGE, "Wrong format of " + strMaxAge + " . Expected an integer value.");
 			}

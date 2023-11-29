@@ -6,6 +6,10 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.params.calculators.ConstantParameterCalculator;
+import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
+import es.ull.iis.simulation.hta.params.calculators.SecondOrderParameterCalculator;
+import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 

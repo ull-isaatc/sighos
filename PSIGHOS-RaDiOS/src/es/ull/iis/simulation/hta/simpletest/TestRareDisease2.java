@@ -5,10 +5,10 @@ package es.ull.iis.simulation.hta.simpletest;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventCalculator;
-import es.ull.iis.simulation.hta.params.ParameterCalculator;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.calculators.AnnualRiskBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 

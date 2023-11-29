@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.FactorParameterModifier;
 import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.modifiers.FactorParameterModifier;
 import simkit.random.RandomVariateFactory;
 
 /**

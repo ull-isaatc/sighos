@@ -6,11 +6,11 @@ package es.ull.iis.simulation.hta.diab.interventions;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.T1DMRepository;
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.params.DiffParameterModifier;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
+import es.ull.iis.simulation.hta.params.modifiers.DiffParameterModifier;
 import simkit.random.RandomVariateFactory;
 
 /**

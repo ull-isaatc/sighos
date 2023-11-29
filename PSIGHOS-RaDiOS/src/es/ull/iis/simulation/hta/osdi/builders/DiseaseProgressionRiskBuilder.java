@@ -15,11 +15,11 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
-import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventCalculator;
-import es.ull.iis.simulation.hta.params.ProportionBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.TimeToEventParameter;
+import es.ull.iis.simulation.hta.params.calculators.AnnualRiskBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
+import es.ull.iis.simulation.hta.params.calculators.ProportionBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
@@ -54,12 +54,12 @@ public interface DiseaseProgressionRiskBuilder {
 			final Condition<DiseaseProgressionPathway.ConditionInformation> cond = createCondition(secParams, disease, riskIRI);
 			// TODO: Process parameters when a parameter requires another one or use complex expressions
 			final ParameterWrapper riskWrapper = createRiskWrapper(secParams, progression, riskIRI);
-			final TimeToEventParameter tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
+			final ParameterCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
 			return new OSDiManifestationPathway(secParams, progression, cond, tte, riskWrapper);
 		}
 		else if (superclazzes.contains(OSDiWrapper.Clazz.PARAMETER.getShortName())) {
 			final ParameterWrapper riskWrapper = new ParameterWrapper(wrap, riskIRI, "Developing " + progression.name());
-			final TimeToEventParameter tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
+			final ParameterCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
 			return new OSDiManifestationPathway(secParams, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
 		}
 		return null;
@@ -118,7 +118,7 @@ public interface DiseaseProgressionRiskBuilder {
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static TimeToEventParameter createTimeToEventCalculator(OSDiGenericRepository secParams, DiseaseProgression progression, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
+	public static ParameterCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, DiseaseProgression progression, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
 		
 		final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 		
@@ -176,7 +176,7 @@ public interface DiseaseProgressionRiskBuilder {
 		private final ParameterWrapper riskWrapper;
 
 		public OSDiManifestationPathway(SecondOrderParamsRepository secParams, DiseaseProgression destManifestation,
-				Condition<DiseaseProgressionPathway.ConditionInformation> condition, TimeToEventParameter timeToEvent, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
+				Condition<DiseaseProgressionPathway.ConditionInformation> condition, ParameterCalculator timeToEvent, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
 			super(secParams, destManifestation, condition, timeToEvent);
 			this.riskWrapper = riskWrapper;
 		}

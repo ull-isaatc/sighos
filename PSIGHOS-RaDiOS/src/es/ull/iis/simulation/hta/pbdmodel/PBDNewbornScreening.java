@@ -7,10 +7,10 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.ParameterModifier;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SetConstantParameterModifier;
+import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
+import es.ull.iis.simulation.hta.params.modifiers.SetConstantParameterModifier;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import simkit.random.RandomVariateFactory;
 
