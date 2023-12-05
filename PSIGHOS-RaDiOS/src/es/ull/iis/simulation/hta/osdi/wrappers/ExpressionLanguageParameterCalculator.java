@@ -3,9 +3,9 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
+import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
-import org.apache.commons.jexl3.MapContext;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
@@ -26,7 +26,7 @@ public class ExpressionLanguageParameterCalculator implements ParameterCalculato
 
 	@Override
 	public double getValue(Patient pat) {
-		final MapContext jc = new ExpressionLanguagePatient(pat);
+		final JexlContext jc = new ExpressionLanguagePatient(pat);
 		double result = 1.0;
 		try {
 			result = (double) exprToEvaluate.evaluate(jc);

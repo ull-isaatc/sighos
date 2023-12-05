@@ -8,9 +8,9 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway.ConditionInformation;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -22,19 +22,19 @@ public class Guideline implements NamedAndDescribed {
 	private final String description;
 	private final String name;
 	private final TreeSet<GuidelineRange> ranges;
-	private final Condition<Patient> condition;
+	private final Condition<ConditionInformation> condition;
 
 	/**
 	 * 
 	 */
 	public Guideline(String name, String description) {
-		this(name, description, new TrueCondition<Patient>());
+		this(name, description, new TrueCondition<ConditionInformation>());
 	}
 
 	/**
 	 * 
 	 */
-	public Guideline(String name, String description, Condition<Patient> condition) {
+	public Guideline(String name, String description, Condition<ConditionInformation> condition) {
 		this.name = name;
 		this.description = description;
 		this.ranges = new TreeSet<>();
@@ -54,7 +54,7 @@ public class Guideline implements NamedAndDescribed {
 	/**
 	 * @return the condition
 	 */
-	public Condition<Patient> getCondition() {
+	public Condition<ConditionInformation> getCondition() {
 		return condition;
 	}
 

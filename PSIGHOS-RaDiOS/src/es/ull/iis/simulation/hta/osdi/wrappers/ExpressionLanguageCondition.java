@@ -3,9 +3,9 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
+import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
-import org.apache.commons.jexl3.MapContext;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
@@ -27,7 +27,7 @@ public class ExpressionLanguageCondition extends Condition<DiseaseProgressionPat
 	
 	@Override
 	public boolean check(DiseaseProgressionPathway.ConditionInformation info) {
-		final MapContext jc = new ExpressionLanguagePatient(info.getPatient());
+		final JexlContext jc = new ExpressionLanguagePatient(info.getPatient());
 		boolean result = false;
 		try {
 			result = (boolean) exprToEvaluate.evaluate(jc);

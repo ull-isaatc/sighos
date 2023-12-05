@@ -3,32 +3,38 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
-import java.util.Collection;
-
-import com.fathzer.soft.javaluator.StaticVariableSet;
+import com.fathzer.soft.javaluator.AbstractVariableSet;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class JavaluatorPatient extends StaticVariableSet<Double> {
+public class JavaluatorPatient implements AbstractVariableSet<Double> {
+	private final Patient pat;
 
 	/**
 	 * 
 	 */
 	public JavaluatorPatient(Patient pat) {
-		set("AGE", pat.getAge());
-		set("SEX", (double)pat.getSex());
-		set("DIAGNOSED", pat.isDiagnosed() ? 1.0 : 0.0);
-		for (DiseaseProgression manif : pat.getState()) {
-			set(manif.name(), (double)pat.getTimeToDiseaseProgression(manif));
-		}
-		final Collection<String> propNames = pat.getAttributeNames();
-		for (String propName : propNames)
-			set(propName, (double)pat.getAttributeValue(propName));
+		this.pat = pat;
+	}
+
+	@Override
+	public Double get(String variableName) {
+		if ("AGE".equals(variableName))
+			return pat.getAge();
+		if ("SEX".equals(variableName))
+			return (double) pat.getSex();
+		if ("DIAGNOSED".equals(variableName))
+			return pat.isDiagnosed() ? 1.0 : 0.0;
+		if ("INTERVENTION".equals(variableName))
+			return (double) pat.getnIntervention();
+		double paramValue = pat.getSimulation().getRepository().getParameterValue(variableName, pat);
+		if (!Double.isNaN(paramValue))
+			return paramValue;
+		return Double.NaN;
 	}
 
 }

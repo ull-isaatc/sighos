@@ -3,42 +3,53 @@
  */
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
-import java.util.Collection;
 import java.util.Map;
+import java.util.TreeMap;
 
-import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.jexl3.JexlContext;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class ExpressionLanguagePatient extends MapContext {
-
+public class ExpressionLanguagePatient implements JexlContext {
+	private final Map<String, Double> fixedValues;
+	private final Patient pat;
+	
 	/**
 	 * 
 	 */
 	public ExpressionLanguagePatient(Patient pat) {
+		this.pat = pat;
+		fixedValues = new TreeMap<>();
 		set("AGE", pat.getAge());
 		set("SEX", pat.getSex());
 		set("DISEASE", pat.getDisease().name());
 		set("DIAGNOSED", pat.isDiagnosed());
-		set("INTERVENTION", pat.getIntervention().name());
-		for (DiseaseProgression manif : pat.getState()) {
-			set(manif.name(), pat.getTimeToDiseaseProgression(manif));
-		}
-		final Collection<String> propNames = pat.getAttributeNames();
-		for (String propName : propNames)
-			set(propName, pat.getAttributeValue(propName));
+		set("INTERVENTION", pat.getnIntervention());
 	}
 
-	/**
-	 * @param vars
-	 */
-	public ExpressionLanguagePatient(Map<String, Object> vars) {
-		super(vars);
+
+	@Override
+	public Object get(String name) {
+		if (has(name))
+			return fixedValues.get(name);
+		double paramValue = pat.getSimulation().getRepository().getParameterValue(name, pat);
+		if (!Double.isNaN(paramValue))
+			return paramValue;
+		return Double.NaN;
+	}
+
+	@Override
+	public void set(String name, Object value) {
+		fixedValues.put(name, (Double) value);
+	}
+
+	@Override
+	public boolean has(String name) {
+		return fixedValues.containsKey(name);
 	}
 
 }

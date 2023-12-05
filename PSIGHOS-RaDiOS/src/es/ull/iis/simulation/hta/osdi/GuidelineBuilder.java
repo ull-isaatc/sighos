@@ -9,7 +9,6 @@ import java.util.List;
 import es.ull.iis.simulation.condition.AndCondition;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
@@ -44,7 +43,7 @@ public interface GuidelineBuilder {
 	
 	private static void createGuidelineRanges(OSDiGenericRepository secParams, Guideline guide) throws TranspilerException {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
-		final List<String> strRanges = OSDiWrapper.ObjectProperty.HAS_GUIDELINE_RANGE.getValues(guide.name());
+		final List<String> strRanges = OSDiWrapper.DataProperty.HAS_RANGE.getValues(guide.name());
 		for (String rangeName : strRanges) {
 			// TODO: Allow distributions instead of simply deterministic values
 			final double dose = Double.parseDouble(OSDiWrapper.DataProperty.HAS_DOSE.getValue(guide.name(), "0.0")); 
