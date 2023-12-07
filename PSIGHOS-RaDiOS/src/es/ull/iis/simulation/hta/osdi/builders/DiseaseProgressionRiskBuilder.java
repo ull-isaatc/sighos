@@ -149,10 +149,6 @@ public interface DiseaseProgressionRiskBuilder {
 		
 		if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
 			return new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(riskWrapper.getParamId()), secParams, progression);
-			// FIXME: Currently not using anything more complex than a value
-//			final String strRRManif = OSDiNames.DataProperty.HAS_RELATIVE_RISK.getValue(pathwayName);
-//			if (strRRManif == null)
-//				return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
 		}
 		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
 			return new ProportionBasedTimeToEventCalculator(RiskParamDescriptions.PROPORTION.getParameterName(riskWrapper.getParamId()), secParams, progression);
@@ -178,9 +174,10 @@ public interface DiseaseProgressionRiskBuilder {
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static ParameterCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, DiseaseProgression progression, ParameterWrapper[] riskWrapper) throws MalformedOSDiModelException {
+	public static ParameterCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, DiseaseProgression progression, ParameterWrapper[] riskWrappers) throws MalformedOSDiModelException {
 		
-		final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
+		final Set<OSDiWrapper.DataItemType> dataItems1 = riskWrappers[0].getDataItemTypes();
+		final Set<OSDiWrapper.DataItemType> dataItems2 = riskWrappers[1].getDataItemTypes();
 		
 		if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
 			return new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(riskWrapper.getParamId()), secParams, progression);
