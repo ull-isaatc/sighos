@@ -47,8 +47,7 @@ public interface DiseaseBuilder {
 		for (String progressionIRI: progressions) {
 			final DiseaseProgression progression = disease.getDiseaseProgression(progressionIRI);
 			final Set<String> risks = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(progressionIRI, true);
-			for (String riskIRI : risks)
-				DiseaseProgressionRiskBuilder.getPathwayInstance(secParams, progression, riskIRI);
+			DiseaseProgressionRiskBuilder.getPathwayInstance(secParams, progression, risks);
 			// Also include exclusions among progressions
 			final Set<String> exclusions = OSDiWrapper.ObjectProperty.EXCLUDES_MANIFESTATION.getValues(progressionIRI);
 			for (String excludedManif : exclusions) {

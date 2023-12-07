@@ -81,21 +81,6 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		}
 	}
 	
-	private final static String STR_MODIFICATION_SUFFIX = STR_SEP + "Modification";
-	private final static TreeMap<Clazz, ModelType> reverseModelType = new TreeMap<>(); 
-	private final static TreeMap<Clazz, InterventionType> reverseInterventionType = new TreeMap<>(); 
-	private static OSDiWrapper currentWrapper = null;
-
-	static {
-		reverseModelType.put(Clazz.DISCRETE_EVENT_SIMULATION_MODEL, ModelType.DES);
-		reverseModelType.put(Clazz.AGENT_BASED_MODEL, ModelType.AGENT);
-		reverseModelType.put(Clazz.MARKOV_MODEL, ModelType.MARKOV);
-		reverseModelType.put(Clazz.DECISION_TREE_MODEL, ModelType.DECISION_TREE);
-		reverseInterventionType.put(Clazz.DIAGNOSIS_INTERVENTION, InterventionType.DIAGNOSIS);
-		reverseInterventionType.put(Clazz.SCREENING_INTERVENTION, InterventionType.SCREENING);
-		reverseInterventionType.put(Clazz.THERAPEUTIC_INTERVENTION, InterventionType.THERAPEUTIC);
-	}
-	
 	/**
 	 * A list of the different types of models that can be defined in OSDi
 	 * @author Iván Castilla
@@ -639,6 +624,25 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			return defaultValue;
 		}		
 	}
+	
+	private final static String STR_MODIFICATION_SUFFIX = STR_SEP + "Modification";
+	private final static TreeMap<Clazz, ModelType> reverseModelType = new TreeMap<>(); 
+	private final static TreeMap<Clazz, InterventionType> reverseInterventionType = new TreeMap<>(); 
+	private final static TreeMap<String, DataItemType> reverseDataItemType = new TreeMap<>(); 
+	private static OSDiWrapper currentWrapper = null;
+
+	static {
+		reverseModelType.put(Clazz.DISCRETE_EVENT_SIMULATION_MODEL, ModelType.DES);
+		reverseModelType.put(Clazz.AGENT_BASED_MODEL, ModelType.AGENT);
+		reverseModelType.put(Clazz.MARKOV_MODEL, ModelType.MARKOV);
+		reverseModelType.put(Clazz.DECISION_TREE_MODEL, ModelType.DECISION_TREE);
+		reverseInterventionType.put(Clazz.DIAGNOSIS_INTERVENTION, InterventionType.DIAGNOSIS);
+		reverseInterventionType.put(Clazz.SCREENING_INTERVENTION, InterventionType.SCREENING);
+		reverseInterventionType.put(Clazz.THERAPEUTIC_INTERVENTION, InterventionType.THERAPEUTIC);
+		for (DataItemType type : DataItemType.values()) {
+			reverseDataItemType.put(type.getInstanceName(), type);
+		}
+	}
 
 	/**
 	 * Creating an OSDi wrapper, by default initializes the static property currentWrapper to this instance.
@@ -716,7 +720,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	
 	public static DataItemType getDataItemType(String individualIRI) {
 		try {
-			return DataItemType.valueOf(individualIRI.toUpperCase());
+			return reverseDataItemType.get(individualIRI);
 		} catch(IllegalArgumentException ex) {
 			return DataItemType.DI_UNDEFINED;
 		}

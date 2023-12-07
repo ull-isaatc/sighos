@@ -43,26 +43,50 @@ public interface DiseaseProgressionRiskBuilder {
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static DiseaseProgressionPathway getPathwayInstance(OSDiGenericRepository secParams, DiseaseProgression progression, String riskIRI) throws MalformedOSDiModelException {
+	public static DiseaseProgressionPathway getPathwayInstance(OSDiGenericRepository secParams, DiseaseProgression progression, Set<String> riskIRIs) throws MalformedOSDiModelException {
 		final Disease disease = progression.getDisease();
 		final OSDiWrapper wrap = ((OSDiGenericRepository)secParams).getOwlWrapper();
 		
-		Set<String> superclazzes = wrap.getClassesForIndividual(riskIRI);
-		
-		// If the risk is expressed as a pathway
-		if (superclazzes.contains(OSDiWrapper.Clazz.PATHWAY.getShortName())) {			
-			final Condition<DiseaseProgressionPathway.ConditionInformation> cond = createCondition(secParams, disease, riskIRI);
-			// TODO: Process parameters when a parameter requires another one or use complex expressions
-			final ParameterWrapper riskWrapper = createRiskWrapper(secParams, progression, riskIRI);
-			final ParameterCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
-			return new OSDiManifestationPathway(secParams, progression, cond, tte, riskWrapper);
+		if (riskIRIs.size() == 0)
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "At least one risk characterizations for a disease progression is required.");
+		if (riskIRIs.size() > 2)
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "More than two risk characterizations for a disease progression not supported. Currently " + riskIRIs.size());
+		if (riskIRIs.size() == 1) {
+			final String riskIRI = (String) riskIRIs.toArray()[0];
+			Set<String> superclazzes = wrap.getClassesForIndividual(riskIRI);
+			
+			// If the risk is expressed as a pathway
+			if (superclazzes.contains(OSDiWrapper.Clazz.PATHWAY.getShortName())) {			
+				final Condition<DiseaseProgressionPathway.ConditionInformation> cond = createCondition(secParams, disease, riskIRI);
+				// TODO: Process parameters when a parameter requires another one or use complex expressions
+				final ParameterWrapper riskWrapper = createRiskWrapper(secParams, progression, riskIRI);
+				final ParameterCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
+				return new OSDiManifestationPathway(secParams, progression, cond, tte, riskWrapper);
+			}
+			else if (superclazzes.contains(OSDiWrapper.Clazz.PARAMETER.getShortName())) {
+				final ParameterWrapper riskWrapper = new ParameterWrapper(wrap, riskIRI, "Developing " + progression.name());
+				final ParameterCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
+				return new OSDiManifestationPathway(secParams, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
+			}
+			else 
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Unsupported risk characterizations for a disease progression: " + riskIRI);
 		}
-		else if (superclazzes.contains(OSDiWrapper.Clazz.PARAMETER.getShortName())) {
-			final ParameterWrapper riskWrapper = new ParameterWrapper(wrap, riskIRI, "Developing " + progression.name());
-			final ParameterCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrapper);
-			return new OSDiManifestationPathway(secParams, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
+		else {
+			final String riskIRI1 = (String) riskIRIs.toArray()[0];
+			Set<String> superclazzes1 = wrap.getClassesForIndividual(riskIRI1);
+			final String riskIRI2 = (String) riskIRIs.toArray()[1];
+			Set<String> superclazzes2 = wrap.getClassesForIndividual(riskIRI2);
+			if (!superclazzes1.contains(OSDiWrapper.Clazz.PARAMETER.getShortName()) || !superclazzes2.contains(OSDiWrapper.Clazz.PARAMETER.getShortName()))
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Unsupported risk characterizations for a disease progression. Both instances should be Parameters: " + riskIRI1 + " and " + riskIRI2);
+			final ParameterWrapper[] riskWrappers = new ParameterWrapper[2]; 
+			riskWrappers[0] = new ParameterWrapper(wrap, riskIRI1, "Developing " + progression.name());
+			riskWrappers[1] = new ParameterWrapper(wrap, riskIRI2, "Developing " + progression.name());
+			final ParameterCalculator tte = createTimeToEventCalculator(secParams, progression, riskWrappers);
+			// TODO: See how to handle RR and probabilities together
+			//return new OSDiManifestationPathway(secParams, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
+			
 		}
-		return null;
+		return null;			
 	}
 	
 	/**
@@ -110,6 +134,7 @@ public interface DiseaseProgressionRiskBuilder {
 		}
 		return new ParameterWrapper(wrap, pathwayParam, "Developing " + progression + " due to " + pathwayName);
 	}
+	
 	/**
 	 * Creates the calculator for the time to event associated to this pathway. Currently only allows the time to be expressed as an annual risk and, consequently, uses 
 	 * a {@link AnnualRiskBasedTimeToEventCalculator}. 
@@ -119,6 +144,41 @@ public interface DiseaseProgressionRiskBuilder {
 	 * @throws MalformedOSDiModelException 
 	 */
 	public static ParameterCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, DiseaseProgression progression, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
+		
+		final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
+		
+		if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
+			return new AnnualRiskBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(riskWrapper.getParamId()), secParams, progression);
+			// FIXME: Currently not using anything more complex than a value
+//			final String strRRManif = OSDiNames.DataProperty.HAS_RELATIVE_RISK.getValue(pathwayName);
+//			if (strRRManif == null)
+//				return new AnnualRiskBasedTimeToEventCalculator(ProbabilityParamDescriptions.PROBABILITY.getParameterName(getProbString(manifestation, pathwayName)), secParams, manifestation);
+		}
+		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
+			return new ProportionBasedTimeToEventCalculator(RiskParamDescriptions.PROPORTION.getParameterName(riskWrapper.getParamId()), secParams, progression);
+		}
+		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_TIME_TO_EVENT)) {
+			// FIXME: Currently not using time to
+			// final String strTimeTo = OwlHelper.getDataPropertyValue(pathwayName, OSDiNames.DataProperty.HAS_TIME_TO.getDescription());
+			// FIXME: Still not processing data tables
+//			Object[][] datatableMatrix = ValueParser.rangeDatatableToMatrix(XmlTransform.getDataTable(strPManif), secParams);
+//			tte = new AgeBasedTimeToEventCalculator(datatableMatrix, manifestation, new RadiosRangeAgeMatrixRRCalculator(datatableMatrix));
+		}
+		else {
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, riskWrapper.getParamId(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Unsupported data item types");			
+		}
+		return null;
+	}
+
+	/**
+	 * Creates the calculator for the time to event associated to this pathway. Currently only allows the time to be expressed as an annual risk and, consequently, uses 
+	 * a {@link AnnualRiskBasedTimeToEventCalculator}. 
+	 * @param secParams Repository
+	 * @param progression The destination progression for this pathway
+	 * @return
+	 * @throws MalformedOSDiModelException 
+	 */
+	public static ParameterCalculator createTimeToEventCalculator(OSDiGenericRepository secParams, DiseaseProgression progression, ParameterWrapper[] riskWrapper) throws MalformedOSDiModelException {
 		
 		final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 		
