@@ -32,7 +32,6 @@ import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**

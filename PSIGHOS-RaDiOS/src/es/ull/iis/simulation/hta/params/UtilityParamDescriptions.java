@@ -6,7 +6,6 @@ package es.ull.iis.simulation.hta.params;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 import simkit.random.RandomVariate;
 
 /**
@@ -140,9 +139,8 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
-		final String paramName = getParameterName(name);
-		secParams.addParameter(new Parameter(secParams, paramName, getParameterDescription(description), source, detValue), SecondOrderParamsRepository.ParameterType.UTILITY);
-		return paramName;		
+		final ParameterDescription desc = new ParameterDescription(getParameterDescription(description), source);		
+		return addParameter(secParams, name, desc, detValue, SecondOrderParamsRepository.ParameterType.UTILITY);
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
@@ -154,14 +152,11 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
-		final String paramName = getParameterName(name);
-		secParams.addParameter(new Parameter(secParams, paramName, getParameterDescription(description), source, detValue, rnd), SecondOrderParamsRepository.ParameterType.UTILITY);
-		return paramName;		
+		final ParameterDescription desc = new ParameterDescription(getParameterDescription(description), source);		
+		return addParameter(secParams, name, desc, detValue, rnd, SecondOrderParamsRepository.ParameterType.UTILITY);
 	}
 	
-	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, ParameterCalculator calc) {
-		final String paramName = getParameterName(name);
-		secParams.addParameter(new Parameter(secParams, paramName, getParameterDescription(description), source, calc), SecondOrderParamsRepository.ParameterType.UTILITY);
-		return paramName;		
+	public String addParameter(SecondOrderParamsRepository secParams, Parameter param) {
+		return addParameter(secParams, param, SecondOrderParamsRepository.ParameterType.UTILITY);
 	}
 }

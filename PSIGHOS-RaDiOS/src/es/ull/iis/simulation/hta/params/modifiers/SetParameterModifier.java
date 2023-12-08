@@ -4,24 +4,23 @@
 package es.ull.iis.simulation.hta.params.modifiers;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.Parameter;
 
 /**
  * @author Iván Castilla
  *
  */
 public class SetParameterModifier implements ParameterModifier {
-	final private Parameter modifier;
+	final private String modifierParamName;
 	/**
 	 * 
 	 */
-	public SetParameterModifier(Parameter modifier) {
-		this.modifier = modifier;
+	public SetParameterModifier(String modifierParamName) {
+		this.modifierParamName = modifierParamName;
 	}
 
 	@Override
 	public double getModifiedValue(Patient pat, double originalValue) {
-		return modifier.getValue(pat);
+		return pat.getSimulation().getRepository().getParameterValue(modifierParamName, pat);
 	}
 
 }

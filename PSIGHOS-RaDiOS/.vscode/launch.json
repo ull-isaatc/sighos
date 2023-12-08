@@ -1,0 +1,98 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "DiseaseMain",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.DiseaseMain",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "OSDiGenericRepository",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.osdi.OSDiGenericRepository",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "T1DMInstancesGenerator",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.osdi.generators.T1DMInstancesGenerator",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "OSDiWrapper",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "SpanishCPIUpdate",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.params.SpanishCPIUpdate",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "JavaluatorTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.JavaluatorTest",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "RegexpTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.RegexpTest",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "TestAnnualTimeToEvent",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.TestAnnualTimeToEvent",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "TestDiscounts",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.TestDiscounts",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "TestGompertz",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.TestGompertz",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "TestLoadOWL",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.TestLoadOWL",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "TestSpanishDeath",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.TestSpanishDeath",
+            "projectName": "PSIGHOS-OSDi"
+        }
+    ]
+}

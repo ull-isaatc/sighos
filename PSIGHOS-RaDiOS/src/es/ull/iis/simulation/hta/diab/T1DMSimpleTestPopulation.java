@@ -5,9 +5,10 @@ package es.ull.iis.simulation.hta.diab;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.ConstantNatureParameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
+import es.ull.iis.simulation.hta.params.ParameterDescription;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -47,8 +48,8 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		secParams.addParameter(new Parameter(getRepository(), T1DMRepository.STR_HBA1C, T1DMRepository.STR_HBA1C, "", BASELINE_HBA1C), ParameterType.ATTRIBUTE);
-		secParams.addParameter(new Parameter(getRepository(), T1DMRepository.STR_DURATION, T1DMRepository.STR_DURATION, "", BASELINE_DURATION), ParameterType.ATTRIBUTE);
+		secParams.addParameter(new ConstantNatureParameter(getRepository(), T1DMRepository.STR_HBA1C, new ParameterDescription(T1DMRepository.STR_HBA1C, ""), BASELINE_HBA1C), ParameterType.ATTRIBUTE);
+		secParams.addParameter(new ConstantNatureParameter(getRepository(), T1DMRepository.STR_DURATION,  new ParameterDescription(T1DMRepository.STR_DURATION, ""), BASELINE_DURATION), ParameterType.ATTRIBUTE);
 		
 		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);
 	}

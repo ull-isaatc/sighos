@@ -1,10 +1,9 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params.calculators;
+package es.ull.iis.simulation.hta.params;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.util.Statistics;
 
@@ -13,33 +12,31 @@ import es.ull.iis.util.Statistics;
  * @author Iván Castilla Rodríguez
  *
  */
-public class AnnualRateBasedTimeToEventCalculator implements ParameterCalculator {
+public class AnnualRateBasedTimeToEventParameter extends Parameter {
 	/** Incidence rate ratio calculator */
-	private final ParameterCalculator irrCalculator;
+	private final String irrParamName;
 	/** Manifestation to which progress */
 	private final DiseaseProgression destManifestation;
-	/** Repository of second order parameters */
-	private final SecondOrderParamsRepository secParams;
 	/** Name of the second order parameter that defines the patients-year rate */
 	private final String paramName;
 
 	/**
 	 * 
-	 * @param paramName Name of the second order parameter that defines the patients-year rate
 	 * @param secParams Repository of second order parameters
 	 * @param destManifestation Manifestation to which progress
-	 * @param irrCalculator Incidence rate ratio calculator
+	 * @param rateParamName Name of the second order parameter that defines the patients-year rate
+	 * @param irrParamName Incidence rate ratio calculator
 	 */
-	public AnnualRateBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, DiseaseProgression destManifestation, ParameterCalculator irrCalculator) {
-		this.irrCalculator = irrCalculator;
-		this.secParams = secParams;
+	public AnnualRateBasedTimeToEventParameter(SecondOrderParamsRepository secParams, String paramName, DiseaseProgression destManifestation, String rateParamName, String irrParamName) {
+		super(secParams, paramName);
+		this.irrParamName = irrParamName;
 		this.destManifestation = destManifestation;
-		this.paramName = paramName;
+		this.paramName = rateParamName;
 	}
 
 	@Override
 	public double getValue(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return Statistics.getAnnualBasedTimeToEventFromRate(secParams.getParameterValue(paramName, pat), rndValue, irrCalculator.getValue(pat));
+		return Statistics.getAnnualBasedTimeToEventFromRate(getRepository().getParameterValue(paramName, pat), rndValue, getRepository().getParameterValue(irrParamName, pat));
 	}		
 }

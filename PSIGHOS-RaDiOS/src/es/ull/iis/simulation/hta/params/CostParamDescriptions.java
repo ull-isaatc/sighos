@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.params;
 
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
-import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 import simkit.random.RandomVariate;
 
 /**
@@ -96,9 +95,8 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @return The name assigned to the parameter in the repository
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue) {
-		final String paramName = getParameterName(name);
-		secParams.addParameter(new CostParameter(secParams, paramName, getParameterDescription(description), source, detValue, year), SecondOrderParamsRepository.ParameterType.COST);
-		return paramName;
+		final CostParameterDescription desc = new CostParameterDescription(getParameterDescription(description), source, year);
+		return addParameter(secParams, name, desc, detValue, SecondOrderParamsRepository.ParameterType.COST);
 	}
 
 	/**
@@ -143,14 +141,17 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @return The name assigned to the parameter in the repository
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
-		final String paramName = getParameterName(name);
-		secParams.addParameter(new CostParameter(secParams, paramName, getParameterDescription(description), source, detValue, rnd, year), SecondOrderParamsRepository.ParameterType.COST);
-		return paramName;
+		final CostParameterDescription desc = new CostParameterDescription(getParameterDescription(description), source, year);		
+		return addParameter(secParams, name, desc, detValue, rnd, SecondOrderParamsRepository.ParameterType.COST);
 	}
 	
-	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, ParameterCalculator calc) {
-		final String paramName = getParameterName(name);
-		secParams.addParameter(new CostParameter(secParams, paramName, getParameterDescription(description), source, calc, year), SecondOrderParamsRepository.ParameterType.COST);
-		return paramName;
+	/**
+	 * Adds a cost parameter to the repository with both deterministic and probabilistic values. The name and description of the parameter are filled according to the enum item.
+	 * @param secParams Common parameters repository
+	 * @param param A new parameter to be added
+	 * @return The name assigned to the parameter in the repository
+	 */
+	public String addParameter(SecondOrderParamsRepository secParams, Parameter param) {
+		return addParameter(secParams, param, SecondOrderParamsRepository.ParameterType.COST);
 	}
 }

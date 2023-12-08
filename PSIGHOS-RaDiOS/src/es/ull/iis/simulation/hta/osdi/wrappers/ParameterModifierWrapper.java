@@ -8,6 +8,8 @@ import java.util.Set;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.ParameterDescription;
+import es.ull.iis.simulation.hta.params.SecondOrderNatureParameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
 import es.ull.iis.simulation.hta.params.modifiers.DiffParameterModifier;
@@ -47,21 +49,22 @@ public class ParameterModifierWrapper extends ParameterWrapper {
 	}
 
 	public void registerParameter(SecondOrderParamsRepository secParams) {
-		final Parameter param = new Parameter(secParams, getParamId(), getDescription(), getSource(), getDeterministicValue(), getProbabilisticValue());
-		secParams.addParameter(param, ParameterType.MODIFICATION);
+		// TODO: Create the parameter according to its definition
+		final Parameter param = new SecondOrderNatureParameter(secParams, getParamId(), new ParameterDescription(getDescription(), getSource()), getDeterministicValue(), getProbabilisticValue());
+		secParams.addParameter(param, ParameterType.OTHER);
 		ParameterModifier mod = null;
 		switch(type) {
 		case DIFF:
-			mod = new DiffParameterModifier(param);
+			mod = new DiffParameterModifier(param.name());
 			break;
 		case FACTOR:
-			mod = new FactorParameterModifier(param);
+			mod = new FactorParameterModifier(param.name());
 			break;
 		case SET:
-			mod = new SetParameterModifier(param);
+			mod = new SetParameterModifier(param.name());
 			break;
 		default: // Should never occur
-			mod = new SetParameterModifier(param);			
+			mod = new SetParameterModifier(param.name());			
 			break;		
 		}
 		for (String modifiedParam : modifiedItems) {

@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.params;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.model.Describable;
+import simkit.random.RandomVariate;
 
 /**
  * Defines methods that allow to describe and set common generic {@link Parameter second order parameters} within a {@link SecondOrderParamsRepository repository}.
@@ -138,5 +139,24 @@ public interface DescribesParameter extends Named {
 	
 	default String getParameterName(Named from, Named to) {
 		return getParameterName(DescribesParameter.getTransitionName(from, to));
+	}
+
+	default String addParameter(SecondOrderParamsRepository secParams, String name, ParameterDescription desc, double detValue, SecondOrderParamsRepository.ParameterType type) {
+		final String paramName = getParameterName(name);
+		return this.addParameter(secParams, new ConstantNatureParameter(secParams, paramName, desc, detValue), type);
+	}
+
+	default String addParameter(SecondOrderParamsRepository secParams, String name, ParameterDescription desc, double detValue, RandomVariate rnd, SecondOrderParamsRepository.ParameterType type) {
+		final String paramName = getParameterName(name);
+		return this.addParameter(secParams, new SecondOrderNatureParameter(secParams, paramName, desc, detValue, rnd), type);
+	}
+
+	default String addParameter(SecondOrderParamsRepository secParams, String name, ParameterDescription desc, RandomVariate rnd, SecondOrderParamsRepository.ParameterType type) {
+		final String paramName = getParameterName(name);
+		return this.addParameter(secParams, new FirstOrderNatureParameter(secParams, paramName, desc, rnd), type);
+	}
+
+	default String addParameter(SecondOrderParamsRepository secParams, Parameter param, SecondOrderParamsRepository.ParameterType type) {
+		return secParams.addParameter(param, type);
 	}
 }

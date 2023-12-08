@@ -14,12 +14,11 @@ import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
-import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.FirstOrderNatureParameter;
+import es.ull.iis.simulation.hta.params.ParameterDescription;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
-import es.ull.iis.simulation.hta.params.calculators.FirstOrderParameterCalculator;
-import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -138,9 +137,8 @@ public interface PopulationBuilder {
 			for (AttributeValueWrapper attrWrapper : attributeValues) {
 				final String attributeName = OSDiWrapper.DataProperty.HAS_NAME.getValue(attrWrapper.getAttributeId(), attrWrapper.getAttributeId());
 				final String attributeDescription = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(attrWrapper.getAttributeId(), attrWrapper.getAttributeId());
-				ParameterCalculator calc = new FirstOrderParameterCalculator(getRepository(), attrWrapper.getProbabilisticValue()); 
-
-				secParams.addParameter(new Parameter(getRepository(), attributeName, attributeDescription, attrWrapper.getSource(), calc), ParameterType.ATTRIBUTE);
+				secParams.addParameter(new FirstOrderNatureParameter(getRepository(), attributeName, 
+						new ParameterDescription(attributeDescription, attrWrapper.getSource()), attrWrapper.getProbabilisticValue()), ParameterType.ATTRIBUTE);
 			}
 			if (prevalenceParam != null)
 				RiskParamDescriptions.PREVALENCE.addParameter(secParams, this, prevalenceParam.getSource(), prevalenceParam.getDeterministicValue(), prevalenceParam.getProbabilisticValue());

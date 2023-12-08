@@ -8,7 +8,9 @@ import es.ull.iis.simulation.hta.diab.T1DMRepository;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.SecondOrderNatureParameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.ParameterDescription;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
 import es.ull.iis.simulation.hta.params.modifiers.DiffParameterModifier;
 import simkit.random.RandomVariateFactory;
@@ -32,10 +34,10 @@ public class DCCT_IntensiveIntervention extends Intervention {
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		
-		final Parameter modifier = new Parameter(secParams, SecondOrderParamsRepository.getModificationString(this, T1DMRepository.STR_HBA1C + "_REDUX"), T1DMRepository.STR_HBA1C + " reduction", 
-				"DCCT Intensive", HBA1C_REDUCTION, RandomVariateFactory.getInstance("NormalVariate", HBA1C_REDUCTION, HBA1C_REDUCTION_SD)); 
-		secParams.addParameter(modifier, ParameterType.MODIFICATION);
-		SecondOrderParamsRepository.ParameterType.ATTRIBUTE.getParameters().get(T1DMRepository.STR_HBA1C).addModifier(this, new DiffParameterModifier(modifier));
+		final Parameter modifier = new SecondOrderNatureParameter(secParams, SecondOrderParamsRepository.getModificationString(this, T1DMRepository.STR_HBA1C + "_REDUX"), 
+				new ParameterDescription(T1DMRepository.STR_HBA1C + " reduction", "DCCT Intensive"), HBA1C_REDUCTION, RandomVariateFactory.getInstance("NormalVariate", HBA1C_REDUCTION, HBA1C_REDUCTION_SD)); 
+		secParams.addParameter(modifier, ParameterType.OTHER);
+		secParams.addParameterModifier(SecondOrderParamsRepository.ParameterType.ATTRIBUTE.getParameter(T1DMRepository.STR_HBA1C).name(), this, new DiffParameterModifier(modifier.name()));
 	}
 
 	@Override

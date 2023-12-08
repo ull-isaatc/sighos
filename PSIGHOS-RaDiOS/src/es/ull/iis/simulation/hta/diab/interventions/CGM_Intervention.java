@@ -10,7 +10,9 @@ import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.SecondOrderNatureParameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.ParameterDescription;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
 import es.ull.iis.simulation.hta.params.modifiers.DiffParameterModifier;
 import es.ull.iis.util.Statistics;
@@ -65,10 +67,10 @@ public class CGM_Intervention extends Intervention {
 		
 		final double sd = Statistics.sdFrom95CI(HBA1C_REDUCTION_IC95);
 		
-		final Parameter modifier = new Parameter(secParams, SecondOrderParamsRepository.getModificationString(this, T1DMRepository.STR_HBA1C + "_REDUX"), T1DMRepository.STR_HBA1C + " reduction", 
-				"GOLD+DIAMOND", HBA1C_REDUCTION, RandomVariateFactory.getInstance("NormalVariate", HBA1C_REDUCTION, sd)); 
-		secParams.addParameter(modifier, ParameterType.MODIFICATION);
-		SecondOrderParamsRepository.ParameterType.ATTRIBUTE.getParameters().get(T1DMRepository.STR_HBA1C).addModifier(this, new DiffParameterModifier(modifier));
+		final Parameter modifier = new SecondOrderNatureParameter(secParams, SecondOrderParamsRepository.getModificationString(this, T1DMRepository.STR_HBA1C + "_REDUX"), 
+				new ParameterDescription(T1DMRepository.STR_HBA1C + " reduction", "GOLD+DIAMOND"), HBA1C_REDUCTION, RandomVariateFactory.getInstance("NormalVariate", HBA1C_REDUCTION, sd)); 
+		secParams.addParameter(modifier, ParameterType.OTHER);
+		secParams.addParameterModifier(SecondOrderParamsRepository.ParameterType.ATTRIBUTE.getParameter(T1DMRepository.STR_HBA1C).name(), this, new DiffParameterModifier(modifier.name()));
 	}
 
 	@Override

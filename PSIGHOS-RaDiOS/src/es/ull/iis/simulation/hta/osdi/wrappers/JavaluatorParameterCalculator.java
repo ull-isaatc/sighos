@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 
 /**
  * @author Iván Castilla Rodríguez
- *
+ * TODO: Convert into Parameter
  */
 public class JavaluatorParameterCalculator implements ParameterCalculator {
 	private final String expression;

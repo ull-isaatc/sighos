@@ -1,36 +1,33 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params.calculators;
+package es.ull.iis.simulation.hta.params;
 
 import java.util.List;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class ProportionBasedTimeToEventCalculator implements ParameterCalculator {
+public class ProportionBasedTimeToEventParameter extends Parameter {
 	/** Manifestation to which progress */
 	private final DiseaseProgression destManifestation;
-	/** Repository of second order parameters */
-	private final SecondOrderParamsRepository secParams;
 	/** Name of the second order parameter that defines the proportion */
-	private final String paramName;
+	private final String proportionParamName;
 	
-	public ProportionBasedTimeToEventCalculator(String paramName, SecondOrderParamsRepository secParams, DiseaseProgression destManifestation) {
-		this.secParams = secParams;
+	public ProportionBasedTimeToEventParameter(SecondOrderParamsRepository secParams, String paramName, DiseaseProgression destManifestation, String proportionParamName) {
+		super(secParams, paramName);
 		this.destManifestation = destManifestation;
-		this.paramName = paramName;
+		this.proportionParamName = proportionParamName;
 		
 	}
 
 	@Override
 	public double getValue(Patient pat) {
-		final double proportion = secParams.getParameterValue(paramName, pat);
+		final double proportion = getRepository().getParameterValue(proportionParamName, pat);
 		// Generates two random numbers: the first indicates whether the patient will suffer the problem; the second serves to compute time to event 
 		List<Double> rndValues = pat.getRandomNumbersForIncidence(destManifestation, 2);
 		// Do the patient suffers the problem?

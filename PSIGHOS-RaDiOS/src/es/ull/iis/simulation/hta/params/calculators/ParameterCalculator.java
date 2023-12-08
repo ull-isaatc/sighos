@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.Patient;
 
 /**
  * @author Iván Castilla
- *
+ * TODO: remove and change all the related classes to use (or be) directly a Parameter
  */
 public interface ParameterCalculator {
 	/**

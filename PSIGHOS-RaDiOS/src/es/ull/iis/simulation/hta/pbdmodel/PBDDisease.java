@@ -6,9 +6,9 @@ package es.ull.iis.simulation.hta.pbdmodel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
+import es.ull.iis.simulation.hta.params.ProportionBasedTimeToEventParameter;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.calculators.ProportionBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
@@ -50,7 +50,7 @@ public class PBDDisease extends Disease {
 	}
 
 	private void registerBasicManifestation(SecondOrderParamsRepository secParams, DiseaseProgression manif) {
-		new DiseaseProgressionPathway(secParams, manif, new ProportionBasedTimeToEventCalculator(RiskParamDescriptions.PROBABILITY.getParameterName(manif), secParams, manif));
+		new DiseaseProgressionPathway(secParams, manif, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif));
 	}
 	
 	@Override
@@ -61,6 +61,19 @@ public class PBDDisease extends Disease {
 		RiskParamDescriptions.PROBABILITY.addParameter(secParams, visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
 		RiskParamDescriptions.PROBABILITY.addParameter(secParams, hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
 		RiskParamDescriptions.PROBABILITY.addParameter(secParams, mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
+		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(skinProblems), skinProblems, 
+				RiskParamDescriptions.PROBABILITY.getParameterName(skinProblems)));
+		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(hypotonia), hypotonia,
+				RiskParamDescriptions.PROBABILITY.getParameterName(hypotonia)));	
+		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(seizures), seizures, 
+				RiskParamDescriptions.PROBABILITY.getParameterName(seizures)));
+		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(visionLoss), visionLoss,
+				RiskParamDescriptions.PROBABILITY.getParameterName(visionLoss)));
+		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(hearingProblems), hearingProblems,	
+				RiskParamDescriptions.PROBABILITY.getParameterName(hearingProblems)));
+		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(mentalDelay), mentalDelay,	
+				RiskParamDescriptions.PROBABILITY.getParameterName(mentalDelay)));
+		
 		CostParamDescriptions.DIAGNOSIS_COST.addParameter(secParams, this, "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65));
 		CostParamDescriptions.TREATMENT_COST.addParameter(secParams, this, "", 2013, TREATMENT_COST);
 		CostParamDescriptions.FOLLOW_UP_COST.addParameter(secParams, this, "", 2013, FOLLOW_UP_COST);

@@ -7,12 +7,11 @@ import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.BackgroundRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
-import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.FirstOrderNatureParameter;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
-import es.ull.iis.simulation.hta.params.calculators.FirstOrderParameterCalculator;
-import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
+import es.ull.iis.simulation.hta.params.ParameterDescription;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -55,10 +54,10 @@ public class DCCTPopulation2 extends StdPopulation {
 		final double betaHbA1c = (BASELINE_HBA1C_SD * BASELINE_HBA1C_SD) / (BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN);
 		final RandomVariate rndHbA1c = RandomVariateFactory.getInstance("GammaVariate", alfaHbA1c, betaHbA1c);
 
-		ParameterCalculator calc = new FirstOrderParameterCalculator(getRepository(), RandomVariateFactory.getInstance("ScaledVariate", rndHbA1c, 1.0, BASELINE_HBA1C_MIN)); 
-		secParams.addParameter(new Parameter(getRepository(), T1DMRepository.STR_HBA1C, T1DMRepository.STR_HBA1C, "", calc), ParameterType.ATTRIBUTE);
-		calc = new FirstOrderParameterCalculator(getRepository(), RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION_AVG, BASELINE_DURATION_SD));
-		secParams.addParameter(new Parameter(getRepository(), T1DMRepository.STR_DURATION, T1DMRepository.STR_DURATION, "", calc), ParameterType.ATTRIBUTE);
+		secParams.addParameter(new FirstOrderNatureParameter(getRepository(), T1DMRepository.STR_HBA1C, new ParameterDescription(T1DMRepository.STR_HBA1C, ""), 
+				RandomVariateFactory.getInstance("ScaledVariate", rndHbA1c, 1.0, BASELINE_HBA1C_MIN)), ParameterType.ATTRIBUTE);
+		secParams.addParameter(new FirstOrderNatureParameter(getRepository(), T1DMRepository.STR_DURATION, new ParameterDescription(T1DMRepository.STR_DURATION, ""), 
+				RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION_AVG, BASELINE_DURATION_SD)), ParameterType.ATTRIBUTE);
 
 		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(BackgroundRetinopathy.NAME), 
 				"DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));

@@ -115,7 +115,7 @@ public class T1DMInstancesGenerator {
 	 */
 	public static void main(String[] args) {
 		try {
-			final T1DMInstancesGenerator gen = new T1DMInstancesGenerator("resources/OSDi_test.owl");
+			new T1DMInstancesGenerator("resources/OSDi_test.owl");
 		} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
 			e.printStackTrace();
 		}

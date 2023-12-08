@@ -16,9 +16,6 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
-import es.ull.iis.simulation.hta.params.calculators.ConstantParameterCalculator;
-import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
-import es.ull.iis.simulation.hta.params.calculators.SecondOrderParameterCalculator;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Development;
@@ -54,6 +51,7 @@ import simkit.random.RandomVariateFactory;
  * complicación en un momento de la simulación, se recalcula el tiempo, pero empezando en el instante actual. Esto produce que no necesariamente se acorte
  * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
  * @author Iván Castilla Rodríguez
+ * TODO: Make this class a singleton
  */
 public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	public enum ParameterType {
@@ -64,19 +62,22 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		COST,
 		/** The collection of utility parameters */
 		UTILITY,
-		MODIFICATION,
 		/** The collection of miscellaneous parameters */
 		OTHER;
 		final private Map<String, Parameter> parameters = new TreeMap<>();
 		public Map<String, Parameter> getParameters() {
 			return parameters;
 		}
+		public Parameter getParameter(String name) {
+			return parameters.get(name);
+		}
 	}
 	public static final String STR_MOD_PREFIX = "MOD_";
 	/** A null relative risk, i.e., RR = 1.0 */
-	public static final ParameterCalculator NO_RR = new ConstantParameterCalculator(1.0);
+	public final String NO_RR;
 	
 	final protected HashMap<String, Parameter> params;
+	final private HashMap<String, TreeMap<Intervention, ParameterModifier>> interventionModifiers;
 	/** A random number generator for first order parameter values */
 	private static RandomNumber RNG_FIRST_ORDER = RandomNumberFactory.getInstance();
 	/** The collection of defined progressions */
@@ -116,6 +117,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 */
 	protected SecondOrderParamsRepository(final int nRuns, final int nPatients) {
 		this.params = new HashMap<>();
+		this.interventionModifiers = new HashMap<>();
 		this.nPatients = nPatients;
 		this.nRuns = nRuns;
 		this.registeredProgressions = new ArrayList<>();
@@ -129,6 +131,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 				return NULL_PROGRESSION;
 			}
 		};
+		this.NO_RR = OtherParamDescriptions.RELATIVE_RISK.addParameter(this, "NULL", "A dummy relative risk to be used when no RR is required", "", 1.0);
 	}
 
 	/**
@@ -391,13 +394,19 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 * @param param Parameter
 	 * @param type Type of the parameter
 	 */
-	public void addParameter(Parameter param, ParameterType type) {		
+	public String addParameter(Parameter param, ParameterType type) {		
 		params.put(param.name(), param);
 		type.getParameters().put(param.name(), param);
+		return param.name();
 	}
 	
 	public void addParameterModifier(String paramName, Intervention interv, ParameterModifier modifier) {
-		params.get(paramName).addModifier(interv, modifier);
+		TreeMap<Intervention, ParameterModifier> map = interventionModifiers.get(paramName);
+		if (map == null) {
+			map = new TreeMap<>();
+			interventionModifiers.put(paramName, map);
+		}
+		map.put(interv, modifier);
 	}
 
 	/**
@@ -410,16 +419,29 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	}
 
 	/**
-	 * Returns a value for a parameter
+	 * Returns the value of the parameter for a specific patient, modified according to the intervention
 	 * @param name String identifier of the parameter
 	 * @param defaultValue Default value in case the parameter is not defined
+	 * @param pat A patient
 	 * @return A value for the specified parameter; the specified default value in case the parameter is not defined
 	 */
 	public double getParameterValue(String name, double defaultValue, Patient pat) {
 		final Parameter param = params.get(name);
 		if (param == null)
 			return defaultValue;
-		return param.getValue(pat); 
+		double value = param.getValue(pat);
+		final TreeMap<Intervention, ParameterModifier> map = interventionModifiers.get(name);
+		if (map != null) {
+			final ParameterModifier modifier = map.get(pat.getIntervention());
+			if (modifier != null) {
+				value = modifier.getModifiedValue(pat, value);
+			}
+		}
+		if (ParameterType.COST.getParameters().containsKey(name)) {
+			final CostParameterDescription desc = (CostParameterDescription) param.getParameterDescription();
+			return SpanishCPIUpdate.updateCost(value, desc.getYear(), SecondOrderParamsRepository.getStudyYear());
+		}
+		return value;
 	}
 	
 	/**
@@ -499,7 +521,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		StringBuilder str = new StringBuilder();
 		for (ParameterType type : ParameterType.values()) {
 			for (Parameter param : type.getParameters().values()) {
-				if (param.getCalculator() instanceof SecondOrderParameterCalculator) {
+				if (param instanceof SecondOrderNatureParameter) {
 					str.append(param.name()).append("\t");
 				}
 			}
@@ -522,8 +544,8 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		StringBuilder str = new StringBuilder();
 		for (ParameterType type : ParameterType.values()) {
 			for (Parameter param : type.getParameters().values()) {
-				if (param.getCalculator() instanceof SecondOrderParameterCalculator)
-					str.append(((SecondOrderParameterCalculator)param.getCalculator()).getValue(id)).append("\t");
+				if (param instanceof SecondOrderNatureParameter)
+					str.append(((SecondOrderNatureParameter)param).getValue(id)).append("\t");
 			}
 		}
 		return str.toString();
