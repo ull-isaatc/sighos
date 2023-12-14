@@ -59,7 +59,7 @@ public class InverseGaussian2Variate extends RandomVariateBase {
  * @return the array of parameters as an Object[].
  */
     public Object[] getParameters() {
-        return new Object[] { new Double(mu), new Double(lambda) };
+        return new Object[] { mu, lambda };
     }
     
 /**

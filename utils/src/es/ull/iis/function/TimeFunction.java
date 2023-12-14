@@ -5,7 +5,7 @@ package es.ull.iis.function;
 
 /**
  * An abstract class to return values corresponding to a specified function, which can depend on time.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  */
 public abstract class TimeFunction {
 	/**

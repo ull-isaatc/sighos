@@ -6,9 +6,9 @@ package simkit.random;
 /**
  * Composed random generator which returns a value corresponding to one of several
  * random generators depending on a probability.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  */
-public class EmpiricalVariate extends RandomVariateBase implements RandomVariate {
+public class EmpiricalVariate extends RandomVariateBase {
 	private double [] prob;
 	private RandomVariate [] values;
 	

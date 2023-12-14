@@ -438,12 +438,21 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 			}
 		}
 		if (ParameterType.COST.getParameters().containsKey(name)) {
-			final CostParameterDescription desc = (CostParameterDescription) param.getParameterDescription();
+			final ParameterDescription desc = param.getParameterDescription();
 			return SpanishCPIUpdate.updateCost(value, desc.getYear(), SecondOrderParamsRepository.getStudyYear());
 		}
 		return value;
 	}
 	
+	/**
+	 * Returns the parameter with the specified name; null if not found
+	 * @param name The name of the parameter
+	 * @return The parameter with the specified name; null if not found
+	 */
+	public Parameter getParameter(String name) {
+		return params.get(name);
+	}
+
 	/**
 	 * Returns the random number generator for first order uncertainty
 	 * @return the random number generator for first order uncertainty

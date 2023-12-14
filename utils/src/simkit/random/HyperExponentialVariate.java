@@ -3,16 +3,12 @@
  */
 package simkit.random;
 
-import simkit.random.ExponentialVariate;
-import simkit.random.RandomVariate;
-import simkit.random.RandomVariateBase;
-
 /**
  * Generates Hyper-exponential distribution using composition of exponentials.
  * By now, it can be only composition of two exponentials.
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  */
-public class HyperExponentialVariate extends RandomVariateBase implements RandomVariate {
+public class HyperExponentialVariate extends RandomVariateBase {
 	/** Lambda parameter */
 	private double lambda;
 	/** First exponential mean */

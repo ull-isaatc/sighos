@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.populations;
 
-import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
@@ -20,7 +19,7 @@ import simkit.random.RandomNumber;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Population extends GenerationInfo implements CreatesSecondOrderParameters, DefinesBaseUtility, NamedAndDescribed {
+public abstract class Population extends GenerationInfo implements DefinesBaseUtility, NamedAndDescribed {
 	/** Random number generator */
 	private final RandomNumber rng;
 	private final String name;

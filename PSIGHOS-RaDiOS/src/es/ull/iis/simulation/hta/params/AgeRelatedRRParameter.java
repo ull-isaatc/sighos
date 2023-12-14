@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params.calculators;
+package es.ull.iis.simulation.hta.params;
 
 import es.ull.iis.simulation.hta.Patient;
 
@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.Patient;
  * @author Iván Castilla
  *
  */
-public class AgeRelatedRRCalculator implements ParameterCalculator {
+public class AgeRelatedRRParameter extends Parameter {
 	/** An age-ordered array of pairs {age, RR} */
 	final private double[][] agesNRR;
 	
@@ -18,7 +18,8 @@ public class AgeRelatedRRCalculator implements ParameterCalculator {
 	 * Creates a new instance of this relative risk calculator
 	 * @param agesNRR An age-ordered array of pairs {age, RR}
 	 */
-	public AgeRelatedRRCalculator(double[][] agesNRR) {
+	public AgeRelatedRRParameter(SecondOrderParamsRepository secParams, String paramName, double[][] agesNRR) {
+		super(secParams, paramName);
 		this.agesNRR = agesNRR;
 	}
 

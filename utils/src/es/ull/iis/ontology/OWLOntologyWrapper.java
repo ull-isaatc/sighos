@@ -188,6 +188,15 @@ public class OWLOntologyWrapper {
 	}
 	
 	/**
+	 * Returns true if the ontology contains the specified individual
+	 * @param individualIRI The IRI of an individual in the ontology
+	 * @return true if the ontology contains the specified individual
+	 */
+	public boolean containsIndividual(String individualIRI) {
+		return ontology.containsIndividualInSignature(factory.getOWLNamedIndividual(individualIRI, pm).getIRI());
+	}
+
+	/**
 	 * Returns a set of individuals belonging at the same time to ALL the specified classes or any of its subclasses
 	 * @param classIRIs A collection of IRIs for classes in the ontology
 	 * @return a set of individuals belonging at the same time to ALL the specified classes or any of its subclasses

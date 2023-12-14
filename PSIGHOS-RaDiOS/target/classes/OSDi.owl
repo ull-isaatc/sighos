@@ -200,6 +200,17 @@
                rdfs:range :Expression .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasFirstOrderUncertainty
+:hasFirstOrderUncertainty rdf:type owl:ObjectProperty ;
+                          rdfs:subPropertyOf :hasUncertainty ;
+                          rdfs:domain :Valuable ;
+                          rdfs:range [ rdf:type owl:Class ;
+                                       owl:unionOf ( :Expression
+                                                     :Valuable
+                                                   )
+                                     ] .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasFollowUpCost
 :hasFollowUpCost rdf:type owl:ObjectProperty ;
                  rdfs:subPropertyOf :hasCost ;
@@ -245,16 +256,6 @@
                                         )
                           ] ;
               rdfs:range :Guideline .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasHeterogeneity
-:hasHeterogeneity rdf:type owl:ObjectProperty ;
-                  rdfs:domain :Valuable ;
-                  rdfs:range [ rdf:type owl:Class ;
-                               owl:unionOf ( :Expression
-                                             :Valuable
-                                           )
-                             ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasIncreasedMortalityRate
@@ -351,16 +352,6 @@
               owl:inverseOf :isParameterOf .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasParameterUncertainty
-:hasParameterUncertainty rdf:type owl:ObjectProperty ;
-                         rdfs:domain :Parameter ;
-                         rdfs:range [ rdf:type owl:Class ;
-                                      owl:unionOf ( :Expression
-                                                    :Parameter
-                                                  )
-                                    ] .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasProbabilityOfDeath
 :hasProbabilityOfDeath rdf:type owl:ObjectProperty ;
                        rdfs:subPropertyOf :hasParameter ;
@@ -424,6 +415,17 @@
                                  ] .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasSecondOrderUncertainty
+:hasSecondOrderUncertainty rdf:type owl:ObjectProperty ;
+                           rdfs:subPropertyOf :hasUncertainty ;
+                           rdfs:domain :Valuable ;
+                           rdfs:range [ rdf:type owl:Class ;
+                                        owl:unionOf ( :Expression
+                                                      :Valuable
+                                                    )
+                                      ] .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasSensitivity
 :hasSensitivity rdf:type owl:ObjectProperty ;
                 rdfs:subPropertyOf :hasParameter ;
@@ -469,16 +471,6 @@
           rdfs:range :Stage .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasStochasticUncertainty
-:hasStochasticUncertainty rdf:type owl:ObjectProperty ;
-                          rdfs:domain :Valuable ;
-                          rdfs:range [ rdf:type owl:Class ;
-                                       owl:unionOf ( :Expression
-                                                     :Valuable
-                                                   )
-                                     ] .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasStrategy
 :hasStrategy rdf:type owl:ObjectProperty .
 
@@ -505,6 +497,16 @@
                                             )
                               ] ;
                   rdfs:range :Cost .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUncertainty
+:hasUncertainty rdf:type owl:ObjectProperty ;
+                rdfs:domain :Valuable ;
+                rdfs:range [ rdf:type owl:Class ;
+                             owl:unionOf ( :Expression
+                                           :Valuable
+                                         )
+                           ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUtility
@@ -1699,14 +1701,6 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 :Parameter rdf:type owl:Class ;
            rdfs:subClassOf :Valuable ,
                            [ rdf:type owl:Restriction ;
-                             owl:onProperty :hasParameterUncertainty ;
-                             owl:someValuesFrom [ rdf:type owl:Class ;
-                                                  owl:unionOf ( :Expression
-                                                                :Parameter
-                                                              )
-                                                ]
-                           ] ,
-                           [ rdf:type owl:Restriction ;
                              owl:onProperty :isParameterOfDisease ;
                              owl:someValuesFrom :Disease
                            ] ,
@@ -1717,15 +1711,6 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                            [ rdf:type owl:Restriction ;
                              owl:onProperty :isParameterOfPopulation ;
                              owl:someValuesFrom :Population
-                           ] ,
-                           [ rdf:type owl:Restriction ;
-                             owl:onProperty :hasYear ;
-                             owl:someValuesFrom xsd:short
-                           ] ,
-                           [ rdf:type owl:Restriction ;
-                             owl:onProperty :hasDescription ;
-                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                             owl:onDataRange xsd:string
                            ] ;
            rdfs:comment "Parameters used for computing outcomes or characterize certain class. They have a source, a geographical context, year, description and value." .
 
@@ -2079,7 +2064,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 :Valuable rdf:type owl:Class ;
           rdfs:subClassOf :ModelItem ,
                           [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasHeterogeneity ;
+                            owl:onProperty :hasFirstOrderUncertainty ;
                             owl:someValuesFrom [ rdf:type owl:Class ;
                                                  owl:unionOf ( :Expression
                                                                :Valuable
@@ -2087,7 +2072,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                                ]
                           ] ,
                           [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasStochasticUncertainty ;
+                            owl:onProperty :hasSecondOrderUncertainty ;
                             owl:someValuesFrom [ rdf:type owl:Class ;
                                                  owl:unionOf ( :Expression
                                                                :Valuable
@@ -2117,6 +2102,11 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                             owl:someValuesFrom xsd:string
                           ] ,
                           [ rdf:type owl:Restriction ;
+                            owl:onProperty :hasDescription ;
+                            owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                            owl:onDataRange xsd:string
+                          ] ,
+                          [ rdf:type owl:Restriction ;
                             owl:onProperty :hasExpectedValue ;
                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                             owl:onDataRange xsd:string
@@ -2125,6 +2115,11 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                             owl:onProperty :hasSource ;
                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                             owl:onDataRange xsd:string
+                          ] ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :hasYear ;
+                            owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                            owl:onDataRange xsd:short
                           ] .
 
 

@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- * @author Iv·n Castilla RodrÌguez
+ * @author Iv√°n Castilla Rodr√≠guez
  *
  */
 public class FileResampleVariate extends RandomVariateBase {
@@ -62,12 +62,13 @@ public class FileResampleVariate extends RandomVariateBase {
 			// First line is a commentary
 			f.readLine();
 			// Second line is number of samples
-			double []data = new double[new Integer(f.readLine())];
+			double []data = new double[Integer.parseInt(f.readLine())];
 			// Rest of file
 			for (int i = 0; i < data.length; i++)
-				data[i] = new Double(f.readLine());
+				data[i] = Double.parseDouble(f.readLine());
 			rVar = new ResampleVariate();
 			rVar.setParameters(data);
+			f.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

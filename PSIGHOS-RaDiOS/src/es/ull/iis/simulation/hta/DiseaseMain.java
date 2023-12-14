@@ -124,6 +124,7 @@ public class DiseaseMain extends HTAExperiment {
 		}
 		else {
 			final int disease = ((Arguments)arguments).disease;
+			SecondOrderParamsRepository.setStudyYear(arguments.year);
 			switch(disease) {
 			case TEST_SCD:
 				System.out.println("No programmatic test available for SCD\n\n");
@@ -134,18 +135,15 @@ public class DiseaseMain extends HTAExperiment {
 			case TEST_RARE_DISEASE4:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for the rare disease [%d] \n\n", disease));
 				secParams = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
-				secParams.setStudyYear(arguments.year);
 				break;
 			case TEST_T1DM:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for T1DM \n\n"));
 				secParams = new T1DMRepository(nRuns, nPatients);
-				secParams.setStudyYear(arguments.year);
 				break;
 			case TEST_PBD:
 			default:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for the rare disease PBD \n\n"));
 				secParams = new PBDRepository(nRuns, nPatients, ALL_AFFECTED);
-				secParams.setStudyYear(arguments.year);
 				break;				
 			}			
 		}

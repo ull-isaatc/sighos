@@ -1,12 +1,11 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params.calculators;
+package es.ull.iis.simulation.hta.params;
 
 import java.util.List;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.util.Statistics;
 
@@ -15,15 +14,13 @@ import es.ull.iis.util.Statistics;
  * @author Iván Castilla Rodríguez
  *
  */
-public class AgeBasedTimeToEventCalculator implements ParameterCalculator {
+public class AgeBasedTimeToEventParameter extends Parameter {
 	/** Annual risks of the events */
-	private final Object[][] ageRisks;
+	private final double[][] ageRisks;
 	/** Relative risk calculator */
 	private final String rrParamName;
 	/** Manifestation to which progress */
 	private final DiseaseProgression destManifestation;
-	/** Repository of second order parameters */
-	private final SecondOrderParamsRepository secParams;
 	
 	/**
 	 * 
@@ -32,8 +29,8 @@ public class AgeBasedTimeToEventCalculator implements ParameterCalculator {
 	 * @param ageRisks
 	 * @param rrParamName
 	 */
-	public AgeBasedTimeToEventCalculator(SecondOrderParamsRepository secParams, DiseaseProgression destManifestation, final Object[][] ageRisks, String rrParamName) {
-		this.secParams = secParams;
+	public AgeBasedTimeToEventParameter(SecondOrderParamsRepository secParams, String paramName, DiseaseProgression destManifestation, final double[][] ageRisks, String rrParamName) {
+		super(secParams, paramName);
 		this.ageRisks = ageRisks;
 		this.rrParamName = rrParamName;			
 		this.destManifestation = destManifestation;
@@ -46,19 +43,20 @@ public class AgeBasedTimeToEventCalculator implements ParameterCalculator {
 		// Searches the corresponding age interval
 		int j = (ageRisks[0].length == 3) ? 1 : 0;
 		int interval = 0;
-		while (age > (Double) ageRisks[interval][j]) {
+		while (age > ageRisks[interval][j]) {
 			interval++;
 		}
 		// Generates random numbers for each interval to analyze
 		List<Double> rndValues = pat.getRandomNumbersForIncidence(destManifestation, ageRisks.length - interval + 1);
+		final double rr = getRepository().getParameterValue(rrParamName, pat);
 		// Computes time to event within such interval
-		double time = Statistics.getAnnualBasedTimeToEvent((Double)ageRisks[interval][j+1], Math.log(rndValues.get(0)), secParams.getParameterValue(rrParamName, pat));
+		double time = Statistics.getAnnualBasedTimeToEvent(ageRisks[interval][j+1], Math.log(rndValues.get(0)), rr);
 		
 		// Checks if further intervals compute lower time to event
 		for (; interval < ageRisks.length; interval++) {
-			final double newTime = Statistics.getAnnualBasedTimeToEvent((Double) ageRisks[interval][j+1], Math.log(rndValues.get(rndValues.size() - (ageRisks.length - interval))), secParams.getParameterValue(rrParamName, pat));
-			if ((newTime != Double.MAX_VALUE) && ((Double) ageRisks[interval][j] - age + newTime < time))
-				time = (Double) ageRisks[interval][j] - age + newTime;
+			final double newTime = Statistics.getAnnualBasedTimeToEvent((Double) ageRisks[interval][j+1], Math.log(rndValues.get(rndValues.size() - (ageRisks.length - interval))), rr);
+			if ((newTime != Double.MAX_VALUE) && (ageRisks[interval][j] - age + newTime < time))
+				time = ageRisks[interval][j] - age + newTime;
 		}
 		return time;
 	}

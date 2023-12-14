@@ -11,9 +11,11 @@ public class ParameterDescription implements Describable {
 	private final String description;
 	/** The reference from which this parameter was estimated/taken */
 	private final String source;
+	/** Year when the parameter was originally estimated */
+	private final int year;
 
 	public ParameterDescription() {
-		this("","");
+		this("","", SecondOrderParamsRepository.getStudyYear());
 	}
 
 	/**
@@ -22,8 +24,18 @@ public class ParameterDescription implements Describable {
 	 * @param source The reference from which this parameter was estimated/taken
 	 */
     public ParameterDescription(String description, String source) {
+		this(description, source, SecondOrderParamsRepository.getStudyYear());
+	}
+
+	/**
+	 * 
+	 * @param description Full description of the parameter
+	 * @param source The reference from which this parameter was estimated/taken
+	 */
+    public ParameterDescription(String description, String source, int year) {
         this.description = description;
         this.source = source;
+		this.year = year;
     }
 
 	/**
@@ -40,6 +52,14 @@ public class ParameterDescription implements Describable {
 	 */
 	public String getSource() {
 		return source;
+	}
+	
+	/**
+	 * Returns the year when the parameter was originally estimated
+	 * @return the year when the parameter was originally estimated
+	 */
+	public int getYear() {
+		return year;
 	}
 
 }

@@ -2,7 +2,6 @@ package simkit.random;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionParams;
-import simkit.random.BetaVariate;
 
 public class BetaLimitedVariate extends TimeFunction {
 	

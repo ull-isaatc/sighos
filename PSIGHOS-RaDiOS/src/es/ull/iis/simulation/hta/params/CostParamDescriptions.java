@@ -95,7 +95,7 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @return The name assigned to the parameter in the repository
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue) {
-		final CostParameterDescription desc = new CostParameterDescription(getParameterDescription(description), source, year);
+		final ParameterDescription desc = new ParameterDescription(getParameterDescription(description), source, year);
 		return addParameter(secParams, name, desc, detValue, SecondOrderParamsRepository.ParameterType.COST);
 	}
 
@@ -141,7 +141,7 @@ public enum CostParamDescriptions implements DescribesParameter {
 	 * @return The name assigned to the parameter in the repository
 	 */
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
-		final CostParameterDescription desc = new CostParameterDescription(getParameterDescription(description), source, year);		
+		final ParameterDescription desc = new ParameterDescription(getParameterDescription(description), source, year);		
 		return addParameter(secParams, name, desc, detValue, rnd, SecondOrderParamsRepository.ParameterType.COST);
 	}
 	

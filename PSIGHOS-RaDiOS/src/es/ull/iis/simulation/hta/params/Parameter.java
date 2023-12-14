@@ -1,8 +1,8 @@
 package es.ull.iis.simulation.hta.params;
 
 import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
-import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 
 /**
  * A parameter that defines a value for each patient. It may define a fixed value (constant parameter), a different value per simulation (second-order uncertainty), 
@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Parameter implements ParameterCalculator, Named, PrettyPrintable, Comparable<Parameter> {
+public abstract class Parameter implements Named, PrettyPrintable, Comparable<Parameter> {
 	/** Common parameters repository */
 	private final SecondOrderParamsRepository secParams;
 	/** The characteristics that describe this parameter */
@@ -55,6 +55,13 @@ public abstract class Parameter implements ParameterCalculator, Named, PrettyPri
 	public SecondOrderParamsRepository getRepository() {
 		return secParams;
 	}
+
+	/**
+	 * Calculates and returns the value of a parameter for a patient at a specific simulation timestamp
+	 * @param pat A patient
+	 * @return the value of a parameter for a patient at a specific simulation timestamp
+	 */
+	public abstract double getValue(Patient pat);
 	
 	@Override
 	public String prettyPrint(String linePrefix) {
