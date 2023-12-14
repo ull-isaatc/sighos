@@ -11,17 +11,13 @@ import simkit.random.RandomVariate;
  *
  */
 public class ParameterWrapper extends ValuableWrapper {
-	private final String description;
-	private final int year;
 
 	/**
 	 * @throws MalformedOSDiModelException 
 	 * 
 	 */
 	public ParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription) throws MalformedOSDiModelException {
-		super(wrap, paramId);
-		description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(paramId, defaultDescription);
-		year = wrap.parseHasYearProperty(paramId);
+		super(wrap, paramId, defaultDescription);
 		
 		if (!wrap.addParameterWrapper(paramId, this))
 			throw new MalformedOSDiModelException("Parameter with the same name (" + paramId + ") already defined");
@@ -34,26 +30,12 @@ public class ParameterWrapper extends ValuableWrapper {
 		RandomVariate heterogeneity = initProbabilisticValue(OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY);
 		// FIXME: They should be supported 
 		if (stochasticUncertainty != null)
-			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Stochastic uncertainty not currently supported in Parameters.");
+			wrap.printWarning(paramIRI, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Stochastic uncertainty not currently supported in Parameters.");
 		if (heterogeneity != null)
-			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY, "Heterogeneity not currently supported in Parameters.");
+			wrap.printWarning(paramIRI, OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY, "Heterogeneity not currently supported in Parameters.");
 		if (paramUncertainty == null)
 			return getDefaultProbabilisticValue();
 		return paramUncertainty;
-	}
-	
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
-
-	/**
-	 * @return the year
-	 */
-	public int getYear() {
-		return year;
 	}
 
 }

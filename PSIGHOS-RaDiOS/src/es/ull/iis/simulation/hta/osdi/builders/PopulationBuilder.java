@@ -151,7 +151,7 @@ public interface PopulationBuilder {
 		}
 		
 		private void checkEpidemParam(ParameterWrapper paramWrapper) {
-			final String paramName = paramWrapper.getParamId();
+			final String paramName = paramWrapper.getOriginalIndividualIRI();
 			// The parameter should be related to both the population and the disease
 			final Set<String> relatedDiseases = OSDiWrapper.ObjectProperty.IS_PARAMETER_OF_DISEASE.getValues(paramName, true);
 			if (relatedDiseases.size() == 0 || relatedDiseases.contains(disease.name())) {

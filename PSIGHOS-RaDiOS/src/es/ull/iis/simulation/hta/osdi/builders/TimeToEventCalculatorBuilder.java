@@ -45,22 +45,22 @@ public interface TimeToEventCalculatorBuilder {
         // TODO: RRs require being parameters and not calculators. Hence, all the timetoevent calculators should use the name of the RR parameter and not the calculator
         switch(comb) {
             case PROPORTION:
-                return new ProportionBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROPORTION.getParameterName(riskWrappers.get(0).getParamId()));
+                return new ProportionBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROPORTION.getParameterName(riskWrappers.get(0).getOriginalIndividualIRI()));
             case PROBABILITY_RR:
                 if (riskWrappers.get(0).getDataItemTypes().contains(DataItemType.DI_RELATIVE_RISK)) {
-                    return new AnnualRiskBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROBABILITY.getParameterName(riskWrappers.get(1).getParamId()));
+                    return new AnnualRiskBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROBABILITY.getParameterName(riskWrappers.get(1).getOriginalIndividualIRI()));
                 } else {
-                    return new AnnualRiskBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROBABILITY.getParameterName(riskWrappers.get(0).getParamId()));
+                    return new AnnualRiskBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROBABILITY.getParameterName(riskWrappers.get(0).getOriginalIndividualIRI()));
                 }
             case PROPORTION_RR:
                 if (riskWrappers.get(0).getDataItemTypes().contains(DataItemType.DI_RELATIVE_RISK)) {
-                    return new ProportionBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROPORTION.getParameterName(riskWrappers.get(1).getParamId()));
+                    return new ProportionBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROPORTION.getParameterName(riskWrappers.get(1).getOriginalIndividualIRI()));
                 } else {
-                    return new ProportionBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROPORTION.getParameterName(riskWrappers.get(0).getParamId()));
+                    return new ProportionBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROPORTION.getParameterName(riskWrappers.get(0).getOriginalIndividualIRI()));
                 }
             case PROBABILITY:
             default:
-                return new AnnualRiskBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROBABILITY.getParameterName(riskWrappers.get(0).getParamId()));
+                return new AnnualRiskBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROBABILITY.getParameterName(riskWrappers.get(0).getOriginalIndividualIRI()));
         }
 	}
  

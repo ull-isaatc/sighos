@@ -1074,6 +1074,21 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 			System.err.println("WARNING: " + msg);
 	}
 	
+	public void printWarning(boolean condition, String individualIRI, OSDiWrapper.DataProperty prop, String msg) {
+		if (condition)
+			printWarning(individualIRI, prop, msg);
+	}
+	
+	public void printWarning(boolean condition, String individualIRI, OSDiWrapper.ObjectProperty prop, String msg) {
+		if (condition)
+			printWarning(individualIRI, prop, msg);
+	}
+	
+	public void printWarning(boolean condition, String msg) {
+		if (condition)
+			printWarning(msg);
+	}
+	
 	/**
 	 * @param args
 	 */

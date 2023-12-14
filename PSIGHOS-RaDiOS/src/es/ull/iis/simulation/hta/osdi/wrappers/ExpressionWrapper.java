@@ -11,7 +11,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ExpressionWrapper {
+public class ExpressionWrapper implements ExpressableWrapper {
 
 	// TODO: Process parameters when expressed in different ways. E.g. gamma parameters may be average and standard deviation
 	public enum SupportedProbabilityDistributions {
@@ -62,15 +62,17 @@ public class ExpressionWrapper {
 	private static final String DISTRIBUTION_NAME_SUFFIX = "Variate";
 	private final RandomVariate rnd;
 	private final String exprToEvaluate;
+	private final String instanceIRI;
 
-	public ExpressionWrapper(OSDiWrapper wrap, String instanceId) throws MalformedOSDiModelException {
-		final Set<String> superclasses = wrap.getClassesForIndividual(instanceId);
+	public ExpressionWrapper(OSDiWrapper wrap, String instanceIRI) throws MalformedOSDiModelException {
+		final Set<String> superclasses = wrap.getClassesForIndividual(instanceIRI);
 		RandomVariate rnd = null;
-		String exprToEvaluate = null; 
+		String exprToEvaluate = null;
+		this.instanceIRI = instanceIRI; 
 		if (superclasses.contains(OSDiWrapper.Clazz.AD_HOC_EXPRESSION.getShortName())) {
-			exprToEvaluate = OSDiWrapper.DataProperty.HAS_EXPRESSION_VALUE.getValue(instanceId, "");
-			final Set<String> referencedAttributes = OSDiWrapper.ObjectProperty.DEPENDS_ON_ATTRIBUTE.getValues(instanceId, true);
-			final Set<String> referencedParameters = OSDiWrapper.ObjectProperty.DEPENDS_ON_PARAMETER.getValues(instanceId, true);
+			exprToEvaluate = OSDiWrapper.DataProperty.HAS_EXPRESSION_VALUE.getValue(instanceIRI, "");
+			final Set<String> referencedAttributes = OSDiWrapper.ObjectProperty.DEPENDS_ON_ATTRIBUTE.getValues(instanceIRI, true);
+			final Set<String> referencedParameters = OSDiWrapper.ObjectProperty.DEPENDS_ON_PARAMETER.getValues(instanceIRI, true);
 			// TODO: Process dependences with Attributes and Parameters
 		}
 		else if (superclasses.contains(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION.getShortName())) {
@@ -94,24 +96,24 @@ public class ExpressionWrapper {
 				dist = SupportedProbabilityDistributions.POISSON;
 			}
 			if (dist == null) {
-				throw new MalformedOSDiModelException("Unsupported probability distribution " + instanceId);
+				throw new MalformedOSDiModelException("Unsupported probability distribution " + instanceIRI);
 			}
 			
-			rnd = buildDistributionVariate(dist.getVariateName(), dist.getParameters(wrap, instanceId)); 
+			rnd = buildDistributionVariate(dist.getVariateName(), dist.getParameters(wrap, instanceIRI)); 
 
-			String strOffset = OSDiWrapper.DataProperty.HAS_OFFSET_PARAMETER.getValue(instanceId, "0.0");
+			String strOffset = OSDiWrapper.DataProperty.HAS_OFFSET_PARAMETER.getValue(instanceIRI, "0.0");
 			double offset = 0.0;
 			try {
 				offset = Double.parseDouble(strOffset);
 			} catch(NumberFormatException ex) {
-				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceId, OSDiWrapper.DataProperty.HAS_OFFSET_PARAMETER, "Invalid offset parameter for probabilistic expression. Found " + strOffset);
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceIRI, OSDiWrapper.DataProperty.HAS_OFFSET_PARAMETER, "Invalid offset parameter for probabilistic expression. Found " + strOffset);
 			}
-			String strScale = OSDiWrapper.DataProperty.HAS_SCALE_PARAMETER.getValue(instanceId, "1.0");
+			String strScale = OSDiWrapper.DataProperty.HAS_SCALE_PARAMETER.getValue(instanceIRI, "1.0");
 			double scale = 1.0;
 			try {
 				scale = Double.parseDouble(strScale);
 			} catch(NumberFormatException ex) {
-				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceId, OSDiWrapper.DataProperty.HAS_SCALE_PARAMETER, "Invalid scale parameter for probabilistic expression. Found " + strScale);
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceIRI, OSDiWrapper.DataProperty.HAS_SCALE_PARAMETER, "Invalid scale parameter for probabilistic expression. Found " + strScale);
 			}
 			if (scale != 1.0 || offset != 0.0) {
 				rnd = RandomVariateFactory.getInstance("ScaledVariate", rnd, scale, offset);
@@ -121,6 +123,10 @@ public class ExpressionWrapper {
 		this.rnd = rnd;
 	}
 
+	@Override
+	public String getOriginalIndividualIRI() {
+		return instanceIRI;
+	}
 	/**
 	 * @return the rnd
 	 */

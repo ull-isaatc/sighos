@@ -178,11 +178,11 @@ public interface DiseaseProgressionRiskBuilder {
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 			if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
-				RiskParamDescriptions.PROBABILITY.addParameter(secParams, riskWrapper.getParamId(), riskWrapper.getDescription(), riskWrapper.getSource(),
+				RiskParamDescriptions.PROBABILITY.addParameter(secParams, riskWrapper.getOriginalIndividualIRI(), riskWrapper.getDescription(), riskWrapper.getSource(),
 						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
 			}
 			else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
-				RiskParamDescriptions.PROPORTION.addParameter(secParams, riskWrapper.getParamId(), riskWrapper.getDescription(), riskWrapper.getSource(),
+				RiskParamDescriptions.PROPORTION.addParameter(secParams, riskWrapper.getOriginalIndividualIRI(), riskWrapper.getDescription(), riskWrapper.getSource(),
 						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
 			}
 		}

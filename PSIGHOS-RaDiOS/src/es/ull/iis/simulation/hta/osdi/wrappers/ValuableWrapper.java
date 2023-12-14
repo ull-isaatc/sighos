@@ -16,10 +16,12 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ValuableWrapper {
+public class ValuableWrapper implements ExpressableWrapper {
 	protected final OSDiWrapper wrap;
-	protected final String paramId;
+	protected final String paramIRI;
 	private final String source;
+	private final String description;
+	private final int year;
 	private final Set<OSDiWrapper.DataItemType> dataItemTypes;
 	private final ExpressionWrapper expression;
 	private final double deterministicValue;
@@ -29,18 +31,27 @@ public class ValuableWrapper {
 	 * @throws MalformedOSDiModelException 
 	 * 
 	 */
-	public ValuableWrapper(OSDiWrapper wrap, String paramId) throws MalformedOSDiModelException {
+	public ValuableWrapper(OSDiWrapper wrap, String paramIRI) throws MalformedOSDiModelException {
+		this(wrap, paramIRI, "");
+	}
+	/**
+	 * @throws MalformedOSDiModelException 
+	 * 
+	 */
+	public ValuableWrapper(OSDiWrapper wrap, String paramIRI, String defaultDescription) throws MalformedOSDiModelException {
 		this.wrap = wrap;
-		this.paramId = paramId;
-		source = parseHasSourceProperty(paramId);
+		this.paramIRI = paramIRI;
+		source = parseHasSourceProperty(paramIRI);
+		description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(paramIRI, defaultDescription);
+		year = wrap.parseHasYearProperty(paramIRI);
 		
-		final String detValue = OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE.getValue(paramId);
-		final String strExpression = OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getValue(paramId, true);
+		final String detValue = OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE.getValue(paramIRI);
+		final String strExpression = OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getValue(paramIRI, true);
 		
 		if (detValue == null && strExpression == null)
-			throw new MalformedOSDiModelException("Neither a " + OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getShortName() + " or a " + OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE.getShortName() + " properties were defined for valueable " + paramId);
+			throw new MalformedOSDiModelException("Neither a " + OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getShortName() + " or a " + OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE.getShortName() + " properties were defined for valueable " + paramIRI);
 		if (detValue != null && strExpression != null)
-			throw new MalformedOSDiModelException("The Valuable " + paramId + " defines a " + OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getShortName() + " and a " + OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE.getShortName() + " properties at the same time");
+			throw new MalformedOSDiModelException("The Valuable " + paramIRI + " defines a " + OSDiWrapper.ObjectProperty.HAS_EXPRESSION.getShortName() + " and a " + OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE.getShortName() + " properties at the same time");
 		if (detValue != null) {
 			deterministicValue = Double.parseDouble(detValue);
 			expression = null; 
@@ -51,10 +62,10 @@ public class ValuableWrapper {
 		}
 			
 		dataItemTypes = EnumSet.noneOf(OSDiWrapper.DataItemType.class); 
-		Set<String> types = OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE.getValues(paramId);
+		Set<String> types = OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE.getValues(paramIRI);
 		// Type assumed to be undefined if not specified
 		if (types.size() == 0) {
-			wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item type not specified for parameter. Assigning UNDEFINED");
+			wrap.printWarning(paramIRI, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item type not specified for parameter. Assigning UNDEFINED");
 			dataItemTypes.add(OSDiWrapper.DataItemType.DI_UNDEFINED);
 		}
 		else {
@@ -67,8 +78,9 @@ public class ValuableWrapper {
 	/**
 	 * @return the paramId
 	 */
-	public String getParamId() {
-		return paramId;
+	@Override
+	public String getOriginalIndividualIRI() {
+		return paramIRI;
 	}
 
 	/**
@@ -83,6 +95,20 @@ public class ValuableWrapper {
 	 */
 	public String getSource() {
 		return source;
+	}
+	
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * @return the year
+	 */
+	public int getYear() {
+		return year;
 	}
 
 	/**
@@ -128,7 +154,7 @@ public class ValuableWrapper {
 		RandomVariate heterogeneity = initProbabilisticValue(OSDiWrapper.ObjectProperty.HAS_HETEROGENEITY);
 		if (stochasticUncertainty != null) {
 			if (heterogeneity != null) {
-				wrap.printWarning(paramId, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Parameter defined both stochastic uncertainty and heterogeneity. Using only stochastic uncertainty.");
+				wrap.printWarning(paramIRI, OSDiWrapper.ObjectProperty.HAS_STOCHASTIC_UNCERTAINTY, "Parameter defined both stochastic uncertainty and heterogeneity. Using only stochastic uncertainty.");
 			}
 			return stochasticUncertainty;
 		}
@@ -145,7 +171,7 @@ public class ValuableWrapper {
 	// FIXME: Currently this is inconsistent. Change hierarchy in ontology or check here whether uncertainty individuals are valuable or expressions.
 	protected RandomVariate initProbabilisticValue(OSDiWrapper.ObjectProperty uncertaintyProperty) throws MalformedOSDiModelException {
 		// Takes the uncertainty that characterizes this parameter, but only if it's included in the working model 
-		final Set<String> uncertaintyParams = uncertaintyProperty.getValues(paramId, true);
+		final Set<String> uncertaintyParams = uncertaintyProperty.getValues(paramIRI, true);
 		if (uncertaintyParams.size() == 1) {
 			final String uncertainParamId = (String)uncertaintyParams.toArray()[0];
 			final Set<String> clazzes = wrap.getClassesForIndividual(uncertainParamId);
@@ -164,7 +190,7 @@ public class ValuableWrapper {
 				return expWrap.getRnd();
 			}
 			else {
-				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, uncertaintyProperty, "Class for the uncertainty characterization of individual " + uncertainParamId + " not supported. Currently " + (OSDiWrapper.Clazz)clazzes.toArray()[0]);
+				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramIRI, uncertaintyProperty, "Class for the uncertainty characterization of individual " + uncertainParamId + " not supported. Currently " + (OSDiWrapper.Clazz)clazzes.toArray()[0]);
 			}
 		}
 		if (uncertaintyParams.size() == 2) {
@@ -175,7 +201,7 @@ public class ValuableWrapper {
 					return getRandomVariateFromAvgAndCIs(getDeterministicValue(), new double[] {paramWrap1.getDeterministicValue(), paramWrap2.getDeterministicValue()});
 				}
 				else {
-					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramWrap2.getParamId(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Upper and lower confidence intervals required to represent uncertainty. This parameter should include data item type " + OSDiWrapper.DataItemType.DI_UPPER_95_CONFIDENCE_LIMIT);
+					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramWrap2.getOriginalIndividualIRI(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Upper and lower confidence intervals required to represent uncertainty. This parameter should include data item type " + OSDiWrapper.DataItemType.DI_UPPER_95_CONFIDENCE_LIMIT);
 				}				
 			}
 			else if (paramWrap1.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_UPPER_95_CONFIDENCE_LIMIT)) {
@@ -183,14 +209,14 @@ public class ValuableWrapper {
 					return getRandomVariateFromAvgAndCIs(getDeterministicValue(), new double[] {paramWrap2.getDeterministicValue(), paramWrap1.getDeterministicValue()});
 				}
 				else {
-					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramWrap2.getParamId(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Upper and lower confidence intervals required to represent uncertainty. This parameter should include data item type " + OSDiWrapper.DataItemType.DI_LOWER_95_CONFIDENCE_LIMIT);
+					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramWrap2.getOriginalIndividualIRI(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Upper and lower confidence intervals required to represent uncertainty. This parameter should include data item type " + OSDiWrapper.DataItemType.DI_LOWER_95_CONFIDENCE_LIMIT);
 				}				
 			}
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, uncertaintyProperty, "Unsupported combination of valuables (" + paramWrap1.getParamId() + ", " + paramWrap2.getParamId() + ") to define the uncertainty");
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramIRI, uncertaintyProperty, "Unsupported combination of valuables (" + paramWrap1.getOriginalIndividualIRI() + ", " + paramWrap2.getOriginalIndividualIRI() + ") to define the uncertainty");
 		}
 		
 		if (uncertaintyParams.size() > 2)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramId, uncertaintyProperty, "More than two uncertainty characterization for a parameter not supported. Currently " + uncertaintyParams.size());
+			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramIRI, uncertaintyProperty, "More than two uncertainty characterization for a parameter not supported. Currently " + uncertaintyParams.size());
 		return null;
 	}
 	

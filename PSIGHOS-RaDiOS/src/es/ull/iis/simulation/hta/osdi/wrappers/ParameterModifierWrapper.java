@@ -50,7 +50,7 @@ public class ParameterModifierWrapper extends ParameterWrapper {
 
 	public void registerParameter(SecondOrderParamsRepository secParams) {
 		// TODO: Create the parameter according to its definition
-		final Parameter param = new SecondOrderNatureParameter(secParams, getParamId(), new ParameterDescription(getDescription(), getSource()), getDeterministicValue(), getProbabilisticValue());
+		final Parameter param = new SecondOrderNatureParameter(secParams, getOriginalIndividualIRI(), new ParameterDescription(getDescription(), getSource()), getDeterministicValue(), getProbabilisticValue());
 		secParams.addParameter(param, ParameterType.OTHER);
 		ParameterModifier mod = null;
 		switch(type) {
