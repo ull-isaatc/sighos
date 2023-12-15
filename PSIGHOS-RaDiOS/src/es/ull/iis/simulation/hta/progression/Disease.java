@@ -9,6 +9,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
+import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
@@ -28,9 +30,7 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
  * {@link #getProgression(Patient)} method. 
  * @author Iván Castilla Rodríguez
  */
-public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Disease>, PrettyPrintable, CostProducer, UtilityProducer {
-	/** Common parameters repository */
-	private final SecondOrderParamsRepository secParams;
+public class Disease extends HTAModelComponent implements Comparable<Disease>, PrettyPrintable, CostProducer, UtilityProducer {
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
 	 * diseases defined to be used within a simulation */ 
 	private int ord = -1;
@@ -39,10 +39,6 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	protected final TreeMap<String, DiseaseProgression> progressions;
 	/** Disease progression that exclude another disease progression (generally, because they are more advance stages of the same condition */
 	protected final TreeMap<DiseaseProgression, TreeSet<DiseaseProgression>> exclusions;	
-	/** Short name of the disease */
-	private final String name;
-	/** Full description of the disease */
-	private final String description;
 	/** A collection of manifestations with a specific label */
 	protected final TreeMap<Named, ArrayList<DiseaseProgression>> labeledProgressions;
 	/** A collection of developments associated to the disease */
@@ -51,29 +47,14 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	/**
 	 * Creates a submodel for a disease.
 	 */
-	public Disease(final SecondOrderParamsRepository secParams, String name, String description) {
-		this.secParams = secParams;
+	public Disease(HTAModel model, String name, String description) {
+		super(model, name, description);
 		this.progressions = new TreeMap<>();
 		this.exclusions = new TreeMap<>();
-		this.name = name;
-		this.description = description;
 		this.labeledProgressions = new TreeMap<>();
 		this.developments = new ArrayList<>();
-		secParams.addDisease(this);
-	}
-	
-	/**
-	 * Returns the description of the disease
-	 * @return the description of the disease
-	 */
-	@Override
-	public String getDescription() {
-		return description;
-	}
-
-	@Override
-	public String name() {
-		return name;
+		if (!model.register(this))
+			throw new IllegalArgumentException("Disease " + name + " already registered");
 	}
 	
 	/**
@@ -103,24 +84,22 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	}
 
 	/**
-	 * Adds a development to this disease and also to the repository.
+	 * Adds a development to this disease.
 	 * @param New development associated to this disease
 	 * @return The development added
 	 */
 	public Development addDevelopment(Development development) {
 		developments.add(development);
-		secParams.addDevelopment(development);
 		return development;
 	}
 	
 	/**
-	 * Adds a progression to this disease and also to the repository. 
+	 * Adds a progression to this disease. 
 	 * @param progression New progression associated to this disease
 	 * @return The disease progression added
 	 */
 	public DiseaseProgression addDiseaseProgression(DiseaseProgression progression) {
 		progressions.put(progression.name(), progression);
-		secParams.addDiseaseProgression(progression);
 		TreeSet<DiseaseProgression> excManif = new TreeSet<>();
 		exclusions.put(progression, excManif);
 		return progression;
@@ -350,15 +329,10 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 	}
 	
 	@Override
-	public String toString() {
-		return name;
-	}
-	
-	@Override
 	public String prettyPrint(String linePrefix) {
-		final StringBuilder str = new StringBuilder(linePrefix).append("Disease: ").append(name).append(System.lineSeparator());
-		if (!"".equals(description))
-			str.append(linePrefix + "\t").append(description).append(System.lineSeparator());
+		final StringBuilder str = new StringBuilder(linePrefix).append("Disease: ").append(name()).append(System.lineSeparator());
+		if (!"".equals(getDescription()))
+			str.append(linePrefix + "\t").append(getDescription()).append(System.lineSeparator());
 		if (developments.size() > 0) {
 			str.append(linePrefix).append("DEVELOPMENTS").append(System.lineSeparator());
 			for (Development development : developments) {
@@ -380,14 +354,5 @@ public class Disease implements NamedAndDescribed, CreatesSecondOrderParameters,
 			}
 		}
 		return str.toString();
-	}
-
-	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-	}
-
-	@Override
-	public SecondOrderParamsRepository getRepository() {
-		return secParams;
 	}
 }

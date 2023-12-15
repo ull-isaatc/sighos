@@ -6,6 +6,8 @@ package es.ull.iis.simulation.hta.progression;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
+import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
@@ -14,15 +16,13 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  * @link {@link TimeToEventParameter time to the event}. 
  * @author Iván Castilla Rodríguez
  */
-public class DiseaseProgressionPathway implements CreatesSecondOrderParameters {
+public class DiseaseProgressionPathway extends HTAModelComponent {
 	/** Resulting manifestation */
 	private final DiseaseProgression nextProgression;
 	/** Condition that must be met progress to a manifestation */
 	private final Condition<ConditionInformation> condition;
 	/** The name of the parameter that describes the time to event */
 	private final String timeToEventParameterName;
-	/** Common parameters repository */
-	private final SecondOrderParamsRepository secParams;
 
 	/**
 	 * Creates a new pathway to a manifestation
@@ -31,9 +31,9 @@ public class DiseaseProgressionPathway implements CreatesSecondOrderParameters {
 	 * @param condition A condition that the patient must met before he/she can progress to the manifestation
 	 * @param timeToEventParameterName The name of the parameter that describes the time to event 
 	 */
-	public DiseaseProgressionPathway(SecondOrderParamsRepository secParams, DiseaseProgression nextProgression, Condition<ConditionInformation> condition, String timeToEventParameterName) {
+	public DiseaseProgressionPathway(HTAModel model, String name, String description, DiseaseProgression nextProgression, Condition<ConditionInformation> condition, String timeToEventParameterName) {
+		super(model, name, description);
 		this.nextProgression = nextProgression;
-		this.secParams = secParams;
 		this.condition = condition;
 		this.timeToEventParameterName = timeToEventParameterName;
 		nextProgression.addPathway(this);
@@ -45,8 +45,8 @@ public class DiseaseProgressionPathway implements CreatesSecondOrderParameters {
 	 * @param nextProgression Resulting progression of the disease
 	 * @param timeToEventParameterName The name of the parameter that describes the time to event 
 	 */
-	public DiseaseProgressionPathway(SecondOrderParamsRepository secParams, DiseaseProgression nextProgression, String timeToEventParameterName) {
-		this(secParams, nextProgression, new TrueCondition<ConditionInformation>(), timeToEventParameterName);
+	public DiseaseProgressionPathway(HTAModel model, String name, String description, DiseaseProgression nextProgression, String timeToEventParameterName) {
+		this(model, name, description, nextProgression, new TrueCondition<ConditionInformation>(), timeToEventParameterName);
 	}
 	
 	
@@ -82,15 +82,6 @@ public class DiseaseProgressionPathway implements CreatesSecondOrderParameters {
 	 */
 	public DiseaseProgression getNextProgression() {
 		return nextProgression;
-	}
-
-	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-	}
-
-	@Override
-	public SecondOrderParamsRepository getRepository() {
-		return secParams;
 	}
 	
 	public static class ConditionInformation {

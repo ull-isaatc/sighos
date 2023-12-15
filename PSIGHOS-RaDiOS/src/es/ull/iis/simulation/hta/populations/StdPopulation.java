@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.populations;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -26,8 +27,8 @@ public abstract class StdPopulation extends Population {
 	/**
 	 * Creates a standard population
 	 */
-	public StdPopulation(SecondOrderParamsRepository secParams, String name, String description, Disease disease) throws MalformedSimulationModelException {
-		super(name, description, secParams);
+	public StdPopulation(HTAModel model, String name, String description, Disease disease) throws MalformedSimulationModelException {
+		super(model, name, description);
 		this.disease = disease;
 		rndBaselineAge = new RandomVariate[secParams.getNRuns() + 1];
 		rndSex = new DiscreteRandomVariate[secParams.getNRuns() + 1];

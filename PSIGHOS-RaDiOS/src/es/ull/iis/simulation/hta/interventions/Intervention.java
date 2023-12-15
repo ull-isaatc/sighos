@@ -6,6 +6,8 @@ package es.ull.iis.simulation.hta.interventions;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
+import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
@@ -24,16 +26,10 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Intervention implements NamedAndDescribed, CreatesSecondOrderParameters, Comparable<Intervention>, PrettyPrintable, CostProducer, UtilityProducer {
-	/** A short name for the intervention */
-	final private String name;
-	/** A full description of the intervention */
-	final private String description;
+public abstract class Intervention extends HTAModelComponent implements Comparable<Intervention>, PrettyPrintable, CostProducer, UtilityProducer {
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
 	 * interventions defined to be used within a simulation */ 
 	private int ord = -1;
-	/** Common parameters repository */
-	private final SecondOrderParamsRepository secParams;
 
 	private ParameterModifier lifeExpectancyModification;
 	private ParameterModifier mortalityRiskModification;
@@ -45,8 +41,8 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	 * @param name Short name
 	 * @param description Full description
 	 */
-	public Intervention(final SecondOrderParamsRepository secParams, final String name, final String description) {
-		this(secParams, name, description, null);
+	public Intervention(HTAModel model, final String name, final String description) {
+		this(model, name, description, null);
 	}
 	
 	/**
@@ -54,29 +50,14 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	 * @param name Short name
 	 * @param description Full description
 	 */
-	public Intervention(final SecondOrderParamsRepository secParams, final String name, final String description, Strategy strategy) {
-		this.secParams = secParams;
-		this.name = name;
-		this.description = description;
+	public Intervention(HTAModel model, final String name, final String description, Strategy strategy) {
+		super(model, name, description);
 		lifeExpectancyModification = ParameterModifier.NULL_MODIFIER;
 		mortalityRiskModification = ParameterModifier.NULL_MODIFIER;
 		allParameterModification = ParameterModifier.NULL_MODIFIER;
 		this.strategy = strategy;
-		secParams.addIntervention(this);
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
-	}
-
-	/**
-	 * Returns a short name for the intervention 
-	 * @return A short name for the intervention 
-	 */
-	@Override
-	public String name() {
-		return name;
+		if (!model.register(this))
+			throw new IllegalArgumentException("Intervention " + name + " already registered");
 	}
 
 	/**
@@ -108,7 +89,7 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	
 	@Override
 	public String toString() {
-		return name;
+		return name();
 	}
 
 	@Override
@@ -201,11 +182,6 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	public Strategy getStrategy() {
 		return strategy;
 	}
-
-	@Override
-	public SecondOrderParamsRepository getRepository() {
-		return secParams;
-	}
 	
 	/**
 	 * Returns a collection of events that happens to patients that are treated with this intervention
@@ -218,9 +194,9 @@ public abstract class Intervention implements NamedAndDescribed, CreatesSecondOr
 	
 	@Override
 	public String prettyPrint(String linePrefix) {
-		final StringBuilder str = new StringBuilder(linePrefix).append("Intervention: ").append(name).append(System.lineSeparator());
-		if (!"".equals(description))
-			str.append(linePrefix + "\t").append(description).append(System.lineSeparator());
+		final StringBuilder str = new StringBuilder(linePrefix).append("Intervention: ").append(name()).append(System.lineSeparator());
+		if (!"".equals(getDescription()))
+			str.append(linePrefix + "\t").append(getDescription()).append(System.lineSeparator());
 		return str.toString();
 	}
 }

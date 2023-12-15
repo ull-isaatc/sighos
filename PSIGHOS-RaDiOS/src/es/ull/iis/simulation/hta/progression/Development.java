@@ -3,7 +3,8 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
-import es.ull.iis.simulation.hta.NamedAndDescribed;
+import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 
 /**
@@ -11,28 +12,17 @@ import es.ull.iis.simulation.hta.PrettyPrintable;
  * @author Iván Castilla Rodríguez
  *
  */
-public class Development implements NamedAndDescribed, PrettyPrintable {
+public class Development extends HTAModelComponent implements PrettyPrintable {
 	private final Disease disease;
-	private final String name;
-	private final String description;
 	/**
 	 * 
 	 */
-	public Development(String name, String description, Disease disease) {
+	public Development(HTAModel model, String name, String description, Disease disease) {
+		super(model, name, description);
 		this.disease = disease;
-		this.name = name;
-		this.description = description;
+		if (!model.register(this))
+			throw new IllegalArgumentException("Development " + name + " already registered");
 		disease.addDevelopment(this);
-	}
-	
-	@Override
-	public String name() {
-		return name;
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
 	}
 
 	/**
@@ -44,9 +34,9 @@ public class Development implements NamedAndDescribed, PrettyPrintable {
 
 	@Override
 	public String prettyPrint(String linePrefix) {
-		final StringBuilder str = new StringBuilder(linePrefix).append("Development: ").append(name).append(System.lineSeparator());
-		if (!"".equals(description))
-			str.append(linePrefix + "\t").append(description).append(System.lineSeparator());
+		final StringBuilder str = new StringBuilder(linePrefix).append("Development: ").append(name()).append(System.lineSeparator());
+		if (!"".equals(getDescription()))
+			str.append(linePrefix + "\t").append(getDescription()).append(System.lineSeparator());
 		return str.toString();
 	}
 }

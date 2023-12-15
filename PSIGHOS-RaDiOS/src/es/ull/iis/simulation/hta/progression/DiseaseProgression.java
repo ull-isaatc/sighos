@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
+import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
@@ -24,7 +26,7 @@ import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
  * @author Iván Castilla
  *
  */
-public class DiseaseProgression implements NamedAndDescribed, Comparable<DiseaseProgression>, CreatesSecondOrderParameters, CostProducer, UtilityProducer, PrettyPrintable {
+public class DiseaseProgression extends HTAModelComponent implements Comparable<DiseaseProgression>, CostProducer, UtilityProducer, PrettyPrintable {
 	/**
 	 * The type of the disease progression. Currently distinguishes among chronic, acute manifestations and stages
 	 */
@@ -36,12 +38,6 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	}
 	/** Type of manifestation */
 	private final Type type;
-	/** Common parameters repository */
-	protected final SecondOrderParamsRepository secParams;
-	/** Short name of the progression */
-	private final String name;
-	/** Full description of the progression */
-	private final String description;
 	/** Disease this progression is related to */
 	private final Disease disease;
 	private static int CURRENT_ID = 0; 
@@ -63,16 +59,15 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	 * @param description Full description of the progression
 	 * @param disease The affected disease
 	 */
-	public DiseaseProgression(SecondOrderParamsRepository secParams, String name, String description, Disease disease, Type type) {
-		this.secParams = secParams;
-		this.name = name;
-		this.description = description;
+	public DiseaseProgression(HTAModel model, String name, String description, Disease disease, Type type) {
+		super(model, name, description);
 		this.disease = disease;
 		this.pathways = new ArrayList<>();
 		internalId = CURRENT_ID++;
 		this.labels = new TreeSet<Named>();
 		this.type = type;
-		
+		if (!model.register(this))
+			throw new IllegalArgumentException("Disease progression " + name + " already registered");		
 		disease.addDiseaseProgression(this);
 	}
 	
@@ -83,20 +78,6 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	public Type getType() {
 		return type;
 	}
-
-	@Override
-	public String name() {
-		return name;
-	}
-
-	/**
-	 * Returns the description of the manifestation
-	 * @return the description of the manifestation
-	 */
-	@Override
-	public String getDescription() {
-		return description;
-	}
 	
 	/**
 	 * Returns the {@link Disease} this manifestation is related to.
@@ -104,17 +85,6 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 	 */
 	public Disease getDisease() {
 		return disease;
-	}
-
-	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public SecondOrderParamsRepository getRepository() {
-		return secParams;
 	}
 
 	/**
@@ -260,10 +230,5 @@ public class DiseaseProgression implements NamedAndDescribed, Comparable<Disease
 			str.append(System.lineSeparator());
 		}
 		return str.toString();
-	}
-
-	@Override
-	public String toString() {
-		return name;
 	}
 }

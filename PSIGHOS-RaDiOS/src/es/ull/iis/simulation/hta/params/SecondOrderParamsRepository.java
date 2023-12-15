@@ -52,26 +52,25 @@ import simkit.random.RandomVariateFactory;
  * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
  * @author Iván Castilla Rodríguez
  * TODO: Make this class a singleton
+ * TODO: Change name to ModelBuilder or something similar
  */
 public abstract class SecondOrderParamsRepository implements PrettyPrintable {
-	public enum ParameterType {
-		ATTRIBUTE,
-		/** The collection of risk parameters */
-		RISK,
-		/** The collection of cost parameters */
-		COST,
-		/** The collection of utility parameters */
-		UTILITY,
-		/** The collection of miscellaneous parameters */
-		OTHER;
-		final private Map<String, Parameter> parameters = new TreeMap<>();
-		public Map<String, Parameter> getParameters() {
-			return parameters;
-		}
-		public Parameter getParameter(String name) {
-			return parameters.get(name);
-		}
-	}
+	/** Number of patients that should be generated */
+	final protected int nPatients;
+	/** The number of probabilistic simulations to run by using this repository */
+	final private int nRuns;
+	/** The collection of defined diseases */
+	final protected ArrayList<Disease> registeredDiseases;
+	/** The collection of defined developments */
+	final protected ArrayList<Development> registeredDevelopments;
+	/** The collection of interventions */
+	final protected ArrayList<Intervention> registeredInterventions;
+	/** The collection of defined progressions */
+	final protected ArrayList<DiseaseProgression> registeredProgressions;
+	/** The registeredPopulation */
+	private Population registeredPopulation = null;
+
+
 	public static final String STR_MOD_PREFIX = "MOD_";
 	/** A null relative risk, i.e., RR = 1.0 */
 	public final String NO_RR;
@@ -80,26 +79,17 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	final private HashMap<String, TreeMap<Intervention, ParameterModifier>> interventionModifiers;
 	/** A random number generator for first order parameter values */
 	private static RandomNumber RNG_FIRST_ORDER = RandomNumberFactory.getInstance();
-	/** The collection of defined progressions */
-	final protected ArrayList<DiseaseProgression> registeredProgressions;
-	/** The collection of defined diseases */
-	final protected ArrayList<Disease> registeredDiseases;
-	/** The collection of defined developments */
-	final protected ArrayList<Development> registeredDevelopments;
 	
-	/** The collection of interventions */
-	final protected ArrayList<Intervention> registeredInterventions;
 	// TODO: Change by scenarios: each parameter could be defined according to an scenario. This woulud require adding a factory to secondOrderParams and allowing a user to add several parameter settings
-	/** Number of patients that should be generated */
-	final protected int nPatients;
-	/** The registeredPopulation */
-	private Population registeredPopulation = null;
-	/** The number of probabilistic simulations to run by using this repository */
-	final private int nRuns;
 	/** Absence of progression */
 	private static final DiseaseProgressionEvents NULL_PROGRESSION = new DiseaseProgressionEvents(); 
 	/** A dummy disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
-	public final Disease HEALTHY;
+	public static final Disease HEALTHY = new Disease("HEALTHY", "Healthy") {
+		@Override
+		public DiseaseProgressionEvents getProgression(Patient pat) {
+			return NULL_PROGRESSION;
+		}
+	};
 	/** The method to combine different disutilities. {@link DisutilityCombinationMethod#ADD} by default */
 	private DisutilityCombinationMethod method = DisutilityCombinationMethod.ADD;
 	/** Year used to update the costs */
@@ -108,8 +98,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	private static TimeUnit simulationTimeUnit = TimeUnit.DAY;
 	/** Minimum time among consecutive events. */
 	private static long minTimeToEvent = simulationTimeUnit.convert(TimeStamp.getMonth());
-
-	
 
 	/**
 	 * Creates a repository of second order parameters. By default, generates the base case values.
@@ -124,13 +112,7 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		this.registeredDiseases = new ArrayList<>();
 		this.registeredDevelopments = new ArrayList<>();
 		this.registeredInterventions = new ArrayList<>();
-		this.HEALTHY = new Disease(this, "HEALTHY", "Healthy") {
-
-			@Override
-			public DiseaseProgressionEvents getProgression(Patient pat) {
-				return NULL_PROGRESSION;
-			}
-		};
+		// TODO: Define in Parameter, not here
 		this.NO_RR = OtherParamDescriptions.RELATIVE_RISK.addParameter(this, "NULL", "A dummy relative risk to be used when no RR is required", "", 1.0);
 	}
 
@@ -168,71 +150,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 		for (Intervention intervention : registeredInterventions)
 			intervention.registerSecondOrderParameters(this);
 	}
-	
-	/**
-	 * Sets the population characteristics that will be simulated
-	 * @param population A definition of the characteristics of a population
-	 * @return False if a population was already defined for this repository; true otherwise 
-	 */
-	public boolean setPopulation(Population population) {
-		if (registeredPopulation != null)
-			return false;
-		this.registeredPopulation = population;
-		return true;
-	}
-	
-	/**
-	 * Adds a new disease to his repository. This method is invoked from the constructor of {@link Disease} and should not be invoked elsewhere 
-	 * @param disease New disease to be registered
-	 */
-	public void addDisease(Disease disease) {
-		disease.setOrder(registeredDiseases.size());
-		registeredDiseases.add(disease);
-	}
-	
-	/**
-	 * Adds a new development to his repository. This method is invoked from the method {@link Disease#addDevelopment(Development)} and should not be invoked elsewhere 
-	 * @param development New development to be registered
-	 */
-	public void addDevelopment(Development development) {
-		registeredDevelopments.add(development);
-	}
-
-	/**
-	 * Adds a new disease progression to this repository. This method is invoked from the method {@link Disease#addDiseaseProgression(DiseaseProgression)} and should not be invoked elsewhere
-	 * @param progression New disease progression to be registered
-	 */
-	public void addDiseaseProgression(DiseaseProgression progression) {
-		progression.setOrder(registeredProgressions.size());
-		registeredProgressions.add(progression);
-	}
-
-	/**
-	 * Adds a new intervention to this repository. This method is invoked from the constructor of {@link Intervention} and should not be invoked elsewhere 
-	 * @param intervention The description of an intervention
-	 */
-	public void addIntervention(Intervention intervention) {
-		intervention.setOrder(registeredInterventions.size());
-		registeredInterventions.add(intervention);
-	}
-	
-	/**
-	 * Returns the registered diseases
-	 * @return the registered diseases
-	 */
-	public Disease[] getRegisteredDiseases() {
-		final Disease[] array = new Disease[registeredDiseases.size()];
-		return (Disease[])registeredDiseases.toArray(array);
-	}
-	
-	/**
-	 * Returns the registered developments
-	 * @return the registered developments
-	 */
-	public Development[] getRegisteredDevelopments() {
-		final Development[] array = new Development[registeredDevelopments.size()];
-		return (Development[])registeredDevelopments.toArray(array);
-	}
 
 	/**
 	 * Returns a registered disease progression with the specified name; <code>null</code> is not found.
@@ -249,38 +166,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	}
 	
 	/**
-	 * Returns the already registered disease progressions
-	 * @return The already registered disease progressions
-	 */
-	public DiseaseProgression[] getRegisteredDiseaseProgressions() {
-		final DiseaseProgression[] array = new DiseaseProgression[registeredProgressions.size()];
-		return (DiseaseProgression[]) registeredProgressions.toArray(array);
-	}
-
-	/**
-	 * Returns the already registered disease progressions of the specified type
-	 * @return The already registered disease progressions of the specified type
-	 */
-	public DiseaseProgression[] getRegisteredDiseaseProgressions(DiseaseProgression.Type type) {
-		final ArrayList<DiseaseProgression> arrayTyped = new ArrayList<>();
-		for (final DiseaseProgression manif : registeredProgressions) {
-			if (type.equals(manif.getType()))
-				arrayTyped.add(manif);
-		}
-		final DiseaseProgression[] array = new DiseaseProgression[arrayTyped.size()];
-		return (DiseaseProgression[]) arrayTyped.toArray(array);
-	}
-	
-	/**
-	 * Returns the already registered intervention
-	 * @return The already registered interventions
-	 */
-	public Intervention[] getRegisteredInterventions() {
-		final Intervention[] array = new Intervention[registeredInterventions.size()];
-		return (Intervention[]) registeredInterventions.toArray(array);
-	}
-	
-	/**
 	 * Returns the number of patients that will be generated during the simulation
 	 * @return the number of patients that will be generated during the simulation
 	 */
@@ -294,18 +179,6 @@ public abstract class SecondOrderParamsRepository implements PrettyPrintable {
 	 */
 	public int getMinAge() {
 		return registeredPopulation.getMinAge();
-	}
-
-	/**
-	 * Returns the number of interventions included in the simulation
-	 * @return The number of interventions included in the simulation
-	 */
-	public final int getNInterventions() {
-		return registeredInterventions.size();
-	}
-
-	public Population getPopulation() {
-		return registeredPopulation;
 	}
 
 	/**
