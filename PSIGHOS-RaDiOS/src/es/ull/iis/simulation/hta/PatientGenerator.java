@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.model.EventSource;
+import es.ull.iis.simulation.model.Generator;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeDrivenGenerator;
@@ -17,15 +18,13 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla
  *
  */
-public class PatientGenerator extends TimeDrivenGenerator<Population> {
+public class PatientGenerator extends TimeDrivenGenerator<PatientGenerator.PopulationInfo> {
 	/** Associated simulation */
 	private final DiseaseProgressionSimulation simul;
 	/** Original patients that this generator reproduces */
 	private final Patient[] copyOf;
 	/** Intervention assigned to all the patients created */
 	private final Intervention intervention;
-	/** The characteristics of the generated patients */
-	private final Population population;
 
 	/**
 	 * Creates a patient generator that generates patients from scratch
@@ -39,8 +38,7 @@ public class PatientGenerator extends TimeDrivenGenerator<Population> {
 		this.simul = simul;
 		this.copyOf = null;
 		this.intervention = intervention;
-		this.population = population;
-		add(population);
+		add(new PopulationInfo(population));
 	}
 	
 	/**
@@ -55,20 +53,31 @@ public class PatientGenerator extends TimeDrivenGenerator<Population> {
 		this.simul = simul;
 		this.copyOf = copyOf;
 		this.intervention = intervention;
-		this.population = population;
-		add(population);
+		add(new PopulationInfo(population));
 	}
 
 	@Override
-	public EventSource createEventSource(int ind, Population info) {
+	public EventSource createEventSource(int ind, PopulationInfo info) {
 		Patient p = null;
 		if (copyOf == null) {
-			p = new Patient(simul, intervention, population);
+			p = new Patient(simul, intervention, info.getPopulation());
 		}
 		else {
 			p = new Patient(simul, copyOf[ind], intervention);
 		}
 		simul.addGeneratedPatient(p, ind);
 		return p;
+	}
+
+	public static class PopulationInfo extends Generator.GenerationInfo {
+		private final Population population;
+		public PopulationInfo(Population population) {
+			super(1.0);
+			this.population = population;
+		}
+
+		public Population getPopulation() {
+			return population;
+		}
 	}
 }

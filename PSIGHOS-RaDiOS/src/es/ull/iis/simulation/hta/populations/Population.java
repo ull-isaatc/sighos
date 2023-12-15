@@ -11,7 +11,6 @@ import es.ull.iis.simulation.hta.params.DefinesBaseUtility;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
-import es.ull.iis.simulation.model.Generator.GenerationInfo;
 import simkit.random.RandomNumber;
 
 /**
@@ -19,7 +18,7 @@ import simkit.random.RandomNumber;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Population extends GenerationInfo implements DefinesBaseUtility, NamedAndDescribed {
+public abstract class Population implements DefinesBaseUtility, NamedAndDescribed {
 	/** Random number generator */
 	private final RandomNumber rng;
 	private final String name;
@@ -27,7 +26,6 @@ public abstract class Population extends GenerationInfo implements DefinesBaseUt
 	private final SecondOrderParamsRepository secParams;
 
 	public Population(String name, String description, SecondOrderParamsRepository secParams) throws MalformedSimulationModelException {
-		super(1.0);
 		this.name = name;
 		this.description = description;
 		this.secParams = secParams;
