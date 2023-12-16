@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Named;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
@@ -27,13 +27,13 @@ public class PrevalenceView extends EpidemiologicView {
 	/**
 	 * Creates a prevalence viewer
 	 * @param nExperiments Number of experiments to be collected together
-	 * @param secParams The original repository with the definition of the scenario
+	 * @param model The original repository with the definition of the scenario
 	 * @param length Length of the intervals (in years)
 	 * @param absolute If true, shows number of patients; otherwise, shows ratios
 	 * @param byAge If true, creates intervals depending on the current age of the patients; otherwise, creates intervals depending on the time from simulation start
 	 */
-	public PrevalenceView(int nExperiments, SecondOrderParamsRepository secParams, int length, boolean absolute, boolean byAge) {
-		super("Prevalence", nExperiments, secParams, length, absolute, byAge);
+	public PrevalenceView(int nExperiments, HTAModel model, int length, boolean absolute, boolean byAge) {
+		super("Prevalence", nExperiments, model, length, absolute, byAge);
 	}
 
 
@@ -43,8 +43,8 @@ public class PrevalenceView extends EpidemiologicView {
 		// First process base time interval
 		double accDeaths = listener.getnDeaths()[0];
 		double accPatients = listener.getnBirths()[0];
-		final double []accManifestation = new double[secParams.getRegisteredDiseaseProgressions().length];
-		final double []accDisease = new double[secParams.getRegisteredDiseases().length];
+		final double []accManifestation = new double[model.getRegisteredDiseaseProgressions().length];
+		final double []accDisease = new double[model.getRegisteredDiseases().length];
 		final HashMap<Named, Double> accDeathsByCause = new HashMap<>();
 		for (final Named cause : listener.getCausesOfDeath()) {
 			accDeathsByCause.put(cause, (double)listener.getnDeathsByCause(cause)[0]);
@@ -52,11 +52,11 @@ public class PrevalenceView extends EpidemiologicView {
 		}
 		nDeaths[interventionId][0] += accDeaths;
 		nBirths[interventionId][0] += accPatients;
-		for (int j = 0; j < secParams.getRegisteredDiseases().length; j++) {
+		for (int j = 0; j < model.getRegisteredDiseases().length; j++) {
 			accDisease[j] = listener.getnDisease()[j][0];
 			nDisease[interventionId][j][0] += accDisease[j];
 		}
-		for (int j = 0; j < secParams.getRegisteredDiseaseProgressions().length; j++) {
+		for (int j = 0; j < model.getRegisteredDiseaseProgressions().length; j++) {
 			accManifestation[j] = listener.getnManifestation()[j][0];
 			nManifestation[interventionId][j][0] += accManifestation[j];
 		}
@@ -70,11 +70,11 @@ public class PrevalenceView extends EpidemiologicView {
 				accDeathsByCause.put(cause, accDeathsByCause.get(cause) + listener.getnDeathsByCause(cause)[i]);
 				nDeathsByCause.get(cause)[interventionId][i] += accDeathsByCause.get(cause);
 			}
-			for (int j = 0; j < secParams.getRegisteredDiseases().length; j++) {
+			for (int j = 0; j < model.getRegisteredDiseases().length; j++) {
 				accDisease[j] += listener.getnDisease()[j][i] - listener.getnEndDisease()[j][i-1];
 				nDisease[interventionId][j][i] += accDisease[j];
 			}
-			for (int j = 0; j < secParams.getRegisteredDiseaseProgressions().length; j++) {
+			for (int j = 0; j < model.getRegisteredDiseaseProgressions().length; j++) {
 				accManifestation[j] += listener.getnManifestation()[j][i] - listener.getnEndManifestation()[j][i-1];
 				nManifestation[interventionId][j][i] += accManifestation[j];
 			}
@@ -118,10 +118,10 @@ public class PrevalenceView extends EpidemiologicView {
 			final String name = interventions[i].name();
 			if (byAge)
 				str.append("\t" + name + "_N");
-			for (Disease dis : secParams.getRegisteredDiseases()) {
+			for (Disease dis : model.getRegisteredDiseases()) {
 				str.append("\t" + name + "_").append(dis.name());
 			}
-			for (DiseaseProgression comp : secParams.getRegisteredDiseaseProgressions()) {
+			for (DiseaseProgression comp : model.getRegisteredDiseaseProgressions()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
 		}

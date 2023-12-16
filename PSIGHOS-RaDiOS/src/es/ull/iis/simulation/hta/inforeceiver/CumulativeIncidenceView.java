@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.hta.inforeceiver;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Named;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * A viewer for the cumulative incidence of mortality and manifestation of the simulated patients, which can be shown either relative or absolute (number of patients);
@@ -21,13 +21,13 @@ public class CumulativeIncidenceView extends EpidemiologicView {
 	/**
 	 * Creates a cumulative incidence viewer
 	 * @param nExperiments Number of experiments to be collected together
-	 * @param secParams The original repository with the definition of the scenario
+	 * @param model The original repository with the definition of the scenario
 	 * @param length Length of the intervals (in years)
 	 * @param absolute If true, shows number of patients; otherwise, shows ratios
 	 * @param byAge If true, creates intervals depending on the current age of the patients; otherwise, creates intervals depending on the time from simulation start
 	 */
-	public CumulativeIncidenceView(int nExperiments, SecondOrderParamsRepository secParams, int length, boolean absolute, boolean byAge) {
-		super("Cumulative incidence", nExperiments, secParams, length, absolute, byAge);
+	public CumulativeIncidenceView(int nExperiments, HTAModel model, int length, boolean absolute, boolean byAge) {
+		super("Cumulative incidence", nExperiments, model, length, absolute, byAge);
 	}
 
 	@Override
@@ -39,10 +39,10 @@ public class CumulativeIncidenceView extends EpidemiologicView {
 			for (final Named cause : listener.getCausesOfDeath()) {
 				nDeathsByCause.get(cause)[interventionId][year] += listener.getnDeathsByCause(cause)[year];
 			}
-			for (int j = 0; j < secParams.getRegisteredDiseases().length; j++) {
+			for (int j = 0; j < model.getRegisteredDiseases().length; j++) {
 				nDisease[interventionId][j][year] += listener.getnDisease()[j][year];
 			}
-			for (int j = 0; j < secParams.getRegisteredDiseaseProgressions().length; j++) {
+			for (int j = 0; j < model.getRegisteredDiseaseProgressions().length; j++) {
 				nManifestation[interventionId][j][year] += listener.getnManifestation()[j][year];
 			}
 		}			

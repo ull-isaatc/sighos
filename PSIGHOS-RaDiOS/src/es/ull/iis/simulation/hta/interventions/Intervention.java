@@ -5,10 +5,8 @@ package es.ull.iis.simulation.hta.interventions;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.HTAModelComponent;
-import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
@@ -16,7 +14,7 @@ import es.ull.iis.simulation.hta.outcomes.Strategy;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.model.DiscreteEvent;
 
@@ -120,12 +118,12 @@ public abstract class Intervention extends HTAModelComponent implements Comparab
 
 	@Override
 	public double getAnnualDisutility(Patient pat) {
-		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat);
+		return getStandardParameterValue(StandardParameter.ANNUAL_DISUTILITY, pat);
 	}
 	
 	@Override
 	public double getStartingDisutility(Patient pat) {
-		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat);
+		return getStandardParameterValue(StandardParameter.ONSET_DISUTILITY, pat);
 	}
 	
 	/**

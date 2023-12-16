@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -26,7 +27,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  */
 public class AnnualCostView implements ExperimentListener {
 	private final int nExperiments;
-	private final SecondOrderParamsRepository secParams;
+	private final HTAModel model;
 	private final Intervention[] interventions;
 	private final int nPatients;
 	private final Discount discount;
@@ -41,16 +42,16 @@ public class AnnualCostView implements ExperimentListener {
 	/**
 	 * 
 	 */
-	public AnnualCostView(int nExperiments, SecondOrderParamsRepository secParams, Discount discount) {
+	public AnnualCostView(int nExperiments, HTAModel model, Discount discount) {
 		this.nExperiments = nExperiments;
-		this.secParams = secParams;
-		this.interventions = secParams.getRegisteredInterventions();
+		this.model = model;
+		this.interventions = model.getRegisteredInterventions();
 		final int nInterventions = interventions.length;
 		this.discount = discount;
-		this.nPatients = secParams.getNPatients();
-		this.minAge = secParams.getMinAge();
+		this.nPatients = model.getExperiment().getNPatients();
+		this.minAge = model.getPopulation().getMinAge();
 		this.maxAge = BasicConfigParams.DEF_MAX_AGE;
-		diseaseCost = new double[nInterventions][secParams.getRegisteredDiseases().length][maxAge-minAge+1];
+		diseaseCost = new double[nInterventions][model.getRegisteredDiseases().length][maxAge-minAge+1];
 		interventionCost = new double[nInterventions][maxAge-minAge+1];
 		managementCost = new double[nInterventions][maxAge-minAge+1];
 		resultsReady = false;
@@ -67,7 +68,7 @@ public class AnnualCostView implements ExperimentListener {
 			for (int i = 0; i < interventions.length; i++) {
 				interventionCost[i][year] /= nExperiments;
 				managementCost[i][year] /= nExperiments;
-				for (int k = 0; k < secParams.getRegisteredDiseases().length; k++) {
+				for (int k = 0; k < model.getRegisteredDiseases().length; k++) {
 					diseaseCost[i][k][year] /= nExperiments;
 				}
 			}
@@ -83,7 +84,7 @@ public class AnnualCostView implements ExperimentListener {
 			for (int i = 0; i < interventions.length; i++) {
 				final String name = interventions[i].name();
 				str.append("\t").append(name).append("-I\t" + name + "-M");
-				for (Disease disease : secParams.getRegisteredDiseases()) {
+				for (Disease disease : model.getRegisteredDiseases()) {
 					str.append("\t" + name + "-").append(disease);
 				}
 			}
@@ -92,7 +93,7 @@ public class AnnualCostView implements ExperimentListener {
 				for (int i = 0; i < interventions.length; i++) {
 					str.append("\t").append(String.format(Locale.US, "%.2f", interventionCost[i][year] /nExperiments));
 					str.append("\t").append(String.format(Locale.US, "%.2f", managementCost[i][year] /nExperiments));
-					for (int k = 0; k < secParams.getRegisteredDiseases().length; k++) {
+					for (int k = 0; k < model.getRegisteredDiseases().length; k++) {
 						str.append("\t").append(String.format(Locale.US, "%.2f", diseaseCost[i][k][year] / nExperiments));
 					}
 				}
@@ -127,7 +128,7 @@ public class AnnualCostView implements ExperimentListener {
 			super("Standard patient viewer");
 			this.lastYear = new double[nPatients];
 			Arrays.fill(lastYear, 0.0);
-			diseaseCost = new double[secParams.getRegisteredDiseases().length][maxAge-minAge+1];
+			diseaseCost = new double[model.getRegisteredDiseases().length][maxAge-minAge+1];
 			interventionCost = new double[maxAge-minAge+1];
 			managementCost = new double[maxAge-minAge+1];
 			addGenerated(PatientInfo.class);
@@ -191,7 +192,7 @@ public class AnnualCostView implements ExperimentListener {
 			for (int i = 0; i < maxAge-minAge+1; i++) {
 				AnnualCostView.this.managementCost[interventionId][i] += managementCost[i] / nPatients;
 				AnnualCostView.this.interventionCost[interventionId][i] += interventionCost[i] / nPatients;
-				for (int j = 0; j < secParams.getRegisteredDiseases().length; j++) {
+				for (int j = 0; j < model.getRegisteredDiseases().length; j++) {
 					AnnualCostView.this.diseaseCost[interventionId][j][i] += diseaseCost[j][i] / nPatients;
 				}
 			}			

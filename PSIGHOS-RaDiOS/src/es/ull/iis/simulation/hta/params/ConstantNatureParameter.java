@@ -5,8 +5,13 @@ import es.ull.iis.simulation.hta.Patient;
 public class ConstantNatureParameter extends Parameter {
 	private final double value;
 
-    public ConstantNatureParameter(final SecondOrderParamsRepository secParams, String name, ParameterDescription desc, double value) {
-        super(secParams, name, desc);
+    public ConstantNatureParameter(String name, String description, String source, int year, ParameterType type, double value) {
+        super(name, description, source, year, type);
+        this.value = value;
+    }
+
+    public ConstantNatureParameter(String name, String description, String source, ParameterType type, double value) {
+        super(name, description, source, type);
         this.value = value;
     }
 

@@ -3,7 +3,8 @@ package es.ull.iis.simulation.hta.params;
 import java.util.Map;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 
@@ -13,7 +14,7 @@ import es.ull.iis.simulation.hta.PrettyPrintable;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Parameter implements Named, PrettyPrintable, Comparable<Parameter> {
+public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, Comparable<Parameter> {
 	/** The different types of parameters */
 	public enum ParameterType {
 		/** The collection of attributes, i.e., parameters that define specific characteristics for each patient */
@@ -24,6 +25,8 @@ public abstract class Parameter implements Named, PrettyPrintable, Comparable<Pa
 		COST,
 		/** The collection of utility parameters */
 		UTILITY,
+		/** The collection of utility parameters */
+		DISUTILITY,
 		/** The collection of miscellaneous parameters */
 		OTHER;
 		final private Map<String, Parameter> parameters = new TreeMap<>();
@@ -57,20 +60,27 @@ public abstract class Parameter implements Named, PrettyPrintable, Comparable<Pa
 			return true;
 		}
 	}
-	/** The characteristics that describe this parameter */
-	private final ParameterDescription desc;
+	public final static Parameter NO_RR = new ConstantNatureParameter("No RR", "Dummy Relative risk", "", ParameterType.RISK, 1.0);
 	/** Short name and identifier of the parameter */
 	private final String name;
 	/** The type of the parameter */
 	private final ParameterType type;
+	/** Full description of the parameter */
+	private final String description;
+	/** The reference from which this parameter was estimated/taken */
+	private final String source;
+	/** Year when the parameter was originally estimated */
+	private final int year;
 
 	/**
 	 * Creates a parameter
 	 * @param name Short name and identifier of the parameter. Must be unique within the simulation.
 	 */
-	public Parameter(String name, ParameterDescription desc, ParameterType type) {
+	public Parameter(String name, String description, String source, int year, ParameterType type) {
 		this.name = name;
-		this.desc = desc;
+		this.description = description;
+		this.source = source;
+		this.year = year;
 		this.type = type;
 		if (!type.addParameter(this))
 			throw new IllegalArgumentException("Parameter " + name + " already exists");
@@ -80,12 +90,8 @@ public abstract class Parameter implements Named, PrettyPrintable, Comparable<Pa
 	 * Creates a parameter
 	 * @param name Short name and identifier of the parameter. Must be unique within the simulation.
 	 */
-	public Parameter(String name, ParameterType type) {
-		this(name, new ParameterDescription(), type);
-	}
-	
-	public ParameterDescription getParameterDescription() {
-		return desc;
+	public Parameter(String name, String description, String source, ParameterType type) {
+		this(name, description, source, HTAModel.getStudyYear(), type);
 	}
 
 	/**
@@ -94,6 +100,38 @@ public abstract class Parameter implements Named, PrettyPrintable, Comparable<Pa
 	 */
 	public String name() {
 		return name;
+	}
+
+	/**
+	 * Returns the type of the parameter
+	 * @return the type of the parameter
+	 */
+	public ParameterType getType() {
+		return type;
+	}
+
+	/**
+	 * Returns the full description of the parameter
+	 * @return the full description of the parameter
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * Returns the reference from which this parameter was estimated/taken
+	 * @return the reference from which this parameter was estimated/taken
+	 */
+	public String getSource() {
+		return source;
+	}
+	
+	/**
+	 * Returns the year when the parameter was originally estimated
+	 * @return the year when the parameter was originally estimated
+	 */
+	public int getYear() {
+		return year;
 	}
 
 	/**
@@ -112,6 +150,43 @@ public abstract class Parameter implements Named, PrettyPrintable, Comparable<Pa
 	@Override
 	public int compareTo(Parameter o) {
 		return name.compareTo(o.name);
+	}
+	
+	/**
+	 * Creates a string that contains a tab separated list of the parameter names defined in this repository
+	 * @return a string that contains a tab separated list of the parameter names defined in this repository
+	 */
+	public static String getStrHeader() {
+		StringBuilder str = new StringBuilder();
+		for (ParameterType type : ParameterType.values()) {
+			for (Parameter param : type.getParameters().values()) {
+				if (param instanceof SecondOrderNatureParameter) {
+					str.append(param.name()).append("\t");
+				}
+			}
+		}
+		return str.toString();
+	}
+	
+	public static String prettyPrintAll(String linePrefix) {
+		StringBuilder str = new StringBuilder();
+		for (ParameterType type : ParameterType.values()) {
+			for (Parameter param : type.getParameters().values()) {
+				str.append(param.prettyPrint(linePrefix)).append("\n");
+			}
+		}
+		return str.toString();
+	}
+	
+	public static String print(int id) {
+		StringBuilder str = new StringBuilder();
+		for (ParameterType type : ParameterType.values()) {
+			for (Parameter param : type.getParameters().values()) {
+				if (param instanceof SecondOrderNatureParameter)
+					str.append(((SecondOrderNatureParameter)param).getValue(id)).append("\t");
+			}
+		}
+		return str.toString();
 	}
 
 }

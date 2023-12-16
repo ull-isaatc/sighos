@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.inforeceiver;
 import java.util.Locale;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -30,10 +31,10 @@ public class BudgetImpactView implements ExperimentListener {
 	/**
 	 * 
 	 */
-	public BudgetImpactView(int nExperiments, SecondOrderParamsRepository secParams, int nYears) {
+	public BudgetImpactView(int nExperiments, HTAModel model, int nYears) {
 		this.coefExperiments = 1.0 / (double)nExperiments;
-		this.interventions = secParams.getRegisteredInterventions();
-		this.nPatients = secParams.getNPatients();
+		this.interventions = model.getRegisteredInterventions();
+		this.nPatients = model.getExperiment().getNPatients();
 		this.nYears = nYears;
 		this.cost = new double[interventions.length][nYears+1];
 	}

@@ -3,11 +3,9 @@
  */
 package es.ull.iis.simulation.hta.pbdmodel;
 
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.RandomVariateFactory;
@@ -25,17 +23,17 @@ public class SeizuresManifestation extends DiseaseProgression {
 	 * @param secParams
 	 * @param disease
 	 */
-	public SeizuresManifestation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "#PBD_ManifestationSeizure", "Seizures", disease, Type.CHRONIC_MANIFESTATION);
+	public SeizuresManifestation(HTAModel model, Disease disease) {
+		super(model, "#PBD_ManifestationSeizure", "Seizures", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		OtherParamDescriptions.ONSET_AGE.addParameter(secParams, this, "", 0.0);			
-		OtherParamDescriptions.END_AGE.addParameter(secParams, this, "", 1.0);			
-		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "Test", COST_YEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));		
-		RiskParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(secParams, this, "Assumption", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));
-		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Test", DU, RandomVariateFactory.getInstance("UniformVariate", DU*0.8, DU*1.2));
+	public void createParameters() {
+		StandardParameter.DISEASE_PROGRESSION_ONSET_AGE.addParameter(getModel(), this, "", 0.0);
+		StandardParameter.DISEASE_PROGRESSION_END_AGE.addParameter(getModel(), this, "", 1.0);
+		StandardParameter.ONSET_COST.addParameter(getModel(), this, "Test", COST_YEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
+		StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS.addParameter(getModel(), this, "Assumption", 1.0);
+		StandardParameter.ANNUAL_DISUTILITY.addParameter(getModel(), this, "Test", DU, RandomVariateFactory.getInstance("UniformVariate", DU*0.8, DU*1.2));
 	}
 
 }

@@ -29,10 +29,10 @@ import es.ull.iis.simulation.hta.inforeceiver.ScreeningTestPerformanceView;
 import es.ull.iis.simulation.hta.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
+import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
@@ -56,7 +56,10 @@ public abstract class HTAExperiment {
 	private final int nPatients;
 	/** Time horizon for the simulation */
 	private final int timeHorizon;
-	private final SecondOrderParamsRepository secParams;
+	/** The model to be simulated */
+	private final HTAModel model;
+	/** The method to combine different disutilities. {@link DisutilityCombinationMethod#ADD} by default */
+	private DisutilityCombinationMethod method = DisutilityCombinationMethod.ADD;
 	private final Discount discountCost;
 	private final Discount discountEffect;
 	
@@ -69,21 +72,20 @@ public abstract class HTAExperiment {
 	private final ArrayList<ExperimentListener> baseCaseExpListeners;
 
 	public HTAExperiment(CommonArguments arguments, ByteArrayOutputStream simResult) throws MalformedSimulationModelException {
-		this.secParams = createRepository(arguments);
-		final String validity = secParams.checkValidity();
+		this.nRuns = arguments.nRuns;
+		this.nPatients = arguments.nPatients;
+		this.model = createModel(arguments);
+		final String validity = model.checkValidity();
 		if (validity != null) {
 			throw new MalformedSimulationModelException(validity);
 		}
-
-		this.interventions = secParams.getRegisteredInterventions();
-		this.nRuns = secParams.getNRuns();
-		this.nPatients = secParams.getNPatients();
+		this.interventions = model.getRegisteredInterventions();
 		this.progress = new PrintProgress((nRuns > N_PROGRESS) ? nRuns / N_PROGRESS : 1, nRuns + 1);
 		
 		final Discount[] discounts = configureDiscounts (arguments.discount);
 		this.discountCost = discounts[0];
 		this.discountEffect = discounts[1];
-		this.timeHorizon = (arguments.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : arguments.timeHorizon;
+		this.timeHorizon = (arguments.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - model.getPopulation().getMinAge() + 1 : arguments.timeHorizon;
 		this.parallel = arguments.parallel;
 		this.quiet = arguments.quiet;
 		this.patientListener = (arguments.singlePatientOutput != -1) ? new PatientInfoView(arguments.singlePatientOutput) : null;
@@ -91,12 +93,12 @@ public abstract class HTAExperiment {
 		this.baseCaseExpListeners = new ArrayList<>();
 		this.printOutputs = configurePrintOutputs(arguments.bi, arguments.individualOutcomes, arguments.breakdownCost);				
 		if (printOutputs.contains(Outputs.BREAKDOWN_COST)) {
-			expListeners.add(new AnnualCostView(nRuns, secParams, discountCost));
-			baseCaseExpListeners.add(new AnnualCostView(1, secParams, discountCost));
+			expListeners.add(new AnnualCostView(nRuns, model, discountCost));
+			baseCaseExpListeners.add(new AnnualCostView(1, model, discountCost));
 		}
 		if (printOutputs.contains(Outputs.BI)) {
-			expListeners.add(new BudgetImpactView(nRuns, secParams, BasicConfigParams.DEF_BI_YEARS));
-			baseCaseExpListeners.add(new BudgetImpactView(1, secParams, BasicConfigParams.DEF_BI_YEARS));
+			expListeners.add(new BudgetImpactView(nRuns, model, BasicConfigParams.DEF_BI_YEARS));
+			baseCaseExpListeners.add(new BudgetImpactView(1, model, BasicConfigParams.DEF_BI_YEARS));
 		}
 		final ArrayList<EpidemiologicOutputFormat> toPrint = configureOutputFormats(arguments.epidem);
 		final PrintWriter[] outputPrintWriters = configureOutputPrintWriters(arguments.outputFileName, simResult, printOutputs.size(), toPrint.size());
@@ -105,16 +107,16 @@ public abstract class HTAExperiment {
 		for (final EpidemiologicOutputFormat format : toPrint) {
 			switch(format.getType()) {
 			case CUMUL_INCIDENCE:
-				expListeners.add(new CumulativeIncidenceView(nRuns, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
-				baseCaseExpListeners.add(new CumulativeIncidenceView(1, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				expListeners.add(new CumulativeIncidenceView(nRuns, model, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				baseCaseExpListeners.add(new CumulativeIncidenceView(1, model, format.getInterval(), format.isAbsolute(), format.isByAge()));
 				break;
 			case INCIDENCE:
-				expListeners.add(new IncidenceView(nRuns, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
-				baseCaseExpListeners.add(new IncidenceView(1, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				expListeners.add(new IncidenceView(nRuns, model, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				baseCaseExpListeners.add(new IncidenceView(1, model, format.getInterval(), format.isAbsolute(), format.isByAge()));
 				break;
 			case PREVALENCE:
-				expListeners.add(new PrevalenceView(nRuns, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
-				baseCaseExpListeners.add(new PrevalenceView(1, secParams, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				expListeners.add(new PrevalenceView(nRuns, model, format.getInterval(), format.isAbsolute(), format.isByAge()));
+				baseCaseExpListeners.add(new PrevalenceView(1, model, format.getInterval(), format.isAbsolute(), format.isByAge()));
 				break;
 			default:
 				break;
@@ -122,7 +124,7 @@ public abstract class HTAExperiment {
 			}
 		}		
 
-		secParams.registerAllSecondOrderParams();
+		model.createParameters();
 	}
 
 	/**
@@ -218,10 +220,22 @@ public abstract class HTAExperiment {
 		return result;
 	}
 
-	public abstract SecondOrderParamsRepository createRepository(CommonArguments arguments) throws MalformedSimulationModelException;
-	
-	public SecondOrderParamsRepository getRepository() {
-		return secParams;
+	public abstract HTAModel createModel(CommonArguments arguments) throws MalformedSimulationModelException;
+
+	/**
+	 * Returns the combination method used to combine different disutilities
+	 * @return the combination method used to combine different disutilities
+	 */
+	public DisutilityCombinationMethod getDisutilityCombinationMethod() {
+		return method;
+	}
+
+	/**
+	 * Sets a different combination method for disutilities
+	 * @param method Combination method for disutilities
+	 */
+	public void setDisutilityCombinationMethod(DisutilityCombinationMethod method) {
+		this.method = method;
 	}
 	
 	/**
@@ -293,8 +307,8 @@ public abstract class HTAExperiment {
 			if (interventions[i] instanceof ScreeningIntervention)
 				str.append(ScreeningTestPerformanceView.getStrHeader(shortName));
 		}
-		str.append(TimeFreeOfComplicationsView.getStrHeader(false, secParams));
-		str.append(secParams.getStrHeader());
+		str.append(TimeFreeOfComplicationsView.getStrHeader(false, model));
+		str.append(Parameter.getStrHeader());
 		return str.toString();
 	}
 
@@ -310,7 +324,7 @@ public abstract class HTAExperiment {
 			if (interventions[i] instanceof ScreeningIntervention)
 				str.append(screenListeners[i]);
 		}
-		str.append(timeFreeListener).append(secParams.print(simul.getIdentifier()));
+		str.append(timeFreeListener).append(Parameter.print(simul.getIdentifier()));
 		return str.toString();
 	}
 
@@ -322,9 +336,9 @@ public abstract class HTAExperiment {
 	 */
 	private void simulateInterventions(int id, boolean baseCase) {
 		final int nInterventions = interventions.length;
-		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], secParams, timeHorizon);
+		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], model, timeHorizon);
 		
-		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(secParams, false);
+		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(model, false);
 		final PopulationAttributeListener[] paramListeners = new PopulationAttributeListener[nInterventions];
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
@@ -335,8 +349,8 @@ public abstract class HTAExperiment {
 			costListeners[i] = new CostListener(discountCost, nPatients);
 			paramListeners[i] = new PopulationAttributeListener(nPatients, Parameter.ParameterType.ATTRIBUTE.getParameters());
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
-			qalyListeners[i] = new QALYListener(secParams.getDisutilityCombinationMethod(), discountEffect, nPatients);
-			screenListeners[i] = (interventions[i] instanceof ScreeningIntervention) ? new ScreeningTestPerformanceView(secParams) : null;
+			qalyListeners[i] = new QALYListener(getDisutilityCombinationMethod(), discountEffect, nPatients);
+			screenListeners[i] = (interventions[i] instanceof ScreeningIntervention) ? new ScreeningTestPerformanceView() : null;
 		}
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(paramListeners[0]);
@@ -345,7 +359,7 @@ public abstract class HTAExperiment {
 		simul.addInfoReceiver(timeFreeListener);
 		IndividualTime2ManifestationView indTimeToEventListener = null;
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
-			indTimeToEventListener = new IndividualTime2ManifestationView(secParams);
+			indTimeToEventListener = new IndividualTime2ManifestationView(model);
 			simul.addInfoReceiver(indTimeToEventListener);
 		}
 		if (interventions[0] instanceof ScreeningIntervention)
@@ -388,8 +402,8 @@ public abstract class HTAExperiment {
 			simul.run();
 		}
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
-			final DiseaseProgression[] availableChronicManifestations = secParams.getRegisteredDiseaseProgressions(DiseaseProgression.Type.CHRONIC_MANIFESTATION);
-			final DiseaseProgression[] availableAcuteManifestations = secParams.getRegisteredDiseaseProgressions(DiseaseProgression.Type.ACUTE_MANIFESTATION);
+			final DiseaseProgression[] availableChronicManifestations = model.getRegisteredDiseaseProgressions(DiseaseProgression.Type.CHRONIC_MANIFESTATION);
+			final DiseaseProgression[] availableAcuteManifestations = model.getRegisteredDiseaseProgressions(DiseaseProgression.Type.ACUTE_MANIFESTATION);
 			System.out.print("PAT");
 			for (int i = 0; i < nInterventions; i++) {
 				final String shortName = "_" + interventions[i].name();
@@ -419,6 +433,22 @@ public abstract class HTAExperiment {
 			}
 		}
 		out.println(print(simul, costListeners, lyListeners, qalyListeners, paramListeners, timeFreeListener, screenListeners));
+	}
+
+	/**
+	 * Returns the number of patients to be generated during each simulation
+	 * @return the number of patients to be generated during each simulation
+	 */
+	public int getNPatients() {
+		return nPatients;
+	}
+
+	/**
+	 * Returns the number of simulations to run
+	 * @return the number of simulations to run
+	 */
+	public int getNRuns() {
+		return nRuns;
 	}
 
 	public enum Outputs {

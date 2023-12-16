@@ -4,10 +4,9 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -26,8 +25,8 @@ public class PBDPopulation extends StdPopulation {
 	/**
 	 * @param disease
 	 */
-	public PBDPopulation(SecondOrderParamsRepository secParams, Disease disease, boolean allAffected) throws MalformedSimulationModelException {
-		super(secParams, "PBD_POP", "Population for PBD", disease);
+	public PBDPopulation(HTAModel model, Disease disease, boolean allAffected) throws MalformedSimulationModelException {
+		super(model, "PBD_POP", "Population for PBD", disease);
 		this.allAffected = allAffected;
 	}
 
@@ -38,7 +37,7 @@ public class PBDPopulation extends StdPopulation {
 
 	@Override
 	protected DiscreteRandomVariate getDiseaseVariate(Patient pat) {
-		final double birthPrev = allAffected ? 1.0 : RiskParamDescriptions.BIRTH_PREVALENCE.getValue(getRepository(), disease, pat);
+		final double birthPrev = allAffected ? 1.0 : disease.getStandardParameterValue(StandardParameter.BIRTH_PREVALENCE, pat);
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), birthPrev);
 	}
 
@@ -53,11 +52,11 @@ public class PBDPopulation extends StdPopulation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "Utility for Spanish general population", 0.8861);
+	public void createParameters() {
+		StandardParameter.POPULATION_BASE_UTILITY.addParameter(model, this, "Utility for Spanish general population", 0.8861);
 		if (!allAffected)
-			RiskParamDescriptions.BIRTH_PREVALENCE.addParameter(secParams, disease, "", 
-				BIRTH_PREVALENCE, RandomVariateFactory.getInstance("BetaVariate", 8, 540955));
+			StandardParameter.BIRTH_PREVALENCE.addParameter(model, disease, "", 2013, BIRTH_PREVALENCE, 
+				RandomVariateFactory.getInstance("BetaVariate", 8, 540955));
 	}
 
 	@Override
@@ -67,6 +66,6 @@ public class PBDPopulation extends StdPopulation {
 
 	@Override
 	public DiseaseProgression getDeathCharacterization() {
-		return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
+		return new EmpiricalSpainDeathSubmodel(getModel(), disease);
 	}
 }

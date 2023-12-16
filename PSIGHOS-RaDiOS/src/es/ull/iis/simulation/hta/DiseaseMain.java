@@ -17,8 +17,9 @@ import com.beust.jcommander.Parameter;
 
 import es.ull.iis.simulation.hta.diab.T1DMRepository;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.pbdmodel.PBDRepository;
+import es.ull.iis.simulation.hta.pbdmodel.PBDModel;
 import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
 
 /**
@@ -67,8 +68,8 @@ public class DiseaseMain extends HTAExperiment {
 	}
 
 	@Override
-	public SecondOrderParamsRepository createRepository(CommonArguments arguments) throws MalformedSimulationModelException {
-		SecondOrderParamsRepository secParams = null;
+	public HTAModel createModel(CommonArguments arguments) throws MalformedSimulationModelException {
+		HTAModel model = null;
 		final List<String> interventionsToCompare = new ArrayList<>();
 		final int nRuns = ((Arguments)arguments).nRuns;
 		final int nPatients = ((Arguments)arguments).nPatients;
@@ -114,7 +115,7 @@ public class DiseaseMain extends HTAExperiment {
 //			}
 			// TODO: Add arguments validation for OSDi
 			try {
-				secParams = new OSDiGenericRepository(nRuns, nPatients, System.getProperty("user.dir") + "\\resources\\OSDi.owl", ((Arguments)arguments).model, ((Arguments)arguments).prefix);
+				model = new OSDiGenericRepository(nRuns, nPatients, System.getProperty("user.dir") + "\\resources\\OSDi.owl", ((Arguments)arguments).model, ((Arguments)arguments).prefix);
 				// This repository ignores potential study years passed as arguments
 			} catch (OWLOntologyCreationException | MalformedSimulationModelException e) {
 				MalformedSimulationModelException ex = new MalformedSimulationModelException("");
@@ -124,7 +125,7 @@ public class DiseaseMain extends HTAExperiment {
 		}
 		else {
 			final int disease = ((Arguments)arguments).disease;
-			SecondOrderParamsRepository.setStudyYear(arguments.year);
+			HTAModel.setStudyYear(arguments.year);
 			switch(disease) {
 			case TEST_SCD:
 				System.out.println("No programmatic test available for SCD\n\n");
@@ -134,20 +135,22 @@ public class DiseaseMain extends HTAExperiment {
 			case TEST_RARE_DISEASE3:
 			case TEST_RARE_DISEASE4:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for the rare disease [%d] \n\n", disease));
-				secParams = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
+				model = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
 				break;
 			case TEST_T1DM:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for T1DM \n\n"));
-				secParams = new T1DMRepository(nRuns, nPatients);
+				model = new T1DMRepository(nRuns, nPatients);
 				break;
 			case TEST_PBD:
 			default:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for the rare disease PBD \n\n"));
-				secParams = new PBDRepository(nRuns, nPatients, ALL_AFFECTED);
+				model = new PBDModel(this, ALL_AFFECTED);
+				setDisutilityCombinationMethod(DisutilityCombinationMethod.MAX);
+
 				break;				
 			}			
 		}
-		return secParams;
+		return model;
 	}
 
 	public static void main(String[] args) {
@@ -165,7 +168,7 @@ public class DiseaseMain extends HTAExperiment {
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
 			final DiseaseMain experiment = new DiseaseMain(arguments, baos);
 			System.out.println("=====================================================================================================");
-			System.out.println(experiment.getRepository().prettyPrint(""));
+			System.out.println(es.ull.iis.simulation.hta.params.Parameter.prettyPrintAll(""));
 			System.out.println();
 			experiment.run();
 

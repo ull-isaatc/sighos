@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
@@ -36,7 +37,7 @@ public abstract class EpidemiologicView implements ExperimentListener {
 	/** Number of experiments to be collected together */
 	protected final int nExperiments;
 	/** The original repository with the definition of the scenario */
-	protected final SecondOrderParamsRepository secParams;
+	protected final HTAModel model;
 	/** A collection of the interventions being analyzed */
 	protected final Intervention[] interventions;
 	/** Number of time intervals the viewer uses to split the results */
@@ -70,28 +71,28 @@ public abstract class EpidemiologicView implements ExperimentListener {
 	 * Creates a epidemiologic viewer
 	 * @param description A brief text describing the listener
 	 * @param nExperiments Number of experiments to be collected together
-	 * @param secParams The original repository with the definition of the scenario
+	 * @param model The original repository with the definition of the scenario
 	 * @param length Length of the intervals (in years)
 	 * @param absolute If true, shows number of patients; otherwise, shows ratios
 	 * @param byAge If true, creates intervals depending on the current age of the patients; otherwise, creates intervals depending on the time from simulation start
 	 */
-	public EpidemiologicView(String description, int nExperiments, SecondOrderParamsRepository secParams, int length, boolean absolute, boolean byAge) {
+	public EpidemiologicView(String description, int nExperiments, HTAModel model, int length, boolean absolute, boolean byAge) {
 		this.description = description;
 		this.absolute = absolute;
 		this.byAge = byAge;
 		this.format = (absolute && nExperiments == 1) ? "%.0f" : "%.3f";
 		this.nExperiments = nExperiments;
-		this.secParams = secParams;
-		this.nPatients = secParams.getNPatients();
-		this.minAge = secParams.getMinAge();
+		this.model = model;
+		this.nPatients = model.getExperiment().getNPatients();
+		this.minAge = model.getPopulation().getMinAge();
 		this.length = length;
 		this.nIntervals = ((BasicConfigParams.DEF_MAX_AGE - minAge) / length) + 1;
-		this.interventions = secParams.getRegisteredInterventions();
+		this.interventions = model.getRegisteredInterventions();
 		final int nInterventions = interventions.length;
 		nDeaths = new double[nInterventions][nIntervals];
 		nBirths = new double[nInterventions][nIntervals];
-		nManifestation = new double[nInterventions][secParams.getRegisteredDiseaseProgressions().length][nIntervals];
-		nDisease = new double[nInterventions][secParams.getRegisteredDiseases().length][nIntervals];
+		nManifestation = new double[nInterventions][model.getRegisteredDiseaseProgressions().length][nIntervals];
+		nDisease = new double[nInterventions][model.getRegisteredDiseases().length][nIntervals];
 		nDeathsByCause = new HashMap<>();
 		this.resultsReady = false;
 	}
@@ -112,10 +113,10 @@ public abstract class EpidemiologicView implements ExperimentListener {
 			for (final Named cause : nDeathsByCause.keySet()) {
 				str.append("\t" + name + "_DEATH_" + cause);				
 			}
-			for (Disease dis : secParams.getRegisteredDiseases()) {
+			for (Disease dis : model.getRegisteredDiseases()) {
 				str.append("\t" + name + "_").append(dis.name());
 			}
-			for (DiseaseProgression comp : secParams.getRegisteredDiseaseProgressions()) {
+			for (DiseaseProgression comp : model.getRegisteredDiseaseProgressions()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
 		}
@@ -196,11 +197,11 @@ public abstract class EpidemiologicView implements ExperimentListener {
 			nDeaths = new int[nIntervals];
 			nDeathsByCause = new HashMap<>();			
 			nBirths = new int[nIntervals];
-			nManifestation = new int[secParams.getRegisteredDiseaseProgressions().length][nIntervals];
-			nEndManifestation = new int[secParams.getRegisteredDiseaseProgressions().length][nIntervals];
-			nDisease = new int[secParams.getRegisteredDiseases().length][nIntervals];
-			nEndDisease = new int[secParams.getRegisteredDiseases().length][nIntervals];
-			patientDisease = new boolean[secParams.getRegisteredDiseases().length][nPatients];
+			nManifestation = new int[model.getRegisteredDiseaseProgressions().length][nIntervals];
+			nEndManifestation = new int[model.getRegisteredDiseaseProgressions().length][nIntervals];
+			nDisease = new int[model.getRegisteredDiseases().length][nIntervals];
+			nEndDisease = new int[model.getRegisteredDiseases().length][nIntervals];
+			patientDisease = new boolean[model.getRegisteredDiseases().length][nPatients];
 			addGenerated(PatientInfo.class);
 			addEntrance(PatientInfo.class);
 			addEntrance(SimulationStartStopInfo.class);

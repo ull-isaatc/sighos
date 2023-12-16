@@ -2,6 +2,7 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.Arrays;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -20,23 +21,23 @@ public class FirstOrderNatureParameter extends Parameter {
 	/**
 	 * 
 	 */
-	public FirstOrderNatureParameter(final SecondOrderParamsRepository secParams, String name, ParameterDescription desc, ParameterExpression expression) {
-        super(secParams, name, desc);
+	public FirstOrderNatureParameter(HTAModel model, String name, String description, String source, int year, ParameterType type, ParameterExpression expression) {
+        super(name, description, source, year, type);
 		this.expression = expression;
 		if (expression == null)
 			throw new IllegalArgumentException("expression cannot be null");
-		generatedValues = new double[secParams.getNPatients()];
+		generatedValues = new double[model.getExperiment().getNPatients()];
 		Arrays.fill(generatedValues, Double.NaN);
 	}
 	/**
 	 * 
 	 */
-	public FirstOrderNatureParameter(final SecondOrderParamsRepository secParams, String name, ParameterDescription desc, RandomVariate rnd) {
-		this(secParams, name, desc, new RandomParameterExpression(rnd));
+	public FirstOrderNatureParameter(HTAModel model, String name, String description, String source, int year, ParameterType type, RandomVariate rnd) {
+		this(model, name, description, source, year, type, new RandomParameterExpression(rnd));
 	}
 
-	public FirstOrderNatureParameter(final SecondOrderParamsRepository secParams, String name, ParameterDescription desc, String rndFunction, Object... params) {
-		this(secParams, name, desc, new RandomParameterExpression(RandomVariateFactory.getInstance(rndFunction, params)));		
+	public FirstOrderNatureParameter(HTAModel model, String name, String description, String source, int year, ParameterType type, String rndFunction, Object... params) {
+		this(model, name, description, source, year, type, new RandomParameterExpression(RandomVariateFactory.getInstance(rndFunction, params)));		
 	}
 
 	@Override

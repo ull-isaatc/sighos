@@ -1,16 +1,31 @@
 package es.ull.iis.simulation.hta;
 
+import java.time.Year;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
+import es.ull.iis.simulation.hta.params.SpanishCPIUpdate;
+import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Development;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionEvents;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 
 public class HTAModel {
+    /** The complete collection of Parameters with unique names defined in this model */
+    private final Map<String, Parameter> parameters;
+    /** A collection of modifiers of parameters associated to a specific intervention */
+	final private HashMap<String, TreeMap<Intervention, ParameterModifier>> interventionModifiers;
+
+    /** The experiment this model belongs to */
+    final private HTAExperiment experiment;
 	/** The collection of defined diseases */
 	final protected Map<String, Disease> registeredDiseases;
 	/** The collection of defined developments */
@@ -21,15 +36,89 @@ public class HTAModel {
 	final protected Map<String, DiseaseProgression> registeredProgressions;
 	/** The registeredPopulation */
 	private Population registeredPopulation = null;
- 
+ 	/** A dummy disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
+	public final Disease HEALTHY;
+	/** Absence of progression */
+	private static final DiseaseProgressionEvents NULL_PROGRESSION = new DiseaseProgressionEvents(); 
+	/** Year used to update the costs */
+	private static int studyYear = Year.now().getValue();
+
     /**
      * Creates a new HTA model
      */
-    public HTAModel() {
-        registeredDiseases = new TreeMap<>();
-        registeredDevelopments = new TreeMap<>();
-        registeredInterventions = new TreeMap<>();
-        registeredProgressions = new TreeMap<>();
+    public HTAModel(HTAExperiment experiment) {
+        this.experiment = experiment;
+        this.parameters = new HashMap<>();
+		this.interventionModifiers = new HashMap<>();
+        this.registeredDiseases = new TreeMap<>();
+        this.registeredDevelopments = new TreeMap<>();
+        this.registeredInterventions = new TreeMap<>();
+        this.registeredProgressions = new TreeMap<>();
+        this.HEALTHY = new Disease(this, "HEALTHY", "Healthy") {
+            @Override
+            public DiseaseProgressionEvents getProgression(Patient pat) {
+                return NULL_PROGRESSION;
+            }
+        };
+    }
+
+	/**
+	 * Checks the model validity and returns a string with the missing components.
+	 * @return null if everything is ok; a string with the missing components otherwise
+	 */
+	public String checkValidity() {
+		final StringBuilder str = new StringBuilder();
+		if (registeredDiseases.size() == 0)
+			str.append("At least one disease must be defined").append(System.lineSeparator());
+		if (registeredInterventions.size() == 0) {
+			str.append("At least one intervention must be defined").append(System.lineSeparator());
+		}
+		if (registeredPopulation == null) {
+			str.append("No population defined").append(System.lineSeparator());
+		}
+		return (str.length() > 0) ? str.toString() : null;
+	}
+
+	/**
+	 * Registers the  parameters associated to the population, death submodel, diseases, manifestations and interventions that were
+	 * previously included in this model. This method must be invoked after all these components have been created. 
+     */	
+    public void createParameters() {
+		registeredPopulation.createParameters();
+		for (Disease disease : registeredDiseases.values())
+			disease.createParameters();
+		for (DiseaseProgression progression : registeredProgressions.values()) {
+			progression.createParameters();
+			for (DiseaseProgressionPathway pathway : progression.getPathways()) {
+				pathway.createParameters();
+			}
+		}
+		for (Intervention intervention : registeredInterventions.values())
+			intervention.createParameters();
+    }
+
+	/**
+	 * Return the year that is used to update the cost parameters
+	 * @return the year that is used to update the cost parameters
+	 */
+	public static int getStudyYear() {
+		return studyYear;
+	}
+
+	/**
+	 * Sets the value of the year that is used to update the cost parameters
+	 * @param year The new year of study
+	 */
+	public static void setStudyYear(int year) {
+		studyYear = year;
+	}
+
+    /**
+     * Returns the experiment this model belongs to
+     * @return the experiment this model belongs to
+     */
+    public HTAExperiment getExperiment() {
+        return experiment;
     }
 
     /**
@@ -165,6 +254,75 @@ public class HTAModel {
      */    
 	public Population getPopulation() {
 		return registeredPopulation;
+	}
+
+    /**
+     * Returns the collection of parameters created for a model component
+     * @return the collection of parameters created for a model component
+     */
+    public Map<String, Parameter> getParameters() {
+        return parameters;
+    }
+
+    /**
+     * Adds a parameter to the collection, unless a parameter with the same name already exists.
+     * @param param The parameter to be added
+     * @return true if the parameter was added, false otherwise
+     */
+    public boolean addParameter(Parameter param) {
+        if (parameters.containsKey(param.name()))
+            return false;
+        parameters.put(param.name(), param);
+        return true;
+    }
+
+    /**
+     * Adds a parameter modifier associated to certain intervention
+     * @param paramName The name of the parameter to be modified
+     * @param interv The intervention associated to the modifier
+     * @param modifier The modifier to be added
+     */
+    public void addParameterModifier(String paramName, Intervention interv, ParameterModifier modifier) {
+		TreeMap<Intervention, ParameterModifier> map = interventionModifiers.get(paramName);
+		if (map == null) {
+			map = new TreeMap<>();
+			interventionModifiers.put(paramName, map);
+		}
+		map.put(interv, modifier);
+	}
+
+	/**
+	 * Returns a value for a parameter
+	 * @param name String identifier of the parameter
+	 * @return A value for the specified parameter; {@link Double#NaN} in case the parameter is not defined
+	 */
+	public double getParameterValue(String name, Patient pat) {
+		return getParameterValue(name, Double.NaN, pat);
+	}
+
+	/**
+	 * Returns the value of the parameter for a specific patient, modified according to the intervention
+	 * @param name String identifier of the parameter
+	 * @param defaultValue Default value in case the parameter is not defined
+	 * @param pat A patient
+	 * @return A value for the specified parameter; the specified default value in case the parameter is not defined
+	 */
+	public double getParameterValue(String name, double defaultValue, Patient pat) {
+		final Parameter param = parameters.get(name);
+		if (param == null)
+			return defaultValue;
+		double value = param.getValue(pat);
+		final TreeMap<Intervention, ParameterModifier> map = interventionModifiers.get(name);
+		if (map != null) {
+			final ParameterModifier modifier = map.get(pat.getIntervention());
+			if (modifier != null) {
+				value = modifier.getModifiedValue(pat, value);
+			}
+		}
+		if (ParameterType.COST.equals(param.getType())) {
+			return SpanishCPIUpdate.updateCost(value, param.getYear(), studyYear);
+		}
+		return value;
 	}
 
 }

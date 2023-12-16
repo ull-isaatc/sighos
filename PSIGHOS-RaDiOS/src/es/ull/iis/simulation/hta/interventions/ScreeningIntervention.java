@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.Reseteable;
 import es.ull.iis.simulation.hta.info.PatientInfo;
@@ -15,7 +16,6 @@ import es.ull.iis.simulation.hta.outcomes.Strategy;
 import es.ull.iis.simulation.hta.params.DefinesSensitivityAndSpecificity;
 import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
@@ -31,18 +31,18 @@ public abstract class ScreeningIntervention extends Intervention implements Defi
 	/**
 	 * 
 	 */
-	public ScreeningIntervention(SecondOrderParamsRepository secParams, String name, String description) {
-		this(secParams, name, description, null);
+	public ScreeningIntervention(HTAModel model, String name, String description) {
+		this(model, name, description, null);
 	}
 	
 	/**
 	 * 
 	 */
-	public ScreeningIntervention(SecondOrderParamsRepository secParams, String name, String description, ScreeningStrategy strategy) {
-		super(secParams, name, description, strategy);
-		this.randomSeeds = new RandomSeedForPatients[secParams.getNRuns() + 1];
+	public ScreeningIntervention(HTAModel model, String name, String description, ScreeningStrategy strategy) {
+		super(model, name, description, strategy);
+		this.randomSeeds = new RandomSeedForPatients[model.getExperiment().getNRuns() + 1];
 		Arrays.fill(randomSeeds, null);
-		this.nPatients = secParams.getNPatients();
+		this.nPatients = model.getExperiment().getNPatients();
 	}
 	
 	@Override
@@ -84,10 +84,10 @@ public abstract class ScreeningIntervention extends Intervention implements Defi
 				DetectionTestResult result;
 				// Healthy patients can be wrongly identified as false positives 
 				if (pat.isHealthy()) {
-					result = (getRandomSeedForPatients(id).draw(pat) >= getSpecificity(pat)) ? DetectionTestResult.FP : DetectionTestResult.TN;
+					result = (getRandomSeedForPatients(id).draw(pat) >= getSpecificity(ScreeningIntervention.this, pat)) ? DetectionTestResult.FP : DetectionTestResult.TN;
 				}
 				else {
-					result = (getRandomSeedForPatients(id).draw(pat) >= getSensitivity(pat)) ? DetectionTestResult.FN : DetectionTestResult.TP;					
+					result = (getRandomSeedForPatients(id).draw(pat) >= getSensitivity(ScreeningIntervention.this, pat)) ? DetectionTestResult.FN : DetectionTestResult.TP;					
 				}
 				simul.notifyInfo(new PatientInfo(simul, pat, PatientInfo.Type.SCREEN, result, this.getTs()));
 				switch(result) {
@@ -126,10 +126,10 @@ public abstract class ScreeningIntervention extends Intervention implements Defi
 				DetectionTestResult result;
 				// Healthy patients can be wrongly identified as false positives 
 				if (pat.isHealthy()) {
-					result = (getRandomSeedForPatients(id).draw(pat) >= ((ScreeningStrategy)getStrategy()).getSpecificity(pat)) ? DetectionTestResult.FP : DetectionTestResult.TN;
+					result = (getRandomSeedForPatients(id).draw(pat) >= ((ScreeningStrategy)getStrategy()).getSpecificity(ScreeningIntervention.this, pat)) ? DetectionTestResult.FP : DetectionTestResult.TN;
 				}
 				else {
-					result = (getRandomSeedForPatients(id).draw(pat) >= ((ScreeningStrategy)getStrategy()).getSensitivity(pat)) ? DetectionTestResult.FN : DetectionTestResult.TP;					
+					result = (getRandomSeedForPatients(id).draw(pat) >= ((ScreeningStrategy)getStrategy()).getSensitivity(ScreeningIntervention.this, pat)) ? DetectionTestResult.FN : DetectionTestResult.TP;					
 				}
 				simul.notifyInfo(new PatientInfo(simul, pat, PatientInfo.Type.SCREEN, result, this.getTs()));
 				switch(result) {

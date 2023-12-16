@@ -11,8 +11,8 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -168,7 +168,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the patient is currently healthy; false otherwise
 	 */
 	public boolean isHealthy() {
-		return ((DiseaseProgressionSimulation) simul).getRepository().HEALTHY.equals(getDisease());
+		return ((DiseaseProgressionSimulation) simul).getModel().HEALTHY.equals(getDisease());
 	}
 	
 	/**
@@ -185,7 +185,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return true if this patient starts in the simulation with the specified progression
 	 */
 	public boolean startsWithDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression)) < RiskParamDescriptions.INITIAL_PROPORTION.getValue(getSimulation().getRepository(), progression, this);
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression)) < progression.getStandardParameterValue(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, this);
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the acute onset of the progression produces the death of the patient
 	 */
 	public boolean deadsByDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DEATH.getKey(this, progression)) < RiskParamDescriptions.PROBABILITY_DEATH.getValue(getSimulation().getRepository(), progression, this);
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DEATH.getKey(this, progression)) < progression.getStandardParameterValue(StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH, this);
 	}
 	
 	/**
@@ -203,7 +203,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the acute onset of a progression leads to the diagnosis of the patient
 	 */
 	public boolean isDiagnosedByDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DIAGNOSE.getKey(this, progression)) < RiskParamDescriptions.PROBABILITY_DIAGNOSIS.getValue(getSimulation().getRepository(), progression, this);
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DIAGNOSE.getKey(this, progression)) < progression.getStandardParameterValue(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, this);
 	}
 	
 	@Override
@@ -464,7 +464,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return the value associated to the specified attribute
 	 */
 	public Number getAttributeValue(String attribute) {
-		return getSimulation().getRepository().getParameterValue(attribute, this);
+		return getSimulation().getModel().getParameterValue(attribute, this);
 	}
 
 	/**

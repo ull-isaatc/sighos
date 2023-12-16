@@ -20,18 +20,15 @@ import es.ull.iis.util.ExtendedMath;
 public class ExclusiveChoiceCondition extends Condition<DiseaseProgressionPathway.ConditionInformation> {
 	private final SingleSelector[] selectors;
 	private final Map<DiseaseProgression, String> paramsByProgression;
-	/** Common parameters repository */
-	private final SecondOrderParamsRepository secParams;
 
 	/**
 	 * 
 	 */
-	public ExclusiveChoiceCondition(SecondOrderParamsRepository secParams, Map<DiseaseProgression, String> paramsByProgression) {
+	public ExclusiveChoiceCondition(Map<DiseaseProgression, String> paramsByProgression) {
 		super();
 		this.paramsByProgression = paramsByProgression;
 		this.selectors = new SingleSelector[secParams.getNRuns() + 1];
 		Arrays.fill(this.selectors, null); 		
-		this.secParams = secParams;
 	}
 
 	@Override
@@ -63,7 +60,7 @@ public class ExclusiveChoiceCondition extends Condition<DiseaseProgressionPathwa
 			String rndKey = "PROP";
 	        for (int i = 0; i < progressions.length; i++) {
 	        	progressions[i] = (DiseaseProgression)paramsByProgression.keySet().toArray()[i];
-	        	frequencies[i] = secParams.getParameterValue(paramsByProgression.get(progressions[i]), pat);
+	        	frequencies[i] = progressions[i].getParameterValue(paramsByProgression.get(progressions[i]), pat);
 	        	rndKey += "_" + progressions[i].name();
 	        }
 	        this.rndKey = rndKey;

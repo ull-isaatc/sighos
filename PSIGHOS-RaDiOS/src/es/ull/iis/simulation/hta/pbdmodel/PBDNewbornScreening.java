@@ -3,12 +3,11 @@
  */
 package es.ull.iis.simulation.hta.pbdmodel;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.hta.params.modifiers.SetConstantParameterModifier;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -24,18 +23,18 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 	/**
 	 * @param secParams
 	 */
-	public PBDNewbornScreening(SecondOrderParamsRepository secParams) {
-		super(secParams, "#PBD_InterventionScreening", "Basic screening");
+	public PBDNewbornScreening(HTAModel model) {
+		super(model, "#PBD_InterventionScreening", "Basic screening");
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
-		RiskParamDescriptions.SENSITIVITY.addParameter(secParams, this, "", 1.0);
-		RiskParamDescriptions.SPECIFICITY.addParameter(secParams, this, "", 0.999935);
+	public void createParameters() {
+		StandardParameter.ONE_TIME_COST.addParameter(model, this, "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
+		StandardParameter.SENSITIVITY.addParameter(model, this, "", 1.0);
+		StandardParameter.SPECIFICITY.addParameter(model, this, "", 0.999935);
 		final ParameterModifier modifier = new SetConstantParameterModifier(0.0); 
-		for (DiseaseProgression manif : secParams.getRegisteredDiseaseProgressions())
-			secParams.addParameterModifier(RiskParamDescriptions.PROBABILITY.getParameterName(manif), this, modifier);
+		for (DiseaseProgression manif : model.getRegisteredDiseaseProgressions())
+			model.addParameterModifier(StandardParameter.PROPORTION.createName(manif), this, modifier);
 	}
 
 	@Override
@@ -45,7 +44,7 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 
 	@Override
 	public double getStartingCost(Patient pat, double time, Discount discountRate) {
-		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(getRepository(), this, pat), time);
+		return discountRate.applyPunctualDiscount(getStandardParameterValue(StandardParameter.ONE_TIME_COST, pat), time);
 	}
 
 	@Override

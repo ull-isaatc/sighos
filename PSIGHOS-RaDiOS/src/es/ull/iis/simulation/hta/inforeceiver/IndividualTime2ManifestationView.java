@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.inforeceiver;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -34,14 +35,14 @@ public class IndividualTime2ManifestationView extends Listener implements Struct
 
 	/**
 	 * 
-	 * @param secParams Main repository for the simulations
+	 * @param model Main repository for the simulations
 	 */
-	public IndividualTime2ManifestationView(SecondOrderParamsRepository secParams) {
+	public IndividualTime2ManifestationView(HTAModel model) {
 		super("Viewer of time to event per patient");
-		this.interventions = secParams.getRegisteredInterventions();
-		this.nPatients = secParams.getNPatients();
-		this.availableChronicManifestations = secParams.getRegisteredDiseaseProgressions(DiseaseProgression.Type.CHRONIC_MANIFESTATION);
-		this.availableAcuteManifestations = secParams.getRegisteredDiseaseProgressions(DiseaseProgression.Type.ACUTE_MANIFESTATION);
+		this.interventions = model.getRegisteredInterventions();
+		this.nPatients = model.getExperiment().getNPatients();
+		this.availableChronicManifestations = model.getRegisteredDiseaseProgressions(DiseaseProgression.Type.CHRONIC_MANIFESTATION);
+		this.availableAcuteManifestations = model.getRegisteredDiseaseProgressions(DiseaseProgression.Type.ACUTE_MANIFESTATION);
 		this.innerTimeTo = new double[nPatients][interventions.length][availableChronicManifestations.length];
 		this.innerNEvents = new int[nPatients][interventions.length][availableAcuteManifestations.length];
 		addGenerated(PatientInfo.class);

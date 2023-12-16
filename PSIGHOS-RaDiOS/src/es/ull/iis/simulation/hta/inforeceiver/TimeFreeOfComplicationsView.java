@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.inforeceiver;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -53,14 +54,14 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 
 	/**
 	 * 
-	 * @param secParams Main repository for the simulations
+	 * @param model Main repository for the simulations
 	 * @param printFirstOrderVariance Enables printing the confidence intervals for first order simulations
 	 */
-	public TimeFreeOfComplicationsView(SecondOrderParamsRepository secParams, boolean printFirstOrderVariance) {
+	public TimeFreeOfComplicationsView(HTAModel model, boolean printFirstOrderVariance) {
 		super("Standard patient viewer");
-		this.nInterventions = secParams.getNInterventions();
-		this.nPatients = secParams.getNPatients();
-		this.availableManifestations = secParams.getRegisteredDiseaseProgressions();
+		this.nInterventions = model.getNInterventions();
+		this.nPatients = model.getExperiment().getNPatients();
+		this.availableManifestations = model.getRegisteredDiseaseProgressions();
 		prevalence = new int[nInterventions][availableManifestations.length];
 		incidence = new int[nInterventions][availableManifestations.length];
 		timeToEvents = new TreeMap<>();
@@ -83,11 +84,11 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	 * @param availableManifestations Chronic manifestations included
 	 * @return
 	 */
-	public static String getStrHeader(boolean printFirstOrderVariance, SecondOrderParamsRepository secParams) {
+	public static String getStrHeader(boolean printFirstOrderVariance, HTAModel model) {
 		final StringBuilder str = new StringBuilder();
 		if (printFirstOrderVariance) {
-			for (Intervention inter : secParams.getRegisteredInterventions()) {
-				for (DiseaseProgression manif : secParams.getRegisteredDiseaseProgressions()) {
+			for (Intervention inter : model.getRegisteredInterventions()) {
+				for (DiseaseProgression manif : model.getRegisteredDiseaseProgressions()) {
 					final String suf = manif.name() + "_" + inter.name() + SEP;
 					if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(manif.getType())) {
 						str.append(STR_INC).append(suf).append(STR_PREV).append(suf).append(STR_AVG_TIME).append(suf).append(STR_LCI_TIME).append(suf).append(STR_UCI_TIME).append(suf);
@@ -99,8 +100,8 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 			}
 		}
 		else {
-			for (Intervention inter : secParams.getRegisteredInterventions()) {
-				for (DiseaseProgression manif : secParams.getRegisteredDiseaseProgressions()) {
+			for (Intervention inter : model.getRegisteredInterventions()) {
+				for (DiseaseProgression manif : model.getRegisteredDiseaseProgressions()) {
 					final String suf = manif.name() + "_" + inter.name() + SEP;
 					if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(manif.getType())) {
 						str.append(STR_INC).append(suf).append(STR_PREV).append(suf).append(STR_AVG_TIME).append(suf);

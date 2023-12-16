@@ -5,6 +5,8 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.Collection;
 
+
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 
 /**
@@ -17,10 +19,10 @@ public class CompoundRRParameter extends Parameter {
 	public enum DEF_COMBINATION implements CombinationMethod {
 		ADD {
 			@Override
-			public double combine(SecondOrderParamsRepository secParams, Collection<String> combinedParameterNames, Patient pat) {
+			public double combine(HTAModel model, Collection<String> combinedParameterNames, Patient pat) {
 				double finalRR = 1.0;
 				for (String rrName : combinedParameterNames) {
-					double rr = secParams.getParameterValue(rrName, pat);
+					double rr = model.getParameterValue(rrName, pat);
 					finalRR += rr - 1;
 				}
 				return finalRR;
@@ -28,10 +30,10 @@ public class CompoundRRParameter extends Parameter {
 		},
 		MAX {
 			@Override
-			public double combine(SecondOrderParamsRepository secParams, Collection<String> combinedParameterNames, Patient pat) {
+			public double combine(HTAModel model, Collection<String> combinedParameterNames, Patient pat) {
 				double finalRR = -1.0;
 				for (String rrName : combinedParameterNames) {
-					final double newRR = secParams.getParameterValue(rrName, pat);
+					final double newRR = model.getParameterValue(rrName, pat);
 					finalRR = (newRR > finalRR) ? newRR : finalRR;
 				}
 				return finalRR;
@@ -43,21 +45,24 @@ public class CompoundRRParameter extends Parameter {
 	protected final Collection<String> combinedParameterNames;
 	/** Combination method used to combine the relative risks */
 	private final CombinationMethod combMethod;
+    /** The model this component belongs to */
+    protected final HTAModel model;
 
 	/**
 	 * Creates a relative risk parameter that combines several parameters
 	 * @param combinedParameterNames The collection of parameters to be combined 
 	 * @param combMethod Combination method used to combine the relative risks
 	 */
-	public CompoundRRParameter(SecondOrderParamsRepository secParams, String paramName, Collection<String> combinedParameterNames, CombinationMethod combMethod) {
-		super(secParams, paramName);
+	public CompoundRRParameter(HTAModel model, String paramName, String description, String source, int year, Collection<String> combinedParameterNames, CombinationMethod combMethod) {
+		super(paramName, description, source, year, ParameterType.RISK);
+		this.model = model;
 		this.combinedParameterNames = combinedParameterNames;
 		this.combMethod = combMethod;
 	}
 
 	@Override
 	public double getValue(Patient pat) {
-		return combMethod.combine(getRepository(), combinedParameterNames, pat);
+		return combMethod.combine(model, combinedParameterNames, pat);
 	}
 
 	/**
@@ -65,6 +70,6 @@ public class CompoundRRParameter extends Parameter {
 	 * @author Iván Castilla Rodríguez
 	 */
 	public static interface CombinationMethod {
-		double combine(SecondOrderParamsRepository secParams, Collection<String> combinedParameterNames, Patient pat); 
+		double combine(HTAModel model, Collection<String> combinedParameterNames, Patient pat); 
 	}
 }

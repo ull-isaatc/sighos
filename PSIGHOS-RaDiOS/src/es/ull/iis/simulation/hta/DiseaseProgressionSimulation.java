@@ -15,8 +15,8 @@ import es.ull.iis.simulation.model.TimeUnit;
  */
 public class DiseaseProgressionSimulation extends Simulation {
 	private final static String DESCRIPTION = "Disease progression simulation";
-	/** Common parameters of the simulation to be used by simulated patients */
-	private final SecondOrderParamsRepository secParams;
+	/** The model simulated */
+	private final HTAModel model;
 	/** Counter to assign a unique id to each patient */
 	private int patientCounter = 0;
 	/** The intervention assessed in this simulation */
@@ -34,18 +34,18 @@ public class DiseaseProgressionSimulation extends Simulation {
 	 * @param id Identifier of the simulation
 	 * @param intervention Simulated intervention
 	 * @param nPatients Amount of patients to create
-	 * @param secParams Common parameters
+	 * @param model The model to be simulated
 	 * @param population A collection of populations that will serve to generate patients
 	 * @param timeHorizon Duration of the simulation (in years)
 	 */
-	public DiseaseProgressionSimulation(int id, Intervention intervention, SecondOrderParamsRepository secParams, int timeHorizon) {
+	public DiseaseProgressionSimulation(int id, Intervention intervention, HTAModel model, int timeHorizon) {
 		super(id, DESCRIPTION + " " + intervention.getDescription(), SecondOrderParamsRepository.getSimulationTimeUnit(), 0L, SecondOrderParamsRepository.adjustTimeToEvent(timeHorizon, TimeUnit.YEAR));
-		this.secParams = secParams;
+		this.model = model;
 		this.cloned = false;
 		this.intervention = intervention;
-		this.nPatients = secParams.getNPatients();
+		this.nPatients = model.getExperiment().getNPatients();
 		this.generatedPatients = new Patient[nPatients];	
-		new PatientGenerator(this, nPatients, intervention, secParams.getPopulation());
+		new PatientGenerator(this, nPatients, intervention, model.getPopulation());
 	}
 
 	/**
@@ -59,18 +59,18 @@ public class DiseaseProgressionSimulation extends Simulation {
 		this.intervention = intervention;
 		this.nPatients = original.nPatients;
 		this.generatedPatients = new Patient[nPatients];
-		this.secParams = original.secParams;
-		new PatientGenerator(this, original.generatedPatients, intervention, secParams.getPopulation());
+		this.model = original.model;
+		new PatientGenerator(this, original.generatedPatients, intervention, model.getPopulation());
 	}
 
 	/**
-	 * Returns the common parameters used within this simulation
-	 * @return the common parameters used within this simulation
+	 * Returns the model to be simulated
+	 * @return the model to be simulated
 	 */
-	public SecondOrderParamsRepository getRepository() {
-		return secParams;
+	public HTAModel getModel() {
+		return model;
 	}
-
+	
 	/**
 	 * Returns the counter of patients created
 	 * @return the counter of patients created

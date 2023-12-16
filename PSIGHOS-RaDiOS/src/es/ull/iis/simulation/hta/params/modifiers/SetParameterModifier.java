@@ -20,7 +20,7 @@ public class SetParameterModifier implements ParameterModifier {
 
 	@Override
 	public double getModifiedValue(Patient pat, double originalValue) {
-		return pat.getSimulation().getRepository().getParameterValue(modifierParamName, pat);
+		return pat.getSimulation().getModel().getParameterValue(modifierParamName, pat);
 	}
 
 }

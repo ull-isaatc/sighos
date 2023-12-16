@@ -6,10 +6,11 @@ package es.ull.iis.simulation.hta.progression;
 import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
@@ -86,17 +87,13 @@ public class EmpiricalSpainDeathSubmodel extends DiseaseProgression {
 	 * @param rng A random number generator
 	 * @param nPatients Number of simulated patients
 	 */
-	public EmpiricalSpainDeathSubmodel(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "DEATH", "Death according to the Spanish 2017 Mortality risk from the Instituto Nacional de Estadística (INE)", disease, DiseaseProgression.Type.DEATH);
-		rnd = new double[secParams.getNRuns() + 1][secParams.getNPatients()];
-		for (int i = 0; i < secParams.getNRuns() + 1; i++)
-			for (int j = 0; j < secParams.getNPatients(); j++) {
+	public EmpiricalSpainDeathSubmodel(HTAModel model, Disease disease) {
+		super(model, "DEATH", "Death according to the Spanish 2017 Mortality risk from the Instituto Nacional de Estadística (INE)", disease, DiseaseProgression.Type.DEATH);
+		rnd = new double[model.getExperiment().getNRuns() + 1][model.getExperiment().getNPatients()];
+		for (int i = 0; i < model.getExperiment().getNRuns() + 1; i++)
+			for (int j = 0; j < model.getExperiment().getNPatients(); j++) {
 				rnd[i][j] = rng.draw();
 			}
-	}
-
-	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 	}
 	
 	/**
@@ -107,8 +104,6 @@ public class EmpiricalSpainDeathSubmodel extends DiseaseProgression {
 	 */
 	@Override
 	public long getTimeTo(Patient pat, long limit) {
-		final SecondOrderParamsRepository secParams = getRepository();
-
 		final DiseaseProgressionSimulation simul = pat.getSimulation();
 		final int simulId = simul.getIdentifier();
 		final double age = pat.getAge();
@@ -116,11 +111,11 @@ public class EmpiricalSpainDeathSubmodel extends DiseaseProgression {
 		double imr = 1.0;
 		double ler = 0.0;
 		for (final DiseaseProgression state : pat.getState()) {
-			final double newIMR = OtherParamDescriptions.INCREASED_MORTALITY_RATE.getValue(secParams, state, pat);
+			final double newIMR = state.getStandardParameterValue(StandardParameter.INCREASED_MORTALITY_RATE, pat);
 			if (newIMR > imr) {
 				imr = newIMR;
 			}
-			final double newLER = OtherParamDescriptions.LIFE_EXPECTANCY_REDUCTION.getValue(secParams, state, pat);
+			final double newLER = state.getStandardParameterValue(StandardParameter.LIFE_EXPECTANCY_REDUCTION, pat);
 			if (newLER > ler) {
 				ler = newLER;
 			}

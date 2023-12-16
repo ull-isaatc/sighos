@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.List;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
@@ -18,8 +19,16 @@ public class ProportionBasedTimeToEventParameter extends Parameter {
 	/** Name of the second order parameter that defines the proportion */
 	private final String proportionParamName;
 	
-	public ProportionBasedTimeToEventParameter(SecondOrderParamsRepository secParams, String paramName, DiseaseProgression destManifestation, String proportionParamName) {
-		super(secParams, paramName);
+	/**
+	 * 
+	 * @param model
+	 * @param paramName
+	 * @param type
+	 * @param destManifestation
+	 * @param proportionParamName
+	 */
+	public ProportionBasedTimeToEventParameter(HTAModel model, String paramName, String description, String source, int year, DiseaseProgression destManifestation, String proportionParamName) {
+		super(paramName, description, source, year, ParameterType.RISK);
 		this.destManifestation = destManifestation;
 		this.proportionParamName = proportionParamName;
 		
@@ -27,7 +36,7 @@ public class ProportionBasedTimeToEventParameter extends Parameter {
 
 	@Override
 	public double getValue(Patient pat) {
-		final double proportion = getRepository().getParameterValue(proportionParamName, pat);
+		final double proportion = destManifestation.getModel().getParameterValue(proportionParamName, pat);
 		// Generates two random numbers: the first indicates whether the patient will suffer the problem; the second serves to compute time to event 
 		List<Double> rndValues = pat.getRandomNumbersForIncidence(destManifestation, 2);
 		// Do the patient suffers the problem?

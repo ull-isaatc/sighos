@@ -18,8 +18,8 @@ public abstract class TabularParameter<K extends Comparable<K>> extends Paramete
      * @param name The unique name of the parameter
      * @param table The table of values, indexed by a key that is calculated from the characteristics of the patient
      */
-    public TabularParameter(SecondOrderParamsRepository secParams, String name, Map<K, Double> table) {
-        super(secParams, name);
+    public TabularParameter(String name, String description, String source, int year, ParameterType type, Map<K, Double> table) {
+        super(name, description, source, year, type);
         this.table = table;
     }
 
@@ -28,8 +28,8 @@ public abstract class TabularParameter<K extends Comparable<K>> extends Paramete
      * @param secParams Repository of parameters
      * @param name The unique name of the parameter
      */
-    public TabularParameter(SecondOrderParamsRepository secParams, String name) {
-        super(secParams, name);
+    public TabularParameter(String name, String description, String source, int year, ParameterType type) {
+        super( name, description, source, year, type);
         this.table = new HashMap<>();
     }
 

@@ -1,13 +1,14 @@
 package es.ull.iis.simulation.hta;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.EnumMap;
 
 import es.ull.iis.simulation.hta.params.DefinesParameters;
 import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 
 public abstract class HTAModelComponent implements NamedAndDescribed, DefinesParameters {
-    private final Map<String, Parameter> parameters = new TreeMap<>();
+	/** The parameter names defined for each standard parameter that can be used by the disease */
+	private final EnumMap<StandardParameter, String> alternativeStdParameterNames;
 	/** Short name of the model component */
 	private final String name;
 	/** Full description of the model component */
@@ -21,10 +22,10 @@ public abstract class HTAModelComponent implements NamedAndDescribed, DefinesPar
      * @param description Full description of the model component
      */
     public HTAModelComponent(HTAModel model, String name, String description) {
+		this.alternativeStdParameterNames = new EnumMap<>(StandardParameter.class);
         this.name = name;
         this.description = description;
         this.model = model;
-        createParameters();
     }
 
 	@Override
@@ -49,23 +50,32 @@ public abstract class HTAModelComponent implements NamedAndDescribed, DefinesPar
         return model;
     }
 
-    @Override
-    public Map<String, Parameter> getParameters() {
-        return parameters;
-    }
+	/**
+	 * Sets the name of the {@link Parameter} that defines the value of a standard parameter
+	 * @param stdParam The standard parameter
+	 * @param paramName The name of parameter that defines the value of the standard parameter
+	 * @return false if the standard parameter is already defined; true otherwise
+	 */
+	public boolean setAlternativeStandardParameterName(StandardParameter stdParam, String paramName) {
+		// If the standard parameter is already defined, do not add it
+		if (alternativeStdParameterNames.containsKey(stdParam))
+			return false;
+		alternativeStdParameterNames.put(stdParam, paramName);
+		return true;
+	}
 
-    @Override
-    public Parameter getParameter(String name) {
-        return parameters.get(name);
-    }
-
-    @Override
-    public boolean addParameter(Parameter param) {
-        if (parameters.containsKey(param.name()))
-            return false;
-        parameters.put(param.name(), param);
-        return true;
-    }
+	/**
+	 * Returns the value of a standard parameter for a patient. If the parameter is not defined, returns its default value
+	 * @param stdParam The type of standard parameter
+	 * @param pat A patient
+	 * @return the value of a standard parameter for a patient; its default value if not defined
+	 */
+	public double getStandardParameterValue(StandardParameter stdParam, Patient pat) {
+		if (alternativeStdParameterNames.containsKey(stdParam))
+			return model.getParameterValue(alternativeStdParameterNames.get(stdParam), pat);
+        else
+            return model.getParameterValue(stdParam.createName(this), stdParam.getDefaultValue(), pat);
+	}
 
     @Override
     public void createParameters() {        

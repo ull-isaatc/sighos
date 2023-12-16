@@ -2,6 +2,7 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.Arrays;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -16,22 +17,22 @@ public class SecondOrderNatureParameter extends Parameter {
 	/** All the generated values for this parameter. Index 0 is the deterministic/expected value */
 	private final double[] generatedValues;
 
-    public SecondOrderNatureParameter(SecondOrderParamsRepository secParams, String name, ParameterDescription desc, double detValue, ParameterExpression expression) {
-        super(secParams, name, desc);
+    public SecondOrderNatureParameter(HTAModel model, String name, String description, String source, int year, ParameterType type, double detValue, ParameterExpression expression) {
+        super(name, description, source, year, type);
 		this.expression = expression;
 		if (expression == null)
 			throw new IllegalArgumentException("expression cannot be null");
-		generatedValues = new double[secParams.getNRuns() + 1];
+		generatedValues = new double[model.getExperiment().getNRuns() + 1];
 		Arrays.fill(generatedValues, Double.NaN);
 		generatedValues[0] = detValue;
     }
 
-    public SecondOrderNatureParameter(SecondOrderParamsRepository secParams, String name, ParameterDescription desc, double detValue, RandomVariate rnd) {
-		this(secParams, name, desc, detValue, new RandomParameterExpression(rnd));
+    public SecondOrderNatureParameter(HTAModel model, String name, String description, String source, int year, ParameterType type, double detValue, RandomVariate rnd) {
+		this(model, name, description, source, year, type, detValue, new RandomParameterExpression(rnd));
 	}
 
-    public SecondOrderNatureParameter(SecondOrderParamsRepository secParams, String name, ParameterDescription desc, double detValue, String rndFunction, Object... params) {
-        this(secParams, name, desc, detValue, new RandomParameterExpression(RandomVariateFactory.getInstance(rndFunction, params)));
+    public SecondOrderNatureParameter(HTAModel model, String name, String description, String source, int year, ParameterType type, double detValue, String rndFunction, Object... params) {
+        this(model, name, description, source, year, type, detValue, new RandomParameterExpression(RandomVariateFactory.getInstance(rndFunction, params)));
     }
 
 	@Override

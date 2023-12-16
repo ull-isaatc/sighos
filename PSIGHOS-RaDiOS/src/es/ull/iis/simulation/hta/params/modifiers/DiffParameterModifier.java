@@ -21,7 +21,7 @@ public class DiffParameterModifier implements ParameterModifier {
 
 	@Override
 	public double getModifiedValue(Patient pat, double originalValue) {
-		return originalValue - pat.getSimulation().getRepository().getParameterValue(modifierParamName, pat);
+		return originalValue - pat.getSimulation().getModel().getParameterValue(modifierParamName, pat);
 	}
 
 }

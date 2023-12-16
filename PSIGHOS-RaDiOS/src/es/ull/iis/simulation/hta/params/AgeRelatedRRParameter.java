@@ -18,8 +18,8 @@ public class AgeRelatedRRParameter extends Parameter {
 	 * Creates a new instance of this relative risk calculator
 	 * @param agesNRR An age-ordered array of pairs {age, RR}
 	 */
-	public AgeRelatedRRParameter(SecondOrderParamsRepository secParams, String paramName, double[][] agesNRR) {
-		super(secParams, paramName);
+	public AgeRelatedRRParameter(String paramName, String description, String source, int year, double[][] agesNRR) {
+		super(paramName, description, source, year, ParameterType.RISK);
 		this.agesNRR = agesNRR;
 	}
 

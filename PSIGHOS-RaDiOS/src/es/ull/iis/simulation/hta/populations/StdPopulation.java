@@ -7,7 +7,6 @@ import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
@@ -30,10 +29,10 @@ public abstract class StdPopulation extends Population {
 	public StdPopulation(HTAModel model, String name, String description, Disease disease) throws MalformedSimulationModelException {
 		super(model, name, description);
 		this.disease = disease;
-		rndBaselineAge = new RandomVariate[secParams.getNRuns() + 1];
-		rndSex = new DiscreteRandomVariate[secParams.getNRuns() + 1];
-		rndDiagnosed = new DiscreteRandomVariate[secParams.getNRuns() + 1];
-		rndDisease = new DiscreteRandomVariate[secParams.getNRuns() + 1];
+		rndBaselineAge = new RandomVariate[model.getExperiment().getNRuns() + 1];
+		rndSex = new DiscreteRandomVariate[model.getExperiment().getNRuns() + 1];
+		rndDiagnosed = new DiscreteRandomVariate[model.getExperiment().getNRuns() + 1];
+		rndDisease = new DiscreteRandomVariate[model.getExperiment().getNRuns() + 1];
 	}
 	
 	@Override
@@ -57,7 +56,7 @@ public abstract class StdPopulation extends Population {
 		final int id = pat.getSimulation().getIdentifier();
 		if (rndDisease[id] == null)
 			rndDisease[id] = getDiseaseVariate(pat);
-		return (rndDisease[id].generateInt() == 1) ? disease : getRepository().HEALTHY;
+		return (rndDisease[id].generateInt() == 1) ? disease : getModel().HEALTHY;
 	}
 
 	@Override

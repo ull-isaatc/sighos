@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.DefinesSensitivityAndSpecificity;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -35,15 +36,15 @@ public class ScreeningStrategy extends Strategy implements DefinesSensitivityAnd
 	}
 
 	@Override
-	public double getSensitivity(Patient pat) {
-		double sens = DefinesSensitivityAndSpecificity.super.getSensitivity(pat);
+	public double getSensitivity(HTAModelComponent instance, Patient pat) {
+		double sens = DefinesSensitivityAndSpecificity.super.getSensitivity(instance, pat);
 		if (!Double.isNaN(sens))
 			return sens;
 		// If just one level
 		if (getParts().size() == 1) {
 			// If just one child
 			if (getParts().get(0).size() == 1) {
-				return ((DefinesSensitivityAndSpecificity) getParts().get(0).get(0)).getSensitivity(pat);
+				return ((DefinesSensitivityAndSpecificity) getParts().get(0).get(0)).getSensitivity(this, pat);
 			}
 			else {
 				// TODO
@@ -56,15 +57,15 @@ public class ScreeningStrategy extends Strategy implements DefinesSensitivityAnd
 	}
 
 	@Override
-	public double getSpecificity(Patient pat) {
-		double sens = DefinesSensitivityAndSpecificity.super.getSpecificity(pat);
+	public double getSpecificity(HTAModelComponent instance, Patient pat) {
+		double sens = DefinesSensitivityAndSpecificity.super.getSpecificity(instance, pat);
 		if (!Double.isNaN(sens))
 			return sens;
 		// If just one level
 		if (getParts().size() == 1) {
 			// If just one child
 			if (getParts().get(0).size() == 1) {
-				return ((DefinesSensitivityAndSpecificity) getParts().get(0).get(0)).getSpecificity(pat);
+				return ((DefinesSensitivityAndSpecificity) getParts().get(0).get(0)).getSpecificity(this, pat);
 			}
 			else {
 				// TODO

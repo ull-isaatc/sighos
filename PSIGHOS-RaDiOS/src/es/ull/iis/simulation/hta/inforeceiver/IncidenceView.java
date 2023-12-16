@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.hta.inforeceiver;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Named;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
 /**
@@ -28,13 +28,13 @@ public class IncidenceView extends EpidemiologicView {
 	/**
 	 * Creates an incidence viewer
 	 * @param nExperiments Number of experiments to be collected together
-	 * @param secParams The original repository with the definition of the scenario
+	 * @param model The original repository with the definition of the scenario
 	 * @param length Length of the intervals (in years)
 	 * @param absolute If true, shows number of patients; otherwise, shows ratios
 	 * @param byAge If true, creates intervals depending on the current age of the patients; otherwise, creates intervals depending on the time from simulation start
 	 */
-	public IncidenceView(int nExperiments, SecondOrderParamsRepository secParams, int length, boolean absolute, boolean byAge) {
-		super("Incidence", nExperiments, secParams, length, absolute, byAge);
+	public IncidenceView(int nExperiments, HTAModel model, int length, boolean absolute, boolean byAge) {
+		super("Incidence", nExperiments, model, length, absolute, byAge);
 		this.coefPatients = 1.0 / (absolute ? 1.0 : (double)nPatients);
 		this.coefExperiments = 1.0 / (double)nExperiments;
 	}
@@ -50,17 +50,17 @@ public class IncidenceView extends EpidemiologicView {
 		for (final Named cause : listener.getCausesOfDeath()) {
 			nDeathsByCause.get(cause)[interventionId][0] += listener.getnDeathsByCause(cause)[0] * coef;
 		}
-		final double [] nAtRiskDisease = new double[secParams.getRegisteredDiseases().length]; 
-		for (int j = 0; j < secParams.getRegisteredDiseases().length; j++) {
+		final double [] nAtRiskDisease = new double[model.getRegisteredDiseases().length]; 
+		for (int j = 0; j < model.getRegisteredDiseases().length; j++) {
 			nDisease[interventionId][j][0] += listener.getnDisease()[j][0] * coef;
 			// Patients at risk of developing the disease in the next time interval are those who are alive and has not the disease yet
 			nAtRiskDisease[j] = alive - listener.getnDisease()[j][0]; 
 		}
-		final double [] nAtRiskManifestation = new double[secParams.getRegisteredDiseaseProgressions().length]; 
-		for (int j = 0; j < secParams.getRegisteredDiseaseProgressions().length; j++) {
+		final double [] nAtRiskManifestation = new double[model.getRegisteredDiseaseProgressions().length]; 
+		for (int j = 0; j < model.getRegisteredDiseaseProgressions().length; j++) {
 			nManifestation[interventionId][j][0] += listener.getnManifestation()[j][0] * coef;
 			// Patients at risk of developing the manifestation in the next time interval are those who are alive and has not the manifestation yet, in case the manifestation is chronic
-			nAtRiskManifestation[j] = alive - (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(secParams.getRegisteredDiseaseProgressions()[j].getType()) ? listener.getnManifestation()[j][0] : 0); 
+			nAtRiskManifestation[j] = alive - (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(model.getRegisteredDiseaseProgressions()[j].getType()) ? listener.getnManifestation()[j][0] : 0); 
 		}
 		// Rest of intervals
 		for (int year = 1; year < nIntervals; year++) {
@@ -74,7 +74,7 @@ public class IncidenceView extends EpidemiologicView {
 				if (listener.getnDeathsByCause(cause)[year] != 0)
 					nDeathsByCause.get(cause)[interventionId][year] += listener.getnDeathsByCause(cause)[year] * coef;
 			}
-			for (int j = 0; j < secParams.getRegisteredDiseases().length; j++) {
+			for (int j = 0; j < model.getRegisteredDiseases().length; j++) {
 				if (listener.getnDisease()[j][year] != 0) {
 					nDisease[interventionId][j][year] += listener.getnDisease()[j][year] / (absolute ? 1.0 : nAtRiskDisease[j]);
 					// People who start suffering a disease must be excluded from the people at risk of suffering so
@@ -83,11 +83,11 @@ public class IncidenceView extends EpidemiologicView {
 				// Disease is supposed to be "chronic"; hence, the "end disease" group includes deceased individuals.
 				nAtRiskDisease[j] -= listener.getnEndDisease()[j][year];
 			}
-			for (int j = 0; j < secParams.getRegisteredDiseaseProgressions().length; j++) {
+			for (int j = 0; j < model.getRegisteredDiseaseProgressions().length; j++) {
 				if (listener.getnManifestation()[j][year] != 0) {
 					nManifestation[interventionId][j][year] += listener.getnManifestation()[j][year] / (absolute ? 1.0 : nAtRiskManifestation[j]);
 					// People who start suffering a chronic manifestation must be excluded from the people at risk of suffering so
-					if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(secParams.getRegisteredDiseaseProgressions()[j].getType()))
+					if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(model.getRegisteredDiseaseProgressions()[j].getType()))
 						nAtRiskManifestation[j] -= listener.getnManifestation()[j][year];					
 				}
 				// The account of "end manifestation" includes the decease individuals with the manifestation. Should be always 0 for acute ones

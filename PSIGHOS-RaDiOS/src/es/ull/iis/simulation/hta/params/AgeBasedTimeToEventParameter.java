@@ -29,8 +29,8 @@ public class AgeBasedTimeToEventParameter extends Parameter {
 	 * @param ageRisks
 	 * @param rrParamName
 	 */
-	public AgeBasedTimeToEventParameter(SecondOrderParamsRepository secParams, String paramName, DiseaseProgression destManifestation, final double[][] ageRisks, String rrParamName) {
-		super(secParams, paramName);
+	public AgeBasedTimeToEventParameter(String paramName, String description, String source, int year, DiseaseProgression destManifestation, final double[][] ageRisks, String rrParamName) {
+		super(paramName, description, source, year, ParameterType.RISK);
 		this.ageRisks = ageRisks;
 		this.rrParamName = rrParamName;			
 		this.destManifestation = destManifestation;
@@ -48,7 +48,7 @@ public class AgeBasedTimeToEventParameter extends Parameter {
 		}
 		// Generates random numbers for each interval to analyze
 		List<Double> rndValues = pat.getRandomNumbersForIncidence(destManifestation, ageRisks.length - interval + 1);
-		final double rr = getRepository().getParameterValue(rrParamName, pat);
+		final double rr = destManifestation.getModel().getParameterValue(rrParamName, pat);
 		// Computes time to event within such interval
 		double time = Statistics.getAnnualBasedTimeToEvent(ageRisks[interval][j+1], Math.log(rndValues.get(0)), rr);
 		

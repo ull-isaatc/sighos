@@ -8,8 +8,8 @@ import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.DefinesBaseUtility;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import simkit.random.RandomNumber;
@@ -19,7 +19,7 @@ import simkit.random.RandomNumber;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Population extends HTAModelComponent implements DefinesBaseUtility {
+public abstract class Population extends HTAModelComponent {
 	/** Random number generator */
 	private final RandomNumber rng;
 
@@ -85,4 +85,14 @@ public abstract class Population extends HTAModelComponent implements DefinesBas
 	 * @return the characterization of the time to death for patients belonging to this population
 	 */
 	public abstract DiseaseProgression getDeathCharacterization();
+
+	/**
+	 * Returns the base utility for the specified patient 
+	 * @param pat A patient
+	 * @return the base utility for the specified patient
+	 */
+	public double getBaseUtility(Patient pat) {
+		return getStandardParameterValue(StandardParameter.POPULATION_BASE_UTILITY, pat);
+	}
+
 }

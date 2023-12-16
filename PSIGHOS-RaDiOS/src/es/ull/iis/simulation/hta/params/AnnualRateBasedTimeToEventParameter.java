@@ -22,13 +22,12 @@ public class AnnualRateBasedTimeToEventParameter extends Parameter {
 
 	/**
 	 * 
-	 * @param secParams Repository of second order parameters
 	 * @param destManifestation Manifestation to which progress
 	 * @param rateParamName Name of the second order parameter that defines the patients-year rate
 	 * @param irrParamName Incidence rate ratio calculator
 	 */
-	public AnnualRateBasedTimeToEventParameter(SecondOrderParamsRepository secParams, String paramName, DiseaseProgression destManifestation, String rateParamName, String irrParamName) {
-		super(secParams, paramName);
+	public AnnualRateBasedTimeToEventParameter(String paramName, String description, String source, int year, DiseaseProgression destManifestation, String rateParamName, String irrParamName) {
+		super(paramName, description, source, year, ParameterType.RISK);
 		this.irrParamName = irrParamName;
 		this.destManifestation = destManifestation;
 		this.paramName = rateParamName;
@@ -37,6 +36,6 @@ public class AnnualRateBasedTimeToEventParameter extends Parameter {
 	@Override
 	public double getValue(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return Statistics.getAnnualBasedTimeToEventFromRate(getRepository().getParameterValue(paramName, pat), rndValue, getRepository().getParameterValue(irrParamName, pat));
+		return Statistics.getAnnualBasedTimeToEventFromRate(destManifestation.getModel().getParameterValue(paramName, pat), rndValue, destManifestation.getModel().getParameterValue(irrParamName, pat));
 	}		
 }

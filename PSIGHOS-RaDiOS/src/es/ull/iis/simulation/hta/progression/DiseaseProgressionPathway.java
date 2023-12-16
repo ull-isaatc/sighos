@@ -5,11 +5,10 @@ package es.ull.iis.simulation.hta.progression;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 
 /**
  * A "pathway" to a manifestation. Pathways consists of a {@link Condition condition} that must be met by the patient and a way of computing the 
@@ -21,21 +20,17 @@ public class DiseaseProgressionPathway extends HTAModelComponent {
 	private final DiseaseProgression nextProgression;
 	/** Condition that must be met progress to a manifestation */
 	private final Condition<ConditionInformation> condition;
-	/** The name of the parameter that describes the time to event */
-	private final String timeToEventParameterName;
 
 	/**
 	 * Creates a new pathway to a manifestation
 	 * @param secParams Repository for common parameters
 	 * @param nextProgression Resulting progression of the disease
 	 * @param condition A condition that the patient must met before he/she can progress to the manifestation
-	 * @param timeToEventParameterName The name of the parameter that describes the time to event 
 	 */
-	public DiseaseProgressionPathway(HTAModel model, String name, String description, DiseaseProgression nextProgression, Condition<ConditionInformation> condition, String timeToEventParameterName) {
+	public DiseaseProgressionPathway(HTAModel model, String name, String description, DiseaseProgression nextProgression, Condition<ConditionInformation> condition) {
 		super(model, name, description);
 		this.nextProgression = nextProgression;
 		this.condition = condition;
-		this.timeToEventParameterName = timeToEventParameterName;
 		nextProgression.addPathway(this);
 	}
 
@@ -43,10 +38,9 @@ public class DiseaseProgressionPathway extends HTAModelComponent {
 	 * Creates a new pathway to a manifestation with no previous condition, i.e., this pathway is always suitable independently of the patient's state.
 	 * @param secParams Repository for common parameters
 	 * @param nextProgression Resulting progression of the disease
-	 * @param timeToEventParameterName The name of the parameter that describes the time to event 
 	 */
-	public DiseaseProgressionPathway(HTAModel model, String name, String description, DiseaseProgression nextProgression, String timeToEventParameterName) {
-		this(model, name, description, nextProgression, new TrueCondition<ConditionInformation>(), timeToEventParameterName);
+	public DiseaseProgressionPathway(HTAModel model, String name, String description, DiseaseProgression nextProgression) {
+		this(model, name, description, nextProgression, new TrueCondition<ConditionInformation>());
 	}
 	
 	
@@ -59,7 +53,7 @@ public class DiseaseProgressionPathway extends HTAModelComponent {
 	 */
 	public long getTimeToEvent(Patient pat, long limit) {
 		if (condition.check(new ConditionInformation(pat, nextProgression))) {
-			final double time = secParams.getParameterValue(timeToEventParameterName, pat);
+			final double time = getStandardParameterValue(StandardParameter.TIME_TO_EVENT, pat);
 			if(Double.isNaN(time))
 				return Long.MAX_VALUE;
 			final long ts = (long)time;

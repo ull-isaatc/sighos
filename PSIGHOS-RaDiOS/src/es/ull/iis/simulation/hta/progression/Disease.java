@@ -8,19 +8,15 @@ import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Named;
-import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 
 /**
  * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other.
@@ -163,7 +159,7 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 		final DiseaseProgressionEvents prog = new DiseaseProgressionEvents();
 		long limit = pat.getTimeToDeath();
 		final TreeSet<DiseaseProgression> state = pat.getState();  
-		for (final DiseaseProgression destManif : secParams.getRegisteredDiseaseProgressions()) {
+		for (final DiseaseProgression destManif : progressions.values()) {
 			if (!state.contains(destManif)) {
 				long prevTime = pat.getTimeToNextDiseaseProgression(destManif);
 				long newTime = destManif.getTimeTo(pat, limit);
@@ -219,7 +215,7 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 		return init;
 		
 	}
-	
+
 	/**
 	 * Returns the cost associated to the current state of the patient and during the defined period
 	 * @param pat A patient
@@ -230,10 +226,10 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 	 */
 	public double getCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
 		// The disease may involve a non-specific cost
-		double cost =  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat), initYear, endYear);;
+		double cost =  discountRate.applyDiscount(getStandardParameterValue(StandardParameter.ANNUAL_COST, pat), initYear, endYear);;
 		// ... plus costs related to each manifestation
 		for (final DiseaseProgression manif : pat.getState()) {
-			cost +=  discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat), initYear, endYear);
+			cost +=  discountRate.applyDiscount(manif.getStandardParameterValue(StandardParameter.ANNUAL_COST, pat), initYear, endYear);
 		}
 		// ... plus specific treatment or follow-up costs 
 		if (pat.isDiagnosed())
@@ -243,9 +239,9 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 	
 	@Override
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
-		final double []result = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat), initYear, endYear);;
+		final double []result = discountRate.applyAnnualDiscount(getStandardParameterValue(StandardParameter.ANNUAL_COST, pat), initYear, endYear);;
 		for (final DiseaseProgression manif : pat.getState()) {
-			final double[] partial = discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, manif, pat), initYear, endYear);
+			final double[] partial = discountRate.applyAnnualDiscount(manif.getStandardParameterValue(StandardParameter.ANNUAL_COST, pat), initYear, endYear);
 			for (int i = 0; i < result.length; i++)
 				result[i] += partial[i];
 		}
@@ -266,31 +262,31 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 	 */
 	@Override
 	public double getStartingCost(Patient pat, double time, Discount discountRate) {
-		return discountRate.applyPunctualDiscount(CostParamDescriptions.DIAGNOSIS_COST.getValue(secParams, this, pat), time);
+		return discountRate.applyPunctualDiscount(getStandardParameterValue(StandardParameter.DISEASE_DIAGNOSIS_COST, pat), time);
 	}
 
 	@Override
 	public double getTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
 		// If common costs are defined, uses them
-		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat);
+		final double annualCost = getStandardParameterValue(StandardParameter.TREATMENT_COST, pat) + getStandardParameterValue(StandardParameter.FOLLOW_UP_COST, pat);
 		return discountRate.applyDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
 	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear,
 			Discount discountRate) {
-		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat);
+		final double annualCost = getStandardParameterValue(StandardParameter.TREATMENT_COST, pat) + getStandardParameterValue(StandardParameter.FOLLOW_UP_COST, pat);
 		return discountRate.applyAnnualDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
 	public double getAnnualDisutility(Patient pat) {
-		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat);
+		return getStandardParameterValue(StandardParameter.ANNUAL_DISUTILITY, pat);
 	}
 
 	@Override
 	public double getStartingDisutility(Patient pat) {
-		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat);
+		return getStandardParameterValue(StandardParameter.ONSET_DISUTILITY, pat);
 	}
 	
 	/** 

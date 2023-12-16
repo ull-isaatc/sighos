@@ -3,12 +3,11 @@
  */
 package es.ull.iis.simulation.hta.pbdmodel;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.ProportionBasedTimeToEventParameter;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
@@ -29,54 +28,46 @@ public class PBDDisease extends Disease {
 	final private DiseaseProgression hearingProblems;
 	final private DiseaseProgression mentalDelay;
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param name
 	 * @param description
 	 */
-	public PBDDisease(SecondOrderParamsRepository secParams) {
-		super(secParams, "PBD", "Profound Biotidinase Deficiency");
-		skinProblems = new SkinProblemsManifestation(secParams, this);
-		registerBasicManifestation(secParams, skinProblems);
-		hypotonia = new HypotoniaManifestation(secParams, this);
-		registerBasicManifestation(secParams, hypotonia);
-		seizures = new SeizuresManifestation(secParams, this);
-		registerBasicManifestation(secParams, seizures);
-		visionLoss = new VisionLossManifestation(secParams, this);
-		registerBasicManifestation(secParams, visionLoss);
-		hearingProblems = new HearingProblemsManifestation(secParams, this);
-		registerBasicManifestation(secParams, hearingProblems);
-		mentalDelay = new MentalDelayManifestation(secParams, this);
-		registerBasicManifestation(secParams, mentalDelay);
+	public PBDDisease(HTAModel model) {
+		super(model, "PBD", "Profound Biotidinase Deficiency");
+		skinProblems = new SkinProblemsManifestation(model, this);
+		registerBasicManifestation(model, skinProblems);
+		hypotonia = new HypotoniaManifestation(model, this);
+		registerBasicManifestation(model, hypotonia);
+		seizures = new SeizuresManifestation(model, this);
+		registerBasicManifestation(model, seizures);
+		visionLoss = new VisionLossManifestation(model, this);
+		registerBasicManifestation(model, visionLoss);
+		hearingProblems = new HearingProblemsManifestation(model, this);
+		registerBasicManifestation(model, hearingProblems);
+		mentalDelay = new MentalDelayManifestation(model, this);
+		registerBasicManifestation(model, mentalDelay);
 	}
 
-	private void registerBasicManifestation(SecondOrderParamsRepository secParams, DiseaseProgression manif) {
-		new DiseaseProgressionPathway(secParams, manif, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif));
+	private void registerBasicManifestation(HTAModel model, DiseaseProgression manif) {
+		new DiseaseProgressionPathway(model, "PATH_"+ manif.name(), "Pathway for " + manif.name(), manif);
+	}
+
+	@Override
+	public void createParameters() {
+		createParametersForManifestation(skinProblems, 0.41, 24, 34);
+		createParametersForManifestation(hypotonia, 0.457, 17, 20);
+		createParametersForManifestation(seizures, 0.564, 65, 50);
+		createParametersForManifestation(visionLoss, 0.175, 19, 91);
+		createParametersForManifestation(hearingProblems, 0.515, 65, 61);
+		createParametersForManifestation(mentalDelay, 0.557, 14, 6);
+		StandardParameter.DISEASE_DIAGNOSIS_COST.addParameter(model, this, "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65));
+		StandardParameter.FOLLOW_UP_COST.addParameter(model, this, "", 2013, FOLLOW_UP_COST);
+		StandardParameter.TREATMENT_COST.addParameter(model, this, "", 2013, TREATMENT_COST);
 	}
 	
-	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		RiskParamDescriptions.PROBABILITY.addParameter(secParams, skinProblems, "Test", 0.41, RandomVariateFactory.getInstance("BetaVariate", 24, 34));
-		RiskParamDescriptions.PROBABILITY.addParameter(secParams, hypotonia, "Test", 0.457, RandomVariateFactory.getInstance("BetaVariate", 17, 20));
-		RiskParamDescriptions.PROBABILITY.addParameter(secParams, seizures, "Test", 0.564, RandomVariateFactory.getInstance("BetaVariate", 65, 50));
-		RiskParamDescriptions.PROBABILITY.addParameter(secParams, visionLoss, "Test", 0.175, RandomVariateFactory.getInstance("BetaVariate", 19, 91));
-		RiskParamDescriptions.PROBABILITY.addParameter(secParams, hearingProblems, "Test", 0.515, RandomVariateFactory.getInstance("BetaVariate", 65, 61));
-		RiskParamDescriptions.PROBABILITY.addParameter(secParams, mentalDelay, "Test", 0.557, RandomVariateFactory.getInstance("BetaVariate", 14, 6));
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(skinProblems), skinProblems, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(skinProblems)));
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(hypotonia), hypotonia,
-				RiskParamDescriptions.PROBABILITY.getParameterName(hypotonia)));	
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(seizures), seizures, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(seizures)));
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(visionLoss), visionLoss,
-				RiskParamDescriptions.PROBABILITY.getParameterName(visionLoss)));
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(hearingProblems), hearingProblems,	
-				RiskParamDescriptions.PROBABILITY.getParameterName(hearingProblems)));
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new ProportionBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(mentalDelay), mentalDelay,	
-				RiskParamDescriptions.PROBABILITY.getParameterName(mentalDelay)));
-		
-		CostParamDescriptions.DIAGNOSIS_COST.addParameter(secParams, this, "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65));
-		CostParamDescriptions.TREATMENT_COST.addParameter(secParams, this, "", 2013, TREATMENT_COST);
-		CostParamDescriptions.FOLLOW_UP_COST.addParameter(secParams, this, "", 2013, FOLLOW_UP_COST);
+	private void createParametersForManifestation(DiseaseProgression manif, double proportion, int betaParam1, int betaParam2) {
+		StandardParameter.PROPORTION.addParameter(model, manif, "", proportion, RandomVariateFactory.getInstance("BetaVariate", betaParam1, betaParam2));
+		model.addParameter(new ProportionBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(manif), "Time to " +  manif.getDescription(), "", 2013, manif, StandardParameter.PROPORTION.createName(manif)));
 	}
 
 	@Override

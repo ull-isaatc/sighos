@@ -22,6 +22,7 @@ public class BasicConfigParams {
 	public final static int DEF_N_PATIENTS = 5000;
 	/** Default minimum age of patients */
 	public final static int DEF_MIN_AGE = 18;
+	// TODO: Check the usage of this parameter. In most places, it should use the value for the population and not this maximum
 	/** Maximum age reachable by patients */
 	public final static int DEF_MAX_AGE = 100;
 	/** Default discount rate (3% according to Spanish guidelines) */

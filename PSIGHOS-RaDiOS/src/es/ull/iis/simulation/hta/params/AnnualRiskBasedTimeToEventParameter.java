@@ -22,13 +22,12 @@ public class AnnualRiskBasedTimeToEventParameter extends Parameter {
 	
 	/**
 	 * 
-	 * @param secParams Repository of second order parameters
 	 * @param destManifestation Manifestation to which progress
 	 * @param riskParamName Name of the second order parameter that defines the annual risk
 	 * @param rrParamName Relative risk calculator
 	 */
-	public AnnualRiskBasedTimeToEventParameter(SecondOrderParamsRepository secParams, String paramName, DiseaseProgression destManifestation, String riskParamName, String rrParamName) {
-		super(secParams, paramName);
+	public AnnualRiskBasedTimeToEventParameter(String paramName, String description, String source, int year, DiseaseProgression destManifestation, String riskParamName, String rrParamName) {
+		super(paramName, description, source, year, ParameterType.RISK);
 		this.rrParamName = rrParamName;
 		this.destManifestation = destManifestation;
 		this.paramName = riskParamName;
@@ -36,17 +35,16 @@ public class AnnualRiskBasedTimeToEventParameter extends Parameter {
 	
 	/**
 	 * 
-	 * @param secParams Repository of second order parameters
 	 * @param destManifestation Manifestation to which progress
 	 * @param paramName Name of the second order parameter that defines the annual risk
 	 */
-	public AnnualRiskBasedTimeToEventParameter(SecondOrderParamsRepository secParams, String paramName, DiseaseProgression destManifestation, String riskParamName) {
-		this(secParams, paramName, destManifestation, riskParamName, secParams.NO_RR);
+	public AnnualRiskBasedTimeToEventParameter(String paramName, String description, String source, int year, DiseaseProgression destManifestation, String riskParamName) {
+		this(paramName, description, source, year, destManifestation, riskParamName, Parameter.NO_RR.name());
 	}
 
 	@Override
 	public double getValue(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return Statistics.getAnnualBasedTimeToEvent(getRepository().getParameterValue(paramName, pat), rndValue, getRepository().getParameterValue(rrParamName, pat));
+		return Statistics.getAnnualBasedTimeToEvent(destManifestation.getModel().getParameterValue(paramName, pat), rndValue, destManifestation.getModel().getParameterValue(rrParamName, pat));
 	}		
 }

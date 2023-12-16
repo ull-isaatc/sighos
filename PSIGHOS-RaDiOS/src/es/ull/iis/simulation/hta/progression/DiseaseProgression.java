@@ -6,20 +6,15 @@ package es.ull.iis.simulation.hta.progression;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Named;
-import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 
 /**
  * Any stage, manifestation or sign that involves a progression in the development of a disease
@@ -125,7 +120,7 @@ public class DiseaseProgression extends HTAModelComponent implements Comparable<
 	 * @return the maximum age when this progression appears
 	 */
 	public double getEndAge(Patient pat) {
-		return OtherParamDescriptions.END_AGE.getValue(secParams, this, pat);
+		return getStandardParameterValue(StandardParameter.DISEASE_PROGRESSION_END_AGE, pat);
 	}
 	
 	/**
@@ -134,44 +129,44 @@ public class DiseaseProgression extends HTAModelComponent implements Comparable<
 	 * @return the minimum age when this progression appears
 	 */
 	public double getOnsetAge(Patient pat) {
-		return OtherParamDescriptions.ONSET_AGE.getValue(secParams, this, pat);
+		return getStandardParameterValue(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE, pat);
 	}
 	
 	@Override
 	public double getCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
-		return discountRate.applyDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat), initYear, endYear);
+		return discountRate.applyDiscount(getStandardParameterValue(StandardParameter.ANNUAL_COST, pat), initYear, endYear);
 	}
 
 	@Override
 	public double getStartingCost(Patient pat, double time, Discount discountRate) {
-		return discountRate.applyPunctualDiscount(CostParamDescriptions.ONE_TIME_COST.getValue(secParams, this, pat), time);
+		return discountRate.applyPunctualDiscount(getStandardParameterValue(StandardParameter.ONSET_COST, pat), time);
 	}
 
 	@Override
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
-		return discountRate.applyAnnualDiscount(CostParamDescriptions.ANNUAL_COST.getValue(secParams, this, pat), initYear, endYear);
+		return discountRate.applyAnnualDiscount(getStandardParameterValue(StandardParameter.ANNUAL_COST, pat), initYear, endYear);
 	}
 
 	@Override
 	public double getTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
-		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat);
+		final double annualCost = getStandardParameterValue(StandardParameter.TREATMENT_COST, pat) + getStandardParameterValue(StandardParameter.FOLLOW_UP_COST, pat);
 		return discountRate.applyDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
 	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
-		final double annualCost = CostParamDescriptions.TREATMENT_COST.getValue(secParams, this, pat) + CostParamDescriptions.FOLLOW_UP_COST.getValue(secParams, this, pat);
+		final double annualCost = getStandardParameterValue(StandardParameter.TREATMENT_COST, pat) + getStandardParameterValue(StandardParameter.FOLLOW_UP_COST, pat);
 		return discountRate.applyAnnualDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
 	public double getAnnualDisutility(Patient pat) {
-		return UtilityParamDescriptions.DISUTILITY.forceValue(secParams, this, pat);
+		return getStandardParameterValue(StandardParameter.ANNUAL_DISUTILITY, pat);
 	}
 	
 	@Override
 	public double getStartingDisutility(Patient pat) {
-		return UtilityParamDescriptions.ONE_TIME_DISUTILITY.forceValue(secParams, this, pat);
+		return getStandardParameterValue(StandardParameter.ONSET_DISUTILITY, pat);
 	}
 	
 	@Override

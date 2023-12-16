@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.inforeceiver;
 
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.DetectionTestResult;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
@@ -19,7 +18,7 @@ public class ScreeningTestPerformanceView extends Listener implements Structured
 	/**
 	 * @param description
 	 */
-	public ScreeningTestPerformanceView(SecondOrderParamsRepository secParams) {
+	public ScreeningTestPerformanceView() {
 		super("Screening test performance");
 		nResults = new int[DetectionTestResult.values().length];
 		addGenerated(PatientInfo.class);
