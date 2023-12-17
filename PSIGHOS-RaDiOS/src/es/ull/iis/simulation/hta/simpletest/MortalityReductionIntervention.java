@@ -3,10 +3,10 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 
 /**
@@ -17,16 +17,11 @@ public class MortalityReductionIntervention extends Intervention {
 	private final static double ANNUAL_COST = 200.0; 
 
 	/**
-	 * @param secParams
+	 * @param model
 	 */
-	public MortalityReductionIntervention(SecondOrderParamsRepository secParams, ParameterModifier modifier) {
-		super(secParams, "MORT_RED", "Intervention that reduces mortality");
+	public MortalityReductionIntervention(HTAModel model, ParameterModifier modifier) {
+		super(model, "MORT_RED", "Intervention that reduces mortality");
 		setLifeExpectancyModification(modifier);
-	}
-
-	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-
 	}
 
 	@Override

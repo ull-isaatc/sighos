@@ -34,6 +34,7 @@ public enum StandardParameter {
 	LIFE_EXPECTANCY_REDUCTION(0.0, "Life expectancy reduction", ParameterType.OTHER),
 	PROBABILITY(0.0, "Probability", ParameterType.RISK, "P_"),
 	PROPORTION(0.0, "Proportion", ParameterType.RISK, "P_"),
+	RELATIVE_RISK(1.0, "Relative risk", ParameterType.RISK, "RR_"),
     SPECIFICITY(1.0, "Specificity", ParameterType.RISK, "SPEC_"),
     SENSITIVITY(1.0, "Sensitivity", ParameterType.RISK, "SENS_"),;
 
@@ -82,27 +83,51 @@ public enum StandardParameter {
 		return createName(component.name());
 	}
 
+    public boolean addParameter(HTAModel model, String name, String description, String source, int year, double detValue) {
+        return model.addParameter(new ConstantNatureParameter(name, description, source, year, type, detValue));
+    }
+
+    public boolean addParameter(HTAModel model, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
+        return model.addParameter(new SecondOrderNatureParameter(model, name, description, source, year, type, detValue, rnd));
+    }
+
+    public boolean addParameter(HTAModel model, String name, String description, String source, int year, RandomVariate rnd) {
+        return model.addParameter(new FirstOrderNatureParameter(model, name, description, source, year, type, rnd));
+    }
+
+    public boolean addParameter(HTAModel model, String name, String description, String source, double detValue) {
+        return model.addParameter(new ConstantNatureParameter(name, description, source, type, detValue));
+    }
+
+    public boolean addParameter(HTAModel model, String name, String description, String source, double detValue, RandomVariate rnd) {
+        return model.addParameter(new SecondOrderNatureParameter(model, name, description, source, HTAModel.getStudyYear(), type, detValue, rnd));
+    }
+
+    public boolean addParameter(HTAModel model, String name, String description, String source, RandomVariate rnd) {
+        return model.addParameter(new FirstOrderNatureParameter(model, name, description, source, HTAModel.getStudyYear(), type, rnd));
+    }
+
     public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, int year, double detValue) {
-        return model.addParameter(new ConstantNatureParameter(createName(instance), instance.getDescription(), source, year, type, detValue));
+        return this.addParameter(model, createName(instance), instance.getDescription(), source, year, detValue);
     }
 
     public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, int year, double detValue, RandomVariate rnd) {
-        return model.addParameter(new SecondOrderNatureParameter(model, createName(instance), instance.getDescription(), source, year, type, detValue, rnd));
+        return this.addParameter(model, createName(instance), instance.getDescription(), source, year, detValue, rnd);
     }
 
     public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, int year, RandomVariate rnd) {
-        return model.addParameter(new FirstOrderNatureParameter(model, createName(instance), instance.getDescription(), source, year, type, rnd));
+		return this.addParameter(model, createName(instance), instance.getDescription(), source, year, rnd);
     }
 
     public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, double detValue) {
-        return model.addParameter(new ConstantNatureParameter(createName(instance), instance.getDescription(), source, type, detValue));
+		return this.addParameter(model, createName(instance), instance.getDescription(), source, detValue);
     }
 
     public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
-        return model.addParameter(new SecondOrderNatureParameter(model, createName(instance), instance.getDescription(), source, HTAModel.getStudyYear(), type, detValue, rnd));
+		return this.addParameter(model, createName(instance), instance.getDescription(), source, detValue, rnd);
     }
 
     public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, RandomVariate rnd) {
-        return model.addParameter(new FirstOrderNatureParameter(model, createName(instance), instance.getDescription(), source, HTAModel.getStudyYear(), type, rnd));
+		return this.addParameter(model, createName(instance), instance.getDescription(), source, rnd);
     }
 }

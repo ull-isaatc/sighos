@@ -11,12 +11,16 @@ import es.ull.iis.simulation.hta.Patient;
  *
  */
 public interface DefinesSensitivityAndSpecificity {
+	public enum USED_PARAMETERS implements UsedParameter {
+		SENSITIVITY,
+		SPECIFICITY
+	}
 	/**
 	 * @param instance TODO
 	 * @return the specificity
 	 */
 	public default double getSpecificity(HTAModelComponent instance, Patient pat) {
-		return instance.getStandardParameterValue(StandardParameter.SPECIFICITY, pat);
+		return instance.getModel().getParameterValue(instance.getUsedParameterName(USED_PARAMETERS.SPECIFICITY), pat);
 	}
 	
 	/**
@@ -24,6 +28,6 @@ public interface DefinesSensitivityAndSpecificity {
 	 * @return the sensitivity
 	 */
 	public default double getSensitivity(HTAModelComponent instance, Patient pat) {
-		return instance.getStandardParameterValue(StandardParameter.SENSITIVITY, pat);
+		return instance.getModel().getParameterValue(instance.getUsedParameterName(USED_PARAMETERS.SENSITIVITY), pat);
 	}
 }

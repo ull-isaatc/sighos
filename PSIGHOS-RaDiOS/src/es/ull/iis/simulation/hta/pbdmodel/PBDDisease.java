@@ -67,7 +67,7 @@ public class PBDDisease extends Disease {
 	
 	private void createParametersForManifestation(DiseaseProgression manif, double proportion, int betaParam1, int betaParam2) {
 		StandardParameter.PROPORTION.addParameter(model, manif, "", proportion, RandomVariateFactory.getInstance("BetaVariate", betaParam1, betaParam2));
-		model.addParameter(new ProportionBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(manif), "Time to " +  manif.getDescription(), "", 2013, manif, StandardParameter.PROPORTION.createName(manif)));
+		model.addParameter(new ProportionBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(manif), "Time to " +  manif.getDescription(), "", 2013, manif));
 	}
 
 	@Override

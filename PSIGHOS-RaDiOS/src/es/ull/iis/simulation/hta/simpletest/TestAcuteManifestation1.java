@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -23,22 +24,22 @@ public class TestAcuteManifestation1 extends DiseaseProgression {
 	private final static double P_DIAG = 0.25;
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public TestAcuteManifestation1(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "ACUTE1", "Acute manifestation of test disease", disease, Type.ACUTE_MANIFESTATION);
+	public TestAcuteManifestation1(HTAModel model, Disease disease) {
+		super(model, "ACUTE1", "Acute manifestation of test disease", disease, Type.ACUTE_MANIFESTATION);
 	}
 
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.hta.CreatesSecondOrderParameters#registerSecondOrderParameters()
 	 */
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		UtilityParamDescriptions.ONE_TIME_DISUTILITY.addParameter(secParams, this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
-		RiskParamDescriptions.PROBABILITY_DEATH.addParameter(secParams, this, "Test", P_DEAD, SecondOrderParamsRepository.getRandomVariateForProbability(P_DEAD));
-		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "Test", 2020, PUNCTUAL_COST, SecondOrderParamsRepository.getRandomVariateForCost(PUNCTUAL_COST));		
-		RiskParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(secParams, this, "Test", P_DIAG, SecondOrderParamsRepository.getRandomVariateForProbability(P_DIAG));
+	public void createParameters() {
+		UtilityParamDescriptions.ONE_TIME_DISUTILITY.addParameter(model, this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
+		RiskParamDescriptions.PROBABILITY_DEATH.addParameter(model, this, "Test", P_DEAD, SecondOrderParamsRepository.getRandomVariateForProbability(P_DEAD));
+		CostParamDescriptions.ONE_TIME_COST.addParameter(model, this, "Test", 2020, PUNCTUAL_COST, SecondOrderParamsRepository.getRandomVariateForCost(PUNCTUAL_COST));		
+		RiskParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(model, this, "Test", P_DIAG, SecondOrderParamsRepository.getRandomVariateForProbability(P_DIAG));
 	}
 
 }

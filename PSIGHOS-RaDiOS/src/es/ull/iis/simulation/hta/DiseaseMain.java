@@ -20,7 +20,7 @@ import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.pbdmodel.PBDModel;
-import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
+import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseModel;
 
 /**
  * Main class to launch simulation experiments
@@ -135,7 +135,7 @@ public class DiseaseMain extends HTAExperiment {
 			case TEST_RARE_DISEASE3:
 			case TEST_RARE_DISEASE4:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for the rare disease [%d] \n\n", disease));
-				model = new TestSimpleRareDiseaseRepository(nRuns, nPatients, disease);
+				model = new TestSimpleRareDiseaseModel(this, disease);
 				break;
 			case TEST_T1DM:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for T1DM \n\n"));

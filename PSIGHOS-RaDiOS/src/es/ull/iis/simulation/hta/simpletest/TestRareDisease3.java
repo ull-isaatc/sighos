@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.simpletest;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventParameter;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -29,29 +30,29 @@ public class TestRareDisease3 extends TemplateTestRareDisease {
 	final private DiseaseProgression manif2;
 	
 	/**
-	 * @param secParams Repository with common information about the disease 
+	 * @param model Repository with common information about the disease 
 	 */
-	public TestRareDisease3(SecondOrderParamsRepository secParams) {
-		super(secParams, "RD3", "Test rare disease 3");
-		manif1 = new TestManifestationStage1(secParams, this);
-		manif2 = new TestManifestationStage2(secParams, this);
-		new DiseaseProgressionPathway(secParams, manif1, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1));
-		new DiseaseProgressionPathway(secParams, manif2, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif2));
+	public TestRareDisease3(HTAModel model) {
+		super(model, "RD3", "Test rare disease 3");
+		manif1 = new TestManifestationStage1(model, this);
+		manif2 = new TestManifestationStage2(model, this);
+		new DiseaseProgressionPathway(model, manif1, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1));
+		new DiseaseProgressionPathway(model, manif2, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif2));
 		final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new PreviousDiseaseProgressionCondition(manif1);
-		new DiseaseProgressionPathway(secParams, manif2, cond, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1, manif2)); 
+		new DiseaseProgressionPathway(model, manif2, cond, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1, manif2)); 
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		RiskParamDescriptions.PROBABILITY.addParameter(secParams, manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
-		RiskParamDescriptions.PROBABILITY.addParameter(secParams, manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
-		RiskParamDescriptions.PROBABILITY.addParameter(secParams, manif1, manif2, 
+	public void createParameters() {
+		RiskParamDescriptions.PROBABILITY.addParameter(model, manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		RiskParamDescriptions.PROBABILITY.addParameter(model, manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
+		RiskParamDescriptions.PROBABILITY.addParameter(model, manif1, manif2, 
 				"Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new AnnualRiskBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1), manif1, 
+		RiskParamDescriptions.TIME_TO_EVENT.addParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1), manif1, 
 				RiskParamDescriptions.PROBABILITY.getParameterName(manif1)));		
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new AnnualRiskBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif2), manif2, 
+		RiskParamDescriptions.TIME_TO_EVENT.addParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif2), manif2, 
 				RiskParamDescriptions.PROBABILITY.getParameterName(manif2)));		
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(secParams, new AnnualRiskBasedTimeToEventParameter(secParams, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1, manif2), manif2, 
+		RiskParamDescriptions.TIME_TO_EVENT.addParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1, manif2), manif2, 
 				RiskParamDescriptions.PROBABILITY.getParameterName(manif1, manif2)));		
 	}
 

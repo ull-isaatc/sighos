@@ -37,7 +37,7 @@ public class PBDPopulation extends StdPopulation {
 
 	@Override
 	protected DiscreteRandomVariate getDiseaseVariate(Patient pat) {
-		final double birthPrev = allAffected ? 1.0 : disease.getStandardParameterValue(StandardParameter.BIRTH_PREVALENCE, pat);
+		final double birthPrev = allAffected ? 1.0 : model.getParameterValue(StandardParameter.BIRTH_PREVALENCE.createName(disease), pat);
 		return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), birthPrev);
 	}
 

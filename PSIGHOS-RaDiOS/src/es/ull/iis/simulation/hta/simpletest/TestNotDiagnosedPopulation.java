@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -24,8 +24,8 @@ public class TestNotDiagnosedPopulation extends StdPopulation {
 	/**
 	 * @param disease
 	 */
-	public TestNotDiagnosedPopulation(SecondOrderParamsRepository secParams, Disease disease) throws MalformedSimulationModelException {
-		super(secParams, "TESTPOP", "Test undiagnosed population", disease);
+	public TestNotDiagnosedPopulation(HTAModel model, Disease disease) throws MalformedSimulationModelException {
+		super(model, "TESTPOP", "Test undiagnosed population", disease);
 	}
 
 	@Override
@@ -49,16 +49,12 @@ public class TestNotDiagnosedPopulation extends StdPopulation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-	}
-
-	@Override
 	public int getMinAge() {
 		return 0;
 	}
 
 	@Override
 	public DiseaseProgression getDeathCharacterization() {
-		return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
+		return new EmpiricalSpainDeathSubmodel(getModel(), disease);
 	}
 }

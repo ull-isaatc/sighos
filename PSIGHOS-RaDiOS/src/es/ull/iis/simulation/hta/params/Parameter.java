@@ -14,7 +14,7 @@ import es.ull.iis.simulation.hta.PrettyPrintable;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, Comparable<Parameter> {
+public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, Comparable<Parameter>, UsesParameters {
 	/** The different types of parameters */
 	public enum ParameterType {
 		/** The collection of attributes, i.e., parameters that define specific characteristics for each patient */
@@ -71,6 +71,8 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 	private final String source;
 	/** Year when the parameter was originally estimated */
 	private final int year;
+    /** A collection of names for parameters used by this model component */
+    private final Map<UsedParameter, String> usedParameterNames;
 
 	/**
 	 * Creates a parameter
@@ -84,6 +86,7 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 		this.type = type;
 		if (!type.addParameter(this))
 			throw new IllegalArgumentException("Parameter " + name + " already exists");
+        this.usedParameterNames = new TreeMap<>();
 	}
 
 	/**
@@ -140,6 +143,35 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 	 * @return the value of a parameter for a patient at a specific simulation timestamp
 	 */
 	public abstract double getValue(Patient pat);
+
+    /**
+     * Returns the default name of the specified parameter
+     * @param param The parameter
+     * @return The default name of the specified parameter
+     */
+    @Override
+    public String getUsedParameterName(UsedParameter param) {
+        return usedParameterNames.get(param);
+    }
+
+    /**
+     * Sets the default name of the specified parameter
+     * @param param The parameter
+     * @param name The default name of the specified parameter
+     */
+    @Override
+    public void setUsedParameterName(UsedParameter param, String name) {
+        usedParameterNames.put(param, name);
+    }
+
+    /**
+     * Returns the collection of default parameter names
+     * @return the collection of default parameter names
+     */
+    @Override
+    public Map<UsedParameter, String> getUsedParameterNames() {
+        return usedParameterNames;
+    }
 	
 	@Override
 	public String prettyPrint(String linePrefix) {

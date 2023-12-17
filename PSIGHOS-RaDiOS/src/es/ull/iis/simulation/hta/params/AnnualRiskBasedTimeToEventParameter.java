@@ -13,38 +13,30 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class AnnualRiskBasedTimeToEventParameter extends Parameter {
-	/** Relative risk parameter */
-	private final String rrParamName;
 	/** Manifestation to which progress */
 	private final DiseaseProgression destManifestation;
-	/** Name of the second order parameter that defines the annual risk */
-	private final String paramName;
-	
+	public enum USED_PARAMETERS implements UsedParameter {
+		PROB,
+		RR
+	}
+
 	/**
 	 * 
 	 * @param destManifestation Manifestation to which progress
 	 * @param riskParamName Name of the second order parameter that defines the annual risk
 	 * @param rrParamName Relative risk calculator
 	 */
-	public AnnualRiskBasedTimeToEventParameter(String paramName, String description, String source, int year, DiseaseProgression destManifestation, String riskParamName, String rrParamName) {
+	public AnnualRiskBasedTimeToEventParameter(String paramName, String description, String source, int year, DiseaseProgression destManifestation) {
 		super(paramName, description, source, year, ParameterType.RISK);
-		this.rrParamName = rrParamName;
 		this.destManifestation = destManifestation;
-		this.paramName = riskParamName;
-	}
-	
-	/**
-	 * 
-	 * @param destManifestation Manifestation to which progress
-	 * @param paramName Name of the second order parameter that defines the annual risk
-	 */
-	public AnnualRiskBasedTimeToEventParameter(String paramName, String description, String source, int year, DiseaseProgression destManifestation, String riskParamName) {
-		this(paramName, description, source, year, destManifestation, riskParamName, Parameter.NO_RR.name());
+		setUsedParameterName(USED_PARAMETERS.PROB, StandardParameter.PROBABILITY.createName(destManifestation));
+		setUsedParameterName(USED_PARAMETERS.RR, StandardParameter.RELATIVE_RISK.createName(destManifestation));
 	}
 
 	@Override
 	public double getValue(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return Statistics.getAnnualBasedTimeToEvent(destManifestation.getModel().getParameterValue(paramName, pat), rndValue, destManifestation.getModel().getParameterValue(rrParamName, pat));
+		return Statistics.getAnnualBasedTimeToEvent(destManifestation.getModel().getParameterValue(getUsedParameterName(USED_PARAMETERS.PROB), pat), rndValue, 
+					destManifestation.getModel().getParameterValue(getUsedParameterName(USED_PARAMETERS.RR), pat));
 	}		
 }

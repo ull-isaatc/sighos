@@ -16,8 +16,9 @@ import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 public class ProportionBasedTimeToEventParameter extends Parameter {
 	/** Manifestation to which progress */
 	private final DiseaseProgression destManifestation;
-	/** Name of the second order parameter that defines the proportion */
-	private final String proportionParamName;
+	public enum USED_PARAMETERS implements UsedParameter {
+		PROPORTION,
+	}
 	
 	/**
 	 * 
@@ -27,16 +28,16 @@ public class ProportionBasedTimeToEventParameter extends Parameter {
 	 * @param destManifestation
 	 * @param proportionParamName
 	 */
-	public ProportionBasedTimeToEventParameter(HTAModel model, String paramName, String description, String source, int year, DiseaseProgression destManifestation, String proportionParamName) {
+	public ProportionBasedTimeToEventParameter(HTAModel model, String paramName, String description, String source, int year, DiseaseProgression destManifestation) {
 		super(paramName, description, source, year, ParameterType.RISK);
 		this.destManifestation = destManifestation;
-		this.proportionParamName = proportionParamName;
+		setUsedParameterName(USED_PARAMETERS.PROPORTION, StandardParameter.PROPORTION.createName(destManifestation));
 		
 	}
 
 	@Override
 	public double getValue(Patient pat) {
-		final double proportion = destManifestation.getModel().getParameterValue(proportionParamName, pat);
+		final double proportion = destManifestation.getModel().getParameterValue(getUsedParameterName(USED_PARAMETERS.PROPORTION), pat);
 		// Generates two random numbers: the first indicates whether the patient will suffer the problem; the second serves to compute time to event 
 		List<Double> rndValues = pat.getRandomNumbersForIncidence(destManifestation, 2);
 		// Do the patient suffers the problem?

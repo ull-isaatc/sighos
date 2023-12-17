@@ -2,11 +2,11 @@ package es.ull.iis.simulation.hta.simpletest;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.modifiers.FactorParameterModifier;
 import simkit.random.RandomVariateFactory;
 
@@ -20,17 +20,17 @@ public class EffectiveIntervention extends Intervention {
 	private final static double RR = 0.5;
 	final ArrayList<String> modifiedParams;
 
-	public EffectiveIntervention(SecondOrderParamsRepository secParams, ArrayList<String> modifiedParams) {
-		super(secParams, "InterventionEffective", "Effective intervention");
+	public EffectiveIntervention(HTAModel model, ArrayList<String> modifiedParams) {
+		super(model, "InterventionEffective", "Effective intervention");
 		this.modifiedParams = modifiedParams;
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+	public void createParameters() {
 		for (String paramName : modifiedParams) {
-			final String modParamName = OtherParamDescriptions.RELATIVE_RISK.addParameter(secParams, "Test", "Test", "", 
+			StandardParameter.RELATIVE_RISK.addParameter(model, this, "", HTAModel.getStudyYear(),
 					RR, RandomVariateFactory.getInstance("UniformVariate", RR * 0.8, RR * 1.2));
-			secParams.addParameterModifier(paramName, this, new FactorParameterModifier(modParamName));
+			model.addParameterModifier(paramName, this, new FactorParameterModifier(StandardParameter.RELATIVE_RISK.createName(this)));
 		}
 	}
 

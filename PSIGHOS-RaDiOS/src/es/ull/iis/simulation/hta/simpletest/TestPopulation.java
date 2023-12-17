@@ -4,10 +4,10 @@
 package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -25,8 +25,8 @@ public class TestPopulation extends StdPopulation {
 	/**
 	 * @param disease
 	 */
-	public TestPopulation(SecondOrderParamsRepository secParams, Disease disease) throws MalformedSimulationModelException {
-		super(secParams, "TEST_POP", "Test population", disease);
+	public TestPopulation(HTAModel model, Disease disease) throws MalformedSimulationModelException {
+		super(model, "TEST_POP", "Test population", disease);
 	}
 
 	@Override
@@ -50,8 +50,8 @@ public class TestPopulation extends StdPopulation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "Assumption", BasicConfigParams.DEF_U_GENERAL_POP);
+	public void createParameters() {
+		StandardParameter.POPULATION_BASE_UTILITY.addParameter(model, this, "Assumption", BasicConfigParams.DEF_U_GENERAL_POP);
 	}
 
 	@Override
@@ -61,6 +61,6 @@ public class TestPopulation extends StdPopulation {
 
 	@Override
 	public DiseaseProgression getDeathCharacterization() {
-		return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
+		return new EmpiricalSpainDeathSubmodel(getModel(), disease);
 	}
 }

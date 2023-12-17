@@ -3,11 +3,11 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -17,16 +17,16 @@ public class BasicNewbornScreening extends ScreeningIntervention {
 	private final static double C_TEST = 5.0;
 
 	/**
-	 * @param secParams
+	 * @param model
 	 */
-	public BasicNewbornScreening(SecondOrderParamsRepository secParams) {
-		super(secParams, "SCREEN", "Basic screening");
+	public BasicNewbornScreening(HTAModel model) {
+		super(model, "SCREEN", "Basic screening");
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		RiskParamDescriptions.SENSITIVITY.addParameter(secParams, this, "", 0.9);
-		RiskParamDescriptions.SPECIFICITY.addParameter(secParams, this, "", 0.9);
+	public void createParameters() {
+		StandardParameter.SENSITIVITY.addParameter(model, this, "", 0.9);
+		StandardParameter.SPECIFICITY.addParameter(model, this, "", 0.9);
 	}
 
 	@Override
