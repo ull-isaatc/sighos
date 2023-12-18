@@ -32,6 +32,7 @@ import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.ParameterDescription;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -335,7 +336,7 @@ public class T1DMDisease extends Disease {
 		
 		// Set asymptomatic follow-up cost and disutility. Treatment cost for asymptomatics is assumed to be 0 
 		CostParamDescriptions.FOLLOW_UP_COST.addParameter(secParams, this, "Diabetes with no complications", 
-				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, DEF_C_DNC.VALUE, SecondOrderParamsRepository.getRandomVariateForCost(DEF_C_DNC.VALUE));
+				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, DEF_C_DNC.VALUE, StandardParameter.getRandomVariateForCost(DEF_C_DNC.VALUE));
 
 		final double[] paramsU_DNC = Statistics.betaParametersFromNormal(DEF_U_DNC[0], DEF_U_DNC[1]);
 		UtilityParamDescriptions.UTILITY.addParameter(secParams, this, "", DEF_U_DNC[0], RandomVariateFactory.getInstance("BetaVariate", paramsU_DNC[0], paramsU_DNC[1]));
@@ -366,16 +367,16 @@ public class T1DMDisease extends Disease {
 					P_DNC_ALB1, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_ALB1[0], paramsDNC_ALB1[1]));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, alb2, 
 					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-					P_DNC_ALB2, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_ALB2));
+					P_DNC_ALB2, StandardParameter.getRandomVariateForProbability(P_DNC_ALB2));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, alb1, esrd, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
 					P_ALB1_ESRD, RandomVariateFactory.getInstance("BetaVariate", paramsALB1_ESRD[0], paramsALB1_ESRD[1]));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, alb2, esrd, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-					P_ALB2_ESRD, SecondOrderParamsRepository.getRandomVariateForProbability(P_ALB2_ESRD));
+					P_ALB2_ESRD, StandardParameter.getRandomVariateForProbability(P_ALB2_ESRD));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, alb1, alb2, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-					P_ALB1_ALB2, SecondOrderParamsRepository.getRandomVariateForProbability(P_ALB1_ALB2));
+					P_ALB1_ALB2, StandardParameter.getRandomVariateForProbability(P_ALB1_ALB2));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, esrd, 
 					"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
-					P_DNC_ESRD, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_ESRD));
+					P_DNC_ESRD, StandardParameter.getRandomVariateForProbability(P_DNC_ESRD));
 			
 			registerSheffieldTimeToEventParameter(secParams, alb1, paramBetaALB1);
 			registerSheffieldTimeToEventParameter(secParams, alb2, paramBetaALB2);
@@ -430,23 +431,23 @@ public class T1DMDisease extends Disease {
 
 			// Add transition probabilities for retinopathy-related complications
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, bgret,
-					"Sheffield (WESDR XXII)", P_DNC_BGRET, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_BGRET));
+					"Sheffield (WESDR XXII)", P_DNC_BGRET, StandardParameter.getRandomVariateForProbability(P_DNC_BGRET));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, pret, 
-					"Sheffield (WESDR XXII)", P_DNC_PRET, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_PRET));
+					"Sheffield (WESDR XXII)", P_DNC_PRET, StandardParameter.getRandomVariateForProbability(P_DNC_PRET));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, me, 
-					"Sheffield (WESDR XXII)", P_DNC_ME, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_ME));
+					"Sheffield (WESDR XXII)", P_DNC_ME, StandardParameter.getRandomVariateForProbability(P_DNC_ME));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, bgret, pret, 
-					"Sheffield (WESDR XXII)", P_BGRET_PRET, SecondOrderParamsRepository.getRandomVariateForProbability(P_BGRET_PRET));			
+					"Sheffield (WESDR XXII)", P_BGRET_PRET, StandardParameter.getRandomVariateForProbability(P_BGRET_PRET));			
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, bgret, me,
-					"Sheffield (WESDR XXII)", P_BGRET_ME, SecondOrderParamsRepository.getRandomVariateForProbability(P_BGRET_ME));
+					"Sheffield (WESDR XXII)", P_BGRET_ME, StandardParameter.getRandomVariateForProbability(P_BGRET_ME));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, bgret, bli,  
-					"Sheffield (WESDR XXII)", P_BGRET_BLI, SecondOrderParamsRepository.getRandomVariateForProbability(P_BGRET_BLI));
+					"Sheffield (WESDR XXII)", P_BGRET_BLI, StandardParameter.getRandomVariateForProbability(P_BGRET_BLI));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, pret, bli, 
-					"Sheffield (WESDR XXII)", P_PRET_BLI, SecondOrderParamsRepository.getRandomVariateForProbability(P_PRET_BLI));
+					"Sheffield (WESDR XXII)", P_PRET_BLI, StandardParameter.getRandomVariateForProbability(P_PRET_BLI));
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, me, bli,  
-					"Sheffield (WESDR XXII)", P_ME_BLI, SecondOrderParamsRepository.getRandomVariateForProbability(P_ME_BLI));			
+					"Sheffield (WESDR XXII)", P_ME_BLI, StandardParameter.getRandomVariateForProbability(P_ME_BLI));			
 			RiskParamDescriptions.PROBABILITY.addParameter(secParams, bli, 
-					"Sheffield (WESDR XXII)", P_DNC_BLI, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_BLI));			
+					"Sheffield (WESDR XXII)", P_DNC_BLI, StandardParameter.getRandomVariateForProbability(P_DNC_BLI));			
 
 			registerSheffieldTimeToEventParameter(secParams, bgret, paramBetaBGRET);
 			registerSheffieldTimeToEventParameter(secParams, pret, paramBetaPRET);

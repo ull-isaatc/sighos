@@ -7,19 +7,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import simkit.random.RandomNumber;
+import simkit.random.RandomNumberFactory;
 
 /**
  * @author Iván Castilla
  *
  */
 public class PatientCommonRandomNumbers {
-	final HashMap<String, ArrayList<Double>> rndValues;
+	private final HashMap<String, ArrayList<Double>> rndValues;
+	/** A random number generator for first order parameter values */
+	private static RandomNumber RNG = RandomNumberFactory.getInstance();
 
 	/**
 	 * 
 	 */
 	public PatientCommonRandomNumbers() {
+		
 		rndValues = new HashMap<>();
 	}
 
@@ -36,7 +40,7 @@ public class PatientCommonRandomNumbers {
 		}
 		if (n > values.size()) {
 			for (int i = values.size(); i < n; i++) {
-				final double rnd = SecondOrderParamsRepository.getRNG_FIRST_ORDER().draw();
+				final double rnd = RNG.draw();
 				values.add(rnd);
 			}
 		}
@@ -53,10 +57,26 @@ public class PatientCommonRandomNumbers {
 		if (values == null) {
 			values = new ArrayList<>();
 			rndValues.put(key, values);
-			final double rnd = SecondOrderParamsRepository.getRNG_FIRST_ORDER().draw();
+			final double rnd = RNG.draw();
 			values.add(rnd);
 			return rnd;
 		}
 		return values.get(0);
 	}
+
+    /**
+     * Changes the default random number generator for first order uncertainty
+     * @param rng New random number generator
+     */
+    public static void setRNG(RandomNumber rng) {
+    	RNG = rng;
+    }
+
+    /**
+     * Returns the random number generator for first order uncertainty
+     * @return the random number generator for first order uncertainty
+     */
+    public static RandomNumber getRNG() {
+    	return RNG;
+    }
 }

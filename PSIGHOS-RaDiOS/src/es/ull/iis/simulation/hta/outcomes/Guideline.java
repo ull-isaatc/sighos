@@ -7,9 +7,9 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway.ConditionInformation;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -92,7 +92,7 @@ public class Guideline implements NamedAndDescribed {
 		private final double uses;
 		
 		public GuidelineRange(TimeStamp start, TimeStamp end, double frequency, double dose) {
-			this(SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(start)), SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(end)), frequency, dose);
+			this(HTAModel.simulationTimeToYears(TimeUnit.DAY.convert(start)), HTAModel.simulationTimeToYears(TimeUnit.DAY.convert(end)), frequency, dose);
 		}
 		
 		public GuidelineRange(double start, double end, double frequency, double dose) {

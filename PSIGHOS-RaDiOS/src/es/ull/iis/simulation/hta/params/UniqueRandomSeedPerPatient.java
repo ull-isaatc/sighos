@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.params;
 import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -31,7 +32,7 @@ public class UniqueRandomSeedPerPatient implements RandomSeedForPatients {
 	@Override
 	public double draw(Patient pat) {
 		if (Double.isNaN(generated[pat.getIdentifier()])) {
-			final double rnd = SecondOrderParamsRepository.getRNG_FIRST_ORDER().draw();
+			final double rnd = PatientCommonRandomNumbers.getRNG().draw();
 			generated[pat.getIdentifier()] = logRandom ? Math.log(rnd) : rnd;
 		}
 		return generated[pat.getIdentifier()];

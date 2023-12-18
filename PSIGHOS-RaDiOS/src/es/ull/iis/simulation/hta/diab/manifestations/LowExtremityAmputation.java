@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -35,7 +36,7 @@ public class LowExtremityAmputation extends DiseaseProgression {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "del Pino et al", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
+		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "del Pino et al", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
 		final double[] tcParams = Statistics.gammaParametersFromNormal(TC[0], TC[1]);
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "amputation", 
 				"Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", COSTYEAR, 

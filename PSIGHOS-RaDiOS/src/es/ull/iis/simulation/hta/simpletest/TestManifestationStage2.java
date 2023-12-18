@@ -4,11 +4,7 @@
 package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.HTAModel;
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.RandomVariateFactory;
@@ -33,10 +29,10 @@ public class TestManifestationStage2 extends DiseaseProgression {
 
 	@Override
 	public void createParameters() {
-		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addParameter(model, this, "Test", IMR, RandomVariateFactory.getInstance("UniformVariate", IMR - 1, IMR + 1));
-		CostParamDescriptions.ANNUAL_COST.addParameter(model, this, "Test", 2020, ANNUAL_COST, SecondOrderParamsRepository.getRandomVariateForCost(ANNUAL_COST));
-		UtilityParamDescriptions.DISUTILITY.addParameter(model, this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.1, DISUTILITY + 0.1));
-		RiskParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(model, this, "Test", P_DIAG, SecondOrderParamsRepository.getRandomVariateForProbability(P_DIAG));
+		StandardParameter.INCREASED_MORTALITY_RATE.addParameter(model, this, "Test", IMR, RandomVariateFactory.getInstance("UniformVariate", IMR - 1, IMR + 1));
+		StandardParameter.ANNUAL_COST.addParameter(model, this, "Test", HTAModel.getStudyYear(), ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
+		StandardParameter.ANNUAL_DISUTILITY.addParameter(model, this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.1, DISUTILITY + 0.1));
+		StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS.addParameter(model, this, "Test", P_DIAG, StandardParameter.getRandomVariateForProbability(P_DIAG));
 	}
 
 }

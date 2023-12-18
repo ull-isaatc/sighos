@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -37,7 +38,7 @@ public class SevereHypoglycemiaEvent extends DiseaseProgression {
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "severe hypoglycemic episode", 
-			"https://doi.org/10.1007/s13300-017-0285-0", COSTYEAR, COST_HYPO_EPISODE, SecondOrderParamsRepository.getRandomVariateForCost(COST_HYPO_EPISODE));
+			"https://doi.org/10.1007/s13300-017-0285-0", COSTYEAR, COST_HYPO_EPISODE, StandardParameter.getRandomVariateForCost(COST_HYPO_EPISODE));
 		UtilityParamDescriptions.ONE_TIME_DISUTILITY.addParameter(secParams, this, "Walters et al. 10.1016/s1098-3015(10)63316-5", 
 			DU_HYPO_EPISODE, RandomVariateFactory.getInstance("UniformVariate", LIMITS_DU_HYPO_EPISODE[0], LIMITS_DU_HYPO_EPISODE[1]));
 		

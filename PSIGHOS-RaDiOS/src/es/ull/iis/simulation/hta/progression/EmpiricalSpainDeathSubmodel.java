@@ -8,8 +8,8 @@ import java.util.Arrays;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
@@ -76,7 +76,7 @@ public class EmpiricalSpainDeathSubmodel extends DiseaseProgression {
 				9961.8583918682, 9962.4453402991, 9962.97452182874, 9963.53266777561, 9964.50704403383, 9965.299176584, 9966.20519508153, 9967.25276251774, 9968.39064030574, 9971.129453895, 
 				10000}
 	};
-	private final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
+	private final RandomNumber rng = PatientCommonRandomNumbers.getRNG();
 	/** A random value [0, 1] for each patient (useful for common numbers techniques) and simulation */
 	// FIXME: To be coherent, the same value should be generated for the same patient in every simulation
 	private final double[][] rnd;

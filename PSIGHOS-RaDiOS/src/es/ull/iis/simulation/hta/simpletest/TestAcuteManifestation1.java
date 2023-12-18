@@ -4,10 +4,7 @@
 package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.HTAModel;
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import simkit.random.RandomVariateFactory;
@@ -36,10 +33,10 @@ public class TestAcuteManifestation1 extends DiseaseProgression {
 	 */
 	@Override
 	public void createParameters() {
-		UtilityParamDescriptions.ONE_TIME_DISUTILITY.addParameter(model, this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
-		RiskParamDescriptions.PROBABILITY_DEATH.addParameter(model, this, "Test", P_DEAD, SecondOrderParamsRepository.getRandomVariateForProbability(P_DEAD));
-		CostParamDescriptions.ONE_TIME_COST.addParameter(model, this, "Test", 2020, PUNCTUAL_COST, SecondOrderParamsRepository.getRandomVariateForCost(PUNCTUAL_COST));		
-		RiskParamDescriptions.PROBABILITY_DIAGNOSIS.addParameter(model, this, "Test", P_DIAG, SecondOrderParamsRepository.getRandomVariateForProbability(P_DIAG));
+		StandardParameter.ONSET_DISUTILITY.addParameter(model, this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
+		StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH.addParameter(model, this, "Test", P_DEAD, StandardParameter.getRandomVariateForProbability(P_DEAD));
+		StandardParameter.ONSET_COST.addParameter(model, this, "Test", PUNCTUAL_COST, StandardParameter.getRandomVariateForCost(PUNCTUAL_COST));
+		StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS.addParameter(model, this, "Test", P_DIAG, StandardParameter.getRandomVariateForProbability(P_DIAG));
 	}
 
 }

@@ -13,7 +13,6 @@ import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
@@ -148,7 +147,7 @@ public class AnnualCostView implements ExperimentListener {
 						final Patient pat = (Patient)simul.getGeneratedPatient(i);
 						if (!pat.isDead()) {
 							final double initYear = lastYear[pat.getIdentifier()]; 
-							final double endYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
+							final double endYear = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 							updateAll(pat, initYear, endYear);
 						}
 					}
@@ -161,7 +160,7 @@ public class AnnualCostView implements ExperimentListener {
 				final long ts = pInfo.getTs();
 				final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
 				final double initYear = lastYear[pat.getIdentifier()]; 
-				final double endYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
+				final double endYear = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 				switch(pInfo.getType()) {
 				case DIAGNOSIS:
 					diseaseCost[pInfo.getDiseaseProgression().getDisease().ordinal()][(int) endYear] += pat.getDisease().getStartingCost(pat, endYear, discount);

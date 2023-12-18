@@ -17,6 +17,8 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionEvents;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
+import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 
 public class HTAModel {
     /** The complete collection of Parameters with unique names defined in this model */
@@ -42,6 +44,8 @@ public class HTAModel {
 	private static final DiseaseProgressionEvents NULL_PROGRESSION = new DiseaseProgressionEvents(); 
 	/** Year used to update the costs */
 	private static int studyYear = Year.now().getValue();
+	/** Simulation time unit: defines the finest grain */
+	private TimeUnit simulationTimeUnit = TimeUnit.DAY;
 
     /**
      * Creates a new HTA model
@@ -323,6 +327,40 @@ public class HTAModel {
 			return SpanishCPIUpdate.updateCost(value, param.getYear(), studyYear);
 		}
 		return value;
+	}
+
+    /**
+	 * Sets the time unit of the simulation for this model (default: {@link TimeUnit.DAY DAY})
+     * @param simulationTimeUnit the time unit to set
+     */
+    public void setSimulationTimeUnit(TimeUnit timeUnit) {
+    	simulationTimeUnit = timeUnit;
+    }
+
+    /**
+	 * Gets the time unit used in the simulation of this model (default: {@link TimeUnit.DAY DAY})
+     * @return the time unit used in the simulation of this model
+     */
+    public TimeUnit getSimulationTimeUnit() {
+    	return simulationTimeUnit;
+    }
+
+	/**
+	 * Returns an internal simulation time stamp expressed as years
+	 * @param ts Internal time stamp
+	 * @return an internal simulation time stamp expressed as years
+	 */
+	public double simulationTimeToYears(double ts) {
+		return ts / (double)simulationTimeUnit.convert(TimeStamp.getYear());
+	}
+
+	/**
+	 * Returns an internal simulation time stamp expressed as years
+	 * @param internalTs Internal time stamp
+	 * @return an internal simulation time stamp expressed as years
+	 */
+	public double simulationTimeToYears(long internalTs) {
+		return simulationTimeToYears((double)internalTs);
 	}
 
 }

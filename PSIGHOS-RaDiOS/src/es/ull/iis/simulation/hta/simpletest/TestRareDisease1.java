@@ -9,8 +9,6 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventParameter;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
@@ -38,17 +36,17 @@ public class TestRareDisease1 extends TemplateTestRareDisease {
 		manif2 = new TestManifestationStage2(model, this);
 		new DiseaseProgressionPathway(model, "PATHWAY1",  "Pathway to chronic manifestation 1", manif1);
 		final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new PreviousDiseaseProgressionCondition(manif1);
-		new DiseaseProgressionPathway(model, "PATHWAY2", "Pathway to chronic manifestation 2", manif2, cond); 
+		new DiseaseProgressionPathway(model, "PATHWAY1_2", "Pathway from chronic manifestaion 1 to chronic manifestation 2", manif2, cond); 
 		addExclusion(manif2, manif1);
 	}
 
 	@Override
 	public void createParameters() {
-		StandardParameter.PROBABILITY.addParameter(model, manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		StandardParameter.PROBABILITY.addParameter(model, manif1, "Test", P_MANIF1, StandardParameter.getRandomVariateForProbability(P_MANIF1));
 		StandardParameter.PROBABILITY.addParameter(model, manif1.name() + "_" + manif2.name(), "Probability from manifestation 1 to manifestation 2",
-				"Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
-		model.addParameter(new AnnualRiskBasedTimeToEventParameter(RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1), "Time to chronic  manifestation 1", "", HTAModel.getStudyYear(), manif1));
-		Parameter tte = new AnnualRiskBasedTimeToEventParameter(manif1.name() + "_" + manif2.name(), "Time from chronic manifestation 1 to chronic manifestation 2", "", HTAModel.getStudyYear(), manif2);
+				"Test", P_MANIF1_MANIF2, StandardParameter.getRandomVariateForProbability(P_MANIF1_MANIF2));
+		model.addParameter(new AnnualRiskBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(manif1), "Time to chronic  manifestation 1", "", HTAModel.getStudyYear(), manif1));
+		final Parameter tte = new AnnualRiskBasedTimeToEventParameter(model, manif1.name() + "_" + manif2.name(), "Time from chronic manifestation 1 to chronic manifestation 2", "", HTAModel.getStudyYear(), manif2);
 		tte.setUsedParameterName(AnnualRiskBasedTimeToEventParameter.USED_PARAMETERS.PROB, StandardParameter.PROBABILITY.createName(manif1.name() + "_" + manif2.name()));
 		model.addParameter(tte);
 	}
@@ -56,8 +54,8 @@ public class TestRareDisease1 extends TemplateTestRareDisease {
 	@Override
 	public ArrayList<String> getParamNames() {
 		ArrayList<String> list = new ArrayList<>();
-		list.add(RiskParamDescriptions.PROBABILITY.getParameterName(manif1));
-		list.add(RiskParamDescriptions.PROBABILITY.getParameterName(manif1, manif2));		
+		list.add(StandardParameter.PROBABILITY.createName(manif1));
+		list.add(StandardParameter.PROBABILITY.createName(manif1.name() + "_" + manif2.name()));		
 		return list;
 	}
 

@@ -14,7 +14,6 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.info.SimulationInfo;
@@ -217,7 +216,7 @@ public abstract class EpidemiologicView implements ExperimentListener {
 			else if (info instanceof PatientInfo) {
 				final PatientInfo pInfo = (PatientInfo) info;
 				final Patient pat = (Patient)pInfo.getPatient();
-				final int interval = byAge ? (int)((pat.getAge() - minAge) / length) : (int)Math.ceil(SecondOrderParamsRepository.simulationTimeToYears(pInfo.getTs()));
+				final int interval = byAge ? (int)((pat.getAge() - minAge) / length) : (int)Math.ceil(pat.getSimulation().getModel().simulationTimeToYears(pInfo.getTs()));
 				switch(pInfo.getType()) {
 					case START:
 						nBirths[interval]++;

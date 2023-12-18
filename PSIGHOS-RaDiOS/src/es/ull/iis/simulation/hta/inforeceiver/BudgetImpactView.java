@@ -11,7 +11,6 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -89,7 +88,7 @@ public class BudgetImpactView implements ExperimentListener {
 						final long ts = tInfo.getTs();
 						final DiseaseProgressionSimulation simul = (DiseaseProgressionSimulation)tInfo.getSimul();
 						final TimeUnit simUnit = simul.getTimeUnit();
-						final double endYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
+						final double endYear = simul.getModel().simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 						for (int i = 0; i < lastYear.length; i++) {
 							final Patient pat = (Patient)simul.getGeneratedPatient(i);
 							if (!pat.isDead()) {
@@ -106,7 +105,7 @@ public class BudgetImpactView implements ExperimentListener {
 				else if (info instanceof PatientInfo) {
 					final PatientInfo pInfo = (PatientInfo) info;
 					final DiseaseProgressionSimulation simul = (DiseaseProgressionSimulation)pInfo.getSimul();
-					final double endYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(pInfo.getTs(), simul.getTimeUnit()));
+					final double endYear = simul.getModel().simulationTimeToYears(TimeUnit.DAY.convert(pInfo.getTs(), simul.getTimeUnit()));
 					if (endYear > nYears) {
 						for (int i = 0; i < nPatients; i++) {
 							final Patient pat = simul.getGeneratedPatient(i);

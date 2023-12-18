@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -34,8 +35,8 @@ public class EndStageRenalDisease extends DiseaseProgression {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Ray (2005)", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
-		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "Ray (2005)", COSTYEAR, TCOST, SecondOrderParamsRepository.getRandomVariateForCost(TCOST));
+		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Ray (2005)", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "Ray (2005)", COSTYEAR, TCOST, StandardParameter.getRandomVariateForCost(TCOST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
 		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
 		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addParameter(secParams, this,  

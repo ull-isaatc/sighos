@@ -7,7 +7,6 @@ import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -25,6 +24,7 @@ public class LYListener extends Listener implements StructuredOutputListener {
 	protected double aggregated;
 	protected final double[]values;
 	protected final long[]lastTs;
+	
 	/**
 	 * @param description
 	 */
@@ -53,8 +53,8 @@ public class LYListener extends Listener implements StructuredOutputListener {
 				for (int i = 0; i < lastTs.length; i++) {
 					final Patient pat = (Patient)simul.getGeneratedPatient(i);
 					if (!pat.isDead()) {
-						final double initAge = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
-						final double endAge = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
+						final double initAge = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
+						final double endAge = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 						if (endAge > initAge) {
 							update(pat, initAge, endAge);							
 						}						
@@ -67,8 +67,8 @@ public class LYListener extends Listener implements StructuredOutputListener {
 			final Patient pat = pInfo.getPatient();
 			final long ts = pInfo.getTs();
 			final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
-			final double initAge = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
-			final double endAge = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
+			final double initAge = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
+			final double endAge = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 			if (PatientInfo.Type.START.equals(pInfo.getType())) {
 				lastTs[pat.getIdentifier()] = ts;
 			}

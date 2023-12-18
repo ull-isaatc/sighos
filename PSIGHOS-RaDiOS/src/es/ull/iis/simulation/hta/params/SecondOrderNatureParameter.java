@@ -18,7 +18,7 @@ public class SecondOrderNatureParameter extends Parameter {
 	private final double[] generatedValues;
 
     public SecondOrderNatureParameter(HTAModel model, String name, String description, String source, int year, ParameterType type, double detValue, ParameterExpression expression) {
-        super(name, description, source, year, type);
+        super(model, name, description, source, year, type);
 		this.expression = expression;
 		if (expression == null)
 			throw new IllegalArgumentException("expression cannot be null");

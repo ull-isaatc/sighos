@@ -3,6 +3,7 @@ package es.ull.iis.simulation.hta.params;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 
 /**
@@ -18,8 +19,8 @@ public abstract class TabularParameter<K extends Comparable<K>> extends Paramete
      * @param name The unique name of the parameter
      * @param table The table of values, indexed by a key that is calculated from the characteristics of the patient
      */
-    public TabularParameter(String name, String description, String source, int year, ParameterType type, Map<K, Double> table) {
-        super(name, description, source, year, type);
+    public TabularParameter(HTAModel model, String name, String description, String source, int year, ParameterType type, Map<K, Double> table) {
+        super(model, name, description, source, year, type);
         this.table = table;
     }
 
@@ -28,8 +29,8 @@ public abstract class TabularParameter<K extends Comparable<K>> extends Paramete
      * @param secParams Repository of parameters
      * @param name The unique name of the parameter
      */
-    public TabularParameter(String name, String description, String source, int year, ParameterType type) {
-        super( name, description, source, year, type);
+    public TabularParameter(HTAModel model, String name, String description, String source, int year, ParameterType type) {
+        super(model, name, description, source, year, type);
         this.table = new HashMap<>();
     }
 

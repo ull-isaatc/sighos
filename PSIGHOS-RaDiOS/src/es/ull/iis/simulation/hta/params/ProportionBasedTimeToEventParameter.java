@@ -29,7 +29,7 @@ public class ProportionBasedTimeToEventParameter extends Parameter {
 	 * @param proportionParamName
 	 */
 	public ProportionBasedTimeToEventParameter(HTAModel model, String paramName, String description, String source, int year, DiseaseProgression destManifestation) {
-		super(paramName, description, source, year, ParameterType.RISK);
+		super(model, paramName, description, source, year, ParameterType.RISK);
 		this.destManifestation = destManifestation;
 		setUsedParameterName(USED_PARAMETERS.PROPORTION, StandardParameter.PROPORTION.createName(destManifestation));
 		

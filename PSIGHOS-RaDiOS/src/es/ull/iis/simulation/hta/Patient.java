@@ -11,7 +11,6 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -299,7 +298,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return The current age of the patient
 	 */
 	public double getAge() {
-		return initAge + SecondOrderParamsRepository.simulationTimeToYears(simul.getSimulationEngine().getTs() - startTs);
+		return initAge + getSimulation().getModel().simulationTimeToYears(simul.getSimulationEngine().getTs() - startTs);
 	}
 	
 	
@@ -333,7 +332,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 */
 	public double getAgeAtDeath() {
 		final long timeToDeath = getTimeToDeath();
-		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : initAge + SecondOrderParamsRepository.simulationTimeToYears(timeToDeath);
+		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : initAge + getSimulation().getModel().simulationTimeToYears(timeToDeath);
 	}
 	
 	/**

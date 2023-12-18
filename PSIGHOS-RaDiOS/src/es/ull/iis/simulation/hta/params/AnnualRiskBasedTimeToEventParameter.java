@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.params;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.util.Statistics;
@@ -26,8 +27,8 @@ public class AnnualRiskBasedTimeToEventParameter extends Parameter {
 	 * @param riskParamName Name of the second order parameter that defines the annual risk
 	 * @param rrParamName Relative risk calculator
 	 */
-	public AnnualRiskBasedTimeToEventParameter(String paramName, String description, String source, int year, DiseaseProgression destManifestation) {
-		super(paramName, description, source, year, ParameterType.RISK);
+	public AnnualRiskBasedTimeToEventParameter(HTAModel model, String paramName, String description, String source, int year, DiseaseProgression destManifestation) {
+		super(model, paramName, description, source, year, ParameterType.RISK);
 		this.destManifestation = destManifestation;
 		setUsedParameterName(USED_PARAMETERS.PROB, StandardParameter.PROBABILITY.createName(destManifestation));
 		setUsedParameterName(USED_PARAMETERS.RR, StandardParameter.RELATIVE_RISK.createName(destManifestation));

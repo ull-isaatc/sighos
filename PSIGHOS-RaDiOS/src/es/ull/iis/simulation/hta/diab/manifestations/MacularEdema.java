@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -31,7 +32,7 @@ public class MacularEdema extends DiseaseProgression {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Original analysis", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
+		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Original analysis", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
 		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
 	}

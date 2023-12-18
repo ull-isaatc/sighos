@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -38,7 +39,7 @@ public class MultipleRandomSeedPerPatient implements RandomSeedForPatients {
 	public double draw(Patient pat) {
 		// New event for the patient
 		if (eventCounter[pat.getIdentifier()] == generated.get(pat.getIdentifier()).size()) {
-			final double rnd = SecondOrderParamsRepository.getRNG_FIRST_ORDER().draw();
+			final double rnd = PatientCommonRandomNumbers.getRNG().draw();
 			generated.get(pat.getIdentifier()).add(logRandom ? Math.log(rnd) : rnd);
 		}
 		return generated.get(pat.getIdentifier()).get(eventCounter[pat.getIdentifier()]++);

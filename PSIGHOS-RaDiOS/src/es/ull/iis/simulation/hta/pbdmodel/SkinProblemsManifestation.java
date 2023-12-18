@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.HTAModel;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -29,7 +28,7 @@ public class SkinProblemsManifestation extends DiseaseProgression {
 	public void createParameters() {
 		StandardParameter.DISEASE_PROGRESSION_ONSET_AGE.addParameter(getModel(), this, "", 0.0);
 		StandardParameter.DISEASE_PROGRESSION_END_AGE.addParameter(getModel(), this, "", 1.0);
-		StandardParameter.ONSET_COST.addParameter(getModel(), this, "Test", COST_YEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
+		StandardParameter.ONSET_COST.addParameter(getModel(), this, "Test", COST_YEAR, COST, StandardParameter.getRandomVariateForCost(COST));
 		StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS.addParameter(getModel(), this, "Assumption", 1.0);
 	}
 }

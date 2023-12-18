@@ -54,7 +54,7 @@ public class CompoundRRParameter extends Parameter {
 	 * @param combMethod Combination method used to combine the relative risks
 	 */
 	public CompoundRRParameter(HTAModel model, String paramName, String description, String source, int year, Collection<String> combinedParameterNames, CombinationMethod combMethod) {
-		super(paramName, description, source, year, ParameterType.RISK);
+		super(model, paramName, description, source, year, ParameterType.RISK);
 		this.model = model;
 		this.combinedParameterNames = combinedParameterNames;
 		this.combMethod = combMethod;

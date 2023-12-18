@@ -6,8 +6,8 @@ package es.ull.iis.simulation.hta.progression;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.GompertzVariate;
@@ -24,7 +24,7 @@ public class StandardSpainDeathSubmodel extends DiseaseProgression {
 	private final static double ALPHA_DEATH[] = new double[] {Math.exp(-10.43996654), Math.exp(-11.43877681)};
 	/** Beta parameter for a Gompertz distribution on the mortality risk for men and women */
 	private final static double BETA_DEATH[] = new double[] {0.093286762, 0.099683525};
-	private final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
+	private final RandomNumber rng = PatientCommonRandomNumbers.getRNG();
 	/** A random value [0, 1] for each patient (useful for common numbers techniques) and simulation */
 	// FIXME: To be coherent, the same value should be generated for the same patient in every simulation
 	private final double[][] rnd;

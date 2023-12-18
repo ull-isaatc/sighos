@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.params;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.util.Statistics;
@@ -26,8 +27,8 @@ public class AnnualRateBasedTimeToEventParameter extends Parameter {
 	 * @param rateParamName Name of the second order parameter that defines the patients-year rate
 	 * @param irrParamName Incidence rate ratio calculator
 	 */
-	public AnnualRateBasedTimeToEventParameter(String paramName, String description, String source, int year, DiseaseProgression destManifestation, String rateParamName, String irrParamName) {
-		super(paramName, description, source, year, ParameterType.RISK);
+	public AnnualRateBasedTimeToEventParameter(HTAModel model, String paramName, String description, String source, int year, DiseaseProgression destManifestation, String rateParamName, String irrParamName) {
+		super(model, paramName, description, source, year, ParameterType.RISK);
 		this.irrParamName = irrParamName;
 		this.destManifestation = destManifestation;
 		this.paramName = rateParamName;

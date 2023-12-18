@@ -22,7 +22,7 @@ public class FirstOrderNatureParameter extends Parameter {
 	 * 
 	 */
 	public FirstOrderNatureParameter(HTAModel model, String name, String description, String source, int year, ParameterType type, ParameterExpression expression) {
-        super(name, description, source, year, type);
+        super(model, name, description, source, year, type);
 		this.expression = expression;
 		if (expression == null)
 			throw new IllegalArgumentException("expression cannot be null");

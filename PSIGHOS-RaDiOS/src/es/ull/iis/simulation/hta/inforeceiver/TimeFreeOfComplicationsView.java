@@ -10,7 +10,6 @@ import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -51,6 +50,8 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	private final int nPatients;
 	/** Available chronic manifestations in the simulation */
 	private final DiseaseProgression[] availableManifestations;
+    /** The model this component belongs to */
+    protected final HTAModel model;
 
 	/**
 	 * 
@@ -59,6 +60,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	 */
 	public TimeFreeOfComplicationsView(HTAModel model, boolean printFirstOrderVariance) {
 		super("Standard patient viewer");
+		this.model = model;
 		this.nInterventions = model.getNInterventions();
 		this.nPatients = model.getExperiment().getNPatients();
 		this.availableManifestations = model.getRegisteredDiseaseProgressions();
@@ -130,10 +132,10 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 					}
 					else {
 						final double avg = Statistics.average(validValues);
-						str.append(SecondOrderParamsRepository.simulationTimeToYears(avg)).append(SEP);
+						str.append(model.simulationTimeToYears(avg)).append(SEP);
 						if (printFirstOrderVariance) {
 							final double[] ci = Statistics.normal95CI(avg, Statistics.stdDev(validValues, avg), validValues.size());
-							str.append(SecondOrderParamsRepository.simulationTimeToYears(ci[0])).append(SEP).append(SecondOrderParamsRepository.simulationTimeToYears(ci[1])).append(SEP);
+							str.append(model.simulationTimeToYears(ci[0])).append(SEP).append(model.simulationTimeToYears(ci[1])).append(SEP);
 						}
 					}
 				}
@@ -227,7 +229,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 				}
 				else {
 					final double avg = Statistics.average(validValues);
-					results[i][j] = SecondOrderParamsRepository.simulationTimeToYears(avg);
+					results[i][j] = model.simulationTimeToYears(avg);
 				}
 			}
 		}
@@ -247,7 +249,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 				if (Long.MAX_VALUE == val || val == 0)
 					results[i][j] = Double.NaN;
 				else 
-					results[i][j] = SecondOrderParamsRepository.simulationTimeToYears(val);
+					results[i][j] = model.simulationTimeToYears(val);
 			}
 		}
 		return results;

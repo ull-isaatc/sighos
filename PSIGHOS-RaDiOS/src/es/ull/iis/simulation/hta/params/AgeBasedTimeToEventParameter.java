@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.List;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.util.Statistics;
@@ -29,8 +30,8 @@ public class AgeBasedTimeToEventParameter extends Parameter {
 	 * @param ageRisks
 	 * @param rrParamName
 	 */
-	public AgeBasedTimeToEventParameter(String paramName, String description, String source, int year, DiseaseProgression destManifestation, final double[][] ageRisks, String rrParamName) {
-		super(paramName, description, source, year, ParameterType.RISK);
+	public AgeBasedTimeToEventParameter(HTAModel model, String paramName, String description, String source, int year, DiseaseProgression destManifestation, final double[][] ageRisks, String rrParamName) {
+		super(model, paramName, description, source, year, ParameterType.RISK);
 		this.ageRisks = ageRisks;
 		this.rrParamName = rrParamName;			
 		this.destManifestation = destManifestation;

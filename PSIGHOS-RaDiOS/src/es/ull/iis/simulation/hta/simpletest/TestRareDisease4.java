@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventParameter;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
@@ -40,37 +40,35 @@ public class TestRareDisease4 extends TemplateTestRareDisease {
 		manif1 = new TestManifestationStage1(model, this);
 		manif2 = new TestManifestationStage2(model, this);
 		acuteManif1 = new TestAcuteManifestation1(model, this);
-		new DiseaseProgressionPathway(model, manif1, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1));
-		new DiseaseProgressionPathway(model, manif2, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif2));
+		new DiseaseProgressionPathway(model, "PATHWAY1",  "Pathway to chronic manifestation 1", manif1);
+		new DiseaseProgressionPathway(model, "PATHWAY2", "Pathway to chronic manifestation 2", manif2); 
 		final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new PreviousDiseaseProgressionCondition(manif1);
-		new DiseaseProgressionPathway(model, manif2, cond, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1, manif2)); 
-		new DiseaseProgressionPathway(model, acuteManif1, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(acuteManif1));
+		new DiseaseProgressionPathway(model, "PATHWAY1_2", "Pathway from chronic manifestaion 1 to chronic manifestation 2", manif2, cond); 
+		new DiseaseProgressionPathway(model, "PATH_ACUTE1", "Pathway to acute manifestation 1", acuteManif1);
 	}
 
 	@Override
 	public void createParameters() {
-		RiskParamDescriptions.PROBABILITY.addParameter(model, acuteManif1, "Test", P_ACUTE_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_ACUTE_MANIF1));
-		RiskParamDescriptions.PROBABILITY.addParameter(model, manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
-		RiskParamDescriptions.PROBABILITY.addParameter(model, manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
-		RiskParamDescriptions.PROBABILITY.addParameter(model, manif1, manif2, 
-				"Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1), manif1, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(manif1)));		
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif2), manif2, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(manif2)));		
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(manif1, manif2), manif2, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(manif1, manif2)));		
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(acuteManif1), acuteManif1, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(acuteManif1)));		
+		StandardParameter.PROBABILITY.addParameter(model, acuteManif1, "Test", P_ACUTE_MANIF1, StandardParameter.getRandomVariateForProbability(P_ACUTE_MANIF1));
+		StandardParameter.PROBABILITY.addParameter(model, manif1, "Test", P_MANIF1, StandardParameter.getRandomVariateForProbability(P_MANIF1));
+		StandardParameter.PROBABILITY.addParameter(model, manif2, "Test", P_MANIF2, StandardParameter.getRandomVariateForProbability(P_MANIF2));
+		StandardParameter.PROBABILITY.addParameter(model, manif1.name() + "_" + manif2.name(), "Probability from manifestation 1 to manifestation 2",
+				"Test", P_MANIF1_MANIF2, StandardParameter.getRandomVariateForProbability(P_MANIF1_MANIF2));
+		model.addParameter(new AnnualRiskBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(acuteManif1), "Time to acute  manifestation 1", "", HTAModel.getStudyYear(), acuteManif1));
+		model.addParameter(new AnnualRiskBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(manif1), "Time to chronic  manifestation 1", "", HTAModel.getStudyYear(), manif1));
+		model.addParameter(new AnnualRiskBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(manif2), "Time to chronic  manifestation 2", "", HTAModel.getStudyYear(), manif2));
+		final Parameter tte = new AnnualRiskBasedTimeToEventParameter(model, manif1.name() + "_" + manif2.name(), "Time from chronic manifestation 1 to chronic manifestation 2", "", HTAModel.getStudyYear(), manif2);
+		tte.setUsedParameterName(AnnualRiskBasedTimeToEventParameter.USED_PARAMETERS.PROB, StandardParameter.PROBABILITY.createName(manif1.name() + "_" + manif2.name()));
+		model.addParameter(tte);
 	}
 	
 	@Override
 	public ArrayList<String> getParamNames() {
 		ArrayList<String> list = new ArrayList<>();
-		list.add(RiskParamDescriptions.PROBABILITY.getParameterName(manif1));
-		list.add(RiskParamDescriptions.PROBABILITY.getParameterName(manif2));
-		list.add(RiskParamDescriptions.PROBABILITY.getParameterName(manif1, manif2));		
-		list.add(RiskParamDescriptions.PROBABILITY.getParameterName(acuteManif1));
+		list.add(StandardParameter.PROBABILITY.createName(manif1));
+		list.add(StandardParameter.PROBABILITY.createName(manif2));
+		list.add(StandardParameter.PROBABILITY.createName(manif1.name() + "_" + manif2.name()));		
+		list.add(StandardParameter.PROBABILITY.createName(acuteManif1));
 		return list;
 	}
 }

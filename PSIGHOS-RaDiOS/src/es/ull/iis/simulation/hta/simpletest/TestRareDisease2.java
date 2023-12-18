@@ -7,8 +7,7 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventParameter;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 
@@ -28,20 +27,19 @@ public class TestRareDisease2 extends TemplateTestRareDisease {
 	public TestRareDisease2(HTAModel model) {
 		super(model, "RD2", "Test rare disease 2");
 		acuteManif1 = new TestAcuteManifestation1(model, this);
-		new DiseaseProgressionPathway(model, acuteManif1, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(acuteManif1));
+		new DiseaseProgressionPathway(model, "PATH_ACUTE1", "Pathway to acute manifestation 1", acuteManif1);
 	}
 
 	@Override
 	public void createParameters() {
-		RiskParamDescriptions.PROBABILITY.addParameter(model, acuteManif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
-		RiskParamDescriptions.TIME_TO_EVENT.addParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(acuteManif1), acuteManif1, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(acuteManif1)));		
+		StandardParameter.PROBABILITY.addParameter(model, acuteManif1, "Test", P_MANIF1, StandardParameter.getRandomVariateForProbability(P_MANIF1));
+		model.addParameter(new AnnualRiskBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(acuteManif1), "Time to acute  manifestation 1", "", HTAModel.getStudyYear(), acuteManif1));
 	}
 
 	@Override
 	public ArrayList<String> getParamNames() {
 		ArrayList<String> list = new ArrayList<>();
-		list.add(RiskParamDescriptions.PROBABILITY.getParameterName(acuteManif1));
+		list.add(StandardParameter.PROBABILITY.createName(acuteManif1));
 		return list;
 	}
 }

@@ -60,7 +60,6 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 			return true;
 		}
 	}
-	public final static Parameter NO_RR = new ConstantNatureParameter("No RR", "Dummy Relative risk", "", ParameterType.RISK, 1.0);
 	/** Short name and identifier of the parameter */
 	private final String name;
 	/** The type of the parameter */
@@ -71,6 +70,8 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 	private final String source;
 	/** Year when the parameter was originally estimated */
 	private final int year;
+    /** The model this parameter belongs to */
+    protected final HTAModel model;
     /** A collection of names for parameters used by this model component */
     private final Map<UsedParameter, String> usedParameterNames;
 
@@ -78,7 +79,8 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 	 * Creates a parameter
 	 * @param name Short name and identifier of the parameter. Must be unique within the simulation.
 	 */
-	public Parameter(String name, String description, String source, int year, ParameterType type) {
+	public Parameter(HTAModel model, String name, String description, String source, int year, ParameterType type) {
+		this.model = model;
 		this.name = name;
 		this.description = description;
 		this.source = source;
@@ -93,8 +95,8 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 	 * Creates a parameter
 	 * @param name Short name and identifier of the parameter. Must be unique within the simulation.
 	 */
-	public Parameter(String name, String description, String source, ParameterType type) {
-		this(name, description, source, HTAModel.getStudyYear(), type);
+	public Parameter(HTAModel model, String name, String description, String source, ParameterType type) {
+		this(model, name, description, source, HTAModel.getStudyYear(), type);
 	}
 
 	/**
@@ -136,6 +138,14 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 	public int getYear() {
 		return year;
 	}
+
+    /**
+     * Returns the model this component belongs to
+     * @return the model this component belongs to
+     */
+    public HTAModel getModel() {
+        return model;
+    }
 
 	/**
 	 * Calculates and returns the value of a parameter for a patient at a specific simulation timestamp

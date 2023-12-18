@@ -7,7 +7,6 @@ import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -95,7 +94,7 @@ public class IndividualTime2ManifestationView extends Listener implements Struct
 			final Patient pat = pInfo.getPatient();
 			for (int i = 0; i < availableChronicManifestations.length; i++) {
 				final long time = pat.getTimeToDiseaseProgression(availableChronicManifestations[i]);
-				innerTimeTo[pat.getIdentifier()][pat.getnIntervention()][i] = (time == Long.MAX_VALUE) ? Double.NaN : SecondOrderParamsRepository.simulationTimeToYears(time);
+				innerTimeTo[pat.getIdentifier()][pat.getnIntervention()][i] = (time == Long.MAX_VALUE) ? Double.NaN : pat.getSimulation().getModel().simulationTimeToYears(time);
 			}
 			for (int i = 0; i < availableAcuteManifestations.length; i++) {
 				innerNEvents[pat.getIdentifier()][pat.getnIntervention()][i] = pat.getNDiseaseProgressions(availableAcuteManifestations[i]);

@@ -7,7 +7,6 @@ import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -53,8 +52,8 @@ public class CostListener extends Listener implements StructuredOutputListener {
 				for (int i = 0; i < lastTs.length; i++) {
 					final Patient pat = (Patient)simul.getGeneratedPatient(i);
 					if (!pat.isDead()) {
-						final double initT = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
-						final double endT = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
+						final double initT = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
+						final double endT = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 						if (endT > initT) {
 							final double periodCost = pat.getIntervention().getCostWithinPeriod(pat, initT, endT, discountRate) +
 									pat.getDisease().getCostWithinPeriod(pat, initT, endT, discountRate);
@@ -69,8 +68,8 @@ public class CostListener extends Listener implements StructuredOutputListener {
 			final Patient pat = pInfo.getPatient();
 			final long ts = pInfo.getTs();
 			final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
-			final double initT = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
-			final double endT = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
+			final double initT = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
+			final double endT = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 			// Update lastTs
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {

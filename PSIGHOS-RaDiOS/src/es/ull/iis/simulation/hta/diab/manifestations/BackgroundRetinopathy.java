@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 
 import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -30,7 +31,7 @@ public class BackgroundRetinopathy extends DiseaseProgression {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Original analysis", COSTYEAR, COST, SecondOrderParamsRepository.getRandomVariateForCost(COST));
+		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Original analysis", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
 		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Assumption", DU, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 	}
 

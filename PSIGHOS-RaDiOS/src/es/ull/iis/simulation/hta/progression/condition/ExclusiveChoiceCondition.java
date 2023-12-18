@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.util.ExtendedMath;
@@ -24,10 +24,10 @@ public class ExclusiveChoiceCondition extends Condition<DiseaseProgressionPathwa
 	/**
 	 * 
 	 */
-	public ExclusiveChoiceCondition(Map<DiseaseProgression, String> paramsByProgression) {
+	public ExclusiveChoiceCondition(HTAModel model, Map<DiseaseProgression, String> paramsByProgression) {
 		super();
 		this.paramsByProgression = paramsByProgression;
-		this.selectors = new SingleSelector[secParams.getNRuns() + 1];
+		this.selectors = new SingleSelector[model.getExperiment().getNRuns() + 1];
 		Arrays.fill(this.selectors, null); 		
 	}
 
@@ -60,7 +60,7 @@ public class ExclusiveChoiceCondition extends Condition<DiseaseProgressionPathwa
 			String rndKey = "PROP";
 	        for (int i = 0; i < progressions.length; i++) {
 	        	progressions[i] = (DiseaseProgression)paramsByProgression.keySet().toArray()[i];
-	        	frequencies[i] = progressions[i].getParameterValue(paramsByProgression.get(progressions[i]), pat);
+	        	frequencies[i] = pat.getSimulation().getModel().getParameterValue(paramsByProgression.get(progressions[i]), pat);
 	        	rndKey += "_" + progressions[i].name();
 	        }
 	        this.rndKey = rndKey;

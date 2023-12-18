@@ -8,7 +8,6 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -27,6 +26,7 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 	protected double aggregated;
 	protected final double[]values;
 	protected final long[]lastTs;
+
 	/**
 	 * @param description
 	 */
@@ -56,8 +56,8 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 				for (int i = 0; i < lastTs.length; i++) {
 					final Patient pat = (Patient)simul.getGeneratedPatient(i);
 					if (!pat.isDead()) {
-						final double initYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
-						final double endYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
+						final double initYear = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
+						final double endYear = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 						if (endYear > initYear) {
 							final double periodUtility = pat.getUtilityValue(method);
 							update(pat, periodUtility, initYear, endYear);							
@@ -71,8 +71,8 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 			final Patient pat = pInfo.getPatient();
 			final long ts = pInfo.getTs();
 			final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
-			final double initYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
-			final double endYear = SecondOrderParamsRepository.simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
+			final double initYear = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit)); 
+			final double endYear = pat.getSimulation().getModel().simulationTimeToYears(TimeUnit.DAY.convert(ts, simUnit));
 			// Update lastTs
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {

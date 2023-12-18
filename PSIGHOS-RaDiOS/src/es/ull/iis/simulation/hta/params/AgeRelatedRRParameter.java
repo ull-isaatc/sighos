@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.params;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 
 /**
@@ -18,8 +19,8 @@ public class AgeRelatedRRParameter extends Parameter {
 	 * Creates a new instance of this relative risk calculator
 	 * @param agesNRR An age-ordered array of pairs {age, RR}
 	 */
-	public AgeRelatedRRParameter(String paramName, String description, String source, int year, double[][] agesNRR) {
-		super(paramName, description, source, year, ParameterType.RISK);
+	public AgeRelatedRRParameter(HTAModel model, String paramName, String description, String source, int year, double[][] agesNRR) {
+		super(model, paramName, description, source, year, ParameterType.RISK);
 		this.agesNRR = agesNRR;
 	}
 

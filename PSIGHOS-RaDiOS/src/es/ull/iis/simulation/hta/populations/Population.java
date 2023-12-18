@@ -7,8 +7,8 @@ import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UsedParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -29,7 +29,7 @@ public abstract class Population extends HTAModelComponent {
 
 	public Population(HTAModel model, String name, String description) throws MalformedSimulationModelException {
 		super(model, name, description);
-		rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
+		rng = PatientCommonRandomNumbers.getRNG();
 		if (!model.register(this))
 			throw new MalformedSimulationModelException("Population already defined");
 			setUsedParameterName(USED_PARAMETERS.BASE_UTILITY, StandardParameter.POPULATION_BASE_UTILITY.createName(this));
