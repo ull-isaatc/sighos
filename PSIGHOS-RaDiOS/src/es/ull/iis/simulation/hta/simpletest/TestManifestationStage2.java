@@ -29,10 +29,10 @@ public class TestManifestationStage2 extends DiseaseProgression {
 
 	@Override
 	public void createParameters() {
-		StandardParameter.INCREASED_MORTALITY_RATE.addParameter(model, this, "Test", IMR, RandomVariateFactory.getInstance("UniformVariate", IMR - 1, IMR + 1));
-		StandardParameter.ANNUAL_COST.addParameter(model, this, "Test", HTAModel.getStudyYear(), ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
-		StandardParameter.ANNUAL_DISUTILITY.addParameter(model, this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.1, DISUTILITY + 0.1));
-		StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS.addParameter(model, this, "Test", P_DIAG, StandardParameter.getRandomVariateForProbability(P_DIAG));
+		addParameter(StandardParameter.INCREASED_MORTALITY_RATE, "", "Test", IMR, RandomVariateFactory.getInstance("UniformVariate", IMR - 1, IMR + 1));
+		addParameter(StandardParameter.ANNUAL_COST, "", "Test", HTAModel.getStudyYear(), ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
+		addParameter(StandardParameter.ANNUAL_DISUTILITY, "", "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.1, DISUTILITY + 0.1));
+		addParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, "", "Test", P_DIAG, StandardParameter.getRandomVariateForProbability(P_DIAG));
 	}
 
 }

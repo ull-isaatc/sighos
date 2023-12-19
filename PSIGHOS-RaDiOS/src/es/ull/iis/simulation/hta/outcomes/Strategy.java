@@ -8,13 +8,14 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.Reseteable;
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 
 /**
  * A stepped strategy intended to involve different costs at different stages. For example, a treatment strategy may consist on starting with a drug, 
@@ -25,33 +26,32 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  * @author Iván Castilla Rodríguez
  *
  */
-public class Strategy implements PartOfStrategy, Reseteable {
+public class Strategy extends HTAModelComponent implements PartOfStrategy, Reseteable {
 	private final Condition<Patient> condition;
-	private final String description;
-	private final String name;
 	private final ArrayList<ArrayList<PartOfStrategy>> parts;
 	private Strategy parent = null;
-	protected final SecondOrderParamsRepository secParams;
+	protected final HTAModel model;
 	private final RandomSeedForPatients[] randomSeeds;
-	
+
 	/**
 	 * 
 	 */
-	public Strategy(SecondOrderParamsRepository secParams,String name, String description) {
-		this(secParams, name, description, new TrueCondition<Patient>());
+	public Strategy(HTAModel model,String name, String description) {
+		this(model, name, description, new TrueCondition<Patient>());
 	}
 
 	/**
 	 * 
 	 */
-	public Strategy(SecondOrderParamsRepository secParams, String name, String description, Condition<Patient> cond) {
+	public Strategy(HTAModel model, String name, String description, Condition<Patient> cond) {
+		super(model, name, description);
 		this.condition = cond;
-		this.description = description;
-		this.name = name;
 		this.parts = new  ArrayList<>();
-		this.secParams = secParams;
-		this.randomSeeds = new RandomSeedForPatients[secParams.getNRuns() + 1];
+		this.model = model;
+		this.randomSeeds = new RandomSeedForPatients[model.getExperiment().getNRuns() + 1];
 		Arrays.fill(randomSeeds, null);
+		addUsedParameter(StandardParameter.ANNUAL_COST);
+		addUsedParameter(StandardParameter.ONE_TIME_COST);
 	}
 
 	@Override
@@ -61,19 +61,9 @@ public class Strategy implements PartOfStrategy, Reseteable {
 	
 	public RandomSeedForPatients getRandomSeedForPatients(int id) {
 		if (randomSeeds[id] == null) {
-			randomSeeds[id] = new MultipleRandomSeedPerPatient(secParams.getNPatients(), true);
+			randomSeeds[id] = new MultipleRandomSeedPerPatient(model.getExperiment().getNPatients(), true);
 		}
 		return randomSeeds[id];
-	}
-	
-	@Override
-	public String name() {
-		return name;
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
 	}
 
 	/**
@@ -120,19 +110,15 @@ public class Strategy implements PartOfStrategy, Reseteable {
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-	}
-
-	@Override
 	public double getCostForPeriod(Patient pat, double startT, double endT, Discount discountRate) {
 		double cost = 0.0;
 		// If the patient does not meet the condition, the strategy cannot be applied
 		if (condition.check(pat)) {
-			double partialCost = CostParamDescriptions.ANNUAL_COST.getValueIfExists(secParams, this, pat);
+			double partialCost = getUsedParameterValue(StandardParameter.ANNUAL_COST, pat);
 			// If there is an annual cost defined, ignores the guideline
 			if (!Double.isNaN(partialCost))
 				cost += discountRate.applyDiscount(partialCost, startT, endT);
-			partialCost = CostParamDescriptions.ONE_TIME_COST.getValueIfExists(secParams, this, pat);
+			partialCost =  getUsedParameterValue(StandardParameter.ONE_TIME_COST, pat);
 			// In case a one-time cost is defined, it is used first to compute the cost of the strategy
 			if (!Double.isNaN(partialCost)) {
 				cost += discountRate.applyPunctualDiscount(partialCost, startT);
@@ -152,10 +138,5 @@ public class Strategy implements PartOfStrategy, Reseteable {
 	public double[] getAnnualizedCostForPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public SecondOrderParamsRepository getRepository() {
-		return secParams;
 	}
 }

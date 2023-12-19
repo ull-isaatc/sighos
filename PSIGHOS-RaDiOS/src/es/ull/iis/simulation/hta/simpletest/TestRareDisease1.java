@@ -26,6 +26,8 @@ public class TestRareDisease1 extends TemplateTestRareDisease {
 	final private DiseaseProgression manif1;
 	/** Second stage of the disease (severe) */
 	final private DiseaseProgression manif2;
+	final private DiseaseProgressionPathway pathway1;
+	final private DiseaseProgressionPathway pathway2;
 	
 	/**
 	 * @param model Repository with common information about the disease 
@@ -34,18 +36,19 @@ public class TestRareDisease1 extends TemplateTestRareDisease {
 		super(model, "RD1", "Test rare disease 1");
 		manif1 = new TestManifestationStage1(model, this);
 		manif2 = new TestManifestationStage2(model, this);
-		new DiseaseProgressionPathway(model, "PATHWAY1",  "Pathway to chronic manifestation 1", manif1);
+		pathway1 = new DiseaseProgressionPathway(model, "PATHWAY1",  "Pathway to chronic manifestation 1", manif1);
 		final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new PreviousDiseaseProgressionCondition(manif1);
-		new DiseaseProgressionPathway(model, "PATHWAY1_2", "Pathway from chronic manifestaion 1 to chronic manifestation 2", manif2, cond); 
+		pathway2 = new DiseaseProgressionPathway(model, "PATHWAY1_2", "Pathway from chronic manifestaion 1 to chronic manifestation 2", manif2, cond); 
 		addExclusion(manif2, manif1);
 	}
 
 	@Override
 	public void createParameters() {
+		// TODO: This does not work: there is a mess with the names of the parameters. Return to TimeToEventCalculator?
+		pathway1.addParameter(StandardParameter.TIME_TO_EVENT, new AnnualRiskBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(pathway1), "Time to chronic  manifestation 1", "", HTAModel.getStudyYear(), manif1));
 		StandardParameter.PROBABILITY.addParameter(model, manif1, "Test", P_MANIF1, StandardParameter.getRandomVariateForProbability(P_MANIF1));
 		StandardParameter.PROBABILITY.addParameter(model, manif1.name() + "_" + manif2.name(), "Probability from manifestation 1 to manifestation 2",
 				"Test", P_MANIF1_MANIF2, StandardParameter.getRandomVariateForProbability(P_MANIF1_MANIF2));
-		model.addParameter(new AnnualRiskBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(manif1), "Time to chronic  manifestation 1", "", HTAModel.getStudyYear(), manif1));
 		final Parameter tte = new AnnualRiskBasedTimeToEventParameter(model, manif1.name() + "_" + manif2.name(), "Time from chronic manifestation 1 to chronic manifestation 2", "", HTAModel.getStudyYear(), manif2);
 		tte.setUsedParameterName(AnnualRiskBasedTimeToEventParameter.USED_PARAMETERS.PROB, StandardParameter.PROBABILITY.createName(manif1.name() + "_" + manif2.name()));
 		model.addParameter(tte);

@@ -23,18 +23,20 @@ public class Guideline implements NamedAndDescribed {
 	private final String name;
 	private final TreeSet<GuidelineRange> ranges;
 	private final Condition<ConditionInformation> condition;
+	private final HTAModel model;
 
 	/**
 	 * 
 	 */
-	public Guideline(String name, String description) {
-		this(name, description, new TrueCondition<ConditionInformation>());
+	public Guideline(HTAModel model, String name, String description) {
+		this(model, name, description, new TrueCondition<ConditionInformation>());
 	}
 
 	/**
 	 * 
 	 */
-	public Guideline(String name, String description, Condition<ConditionInformation> condition) {
+	public Guideline(HTAModel model, String name, String description, Condition<ConditionInformation> condition) {
+		this.model = model;
 		this.name = name;
 		this.description = description;
 		this.ranges = new TreeSet<>();
@@ -59,7 +61,7 @@ public class Guideline implements NamedAndDescribed {
 	}
 
 	public void addRange(TimeStamp start, TimeStamp end, double frequency, double duration) {
-		ranges.add(new GuidelineRange(start, end, frequency, duration));
+		ranges.add(new GuidelineRange(model, start, end, frequency, duration));
 	}
 	
 	public double getCost(double unitCost, double startT, double endT, Discount discountRate) {
@@ -91,8 +93,8 @@ public class Guideline implements NamedAndDescribed {
 		private final double dose;
 		private final double uses;
 		
-		public GuidelineRange(TimeStamp start, TimeStamp end, double frequency, double dose) {
-			this(HTAModel.simulationTimeToYears(TimeUnit.DAY.convert(start)), HTAModel.simulationTimeToYears(TimeUnit.DAY.convert(end)), frequency, dose);
+		public GuidelineRange(HTAModel model, TimeStamp start, TimeStamp end, double frequency, double dose) {
+			this(model.simulationTimeToYears(TimeUnit.DAY.convert(start)), model.simulationTimeToYears(TimeUnit.DAY.convert(end)), frequency, dose);
 		}
 		
 		public GuidelineRange(double start, double end, double frequency, double dose) {

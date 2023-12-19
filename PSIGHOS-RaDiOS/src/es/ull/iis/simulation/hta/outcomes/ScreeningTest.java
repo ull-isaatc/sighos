@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.hta.outcomes;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.DefinesSensitivityAndSpecificity;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -16,8 +16,8 @@ public class ScreeningTest extends HealthTechnology implements DefinesSensitivit
 	 * @param name
 	 * @param description
 	 */
-	public ScreeningTest(SecondOrderParamsRepository secParams, String name, String description, Guideline guide) {
-		super(secParams, name, description, guide);
+	public ScreeningTest(HTAModel model, String name, String description, Guideline guide) {
+		super(model, name, description, guide);
 	}
 
 }

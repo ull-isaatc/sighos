@@ -16,10 +16,6 @@ import es.ull.iis.util.Statistics;
 public class AnnualRiskBasedTimeToEventParameter extends Parameter {
 	/** Manifestation to which progress */
 	private final DiseaseProgression destManifestation;
-	public enum USED_PARAMETERS implements UsedParameter {
-		PROB,
-		RR
-	}
 
 	/**
 	 * 
@@ -30,14 +26,14 @@ public class AnnualRiskBasedTimeToEventParameter extends Parameter {
 	public AnnualRiskBasedTimeToEventParameter(HTAModel model, String paramName, String description, String source, int year, DiseaseProgression destManifestation) {
 		super(model, paramName, description, source, year, ParameterType.RISK);
 		this.destManifestation = destManifestation;
-		setUsedParameterName(USED_PARAMETERS.PROB, StandardParameter.PROBABILITY.createName(destManifestation));
-		setUsedParameterName(USED_PARAMETERS.RR, StandardParameter.RELATIVE_RISK.createName(destManifestation));
+		addUsedParameter(StandardParameter.PROBABILITY);
+		addUsedParameter(StandardParameter.RELATIVE_RISK);
 	}
 
 	@Override
 	public double getValue(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return Statistics.getAnnualBasedTimeToEvent(destManifestation.getModel().getParameterValue(getUsedParameterName(USED_PARAMETERS.PROB), pat), rndValue, 
-					destManifestation.getModel().getParameterValue(getUsedParameterName(USED_PARAMETERS.RR), pat));
+		return Statistics.getAnnualBasedTimeToEvent(destManifestation.getUsedParameterValue(StandardParameter.PROBABILITY, pat), rndValue, 
+					destManifestation.getUsedParameterValue(StandardParameter.RELATIVE_RISK, pat));
 	}		
 }

@@ -15,7 +15,6 @@ import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.StandardParameter;
-import es.ull.iis.simulation.hta.params.UsedParameter;
 
 /**
  * Any stage, manifestation or sign that involves a progression in the development of a disease
@@ -47,22 +46,6 @@ public class DiseaseProgression extends HTAModelComponent implements Comparable<
 	private final ArrayList<DiseaseProgressionPathway> pathways;
 	/** A set of labels that may be assigned to this manifestation. Labels serve to group related manifestations */
 	private final TreeSet<Named> labels;
-	// Names of the standard parameters that uses this disease
-	public enum USED_PARAMETERS implements UsedParameter {
-		INITIAL_PROPORTION,
-		ANNUAL_COST,
-		ONSET_COST,
-		TREATMENT_COST,
-		FOLLOW_UP_COST,
-		ANNUAL_DISUTILITY,
-		ONSET_DISUTILITY,
-		END_AGE,
-		ONSET_AGE,
-		RISK_OF_DEATH,
-		PROBABILITY_DIAGNOSIS,
-		INCREASED_MORTALITY_RATE,
-		LIFE_EXPECTANCY_REDUCTION
-	}
 
 	/**
 	 * Creates a new progression for the specified disease 
@@ -81,19 +64,19 @@ public class DiseaseProgression extends HTAModelComponent implements Comparable<
 		if (!model.register(this))
 			throw new IllegalArgumentException("Disease progression " + name + " already registered");		
 		disease.addDiseaseProgression(this);
-		setUsedParameterName(USED_PARAMETERS.ANNUAL_COST, StandardParameter.ANNUAL_COST.createName(this));
-		setUsedParameterName(USED_PARAMETERS.ONSET_COST, StandardParameter.ONSET_COST.createName(this));
-		setUsedParameterName(USED_PARAMETERS.TREATMENT_COST, StandardParameter.TREATMENT_COST.createName(this));
-		setUsedParameterName(USED_PARAMETERS.FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST.createName(this));
-		setUsedParameterName(USED_PARAMETERS.ANNUAL_DISUTILITY, StandardParameter.ANNUAL_DISUTILITY.createName(this));
-		setUsedParameterName(USED_PARAMETERS.ONSET_DISUTILITY, StandardParameter.ONSET_DISUTILITY.createName(this));
-		setUsedParameterName(USED_PARAMETERS.END_AGE, StandardParameter.DISEASE_PROGRESSION_END_AGE.createName(this));
-		setUsedParameterName(USED_PARAMETERS.ONSET_AGE, StandardParameter.DISEASE_PROGRESSION_ONSET_AGE.createName(this));
-		setUsedParameterName(USED_PARAMETERS.INITIAL_PROPORTION, StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION.createName(this));
-		setUsedParameterName(USED_PARAMETERS.RISK_OF_DEATH, StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH.createName(this));
-		setUsedParameterName(USED_PARAMETERS.PROBABILITY_DIAGNOSIS, StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS.createName(this));
-		setUsedParameterName(USED_PARAMETERS.INCREASED_MORTALITY_RATE, StandardParameter.INCREASED_MORTALITY_RATE.createName(this));
-		setUsedParameterName(USED_PARAMETERS.LIFE_EXPECTANCY_REDUCTION, StandardParameter.LIFE_EXPECTANCY_REDUCTION.createName(this));
+		addUsedParameter(StandardParameter.ANNUAL_COST);
+		addUsedParameter(StandardParameter.ONSET_COST);
+		addUsedParameter(StandardParameter.TREATMENT_COST);
+		addUsedParameter(StandardParameter.FOLLOW_UP_COST);
+		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
+		addUsedParameter(StandardParameter.ONSET_DISUTILITY);
+		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_END_AGE);
+		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE);
+		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION);
+		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH);
+		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS);
+		addUsedParameter(StandardParameter.INCREASED_MORTALITY_RATE);
+		addUsedParameter(StandardParameter.LIFE_EXPECTANCY_REDUCTION);
 	}
 	
 	/**
@@ -144,59 +127,41 @@ public class DiseaseProgression extends HTAModelComponent implements Comparable<
 		return timeTo;
 	}
 	
-	/**
-	 * Returns the maximum age when this progression appears
-	 * @param pat A patient
-	 * @return the maximum age when this progression appears
-	 */
-	public double getEndAge(Patient pat) {
-		return model.getParameterValue(getUsedParameterName(USED_PARAMETERS.END_AGE), pat);
-	}
-	
-	/**
-	 * Returns the minimum age when this progression appears
-	 * @param pat A patient
-	 * @return the minimum age when this progression appears
-	 */
-	public double getOnsetAge(Patient pat) {
-		return model.getParameterValue(getUsedParameterName(USED_PARAMETERS.ONSET_AGE), pat);
-	}
-	
 	@Override
 	public double getCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
-		return discountRate.applyDiscount(model.getParameterValue(getUsedParameterName(USED_PARAMETERS.ANNUAL_COST), pat), initYear, endYear);
+		return discountRate.applyDiscount(getUsedParameterValue(StandardParameter.ANNUAL_COST, pat), initYear, endYear);
 	}
 
 	@Override
 	public double getStartingCost(Patient pat, double time, Discount discountRate) {
-		return discountRate.applyPunctualDiscount(model.getParameterValue(getUsedParameterName(USED_PARAMETERS.ONSET_COST), pat), time);
+		return discountRate.applyPunctualDiscount(getUsedParameterValue(StandardParameter.ONSET_COST, pat), time);
 	}
 
 	@Override
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
-		return discountRate.applyAnnualDiscount(model.getParameterValue(getUsedParameterName(USED_PARAMETERS.ANNUAL_COST), pat), initYear, endYear);
+		return discountRate.applyAnnualDiscount(getUsedParameterValue(StandardParameter.ANNUAL_COST, pat), initYear, endYear);
 	}
 
 	@Override
 	public double getTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
-		final double annualCost = model.getParameterValue(getUsedParameterName(USED_PARAMETERS.TREATMENT_COST), pat) + model.getParameterValue(getUsedParameterName(USED_PARAMETERS.FOLLOW_UP_COST), pat);
+		final double annualCost = getUsedParameterValue(StandardParameter.TREATMENT_COST, pat) + getUsedParameterValue(StandardParameter.FOLLOW_UP_COST, pat);
 		return discountRate.applyDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
 	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
-		final double annualCost = model.getParameterValue(getUsedParameterName(USED_PARAMETERS.TREATMENT_COST), pat) + model.getParameterValue(getUsedParameterName(USED_PARAMETERS.FOLLOW_UP_COST), pat);
+		final double annualCost = getUsedParameterValue(StandardParameter.TREATMENT_COST, pat) + getUsedParameterValue(StandardParameter.FOLLOW_UP_COST, pat);
 		return discountRate.applyAnnualDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
 	public double getAnnualDisutility(Patient pat) {
-		return model.getParameterValue(getUsedParameterName(USED_PARAMETERS.ANNUAL_DISUTILITY), pat);
+		return getUsedParameterValue(StandardParameter.ANNUAL_DISUTILITY, pat);
 	}
 	
 	@Override
 	public double getStartingDisutility(Patient pat) {
-		return model.getParameterValue(getUsedParameterName(USED_PARAMETERS.ONSET_DISUTILITY), pat);
+		return getUsedParameterValue(StandardParameter.ONSET_DISUTILITY, pat);
 	}
 	
 	@Override

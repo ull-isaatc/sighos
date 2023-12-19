@@ -15,7 +15,6 @@ import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StandardParameter;
-import es.ull.iis.simulation.hta.params.UsedParameter;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.model.DiscreteEvent;
 
@@ -34,10 +33,6 @@ public abstract class Intervention extends HTAModelComponent implements Comparab
 	private ParameterModifier mortalityRiskModification;
 	private ParameterModifier allParameterModification;
 	private final Strategy strategy;
-	public enum USED_PARAMETERS implements UsedParameter {
-		ANNUAL_DISUTILITY,
-		ONSET_DISUTILITY
-	}
 	
 	/**
 	 * Creates a second order characterization of an intervention
@@ -61,8 +56,8 @@ public abstract class Intervention extends HTAModelComponent implements Comparab
 		this.strategy = strategy;
 		if (!model.register(this))
 			throw new IllegalArgumentException("Intervention " + name + " already registered");
-		setUsedParameterName(USED_PARAMETERS.ANNUAL_DISUTILITY, StandardParameter.ANNUAL_DISUTILITY.createName(this));
-		setUsedParameterName(USED_PARAMETERS.ONSET_DISUTILITY, StandardParameter.ONSET_DISUTILITY.createName(this));
+		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
+		addUsedParameter(StandardParameter.ONSET_DISUTILITY);
 	}
 
 	/**
@@ -125,12 +120,12 @@ public abstract class Intervention extends HTAModelComponent implements Comparab
 
 	@Override
 	public double getAnnualDisutility(Patient pat) {
-		return model.getParameterValue(getUsedParameterName(USED_PARAMETERS.ANNUAL_DISUTILITY), pat);
+		return getUsedParameterValue(StandardParameter.ANNUAL_DISUTILITY, pat);
 	}
 	
 	@Override
 	public double getStartingDisutility(Patient pat) {
-		return model.getParameterValue(getUsedParameterName(USED_PARAMETERS.ONSET_DISUTILITY), pat);
+		return getUsedParameterValue(StandardParameter.ONSET_DISUTILITY, pat);
 	}
 	
 	/**

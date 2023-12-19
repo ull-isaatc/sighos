@@ -26,9 +26,9 @@ public class SkinProblemsManifestation extends DiseaseProgression {
 
 	@Override
 	public void createParameters() {
-		StandardParameter.DISEASE_PROGRESSION_ONSET_AGE.addParameter(getModel(), this, "", 0.0);
-		StandardParameter.DISEASE_PROGRESSION_END_AGE.addParameter(getModel(), this, "", 1.0);
-		StandardParameter.ONSET_COST.addParameter(getModel(), this, "Test", COST_YEAR, COST, StandardParameter.getRandomVariateForCost(COST));
-		StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS.addParameter(getModel(), this, "Assumption", 1.0);
+		addParameter(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE, "", "", 0.0);
+		addParameter(StandardParameter.DISEASE_PROGRESSION_END_AGE, "", "", 1.0);
+		addParameter(StandardParameter.ONSET_COST, "", "Test", COST_YEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+		addParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, "", "Assumption", 1.0);
 	}
 }

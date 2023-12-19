@@ -27,6 +27,7 @@ public class PBDDisease extends Disease {
 	final private DiseaseProgression visionLoss;
 	final private DiseaseProgression hearingProblems;
 	final private DiseaseProgression mentalDelay;
+
 	/**
 	 * @param model
 	 * @param name
@@ -60,14 +61,14 @@ public class PBDDisease extends Disease {
 		createParametersForManifestation(visionLoss, 0.175, 19, 91);
 		createParametersForManifestation(hearingProblems, 0.515, 65, 61);
 		createParametersForManifestation(mentalDelay, 0.557, 14, 6);
-		StandardParameter.DISEASE_DIAGNOSIS_COST.addParameter(model, this, "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65));
-		StandardParameter.FOLLOW_UP_COST.addParameter(model, this, "", 2013, FOLLOW_UP_COST);
-		StandardParameter.TREATMENT_COST.addParameter(model, this, "", 2013, TREATMENT_COST);
+		this.addParameter(StandardParameter.DISEASE_DIAGNOSIS_COST, "Diagnosis cost for PBD", "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65));
+		this.addParameter(StandardParameter.FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST.getDefaultDescription() + " PBD", "", 2013, FOLLOW_UP_COST);
+		this.addParameter(StandardParameter.TREATMENT_COST, StandardParameter.TREATMENT_COST.getDefaultDescription() + " PBD", "", 2013, TREATMENT_COST);
 	}
 	
 	private void createParametersForManifestation(DiseaseProgression manif, double proportion, int betaParam1, int betaParam2) {
-		StandardParameter.PROPORTION.addParameter(model, manif, "", proportion, RandomVariateFactory.getInstance("BetaVariate", betaParam1, betaParam2));
-		model.addParameter(new ProportionBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName(manif), "Time to " +  manif.getDescription(), "", 2013, manif));
+		manif.addParameter(StandardParameter.PROPORTION, "Proportion of " + manif.getDescription(), "", proportion, RandomVariateFactory.getInstance("BetaVariate", betaParam1, betaParam2));
+		model.addParameter(new ProportionBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName("PATH_"+ manif.name()), "Time to " +  manif.getDescription(), "", 2013, manif));
 	}
 
 	@Override

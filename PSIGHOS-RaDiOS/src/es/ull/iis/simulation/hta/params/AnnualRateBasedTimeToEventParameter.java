@@ -14,12 +14,8 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class AnnualRateBasedTimeToEventParameter extends Parameter {
-	/** Incidence rate ratio calculator */
-	private final String irrParamName;
 	/** Manifestation to which progress */
 	private final DiseaseProgression destManifestation;
-	/** Name of the second order parameter that defines the patients-year rate */
-	private final String paramName;
 
 	/**
 	 * 
@@ -29,14 +25,14 @@ public class AnnualRateBasedTimeToEventParameter extends Parameter {
 	 */
 	public AnnualRateBasedTimeToEventParameter(HTAModel model, String paramName, String description, String source, int year, DiseaseProgression destManifestation, String rateParamName, String irrParamName) {
 		super(model, paramName, description, source, year, ParameterType.RISK);
-		this.irrParamName = irrParamName;
 		this.destManifestation = destManifestation;
-		this.paramName = rateParamName;
+		addUsedParameter(StandardParameter.RATE);
+		addUsedParameter(StandardParameter.INCIDENCE_RATE_RATIO);		
 	}
 
 	@Override
 	public double getValue(Patient pat) {
 		final double rndValue = Math.log(pat.getRandomNumberForIncidence(destManifestation));
-		return Statistics.getAnnualBasedTimeToEventFromRate(destManifestation.getModel().getParameterValue(paramName, pat), rndValue, destManifestation.getModel().getParameterValue(irrParamName, pat));
+		return Statistics.getAnnualBasedTimeToEventFromRate(destManifestation.getUsedParameterValue(StandardParameter.RATE, pat), rndValue, destManifestation.getUsedParameterValue(StandardParameter.INCIDENCE_RATE_RATIO, pat));
 	}		
 }

@@ -73,7 +73,7 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
     /** The model this parameter belongs to */
     protected final HTAModel model;
     /** A collection of names for parameters used by this model component */
-    private final Map<UsedParameter, String> usedParameterNames;
+    private final Map<ParameterTemplate, String> usedParameterNames;
 
 	/**
 	 * Creates a parameter
@@ -154,33 +154,24 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 	 */
 	public abstract double getValue(Patient pat);
 
-    /**
-     * Returns the default name of the specified parameter
-     * @param param The parameter
-     * @return The default name of the specified parameter
-     */
     @Override
-    public String getUsedParameterName(UsedParameter param) {
+    public String getUsedParameterName(ParameterTemplate param) {
         return usedParameterNames.get(param);
     }
 
-    /**
-     * Sets the default name of the specified parameter
-     * @param param The parameter
-     * @param name The default name of the specified parameter
-     */
     @Override
-    public void setUsedParameterName(UsedParameter param, String name) {
+    public void setUsedParameterName(ParameterTemplate param, String name) {
         usedParameterNames.put(param, name);
     }
 
-    /**
-     * Returns the collection of default parameter names
-     * @return the collection of default parameter names
-     */
     @Override
-    public Map<UsedParameter, String> getUsedParameterNames() {
+    public Map<ParameterTemplate, String> getUsedParameterNames() {
         return usedParameterNames;
+    }
+
+    @Override
+    public void addUsedParameter(ParameterTemplate param) {
+        setUsedParameterName(param, param.createName(this));
     }
 	
 	@Override

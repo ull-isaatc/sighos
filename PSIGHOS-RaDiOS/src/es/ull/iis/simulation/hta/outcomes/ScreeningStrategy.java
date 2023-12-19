@@ -4,10 +4,10 @@
 package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.DefinesSensitivityAndSpecificity;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * @author masbe
@@ -16,23 +16,23 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 public class ScreeningStrategy extends Strategy implements DefinesSensitivityAndSpecificity {
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param name
 	 * @param description
 	 */
-	public ScreeningStrategy(SecondOrderParamsRepository secParams, String name, String description) {
-		super(secParams, name, description);
+	public ScreeningStrategy(HTAModel model, String name, String description) {
+		super(model, name, description);
 	}
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param name
 	 * @param description
 	 * @param cond
 	 */
-	public ScreeningStrategy(SecondOrderParamsRepository secParams, String name, String description,
+	public ScreeningStrategy(HTAModel model, String name, String description,
 			Condition<Patient> cond) {
-		super(secParams, name, description, cond);
+		super(model, name, description, cond);
 	}
 
 	@Override

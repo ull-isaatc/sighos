@@ -10,7 +10,6 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.StandardParameter;
-import es.ull.iis.simulation.hta.params.UsedParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import simkit.random.RandomNumber;
@@ -23,16 +22,13 @@ import simkit.random.RandomNumber;
 public abstract class Population extends HTAModelComponent {
 	/** Random number generator */
 	private final RandomNumber rng;
-	public enum USED_PARAMETERS implements UsedParameter {
-		BASE_UTILITY
-	}
 
 	public Population(HTAModel model, String name, String description) throws MalformedSimulationModelException {
 		super(model, name, description);
 		rng = PatientCommonRandomNumbers.getRNG();
 		if (!model.register(this))
 			throw new MalformedSimulationModelException("Population already defined");
-			setUsedParameterName(USED_PARAMETERS.BASE_UTILITY, StandardParameter.POPULATION_BASE_UTILITY.createName(this));
+			addUsedParameter(StandardParameter.POPULATION_BASE_UTILITY);
 	}
 
 	/**
@@ -97,7 +93,7 @@ public abstract class Population extends HTAModelComponent {
 	 * @return the base utility for the specified patient
 	 */
 	public double getBaseUtility(Patient pat) {
-		return model.getParameterValue(getUsedParameterName(USED_PARAMETERS.BASE_UTILITY), pat);
+		return getUsedParameterValue(StandardParameter.POPULATION_BASE_UTILITY, pat);
 	}
 
 }

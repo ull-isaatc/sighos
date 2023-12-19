@@ -10,6 +10,7 @@ import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
@@ -110,11 +111,11 @@ public class EmpiricalSpainDeathSubmodel extends DiseaseProgression {
 		double imr = 1.0;
 		double ler = 0.0;
 		for (final DiseaseProgression state : pat.getState()) {
-			final double newIMR = model.getParameterValue(state.getUsedParameterName(DiseaseProgression.USED_PARAMETERS.INCREASED_MORTALITY_RATE), pat);
+			final double newIMR = state.getUsedParameterValue(StandardParameter.INCREASED_MORTALITY_RATE, pat);
 			if (newIMR > imr) {
 				imr = newIMR;
 			}
-			final double newLER = model.getParameterValue(state.getUsedParameterName(DiseaseProgression.USED_PARAMETERS.LIFE_EXPECTANCY_REDUCTION), pat);
+			final double newLER = state.getUsedParameterValue(StandardParameter.LIFE_EXPECTANCY_REDUCTION, pat);
 			if (newLER > ler) {
 				ler = newLER;
 			}

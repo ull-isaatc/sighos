@@ -9,7 +9,6 @@ import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.StandardParameter;
-import es.ull.iis.simulation.hta.params.UsedParameter;
 
 /**
  * A "pathway" to a manifestation. Pathways consists of a {@link Condition condition} that must be met by the patient and a way of computing the 
@@ -21,9 +20,6 @@ public class DiseaseProgressionPathway extends HTAModelComponent {
 	private final DiseaseProgression nextProgression;
 	/** Condition that must be met progress to a manifestation */
 	private final Condition<ConditionInformation> condition;
-	public enum USED_PARAMETERS implements UsedParameter {
-		TIME_TO_EVENT
-	}
 
 	/**
 	 * Creates a new pathway to a manifestation
@@ -36,7 +32,7 @@ public class DiseaseProgressionPathway extends HTAModelComponent {
 		this.nextProgression = nextProgression;
 		this.condition = condition;
 		nextProgression.addPathway(this);
-		setUsedParameterName(USED_PARAMETERS.TIME_TO_EVENT, StandardParameter.TIME_TO_EVENT.createName(this));
+		addUsedParameter(StandardParameter.TIME_TO_EVENT);
 	}
 
 	/**
@@ -58,7 +54,7 @@ public class DiseaseProgressionPathway extends HTAModelComponent {
 	 */
 	public long getTimeToEvent(Patient pat, long limit) {
 		if (condition.check(new ConditionInformation(pat, nextProgression))) {
-			final double time = model.getParameterValue(getUsedParameterName(USED_PARAMETERS.TIME_TO_EVENT), pat);
+			final double time = getUsedParameterValue(StandardParameter.TIME_TO_EVENT, pat);
 			if(Double.isNaN(time))
 				return Long.MAX_VALUE;
 			final long ts = (long)time;

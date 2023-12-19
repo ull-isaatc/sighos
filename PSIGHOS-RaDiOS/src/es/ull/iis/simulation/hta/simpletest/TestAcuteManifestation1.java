@@ -33,10 +33,10 @@ public class TestAcuteManifestation1 extends DiseaseProgression {
 	 */
 	@Override
 	public void createParameters() {
-		StandardParameter.ONSET_DISUTILITY.addParameter(model, this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
-		StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH.addParameter(model, this, "Test", P_DEAD, StandardParameter.getRandomVariateForProbability(P_DEAD));
-		StandardParameter.ONSET_COST.addParameter(model, this, "Test", PUNCTUAL_COST, StandardParameter.getRandomVariateForCost(PUNCTUAL_COST));
-		StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS.addParameter(model, this, "Test", P_DIAG, StandardParameter.getRandomVariateForProbability(P_DIAG));
+		addParameter(StandardParameter.ONSET_DISUTILITY, "", "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
+		addParameter(StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH, "", "Test", P_DEAD, StandardParameter.getRandomVariateForProbability(P_DEAD));
+		addParameter(StandardParameter.ONSET_COST, "", "Test", PUNCTUAL_COST, StandardParameter.getRandomVariateForCost(PUNCTUAL_COST));
+		addParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, "", "Test", P_DIAG, StandardParameter.getRandomVariateForProbability(P_DIAG));
 	}
 
 }

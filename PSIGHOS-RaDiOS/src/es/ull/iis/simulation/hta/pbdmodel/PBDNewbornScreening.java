@@ -29,9 +29,9 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 
 	@Override
 	public void createParameters() {
-		StandardParameter.ONE_TIME_COST.addParameter(model, this, "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
-		StandardParameter.SENSITIVITY.addParameter(model, this, "", 1.0);
-		StandardParameter.SPECIFICITY.addParameter(model, this, "", 0.999935);
+		addParameter(StandardParameter.ONE_TIME_COST, "", "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
+		addParameter(StandardParameter.SENSITIVITY, "", "", 1.0);
+		addParameter(StandardParameter.SPECIFICITY, "", "", 0.999935);
 		final ParameterModifier modifier = new SetConstantParameterModifier(0.0); 
 		for (DiseaseProgression manif : model.getRegisteredDiseaseProgressions())
 			model.addParameterModifier(StandardParameter.PROPORTION.createName(manif), this, modifier);
@@ -44,7 +44,7 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 
 	@Override
 	public double getStartingCost(Patient pat, double time, Discount discountRate) {
-		return discountRate.applyPunctualDiscount(model.getParameterValue(StandardParameter.ONE_TIME_COST.createName(this), pat), time);
+		return discountRate.applyPunctualDiscount(getUsedParameterValue(StandardParameter.ONE_TIME_COST, pat), time);
 	}
 
 	@Override

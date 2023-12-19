@@ -51,7 +51,7 @@ public class TestPopulation extends StdPopulation {
 
 	@Override
 	public void createParameters() {
-		StandardParameter.POPULATION_BASE_UTILITY.addParameter(model, this, "Assumption", BasicConfigParams.DEF_U_GENERAL_POP);
+		addParameter(StandardParameter.POPULATION_BASE_UTILITY, "", "Assumption", BasicConfigParams.DEF_U_GENERAL_POP);
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -183,7 +184,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return true if this patient starts in the simulation with the specified progression
 	 */
 	public boolean startsWithDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression)) < ((DiseaseProgressionSimulation) simul).getModel().getParameterValue(progression.getUsedParameterName(DiseaseProgression.USED_PARAMETERS.INITIAL_PROPORTION), this);
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.ONSET.getKey(this, progression)) < progression.getUsedParameterValue(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, this);
 	}
 
 	/**
@@ -192,7 +193,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the acute onset of the progression produces the death of the patient
 	 */
 	public boolean deadsByDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DEATH.getKey(this, progression)) < ((DiseaseProgressionSimulation) simul).getModel().getParameterValue(progression.getUsedParameterName(DiseaseProgression.USED_PARAMETERS.RISK_OF_DEATH), this);
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DEATH.getKey(this, progression)) < progression.getUsedParameterValue(StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH, this);
 	}
 	
 	/**
@@ -201,7 +202,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the acute onset of a progression leads to the diagnosis of the patient
 	 */
 	public boolean isDiagnosedByDiseaseProgression(DiseaseProgression progression) {
-		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DIAGNOSE.getKey(this, progression)) < ((DiseaseProgressionSimulation) simul).getModel().getParameterValue(progression.getUsedParameterName(DiseaseProgression.USED_PARAMETERS.PROBABILITY_DIAGNOSIS), this);
+		return commonRN.draw(PREDEFINED_RANDOM_VALUE_TYPE.DIAGNOSE.getKey(this, progression)) < progression.getUsedParameterValue(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, this);
 	}
 	
 	@Override

@@ -1,8 +1,5 @@
 package es.ull.iis.simulation.hta.params;
 
-import es.ull.iis.simulation.hta.HTAModel;
-import es.ull.iis.simulation.hta.Named;
-import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -10,9 +7,10 @@ import simkit.random.RandomVariateFactory;
 /**
  * The standard parameters used by a model component.
  */
-public enum StandardParameter {
+public enum StandardParameter implements ParameterTemplate {
 	ANNUAL_COST(0.0, "Annual cost of a model component", ParameterType.COST, "AC_"),
 	ONE_TIME_COST(0.0, "One-time cost of a model component", ParameterType.COST, "OC_"),
+	UNIT_COST(0.0, "Unit cost of a model component", ParameterType.COST, "UC_"),
     BIRTH_PREVALENCE(0.0, "Birth prevalence of a disease", ParameterType.RISK, "BIRTH_PREV_"),
     INCIDENCE(0.0, "Incidence of a model component", ParameterType.RISK, "INC_"),
     PREVALENCE(0.0, "Prevalence of a model component", ParameterType.RISK, "PREV_"),
@@ -35,102 +33,47 @@ public enum StandardParameter {
 	LIFE_EXPECTANCY_REDUCTION(0.0, "Life expectancy reduction", ParameterType.OTHER),
 	PROBABILITY(0.0, "Probability", ParameterType.RISK, "P_"),
 	PROPORTION(0.0, "Proportion", ParameterType.RISK, "P_"),
+	RATE(0.0, "Rate", ParameterType.RISK, "RATE_"),
 	RELATIVE_RISK(1.0, "Relative risk", ParameterType.RISK, "RR_"),
+	INCIDENCE_RATE_RATIO(1.0, "Incidence rate ratio", ParameterType.RISK, "IRR_"),
     SPECIFICITY(1.0, "Specificity", ParameterType.RISK, "SPEC_"),
     SENSITIVITY(1.0, "Sensitivity", ParameterType.RISK, "SENS_"),;
 
 	private final double defaultValue;
 	private final String defaultDescription;
 	private final ParameterType type;
-	private final String defaultPrefix;
+	private final String prefix;
 
-	private StandardParameter(double defaultValue, String defaultDescription, ParameterType type, String defaultPrefix) {
+	private StandardParameter(double defaultValue, String defaultDescription, ParameterType type, String prefix) {
 		this.defaultValue = defaultValue;
 		this.defaultDescription = defaultDescription;
 		this.type = type;
-		this.defaultPrefix = defaultPrefix;
+		this.prefix = prefix;
 	}
 
 	private StandardParameter(double defaultValue, String defaultDescription, ParameterType type) {
 		this(defaultValue, defaultDescription, type, "");
 	}
 
-	/**
-	 * @return the defaultDescription
-	 */
+	@Override
 	public String getDefaultDescription() {
 		return defaultDescription;
 	}
 
-	/**
-	 * @return the defaultValue
-	 */
+	@Override
 	public double getDefaultValue() {
 		return defaultValue;
 	}
 
-	/**
-	 * @return the type
-	 */
+	@Override
 	public ParameterType getType() {
 		return type;
 	}
 
-	public String createName(String name) {
-		return defaultPrefix + name;
+	@Override
+	public String getPrefix() {
+		return prefix;
 	}
-
-	public String createName(Named component) {
-		return createName(component.name());
-	}
-
-    public boolean addParameter(HTAModel model, String name, String description, String source, int year, double detValue) {
-        return model.addParameter(new ConstantNatureParameter(model, name, description, source, year, type, detValue));
-    }
-
-    public boolean addParameter(HTAModel model, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
-        return model.addParameter(new SecondOrderNatureParameter(model, name, description, source, year, type, detValue, rnd));
-    }
-
-    public boolean addParameter(HTAModel model, String name, String description, String source, int year, RandomVariate rnd) {
-        return model.addParameter(new FirstOrderNatureParameter(model, name, description, source, year, type, rnd));
-    }
-
-    public boolean addParameter(HTAModel model, String name, String description, String source, double detValue) {
-        return model.addParameter(new ConstantNatureParameter(model, name, description, source, type, detValue));
-    }
-
-    public boolean addParameter(HTAModel model, String name, String description, String source, double detValue, RandomVariate rnd) {
-        return model.addParameter(new SecondOrderNatureParameter(model, name, description, source, HTAModel.getStudyYear(), type, detValue, rnd));
-    }
-
-    public boolean addParameter(HTAModel model, String name, String description, String source, RandomVariate rnd) {
-        return model.addParameter(new FirstOrderNatureParameter(model, name, description, source, HTAModel.getStudyYear(), type, rnd));
-    }
-
-    public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, int year, double detValue) {
-        return this.addParameter(model, createName(instance), instance.getDescription(), source, year, detValue);
-    }
-
-    public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, int year, double detValue, RandomVariate rnd) {
-        return this.addParameter(model, createName(instance), instance.getDescription(), source, year, detValue, rnd);
-    }
-
-    public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, int year, RandomVariate rnd) {
-		return this.addParameter(model, createName(instance), instance.getDescription(), source, year, rnd);
-    }
-
-    public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, double detValue) {
-		return this.addParameter(model, createName(instance), instance.getDescription(), source, detValue);
-    }
-
-    public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
-		return this.addParameter(model, createName(instance), instance.getDescription(), source, detValue, rnd);
-    }
-
-    public boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, RandomVariate rnd) {
-		return this.addParameter(model, createName(instance), instance.getDescription(), source, rnd);
-    }
 
     /**
      * Creates a Gamma distribution to add uncertainty to a deterministic cost. Uses the {@link BasicConfigParams#DEF_SECOND_ORDER_VARIATION} 
