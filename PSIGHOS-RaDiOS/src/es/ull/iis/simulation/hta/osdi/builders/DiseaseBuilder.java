@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
@@ -30,7 +30,7 @@ public interface DiseaseBuilder {
 	 * @return An instance of a disease 
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static Disease getDiseaseInstance(OSDiGenericRepository secParams, String diseaseIRI, String populationIRI) throws MalformedOSDiModelException {
+	public static Disease getDiseaseInstance(OSDiGenericModel secParams, String diseaseIRI, String populationIRI) throws MalformedOSDiModelException {
 		final Disease disease = new OSDiDisease(secParams, diseaseIRI, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(diseaseIRI, ""));
 		// Build developments
 		final Set<String> developments = OSDiWrapper.Clazz.DEVELOPMENT.getIndividuals(true);
@@ -62,7 +62,7 @@ public interface DiseaseBuilder {
 		final UtilityParameterWrapper utilityParam;
 		final OSDiWrapper wrap;
 
-		public OSDiDisease(OSDiGenericRepository secParams, String name, String description) throws MalformedOSDiModelException {
+		public OSDiDisease(OSDiGenericModel secParams, String name, String description) throws MalformedOSDiModelException {
 			super(secParams, name, description);
 			wrap = secParams.getOwlWrapper();
 			

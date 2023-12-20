@@ -42,11 +42,11 @@ public class TestSimpleRareDiseaseModel extends HTAModel {
 			}
 			switch(TEST_POPULATION) {
 			case 1:
-				register(new TestPopulation(this, testDisease)); break;
+				new TestPopulation(this, testDisease); break;
 			case 2:
-				register(new TestNotDiagnosedPopulation(this, testDisease)); break;
+				new TestNotDiagnosedPopulation(this, testDisease); break;
 			default:
-				register(new TestPopulation(this, testDisease)); break;		
+				new TestPopulation(this, testDisease); break;		
 			}
 			
 			switch(TEST_INTERVENTIONS) {

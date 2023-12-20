@@ -2,7 +2,7 @@ package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.DataItemType;
@@ -37,7 +37,7 @@ public interface TimeToEventCalculatorBuilder {
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static Parameter getTimeToEventCalculator(OSDiGenericRepository secParams, DiseaseProgression progression, ArrayList<ParameterWrapper> riskWrappers) throws MalformedOSDiModelException {
+	public static Parameter getTimeToEventCalculator(OSDiGenericModel secParams, DiseaseProgression progression, ArrayList<ParameterWrapper> riskWrappers) throws MalformedOSDiModelException {
         final SupportedCombinations comb = foundValidCombination(riskWrappers);
         if (comb == null) {
 			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Unsupported combination of parameters for risk characterization.");

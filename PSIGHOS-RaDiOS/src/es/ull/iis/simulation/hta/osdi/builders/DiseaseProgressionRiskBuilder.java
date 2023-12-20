@@ -12,7 +12,7 @@ import com.github.jsonldjava.shaded.com.google.common.reflect.Parameter;
 import es.ull.iis.simulation.condition.AndCondition;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
@@ -43,9 +43,9 @@ public interface DiseaseProgressionRiskBuilder {
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static DiseaseProgressionPathway getPathwayInstance(OSDiGenericRepository secParams, DiseaseProgression progression, Set<String> riskIRIs) throws MalformedOSDiModelException {
+	public static DiseaseProgressionPathway getPathwayInstance(OSDiGenericModel secParams, DiseaseProgression progression, Set<String> riskIRIs) throws MalformedOSDiModelException {
 		final Disease disease = progression.getDisease();
-		final OSDiWrapper wrap = ((OSDiGenericRepository)secParams).getOwlWrapper();
+		final OSDiWrapper wrap = ((OSDiGenericModel)secParams).getOwlWrapper();
 		
 		if (riskIRIs.size() == 0)
 			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "At least one risk characterizations for a disease progression is required.");
@@ -98,7 +98,7 @@ public interface DiseaseProgressionRiskBuilder {
 	 * @param pathwayName The name of the pathway instance in the ontology
 	 * @return A condition for the pathway
 	 */
-	private static Condition<DiseaseProgressionPathway.ConditionInformation> createCondition(OSDiGenericRepository secParams, Disease disease, String pathwayName) {
+	private static Condition<DiseaseProgressionPathway.ConditionInformation> createCondition(OSDiGenericModel secParams, Disease disease, String pathwayName) {
 		final List<String> strConditions = OSDiWrapper.DataProperty.HAS_CONDITION.getValues(pathwayName);
 		
 		final Set<String> strRequiredStuff = OSDiWrapper.ObjectProperty.REQUIRES.getValues(pathwayName);
@@ -122,8 +122,8 @@ public interface DiseaseProgressionRiskBuilder {
 	}
 	
 	
-	private static ParameterWrapper createRiskWrapper(OSDiGenericRepository secParams, DiseaseProgression progression, String pathwayName) throws MalformedOSDiModelException {
-		final OSDiWrapper wrap = ((OSDiGenericRepository)secParams).getOwlWrapper();
+	private static ParameterWrapper createRiskWrapper(OSDiGenericModel secParams, DiseaseProgression progression, String pathwayName) throws MalformedOSDiModelException {
+		final OSDiWrapper wrap = ((OSDiGenericModel)secParams).getOwlWrapper();
 		
 		// Gets the manifestation pathway parameters related to the working model
 		final Set<String> pathwayParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(pathwayName, true);

@@ -37,7 +37,7 @@ class MyIntObject implements Comparable<MyIntObject> {
 }
 
 /**
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  *
  */
 public class TestClassCreation {
@@ -59,7 +59,7 @@ public class TestClassCreation {
 			i2.compareTo(i1);			
 		}
 		t1 = System.currentTimeMillis() - t1;
-		System.out.println("Comparación int: " + t1);
+		System.out.println("Comparaciï¿½n int: " + t1);
 		
 		t1 = System.currentTimeMillis();
 		for (int i = 0; i < ITER; i++) {
@@ -68,7 +68,7 @@ public class TestClassCreation {
 			int2.compareTo(int1);			
 		}
 		t1 = System.currentTimeMillis() - t1;
-		System.out.println("Comparación Integer: " + t1);
+		System.out.println("Comparaciï¿½n Integer: " + t1);
 	}
 
 }

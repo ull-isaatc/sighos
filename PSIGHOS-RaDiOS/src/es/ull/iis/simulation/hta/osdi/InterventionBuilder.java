@@ -24,7 +24,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 public interface InterventionBuilder {
 	public static String DO_NOTHING = "DO_NOTHING";
 
-	public static Intervention getInterventionInstance(OSDiGenericRepository secParams, String interventionName) throws MalformedOSDiModelException {
+	public static Intervention getInterventionInstance(OSDiGenericModel secParams, String interventionName) throws MalformedOSDiModelException {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		if (DO_NOTHING.equals(interventionName))
 			return new DoNothingIntervention(secParams);
@@ -37,7 +37,7 @@ public interface InterventionBuilder {
 		return new OSDiIntervention(secParams, interventionName, description);
 	}
 	
-	private static ArrayList<ParameterModifierWrapper> createModificationParams(OSDiGenericRepository secParams, Intervention intervention) throws MalformedOSDiModelException {
+	private static ArrayList<ParameterModifierWrapper> createModificationParams(OSDiGenericModel secParams, Intervention intervention) throws MalformedOSDiModelException {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		final ArrayList<ParameterModifierWrapper> list = new ArrayList<>();
 		// Collects the modifications associated to the specified intervention
@@ -51,7 +51,7 @@ public interface InterventionBuilder {
 	static class OSDiIntervention extends Intervention {
 		private final  ArrayList<ParameterModifierWrapper> modifiers;
 
-		public OSDiIntervention(OSDiGenericRepository secParams, String name, String description) throws MalformedOSDiModelException {
+		public OSDiIntervention(OSDiGenericModel secParams, String name, String description) throws MalformedOSDiModelException {
 			super(secParams, name, description);
 			this.modifiers = InterventionBuilder.createModificationParams(secParams, this);
 		}
@@ -103,7 +103,7 @@ public interface InterventionBuilder {
 		private final ParameterWrapper specificityWrapper;
 		private final  ArrayList<ParameterModifierWrapper> modifiers;
 
-		public OSDiScreeningIntervention(OSDiGenericRepository secParams, String name, String description) throws MalformedOSDiModelException {
+		public OSDiScreeningIntervention(OSDiGenericModel secParams, String name, String description) throws MalformedOSDiModelException {
 			super(secParams, name, description);
 			final OSDiWrapper wrap = secParams.getOwlWrapper();
 			// Sensitivity

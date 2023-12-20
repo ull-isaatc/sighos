@@ -222,6 +222,10 @@ public abstract class HTAExperiment {
 
 	public abstract HTAModel createModel(CommonArguments arguments) throws MalformedSimulationModelException;
 
+	public HTAModel getModel() {
+		return model;
+	}
+	
 	/**
 	 * Returns the combination method used to combine different disutilities
 	 * @return the combination method used to combine different disutilities

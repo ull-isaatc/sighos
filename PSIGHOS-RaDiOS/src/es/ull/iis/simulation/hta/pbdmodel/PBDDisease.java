@@ -6,11 +6,11 @@ package es.ull.iis.simulation.hta.pbdmodel;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.ProportionBasedTimeToEventParameter;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
+import es.ull.iis.simulation.hta.progression.calculator.ProportionBasedTimeToEventCalculator;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -50,7 +50,7 @@ public class PBDDisease extends Disease {
 	}
 
 	private void registerBasicManifestation(HTAModel model, DiseaseProgression manif) {
-		new DiseaseProgressionPathway(model, "PATH_"+ manif.name(), "Pathway for " + manif.name(), manif);
+		new DiseaseProgressionPathway(model, "PATH_"+ manif.name(), "Pathway for " + manif.name(), manif, new ProportionBasedTimeToEventCalculator(manif, StandardParameter.PROPORTION.createName(manif)));
 	}
 
 	@Override
@@ -68,7 +68,6 @@ public class PBDDisease extends Disease {
 	
 	private void createParametersForManifestation(DiseaseProgression manif, double proportion, int betaParam1, int betaParam2) {
 		manif.addParameter(StandardParameter.PROPORTION, "Proportion of " + manif.getDescription(), "", proportion, RandomVariateFactory.getInstance("BetaVariate", betaParam1, betaParam2));
-		model.addParameter(new ProportionBasedTimeToEventParameter(model, StandardParameter.TIME_TO_EVENT.createName("PATH_"+ manif.name()), "Time to " +  manif.getDescription(), "", 2013, manif));
 	}
 
 	@Override

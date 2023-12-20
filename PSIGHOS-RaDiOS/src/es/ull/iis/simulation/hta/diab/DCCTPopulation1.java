@@ -4,14 +4,13 @@
 package es.ull.iis.simulation.hta.diab;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
 import es.ull.iis.simulation.hta.params.ConstantNatureParameter;
 import es.ull.iis.simulation.hta.params.FirstOrderNatureParameter;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
-import es.ull.iis.simulation.hta.params.ParameterDescription;
+import es.ull.iis.simulation.hta.params.StandardParameter;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -39,31 +38,31 @@ public class DCCTPopulation1 extends StdPopulation {
 	private static final double []P_INI_NEU_BETA = {8 + 17, 378 + 348 - 8 - 17}; // DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public DCCTPopulation1(SecondOrderParamsRepository secParams, Disease disease) throws MalformedSimulationModelException {
-		super(secParams, "DCCTPop", "Primary prevention cohort of DCCT", disease);
+	public DCCTPopulation1(HTAModel model, Disease disease) throws MalformedSimulationModelException {
+		super(model, "DCCTPop", "Primary prevention cohort of DCCT", disease);
 	}
 
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+	public void createParameters() {
 		if (T1DMDisease.FIXED_BASE_VALUES) {
-			secParams.addParameter(new ConstantNatureParameter(getRepository(), T1DMRepository.STR_HBA1C, new ParameterDescription(T1DMRepository.STR_HBA1C, ""), BASELINE_HBA1C_AVG), ParameterType.ATTRIBUTE);
-			secParams.addParameter(new ConstantNatureParameter(getRepository(), T1DMRepository.STR_DURATION, new ParameterDescription(T1DMRepository.STR_DURATION, ""), BASELINE_DURATION_AVG), ParameterType.ATTRIBUTE);
+			model.addParameter(new ConstantNatureParameter(getModel(), T1DMModel.STR_HBA1C, "", "", ParameterType.ATTRIBUTE, BASELINE_HBA1C_AVG));
+			model.addParameter(new ConstantNatureParameter(getModel(), T1DMModel.STR_DURATION, "", "", ParameterType.ATTRIBUTE, BASELINE_DURATION_AVG));
 		}
 		else {
 			final double alfaHbA1c = ((BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN) / BASELINE_HBA1C_SD) * ((BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN) / BASELINE_HBA1C_SD);
 			final double betaHbA1c = (BASELINE_HBA1C_SD * BASELINE_HBA1C_SD) / (BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN);
 			final RandomVariate rndHbA1c = RandomVariateFactory.getInstance("GammaVariate", alfaHbA1c, betaHbA1c);
-			secParams.addParameter(new FirstOrderNatureParameter(getRepository(), T1DMRepository.STR_HBA1C, new ParameterDescription(T1DMRepository.STR_HBA1C, ""), 
-					RandomVariateFactory.getInstance("ScaledVariate", rndHbA1c, 1.0, BASELINE_HBA1C_MIN)), ParameterType.ATTRIBUTE);
-			secParams.addParameter(new FirstOrderNatureParameter(getRepository(), T1DMRepository.STR_DURATION, new ParameterDescription(T1DMRepository.STR_DURATION, ""), 
-					RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION_AVG, BASELINE_DURATION_SD)), ParameterType.ATTRIBUTE);
+			model.addParameter(new FirstOrderNatureParameter(getModel(), T1DMModel.STR_HBA1C, "", "", 2013, ParameterType.ATTRIBUTE, 
+					RandomVariateFactory.getInstance("ScaledVariate", rndHbA1c, 1.0, BASELINE_HBA1C_MIN)));
+			model.addParameter(new FirstOrderNatureParameter(getModel(), T1DMModel.STR_DURATION, "", "", 2013, ParameterType.ATTRIBUTE, 
+					RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION_AVG, BASELINE_DURATION_SD)));
 		}
 		if (!T1DMDisease.DISABLE_NEU)
-			RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(Neuropathy.NAME), 
+			disease.getDiseaseProgression(Neuropathy.NAME).addParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "DCCT",
 				"DCCT", P_INI_NEU_BETA[0] / (P_INI_NEU_BETA[0] + P_INI_NEU_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_NEU_BETA[0], P_INI_NEU_BETA[1]));
 	}
 
@@ -102,7 +101,7 @@ public class DCCTPopulation1 extends StdPopulation {
 
 	@Override
 	public DiseaseProgression getDeathCharacterization() {
-		return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
+		return new EmpiricalSpainDeathSubmodel(getModel(), disease);
 	}
 
 }

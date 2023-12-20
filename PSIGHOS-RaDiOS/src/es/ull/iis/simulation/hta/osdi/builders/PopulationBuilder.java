@@ -8,7 +8,7 @@ import java.util.Set;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
@@ -42,7 +42,7 @@ public interface PopulationBuilder {
 	 * @param populationName
 	 * @return
 	 */
-	public static StdPopulation getPopulationInstance(OSDiGenericRepository secParams, String populationName, Disease disease) throws MalformedSimulationModelException {
+	public static StdPopulation getPopulationInstance(OSDiGenericModel secParams, String populationName, Disease disease) throws MalformedSimulationModelException {
 		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(populationName, "");
 		return new OSDiPopulation(secParams, populationName, description, disease);		
 	}
@@ -58,7 +58,7 @@ public interface PopulationBuilder {
 		private final ArrayList<AttributeValueWrapper> attributeValues;
 		private final OSDiWrapper wrap;
 		
-		public OSDiPopulation(OSDiGenericRepository secParams, String populationName, String populationDescription, Disease disease) throws MalformedSimulationModelException {
+		public OSDiPopulation(OSDiGenericModel secParams, String populationName, String populationDescription, Disease disease) throws MalformedSimulationModelException {
 			super(secParams, populationName, populationDescription, disease);
 			wrap = secParams.getOwlWrapper();
 			final String strMinAge = OSDiWrapper.DataProperty.HAS_MIN_AGE.getValue(populationName, "" + super.getMinAge());

@@ -2,7 +2,7 @@ package es.ull.iis.simulation.hta.osdi.builders;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressableWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionWrapper;
@@ -29,7 +29,7 @@ public class ParameterBuilder {
      * @param secParams The repository where the parameter is defined
      * @param paramIRI The IRI of the parameter
      */
-    public static Parameter getInstance(OSDiGenericRepository secParams, String paramIRI, String defaultDescription) throws MalformedOSDiModelException {
+    public static Parameter getInstance(OSDiGenericModel secParams, String paramIRI, String defaultDescription) throws MalformedOSDiModelException {
 		// FIXME: Rethink. I should avoid the straightforward use of the parameters. Instead, I should use the name or extract the value
         Parameter param = secParams.getParameter(paramIRI);
         if (param != null)
@@ -71,7 +71,7 @@ public class ParameterBuilder {
         return param;
     }
 
-	private static Parameter parseUncertaintyParameters(OSDiGenericRepository secParams, ValuableWrapper paramWrap,
+	private static Parameter parseUncertaintyParameters(OSDiGenericModel secParams, ValuableWrapper paramWrap,
 			final ArrayList<ExpressableWrapper> uncertaintyParams, final ExpressionWrapper expression, boolean firstOrder) throws MalformedOSDiModelException {
 		String paramIRI = paramWrap.getOriginalIndividualIRI();
 		// wrap.printWarning(detValue != null, paramIRI, OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE, "Using only first order uncertainty characterization: expected value ignored");
@@ -90,7 +90,7 @@ public class ParameterBuilder {
 		throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramIRI, OSDiWrapper.ObjectProperty.HAS_FIRST_ORDER_UNCERTAINTY, "More than two uncertainty characterization for a parameter not supported. Currently " + uncertaintyParams.size());
 	}
 
-	private static Parameter parseUncertainParameter(OSDiGenericRepository secParams, ValuableWrapper paramWrap, ExpressionWrapper uncertainExpWrap, boolean firstOrder) throws MalformedOSDiModelException{
+	private static Parameter parseUncertainParameter(OSDiGenericModel secParams, ValuableWrapper paramWrap, ExpressionWrapper uncertainExpWrap, boolean firstOrder) throws MalformedOSDiModelException{
 		final double detValue = paramWrap.getDeterministicValue();
 		if (uncertainExpWrap.getRnd() != null)
 			if (firstOrder) {
@@ -108,7 +108,7 @@ public class ParameterBuilder {
 		}
 	}
 
-	private static Parameter parseUncertainParameter(OSDiGenericRepository secParams, ValuableWrapper paramWrap, ValuableWrapper uncertainParamWrap, boolean firstOrder) throws MalformedOSDiModelException{
+	private static Parameter parseUncertainParameter(OSDiGenericModel secParams, ValuableWrapper paramWrap, ValuableWrapper uncertainParamWrap, boolean firstOrder) throws MalformedOSDiModelException{
 		// If the uncertainty is characterized by a standard deviation, then we use a normal distribution
 		if (uncertainParamWrap.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_STANDARD_DEVIATION)) {
 			double detValue = paramWrap.getDeterministicValue();
@@ -125,7 +125,7 @@ public class ParameterBuilder {
 	
 	}
 
-	private static Parameter parseUncertainParameter(OSDiGenericRepository secParams, ValuableWrapper paramWrap, ValuableWrapper uncertainParamWrap1, ValuableWrapper uncertainParamWrap2, boolean firstOrder) throws MalformedOSDiModelException { 
+	private static Parameter parseUncertainParameter(OSDiGenericModel secParams, ValuableWrapper paramWrap, ValuableWrapper uncertainParamWrap1, ValuableWrapper uncertainParamWrap2, boolean firstOrder) throws MalformedOSDiModelException { 
 		double detValue = paramWrap.getDeterministicValue();
 		final RandomVariate rnd;
 

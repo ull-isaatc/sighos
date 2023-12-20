@@ -4,21 +4,15 @@
 package es.ull.iis.simulation.hta;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
-import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
-import es.ull.iis.simulation.hta.diab.T1DMRepository;
-import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.diab.T1DMModel;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.pbdmodel.PBDModel;
 import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseModel;
 
@@ -47,11 +41,8 @@ public class DiseaseMain extends HTAExperiment {
 //	private final static String PARAMS = "-n 100 -r 0 -dr 0 -q -t 0 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 //	private final static String PARAMS = "-n 1000 -r 0 -dr 0 -q -t 1 -dis 1 -ps 3 -po"; // -o /tmp/result_david.txt
 
-	private final TreeMap<String, Double> initProportions;
-	
 	public DiseaseMain(Arguments arguments, ByteArrayOutputStream simResult) throws MalformedSimulationModelException {
 		super(arguments, simResult);
-		initProportions = new TreeMap<>();
 	}
 	
 	public static class Arguments extends CommonArguments {
@@ -63,20 +54,11 @@ public class DiseaseMain extends HTAExperiment {
 		public String model = "";
 		@Parameter(names = { "--prefix", "-pre" }, description = "The prefix used for all instances of the OSDi model to test", order = 3)
 		public String prefix = "";
-		@DynamicParameter(names = { "--iniprop", "-I" }, description = "Initial proportion for complication stages")
-		public Map<String, String> initProportions = new TreeMap<String, String>();
 	}
 
 	@Override
 	public HTAModel createModel(CommonArguments arguments) throws MalformedSimulationModelException {
 		HTAModel model = null;
-		final List<String> interventionsToCompare = new ArrayList<>();
-		final int nRuns = ((Arguments)arguments).nRuns;
-		final int nPatients = ((Arguments)arguments).nPatients;
-		// FIXME: Currently, do not doing anything with this initial proportions
-		for (final Map.Entry<String, String> pInit : ((Arguments)arguments).initProportions.entrySet()) {
-			initProportions.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
-		}
 		if (((Arguments)arguments).type == 1) {
 //			String path = "";
 //			switch(disease) {
@@ -115,7 +97,7 @@ public class DiseaseMain extends HTAExperiment {
 //			}
 			// TODO: Add arguments validation for OSDi
 			try {
-				model = new OSDiGenericRepository(nRuns, nPatients, System.getProperty("user.dir") + "\\resources\\OSDi.owl", ((Arguments)arguments).model, ((Arguments)arguments).prefix);
+				model = new OSDiGenericModel(this, System.getProperty("user.dir") + "\\resources\\OSDi.owl", ((Arguments)arguments).model, ((Arguments)arguments).prefix);
 				// This repository ignores potential study years passed as arguments
 			} catch (OWLOntologyCreationException | MalformedSimulationModelException e) {
 				MalformedSimulationModelException ex = new MalformedSimulationModelException("");
@@ -139,7 +121,7 @@ public class DiseaseMain extends HTAExperiment {
 				break;
 			case TEST_T1DM:
 				System.out.println(String.format("\n\nExecuting the PROGRAMMATIC test for T1DM \n\n"));
-				model = new T1DMRepository(nRuns, nPatients);
+				model = new T1DMModel(this);
 				break;
 			case TEST_PBD:
 			default:

@@ -88,9 +88,9 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_HBA1C[0], mode, MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[1]);
 		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);			
 
-		secParams.addParameter(new FirstOrderNatureParameter(getRepository(), T1DMRepository.STR_HBA1C, new ParameterDescription(T1DMRepository.STR_HBA1C, ""), 
+		secParams.addParameter(new FirstOrderNatureParameter(getRepository(), T1DMModel.STR_HBA1C, new ParameterDescription(T1DMModel.STR_HBA1C, ""), 
 				RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_BASELINE_HBA1C[1] - MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[0])), ParameterType.ATTRIBUTE);
-		secParams.addParameter(new FirstOrderNatureParameter(getRepository(), T1DMRepository.STR_DURATION, new ParameterDescription(T1DMRepository.STR_DURATION, ""), 
+		secParams.addParameter(new FirstOrderNatureParameter(getRepository(), T1DMModel.STR_DURATION, new ParameterDescription(T1DMModel.STR_DURATION, ""), 
 				RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION[0], BASELINE_DURATION[1])), ParameterType.ATTRIBUTE);
 
 		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);

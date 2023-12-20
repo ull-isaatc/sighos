@@ -23,7 +23,7 @@ public class PBDModel extends HTAModel {
 		super(experiment);
 		Disease dis = new PBDDisease(this);
 		try {
-			register(new PBDPopulation(this, dis, allAffected));
+			new PBDPopulation(this, dis, allAffected);
 			new DoNothingIntervention(this);
 			new PBDNewbornScreening(this);
 		} catch (MalformedSimulationModelException e) {

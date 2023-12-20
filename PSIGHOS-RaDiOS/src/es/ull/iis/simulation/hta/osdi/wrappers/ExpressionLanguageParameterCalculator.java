@@ -8,7 +8,7 @@ import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.params.calculators.ParameterCalculator;
 
 /**
@@ -21,7 +21,7 @@ public class ExpressionLanguageParameterCalculator implements ParameterCalculato
 	 * 
 	 */
 	public ExpressionLanguageParameterCalculator(String expression) {
-		exprToEvaluate = OSDiGenericRepository.JEXL.createExpression(expression);
+		exprToEvaluate = OSDiGenericModel.JEXL.createExpression(expression);
 	}
 
 	@Override

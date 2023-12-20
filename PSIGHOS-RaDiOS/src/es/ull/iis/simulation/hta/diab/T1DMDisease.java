@@ -25,18 +25,15 @@ import es.ull.iis.simulation.hta.diab.manifestations.Neuropathy;
 import es.ull.iis.simulation.hta.diab.manifestations.ProliferativeRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.SevereHypoglycemiaEvent;
 import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
-import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventParameter;
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
+import es.ull.iis.simulation.hta.progression.calculator.ConstantTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.ExclusiveChoiceCondition;
 import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
 import es.ull.iis.util.Statistics;
@@ -276,9 +273,8 @@ public class T1DMDisease extends Disease {
 					new ExclusiveChoiceCondition(model, mapping), 
 					new PreviousDiseaseProgressionCondition(chd));
 			// And now adds an instantaneous transition to the specific manifestation
-			final String paramName = RiskParamDescriptions.TIME_TO_EVENT.addParameter(model, "0_TIME", "Instantaneous transition", "", 0.0);
 			for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD))
-				new DiseaseProgressionPathway(model, manifCHD, cond, paramName);
+				new DiseaseProgressionPathway(model, "TO_" + manifCHD.name(), "Instantaneous transition to specific CHD-related manifestation", manifCHD, new ConstantTimeToEventCalculator(0), cond);
 			
 			
 			if (!DISABLE_NEU) {
@@ -301,11 +297,11 @@ public class T1DMDisease extends Disease {
 
 	private void addProgression(DiseaseProgression fromManif, DiseaseProgression toManif) {
 		final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new PreviousDiseaseProgressionCondition(fromManif);
-		new DiseaseProgressionPathway(getRepository(), toManif, cond, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(fromManif, toManif));
+		new DiseaseProgressionPathway(getModel(), toManif, cond, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(fromManif, toManif));
 	}
 
 	private void addProgression(DiseaseProgression toManif) {
-		new DiseaseProgressionPathway(getRepository(), toManif, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(toManif));
+		new DiseaseProgressionPathway(getModel(), toManif, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(toManif));
 	}
 
 	private void registerStandardTimeToEventParameter(SecondOrderParamsRepository model, DiseaseProgression toManif) {
@@ -332,7 +328,7 @@ public class T1DMDisease extends Disease {
 	}
 	
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository model) {
+	public void createParameters() {
 		
 		// Set asymptomatic follow-up cost and disutility. Treatment cost for asymptomatics is assumed to be 0 
 		CostParamDescriptions.FOLLOW_UP_COST.addParameter(model, this, "Diabetes with no complications", 
@@ -554,8 +550,8 @@ public class T1DMDisease extends Disease {
 		}
 		@Override
 		public double getValue(Patient pat) {
-			final double beta = getRepository().getParameterValue(betaParamName, pat);
-			return Math.pow(pat.getAttributeValue(T1DMRepository.STR_HBA1C).doubleValue()/10.0, beta);
+			final double beta = getModel().getParameterValue(betaParamName, pat);
+			return Math.pow(pat.getAttributeValue(T1DMModel.STR_HBA1C).doubleValue()/10.0, beta);
 		}
 	}
 	
@@ -578,15 +574,15 @@ public class T1DMDisease extends Disease {
 		/**
 		 * Creates a relative risk associated  to a 1 percentage point increment of HbA1c
 		 */
-		public HbA1c1ppRRParameter(SecondOrderParamsRepository model) {
-			super(model, "RR_CHD", new ParameterDescription("Relative risk associated to a 1 percentage point increment of HbA1c", "Selvin et al 2004"));
+		public HbA1c1ppRRParameter(HTAModel model) {
+			super(model, "RR_CHD", "Relative risk associated to a 1 percentage point increment of HbA1c", "Selvin et al 2004", Parameter.ParameterType.RISK);
 		}
 
 		@Override
 		public double getValue(Patient pat) {
 			// Gets The relative risk of the complication, associated to a 1 PP increment of HbA1c
-			final double referenceRR = OtherParamDescriptions.RELATIVE_RISK.getValue(getRepository(), "CHD", pat);
-			final double diff = pat.getAttributeValue(T1DMRepository.STR_HBA1C).doubleValue() - REF_HBA1C;
+			final double referenceRR = OtherParamDescriptions.RELATIVE_RISK.getValue(getModel(), "CHD", pat);
+			final double diff = pat.getAttributeValue(T1DMModel.STR_HBA1C).doubleValue() - REF_HBA1C;
 			return Math.pow(referenceRR, diff);
 		}
 		

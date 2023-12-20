@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
@@ -28,7 +28,7 @@ import es.ull.iis.simulation.hta.progression.DiseaseProgression;
  */
 public interface DiseaseProgressionBuilder {
 
-	public static DiseaseProgression getDiseaseProgressionInstance(OSDiGenericRepository secParams, String progressionIRI, Disease disease, String populationIRI) throws MalformedOSDiModelException {
+	public static DiseaseProgression getDiseaseProgressionInstance(OSDiGenericModel secParams, String progressionIRI, Disease disease, String populationIRI) throws MalformedOSDiModelException {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		
 		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(progressionIRI, "");
@@ -51,7 +51,7 @@ public interface DiseaseProgressionBuilder {
 		final private Map<UtilityParamDescriptions, UtilityParameterWrapper> utilityParams;
 		final private OSDiWrapper wrap;
 		
-		public OSDiDiseaseProgression(OSDiGenericRepository secParams, String name, String description,
+		public OSDiDiseaseProgression(OSDiGenericModel secParams, String name, String description,
 				Disease disease, DiseaseProgression.Type type, String populationIRI) throws MalformedOSDiModelException {
 			super(secParams, name, description, disease, type);
 			otherParams = new TreeMap<>();

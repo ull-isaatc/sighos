@@ -21,13 +21,13 @@ import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
  *
  */
 public interface GuidelineBuilder {
-	public static Guideline getGuidelineInstance(OSDiGenericRepository secParams, String guidelineName) throws TranspilerException {
+	public static Guideline getGuidelineInstance(OSDiGenericModel secParams, String guidelineName) throws TranspilerException {
 		final Guideline guide = new Guideline(guidelineName, OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(guidelineName, ""), createCondition(secParams, guidelineName));
 		createGuidelineRanges(secParams, guide);
 		return guide;
 	}
 
-	private static Condition<DiseaseProgressionPathway.ConditionInformation> createCondition(OSDiGenericRepository secParams, String guidelineName) {
+	private static Condition<DiseaseProgressionPathway.ConditionInformation> createCondition(OSDiGenericModel secParams, String guidelineName) {
 		final List<String> strConditions = OSDiWrapper.DataProperty.HAS_CONDITION.getValues(guidelineName);
 		final ArrayList<Condition<DiseaseProgressionPathway.ConditionInformation>> condList = new ArrayList<>();
 		for (String strCond : strConditions)
@@ -41,7 +41,7 @@ public interface GuidelineBuilder {
 		return new AndCondition<DiseaseProgressionPathway.ConditionInformation>(condList);
 	}
 	
-	private static void createGuidelineRanges(OSDiGenericRepository secParams, Guideline guide) throws TranspilerException {
+	private static void createGuidelineRanges(OSDiGenericModel secParams, Guideline guide) throws TranspilerException {
 		final OSDiWrapper wrap = secParams.getOwlWrapper();
 		final List<String> strRanges = OSDiWrapper.DataProperty.HAS_RANGE.getValues(guide.name());
 		for (String rangeName : strRanges) {

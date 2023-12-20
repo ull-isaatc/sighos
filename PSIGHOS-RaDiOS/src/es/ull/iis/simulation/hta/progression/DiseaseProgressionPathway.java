@@ -9,6 +9,7 @@ import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.StandardParameter;
+import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
 
 /**
  * A "pathway" to a manifestation. Pathways consists of a {@link Condition condition} that must be met by the patient and a way of computing the 
@@ -20,17 +21,21 @@ public class DiseaseProgressionPathway extends HTAModelComponent {
 	private final DiseaseProgression nextProgression;
 	/** Condition that must be met progress to a manifestation */
 	private final Condition<ConditionInformation> condition;
+	/** Calculator of the time to event if the condition is met */
+	private final TimeToEventCalculator tteCalculator;
 
 	/**
 	 * Creates a new pathway to a manifestation
 	 * @param secParams Repository for common parameters
 	 * @param nextProgression Resulting progression of the disease
+	 * @param tteCalculator A way of computing the time that will take the patient to progress in case the condition is met 
 	 * @param condition A condition that the patient must met before he/she can progress to the manifestation
 	 */
-	public DiseaseProgressionPathway(HTAModel model, String name, String description, DiseaseProgression nextProgression, Condition<ConditionInformation> condition) {
+	public DiseaseProgressionPathway(HTAModel model, String name, String description, DiseaseProgression nextProgression, TimeToEventCalculator tteCalculator, Condition<ConditionInformation> condition) {
 		super(model, name, description);
 		this.nextProgression = nextProgression;
 		this.condition = condition;
+		this.tteCalculator = tteCalculator;
 		nextProgression.addPathway(this);
 		addUsedParameter(StandardParameter.TIME_TO_EVENT);
 	}
@@ -39,9 +44,10 @@ public class DiseaseProgressionPathway extends HTAModelComponent {
 	 * Creates a new pathway to a manifestation with no previous condition, i.e., this pathway is always suitable independently of the patient's state.
 	 * @param secParams Repository for common parameters
 	 * @param nextProgression Resulting progression of the disease
+	 * @param tteCalculator A way of computing the time that will take the patient to progress in case the condition is met 
 	 */
-	public DiseaseProgressionPathway(HTAModel model, String name, String description, DiseaseProgression nextProgression) {
-		this(model, name, description, nextProgression, new TrueCondition<ConditionInformation>());
+	public DiseaseProgressionPathway(HTAModel model, String name, String description, DiseaseProgression nextProgression, TimeToEventCalculator tteCalculator) {
+		this(model, name, description, nextProgression, tteCalculator, new TrueCondition<ConditionInformation>());
 	}
 	
 	
@@ -54,10 +60,10 @@ public class DiseaseProgressionPathway extends HTAModelComponent {
 	 */
 	public long getTimeToEvent(Patient pat, long limit) {
 		if (condition.check(new ConditionInformation(pat, nextProgression))) {
-			final double time = getUsedParameterValue(StandardParameter.TIME_TO_EVENT, pat);
+			final double time = tteCalculator.getTimeToEvent(pat);
 			if(Double.isNaN(time))
 				return Long.MAX_VALUE;
-			final long ts = (long)time;
+			final long ts = pat.getSimulation().getTimeUnit().convert(time, tteCalculator.getTimeUnit());
 			return (ts >= limit) ? Long.MAX_VALUE : pat.getTs() + ts;
 		}
 		return Long.MAX_VALUE;

@@ -48,8 +48,8 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		secParams.addParameter(new ConstantNatureParameter(getRepository(), T1DMRepository.STR_HBA1C, new ParameterDescription(T1DMRepository.STR_HBA1C, ""), BASELINE_HBA1C), ParameterType.ATTRIBUTE);
-		secParams.addParameter(new ConstantNatureParameter(getRepository(), T1DMRepository.STR_DURATION,  new ParameterDescription(T1DMRepository.STR_DURATION, ""), BASELINE_DURATION), ParameterType.ATTRIBUTE);
+		secParams.addParameter(new ConstantNatureParameter(getRepository(), T1DMModel.STR_HBA1C, new ParameterDescription(T1DMModel.STR_HBA1C, ""), BASELINE_HBA1C), ParameterType.ATTRIBUTE);
+		secParams.addParameter(new ConstantNatureParameter(getRepository(), T1DMModel.STR_DURATION,  new ParameterDescription(T1DMModel.STR_DURATION, ""), BASELINE_DURATION), ParameterType.ATTRIBUTE);
 		
 		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);
 	}

@@ -8,7 +8,7 @@ import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.hta.osdi.OSDiGenericRepository;
+import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 
 /**
@@ -22,7 +22,7 @@ public class ExpressionLanguageCondition extends Condition<DiseaseProgressionPat
 	 * 
 	 */
 	public ExpressionLanguageCondition(String expression) {
-		exprToEvaluate = OSDiGenericRepository.JEXL.createExpression(expression);
+		exprToEvaluate = OSDiGenericModel.JEXL.createExpression(expression);
 	}
 	
 	@Override

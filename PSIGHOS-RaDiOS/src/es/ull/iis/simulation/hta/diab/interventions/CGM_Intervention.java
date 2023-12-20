@@ -3,17 +3,14 @@
  */
 package es.ull.iis.simulation.hta.diab.interventions;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diab.T1DMRepository;
+import es.ull.iis.simulation.hta.diab.T1DMModel;
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
 import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.SecondOrderNatureParameter;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.ParameterDescription;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
 import es.ull.iis.simulation.hta.params.modifiers.DiffParameterModifier;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariate;
@@ -41,10 +38,10 @@ public class CGM_Intervention extends Intervention {
 	private static final double []HBA1C_REDUCTION_IC95 = {0.375, 0.605};
 	
 	/**
-	 * @param secParams
+	 * @param model
 	 */
-	public CGM_Intervention(SecondOrderParamsRepository secParams) {
-		super(secParams, NAME, NAME);
+	public CGM_Intervention(HTAModel model) {
+		super(model, NAME, NAME);
 	}
 
 	@Override
@@ -52,32 +49,32 @@ public class CGM_Intervention extends Intervention {
 		double mode = Statistics.betaModeFromMeanSD(USE_STRIPS[0], USE_STRIPS[1]);
 		double[] betaParams = Statistics.betaParametersFromEmpiricData(USE_STRIPS[0], mode, MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[1]);
 		RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);
-		OtherParamDescriptions.RESOURCE_USAGE.addParameter(secParams, STR_USE_STRIPS, "strips in " + getDescription(), "DIAMOND 10.1001/jama.2016.19975", USE_STRIPS[0], 
+		OtherParamDescriptions.RESOURCE_USAGE.addParameter(model, STR_USE_STRIPS, "strips in " + getDescription(), "DIAMOND 10.1001/jama.2016.19975", USE_STRIPS[0], 
 				RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_USE_STRIPS[1] - MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[0]));
 		
 		mode = Statistics.betaModeFromMeanSD(C_STRIPS[0], C_STRIPS[1]);
 		betaParams = Statistics.betaParametersFromEmpiricData(C_STRIPS[0], mode, MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[1]);
 		rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, STR_C_STRIPS, "strips", "Average from Spanish regions", 
+		CostParamDescriptions.ANNUAL_COST.addParameter(model, STR_C_STRIPS, "strips", "Average from Spanish regions", 
 				YEAR_C_STRIPS, C_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_C_STRIPS[1] - MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[0]));
 
 		// I assume a daily use with +-25% uncertainty
-		OtherParamDescriptions.RESOURCE_USAGE.addParameter(secParams, STR_USE_SENSOR_G5, "sensor", "Technical data sheets", 
+		OtherParamDescriptions.RESOURCE_USAGE.addParameter(model, STR_USE_SENSOR_G5, "sensor", "Technical data sheets", 
 				USE_SENSOR_G5, RandomVariateFactory.getInstance("UniformVariate", 0.75 * USE_SENSOR_G5, 1.25 * USE_SENSOR_G5));
 		
 		final double sd = Statistics.sdFrom95CI(HBA1C_REDUCTION_IC95);
 		
-		final Parameter modifier = new SecondOrderNatureParameter(secParams, SecondOrderParamsRepository.getModificationString(this, T1DMRepository.STR_HBA1C + "_REDUX"), 
-				new ParameterDescription(T1DMRepository.STR_HBA1C + " reduction", "GOLD+DIAMOND"), HBA1C_REDUCTION, RandomVariateFactory.getInstance("NormalVariate", HBA1C_REDUCTION, sd)); 
-		secParams.addParameter(modifier, ParameterType.OTHER);
-		secParams.addParameterModifier(SecondOrderParamsRepository.ParameterType.ATTRIBUTE.getParameter(T1DMRepository.STR_HBA1C).name(), this, new DiffParameterModifier(modifier.name()));
+		final Parameter modifier = new SecondOrderNatureParameter(model, SecondOrderParamsRepository.getModificationString(this, T1DMModel.STR_HBA1C + "_REDUX"), 
+				new ParameterDescription(T1DMModel.STR_HBA1C + " reduction", "GOLD+DIAMOND"), HBA1C_REDUCTION, RandomVariateFactory.getInstance("NormalVariate", HBA1C_REDUCTION, sd)); 
+		model.addParameter(modifier, ParameterType.OTHER);
+		model.addParameterModifier(SecondOrderParamsRepository.ParameterType.ATTRIBUTE.getParameter(T1DMModel.STR_HBA1C).name(), this, new DiffParameterModifier(modifier.name()));
 	}
 
 	@Override
 	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-		final SecondOrderParamsRepository secParams = getRepository();
-		return discountRate.applyDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat) * OtherParamDescriptions.RESOURCE_USAGE.getValue(secParams, STR_USE_STRIPS, pat) +
-				C_SENSOR_G5 * OtherParamDescriptions.RESOURCE_USAGE.getValue(secParams, STR_USE_SENSOR_G5, pat)) * 365, initT, endT);
+		final SecondOrderParamsRepository model = getRepository();
+		return discountRate.applyDiscount((CostParamDescriptions.ANNUAL_COST.getValue(model, STR_C_STRIPS, pat) * OtherParamDescriptions.RESOURCE_USAGE.getValue(model, STR_USE_STRIPS, pat) +
+				C_SENSOR_G5 * OtherParamDescriptions.RESOURCE_USAGE.getValue(model, STR_USE_SENSOR_G5, pat)) * 365, initT, endT);
 	}
 
 	@Override
@@ -87,9 +84,9 @@ public class CGM_Intervention extends Intervention {
 
 	@Override
 	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-		final SecondOrderParamsRepository secParams = getRepository();
-		return discountRate.applyAnnualDiscount((CostParamDescriptions.ANNUAL_COST.getValue(secParams, STR_C_STRIPS, pat) * OtherParamDescriptions.RESOURCE_USAGE.getValue(secParams, STR_USE_STRIPS, pat) +
-				C_SENSOR_G5 * OtherParamDescriptions.RESOURCE_USAGE.getValue(secParams, STR_USE_SENSOR_G5, pat)) * 365, initT, endT);
+		final SecondOrderParamsRepository model = getRepository();
+		return discountRate.applyAnnualDiscount((CostParamDescriptions.ANNUAL_COST.getValue(model, STR_C_STRIPS, pat) * OtherParamDescriptions.RESOURCE_USAGE.getValue(model, STR_USE_STRIPS, pat) +
+				C_SENSOR_G5 * OtherParamDescriptions.RESOURCE_USAGE.getValue(model, STR_USE_SENSOR_G5, pat)) * 365, initT, endT);
 	}
 
 	@Override
