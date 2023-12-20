@@ -5,6 +5,8 @@ package es.ull.iis.simulation.hta.diab;
 
 import java.util.TreeMap;
 
+import com.beust.jcommander.ParameterDescription;
+
 import es.ull.iis.simulation.condition.AndCondition;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.HTAModel;
@@ -331,11 +333,11 @@ public class T1DMDisease extends Disease {
 	public void createParameters() {
 		
 		// Set asymptomatic follow-up cost and disutility. Treatment cost for asymptomatics is assumed to be 0 
-		CostParamDescriptions.FOLLOW_UP_COST.addUsedParameter(model, this, "Diabetes with no complications", 
+		addUsedParameter(StandardParameter.FOLLOW_UP_COST, "Diabetes with no complications", 
 				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, DEF_C_DNC.VALUE, StandardParameter.getRandomVariateForCost(DEF_C_DNC.VALUE));
 
 		final double[] paramsU_DNC = Statistics.betaParametersFromNormal(DEF_U_DNC[0], DEF_U_DNC[1]);
-		UtilityParamDescriptions.UTILITY.addUsedParameter(model, this, "", DEF_U_DNC[0], RandomVariateFactory.getInstance("BetaVariate", paramsU_DNC[0], paramsU_DNC[1]));
+		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "", "", DEF_U_DNC[0], RandomVariateFactory.getInstance("BetaVariate", paramsU_DNC[0], paramsU_DNC[1]));
 		
 		if (!DISABLE_SHE) {
 			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, she, 

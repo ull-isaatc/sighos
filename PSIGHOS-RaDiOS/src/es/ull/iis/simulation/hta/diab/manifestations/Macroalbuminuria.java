@@ -3,10 +3,8 @@
  */
 package es.ull.iis.simulation.hta.diab.manifestations;
 
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
@@ -22,19 +20,19 @@ public class Macroalbuminuria extends DiseaseProgression {
 	public static final String NAME = "ALB2";
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public Macroalbuminuria(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Macroalbuminuria", disease, Type.CHRONIC_MANIFESTATION);
+	public Macroalbuminuria(HTAModel model, Disease disease) {
+		super(model, NAME, "Macroalbuminuria", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addUsedParameter(secParams, this, "Assumption", 2021, 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
+	public void createParameters() {
+		addUsedParameter(StandardParameter.ANNUAL_COST, "", "Assumption", 2021, 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
-		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
-		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addUsedParameter(secParams, this.name(), "severe proteinuria", 
+		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "Disutility of " + getDescription(), "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
+		addUsedParameter(StandardParameter.INCREASED_MORTALITY_RATE, "severe proteinuria", 
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				2.23, RandomVariateFactory.getInstance("RRFromLnCIVariate", 2.23, 1.11, 4.49, 1));
 	}

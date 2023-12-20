@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.diab.manifestations;
 
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.StandardParameter;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import simkit.random.RandomVariateFactory;
@@ -30,8 +29,8 @@ public class BackgroundRetinopathy extends DiseaseProgression {
 
 	@Override
 	public void createParameters() {
-		CostParamDescriptions.ANNUAL_COST.addUsedParameter(model, this, "Original analysis", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
-		UtilityParamDescriptions.DISUTILITY.addParameter(model, this, "Assumption", DU, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
+		addUsedParameter(StandardParameter.ANNUAL_COST, "", "Original analysis", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "Disutility of " + getDescription(), "Assumption", DU, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 	}
 
 }

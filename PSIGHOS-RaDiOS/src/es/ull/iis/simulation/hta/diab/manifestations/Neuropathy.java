@@ -3,11 +3,8 @@
  */
 package es.ull.iis.simulation.hta.diab.manifestations;
 
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.StandardParameter;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.util.Statistics;
@@ -24,19 +21,19 @@ public class Neuropathy extends DiseaseProgression {
 	public static final String NAME = "NEU";
 	
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public Neuropathy(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Neuropathy", disease, Type.CHRONIC_MANIFESTATION);
+	public Neuropathy(HTAModel model, Disease disease) {
+		super(model, NAME, "Neuropathy", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addUsedParameter(secParams, this, "Ray (2015)", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+	public void createParameters() {
+		addUsedParameter(StandardParameter.ANNUAL_COST, "", "Ray (2015)", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
-		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
-		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addUsedParameter(secParams, this.name(), "peripheral neuropathy (vibratory sense diminished)", 
+		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "Disutility of " + getDescription(), "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
+		addUsedParameter(StandardParameter.INCREASED_MORTALITY_RATE, "peripheral neuropathy (vibratory sense diminished)", 
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				1.51, RandomVariateFactory.getInstance("RRFromLnCIVariate", 1.51, 1.00, 2.28, 1));
 	}
