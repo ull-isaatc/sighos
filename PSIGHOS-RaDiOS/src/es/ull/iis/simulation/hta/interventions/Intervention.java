@@ -13,14 +13,12 @@ import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.Strategy;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
- * The second order characterization of an intervention. The {@link #registerSecondOrderParameters()} method 
- * must be invoked from the {@link SecondOrderParamsRepository} to register the second order parameters. 
+ * A clinical intervention of any kind, that may modify the outcomes of a patient by modifying the parameters that characterize his/her progression. 
  * @author Iván Castilla Rodríguez
  *
  */
@@ -56,8 +54,8 @@ public abstract class Intervention extends HTAModelComponent implements Comparab
 		this.strategy = strategy;
 		if (!model.register(this))
 			throw new IllegalArgumentException("Intervention " + name + " already registered");
-		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
-		addUsedParameter(StandardParameter.ONSET_DISUTILITY);
+		registerUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
+		registerUsedParameter(StandardParameter.ONSET_DISUTILITY);
 	}
 
 	/**

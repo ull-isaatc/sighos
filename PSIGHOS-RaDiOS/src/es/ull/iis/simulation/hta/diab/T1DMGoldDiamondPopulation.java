@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.diab;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diab.manifestations.HeartFailure;
 import es.ull.iis.simulation.hta.diab.manifestations.LowExtremityAmputation;
@@ -11,11 +12,8 @@ import es.ull.iis.simulation.hta.diab.manifestations.MyocardialInfarction;
 import es.ull.iis.simulation.hta.diab.manifestations.ProliferativeRetinopathy;
 import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
 import es.ull.iis.simulation.hta.params.FirstOrderNatureParameter;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
-import es.ull.iis.simulation.hta.params.ParameterDescription;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.StandardParameter;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -60,11 +58,11 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	private static final double DEF_U_GENERAL_POP = 0.911400915;
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public T1DMGoldDiamondPopulation(SecondOrderParamsRepository secParams, Disease disease) throws MalformedSimulationModelException {
-		super(secParams, "GOLD_DIAM_POP", "Population for T1DM according to GOLD and Diamond studies", disease);
+	public T1DMGoldDiamondPopulation(HTAModel model, Disease disease) throws MalformedSimulationModelException {
+		super(model, "GOLD_DIAM_POP", "Population for T1DM according to GOLD and Diamond studies", disease);
 	}
 
 	@Override
@@ -83,26 +81,26 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+	public void createParameters() {
 		final double mode = Statistics.betaModeFromMeanSD(BASELINE_HBA1C[0], BASELINE_HBA1C[1]);
 		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_HBA1C[0], mode, MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[1]);
 		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);			
 
-		secParams.addParameter(new FirstOrderNatureParameter(getRepository(), T1DMModel.STR_HBA1C, new ParameterDescription(T1DMModel.STR_HBA1C, ""), 
-				RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_BASELINE_HBA1C[1] - MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[0])), ParameterType.ATTRIBUTE);
-		secParams.addParameter(new FirstOrderNatureParameter(getRepository(), T1DMModel.STR_DURATION, new ParameterDescription(T1DMModel.STR_DURATION, ""), 
-				RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION[0], BASELINE_DURATION[1])), ParameterType.ATTRIBUTE);
+		model.addParameter(new FirstOrderNatureParameter(getModel(), T1DMModel.STR_HBA1C, "", "", 2013, ParameterType.ATTRIBUTE, 
+				RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_BASELINE_HBA1C[1] - MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[0])));
+		model.addParameter(new FirstOrderNatureParameter(getModel(), T1DMModel.STR_DURATION, "", "", 2013, ParameterType.ATTRIBUTE, 
+				RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION[0], BASELINE_DURATION[1])));
 
-		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);
-		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(ProliferativeRetinopathy.NAME), 
+		addUsedParameter(StandardParameter.POPULATION_BASE_UTILITY, "From adult Spanish population but those with DM", "INE", DEF_U_GENERAL_POP);
+		disease.getDiseaseProgression(ProliferativeRetinopathy.NAME).addUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "",
 				"GOLD", P_INI_PRET_BETA[0] / (P_INI_PRET_BETA[0] + P_INI_PRET_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_PRET_BETA[0], P_INI_PRET_BETA[1]));
-		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(LowExtremityAmputation.NAME), 
+		disease.getDiseaseProgression(LowExtremityAmputation.NAME).addUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "",
 				"GOLD", P_INI_LEA_BETA[0] / (P_INI_LEA_BETA[0] + P_INI_LEA_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_LEA_BETA[0], P_INI_LEA_BETA[1]));
-		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(MyocardialInfarction.NAME), 
+		disease.getDiseaseProgression(MyocardialInfarction.NAME).addUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "",
 				"GOLD", P_INI_MI_BETA[0] / (P_INI_MI_BETA[0] + P_INI_MI_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_MI_BETA[0], P_INI_MI_BETA[1]));
-		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(Stroke.NAME), 
+		disease.getDiseaseProgression(Stroke.NAME).addUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "",
 				"GOLD", P_INI_STROKE_BETA[0] / (P_INI_STROKE_BETA[0] + P_INI_STROKE_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_STROKE_BETA[0], P_INI_STROKE_BETA[1]));
-		RiskParamDescriptions.INITIAL_PROPORTION.addParameter(secParams, disease.getDiseaseProgression(HeartFailure.NAME), 
+		disease.getDiseaseProgression(HeartFailure.NAME).addUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "",
 				"GOLD", P_INI_HF_BETA[0] / (P_INI_HF_BETA[0] + P_INI_HF_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_HF_BETA[0], P_INI_HF_BETA[1]));
 	}
 
@@ -127,7 +125,7 @@ public class T1DMGoldDiamondPopulation extends StdPopulation {
 
 	@Override
 	public DiseaseProgression getDeathCharacterization() {
-		return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
+		return new EmpiricalSpainDeathSubmodel(getModel(), disease);
 	}
 	
 }

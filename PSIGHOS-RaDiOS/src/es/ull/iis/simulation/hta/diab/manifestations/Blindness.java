@@ -3,8 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diab.manifestations;
 
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -23,18 +22,18 @@ public class Blindness extends DiseaseProgression {
 	public static final String NAME = "BLI";
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public Blindness(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Blindness", disease, Type.CHRONIC_MANIFESTATION);
+	public Blindness(HTAModel model, Disease disease) {
+		super(model, NAME, "Blindness", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Conget et al", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+	public void createParameters() {
+		CostParamDescriptions.ANNUAL_COST.addUsedParameter(model, this, "Conget et al", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
-		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
+		UtilityParamDescriptions.DISUTILITY.addParameter(model, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
 	}
 
 }

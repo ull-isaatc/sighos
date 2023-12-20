@@ -61,13 +61,13 @@ public class PBDDisease extends Disease {
 		createParametersForManifestation(visionLoss, 0.175, 19, 91);
 		createParametersForManifestation(hearingProblems, 0.515, 65, 61);
 		createParametersForManifestation(mentalDelay, 0.557, 14, 6);
-		this.addParameter(StandardParameter.DISEASE_DIAGNOSIS_COST, "Diagnosis cost for PBD", "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65));
-		this.addParameter(StandardParameter.FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST.getDefaultDescription() + " PBD", "", 2013, FOLLOW_UP_COST);
-		this.addParameter(StandardParameter.TREATMENT_COST, StandardParameter.TREATMENT_COST.getDefaultDescription() + " PBD", "", 2013, TREATMENT_COST);
+		this.addUsedParameter(StandardParameter.DISEASE_DIAGNOSIS_COST, "Diagnosis cost for PBD", "", 2013, DIAGNOSIS_COST, RandomVariateFactory.getInstance("UniformVariate", 409.65, 609.65));
+		this.addUsedParameter(StandardParameter.FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST.getDefaultDescription() + " PBD", "", 2013, FOLLOW_UP_COST);
+		this.addUsedParameter(StandardParameter.TREATMENT_COST, StandardParameter.TREATMENT_COST.getDefaultDescription() + " PBD", "", 2013, TREATMENT_COST);
 	}
 	
 	private void createParametersForManifestation(DiseaseProgression manif, double proportion, int betaParam1, int betaParam2) {
-		manif.addParameter(StandardParameter.PROPORTION, "Proportion of " + manif.getDescription(), "", proportion, RandomVariateFactory.getInstance("BetaVariate", betaParam1, betaParam2));
+		manif.addUsedParameter(StandardParameter.PROPORTION, "Proportion of " + manif.getDescription(), "", proportion, RandomVariateFactory.getInstance("BetaVariate", betaParam1, betaParam2));
 	}
 
 	@Override

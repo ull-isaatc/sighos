@@ -133,7 +133,7 @@ public interface DiseaseBuilder {
 			}
 			for (CostParamDescriptions desc : costParams.keySet()) {
 				final CostParameterWrapper costParam = costParams.get(desc);					
-				desc.addParameter(secParams, this, costParam.getSource(), costParam.getYear(), costParam.getDeterministicValue(), costParam.getProbabilisticValue());
+				desc.addUsedParameter(secParams, this, costParam.getSource(), costParam.getYear(), costParam.getDeterministicValue(), costParam.getProbabilisticValue());
 			}
 		}
 		

@@ -232,19 +232,19 @@ public interface DiseaseProgressionBuilder {
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			for (RiskParamDescriptions desc : probParams.keySet()) {
 				final ParameterWrapper probParam = probParams.get(desc);					
-				desc.addParameter(secParams, this, probParam.getSource(), probParam.getDeterministicValue(), probParam.getProbabilisticValue());
+				desc.addUsedParameter(secParams, this, probParam.getSource(), probParam.getDeterministicValue(), probParam.getProbabilisticValue());
 			}
 			for (OtherParamDescriptions desc : otherParams.keySet()) {
 				final ParameterWrapper otherParam = otherParams.get(desc);					
-				desc.addParameter(secParams, this, otherParam.getSource(), otherParam.getDeterministicValue(), otherParam.getProbabilisticValue());
+				desc.addUsedParameter(secParams, this, otherParam.getSource(), otherParam.getDeterministicValue(), otherParam.getProbabilisticValue());
 			}
 			if (costParams.size() == 0) {
-				CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Not defined. Assumption", SecondOrderParamsRepository.getStudyYear(), 0.0);
+				CostParamDescriptions.ANNUAL_COST.addUsedParameter(secParams, this, "Not defined. Assumption", SecondOrderParamsRepository.getStudyYear(), 0.0);
 			}
 			else {
 				for (CostParamDescriptions desc : costParams.keySet()) {
 					final CostParameterWrapper costParam = costParams.get(desc);					
-					desc.addParameter(secParams, this, costParam.getSource(), costParam.getYear(), costParam.getDeterministicValue(), costParam.getProbabilisticValue());
+					desc.addUsedParameter(secParams, this, costParam.getSource(), costParam.getYear(), costParam.getDeterministicValue(), costParam.getProbabilisticValue());
 				}				
 			}
 			if (utilityParams.size() == 0) {

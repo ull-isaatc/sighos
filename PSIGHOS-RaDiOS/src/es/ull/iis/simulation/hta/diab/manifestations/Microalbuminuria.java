@@ -27,7 +27,7 @@ public class Microalbuminuria extends DiseaseProgression {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Assumption", 2021, 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
+		CostParamDescriptions.ANNUAL_COST.addUsedParameter(secParams, this, "Assumption", 2021, 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Assumption", 0.0, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 	}
 

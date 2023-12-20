@@ -28,7 +28,7 @@ public abstract class Population extends HTAModelComponent {
 		rng = PatientCommonRandomNumbers.getRNG();
 		if (!model.register(this))
 			throw new MalformedSimulationModelException("Population already defined");
-			addUsedParameter(StandardParameter.POPULATION_BASE_UTILITY);
+			registerUsedParameter(StandardParameter.POPULATION_BASE_UTILITY);
 	}
 
 	/**

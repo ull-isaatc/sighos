@@ -3,9 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diab.manifestations;
 
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -26,20 +24,20 @@ public class EndStageRenalDisease extends DiseaseProgression {
 	public static final String NAME = "ESRD";
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public EndStageRenalDisease(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "End-stage renal disease", disease, Type.CHRONIC_MANIFESTATION);
+	public EndStageRenalDisease(HTAModel model, Disease disease) {
+		super(model, NAME, "End-stage renal disease", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Ray (2005)", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
-		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "Ray (2005)", COSTYEAR, TCOST, StandardParameter.getRandomVariateForCost(TCOST));
+	public void createParameters() {
+		CostParamDescriptions.ANNUAL_COST.addUsedParameter(model, this, "Ray (2005)", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+		CostParamDescriptions.ONE_TIME_COST.addUsedParameter(model, this, "Ray (2005)", COSTYEAR, TCOST, StandardParameter.getRandomVariateForCost(TCOST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
-		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
-		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addParameter(secParams, this,  
+		UtilityParamDescriptions.DISUTILITY.addParameter(model, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
+		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addUsedParameter(model, this,  
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				4.53, RandomVariateFactory.getInstance("RRFromLnCIVariate", 4.53, 2.64, 7.77, 1));
 	}

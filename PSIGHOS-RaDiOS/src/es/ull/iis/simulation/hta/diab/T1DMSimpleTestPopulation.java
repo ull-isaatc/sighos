@@ -4,12 +4,11 @@
 package es.ull.iis.simulation.hta.diab;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.ConstantNatureParameter;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
-import es.ull.iis.simulation.hta.params.ParameterDescription;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -39,19 +38,19 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	private static final double DEF_U_GENERAL_POP = 0.911400915;
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public T1DMSimpleTestPopulation(SecondOrderParamsRepository secParams, Disease disease) throws MalformedSimulationModelException {
-		super(secParams, "T1DMPop", "Simple test population for T1DM", disease);
+	public T1DMSimpleTestPopulation(HTAModel model, Disease disease) throws MalformedSimulationModelException {
+		super(model, "T1DMPop", "Simple test population for T1DM", disease);
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		secParams.addParameter(new ConstantNatureParameter(getRepository(), T1DMModel.STR_HBA1C, new ParameterDescription(T1DMModel.STR_HBA1C, ""), BASELINE_HBA1C), ParameterType.ATTRIBUTE);
-		secParams.addParameter(new ConstantNatureParameter(getRepository(), T1DMModel.STR_DURATION,  new ParameterDescription(T1DMModel.STR_DURATION, ""), BASELINE_DURATION), ParameterType.ATTRIBUTE);
+	public void createParameters() {
+		model.addParameter(new ConstantNatureParameter(getModel(), T1DMModel.STR_HBA1C, "", "", ParameterType.ATTRIBUTE, BASELINE_HBA1C));
+		model.addParameter(new ConstantNatureParameter(getModel(), T1DMModel.STR_DURATION, "", "", ParameterType.ATTRIBUTE, BASELINE_DURATION));
 		
-		UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, this, "From adult Spanish population but those with DM", DEF_U_GENERAL_POP);
+		addUsedParameter(StandardParameter.POPULATION_BASE_UTILITY, "From adult Spanish population but those with DM", "INE", DEF_U_GENERAL_POP);
 	}
 
 	@Override
@@ -76,7 +75,7 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 
 	@Override
 	public DiseaseProgression getDeathCharacterization() {
-		return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
+		return new EmpiricalSpainDeathSubmodel(getModel(), disease);
 	}
 	
 }

@@ -3,9 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diab.manifestations;
 
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
-import es.ull.iis.simulation.hta.params.OtherParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -27,24 +25,24 @@ public class LowExtremityAmputation extends DiseaseProgression {
 	public static final String NAME = "LEA";
 	
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public LowExtremityAmputation(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Low extremity amputation", disease, Type.CHRONIC_MANIFESTATION);
+	public LowExtremityAmputation(HTAModel model, Disease disease) {
+		super(model, NAME, "Low extremity amputation", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "del Pino et al", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+	public void createParameters() {
+		CostParamDescriptions.ANNUAL_COST.addUsedParameter(model, this, "del Pino et al", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
 		final double[] tcParams = Statistics.gammaParametersFromNormal(TC[0], TC[1]);
-		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "amputation", 
+		CostParamDescriptions.ONE_TIME_COST.addUsedParameter(model, this, "amputation", 
 				"Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", COSTYEAR, 
 				TC[0], RandomVariateFactory.getInstance("GammaVariate", tcParams[0], tcParams[1]));
 
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
-		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
-		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addParameter(secParams, this.name(), "peripheral neuropathy (amputation)", 
+		UtilityParamDescriptions.DISUTILITY.addParameter(model, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
+		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addUsedParameter(model, this.name(), "peripheral neuropathy (amputation)", 
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				3.98, RandomVariateFactory.getInstance("RRFromLnCIVariate", 3.98, 1.84, 8.59, 1));
 	}

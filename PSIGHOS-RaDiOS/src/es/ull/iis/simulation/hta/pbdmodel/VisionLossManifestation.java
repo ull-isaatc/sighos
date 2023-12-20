@@ -27,11 +27,11 @@ public class VisionLossManifestation extends DiseaseProgression {
 
 	@Override
 	public void createParameters() {
-		addParameter(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE, "", "", 1.0);
-		addParameter(StandardParameter.DISEASE_PROGRESSION_END_AGE, "", "", 2.0);
-		addParameter(StandardParameter.DISEASE_DIAGNOSIS_COST, "", "Test", COST_YEAR, DIAGNOSTIC_COST, StandardParameter.getRandomVariateForCost(DIAGNOSTIC_COST));
-		addParameter(StandardParameter.ANNUAL_COST, "", "Test", COST_YEAR, ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
-		addParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, "", "Assumption", 1.0);
+		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE, "", "", 1.0);
+		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_END_AGE, "", "", 2.0);
+		addUsedParameter(StandardParameter.DISEASE_DIAGNOSIS_COST, "", "Test", COST_YEAR, DIAGNOSTIC_COST, StandardParameter.getRandomVariateForCost(DIAGNOSTIC_COST));
+		addUsedParameter(StandardParameter.ANNUAL_COST, "", "Test", COST_YEAR, ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
+		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, "", "Assumption", 1.0);
 	}
 
 }

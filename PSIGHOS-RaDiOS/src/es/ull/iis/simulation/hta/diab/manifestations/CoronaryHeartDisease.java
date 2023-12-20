@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diab.manifestations;
 
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
@@ -15,11 +15,11 @@ public class CoronaryHeartDisease extends DiseaseProgression {
 	public static final String NAME = "CHD";
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public CoronaryHeartDisease(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Coronary Heart Disease", disease, Type.STAGE);
+	public CoronaryHeartDisease(HTAModel model, Disease disease) {
+		super(model, NAME, "Coronary Heart Disease", disease, Type.STAGE);
 	}
 
 }

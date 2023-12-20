@@ -27,9 +27,9 @@ public class TestManifestationStage1 extends DiseaseProgression {
 
 	@Override
 	public void createParameters() {
-		addParameter(StandardParameter.INCREASED_MORTALITY_RATE, "", "Test", 1.5, RandomVariateFactory.getInstance("UniformVariate", 1.3, 1.7));
-		addParameter(StandardParameter.ANNUAL_COST, "", "Test", HTAModel.getStudyYear(), ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
-		addParameter(StandardParameter.ANNUAL_DISUTILITY, "", "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
+		addUsedParameter(StandardParameter.INCREASED_MORTALITY_RATE, "", "Test", 1.5, RandomVariateFactory.getInstance("UniformVariate", 1.3, 1.7));
+		addUsedParameter(StandardParameter.ANNUAL_COST, "", "Test", HTAModel.getStudyYear(), ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
+		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "", "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
 	}
 
 }

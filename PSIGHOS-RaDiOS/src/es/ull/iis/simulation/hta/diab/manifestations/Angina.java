@@ -31,11 +31,11 @@ public class Angina extends DiseaseProgression {
 
 	@Override
 	public void createParameters() {
-		addParameter(StandardParameter.ANNUAL_COST, "year 2+ of " + getDescription(), "https://doi.org/10.1016/j.endinu.2018.03.008", COSTYEAR, ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
-		addParameter(StandardParameter.ONE_TIME_COST, "episode of " + getDescription(), "https://doi.org/10.1016/j.endinu.2018.03.008", COSTYEAR, TRANS_COST, StandardParameter.getRandomVariateForCost(TRANS_COST));
+		addUsedParameter(StandardParameter.ANNUAL_COST, "year 2+ of " + getDescription(), "https://doi.org/10.1016/j.endinu.2018.03.008", COSTYEAR, ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
+		addUsedParameter(StandardParameter.ONE_TIME_COST, "episode of " + getDescription(), "https://doi.org/10.1016/j.endinu.2018.03.008", COSTYEAR, TRANS_COST, StandardParameter.getRandomVariateForCost(TRANS_COST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
-		addParameter(StandardParameter.ANNUAL_DISUTILITY, "Disutility of angina", "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
-		addParameter(StandardParameter.INCREASED_MORTALITY_RATE, "macrovascular disease", "https://doi.org/10.2337/diacare.28.3.617", 
+		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "Disutility of angina", "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
+		addUsedParameter(StandardParameter.INCREASED_MORTALITY_RATE, "macrovascular disease", "https://doi.org/10.2337/diacare.28.3.617", 
 				1.96, RandomVariateFactory.getInstance("RRFromLnCIVariate", 1.96, 1.33, 2.89, 1));
 	}
 

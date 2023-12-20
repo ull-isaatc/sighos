@@ -20,6 +20,18 @@ import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 
+/**
+ * A model for health technology assessment. A model is composed of a {@link Population population}, a set of {@link Disease diseases} (in general, one), and a set of {@link Intervention interventions}. 
+ * Each disease may comprise a set of {@link Development developments}, and a set of {@link DiseaseProgression disease progressions}.
+ * All of these {@link HTAModelComponent model components} may define {@link Parameter parameters} in their {@link HTAModelComponent#createParameters()} method, that are registeres, and 
+ * can be accessed through the {@link #getParameterValue(String, Patient)} method. 
+ * Indeed, the {@link #createParameters()} method must be invoked from the calling {@link HTAExperiment} after all the model components have been created.
+ * TODO El cálculo de tiempo hasta complicación usa siempre el mismo número aleatorio para la misma complicación. Si aumenta el riesgo de esa
+ * complicación en un momento de la simulación, se recalcula el tiempo, pero empezando en el instante actual. Esto produce que no necesariamente se acorte
+ * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
+ * TODO: Make this class a singleton
+ * @author Iván Castilla Rodríguez
+ */
 public class HTAModel {
     /** The complete collection of Parameters with unique names defined in this model */
     private final Map<String, Parameter> parameters;

@@ -21,8 +21,8 @@ public class HealthTechnology extends HTAModelComponent implements PartOfStrateg
 	public HealthTechnology(HTAModel model, String name, String description, Guideline guide) {
 		super(model, name, description);
 		this.guide = guide;
-		addUsedParameter(StandardParameter.ANNUAL_COST);
-		addUsedParameter(StandardParameter.UNIT_COST);
+		registerUsedParameter(StandardParameter.ANNUAL_COST);
+		registerUsedParameter(StandardParameter.UNIT_COST);
 	}
 
 	public double getUnitCost(Patient pat) {

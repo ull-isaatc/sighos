@@ -135,12 +135,12 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed from, NamedAndDescribed to, String source, double detValue) {
-		return this.addParameter(secParams, DescribesParameter.getTransitionName(from, to), DescribesParameter.getTransitionDescription(from, to), source, detValue);
+		return this.addUsedParameter(secParams, DescribesParameter.getTransitionName(from, to), DescribesParameter.getTransitionDescription(from, to), source, detValue);
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
 		final ParameterDescription desc = new ParameterDescription(getParameterDescription(description), source);		
-		return addParameter(secParams, name, desc, detValue, SecondOrderParamsRepository.ParameterType.UTILITY);
+		return addUsedParameter(secParams, name, desc, detValue, SecondOrderParamsRepository.ParameterType.UTILITY);
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
@@ -148,12 +148,12 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed from, NamedAndDescribed to, String source, double detValue, RandomVariate rnd) {
-		return this.addParameter(secParams, DescribesParameter.getTransitionName(from, to), DescribesParameter.getTransitionDescription(from, to), source, detValue, rnd);
+		return this.addUsedParameter(secParams, DescribesParameter.getTransitionName(from, to), DescribesParameter.getTransitionDescription(from, to), source, detValue, rnd);
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
 		final ParameterDescription desc = new ParameterDescription(getParameterDescription(description), source);		
-		return addParameter(secParams, name, desc, detValue, rnd, SecondOrderParamsRepository.ParameterType.UTILITY);
+		return addUsedParameter(secParams, name, desc, detValue, rnd, SecondOrderParamsRepository.ParameterType.UTILITY);
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, Parameter param) {

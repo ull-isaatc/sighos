@@ -50,8 +50,8 @@ public class Strategy extends HTAModelComponent implements PartOfStrategy, Reset
 		this.model = model;
 		this.randomSeeds = new RandomSeedForPatients[model.getExperiment().getNRuns() + 1];
 		Arrays.fill(randomSeeds, null);
-		addUsedParameter(StandardParameter.ANNUAL_COST);
-		addUsedParameter(StandardParameter.ONE_TIME_COST);
+		registerUsedParameter(StandardParameter.ANNUAL_COST);
+		registerUsedParameter(StandardParameter.ONE_TIME_COST);
 	}
 
 	@Override

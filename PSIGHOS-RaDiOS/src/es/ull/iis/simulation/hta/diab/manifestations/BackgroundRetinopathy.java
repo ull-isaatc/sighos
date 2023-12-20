@@ -3,8 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diab.manifestations;
 
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -22,17 +21,17 @@ public class BackgroundRetinopathy extends DiseaseProgression {
 	public static final String NAME = "BGRET";
 
 	/**
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 */
-	public BackgroundRetinopathy(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, NAME, "Background Retinopathy", disease, Type.CHRONIC_MANIFESTATION);
+	public BackgroundRetinopathy(HTAModel model, Disease disease) {
+		super(model, NAME, "Background Retinopathy", disease, Type.CHRONIC_MANIFESTATION);
 	}
 
 	@Override
-	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Original analysis", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
-		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Assumption", DU, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
+	public void createParameters() {
+		CostParamDescriptions.ANNUAL_COST.addUsedParameter(model, this, "Original analysis", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+		UtilityParamDescriptions.DISUTILITY.addParameter(model, this, "Assumption", DU, RandomVariateFactory.getInstance("ConstantVariate", 0.0));
 	}
 
 }

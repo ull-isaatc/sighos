@@ -137,13 +137,13 @@ public interface PopulationBuilder {
 			for (AttributeValueWrapper attrWrapper : attributeValues) {
 				final String attributeName = OSDiWrapper.DataProperty.HAS_NAME.getValue(attrWrapper.getAttributeId(), attrWrapper.getAttributeId());
 				final String attributeDescription = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(attrWrapper.getAttributeId(), attrWrapper.getAttributeId());
-				secParams.addParameter(new FirstOrderNatureParameter(getRepository(), attributeName, 
+				secParams.addUsedParameter(new FirstOrderNatureParameter(getRepository(), attributeName, 
 						new ParameterDescription(attributeDescription, attrWrapper.getSource()), attrWrapper.getProbabilisticValue()), ParameterType.ATTRIBUTE);
 			}
 			if (prevalenceParam != null)
-				RiskParamDescriptions.PREVALENCE.addParameter(secParams, this, prevalenceParam.getSource(), prevalenceParam.getDeterministicValue(), prevalenceParam.getProbabilisticValue());
+				RiskParamDescriptions.PREVALENCE.addUsedParameter(secParams, this, prevalenceParam.getSource(), prevalenceParam.getDeterministicValue(), prevalenceParam.getProbabilisticValue());
 			else if (birthPrevalenceParam != null)
-				RiskParamDescriptions.BIRTH_PREVALENCE.addParameter(secParams, this, birthPrevalenceParam.getSource(), birthPrevalenceParam.getDeterministicValue(), birthPrevalenceParam.getProbabilisticValue());
+				RiskParamDescriptions.BIRTH_PREVALENCE.addUsedParameter(secParams, this, birthPrevalenceParam.getSource(), birthPrevalenceParam.getDeterministicValue(), birthPrevalenceParam.getProbabilisticValue());
 
 			if (utilityParam != null)
 				UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, name(), utilityParam.getDescription(), utilityParam.getSource(), 

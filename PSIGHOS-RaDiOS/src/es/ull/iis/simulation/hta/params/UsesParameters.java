@@ -20,10 +20,10 @@ public interface UsesParameters {
     void setUsedParameterName(ParameterTemplate param, String name);
 
     /**
-     * Adds a parameter to the collection of default parameter names used by a component
+     * Registers a parameter as a default parameter used by a component
      * @param param The parameter to be added
      */
-    void addUsedParameter(ParameterTemplate param);
+    void registerUsedParameter(ParameterTemplate param);
 
     /**
      * Returns the collection of default parameter names

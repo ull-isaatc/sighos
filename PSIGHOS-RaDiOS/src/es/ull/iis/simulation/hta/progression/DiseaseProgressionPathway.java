@@ -37,7 +37,7 @@ public class DiseaseProgressionPathway extends HTAModelComponent {
 		this.condition = condition;
 		this.tteCalculator = tteCalculator;
 		nextProgression.addPathway(this);
-		addUsedParameter(StandardParameter.TIME_TO_EVENT);
+		registerUsedParameter(StandardParameter.TIME_TO_EVENT);
 	}
 
 	/**

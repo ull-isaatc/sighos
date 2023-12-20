@@ -10,9 +10,9 @@ import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.SecondOrderNatureParameter;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.params.modifiers.DiffParameterModifier;
+import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -34,7 +34,7 @@ public class DCCT_IntensiveIntervention extends Intervention {
 	@Override
 	public void createParameters() {
 		
-		final Parameter modifier = new SecondOrderNatureParameter(model, SecondOrderParamsRepository.getModificationString(this, T1DMModel.STR_HBA1C + "_REDUX"), 
+		final Parameter modifier = new SecondOrderNatureParameter(model, ParameterModifier.getModifierParamName(this, T1DMModel.STR_HBA1C + "_REDUX"), 
 				T1DMModel.STR_HBA1C + " reduction", "DCCT Intensive", 2013, ParameterType.OTHER, HBA1C_REDUCTION, RandomVariateFactory.getInstance("NormalVariate", HBA1C_REDUCTION, HBA1C_REDUCTION_SD)); 
 		model.addParameter(modifier);
 		model.addParameterModifier(ParameterType.ATTRIBUTE.getParameter(T1DMModel.STR_HBA1C).name(), this, new DiffParameterModifier(modifier.name()));

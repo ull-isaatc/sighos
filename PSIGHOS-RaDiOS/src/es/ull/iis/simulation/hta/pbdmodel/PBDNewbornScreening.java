@@ -29,9 +29,9 @@ public class PBDNewbornScreening extends ScreeningIntervention {
 
 	@Override
 	public void createParameters() {
-		addParameter(StandardParameter.ONE_TIME_COST, "", "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
-		addParameter(StandardParameter.SENSITIVITY, "", "", 1.0);
-		addParameter(StandardParameter.SPECIFICITY, "", "", 0.999935);
+		addUsedParameter(StandardParameter.ONE_TIME_COST, "", "", 2013, C_TEST, RandomVariateFactory.getInstance("UniformVariate", 0.5, 2.5));
+		addUsedParameter(StandardParameter.SENSITIVITY, "", "", 1.0);
+		addUsedParameter(StandardParameter.SPECIFICITY, "", "", 0.999935);
 		final ParameterModifier modifier = new SetConstantParameterModifier(0.0); 
 		for (DiseaseProgression manif : model.getRegisteredDiseaseProgressions())
 			model.addParameterModifier(StandardParameter.PROPORTION.createName(manif), this, modifier);

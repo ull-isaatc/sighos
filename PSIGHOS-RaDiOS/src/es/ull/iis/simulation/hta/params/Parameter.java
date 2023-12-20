@@ -170,7 +170,7 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
     }
 
     @Override
-    public void addUsedParameter(ParameterTemplate param) {
+    public void registerUsedParameter(ParameterTemplate param) {
         setUsedParameterName(param, param.createName(this));
     }
 	

@@ -33,10 +33,10 @@ public class Neuropathy extends DiseaseProgression {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ANNUAL_COST.addParameter(secParams, this, "Ray (2015)", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+		CostParamDescriptions.ANNUAL_COST.addUsedParameter(secParams, this, "Ray (2015)", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
 		UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
-		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addParameter(secParams, this.name(), "peripheral neuropathy (vibratory sense diminished)", 
+		OtherParamDescriptions.INCREASED_MORTALITY_RATE.addUsedParameter(secParams, this.name(), "peripheral neuropathy (vibratory sense diminished)", 
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				1.51, RandomVariateFactory.getInstance("RRFromLnCIVariate", 1.51, 1.00, 2.28, 1));
 	}

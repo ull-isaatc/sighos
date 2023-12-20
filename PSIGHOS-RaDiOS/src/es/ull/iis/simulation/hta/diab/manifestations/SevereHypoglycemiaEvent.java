@@ -37,13 +37,13 @@ public class SevereHypoglycemiaEvent extends DiseaseProgression {
 
 	@Override
 	public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-		CostParamDescriptions.ONE_TIME_COST.addParameter(secParams, this, "severe hypoglycemic episode", 
+		CostParamDescriptions.ONE_TIME_COST.addUsedParameter(secParams, this, "severe hypoglycemic episode", 
 			"https://doi.org/10.1007/s13300-017-0285-0", COSTYEAR, COST_HYPO_EPISODE, StandardParameter.getRandomVariateForCost(COST_HYPO_EPISODE));
 		UtilityParamDescriptions.ONE_TIME_DISUTILITY.addParameter(secParams, this, "Walters et al. 10.1016/s1098-3015(10)63316-5", 
 			DU_HYPO_EPISODE, RandomVariateFactory.getInstance("UniformVariate", LIMITS_DU_HYPO_EPISODE[0], LIMITS_DU_HYPO_EPISODE[1]));
 		
 		final double[] paramsDeathHypo = Statistics.betaParametersFromNormal(P_DEATH, Statistics.sdFrom95CI(new double[]{0.0058, 0.0068}));		
-		RiskParamDescriptions.PROBABILITY_DEATH.addParameter(secParams, this, "Canada", P_DEATH, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1]));
+		RiskParamDescriptions.PROBABILITY_DEATH.addUsedParameter(secParams, this, "Canada", P_DEATH, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1]));
 	}
 
 }

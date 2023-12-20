@@ -51,12 +51,12 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 		this.developments = new ArrayList<>();
 		if (!model.register(this))
 			throw new IllegalArgumentException("Disease " + name + " already registered");
-		addUsedParameter(StandardParameter.ANNUAL_COST);
-		addUsedParameter(StandardParameter.DISEASE_DIAGNOSIS_COST);
-		addUsedParameter(StandardParameter.TREATMENT_COST);
-		addUsedParameter(StandardParameter.FOLLOW_UP_COST);
-		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
-		addUsedParameter(StandardParameter.ONSET_DISUTILITY);
+		registerUsedParameter(StandardParameter.ANNUAL_COST);
+		registerUsedParameter(StandardParameter.DISEASE_DIAGNOSIS_COST);
+		registerUsedParameter(StandardParameter.TREATMENT_COST);
+		registerUsedParameter(StandardParameter.FOLLOW_UP_COST);
+		registerUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
+		registerUsedParameter(StandardParameter.ONSET_DISUTILITY);
 	}
 	
 	/**

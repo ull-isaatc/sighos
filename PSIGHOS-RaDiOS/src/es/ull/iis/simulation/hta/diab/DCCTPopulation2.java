@@ -58,9 +58,9 @@ public class DCCTPopulation2 extends StdPopulation {
 		model.addParameter(new FirstOrderNatureParameter(getModel(), T1DMModel.STR_DURATION, "", "", 2013, ParameterType.ATTRIBUTE, 
 			RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION_AVG, BASELINE_DURATION_SD)));
 
-		disease.getDiseaseProgression(BackgroundRetinopathy.NAME).addParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "DCCT", 
+		disease.getDiseaseProgression(BackgroundRetinopathy.NAME).addUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "DCCT", 
 				"DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", 1.0, RandomVariateFactory.getInstance("ConstantVariate", 1.0));
-		disease.getDiseaseProgression(Neuropathy.NAME).addParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "DCCT", 
+		disease.getDiseaseProgression(Neuropathy.NAME).addUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "DCCT", 
 				"DCCT", P_INI_NEU_BETA[0] / (P_INI_NEU_BETA[0] + P_INI_NEU_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_NEU_BETA[0], P_INI_NEU_BETA[1]));
 	}
 

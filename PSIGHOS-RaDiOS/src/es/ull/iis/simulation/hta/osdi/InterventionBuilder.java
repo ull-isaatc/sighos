@@ -144,14 +144,14 @@ public interface InterventionBuilder {
 		@Override
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			if (sensitivityWrapper == null)
-				RiskParamDescriptions.SENSITIVITY.addParameter(secParams, this, "Assumed sensitivity", 1.0);
+				RiskParamDescriptions.SENSITIVITY.addUsedParameter(secParams, this, "Assumed sensitivity", 1.0);
 			else
-				RiskParamDescriptions.SENSITIVITY.addParameter(secParams, this, sensitivityWrapper.getDescription(),  
+				RiskParamDescriptions.SENSITIVITY.addUsedParameter(secParams, this, sensitivityWrapper.getDescription(),  
 						sensitivityWrapper.getDeterministicValue(), sensitivityWrapper.getProbabilisticValue());
 			if (specificityWrapper == null)
-				RiskParamDescriptions.SPECIFICITY.addParameter(secParams, this, "Assumed specificity", 1.0);
+				RiskParamDescriptions.SPECIFICITY.addUsedParameter(secParams, this, "Assumed specificity", 1.0);
 			else
-				RiskParamDescriptions.SPECIFICITY.addParameter(secParams, this, specificityWrapper.getDescription(),  
+				RiskParamDescriptions.SPECIFICITY.addUsedParameter(secParams, this, specificityWrapper.getDescription(),  
 						specificityWrapper.getDeterministicValue(), specificityWrapper.getProbabilisticValue());
 			for (ParameterModifierWrapper mod : modifiers) {
 				mod.registerParameter(secParams);

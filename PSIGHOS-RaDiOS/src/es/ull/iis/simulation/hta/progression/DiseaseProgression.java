@@ -64,19 +64,19 @@ public class DiseaseProgression extends HTAModelComponent implements Comparable<
 		if (!model.register(this))
 			throw new IllegalArgumentException("Disease progression " + name + " already registered");		
 		disease.addDiseaseProgression(this);
-		addUsedParameter(StandardParameter.ANNUAL_COST);
-		addUsedParameter(StandardParameter.ONSET_COST);
-		addUsedParameter(StandardParameter.TREATMENT_COST);
-		addUsedParameter(StandardParameter.FOLLOW_UP_COST);
-		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
-		addUsedParameter(StandardParameter.ONSET_DISUTILITY);
-		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_END_AGE);
-		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE);
-		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION);
-		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH);
-		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS);
-		addUsedParameter(StandardParameter.INCREASED_MORTALITY_RATE);
-		addUsedParameter(StandardParameter.LIFE_EXPECTANCY_REDUCTION);
+		registerUsedParameter(StandardParameter.ANNUAL_COST);
+		registerUsedParameter(StandardParameter.ONSET_COST);
+		registerUsedParameter(StandardParameter.TREATMENT_COST);
+		registerUsedParameter(StandardParameter.FOLLOW_UP_COST);
+		registerUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
+		registerUsedParameter(StandardParameter.ONSET_DISUTILITY);
+		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_END_AGE);
+		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE);
+		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION);
+		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH);
+		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS);
+		registerUsedParameter(StandardParameter.INCREASED_MORTALITY_RATE);
+		registerUsedParameter(StandardParameter.LIFE_EXPECTANCY_REDUCTION);
 	}
 	
 	/**

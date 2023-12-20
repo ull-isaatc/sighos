@@ -62,7 +62,7 @@ public class DCCTPopulation1 extends StdPopulation {
 					RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION_AVG, BASELINE_DURATION_SD)));
 		}
 		if (!T1DMDisease.DISABLE_NEU)
-			disease.getDiseaseProgression(Neuropathy.NAME).addParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "DCCT",
+			disease.getDiseaseProgression(Neuropathy.NAME).addUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, "DCCT",
 				"DCCT", P_INI_NEU_BETA[0] / (P_INI_NEU_BETA[0] + P_INI_NEU_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_NEU_BETA[0], P_INI_NEU_BETA[1]));
 	}
 
