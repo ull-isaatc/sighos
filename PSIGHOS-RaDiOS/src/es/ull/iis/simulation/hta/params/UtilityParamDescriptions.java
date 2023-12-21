@@ -131,7 +131,7 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue) {
-		return this.addParameter(secParams, instance.name(), instance.getDescription(), source, detValue);
+		return this.addToModel(secParams, instance.name(), instance.getDescription(), source, detValue);
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed from, NamedAndDescribed to, String source, double detValue) {
@@ -144,7 +144,7 @@ public enum UtilityParamDescriptions implements DescribesParameter {
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
-		return this.addParameter(secParams, instance.name(), instance.getDescription(), source, detValue, rnd);
+		return this.addToModel(secParams, instance.name(), instance.getDescription(), source, detValue, rnd);
 	}
 	
 	public String addParameter(SecondOrderParamsRepository secParams, NamedAndDescribed from, NamedAndDescribed to, String source, double detValue, RandomVariate rnd) {

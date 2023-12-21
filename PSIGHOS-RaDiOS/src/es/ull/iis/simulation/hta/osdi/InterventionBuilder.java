@@ -14,8 +14,6 @@ import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterModifierWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.Discount;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * @author Iván Castilla
@@ -24,21 +22,21 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 public interface InterventionBuilder {
 	public static String DO_NOTHING = "DO_NOTHING";
 
-	public static Intervention getInterventionInstance(OSDiGenericModel secParams, String interventionName) throws MalformedOSDiModelException {
-		final OSDiWrapper wrap = secParams.getOwlWrapper();
+	public static Intervention getInterventionInstance(OSDiGenericModel model, String interventionName) throws MalformedOSDiModelException {
+		final OSDiWrapper wrap = model.getOwlWrapper();
 		if (DO_NOTHING.equals(interventionName))
-			return new DoNothingIntervention(secParams);
+			return new DoNothingIntervention(model);
 		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(interventionName, "");
 		final Set<String> superclasses = wrap.getClassesForIndividual(interventionName);
 		// TODO: Populate different methods for different interventions
 		if (superclasses.contains(OSDiWrapper.InterventionType.SCREENING.getClazz().getShortName())) {
-			return new OSDiScreeningIntervention(secParams, interventionName, description);
+			return new OSDiScreeningIntervention(model, interventionName, description);
 		}
-		return new OSDiIntervention(secParams, interventionName, description);
+		return new OSDiIntervention(model, interventionName, description);
 	}
 	
-	private static ArrayList<ParameterModifierWrapper> createModificationParams(OSDiGenericModel secParams, Intervention intervention) throws MalformedOSDiModelException {
-		final OSDiWrapper wrap = secParams.getOwlWrapper();
+	private static ArrayList<ParameterModifierWrapper> createModificationParams(OSDiGenericModel model, Intervention intervention) throws MalformedOSDiModelException {
+		final OSDiWrapper wrap = model.getOwlWrapper();
 		final ArrayList<ParameterModifierWrapper> list = new ArrayList<>();
 		// Collects the modifications associated to the specified intervention
 		final Set<String> modifications = OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.getValues(intervention.name(), true);
@@ -51,15 +49,15 @@ public interface InterventionBuilder {
 	static class OSDiIntervention extends Intervention {
 		private final  ArrayList<ParameterModifierWrapper> modifiers;
 
-		public OSDiIntervention(OSDiGenericModel secParams, String name, String description) throws MalformedOSDiModelException {
-			super(secParams, name, description);
-			this.modifiers = InterventionBuilder.createModificationParams(secParams, this);
+		public OSDiIntervention(OSDiGenericModel model, String name, String description) throws MalformedOSDiModelException {
+			super(model, name, description);
+			this.modifiers = InterventionBuilder.createModificationParams(model, this);
 		}
 
 		@Override
-		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+		public void createParameters() {
 			for (ParameterModifierWrapper mod : modifiers) {
-				mod.registerParameter(secParams);
+				mod.registerParameter(model);
 			}			
 		}
 		@Override
@@ -103,9 +101,9 @@ public interface InterventionBuilder {
 		private final ParameterWrapper specificityWrapper;
 		private final  ArrayList<ParameterModifierWrapper> modifiers;
 
-		public OSDiScreeningIntervention(OSDiGenericModel secParams, String name, String description) throws MalformedOSDiModelException {
-			super(secParams, name, description);
-			final OSDiWrapper wrap = secParams.getOwlWrapper();
+		public OSDiScreeningIntervention(OSDiGenericModel model, String name, String description) throws MalformedOSDiModelException {
+			super(model, name, description);
+			final OSDiWrapper wrap = model.getOwlWrapper();
 			// Sensitivity
 			final Set<String> strSensitivities = OSDiWrapper.ObjectProperty.HAS_SENSITIVITY.getValues(name, true);
 			if (strSensitivities.size() == 0) {
@@ -138,23 +136,23 @@ public interface InterventionBuilder {
 					wrap.printWarning(specificityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiWrapper.DataItemType.DI_SPECIFICITY.getInstanceName());			
 				}
 			}
-			this.modifiers = InterventionBuilder.createModificationParams(secParams, this);
+			this.modifiers = InterventionBuilder.createModificationParams(model, this);
 		}
 
 		@Override
-		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+		public void registerSecondOrderParameters(SecondOrderParamsRepository model) {
 			if (sensitivityWrapper == null)
-				RiskParamDescriptions.SENSITIVITY.addUsedParameter(secParams, this, "Assumed sensitivity", 1.0);
+				RiskParamDescriptions.SENSITIVITY.addUsedParameter(model, this, "Assumed sensitivity", 1.0);
 			else
-				RiskParamDescriptions.SENSITIVITY.addUsedParameter(secParams, this, sensitivityWrapper.getDescription(),  
+				RiskParamDescriptions.SENSITIVITY.addUsedParameter(model, this, sensitivityWrapper.getDescription(),  
 						sensitivityWrapper.getDeterministicValue(), sensitivityWrapper.getProbabilisticValue());
 			if (specificityWrapper == null)
-				RiskParamDescriptions.SPECIFICITY.addUsedParameter(secParams, this, "Assumed specificity", 1.0);
+				RiskParamDescriptions.SPECIFICITY.addUsedParameter(model, this, "Assumed specificity", 1.0);
 			else
-				RiskParamDescriptions.SPECIFICITY.addUsedParameter(secParams, this, specificityWrapper.getDescription(),  
+				RiskParamDescriptions.SPECIFICITY.addUsedParameter(model, this, specificityWrapper.getDescription(),  
 						specificityWrapper.getDeterministicValue(), specificityWrapper.getProbabilisticValue());
 			for (ParameterModifierWrapper mod : modifiers) {
-				mod.registerParameter(secParams);
+				mod.registerParameter(model);
 			}			
 		}
 

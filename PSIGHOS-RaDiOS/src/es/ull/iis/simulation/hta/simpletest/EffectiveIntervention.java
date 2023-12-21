@@ -28,7 +28,7 @@ public class EffectiveIntervention extends Intervention {
 	@Override
 	public void createParameters() {
 		for (String paramName : modifiedParams) {
-			StandardParameter.RELATIVE_RISK.addParameter(model, this, "", HTAModel.getStudyYear(),
+			StandardParameter.RELATIVE_RISK.addToModel(model, this, "", HTAModel.getStudyYear(),
 					RR, RandomVariateFactory.getInstance("UniformVariate", RR * 0.8, RR * 1.2));
 			model.addParameterModifier(paramName, this, new FactorParameterModifier(StandardParameter.RELATIVE_RISK.createName(this)));
 		}

@@ -33,7 +33,7 @@ public class TestRareDisease2 extends TemplateTestRareDisease {
 
 	@Override
 	public void createParameters() {
-		StandardParameter.PROBABILITY.addParameter(model, acuteManif1, "Test", P_MANIF1, StandardParameter.getRandomVariateForProbability(P_MANIF1));
+		StandardParameter.PROBABILITY.addToModel(model, acuteManif1, "Test", P_MANIF1, StandardParameter.getRandomVariateForProbability(P_MANIF1));
 	}
 
 	@Override

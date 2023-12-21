@@ -5,8 +5,6 @@ package es.ull.iis.simulation.hta.diab;
 
 import java.util.TreeMap;
 
-import com.beust.jcommander.ParameterDescription;
-
 import es.ull.iis.simulation.condition.AndCondition;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.hta.HTAModel;
@@ -29,16 +27,17 @@ import es.ull.iis.simulation.hta.diab.manifestations.SevereHypoglycemiaEvent;
 import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.HTAModel;
 import es.ull.iis.simulation.hta.params.StandardParameter;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
+import es.ull.iis.simulation.hta.progression.calculator.AnnualRiskBasedTimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.calculator.ConstantTimeToEventCalculator;
+import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.ExclusiveChoiceCondition;
 import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
 import es.ull.iis.util.Statistics;
+import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -181,9 +180,9 @@ public class T1DMDisease extends Disease {
 			assignLabel(GroupOfManifestations.NPH, alb1);
 			assignLabel(GroupOfManifestations.NPH, alb2);
 			assignLabel(GroupOfManifestations.NPH, esrd);
-			addProgression(alb1);
-			addProgression(alb2);
-			addProgression(alb1, alb2);
+			addProgression(alb1, StandardParameter.RELATIVE_RISK.createName(alb1));
+			addProgression(alb2, StandardParameter.RELATIVE_RISK.createName(alb2));
+			addProgression(alb1, alb2, StandardParameter.RELATIVE_RISK.createName(alb2));
 			addProgression(esrd);
 			addProgression(alb1, esrd);
 			addProgression(alb2, esrd);
@@ -203,7 +202,7 @@ public class T1DMDisease extends Disease {
 			lea = new LowExtremityAmputation(model, this);
 			assignLabel(GroupOfManifestations.NEU, neu);
 			assignLabel(GroupOfManifestations.NEU, lea);
-			addProgression(neu);
+			addProgression(neu, StandardParameter.RELATIVE_RISK.createName(neu));
 			addProgression(lea);
 			addProgression(neu, lea);
 			// Define exclusive manifestations
@@ -211,7 +210,8 @@ public class T1DMDisease extends Disease {
 			if (!DISABLE_NPH) {
 				// There is an additional risk to progress from neuropathy to microalbuminuria
 				addProgression(neu, alb1);
-				addProgression(lea, alb1);
+				// Manually adds a second extra risk from LEA, which uses the same probability as the other progression
+				addProgression(lea, alb1, createTransitionName(neu, alb1), null);
 			}
 		}
 		
@@ -230,12 +230,15 @@ public class T1DMDisease extends Disease {
 			assignLabel(GroupOfManifestations.RET, pret);
 			assignLabel(GroupOfManifestations.RET, me);
 			assignLabel(GroupOfManifestations.RET, bli);
-			addProgression(bgret);
-			addProgression(pret);
-			addProgression(bgret, pret);
-			addProgression(me);
-			addProgression(bgret, me);
-			addProgression(pret, me);
+			addProgression(bgret, StandardParameter.RELATIVE_RISK.createName(bgret));
+			addProgression(pret, StandardParameter.RELATIVE_RISK.createName(pret));
+			addProgression(bgret, pret, StandardParameter.RELATIVE_RISK.createName(pret));
+			addProgression(me, StandardParameter.RELATIVE_RISK.createName(me));
+			addProgression(bgret, me, StandardParameter.RELATIVE_RISK.createName(me));
+			// Manually adds a second extra risk from PRET, which uses the same probability as the other progression
+			addProgression(pret, me, createTransitionName(bgret, me), StandardParameter.RELATIVE_RISK.createName(me));
+
+			addProgression(pret, me, StandardParameter.RELATIVE_RISK.createName(me));
 			addProgression(bli);
 			addProgression(bgret, bli);
 			addProgression(pret, bli);
@@ -266,11 +269,11 @@ public class T1DMDisease extends Disease {
 			assignLabel(GroupOfManifestations.CHD, mi);
 			assignLabel(GroupOfManifestations.CHD, hf);
 			// The destination is the stage: CHD 
-			addProgression(chd);
+			addProgression(chd, HbA1c1ppRRParameter.PARAM_NAME);
 
 			final TreeMap<DiseaseProgression, String> mapping = new TreeMap<>();
 			for (DiseaseProgression manifCHD : getLabeledManifestations(GroupOfManifestations.CHD)) 
-				mapping.put(manifCHD, RiskParamDescriptions.PROBABILITY.getParameterName(manifCHD));
+				mapping.put(manifCHD, StandardParameter.PROPORTION.createName(manifCHD));
 			final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new AndCondition<>(
 					new ExclusiveChoiceCondition(model, mapping), 
 					new PreviousDiseaseProgressionCondition(chd));
@@ -280,55 +283,68 @@ public class T1DMDisease extends Disease {
 			
 			
 			if (!DISABLE_NEU) {
-				addProgression(neu, chd);
-				addProgression(lea, chd);
+				addProgression(neu, chd, HbA1c1ppRRParameter.PARAM_NAME);
+				addProgression(lea, chd, createTransitionName(neu, neu), HbA1c1ppRRParameter.PARAM_NAME);
 			}
 			if (!DISABLE_NPH) {
-				addProgression(alb1, chd);
-				addProgression(alb2, chd);
-				addProgression(esrd, chd);
+				addProgression(alb1, chd, HbA1c1ppRRParameter.PARAM_NAME);
+				addProgression(alb2, chd, createTransitionName(alb1, chd), HbA1c1ppRRParameter.PARAM_NAME);
+				addProgression(esrd, chd, createTransitionName(alb1, chd), HbA1c1ppRRParameter.PARAM_NAME);
 			}
 			if (!DISABLE_RET) {
-				addProgression(bgret, chd);
-				addProgression(pret, chd);
-				addProgression(me, chd);
-				addProgression(bli, chd);
+				addProgression(bgret, chd, HbA1c1ppRRParameter.PARAM_NAME);
+				addProgression(pret, chd, createTransitionName(bgret, chd), HbA1c1ppRRParameter.PARAM_NAME);
+				addProgression(me, chd, createTransitionName(bgret, chd), HbA1c1ppRRParameter.PARAM_NAME);
+				addProgression(bli, chd, createTransitionName(bgret, chd), HbA1c1ppRRParameter.PARAM_NAME);
 			}
 		}
 	}
 
-	private void addProgression(DiseaseProgression fromManif, DiseaseProgression toManif) {
+	
+	private void addProgression(DiseaseProgression fromManif, DiseaseProgression toManif, String riskParamName, String rrParamName) {
 		final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new PreviousDiseaseProgressionCondition(fromManif);
-		new DiseaseProgressionPathway(getModel(), toManif, cond, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(fromManif, toManif));
+		final TimeToEventCalculator	calc = (rrParamName != null) ? 
+			new AnnualRiskBasedTimeToEventCalculator(toManif, riskParamName, rrParamName) : 
+			new AnnualRiskBasedTimeToEventCalculator(toManif, riskParamName);
+		new DiseaseProgressionPathway(getModel(), "PATH_" + fromManif.name() + "_" + toManif.name(), "Pathway from " + fromManif.getDescription() + " to " + toManif.getDescription(), 
+			toManif, calc, cond);
+	}
+	
+	private void addProgression(DiseaseProgression fromManif, DiseaseProgression toManif, String rrParamName) {
+		this.addProgression(fromManif, toManif, createTransitionName(fromManif, toManif), rrParamName);
+	}
+
+	private void addProgression(DiseaseProgression fromManif, DiseaseProgression toManif) {
+		this.addProgression(fromManif, toManif, createTransitionName(fromManif, toManif), null);
+	}
+
+	private void addProgression(DiseaseProgression toManif, String riskParamName, String rrParamName) {
+		final TimeToEventCalculator	calc = (rrParamName != null) ? 
+			new AnnualRiskBasedTimeToEventCalculator(toManif, riskParamName, rrParamName) : 
+			new AnnualRiskBasedTimeToEventCalculator(toManif, riskParamName);
+		new DiseaseProgressionPathway(getModel(), "PATH_" + toManif.name(), "Pathway to " + toManif.getDescription(), toManif, calc);
+	}
+
+	private void addProgression(DiseaseProgression toManif, String rrParamName) {
+		this.addProgression(toManif, StandardParameter.PROBABILITY.createName(toManif), rrParamName);
 	}
 
 	private void addProgression(DiseaseProgression toManif) {
-		new DiseaseProgressionPathway(getModel(), toManif, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(toManif));
+		this.addProgression(toManif, StandardParameter.PROBABILITY.createName(toManif), null);
+	}
+	
+	private String createTransitionName(DiseaseProgression fromManif, DiseaseProgression toManif) {
+		return StandardParameter.PROBABILITY.createName(fromManif.name() + "_" + toManif.name());
 	}
 
-	private void registerStandardTimeToEventParameter(HTAModel model, DiseaseProgression toManif) {
-		RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(toManif), toManif, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(toManif)));		
+	private String createTransitionDescription(DiseaseProgression fromManif, DiseaseProgression toManif) {
+		return "From " + fromManif.getDescription() + " to " + toManif.getDescription();
 	}
-	
-	private void registerStandardTimeToEventParameter(HTAModel model, DiseaseProgression fromManif, DiseaseProgression toManif) {
-		RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(fromManif, toManif), toManif, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(fromManif, toManif)));
+
+	private boolean addTransitionProbability(DiseaseProgression fromManif, DiseaseProgression toManif, String source, double value, RandomVariate rnd) {
+		return StandardParameter.PROBABILITY.addToModel(model, createTransitionName(fromManif, toManif), createTransitionDescription(fromManif, toManif), source, value, rnd);
 	}
-	
-	private String registerSheffieldTimeToEventParameter(HTAModel model, DiseaseProgression toManif, String betaParamName) {
-		final String rrParamName = OtherParamDescriptions.RELATIVE_RISK.addUsedParameter(model, new SheffieldRRParameter(model, betaParamName));
-		RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(toManif), toManif, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(toManif), rrParamName));
-		return rrParamName;
-	}
-	private String registerSheffieldTimeToEventParameter(HTAModel model, DiseaseProgression fromManif, DiseaseProgression toManif, String betaParamName) {
-		final String rrParamName = OtherParamDescriptions.RELATIVE_RISK.addUsedParameter(model, new SheffieldRRParameter(model, betaParamName));
-		RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(fromManif, toManif), toManif, 
-				RiskParamDescriptions.PROBABILITY.getParameterName(fromManif, toManif), rrParamName));
-		return rrParamName;
-	}
-	
+
 	@Override
 	public void createParameters() {
 		
@@ -340,9 +356,8 @@ public class T1DMDisease extends Disease {
 		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "", "", DEF_U_DNC[0], RandomVariateFactory.getInstance("BetaVariate", paramsU_DNC[0], paramsU_DNC[1]));
 		
 		if (!DISABLE_SHE) {
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, she, 
+			StandardParameter.PROBABILITY.addToModel(model, she, 
 					"GOLD", P_HYPO, RandomVariateFactory.getInstance("BetaVariate", P_HYPO_BETA[0], P_HYPO_BETA[1]));
-			registerStandardTimeToEventParameter(model, she);
 		}
 		
 		registerNPHParameters(model);
@@ -354,68 +369,49 @@ public class T1DMDisease extends Disease {
 	private void registerNPHParameters(HTAModel model) {
 		if (!DISABLE_NPH) {
 			// Adds parameters to compute HbA1c-dependent progressions for nephropathy-related complications 
-			final String paramBetaALB1 = OtherParamDescriptions.RELATIVE_RISK.addUsedParameter(model, alb1, "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", BETA_ALB1); 
-			final String paramBetaALB2 = OtherParamDescriptions.RELATIVE_RISK.addUsedParameter(model, alb2, "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", BETA_ALB2);
+			StandardParameter.RELATIVE_RISK.addToModel(model, alb1, "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", BETA_ALB1); 
+			StandardParameter.RELATIVE_RISK.addToModel(model, alb2, "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", BETA_ALB2);
 	
 			// Add transition probabilities for nephropathy-related complications
 			final double[] paramsALB1_ESRD = Statistics.betaParametersFromNormal(P_ALB1_ESRD, Statistics.sdFrom95CI(CI_ALB1_ESRD));
 			final double[] paramsDNC_ALB1 = Statistics.betaParametersFromNormal(P_DNC_ALB1, Statistics.sdFrom95CI(CI_DNC_ALB1));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, alb1, 
-					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
+			StandardParameter.PROBABILITY.addToModel(model, alb1, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
 					P_DNC_ALB1, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_ALB1[0], paramsDNC_ALB1[1]));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, alb2, 
-					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
+			StandardParameter.PROBABILITY.addToModel(model, alb2, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
 					P_DNC_ALB2, StandardParameter.getRandomVariateForProbability(P_DNC_ALB2));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, alb1, esrd, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-					P_ALB1_ESRD, RandomVariateFactory.getInstance("BetaVariate", paramsALB1_ESRD[0], paramsALB1_ESRD[1]));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, alb2, esrd, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-					P_ALB2_ESRD, StandardParameter.getRandomVariateForProbability(P_ALB2_ESRD));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, alb1, alb2, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
+			addTransitionProbability(alb1, alb2, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
 					P_ALB1_ALB2, StandardParameter.getRandomVariateForProbability(P_ALB1_ALB2));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, esrd, 
-					"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
-					P_DNC_ESRD, StandardParameter.getRandomVariateForProbability(P_DNC_ESRD));
-			
-			registerSheffieldTimeToEventParameter(model, alb1, paramBetaALB1);
-			registerSheffieldTimeToEventParameter(model, alb2, paramBetaALB2);
-			registerSheffieldTimeToEventParameter(model, alb1, alb2, paramBetaALB2);
-			registerStandardTimeToEventParameter(model, esrd);
-			registerStandardTimeToEventParameter(model, alb1, esrd);
-			registerStandardTimeToEventParameter(model, alb2, esrd);
-		}
-		
+			addTransitionProbability(alb1, esrd, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf",
+					P_ALB1_ESRD, RandomVariateFactory.getInstance("BetaVariate", paramsALB1_ESRD[0], paramsALB1_ESRD[1]));
+			addTransitionProbability(alb2, esrd, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf",
+					P_ALB2_ESRD, StandardParameter.getRandomVariateForProbability(P_ALB2_ESRD));
+			StandardParameter.PROBABILITY.addToModel(model, esrd, "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
+					P_DNC_ESRD, StandardParameter.getRandomVariateForProbability(P_DNC_ESRD));			
+		}		
 	}
 
 	private void registerNEUParameters(HTAModel model) {
 		if (!DISABLE_NEU) {
 			// Adds parameters to compute HbA1c-dependent progressions for neuropathy-related complications 
-			final String paramBetaNEU = OtherParamDescriptions.RELATIVE_RISK.addUsedParameter(model, neu, 
+			StandardParameter.RELATIVE_RISK.addToModel(model, neu, 
 					"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", BETA_NEU);
 			
 			// Add transition probabilities for neuropathy-related complications
 			final double[] paramsDNC_NEU = Statistics.betaParametersFromNormal(P_DNC_NEU, Statistics.sdFrom95CI(CI_DNC_NEU));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, neu, 
+			StandardParameter.PROBABILITY.addToModel(model, neu, 
 					"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
 					P_DNC_NEU, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_NEU[0], paramsDNC_NEU[1]));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, lea,
+			StandardParameter.PROBABILITY.addToModel(model, lea,
 					"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
 					P_DNC_LEA, RandomVariateFactory.getInstance("UniformVariate", LIMITS_DNC_LEA[0], LIMITS_DNC_LEA[1]));
 			final double[] paramsNEU_LEA = Statistics.betaParametersFromNormal(P_NEU_LEA, Statistics.sdFrom95CI(CI_NEU_LEA));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, neu, lea, "Klein et al. 2004 (also Sheffield)", 
+			addTransitionProbability(neu, lea, "Klein et al. 2004 (also Sheffield)", 
 					P_NEU_LEA, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_LEA[0], paramsNEU_LEA[1]));
-
-			registerSheffieldTimeToEventParameter(model, neu, paramBetaNEU);
-			registerStandardTimeToEventParameter(model, lea);
-			registerStandardTimeToEventParameter(model, neu, lea);
 			
 			if (!DISABLE_NPH) {
 				final double[] paramsNEU_ALB1 = Statistics.betaParametersFromNormal(P_NEU_ALB1, Statistics.sdFrom95CI(CI_NEU_ALB1));
-				RiskParamDescriptions.PROBABILITY.addUsedParameter(model, neu, alb1, "", 
+				addTransitionProbability(neu, alb1, "", 
 						P_NEU_ALB1, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_ALB1[0], paramsNEU_ALB1[1]));				
-				registerStandardTimeToEventParameter(model, neu, alb1);
-				// Manually adds a second extra risk from LEA, which uses the same probability as the other progression
-				RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(lea, alb1), alb1, 
-						RiskParamDescriptions.PROBABILITY.getParameterName(neu, alb1)));
 			}
 		}
 	}
@@ -423,42 +419,24 @@ public class T1DMDisease extends Disease {
 	private void registerRETParameters(HTAModel model) {
 		if (!DISABLE_RET) {
 			// Adds parameters to compute HbA1c-dependent progressions for retinopathy-related complications 
-			final String paramBetaBGRET = OtherParamDescriptions.RELATIVE_RISK.addUsedParameter(model, bgret,	"WESDR XXII, as adapted by Sheffield", BETA_BGRET);
-			final String paramBetaPRET = OtherParamDescriptions.RELATIVE_RISK.addUsedParameter(model, pret,	"WESDR XXII, as adapted by Sheffield", BETA_PRET);
-			final String paramBetaME = OtherParamDescriptions.RELATIVE_RISK.addUsedParameter(model, me,	"WESDR XXII, as adapted by Sheffield", BETA_ME);
+			StandardParameter.RELATIVE_RISK.addToModel(model, bgret,	"WESDR XXII, as adapted by Sheffield", BETA_BGRET);
+			StandardParameter.RELATIVE_RISK.addToModel(model, pret,	"WESDR XXII, as adapted by Sheffield", BETA_PRET);
+			StandardParameter.RELATIVE_RISK.addToModel(model, me,	"WESDR XXII, as adapted by Sheffield", BETA_ME);
 
 			// Add transition probabilities for retinopathy-related complications
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, bgret,
+			StandardParameter.PROBABILITY.addToModel(model, bgret,
 					"Sheffield (WESDR XXII)", P_DNC_BGRET, StandardParameter.getRandomVariateForProbability(P_DNC_BGRET));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, pret, 
+			StandardParameter.PROBABILITY.addToModel(model, pret, 
 					"Sheffield (WESDR XXII)", P_DNC_PRET, StandardParameter.getRandomVariateForProbability(P_DNC_PRET));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, me, 
+			StandardParameter.PROBABILITY.addToModel(model, me, 
 					"Sheffield (WESDR XXII)", P_DNC_ME, StandardParameter.getRandomVariateForProbability(P_DNC_ME));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, bgret, pret, 
-					"Sheffield (WESDR XXII)", P_BGRET_PRET, StandardParameter.getRandomVariateForProbability(P_BGRET_PRET));			
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, bgret, me,
-					"Sheffield (WESDR XXII)", P_BGRET_ME, StandardParameter.getRandomVariateForProbability(P_BGRET_ME));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, bgret, bli,  
-					"Sheffield (WESDR XXII)", P_BGRET_BLI, StandardParameter.getRandomVariateForProbability(P_BGRET_BLI));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, pret, bli, 
-					"Sheffield (WESDR XXII)", P_PRET_BLI, StandardParameter.getRandomVariateForProbability(P_PRET_BLI));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, me, bli,  
-					"Sheffield (WESDR XXII)", P_ME_BLI, StandardParameter.getRandomVariateForProbability(P_ME_BLI));			
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, bli, 
+			addTransitionProbability(bgret, pret, "Sheffield (WESDR XXII)", P_BGRET_PRET, StandardParameter.getRandomVariateForProbability(P_BGRET_PRET));			
+			addTransitionProbability(bgret, me, "Sheffield (WESDR XXII)", P_BGRET_ME, StandardParameter.getRandomVariateForProbability(P_BGRET_ME));
+			addTransitionProbability(bgret, bli, "Sheffield (WESDR XXII)", P_BGRET_BLI, StandardParameter.getRandomVariateForProbability(P_BGRET_BLI));
+			addTransitionProbability(pret, bli, "Sheffield (WESDR XXII)", P_PRET_BLI, StandardParameter.getRandomVariateForProbability(P_PRET_BLI));
+			addTransitionProbability(me, bli, "Sheffield (WESDR XXII)", P_ME_BLI, StandardParameter.getRandomVariateForProbability(P_ME_BLI));			
+			StandardParameter.PROBABILITY.addToModel(model, bli, 
 					"Sheffield (WESDR XXII)", P_DNC_BLI, StandardParameter.getRandomVariateForProbability(P_DNC_BLI));			
-
-			registerSheffieldTimeToEventParameter(model, bgret, paramBetaBGRET);
-			registerSheffieldTimeToEventParameter(model, pret, paramBetaPRET);
-			registerSheffieldTimeToEventParameter(model, bgret, pret, paramBetaPRET);
-			registerSheffieldTimeToEventParameter(model, me, paramBetaME);
-			final String rrParamName = registerSheffieldTimeToEventParameter(model, bgret, me, paramBetaME);
-			// The time to event to ME from PRET uses the same risk than BGRET, in case BGRET is ommited 
-			RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(pret, me), me, 
-					RiskParamDescriptions.PROBABILITY.getParameterName(bgret, me), rrParamName));
-			registerStandardTimeToEventParameter(model, bli);
-			registerStandardTimeToEventParameter(model, bgret, bli);
-			registerStandardTimeToEventParameter(model, pret, bli);
-			registerStandardTimeToEventParameter(model, me, bli);
 		}
 	}
 	
@@ -470,60 +448,34 @@ public class T1DMDisease extends Disease {
 			final double[] paramsRET_CHD = Statistics.betaParametersFromNormal(P_RET_CHD, Statistics.sdFrom95CI(CI_RET_CHD));		
 
 			// All these parameters are generic for any CHD-related manifestation
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, "CHD", "no complication to any CHD manifestation", "Hoerger (2004)", 
+			StandardParameter.PROBABILITY.addToModel(model, StandardParameter.PROBABILITY.createName("CHD"), "no complication to any CHD manifestation", "Hoerger (2004)", 
 					P_DNC_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_CHD[0], paramsDNC_CHD[1]));
 			
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, mi,  
+			StandardParameter.PROPORTION.addToModel(model, mi,  
 					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", P_CHD_MI, RandomVariateFactory.getInstance("GammaVariate", 1.0, P_CHD_MI));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, stroke, 
+			StandardParameter.PROPORTION.addToModel(model, stroke, 
 					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", P_CHD_STROKE, RandomVariateFactory.getInstance("GammaVariate", 1.0, P_CHD_STROKE));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, hf, 
+			StandardParameter.PROPORTION.addToModel(model, hf, 
 					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", P_CHD_HF, RandomVariateFactory.getInstance("GammaVariate", 1.0, P_CHD_HF));
-			RiskParamDescriptions.PROBABILITY.addUsedParameter(model, angina, 
+			StandardParameter.PROPORTION.addToModel(model, angina, 
 					"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", P_CHD_ANGINA, RandomVariateFactory.getInstance("GammaVariate", 1.0, P_CHD_ANGINA));
 			
-			OtherParamDescriptions.RELATIVE_RISK.addUsedParameter(model, "CHD",	"CHD-related complication, associated to a 1 PP increment of HbA1c",
+			StandardParameter.RELATIVE_RISK.addToModel(model, "RR_BASE_CHD",	"CHD-related complication, associated to a 1 PP increment of HbA1c",
 					"Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007", 
 					RR_CHD, RandomVariateFactory.getInstance("RRFromLnCIVariate", RR_CHD, CI_RR_CHD[0], CI_RR_CHD[1], 1));
 			
-			final Parameter rrCHD = new HbA1c1ppRRParameter(model);
-			RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(chd), chd, 
-					RiskParamDescriptions.PROBABILITY.getParameterName(chd), rrCHD.name()));
+			model.addParameter(new HbA1c1ppRRParameter(model));
 			if (!DISABLE_NEU) {
-				RiskParamDescriptions.PROBABILITY.addUsedParameter(model, neu, chd, "Klein (2004)",  
+				addTransitionProbability(neu, chd, "Klein (2004)",  
 						P_NEU_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_CHD[0], paramsNEU_CHD[1]));
-				RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(neu, chd), chd, 
-						RiskParamDescriptions.PROBABILITY.getParameterName(neu, chd), rrCHD.name()));
-				// Defines a different time to event parameter that uses the same probability
-				RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(lea, chd), chd, 
-						RiskParamDescriptions.PROBABILITY.getParameterName(neu, chd), rrCHD.name()));
 			}
 			if (!DISABLE_NPH) {
-				RiskParamDescriptions.PROBABILITY.addUsedParameter(model, alb1, chd, "Klein (2004)", 
+				addTransitionProbability(alb1, chd, "Klein (2004)", 
 						P_NPH_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNPH_CHD[0], paramsNPH_CHD[1]));
-				RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(alb1, chd), chd, 
-						RiskParamDescriptions.PROBABILITY.getParameterName(alb1, chd), rrCHD.name()));
-				// Defines a different time to event parameter that uses the same probability
-				RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(alb2, chd), chd, 
-						RiskParamDescriptions.PROBABILITY.getParameterName(alb1, chd), rrCHD.name()));
-				// Defines a different time to event parameter that uses the same probability
-				RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(esrd, chd), chd, 
-						RiskParamDescriptions.PROBABILITY.getParameterName(alb1, chd), rrCHD.name()));
 			}
 			if (!DISABLE_RET) {
-				RiskParamDescriptions.PROBABILITY.addUsedParameter(model, bgret, chd, "Klein (2004)", 
+				addTransitionProbability(bgret, chd, "Klein (2004)", 
 						P_RET_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsRET_CHD[0], paramsRET_CHD[1]));
-				RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(bgret, chd), chd, 
-						RiskParamDescriptions.PROBABILITY.getParameterName(bgret, chd), rrCHD.name()));
-				// Defines a different time to event parameter that uses the same probability
-				RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(pret, chd), chd, 
-						RiskParamDescriptions.PROBABILITY.getParameterName(bgret, chd), rrCHD.name()));
-				// Defines a different time to event parameter that uses the same probability
-				RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(me, chd), chd, 
-						RiskParamDescriptions.PROBABILITY.getParameterName(bgret, chd), rrCHD.name()));
-				// Defines a different time to event parameter that uses the same probability
-				RiskParamDescriptions.TIME_TO_EVENT.addUsedParameter(model, new AnnualRiskBasedTimeToEventParameter(model, RiskParamDescriptions.TIME_TO_EVENT.getParameterName(bli, chd), chd, 
-						RiskParamDescriptions.PROBABILITY.getParameterName(bgret, chd), rrCHD.name()));
 			}
 		}
 	}
@@ -547,7 +499,7 @@ public class T1DMDisease extends Disease {
 	public static class SheffieldRRParameter extends Parameter {
 		private final String betaParamName;
 		public SheffieldRRParameter(HTAModel model, String betaParamName) {
-			super(model, "SH_" + betaParamName, new ParameterDescription("Sheffield-based method to compute RR from a beta and HbA1c level", "Sheffield report"));
+			super(model, "SH_" + betaParamName, "Sheffield-based method to compute RR from a beta and HbA1c level", "Sheffield report", Parameter.ParameterType.RISK);
 			this.betaParamName = betaParamName;
 		}
 		@Override
@@ -572,18 +524,19 @@ public class T1DMDisease extends Disease {
 	public static class HbA1c1ppRRParameter extends Parameter {
 		/** The reference HbA1c from which the relative risk is applied */
 		private static final double REF_HBA1C = 9.1; 
+		public static final String PARAM_NAME = "RR_CHD";
 
 		/**
 		 * Creates a relative risk associated  to a 1 percentage point increment of HbA1c
 		 */
 		public HbA1c1ppRRParameter(HTAModel model) {
-			super(model, "RR_CHD", "Relative risk associated to a 1 percentage point increment of HbA1c", "Selvin et al 2004", Parameter.ParameterType.RISK);
+			super(model, PARAM_NAME, "Relative risk associated to a 1 percentage point increment of HbA1c", "Selvin et al 2004", Parameter.ParameterType.RISK);
 		}
 
 		@Override
 		public double getValue(Patient pat) {
 			// Gets The relative risk of the complication, associated to a 1 PP increment of HbA1c
-			final double referenceRR = OtherParamDescriptions.RELATIVE_RISK.getValue(getModel(), "CHD", pat);
+			final double referenceRR = getModel().getParameterValue("RR_BASE_CHD", pat);
 			final double diff = pat.getAttributeValue(T1DMModel.STR_HBA1C).doubleValue() - REF_HBA1C;
 			return Math.pow(referenceRR, diff);
 		}

@@ -248,12 +248,12 @@ public interface DiseaseProgressionBuilder {
 				}				
 			}
 			if (utilityParams.size() == 0) {
-				UtilityParamDescriptions.DISUTILITY.addParameter(secParams, this, "Not defined. Assumption", 0.0);
+				UtilityParamDescriptions.DISUTILITY.addToModel(secParams, this, "Not defined. Assumption", 0.0);
 			}
 			else {
 				for (UtilityParamDescriptions desc : utilityParams.keySet()) {
 					final UtilityParameterWrapper utilityParam = utilityParams.get(desc);					
-					desc.addParameter(secParams, this, utilityParam.getSource(), utilityParam.getDeterministicValue(), utilityParam.getProbabilisticValue());
+					desc.addToModel(secParams, this, utilityParam.getSource(), utilityParam.getDeterministicValue(), utilityParam.getProbabilisticValue());
 				}
 			}
 		}

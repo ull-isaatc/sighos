@@ -55,7 +55,7 @@ public class PBDPopulation extends StdPopulation {
 	public void createParameters() {
 		addUsedParameter(StandardParameter.POPULATION_BASE_UTILITY, "", "Utility for Spanish general population", 0.8861);
 		if (!allAffected)
-			StandardParameter.BIRTH_PREVALENCE.addParameter(model, disease, "", 2013, BIRTH_PREVALENCE, 
+			StandardParameter.BIRTH_PREVALENCE.addToModel(model, disease, "", 2013, BIRTH_PREVALENCE, 
 				RandomVariateFactory.getInstance("BetaVariate", 8, 540955));
 	}
 

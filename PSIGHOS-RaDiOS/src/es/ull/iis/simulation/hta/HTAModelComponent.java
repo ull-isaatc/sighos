@@ -93,7 +93,7 @@ public abstract class HTAModelComponent implements NamedAndDescribed, DefinesPar
      */
     public boolean addUsedParameter(ParameterTemplate template, String description, String source, int year, double detValue) {
         if (usedParameterNames.containsKey(template))
-            return template.addParameter(model, getUsedParameterName(template), description, source, year, detValue);
+            return template.addToModel(model, getUsedParameterName(template), description, source, year, detValue);
         return false;
     }
 
@@ -109,7 +109,7 @@ public abstract class HTAModelComponent implements NamedAndDescribed, DefinesPar
      */
     public boolean addUsedParameter(ParameterTemplate template, String description, String source, int year, double detValue, RandomVariate rnd) {
         if (usedParameterNames.containsKey(template))
-            return template.addParameter(model, getUsedParameterName(template), description, source, year, detValue, rnd);
+            return template.addToModel(model, getUsedParameterName(template), description, source, year, detValue, rnd);
         return false;
     }
 
@@ -124,7 +124,7 @@ public abstract class HTAModelComponent implements NamedAndDescribed, DefinesPar
      */
     public boolean addUsedParameter(ParameterTemplate template, String description, String source, int year, RandomVariate rnd) {
         if (usedParameterNames.containsKey(template))
-            return template.addParameter(model, getUsedParameterName(template), description, source, year, rnd);
+            return template.addToModel(model, getUsedParameterName(template), description, source, year, rnd);
         return false;
     }
 
@@ -138,7 +138,7 @@ public abstract class HTAModelComponent implements NamedAndDescribed, DefinesPar
      */
     public boolean addUsedParameter(ParameterTemplate template, String description, String source, double detValue) {
         if (usedParameterNames.containsKey(template))
-            return template.addParameter(model, getUsedParameterName(template), description, source, detValue);
+            return template.addToModel(model, getUsedParameterName(template), description, source, detValue);
         return false;
     }
 
@@ -153,7 +153,7 @@ public abstract class HTAModelComponent implements NamedAndDescribed, DefinesPar
      */
     public boolean addUsedParameter(ParameterTemplate template, String description, String source, double detValue, RandomVariate rnd) {
         if (usedParameterNames.containsKey(template))
-            return template.addParameter(model, getUsedParameterName(template), description, source, detValue, rnd);
+            return template.addToModel(model, getUsedParameterName(template), description, source, detValue, rnd);
         return false;
     }
 
@@ -167,7 +167,7 @@ public abstract class HTAModelComponent implements NamedAndDescribed, DefinesPar
      */
     public boolean addUsedParameter(ParameterTemplate template, String description, String source, RandomVariate rnd) {
         if (usedParameterNames.containsKey(template))
-            return template.addParameter(model, getUsedParameterName(template), description, source, rnd);
+            return template.addToModel(model, getUsedParameterName(template), description, source, rnd);
         return false;
     }
 
@@ -179,7 +179,7 @@ public abstract class HTAModelComponent implements NamedAndDescribed, DefinesPar
      */
     public boolean addUsedParameter(ParameterTemplate template, Parameter param) {
         setUsedParameterName(template, param.name());
-        return template.addParameter(model, param);
+        return template.addToModel(model, param);
     }
 
 }

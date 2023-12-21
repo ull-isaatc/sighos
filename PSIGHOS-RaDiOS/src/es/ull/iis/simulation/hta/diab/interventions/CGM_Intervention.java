@@ -28,11 +28,11 @@ public class CGM_Intervention extends Intervention {
 	private static final double C_SENSOR_G5 = 50;
 	/** Daily use of sensor: sensors are changed after 7 days */
 	private static final double USE_SENSOR_G5 = 1.0/7.0;
-	private static final String STR_USE_SENSOR_G5 = "DAILY_SENSOR";
+	private static final String STR_USE_SENSOR_G5 = StandardParameter.RESOURCE_USAGE.createName("DAILY_SENSOR");
 	private static final double []USE_STRIPS = {3.6, 1.6};
 	private static final double []MIN_MAX_USE_STRIPS = {1.0, 8.0};
-	private static final String STR_USE_STRIPS = "DAILY_STRIPS_" + NAME;
-	private static final String STR_C_STRIPS = "STRIPS_" + NAME;
+	private static final String STR_USE_STRIPS = StandardParameter.RESOURCE_USAGE.createName("DAILY_STRIPS_" + NAME);
+	private static final String STR_C_STRIPS = StandardParameter.ANNUAL_COST.createName("STRIPS_" + NAME);
 	private static final int YEAR_C_STRIPS = 2019;
 	private static final double []C_STRIPS = {0.281378955, 0.098554232};
 	private static final double []MIN_MAX_C_STRIPS = {0.1, 0.5};
@@ -51,17 +51,17 @@ public class CGM_Intervention extends Intervention {
 		double mode = Statistics.betaModeFromMeanSD(USE_STRIPS[0], USE_STRIPS[1]);
 		double[] betaParams = Statistics.betaParametersFromEmpiricData(USE_STRIPS[0], mode, MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[1]);
 		RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);
-		StandardParameter.RESOURCE_USAGE.addParameter(model, STR_USE_STRIPS, "strips in " + getDescription(), "DIAMOND 10.1001/jama.2016.19975", USE_STRIPS[0], 
+		StandardParameter.RESOURCE_USAGE.addToModel(model, STR_USE_STRIPS, "strips in " + getDescription(), "DIAMOND 10.1001/jama.2016.19975", USE_STRIPS[0], 
 				RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_USE_STRIPS[1] - MIN_MAX_USE_STRIPS[0], MIN_MAX_USE_STRIPS[0]));
 		
 		mode = Statistics.betaModeFromMeanSD(C_STRIPS[0], C_STRIPS[1]);
 		betaParams = Statistics.betaParametersFromEmpiricData(C_STRIPS[0], mode, MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[1]);
 		rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]);
-		StandardParameter.ANNUAL_COST.addParameter(model, STR_C_STRIPS, "strips", "Average from Spanish regions", 
+		StandardParameter.ANNUAL_COST.addToModel(model, STR_C_STRIPS, "strips", "Average from Spanish regions", 
 				YEAR_C_STRIPS, C_STRIPS[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_C_STRIPS[1] - MIN_MAX_C_STRIPS[0], MIN_MAX_C_STRIPS[0]));
 
 		// I assume a daily use with +-25% uncertainty
-		StandardParameter.RESOURCE_USAGE.addParameter(model, STR_USE_SENSOR_G5, "sensor", "Technical data sheets", 
+		StandardParameter.RESOURCE_USAGE.addToModel(model, STR_USE_SENSOR_G5, "sensor", "Technical data sheets", 
 				USE_SENSOR_G5, RandomVariateFactory.getInstance("UniformVariate", 0.75 * USE_SENSOR_G5, 1.25 * USE_SENSOR_G5));
 		
 		final double sd = Statistics.sdFrom95CI(HBA1C_REDUCTION_IC95);
@@ -76,9 +76,9 @@ public class CGM_Intervention extends Intervention {
 	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
 		final HTAModel model = getModel();
 		return discountRate.applyDiscount(365 *
-			(model.getParameterValue(StandardParameter.ANNUAL_COST.createName(STR_C_STRIPS), pat) *
-			model.getParameterValue(StandardParameter.RESOURCE_USAGE.createName(STR_USE_STRIPS), pat) +
-			C_SENSOR_G5 * model.getParameterValue(StandardParameter.RESOURCE_USAGE.createName(STR_USE_SENSOR_G5), pat)), 
+			(model.getParameterValue(STR_C_STRIPS, pat) *
+			model.getParameterValue(STR_USE_STRIPS, pat) +
+			C_SENSOR_G5 * model.getParameterValue(STR_USE_SENSOR_G5, pat)), 
 			initT, endT);
 	}
 
@@ -92,9 +92,9 @@ public class CGM_Intervention extends Intervention {
 		final HTAModel model = getModel();
 
 		return discountRate.applyAnnualDiscount(365 *
-			(model.getParameterValue(StandardParameter.ANNUAL_COST.createName(STR_C_STRIPS), pat) *
-			model.getParameterValue(StandardParameter.RESOURCE_USAGE.createName(STR_USE_STRIPS), pat) +
-			C_SENSOR_G5 * model.getParameterValue(StandardParameter.RESOURCE_USAGE.createName(STR_USE_SENSOR_G5), pat)), 
+			(model.getParameterValue(STR_C_STRIPS, pat) *
+			model.getParameterValue(STR_USE_STRIPS, pat) +
+			C_SENSOR_G5 * model.getParameterValue(STR_USE_SENSOR_G5, pat)), 
 			initT, endT);
 	}
 

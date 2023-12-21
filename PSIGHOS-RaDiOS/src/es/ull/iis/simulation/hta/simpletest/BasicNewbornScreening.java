@@ -25,8 +25,8 @@ public class BasicNewbornScreening extends ScreeningIntervention {
 
 	@Override
 	public void createParameters() {
-		StandardParameter.SENSITIVITY.addParameter(model, this, "", 0.9);
-		StandardParameter.SPECIFICITY.addParameter(model, this, "", 0.9);
+		StandardParameter.SENSITIVITY.addToModel(model, this, "", 0.9);
+		StandardParameter.SPECIFICITY.addToModel(model, this, "", 0.9);
 	}
 
 	@Override

@@ -52,10 +52,10 @@ public class TestRareDisease4 extends TemplateTestRareDisease {
 
 	@Override
 	public void createParameters() {
-		StandardParameter.PROBABILITY.addParameter(model, acuteManif1, "Test", P_ACUTE_MANIF1, StandardParameter.getRandomVariateForProbability(P_ACUTE_MANIF1));
-		StandardParameter.PROBABILITY.addParameter(model, manif1, "Test", P_MANIF1, StandardParameter.getRandomVariateForProbability(P_MANIF1));
-		StandardParameter.PROBABILITY.addParameter(model, manif2, "Test", P_MANIF2, StandardParameter.getRandomVariateForProbability(P_MANIF2));
-		StandardParameter.PROBABILITY.addParameter(model, manif1.name() + "_" + manif2.name(), "Probability from manifestation 1 to manifestation 2",
+		StandardParameter.PROBABILITY.addToModel(model, acuteManif1, "Test", P_ACUTE_MANIF1, StandardParameter.getRandomVariateForProbability(P_ACUTE_MANIF1));
+		StandardParameter.PROBABILITY.addToModel(model, manif1, "Test", P_MANIF1, StandardParameter.getRandomVariateForProbability(P_MANIF1));
+		StandardParameter.PROBABILITY.addToModel(model, manif2, "Test", P_MANIF2, StandardParameter.getRandomVariateForProbability(P_MANIF2));
+		StandardParameter.PROBABILITY.addToModel(model, StandardParameter.PROBABILITY.createName(manif1.name() + "_" + manif2.name()), "Probability from manifestation 1 to manifestation 2",
 				"Test", P_MANIF1_MANIF2, StandardParameter.getRandomVariateForProbability(P_MANIF1_MANIF2));
 	}
 	

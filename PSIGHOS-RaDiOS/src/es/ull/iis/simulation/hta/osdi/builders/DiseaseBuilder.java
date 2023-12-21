@@ -129,7 +129,7 @@ public interface DiseaseBuilder {
 		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
 			if (utilityParam != null) {
 				final UtilityParamDescriptions utilityDesc = OSDiWrapper.UtilityType.DISUTILITY.equals(utilityParam.getType()) ? UtilityParamDescriptions.DISUTILITY : UtilityParamDescriptions.UTILITY;
-				utilityDesc.addParameter(secParams, this, utilityParam.getSource(), utilityParam.getDeterministicValue(), utilityParam.getProbabilisticValue());
+				utilityDesc.addToModel(secParams, this, utilityParam.getSource(), utilityParam.getDeterministicValue(), utilityParam.getProbabilisticValue());
 			}
 			for (CostParamDescriptions desc : costParams.keySet()) {
 				final CostParameterWrapper costParam = costParams.get(desc);					

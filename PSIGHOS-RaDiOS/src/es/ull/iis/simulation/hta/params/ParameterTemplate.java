@@ -59,7 +59,7 @@ public interface ParameterTemplate {
      * @param detValue The deterministic value of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, String name, String description, String source, int year, double detValue) {
+    public default boolean addToModel(HTAModel model, String name, String description, String source, int year, double detValue) {
         return model.addParameter(new ConstantNatureParameter(model, name, description, source, year, getType(), detValue));
     }
 
@@ -74,7 +74,7 @@ public interface ParameterTemplate {
      * @param rnd The (second-order) random variate of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
+    public default boolean addToModel(HTAModel model, String name, String description, String source, int year, double detValue, RandomVariate rnd) {
         return model.addParameter(new SecondOrderNatureParameter(model, name, description, source, year, getType(), detValue, rnd));
     }
 
@@ -88,7 +88,7 @@ public interface ParameterTemplate {
      * @param rnd The (first-order) random variate of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, String name, String description, String source, int year, RandomVariate rnd) {
+    public default boolean addToModel(HTAModel model, String name, String description, String source, int year, RandomVariate rnd) {
         return model.addParameter(new FirstOrderNatureParameter(model, name, description, source, year, getType(), rnd));
     }
 
@@ -101,7 +101,7 @@ public interface ParameterTemplate {
      * @param detValue The deterministic value of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, String name, String description, String source, double detValue) {
+    public default boolean addToModel(HTAModel model, String name, String description, String source, double detValue) {
         return model.addParameter(new ConstantNatureParameter(model, name, description, source, getType(), detValue));
     }
 
@@ -115,7 +115,7 @@ public interface ParameterTemplate {
      * @param rnd The (second-order) random variate of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, String name, String description, String source, double detValue, RandomVariate rnd) {
+    public default boolean addToModel(HTAModel model, String name, String description, String source, double detValue, RandomVariate rnd) {
         return model.addParameter(new SecondOrderNatureParameter(model, name, description, source, HTAModel.getStudyYear(), getType(), detValue, rnd));
     }
 
@@ -128,7 +128,7 @@ public interface ParameterTemplate {
      * @param rnd The (first-order) random variate of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, String name, String description, String source, RandomVariate rnd) {
+    public default boolean addToModel(HTAModel model, String name, String description, String source, RandomVariate rnd) {
         return model.addParameter(new FirstOrderNatureParameter(model, name, description, source, HTAModel.getStudyYear(), getType(), rnd));
     }
 
@@ -141,8 +141,8 @@ public interface ParameterTemplate {
      * @param detValue The deterministic value of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */    
-    public default boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, int year, double detValue) {
-        return this.addParameter(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, year, detValue);
+    public default boolean addToModel(HTAModel model, NamedAndDescribed instance, String source, int year, double detValue) {
+        return this.addToModel(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, year, detValue);
     }
 
     /**
@@ -155,8 +155,8 @@ public interface ParameterTemplate {
      * @param rnd The (second-order) random variate of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, int year, double detValue, RandomVariate rnd) {
-        return this.addParameter(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, year, detValue, rnd);
+    public default boolean addToModel(HTAModel model, NamedAndDescribed instance, String source, int year, double detValue, RandomVariate rnd) {
+        return this.addToModel(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, year, detValue, rnd);
     }
 
     /**
@@ -168,8 +168,8 @@ public interface ParameterTemplate {
      * @param rnd The (first-order) random variate of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, int year, RandomVariate rnd) {
-		return this.addParameter(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, year, rnd);
+    public default boolean addToModel(HTAModel model, NamedAndDescribed instance, String source, int year, RandomVariate rnd) {
+		return this.addToModel(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, year, rnd);
     }
 
     /**
@@ -180,8 +180,8 @@ public interface ParameterTemplate {
      * @param detValue The deterministic value of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */    
-    public default boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, double detValue) {
-		return this.addParameter(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, detValue);
+    public default boolean addToModel(HTAModel model, NamedAndDescribed instance, String source, double detValue) {
+		return this.addToModel(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, detValue);
     }
 
     /**
@@ -193,8 +193,8 @@ public interface ParameterTemplate {
      * @param rnd The (second-order) random variate of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
-		return this.addParameter(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, detValue, rnd);
+    public default boolean addToModel(HTAModel model, NamedAndDescribed instance, String source, double detValue, RandomVariate rnd) {
+		return this.addToModel(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, detValue, rnd);
     }
 
     /**
@@ -205,8 +205,8 @@ public interface ParameterTemplate {
      * @param rnd The (first-order) random variate of the parameter to be added
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, NamedAndDescribed instance, String source, RandomVariate rnd) {
-		return this.addParameter(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, rnd);
+    public default boolean addToModel(HTAModel model, NamedAndDescribed instance, String source, RandomVariate rnd) {
+		return this.addToModel(model, createName(instance), getDefaultDescription() + " " + instance.getDescription(), source, rnd);
     }
 
     /**
@@ -215,7 +215,7 @@ public interface ParameterTemplate {
      * @param param A parameter
      * @return <code>true</code> if the parameter was added, <code>false</code> otherwise
      */
-    public default boolean addParameter(HTAModel model, Parameter param) {
+    public default boolean addToModel(HTAModel model, Parameter param) {
         if (param.getType() != getType())
             return false;
         if (!param.name().startsWith(getPrefix()))

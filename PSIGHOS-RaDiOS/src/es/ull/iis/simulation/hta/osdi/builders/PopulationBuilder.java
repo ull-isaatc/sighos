@@ -146,7 +146,7 @@ public interface PopulationBuilder {
 				RiskParamDescriptions.BIRTH_PREVALENCE.addUsedParameter(secParams, this, birthPrevalenceParam.getSource(), birthPrevalenceParam.getDeterministicValue(), birthPrevalenceParam.getProbabilisticValue());
 
 			if (utilityParam != null)
-				UtilityParamDescriptions.BASE_UTILITY.addParameter(secParams, name(), utilityParam.getDescription(), utilityParam.getSource(), 
+				UtilityParamDescriptions.BASE_UTILITY.addToModel(secParams, name(), utilityParam.getDescription(), utilityParam.getSource(), 
 						utilityParam.getDeterministicValue(), utilityParam.getProbabilisticValue()); 
 		}
 		
