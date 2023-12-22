@@ -11,7 +11,6 @@ import es.ull.iis.simulation.hta.osdi.wrappers.ValuableWrapper;
 import es.ull.iis.simulation.hta.params.ConstantNatureParameter;
 import es.ull.iis.simulation.hta.params.FirstOrderNatureParameter;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.ParameterDescription;
 import es.ull.iis.simulation.hta.params.SecondOrderNatureParameter;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariate;

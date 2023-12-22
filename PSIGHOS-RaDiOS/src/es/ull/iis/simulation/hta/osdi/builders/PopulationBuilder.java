@@ -15,10 +15,7 @@ import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.FirstOrderNatureParameter;
-import es.ull.iis.simulation.hta.params.ParameterDescription;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -37,14 +34,14 @@ public interface PopulationBuilder {
 	/**
 	 * Returns a population according to the description in the ontology. 
 	 * TODO: Currently, it only uses the deterministic values for the population parameters. It is remaining to create second order parameters to represent the uncertainty on age, sex...
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 * @param populationName
 	 * @return
 	 */
-	public static StdPopulation getPopulationInstance(OSDiGenericModel secParams, String populationName, Disease disease) throws MalformedSimulationModelException {
+	public static StdPopulation getPopulationInstance(OSDiGenericModel model, String populationName, Disease disease) throws MalformedSimulationModelException {
 		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(populationName, "");
-		return new OSDiPopulation(secParams, populationName, description, disease);		
+		return new OSDiPopulation(model, populationName, description, disease);		
 	}
 	
 	static class OSDiPopulation extends StdPopulation {
@@ -58,9 +55,9 @@ public interface PopulationBuilder {
 		private final ArrayList<AttributeValueWrapper> attributeValues;
 		private final OSDiWrapper wrap;
 		
-		public OSDiPopulation(OSDiGenericModel secParams, String populationName, String populationDescription, Disease disease) throws MalformedSimulationModelException {
-			super(secParams, populationName, populationDescription, disease);
-			wrap = secParams.getOwlWrapper();
+		public OSDiPopulation(OSDiGenericModel model, String populationName, String populationDescription, Disease disease) throws MalformedSimulationModelException {
+			super(model, populationName, populationDescription, disease);
+			wrap = model.getOwlWrapper();
 			final String strMinAge = OSDiWrapper.DataProperty.HAS_MIN_AGE.getValue(populationName, "" + super.getMinAge());
 			try {
 				minAge = Integer.parseInt(strMinAge);
@@ -133,20 +130,20 @@ public interface PopulationBuilder {
 		}
 		
 		@Override
-		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+		public void createParameters() {
 			for (AttributeValueWrapper attrWrapper : attributeValues) {
 				final String attributeName = OSDiWrapper.DataProperty.HAS_NAME.getValue(attrWrapper.getAttributeId(), attrWrapper.getAttributeId());
 				final String attributeDescription = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(attrWrapper.getAttributeId(), attrWrapper.getAttributeId());
-				secParams.addUsedParameter(new FirstOrderNatureParameter(getRepository(), attributeName, 
+				model.addUsedParameter(new FirstOrderNatureParameter(getRepository(), attributeName, 
 						new ParameterDescription(attributeDescription, attrWrapper.getSource()), attrWrapper.getProbabilisticValue()), ParameterType.ATTRIBUTE);
 			}
 			if (prevalenceParam != null)
-				RiskParamDescriptions.PREVALENCE.addUsedParameter(secParams, this, prevalenceParam.getSource(), prevalenceParam.getDeterministicValue(), prevalenceParam.getProbabilisticValue());
+				StandardParameter.PREVALENCE.addToModel(model, this, prevalenceParam.getSource(), prevalenceParam.getDeterministicValue(), prevalenceParam.getProbabilisticValue());
 			else if (birthPrevalenceParam != null)
-				RiskParamDescriptions.BIRTH_PREVALENCE.addUsedParameter(secParams, this, birthPrevalenceParam.getSource(), birthPrevalenceParam.getDeterministicValue(), birthPrevalenceParam.getProbabilisticValue());
+				StandardParameter.BIRTH_PREVALENCE.addToModel(model, this, birthPrevalenceParam.getSource(), birthPrevalenceParam.getDeterministicValue(), birthPrevalenceParam.getProbabilisticValue());
 
 			if (utilityParam != null)
-				UtilityParamDescriptions.BASE_UTILITY.addToModel(secParams, name(), utilityParam.getDescription(), utilityParam.getSource(), 
+				addUsedParameter(StandardParameter.POPULATION_BASE_UTILITY, utilityParam.getDescription(), utilityParam.getSource(), utilityParam.getYear(),
 						utilityParam.getDeterministicValue(), utilityParam.getProbabilisticValue()); 
 		}
 		
@@ -192,9 +189,9 @@ public interface PopulationBuilder {
 		@Override
 		protected DiscreteRandomVariate getDiseaseVariate(Patient pat) {
 			if (birthPrevalenceParam != null)
-				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), RiskParamDescriptions.BIRTH_PREVALENCE.getValue(getRepository(), name(), pat));
+				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), StandardParameter.BIRTH_PREVALENCE.getValue(getModel(), name(), pat));
 			else if (prevalenceParam != null)
-				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), RiskParamDescriptions.PREVALENCE.getValue(getRepository(), name(), pat));
+				return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), StandardParameter.PREVALENCE.getValue(getModel(), name(), pat));
 			return RandomVariateFactory.getDiscreteRandomVariateInstance("BernoulliVariate", getCommonRandomNumber(), 1.0);
 		}
 		
@@ -222,7 +219,7 @@ public interface PopulationBuilder {
 		@Override
 		public DiseaseProgression getDeathCharacterization() {
 			// TODO: Death submodel should be context specific, depending on the population
-			return new EmpiricalSpainDeathSubmodel(getRepository(), disease);
+			return new EmpiricalSpainDeathSubmodel(getModel(), disease);
 		}
 
 	}

@@ -5,13 +5,12 @@ package es.ull.iis.simulation.hta.osdi.wrappers;
 
 import java.util.Set;
 
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.ParameterDescription;
 import es.ull.iis.simulation.hta.params.SecondOrderNatureParameter;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.ParameterType;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.params.modifiers.DiffParameterModifier;
 import es.ull.iis.simulation.hta.params.modifiers.FactorParameterModifier;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
@@ -48,10 +47,10 @@ public class ParameterModifierWrapper extends ParameterWrapper {
 		this.intervention = intervention;		
 	}
 
-	public void registerParameter(SecondOrderParamsRepository secParams) {
+	public void registerParameter(HTAModel model) {
 		// TODO: Create the parameter according to its definition
-		final Parameter param = new SecondOrderNatureParameter(secParams, getOriginalIndividualIRI(), new ParameterDescription(getDescription(), getSource()), getDeterministicValue(), getProbabilisticValue());
-		secParams.addUsedParameter(param, ParameterType.OTHER);
+		final Parameter param = new SecondOrderNatureParameter(model, getOriginalIndividualIRI(), getDescription(), getSource(), getYear(), ParameterType.OTHER, getDeterministicValue(), getProbabilisticValue());
+		model.addParameter(param);
 		ParameterModifier mod = null;
 		switch(type) {
 		case DIFF:
@@ -68,7 +67,7 @@ public class ParameterModifierWrapper extends ParameterWrapper {
 			break;		
 		}
 		for (String modifiedParam : modifiedItems) {
-			secParams.addParameterModifier(modifiedParam, intervention, mod);
+			model.addParameterModifier(modifiedParam, intervention, mod);
 		}
 	}
 }

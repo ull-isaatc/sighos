@@ -14,6 +14,7 @@ import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterModifierWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.Discount;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 
 /**
  * @author Iván Castilla
@@ -140,16 +141,16 @@ public interface InterventionBuilder {
 		}
 
 		@Override
-		public void registerSecondOrderParameters(SecondOrderParamsRepository model) {
+		public void createParameters() {
 			if (sensitivityWrapper == null)
-				RiskParamDescriptions.SENSITIVITY.addUsedParameter(model, this, "Assumed sensitivity", 1.0);
+				addUsedParameter(StandardParameter.SENSITIVITY, "Assumed sensitivity", "Assumption", 1.0);
 			else
-				RiskParamDescriptions.SENSITIVITY.addUsedParameter(model, this, sensitivityWrapper.getDescription(),  
+				addUsedParameter(StandardParameter.SENSITIVITY, sensitivityWrapper.getDescription(), sensitivityWrapper.getSource(), 
 						sensitivityWrapper.getDeterministicValue(), sensitivityWrapper.getProbabilisticValue());
 			if (specificityWrapper == null)
-				RiskParamDescriptions.SPECIFICITY.addUsedParameter(model, this, "Assumed specificity", 1.0);
+				addUsedParameter(StandardParameter.SPECIFICITY, "Assumed sensitivity", "Assumption", 1.0);
 			else
-				RiskParamDescriptions.SPECIFICITY.addUsedParameter(model, this, specificityWrapper.getDescription(),  
+				addUsedParameter(StandardParameter.SPECIFICITY, specificityWrapper.getDescription(), specificityWrapper.getSource(),
 						specificityWrapper.getDeterministicValue(), specificityWrapper.getProbabilisticValue());
 			for (ParameterModifierWrapper mod : modifiers) {
 				mod.registerParameter(model);
