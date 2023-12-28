@@ -17,6 +17,7 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionEventPair;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionEvents;
+import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -383,10 +384,12 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	/**
 	 * Recomputes time to death in case the risk increases
 	 * @param progression Manifestation that (potentially) induces a change in the risk of death
-	 * FIXME: Currently it does not allow death to happen later 
+	 * FIXME: Currently it does allow death to happen later (is it correct?)
 	 */
 	private void readjustDeath(DiseaseProgression progression) {
-		final long newTimeToDeath = population.getDeathCharacterization().getTimeTo(this, deathEvent.getTs());
+		final TimeToEventCalculator deathCalculator = population.getDeathCharacterization();
+		final long newTimeToDeath = this.getTs() + simul.getTimeUnit().convert(deathCalculator.getTimeToEvent(this), deathCalculator.getTimeUnit());
+
 		if (newTimeToDeath < deathEvent.getTs()) {
 			deathEvent.cancel();
 			deathEvent = new DeathEvent(newTimeToDeath, progression);
@@ -425,7 +428,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		simul.notifyInfo(new PatientInfo(simul, this, PatientInfo.Type.START, getTs()));
 
 		// Assign death event
-		final long timeToDeath = population.getDeathCharacterization().getTimeTo(this, Long.MAX_VALUE);
+		final TimeToEventCalculator deathCalculator = population.getDeathCharacterization();
+		final long timeToDeath = this.getTs() + simul.getTimeUnit().convert(deathCalculator.getTimeToEvent(this), deathCalculator.getTimeUnit());
 		deathEvent = new DeathEvent(timeToDeath);
 		simul.addEvent(deathEvent);
 		

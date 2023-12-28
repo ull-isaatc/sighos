@@ -15,12 +15,14 @@ import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.FirstOrderNatureParameter;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
-import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.progression.calculator.EmpiricalSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
 import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -134,8 +136,8 @@ public interface PopulationBuilder {
 			for (AttributeValueWrapper attrWrapper : attributeValues) {
 				final String attributeName = OSDiWrapper.DataProperty.HAS_NAME.getValue(attrWrapper.getAttributeId(), attrWrapper.getAttributeId());
 				final String attributeDescription = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(attrWrapper.getAttributeId(), attrWrapper.getAttributeId());
-				model.addUsedParameter(new FirstOrderNatureParameter(getRepository(), attributeName, 
-						new ParameterDescription(attributeDescription, attrWrapper.getSource()), attrWrapper.getProbabilisticValue()), ParameterType.ATTRIBUTE);
+				model.addUsedParameter(new FirstOrderNatureParameter(getModel(), attributeName, 
+						attributeDescription, attrWrapper.getSource(), attrWrapper.getProbabilisticValue()), ParameterType.ATTRIBUTE);
 			}
 			if (prevalenceParam != null)
 				StandardParameter.PREVALENCE.addToModel(model, this, prevalenceParam.getSource(), prevalenceParam.getDeterministicValue(), prevalenceParam.getProbabilisticValue());
@@ -217,9 +219,9 @@ public interface PopulationBuilder {
 		}
 
 		@Override
-		public DiseaseProgression getDeathCharacterization() {
+		public TimeToEventCalculator getDeathCharacterization() {
 			// TODO: Death submodel should be context specific, depending on the population
-			return new EmpiricalSpainDeathSubmodel(getModel(), disease);
+			return new EmpiricalSpainDeathSubmodel(getModel());
 		}
 
 	}

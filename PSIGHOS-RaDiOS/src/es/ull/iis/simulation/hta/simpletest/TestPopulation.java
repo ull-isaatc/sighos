@@ -10,8 +10,8 @@ import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.DiseaseProgression;
-import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.progression.calculator.EmpiricalSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
 import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -60,7 +60,7 @@ public class TestPopulation extends StdPopulation {
 	}
 
 	@Override
-	public DiseaseProgression getDeathCharacterization() {
-		return new EmpiricalSpainDeathSubmodel(getModel(), disease);
+	public TimeToEventCalculator getDeathCharacterization() {
+		return new EmpiricalSpainDeathSubmodel(getModel());
 	}
 }

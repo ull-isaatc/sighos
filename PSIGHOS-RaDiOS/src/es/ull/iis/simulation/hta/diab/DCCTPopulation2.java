@@ -13,8 +13,8 @@ import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.DiseaseProgression;
-import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.progression.calculator.EmpiricalSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
 import es.ull.iis.util.Statistics;
 import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;
@@ -93,8 +93,8 @@ public class DCCTPopulation2 extends StdPopulation {
 	}
 
 	@Override
-	public DiseaseProgression getDeathCharacterization() {
-		return new EmpiricalSpainDeathSubmodel(getModel(), disease);
+	public TimeToEventCalculator getDeathCharacterization() {
+		return new EmpiricalSpainDeathSubmodel(getModel());
 	}
 
 }

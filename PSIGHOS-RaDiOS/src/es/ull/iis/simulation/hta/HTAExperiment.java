@@ -34,6 +34,7 @@ import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 
 /**
  * @author Iván Castilla
@@ -68,13 +69,17 @@ public abstract class HTAExperiment {
 	private final PrintWriter out;
 	private final PrintWriter outListeners;
 	private final PatientInfoView patientListener;
+	/** The list of listeners to be attached to the PSA experiments */
 	private final ArrayList<ExperimentListener> expListeners;
+	/** The list of listeners to be attached to the base case experiment */
 	private final ArrayList<ExperimentListener> baseCaseExpListeners;
 
 	public HTAExperiment(CommonArguments arguments, ByteArrayOutputStream simResult) throws MalformedSimulationModelException {
 		this.nRuns = arguments.nRuns;
 		this.nPatients = arguments.nPatients;
+		HTAModel.setStudyYear(arguments.year);
 		this.model = createModel(arguments);
+
 		final String validity = model.checkValidity();
 		if (validity != null) {
 			throw new MalformedSimulationModelException(validity);
@@ -125,6 +130,15 @@ public abstract class HTAExperiment {
 		}		
 
 		model.createParameters();
+	}
+
+	/**
+	 * Creates additional listeners to be attached to the simulation identified by id
+	 * @param id Simulation identifier
+	 * @return Additional listeners to be attached to the simulation identified by id
+	 */
+	public ArrayList<InfoReceiver> createAdditionalListeners(int id) {
+		return new ArrayList<>();
 	}
 
 	/**
@@ -361,6 +375,9 @@ public abstract class HTAExperiment {
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
 		simul.addInfoReceiver(timeFreeListener);
+		for (InfoReceiver listener : createAdditionalListeners(id)) {
+			simul.addInfoReceiver(listener);
+		}
 		IndividualTime2ManifestationView indTimeToEventListener = null;
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 			indTimeToEventListener = new IndividualTime2ManifestationView(model);
@@ -387,6 +404,9 @@ public abstract class HTAExperiment {
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
 			simul.addInfoReceiver(timeFreeListener);
+			for (InfoReceiver listener : createAdditionalListeners(id)) {
+				simul.addInfoReceiver(listener);
+			}
 			if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 				simul.addInfoReceiver(indTimeToEventListener);
 			}

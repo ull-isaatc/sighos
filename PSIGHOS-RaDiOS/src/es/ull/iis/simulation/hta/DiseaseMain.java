@@ -107,7 +107,6 @@ public class DiseaseMain extends HTAExperiment {
 		}
 		else {
 			final int disease = ((Arguments)arguments).disease;
-			HTAModel.setStudyYear(arguments.year);
 			switch(disease) {
 			case TEST_SCD:
 				System.out.println("No programmatic test available for SCD\n\n");

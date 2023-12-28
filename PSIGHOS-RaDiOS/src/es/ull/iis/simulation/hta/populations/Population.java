@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
 import simkit.random.RandomNumber;
 
 /**
@@ -85,7 +85,7 @@ public abstract class Population extends HTAModelComponent {
 	 * Returns the characterization of the time to death for patients belonging to this population
 	 * @return the characterization of the time to death for patients belonging to this population
 	 */
-	public abstract DiseaseProgression getDeathCharacterization();
+	public abstract TimeToEventCalculator getDeathCharacterization();
 
 	/**
 	 * Returns the base utility for the specified patient 

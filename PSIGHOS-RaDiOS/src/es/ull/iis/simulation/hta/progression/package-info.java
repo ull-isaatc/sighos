@@ -16,3 +16,5 @@
  *
  */
 package es.ull.iis.simulation.hta.progression;
+
+import es.ull.iis.simulation.hta.progression.calculator.StandardSpainDeathSubmodel;
