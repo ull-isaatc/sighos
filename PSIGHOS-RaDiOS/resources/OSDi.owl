@@ -385,17 +385,6 @@
                          :TODO "Check if this is the best name for the property" .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasScreeningCost
-:hasScreeningCost rdf:type owl:ObjectProperty ;
-                  rdfs:subPropertyOf :hasCost ;
-                  rdfs:domain [ rdf:type owl:Class ;
-                                owl:unionOf ( :Development
-                                              :Disease
-                                            )
-                              ] ;
-                  rdfs:range :Cost .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasScreeningStrategy
 :hasScreeningStrategy rdf:type owl:ObjectProperty ;
                       rdfs:subPropertyOf :hasStrategy ;
@@ -1255,10 +1244,6 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                          [ rdf:type owl:Restriction ;
                            owl:onProperty :hasParameter ;
                            owl:someValuesFrom :Parameter
-                         ] ,
-                         [ rdf:type owl:Restriction ;
-                           owl:onProperty :hasScreeningCost ;
-                           owl:someValuesFrom :Cost
                          ] ,
                          [ rdf:type owl:Restriction ;
                            owl:onProperty :hasScreeningStrategy ;

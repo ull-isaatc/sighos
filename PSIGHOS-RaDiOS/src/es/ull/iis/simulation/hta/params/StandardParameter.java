@@ -10,6 +10,7 @@ import simkit.random.RandomVariateFactory;
 public enum StandardParameter implements ParameterTemplate {
 	ANNUAL_COST(0.0, "Annual cost of a model component", ParameterType.COST, "AC_"),
 	ANNUAL_DISUTILITY(0.0, "Annual disutility of a model component", ParameterType.DISUTILITY, "DU_"),
+	ANNUAL_UTILITY(1.0, "Annual utility of a model component", ParameterType.UTILITY, "U_"),
     BIRTH_PREVALENCE(0.0, "Birth prevalence of a disease", ParameterType.RISK, "BIRTH_PREV_"),
 	DISEASE_DIAGNOSIS_COST(0.0, "Diagnosis cost of a model component", ParameterType.COST, "C_DIAG_"),
 	DISEASE_PROGRESSION_END_AGE(0.0, "Age at which the disease progression ends", ParameterType.OTHER),
@@ -25,6 +26,7 @@ public enum StandardParameter implements ParameterTemplate {
 	ONE_TIME_COST(0.0, "One-time cost of a model component", ParameterType.COST, "OC_"),
 	ONSET_COST(0.0, "Cost applied to a model component when it appears", ParameterType.COST, "TC_"),
 	ONSET_DISUTILITY(0.0, "Disutility to be applied on onset of a model component", ParameterType.DISUTILITY, "TDU_"),
+	ONSET_UTILITY(1.0, "Utility to be applied on onset of a model component", ParameterType.DISUTILITY, "TU_"),
     POPULATION_BASE_UTILITY(1.0, "Base utility of a population", ParameterType.UTILITY, "U_"),
 	POPULATION_MAX_AGE(BasicConfigParams.DEF_MAX_AGE, "Maximum age of the population", ParameterType.OTHER),
 	POPULATION_MIN_AGE(BasicConfigParams.DEF_MIN_AGE, "Minimum age of the population", ParameterType.OTHER),

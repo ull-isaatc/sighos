@@ -16,6 +16,7 @@ import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.Discount;
+import es.ull.iis.simulation.hta.params.ParameterTemplate;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 
 /**
@@ -56,7 +57,7 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 		registerUsedParameter(StandardParameter.TREATMENT_COST);
 		registerUsedParameter(StandardParameter.FOLLOW_UP_COST);
 		registerUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
-		registerUsedParameter(StandardParameter.ONSET_DISUTILITY);
+		registerUsedParameter(StandardParameter.ANNUAL_UTILITY);
 	}
 	
 	/**
@@ -279,8 +280,7 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 	}
 
 	@Override
-	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear,
-			Discount discountRate) {
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
 		final double annualCost = getUsedParameterValue(StandardParameter.TREATMENT_COST, pat) + getUsedParameterValue(StandardParameter.FOLLOW_UP_COST, pat);
 		return discountRate.applyAnnualDiscount(annualCost, initYear, endYear);
 	}
@@ -292,7 +292,36 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 
 	@Override
 	public double getStartingDisutility(Patient pat) {
-		return getUsedParameterValue(StandardParameter.ONSET_DISUTILITY, pat);
+		return 0.0;
+	}
+	
+	@Override
+	public double getUsedParameterValue(ParameterTemplate param, Patient pat) {
+		if (StandardParameter.ANNUAL_DISUTILITY.equals(param)) {
+			double value = model.getParameterValue(getUsedParameterName(StandardParameter.ANNUAL_DISUTILITY), pat);
+			if (Double.isNaN(value)) {
+				value = model.getParameterValue(getUsedParameterName(StandardParameter.ANNUAL_UTILITY), pat);
+				if (Double.isNaN(value))
+					value = StandardParameter.ANNUAL_DISUTILITY.getDefaultValue();
+				else {
+					value = model.getPopulation().getBaseUtility(pat) - value;
+				}
+			}
+			return value;
+		}
+		else if (StandardParameter.ANNUAL_UTILITY.equals(param)) {
+			double value = model.getParameterValue(getUsedParameterName(StandardParameter.ANNUAL_UTILITY), pat);
+			if (Double.isNaN(value)) {
+				value = model.getParameterValue(getUsedParameterName(StandardParameter.ANNUAL_DISUTILITY), pat);
+				if (Double.isNaN(value))
+					value = StandardParameter.ANNUAL_UTILITY.getDefaultValue();
+				else {
+					value = model.getPopulation().getBaseUtility(pat) - value;
+				}
+			}
+			return value;
+		}
+		return super.getUsedParameterValue(param, pat);
 	}
 	
 	/** 

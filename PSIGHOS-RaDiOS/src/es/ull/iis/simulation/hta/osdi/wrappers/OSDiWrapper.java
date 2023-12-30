@@ -494,7 +494,6 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		HAS_PROBABILITY_OF_DIAGNOSIS("hasProbabilityOfDiagnosis"),
 		HAS_PROPORTION_WITHIN_GROUP("hasProportionWithinGroup"),
 		HAS_RISK_CHARACTERIZATION("hasRiskCharacterization"),
-		HAS_SCREENING_COST("hasScreeningCost"),
 		HAS_SCREENING_STRATEGY("hasScreeningStrategy"),
 		HAS_SENSITIVITY("hasSensitivity"),
 		HAS_SEX("hasSex"),

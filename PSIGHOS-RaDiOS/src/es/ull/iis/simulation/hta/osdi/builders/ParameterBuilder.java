@@ -25,16 +25,16 @@ public class ParameterBuilder {
      * {@link FirstOrderParameter}, and the potential expected value and further uncertainty characterization {@link OSDiWrapper.ObjectProperty.HAS_SECOND_ORDER_UNCERTAINTY} is ignored.
      * If the parameter defines a second order uncertainty characterization {@link OSDiWrapper.ObjectProperty.HAS_FIRST_ORDER_UNCERTAINTY} and an  expected value 
      * ({@link OSDiWrapper.ObjectProperty.HAS_EXPECTED_VALUE}), it is created a {@link SecondOrderParameter}.
-     * @param secParams The repository where the parameter is defined
+     * @param model The repository where the parameter is defined
      * @param paramIRI The IRI of the parameter
      */
-    public static Parameter getInstance(OSDiGenericModel secParams, String paramIRI, String defaultDescription) throws MalformedOSDiModelException {
+    public static Parameter getInstance(OSDiGenericModel model, String paramIRI, String defaultDescription) throws MalformedOSDiModelException {
 		// FIXME: Rethink. I should avoid the straightforward use of the parameters. Instead, I should use the name or extract the value
-        Parameter param = secParams.getParameter(paramIRI);
+        Parameter param = model.getParameter(paramIRI);
         if (param != null)
             return param;
 
-		final OSDiWrapper wrap = secParams.getOwlWrapper();
+		final OSDiWrapper wrap = model.getOwlWrapper();
         if (!wrap.containsIndividual(paramIRI))
             throw new MalformedOSDiModelException("The parameter " + paramIRI + " is not defined in the ontology");
 		ValuableWrapper paramWrap = new ValuableWrapper(wrap, paramIRI, defaultDescription);
@@ -46,7 +46,7 @@ public class ParameterBuilder {
 		if (firstOrderUncertaintyParams.size() > 0) {
 			wrap.printWarning(secondOrderUncertaintyParams.size() > 0, paramIRI, OSDiWrapper.ObjectProperty.HAS_SECOND_ORDER_UNCERTAINTY, "Using only first order uncertainty characterization: second order ignored");
 			wrap.printWarning(expression != null, paramIRI, OSDiWrapper.ObjectProperty.HAS_EXPRESSION, "Using only first order uncertainty characterization: expression ignored");
-			param = parseUncertaintyParameters(secParams, paramWrap, firstOrderUncertaintyParams, expression, true);
+			param = parseUncertaintyParameters(model, paramWrap, firstOrderUncertaintyParams, expression, true);
 		}
         // If the parameter defines an expression, further uncertainty characterization is ignored
 		else if (expression != null) {
@@ -55,10 +55,10 @@ public class ParameterBuilder {
 		else if (!Double.isNaN(paramWrap.getDeterministicValue())) {
 			// Just a constant parameter
 			if (secondOrderUncertaintyParams.size() == 0) {
-            	param = new ConstantNatureParameter(secParams, paramIRI, getParameterDescription(paramWrap), paramWrap.getDeterministicValue());
+            	param = new ConstantNatureParameter(model, paramIRI, getParameterDescription(paramWrap), paramWrap.getDeterministicValue());
 			}
 			else {
-				param = parseUncertaintyParameters(secParams, paramWrap, secondOrderUncertaintyParams, expression, false);
+				param = parseUncertaintyParameters(model, paramWrap, secondOrderUncertaintyParams, expression, false);
 			}
 		}
 		else if (secondOrderUncertaintyParams.size() > 0) {
@@ -70,36 +70,36 @@ public class ParameterBuilder {
         return param;
     }
 
-	private static Parameter parseUncertaintyParameters(OSDiGenericModel secParams, ValuableWrapper paramWrap,
+	private static Parameter parseUncertaintyParameters(OSDiGenericModel model, ValuableWrapper paramWrap,
 			final ArrayList<ExpressableWrapper> uncertaintyParams, final ExpressionWrapper expression, boolean firstOrder) throws MalformedOSDiModelException {
 		String paramIRI = paramWrap.getOriginalIndividualIRI();
 		// wrap.printWarning(detValue != null, paramIRI, OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE, "Using only first order uncertainty characterization: expected value ignored");
 		if (uncertaintyParams.size() == 1) {
 			final ExpressableWrapper uncertainParamWrap = uncertaintyParams.get(0);
 			if (uncertainParamWrap instanceof ValuableWrapper)
-				return parseUncertainParameter(secParams, paramWrap, (ValuableWrapper)uncertainParamWrap, firstOrder);
+				return parseUncertainParameter(model, paramWrap, (ValuableWrapper)uncertainParamWrap, firstOrder);
 			if (uncertainParamWrap instanceof ExpressionWrapper)
-				return parseUncertainParameter(secParams, paramWrap, (ExpressionWrapper)uncertainParamWrap, firstOrder);
+				return parseUncertainParameter(model, paramWrap, (ExpressionWrapper)uncertainParamWrap, firstOrder);
 		}
 		else if (uncertaintyParams.size() == 2) {
 			if (uncertaintyParams.get(0) instanceof ExpressionWrapper || uncertaintyParams.get(1) instanceof ExpressionWrapper)
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramIRI, OSDiWrapper.ObjectProperty.HAS_FIRST_ORDER_UNCERTAINTY, "Unsupported combination of valuables (" + uncertaintyParams.get(0).getOriginalIndividualIRI() + ", " + uncertaintyParams.get(1).getOriginalIndividualIRI() + ") to define the uncertainty");
-			return parseUncertainParameter(secParams, paramWrap, (ValuableWrapper)uncertaintyParams.get(0), (ValuableWrapper)uncertaintyParams.get(1), firstOrder);
+			return parseUncertainParameter(model, paramWrap, (ValuableWrapper)uncertaintyParams.get(0), (ValuableWrapper)uncertaintyParams.get(1), firstOrder);
 		}
 		throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, paramIRI, OSDiWrapper.ObjectProperty.HAS_FIRST_ORDER_UNCERTAINTY, "More than two uncertainty characterization for a parameter not supported. Currently " + uncertaintyParams.size());
 	}
 
-	private static Parameter parseUncertainParameter(OSDiGenericModel secParams, ValuableWrapper paramWrap, ExpressionWrapper uncertainExpWrap, boolean firstOrder) throws MalformedOSDiModelException{
+	private static Parameter parseUncertainParameter(OSDiGenericModel model, ValuableWrapper paramWrap, ExpressionWrapper uncertainExpWrap, boolean firstOrder) throws MalformedOSDiModelException{
 		final double detValue = paramWrap.getDeterministicValue();
 		if (uncertainExpWrap.getRnd() != null)
 			if (firstOrder) {
-				secParams.getOwlWrapper().printWarning(!Double.isNaN(detValue), paramWrap.getOriginalIndividualIRI(), OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE, "Using only first order uncertainty characterization: expected value ignored");
-				return new FirstOrderNatureParameter(secParams, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), uncertainExpWrap.getRnd());
+				model.getOwlWrapper().printWarning(!Double.isNaN(detValue), paramWrap.getOriginalIndividualIRI(), OSDiWrapper.DataProperty.HAS_EXPECTED_VALUE, "Using only first order uncertainty characterization: expected value ignored");
+				return new FirstOrderNatureParameter(model, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), uncertainExpWrap.getRnd());
 			}
 			else {
 				if (Double.isNaN(detValue))
 					throw new MalformedOSDiModelException("The parameter " + paramWrap.getOriginalIndividualIRI() + " defines a second order uncertainty, but it does not define an expected value");
-				return new SecondOrderNatureParameter(secParams, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), detValue, uncertainExpWrap.getRnd());
+				return new SecondOrderNatureParameter(model, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), detValue, uncertainExpWrap.getRnd());
 			}
 		else {
 			// TODO: Create parameter from ad-hoc expression
@@ -107,16 +107,16 @@ public class ParameterBuilder {
 		}
 	}
 
-	private static Parameter parseUncertainParameter(OSDiGenericModel secParams, ValuableWrapper paramWrap, ValuableWrapper uncertainParamWrap, boolean firstOrder) throws MalformedOSDiModelException{
+	private static Parameter parseUncertainParameter(OSDiGenericModel model, ValuableWrapper paramWrap, ValuableWrapper uncertainParamWrap, boolean firstOrder) throws MalformedOSDiModelException{
 		// If the uncertainty is characterized by a standard deviation, then we use a normal distribution
 		if (uncertainParamWrap.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_STANDARD_DEVIATION)) {
 			double detValue = paramWrap.getDeterministicValue();
 			if (Double.isNaN(detValue))
 				throw new MalformedOSDiModelException("The parameter " + paramWrap.getOriginalIndividualIRI() + " defines an uncertainty characterized by a standard deviation (" + uncertainParamWrap.getOriginalIndividualIRI() + "), but it does not define an expected value");
 			if (firstOrder)
-				return new FirstOrderNatureParameter(secParams, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), RandomVariateFactory.getInstance("NormalVariate", detValue, uncertainParamWrap.getDeterministicValue()));
+				return new FirstOrderNatureParameter(model, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), RandomVariateFactory.getInstance("NormalVariate", detValue, uncertainParamWrap.getDeterministicValue()));
 			else
-				return new SecondOrderNatureParameter(secParams, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), detValue, RandomVariateFactory.getInstance("NormalVariate", detValue, uncertainParamWrap.getDeterministicValue()));
+				return new SecondOrderNatureParameter(model, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), detValue, RandomVariateFactory.getInstance("NormalVariate", detValue, uncertainParamWrap.getDeterministicValue()));
 		}
 		else {
 			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.VALUABLE, uncertainParamWrap.getOriginalIndividualIRI(), OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item type not supported for characterizing uncertainty.");
@@ -124,7 +124,7 @@ public class ParameterBuilder {
 	
 	}
 
-	private static Parameter parseUncertainParameter(OSDiGenericModel secParams, ValuableWrapper paramWrap, ValuableWrapper uncertainParamWrap1, ValuableWrapper uncertainParamWrap2, boolean firstOrder) throws MalformedOSDiModelException { 
+	private static Parameter parseUncertainParameter(OSDiGenericModel model, ValuableWrapper paramWrap, ValuableWrapper uncertainParamWrap1, ValuableWrapper uncertainParamWrap2, boolean firstOrder) throws MalformedOSDiModelException { 
 		double detValue = paramWrap.getDeterministicValue();
 		final RandomVariate rnd;
 
@@ -141,9 +141,9 @@ public class ParameterBuilder {
 			firstOrder ? OSDiWrapper.ObjectProperty.HAS_FIRST_ORDER_UNCERTAINTY : OSDiWrapper.ObjectProperty.HAS_SECOND_ORDER_UNCERTAINTY, "Unsupported combination of valuables (" + uncertainParamWrap1.getOriginalIndividualIRI() + ", " + uncertainParamWrap2.getOriginalIndividualIRI() + ") to define the uncertainty");
 		}
 		if (firstOrder)
-			return new FirstOrderNatureParameter(secParams, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), rnd);
+			return new FirstOrderNatureParameter(model, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), rnd);
 		else
-			return new SecondOrderNatureParameter(secParams, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), detValue, rnd);
+			return new SecondOrderNatureParameter(model, paramWrap.getOriginalIndividualIRI(), getParameterDescription(paramWrap), detValue, rnd);
 	}
 
     private static ParameterDescription getParameterDescription(ValuableWrapper paramWrap) {

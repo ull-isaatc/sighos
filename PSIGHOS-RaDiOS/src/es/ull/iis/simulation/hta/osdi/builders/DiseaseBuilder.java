@@ -8,10 +8,11 @@ import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
-import es.ull.iis.simulation.hta.params.CostParamDescriptions;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UtilityParamDescriptions;
+import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.UtilityType;
+import es.ull.iis.simulation.hta.params.ParameterTemplate;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 
@@ -58,22 +59,22 @@ public interface DiseaseBuilder {
 	}
 
 	static class OSDiDisease extends Disease {
-		final private Map<CostParamDescriptions, CostParameterWrapper> costParams;
-		final UtilityParameterWrapper utilityParam;
+		final private Map<ParameterTemplate, ParameterWrapper> paramMapping;
 		final OSDiWrapper wrap;
 
 		public OSDiDisease(OSDiGenericModel secParams, String name, String description) throws MalformedOSDiModelException {
 			super(secParams, name, description);
 			wrap = secParams.getOwlWrapper();
 			
-			costParams = new TreeMap<>();
-			createCostParam(OSDiWrapper.ObjectProperty.HAS_COST, CostParamDescriptions.ANNUAL_COST);
-			createCostParam(OSDiWrapper.ObjectProperty.HAS_FOLLOW_UP_COST, CostParamDescriptions.ANNUAL_COST);
-			createCostParam(OSDiWrapper.ObjectProperty.HAS_TREATMENT_COST, CostParamDescriptions.ANNUAL_COST);
-			createCostParam(OSDiWrapper.ObjectProperty.HAS_DIAGNOSIS_COST, CostParamDescriptions.ONE_TIME_COST);
-			createCostParam(OSDiWrapper.ObjectProperty.HAS_SCREENING_COST, CostParamDescriptions.ONE_TIME_COST);
-			
-			utilityParam = createUtilityParam();
+			paramMapping = new TreeMap<>();
+			registerUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
+			registerUsedParameter(StandardParameter.ONSET_DISUTILITY);
+
+			createCostParam(OSDiWrapper.ObjectProperty.HAS_COST, StandardParameter.ANNUAL_COST);
+			createCostParam(OSDiWrapper.ObjectProperty.HAS_FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST);
+			createCostParam(OSDiWrapper.ObjectProperty.HAS_TREATMENT_COST, StandardParameter.TREATMENT_COST);
+			createCostParam(OSDiWrapper.ObjectProperty.HAS_DIAGNOSIS_COST, StandardParameter.DISEASE_DIAGNOSIS_COST);
+			createUtilityParam();
 		}
 
 		/**
@@ -82,7 +83,7 @@ public interface DiseaseBuilder {
 		 * @param paramDescription The type of simulation parameter that should be used for that property 
 		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 		 */
-		private void createCostParam(OSDiWrapper.ObjectProperty costProperty, CostParamDescriptions paramDescription) throws MalformedOSDiModelException {
+		private void createCostParam(OSDiWrapper.ObjectProperty costProperty, ParameterTemplate paramDescription) throws MalformedOSDiModelException {
 			Set<String> costs = costProperty.getValues(name(), true);
 			if (costs.size() > 0) {
 				if (costs.size() > 1)
@@ -92,7 +93,7 @@ public interface DiseaseBuilder {
 				final CostParameterWrapper costParam = new CostParameterWrapper(wrap, (String)costs.toArray()[0], "Cost for disease " + name());
 				final OSDiWrapper.TemporalBehavior tempBehavior = costParam.getTemporalBehavior();
 				// Checking coherence between type of cost parameter and its temporal behavior. Assumed to be ok if temporal behavior not specified 
-				if (CostParamDescriptions.DIAGNOSIS_COST.equals(paramDescription)) {
+				if (StandardParameter.DISEASE_DIAGNOSIS_COST.equals(paramDescription)) {
 					if (OSDiWrapper.TemporalBehavior.ANNUAL.equals(tempBehavior))
 						throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE, name(), costProperty, "Diagnosis costs directly associated to a disease should be ONE_TIME. Instead, " + tempBehavior + " found");
 				}
@@ -100,7 +101,7 @@ public interface DiseaseBuilder {
 					if (OSDiWrapper.TemporalBehavior.ONETIME.equals(tempBehavior))
 						throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE, name(), costProperty, "Follow-up, treatment and non specific costs directly associated to a disease should be ANNUAL. Instead, " + tempBehavior + " found");
 				}
-				costParams.put(paramDescription, costParam);
+				paramMapping.put(paramDescription, costParam);
 			}
 		}
 		
@@ -109,31 +110,27 @@ public interface DiseaseBuilder {
 		 * @param disease A disease
 		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 		 */
-		private UtilityParameterWrapper createUtilityParam() throws MalformedOSDiModelException {
+		private void createUtilityParam() throws MalformedOSDiModelException {
 			final Set<String> utilities = OSDiWrapper.ObjectProperty.HAS_UTILITY.getValues(name(), true);
-			if (utilities.size() == 0)
-				return null;
 			if (utilities.size() > 1)
 				wrap.printWarning(name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "A maximum of one annual (dis)utility should be associated to a disease. Using only " + utilities.toArray()[0]);
-
-			final String utilityName = (String) utilities.toArray()[0];
-			UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName, "Utility for disease " + name()); 
-			final OSDiWrapper.TemporalBehavior tempBehavior = utilityParam.getTemporalBehavior();
-			
-			if (OSDiWrapper.TemporalBehavior.ONETIME.equals(tempBehavior))
-				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE, name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Only annual (dis)utilities should be associated to a disease. Instead, " + tempBehavior + " found");
-			return utilityParam;
+			else if (utilities.size() == 1) {
+				final String utilityName = (String) utilities.toArray()[0];
+				UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName, "Utility for disease " + name()); 
+				final OSDiWrapper.TemporalBehavior tempBehavior = utilityParam.getTemporalBehavior();
+				
+				if (OSDiWrapper.TemporalBehavior.ONETIME.equals(tempBehavior))
+					throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE, name(), OSDiWrapper.ObjectProperty.HAS_UTILITY, "Only annual (dis)utilities should be associated to a disease. Instead, " + tempBehavior + " found");
+				paramMapping.put(utilityParam.getType().equals(UtilityType.DISUTILITY) ? StandardParameter.ANNUAL_DISUTILITY : StandardParameter.ANNUAL_UTILITY, utilityParam);					
+			}
 		}
 		
 		@Override
-		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
-			if (utilityParam != null) {
-				final UtilityParamDescriptions utilityDesc = OSDiWrapper.UtilityType.DISUTILITY.equals(utilityParam.getType()) ? UtilityParamDescriptions.DISUTILITY : UtilityParamDescriptions.UTILITY;
-				utilityDesc.addToModel(secParams, this, utilityParam.getSource(), utilityParam.getDeterministicValue(), utilityParam.getProbabilisticValue());
-			}
-			for (CostParamDescriptions desc : costParams.keySet()) {
-				final CostParameterWrapper costParam = costParams.get(desc);					
-				desc.addUsedParameter(secParams, this, costParam.getSource(), costParam.getYear(), costParam.getDeterministicValue(), costParam.getProbabilisticValue());
+		public void createParameters() {
+			// FIXME: Refactor ParameterBuilder and/or ParameterWrapper to properly handle the creation of parameters
+			for (ParameterTemplate paramDesc : paramMapping.keySet()) {
+				final ParameterWrapper param = paramMapping.get(paramDesc);
+				addUsedParameter(paramDesc, param.getDescription(), param.getSource(), param.getYear(), param.getDeterministicValue(), param.getProbabilisticValue());
 			}
 		}
 		
