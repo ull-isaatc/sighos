@@ -298,32 +298,14 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 	@Override
 	public double getUsedParameterValue(ParameterTemplate param, Patient pat) {
 		if (StandardParameter.ANNUAL_DISUTILITY.equals(param)) {
-			double value = model.getParameterValue(getUsedParameterName(StandardParameter.ANNUAL_DISUTILITY), pat);
-			if (Double.isNaN(value)) {
-				value = model.getParameterValue(getUsedParameterName(StandardParameter.ANNUAL_UTILITY), pat);
-				if (Double.isNaN(value))
-					value = StandardParameter.ANNUAL_DISUTILITY.getDefaultValue();
-				else {
-					value = model.getPopulation().getBaseUtility(pat) - value;
-				}
-			}
-			return value;
+			forceUtilityParameterValue(param, StandardParameter.ANNUAL_UTILITY, pat);
 		}
 		else if (StandardParameter.ANNUAL_UTILITY.equals(param)) {
-			double value = model.getParameterValue(getUsedParameterName(StandardParameter.ANNUAL_UTILITY), pat);
-			if (Double.isNaN(value)) {
-				value = model.getParameterValue(getUsedParameterName(StandardParameter.ANNUAL_DISUTILITY), pat);
-				if (Double.isNaN(value))
-					value = StandardParameter.ANNUAL_UTILITY.getDefaultValue();
-				else {
-					value = model.getPopulation().getBaseUtility(pat) - value;
-				}
-			}
-			return value;
+			forceUtilityParameterValue(param, StandardParameter.ANNUAL_DISUTILITY, pat);
 		}
 		return super.getUsedParameterValue(param, pat);
 	}
-	
+
 	/** 
 	 * Returns the number of stages used to model this complication
 	 * @return the number of stages used to model this complication

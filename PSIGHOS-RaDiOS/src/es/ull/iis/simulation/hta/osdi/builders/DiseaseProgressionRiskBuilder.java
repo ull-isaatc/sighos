@@ -12,6 +12,7 @@ import com.github.jsonldjava.shaded.com.google.common.reflect.Parameter;
 import es.ull.iis.simulation.condition.AndCondition;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
@@ -33,16 +34,16 @@ public interface DiseaseProgressionRiskBuilder {
 	 * Creates a {@link DiseaseProgressionPathway manifestation pathway}. If, for any reason, a manifestation pathway was already created for the specified name, returns the 
 	 * previously created pathway.
 	 * @param ontology
-	 * @param secParams
+	 * @param model
 	 * @param disease
 	 * @param progression
 	 * @param riskIRI
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static DiseaseProgressionPathway getPathwayInstance(OSDiGenericModel secParams, DiseaseProgression progression, Set<String> riskIRIs) throws MalformedOSDiModelException {
+	public static DiseaseProgressionPathway getPathwayInstance(OSDiGenericModel model, DiseaseProgression progression, Set<String> riskIRIs) throws MalformedOSDiModelException {
 		final Disease disease = progression.getDisease();
-		final OSDiWrapper wrap = ((OSDiGenericModel)secParams).getOwlWrapper();
+		final OSDiWrapper wrap = ((OSDiGenericModel)model).getOwlWrapper();
 		
 		if (riskIRIs.size() == 0)
 			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "At least one risk characterizations for a disease progression is required.");
@@ -56,16 +57,16 @@ public interface DiseaseProgressionRiskBuilder {
 			
 			// If the risk is expressed as a pathway
 			if (superclazzes.contains(OSDiWrapper.Clazz.PATHWAY.getShortName())) {			
-				final Condition<DiseaseProgressionPathway.ConditionInformation> cond = createCondition(secParams, disease, riskIRI);
+				final Condition<DiseaseProgressionPathway.ConditionInformation> cond = createCondition(model, disease, riskIRI);
 				// TODO: Process parameters when a parameter requires another one or use complex expressions
-				riskWrappers.add(createRiskWrapper(secParams, progression, riskIRI));
-				final Parameter tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(secParams, progression, riskWrappers);
-				return new OSDiManifestationPathway(secParams, progression, cond, tte, riskWrapper);
+				riskWrappers.add(createRiskWrapper(model, progression, riskIRI));
+				final Parameter tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(model, progression, riskWrappers);
+				return new OSDiManifestationPathway(model, progression, cond, tte, riskWrapper);
 			}
 			else if (superclazzes.contains(OSDiWrapper.Clazz.PARAMETER.getShortName())) {
 				final ParameterWrapper riskWrapper = new ParameterWrapper(wrap, riskIRI, "Developing " + progression.name());
-				final Parameter tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(secParams, progression, riskWrapper);
-				return new OSDiManifestationPathway(secParams, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
+				final Parameter tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(model, progression, riskWrapper);
+				return new OSDiManifestationPathway(model, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
 			}
 			else 
 				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Unsupported risk characterizations for a disease progression: " + riskIRI);
@@ -80,9 +81,9 @@ public interface DiseaseProgressionRiskBuilder {
 			final ParameterWrapper[] riskWrappers = new ParameterWrapper[2]; 
 			riskWrappers[0] = new ParameterWrapper(wrap, riskIRI1, "Developing " + progression.name());
 			riskWrappers[1] = new ParameterWrapper(wrap, riskIRI2, "Developing " + progression.name());
-			final ParameterCalculator tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(secParams, progression, riskWrappers);
+			final ParameterCalculator tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(model, progression, riskWrappers);
 			// TODO: See how to handle RR and probabilities together
-			//return new OSDiManifestationPathway(secParams, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
+			//return new OSDiManifestationPathway(model, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
 			
 		}
 		return null;			
@@ -90,12 +91,12 @@ public interface DiseaseProgressionRiskBuilder {
 	
 	/**
 	 * Creates a condition for the pathway. Conditions may be expressed by one or more strings in a "hasCondition" data property, or as object properties by means of "requiresPreviousManifestation".
-	 * @param secParams Repository
+	 * @param model Repository
 	 * @param disease The disease
 	 * @param pathwayName The name of the pathway instance in the ontology
 	 * @return A condition for the pathway
 	 */
-	private static Condition<DiseaseProgressionPathway.ConditionInformation> createCondition(OSDiGenericModel secParams, Disease disease, String pathwayName) {
+	private static Condition<DiseaseProgressionPathway.ConditionInformation> createCondition(OSDiGenericModel model, Disease disease, String pathwayName) {
 		final List<String> strConditions = OSDiWrapper.DataProperty.HAS_CONDITION.getValues(pathwayName);
 		
 		final Set<String> strRequiredStuff = OSDiWrapper.ObjectProperty.REQUIRES.getValues(pathwayName);
@@ -119,8 +120,8 @@ public interface DiseaseProgressionRiskBuilder {
 	}
 	
 	
-	private static ParameterWrapper createRiskWrapper(OSDiGenericModel secParams, DiseaseProgression progression, String pathwayName) throws MalformedOSDiModelException {
-		final OSDiWrapper wrap = ((OSDiGenericModel)secParams).getOwlWrapper();
+	private static ParameterWrapper createRiskWrapper(OSDiGenericModel model, DiseaseProgression progression, String pathwayName) throws MalformedOSDiModelException {
+		final OSDiWrapper wrap = ((OSDiGenericModel)model).getOwlWrapper();
 		
 		// Gets the manifestation pathway parameters related to the working model
 		final Set<String> pathwayParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(pathwayName, true);
@@ -165,21 +166,21 @@ public interface DiseaseProgressionRiskBuilder {
 	static class OSDiManifestationPathway extends DiseaseProgressionPathway {
 		private final ParameterWrapper riskWrapper;
 
-		public OSDiManifestationPathway(SecondOrderParamsRepository secParams, DiseaseProgression destManifestation,
+		public OSDiManifestationPathway(HTAModel model, DiseaseProgression destManifestation,
 				Condition<DiseaseProgressionPathway.ConditionInformation> condition, ParameterCalculator timeToEvent, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
-			super(secParams, destManifestation, condition, timeToEvent);
+			super(model, destManifestation, condition, timeToEvent);
 			this.riskWrapper = riskWrapper;
 		}
 		
 		@Override
-		public void registerSecondOrderParameters(SecondOrderParamsRepository secParams) {
+		public void createParameters() {
 			final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
 			if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
-				RiskParamDescriptions.PROBABILITY.addUsedParameter(secParams, riskWrapper.getOriginalIndividualIRI(), riskWrapper.getDescription(), riskWrapper.getSource(),
+				RiskParamDescriptions.PROBABILITY.addUsedParameter(model, riskWrapper.getOriginalIndividualIRI(), riskWrapper.getDescription(), riskWrapper.getSource(),
 						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
 			}
 			else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
-				RiskParamDescriptions.PROPORTION.addUsedParameter(secParams, riskWrapper.getOriginalIndividualIRI(), riskWrapper.getDescription(), riskWrapper.getSource(),
+				RiskParamDescriptions.PROPORTION.addUsedParameter(model, riskWrapper.getOriginalIndividualIRI(), riskWrapper.getDescription(), riskWrapper.getSource(),
 						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
 			}
 		}

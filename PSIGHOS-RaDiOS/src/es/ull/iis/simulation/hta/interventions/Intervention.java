@@ -13,6 +13,7 @@ import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.Strategy;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.Discount;
+import es.ull.iis.simulation.hta.params.ParameterTemplate;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
 import es.ull.iis.simulation.model.DiscreteEvent;
@@ -56,6 +57,8 @@ public abstract class Intervention extends HTAModelComponent implements Comparab
 			throw new IllegalArgumentException("Intervention " + name + " already registered");
 		registerUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
 		registerUsedParameter(StandardParameter.ONSET_DISUTILITY);
+		registerUsedParameter(StandardParameter.ANNUAL_UTILITY);
+		registerUsedParameter(StandardParameter.ONSET_UTILITY);
 	}
 
 	/**
@@ -190,6 +193,23 @@ public abstract class Intervention extends HTAModelComponent implements Comparab
 		return new ArrayList<>();
 	}
 	
+	@Override
+	public double getUsedParameterValue(ParameterTemplate param, Patient pat) {
+		if (StandardParameter.ANNUAL_DISUTILITY.equals(param)) {
+			forceUtilityParameterValue(param, StandardParameter.ANNUAL_UTILITY, pat);
+		}
+		else if (StandardParameter.ANNUAL_UTILITY.equals(param)) {
+			forceUtilityParameterValue(param, StandardParameter.ANNUAL_DISUTILITY, pat);
+		}
+		else if (StandardParameter.ONSET_DISUTILITY.equals(param)) {
+			forceUtilityParameterValue(param, StandardParameter.ONSET_UTILITY, pat);
+		}
+		else if (StandardParameter.ONSET_UTILITY.equals(param)) {
+			forceUtilityParameterValue(param, StandardParameter.ONSET_DISUTILITY, pat);
+		}
+		return super.getUsedParameterValue(param, pat);
+	}
+
 	@Override
 	public String prettyPrint(String linePrefix) {
 		final StringBuilder str = new StringBuilder(linePrefix).append("Intervention: ").append(name()).append(System.lineSeparator());

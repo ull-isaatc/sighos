@@ -7,11 +7,11 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.DataItemType;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
-import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventParameter;
-import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.ProportionBasedTimeToEventParameter;
-import es.ull.iis.simulation.hta.params.RiskParamDescriptions;
+import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.calculator.AnnualRiskBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.progression.calculator.ProportionBasedTimeToEventCalculator;
+import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
 
 public interface TimeToEventCalculatorBuilder {
     public enum SupportedCombinations {
@@ -32,35 +32,35 @@ public interface TimeToEventCalculatorBuilder {
 	/**
 	 * Creates the calculator for the time to event associated to this pathway. Currently only allows the time to be expressed as an annual risk and, consequently, uses 
 	 * a {@link AnnualRiskBasedTimeToEventParameter}. 
-	 * @param secParams Repository
+	 * @param model Repository
 	 * @param progression The destination progression for this pathway
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static Parameter getTimeToEventCalculator(OSDiGenericModel secParams, DiseaseProgression progression, ArrayList<ParameterWrapper> riskWrappers) throws MalformedOSDiModelException {
+	public static TimeToEventCalculator getTimeToEventCalculator(OSDiGenericModel model, DiseaseProgression progression, ArrayList<ParameterWrapper> riskWrappers) throws MalformedOSDiModelException {
         final SupportedCombinations comb = foundValidCombination(riskWrappers);
         if (comb == null) {
 			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Unsupported combination of parameters for risk characterization.");
         }
-        // TODO: RRs require being parameters and not calculators. Hence, all the timetoevent calculators should use the name of the RR parameter and not the calculator
+        // TODO: See how to include RRs
         switch(comb) {
             case PROPORTION:
-                return new ProportionBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROPORTION.getParameterName(riskWrappers.get(0).getOriginalIndividualIRI()));
+                return new ProportionBasedTimeToEventCalculator(progression, StandardParameter.PROPORTION.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
             case PROBABILITY_RR:
                 if (riskWrappers.get(0).getDataItemTypes().contains(DataItemType.DI_RELATIVE_RISK)) {
-                    return new AnnualRiskBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROBABILITY.getParameterName(riskWrappers.get(1).getOriginalIndividualIRI()));
+                    return new AnnualRiskBasedTimeToEventCalculator(progression, StandardParameter.PROBABILITY.createName(riskWrappers.get(1).getOriginalIndividualIRI()));
                 } else {
-                    return new AnnualRiskBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROBABILITY.getParameterName(riskWrappers.get(0).getOriginalIndividualIRI()));
+                    return new AnnualRiskBasedTimeToEventCalculator(progression, StandardParameter.PROBABILITY.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
                 }
             case PROPORTION_RR:
                 if (riskWrappers.get(0).getDataItemTypes().contains(DataItemType.DI_RELATIVE_RISK)) {
-                    return new ProportionBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROPORTION.getParameterName(riskWrappers.get(1).getOriginalIndividualIRI()));
+                    return new ProportionBasedTimeToEventCalculator(progression, StandardParameter.PROPORTION.createName(riskWrappers.get(1).getOriginalIndividualIRI()));
                 } else {
-                    return new ProportionBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROPORTION.getParameterName(riskWrappers.get(0).getOriginalIndividualIRI()));
+                    return new ProportionBasedTimeToEventCalculator(progression, StandardParameter.PROPORTION.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
                 }
             case PROBABILITY:
             default:
-                return new AnnualRiskBasedTimeToEventParameter(secParams, progression, RiskParamDescriptions.PROBABILITY.getParameterName(riskWrappers.get(0).getOriginalIndividualIRI()));
+                return new AnnualRiskBasedTimeToEventCalculator(progression, StandardParameter.PROBABILITY.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
         }
 	}
  

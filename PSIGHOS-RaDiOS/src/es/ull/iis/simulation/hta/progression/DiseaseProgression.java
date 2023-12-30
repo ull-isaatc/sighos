@@ -14,6 +14,7 @@ import es.ull.iis.simulation.hta.PrettyPrintable;
 import es.ull.iis.simulation.hta.outcomes.CostProducer;
 import es.ull.iis.simulation.hta.outcomes.UtilityProducer;
 import es.ull.iis.simulation.hta.params.Discount;
+import es.ull.iis.simulation.hta.params.ParameterTemplate;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 
 /**
@@ -70,6 +71,8 @@ public class DiseaseProgression extends HTAModelComponent implements Comparable<
 		registerUsedParameter(StandardParameter.FOLLOW_UP_COST);
 		registerUsedParameter(StandardParameter.ANNUAL_DISUTILITY);
 		registerUsedParameter(StandardParameter.ONSET_DISUTILITY);
+		registerUsedParameter(StandardParameter.ANNUAL_UTILITY);
+		registerUsedParameter(StandardParameter.ONSET_UTILITY);
 		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_END_AGE);
 		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE);
 		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION);
@@ -206,6 +209,24 @@ public class DiseaseProgression extends HTAModelComponent implements Comparable<
 	public boolean definesLabel(Named label) {
 		return (labels.contains(label));
 	}
+	
+	@Override
+	public double getUsedParameterValue(ParameterTemplate param, Patient pat) {
+		if (StandardParameter.ANNUAL_DISUTILITY.equals(param)) {
+			forceUtilityParameterValue(param, StandardParameter.ANNUAL_UTILITY, pat);
+		}
+		else if (StandardParameter.ANNUAL_UTILITY.equals(param)) {
+			forceUtilityParameterValue(param, StandardParameter.ANNUAL_DISUTILITY, pat);
+		}
+		else if (StandardParameter.ONSET_DISUTILITY.equals(param)) {
+			forceUtilityParameterValue(param, StandardParameter.ONSET_UTILITY, pat);
+		}
+		else if (StandardParameter.ONSET_UTILITY.equals(param)) {
+			forceUtilityParameterValue(param, StandardParameter.ONSET_DISUTILITY, pat);
+		}
+		return super.getUsedParameterValue(param, pat);
+	}
+
 
 	@Override
 	public String prettyPrint(String linePrefix) {
