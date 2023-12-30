@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.hta.tests;
+package es.ull.iis.simulation.hta.tests.legacy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

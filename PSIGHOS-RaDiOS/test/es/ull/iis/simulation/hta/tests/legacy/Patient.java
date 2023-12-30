@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.hta.tests;
+package es.ull.iis.simulation.hta.tests.legacy;
 
 public class Patient {
 	private Double weight;
