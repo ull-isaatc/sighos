@@ -196,16 +196,16 @@ public abstract class Intervention extends HTAModelComponent implements Comparab
 	@Override
 	public double getUsedParameterValue(ParameterTemplate param, Patient pat) {
 		if (StandardParameter.ANNUAL_DISUTILITY.equals(param)) {
-			forceUtilityParameterValue(param, StandardParameter.ANNUAL_UTILITY, pat);
+			return forceUtilityParameterValue(param, StandardParameter.ANNUAL_UTILITY, pat);
 		}
 		else if (StandardParameter.ANNUAL_UTILITY.equals(param)) {
-			forceUtilityParameterValue(param, StandardParameter.ANNUAL_DISUTILITY, pat);
+			return forceUtilityParameterValue(param, StandardParameter.ANNUAL_DISUTILITY, pat);
 		}
 		else if (StandardParameter.ONSET_DISUTILITY.equals(param)) {
-			forceUtilityParameterValue(param, StandardParameter.ONSET_UTILITY, pat);
+			return forceUtilityParameterValue(param, StandardParameter.ONSET_UTILITY, pat);
 		}
 		else if (StandardParameter.ONSET_UTILITY.equals(param)) {
-			forceUtilityParameterValue(param, StandardParameter.ONSET_DISUTILITY, pat);
+			return forceUtilityParameterValue(param, StandardParameter.ONSET_DISUTILITY, pat);
 		}
 		return super.getUsedParameterValue(param, pat);
 	}

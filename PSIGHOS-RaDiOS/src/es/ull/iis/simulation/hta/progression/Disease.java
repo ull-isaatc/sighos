@@ -298,10 +298,10 @@ public class Disease extends HTAModelComponent implements Comparable<Disease>, P
 	@Override
 	public double getUsedParameterValue(ParameterTemplate param, Patient pat) {
 		if (StandardParameter.ANNUAL_DISUTILITY.equals(param)) {
-			forceUtilityParameterValue(param, StandardParameter.ANNUAL_UTILITY, pat);
+			return forceUtilityParameterValue(param, StandardParameter.ANNUAL_UTILITY, pat);
 		}
 		else if (StandardParameter.ANNUAL_UTILITY.equals(param)) {
-			forceUtilityParameterValue(param, StandardParameter.ANNUAL_DISUTILITY, pat);
+			return forceUtilityParameterValue(param, StandardParameter.ANNUAL_DISUTILITY, pat);
 		}
 		return super.getUsedParameterValue(param, pat);
 	}
