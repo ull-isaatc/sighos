@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -31,8 +32,8 @@ public class MentalDelayManifestation extends DiseaseProgression {
 	public void createParameters() {
 		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE, "", "", 1.0);
 		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_END_AGE, "", "", 2.0);
-		addUsedParameter(StandardParameter.DISEASE_DIAGNOSIS_COST, "", "Test", COST_YEAR, DIAGNOSTIC_COST, StandardParameter.getRandomVariateForCost(DIAGNOSTIC_COST));
-		addUsedParameter(StandardParameter.ANNUAL_COST, "", "Test", COST_YEAR, ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
+		addUsedParameter(StandardParameter.DISEASE_DIAGNOSIS_COST, "", "Test", COST_YEAR, DIAGNOSTIC_COST, Parameter.getRandomVariateForCost(DIAGNOSTIC_COST));
+		addUsedParameter(StandardParameter.ANNUAL_COST, "", "Test", COST_YEAR, ANNUAL_COST, Parameter.getRandomVariateForCost(ANNUAL_COST));
 		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, "", "Assumption", 1.0);
 		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "", "Test", DU, RandomVariateFactory.getInstance("UniformVariate", DU*0.8, DU*1.2));
 		addUsedParameter(StandardParameter.LIFE_EXPECTANCY_REDUCTION, "", "", 9.6, RandomVariateFactory.getInstance("GammaVariate", 25, 0.38));

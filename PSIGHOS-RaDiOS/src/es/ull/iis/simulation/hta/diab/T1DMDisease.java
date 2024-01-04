@@ -350,7 +350,7 @@ public class T1DMDisease extends Disease {
 		
 		// Set asymptomatic follow-up cost and disutility. Treatment cost for asymptomatics is assumed to be 0 
 		addUsedParameter(StandardParameter.FOLLOW_UP_COST, "Diabetes with no complications", 
-				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, DEF_C_DNC.VALUE, StandardParameter.getRandomVariateForCost(DEF_C_DNC.VALUE));
+				DEF_C_DNC.SOURCE, DEF_C_DNC.YEAR, DEF_C_DNC.VALUE, Parameter.getRandomVariateForCost(DEF_C_DNC.VALUE));
 
 		final double[] paramsU_DNC = Statistics.betaParametersFromNormal(DEF_U_DNC[0], DEF_U_DNC[1]);
 		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "", "", DEF_U_DNC[0], RandomVariateFactory.getInstance("BetaVariate", paramsU_DNC[0], paramsU_DNC[1]));
@@ -378,15 +378,15 @@ public class T1DMDisease extends Disease {
 			StandardParameter.PROBABILITY.addToModel(model, alb1, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
 					P_DNC_ALB1, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_ALB1[0], paramsDNC_ALB1[1]));
 			StandardParameter.PROBABILITY.addToModel(model, alb2, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-					P_DNC_ALB2, StandardParameter.getRandomVariateForProbability(P_DNC_ALB2));
+					P_DNC_ALB2, Parameter.getRandomVariateForProbability(P_DNC_ALB2));
 			addTransitionProbability(alb1, alb2, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-					P_ALB1_ALB2, StandardParameter.getRandomVariateForProbability(P_ALB1_ALB2));
+					P_ALB1_ALB2, Parameter.getRandomVariateForProbability(P_ALB1_ALB2));
 			addTransitionProbability(alb1, esrd, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf",
 					P_ALB1_ESRD, RandomVariateFactory.getInstance("BetaVariate", paramsALB1_ESRD[0], paramsALB1_ESRD[1]));
 			addTransitionProbability(alb2, esrd, "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf",
-					P_ALB2_ESRD, StandardParameter.getRandomVariateForProbability(P_ALB2_ESRD));
+					P_ALB2_ESRD, Parameter.getRandomVariateForProbability(P_ALB2_ESRD));
 			StandardParameter.PROBABILITY.addToModel(model, esrd, "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
-					P_DNC_ESRD, StandardParameter.getRandomVariateForProbability(P_DNC_ESRD));			
+					P_DNC_ESRD, Parameter.getRandomVariateForProbability(P_DNC_ESRD));			
 		}		
 	}
 
@@ -425,18 +425,18 @@ public class T1DMDisease extends Disease {
 
 			// Add transition probabilities for retinopathy-related complications
 			StandardParameter.PROBABILITY.addToModel(model, bgret,
-					"Sheffield (WESDR XXII)", P_DNC_BGRET, StandardParameter.getRandomVariateForProbability(P_DNC_BGRET));
+					"Sheffield (WESDR XXII)", P_DNC_BGRET, Parameter.getRandomVariateForProbability(P_DNC_BGRET));
 			StandardParameter.PROBABILITY.addToModel(model, pret, 
-					"Sheffield (WESDR XXII)", P_DNC_PRET, StandardParameter.getRandomVariateForProbability(P_DNC_PRET));
+					"Sheffield (WESDR XXII)", P_DNC_PRET, Parameter.getRandomVariateForProbability(P_DNC_PRET));
 			StandardParameter.PROBABILITY.addToModel(model, me, 
-					"Sheffield (WESDR XXII)", P_DNC_ME, StandardParameter.getRandomVariateForProbability(P_DNC_ME));
-			addTransitionProbability(bgret, pret, "Sheffield (WESDR XXII)", P_BGRET_PRET, StandardParameter.getRandomVariateForProbability(P_BGRET_PRET));			
-			addTransitionProbability(bgret, me, "Sheffield (WESDR XXII)", P_BGRET_ME, StandardParameter.getRandomVariateForProbability(P_BGRET_ME));
-			addTransitionProbability(bgret, bli, "Sheffield (WESDR XXII)", P_BGRET_BLI, StandardParameter.getRandomVariateForProbability(P_BGRET_BLI));
-			addTransitionProbability(pret, bli, "Sheffield (WESDR XXII)", P_PRET_BLI, StandardParameter.getRandomVariateForProbability(P_PRET_BLI));
-			addTransitionProbability(me, bli, "Sheffield (WESDR XXII)", P_ME_BLI, StandardParameter.getRandomVariateForProbability(P_ME_BLI));			
+					"Sheffield (WESDR XXII)", P_DNC_ME, Parameter.getRandomVariateForProbability(P_DNC_ME));
+			addTransitionProbability(bgret, pret, "Sheffield (WESDR XXII)", P_BGRET_PRET, Parameter.getRandomVariateForProbability(P_BGRET_PRET));			
+			addTransitionProbability(bgret, me, "Sheffield (WESDR XXII)", P_BGRET_ME, Parameter.getRandomVariateForProbability(P_BGRET_ME));
+			addTransitionProbability(bgret, bli, "Sheffield (WESDR XXII)", P_BGRET_BLI, Parameter.getRandomVariateForProbability(P_BGRET_BLI));
+			addTransitionProbability(pret, bli, "Sheffield (WESDR XXII)", P_PRET_BLI, Parameter.getRandomVariateForProbability(P_PRET_BLI));
+			addTransitionProbability(me, bli, "Sheffield (WESDR XXII)", P_ME_BLI, Parameter.getRandomVariateForProbability(P_ME_BLI));			
 			StandardParameter.PROBABILITY.addToModel(model, bli, 
-					"Sheffield (WESDR XXII)", P_DNC_BLI, StandardParameter.getRandomVariateForProbability(P_DNC_BLI));			
+					"Sheffield (WESDR XXII)", P_DNC_BLI, Parameter.getRandomVariateForProbability(P_DNC_BLI));			
 		}
 	}
 	

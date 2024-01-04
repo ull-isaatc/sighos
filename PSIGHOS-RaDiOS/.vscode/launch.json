@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "OSDiWrapper",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}"

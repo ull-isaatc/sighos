@@ -7,20 +7,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.github.jsonldjava.shaded.com.google.common.reflect.Parameter;
-
 import es.ull.iis.simulation.condition.AndCondition;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
-import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
+import es.ull.iis.simulation.hta.params.StandardParameter;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
+import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
 import es.ull.iis.simulation.hta.progression.condition.PreviousDiseaseProgressionCondition;
 
 /**
@@ -33,22 +38,21 @@ public interface DiseaseProgressionRiskBuilder {
 	/**
 	 * Creates a {@link DiseaseProgressionPathway manifestation pathway}. If, for any reason, a manifestation pathway was already created for the specified name, returns the 
 	 * previously created pathway.
-	 * @param ontology
 	 * @param model
-	 * @param disease
 	 * @param progression
-	 * @param riskIRI
 	 * @return
 	 * @throws MalformedOSDiModelException 
 	 */
-	public static DiseaseProgressionPathway getPathwayInstance(OSDiGenericModel model, DiseaseProgression progression, Set<String> riskIRIs) throws MalformedOSDiModelException {
+	public static DiseaseProgressionPathway getPathwayInstance(OSDiGenericModel model, DiseaseProgression progression) throws MalformedOSDiModelException {
+		final Set<String> riskIRIs = OSDiObjectProperties.HAS_RISK_CHARACTERIZATION.getValues(progression.name(), true);
+
 		final Disease disease = progression.getDisease();
 		final OSDiWrapper wrap = ((OSDiGenericModel)model).getOwlWrapper();
 		
 		if (riskIRIs.size() == 0)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "At least one risk characterizations for a disease progression is required.");
+			throw new MalformedOSDiModelException(OSDiClasses.DISEASE_PROGRESSION, progression.name(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, "At least one risk characterizations for a disease progression is required.");
 		if (riskIRIs.size() > 2)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "More than two risk characterizations for a disease progression not supported. Currently " + riskIRIs.size());
+			throw new MalformedOSDiModelException(OSDiClasses.DISEASE_PROGRESSION, progression.name(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, "More than two risk characterizations for a disease progression not supported. Currently " + riskIRIs.size());
 		final ArrayList<ParameterWrapper> riskWrappers = new ArrayList<>();
 		
 		if (riskIRIs.size() == 1) {
@@ -56,37 +60,34 @@ public interface DiseaseProgressionRiskBuilder {
 			Set<String> superclazzes = wrap.getClassesForIndividual(riskIRI);
 			
 			// If the risk is expressed as a pathway
-			if (superclazzes.contains(OSDiWrapper.Clazz.PATHWAY.getShortName())) {			
+			if (superclazzes.contains(OSDiClasses.PATHWAY.getShortName())) {			
 				final Condition<DiseaseProgressionPathway.ConditionInformation> cond = createCondition(model, disease, riskIRI);
 				// TODO: Process parameters when a parameter requires another one or use complex expressions
 				riskWrappers.add(createRiskWrapper(model, progression, riskIRI));
-				final Parameter tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(model, progression, riskWrappers);
-				return new OSDiManifestationPathway(model, progression, cond, tte, riskWrapper);
+				final TimeToEventCalculator tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(model, progression, riskWrappers);
+				return new OSDiManifestationPathway(model, riskIRI, OSDiDataProperties.HAS_DESCRIPTION.getValue(riskIRI, "Progression to " + progression.getDescription()), progression, tte, cond, riskWrappers);
 			}
-			else if (superclazzes.contains(OSDiWrapper.Clazz.PARAMETER.getShortName())) {
-				final ParameterWrapper riskWrapper = new ParameterWrapper(wrap, riskIRI, "Developing " + progression.name());
-				final Parameter tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(model, progression, riskWrapper);
-				return new OSDiManifestationPathway(model, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
+			else if (superclazzes.contains(OSDiClasses.PARAMETER.getShortName())) {
+				riskWrappers.add(new ParameterWrapper(wrap, riskIRI, "Developing " + progression.name()));
+				final TimeToEventCalculator tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(model, progression, riskWrappers);
+				return new OSDiManifestationPathway(model, riskIRI, OSDiDataProperties.HAS_DESCRIPTION.getValue(riskIRI, "Progression to " + progression.getDescription()), progression, tte, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), riskWrappers);
 			}
 			else 
-				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Unsupported risk characterizations for a disease progression: " + riskIRI);
+				throw new MalformedOSDiModelException(OSDiClasses.DISEASE_PROGRESSION, progression.name(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, "Unsupported risk characterizations for a disease progression: " + riskIRI);
 		}
 		else {
 			final String riskIRI1 = (String) riskIRIs.toArray()[0];
 			Set<String> superclazzes1 = wrap.getClassesForIndividual(riskIRI1);
 			final String riskIRI2 = (String) riskIRIs.toArray()[1];
 			Set<String> superclazzes2 = wrap.getClassesForIndividual(riskIRI2);
-			if (!superclazzes1.contains(OSDiWrapper.Clazz.PARAMETER.getShortName()) || !superclazzes2.contains(OSDiWrapper.Clazz.PARAMETER.getShortName()))
-				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.DISEASE_PROGRESSION, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Unsupported risk characterizations for a disease progression. Both instances should be Parameters: " + riskIRI1 + " and " + riskIRI2);
-			final ParameterWrapper[] riskWrappers = new ParameterWrapper[2]; 
-			riskWrappers[0] = new ParameterWrapper(wrap, riskIRI1, "Developing " + progression.name());
-			riskWrappers[1] = new ParameterWrapper(wrap, riskIRI2, "Developing " + progression.name());
-			final ParameterCalculator tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(model, progression, riskWrappers);
+			if (!superclazzes1.contains(OSDiClasses.PARAMETER.getShortName()) || !superclazzes2.contains(OSDiClasses.PARAMETER.getShortName()))
+				throw new MalformedOSDiModelException(OSDiClasses.DISEASE_PROGRESSION, progression.name(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, "Unsupported risk characterizations for a disease progression. Both instances should be Parameters: " + riskIRI1 + " and " + riskIRI2);
+			riskWrappers.add(new ParameterWrapper(wrap, riskIRI1, "Developing " + progression.name()));
+			riskWrappers.add(new ParameterWrapper(wrap, riskIRI2, "Developing " + progression.name()));
+			final TimeToEventCalculator tte = TimeToEventCalculatorBuilder.getTimeToEventCalculator(model, progression, riskWrappers);
 			// TODO: See how to handle RR and probabilities together
-			//return new OSDiManifestationPathway(model, progression, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), tte, riskWrapper);			
-			
+			return new OSDiManifestationPathway(model, "PATH_" + progression.name(), "Progression to " + progression.getDescription(), progression, tte, new TrueCondition<DiseaseProgressionPathway.ConditionInformation>(), riskWrappers);
 		}
-		return null;			
 	}
 	
 	/**
@@ -97,9 +98,9 @@ public interface DiseaseProgressionRiskBuilder {
 	 * @return A condition for the pathway
 	 */
 	private static Condition<DiseaseProgressionPathway.ConditionInformation> createCondition(OSDiGenericModel model, Disease disease, String pathwayName) {
-		final List<String> strConditions = OSDiWrapper.DataProperty.HAS_CONDITION.getValues(pathwayName);
+		final Set<String> strConditions = OSDiObjectProperties.HAS_CONDITION_EXPRESSION.getValues(pathwayName);
 		
-		final Set<String> strRequiredStuff = OSDiWrapper.ObjectProperty.REQUIRES.getValues(pathwayName);
+		final Set<String> strRequiredStuff = OSDiObjectProperties.REQUIRES.getValues(pathwayName);
 		final ArrayList<Condition<DiseaseProgressionPathway.ConditionInformation>> condList = new ArrayList<>();
 		// FIXME: Assuming that all preconditions refer to manifestations though they could be diseases, developments, stages or even interventions
 		if (strRequiredStuff.size() > 0) {
@@ -110,6 +111,7 @@ public interface DiseaseProgressionRiskBuilder {
 			condList.add(new PreviousDiseaseProgressionCondition(manifList));
 		}
 		for (String strCond : strConditions)
+			// FIXME: Conditions are now expressions may be expressed in different languages. See OSDiDataProperties.HAS_CONDITION_LANGUAGE
 			condList.add(new ExpressionLanguageCondition(strCond));
 		// After going through for previous manifestations and other conditions, checks how many conditions were created
 		if (condList.size() == 0)
@@ -124,13 +126,13 @@ public interface DiseaseProgressionRiskBuilder {
 		final OSDiWrapper wrap = ((OSDiGenericModel)model).getOwlWrapper();
 		
 		// Gets the manifestation pathway parameters related to the working model
-		final Set<String> pathwayParams = OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION.getValues(pathwayName, true);
+		final Set<String> pathwayParams = OSDiObjectProperties.HAS_RISK_CHARACTERIZATION.getValues(pathwayName, true);
 		if (pathwayParams.size() == 0) {
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, pathwayName, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestation pathways require a risk characterization");
+			throw new MalformedOSDiModelException(OSDiClasses.DISEASE_PROGRESSION_PATHWAY, pathwayName, OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, "Manifestation pathways require a risk characterization");
 		}
 		final String pathwayParam = (String)pathwayParams.toArray()[0];
 		if (pathwayParams.size() > 1) {
-			wrap.printWarning(pathwayName, OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Manifestation pathways should define a single risk characterization. Using " + pathwayParam);
+			wrap.printWarning(pathwayName, OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, "Manifestation pathways should define a single risk characterization. Using " + pathwayParam);
 		}
 		return new ParameterWrapper(wrap, pathwayParam, "Developing " + progression + " due to " + pathwayName);
 	}
@@ -162,26 +164,29 @@ public interface DiseaseProgressionRiskBuilder {
 		return "Probability of developing " + manifestation + " due to " + pathwayName; 
 	}
 	
-	// TODO: Requires refactoring to be consistent with TimeToEventCalculatorBuilder
 	static class OSDiManifestationPathway extends DiseaseProgressionPathway {
-		private final ParameterWrapper riskWrapper;
+		private final ArrayList<ParameterWrapper> riskWrappers;
 
-		public OSDiManifestationPathway(HTAModel model, DiseaseProgression destManifestation,
-				Condition<DiseaseProgressionPathway.ConditionInformation> condition, ParameterCalculator timeToEvent, ParameterWrapper riskWrapper) throws MalformedOSDiModelException {
-			super(model, destManifestation, condition, timeToEvent);
-			this.riskWrapper = riskWrapper;
+		public OSDiManifestationPathway(HTAModel model, String name, String description, DiseaseProgression destManifestation,
+				TimeToEventCalculator timeToEvent, Condition<DiseaseProgressionPathway.ConditionInformation> condition, ArrayList<ParameterWrapper> riskWrappers) throws MalformedOSDiModelException {
+			super(model, name, description, destManifestation, timeToEvent, condition);
+			this.riskWrappers = riskWrappers;
 		}
 		
 		@Override
 		public void createParameters() {
-			final Set<OSDiWrapper.DataItemType> dataItems = riskWrapper.getDataItemTypes();
-			if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROBABILITY)) {
-				RiskParamDescriptions.PROBABILITY.addUsedParameter(model, riskWrapper.getOriginalIndividualIRI(), riskWrapper.getDescription(), riskWrapper.getSource(),
-						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
-			}
-			else if (dataItems.contains(OSDiWrapper.DataItemType.DI_PROPORTION)) {
-				RiskParamDescriptions.PROPORTION.addUsedParameter(model, riskWrapper.getOriginalIndividualIRI(), riskWrapper.getDescription(), riskWrapper.getSource(),
-						riskWrapper.getDeterministicValue(), riskWrapper.getProbabilisticValue());
+			for (ParameterWrapper riskWrapper : riskWrappers) {
+				final Set<OSDiDataItemTypes> dataItems = riskWrapper.getDataItemTypes();
+				if (dataItems.contains(OSDiDataItemTypes.DI_PROBABILITY)) {
+					StandardParameter.PROBABILITY.addToModel(model, riskWrapper.createParameter(model, ParameterType.RISK));
+				}
+				else if (dataItems.contains(OSDiDataItemTypes.DI_PROPORTION)) {
+					StandardParameter.PROPORTION.addToModel(model, riskWrapper.createParameter(model, ParameterType.RISK));
+				}
+				else if (dataItems.contains(OSDiDataItemTypes.DI_RELATIVE_RISK)) {
+					StandardParameter.RELATIVE_RISK.addToModel(model, riskWrapper.createParameter(model, ParameterType.RISK));
+				}
+
 			}
 		}
 		

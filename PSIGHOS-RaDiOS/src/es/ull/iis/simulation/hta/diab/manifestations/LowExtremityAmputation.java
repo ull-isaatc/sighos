@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.diab.manifestations;
 
 import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -33,7 +34,7 @@ public class LowExtremityAmputation extends DiseaseProgression {
 
 	@Override
 	public void createParameters() {
-		addUsedParameter(StandardParameter.ANNUAL_COST, "", "del Pino et al", COSTYEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+		addUsedParameter(StandardParameter.ANNUAL_COST, "", "del Pino et al", COSTYEAR, COST, Parameter.getRandomVariateForCost(COST));
 		final double[] tcParams = Statistics.gammaParametersFromNormal(TC[0], TC[1]);
 		addUsedParameter(StandardParameter.ONE_TIME_COST, "amputation", 
 				"Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", COSTYEAR, 

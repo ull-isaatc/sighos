@@ -3,6 +3,10 @@ package es.ull.iis.simulation.hta.osdi.wrappers;
 import java.util.Set;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -18,27 +22,27 @@ public class ExpressionWrapper implements ExpressableWrapper {
 		NORMAL("NormalVariate"),
 		UNIFORM("UniformVariate") {
 			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
-				return new String[] {OSDiWrapper.DataProperty.HAS_LOWER_LIMIT_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_UPPER_LIMIT_PARAMETER.getValue(instanceId, "0")};				
+				return new String[] {OSDiDataProperties.HAS_LOWER_LIMIT_PARAMETER.getValue(instanceId, "0"), OSDiDataProperties.HAS_UPPER_LIMIT_PARAMETER.getValue(instanceId, "0")};				
 			}
 		},
 		BETA("BetaVariate") {
 			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
-				return new String[] {OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_BETA_PARAMETER.getValue(instanceId, "0")};				
+				return new String[] {OSDiDataProperties.HAS_ALFA_PARAMETER.getValue(instanceId, "0"), OSDiDataProperties.HAS_BETA_PARAMETER.getValue(instanceId, "0")};				
 			}
 		},
 		GAMMA("GammaVariate") {
 			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
-				return new String[] {OSDiWrapper.DataProperty.HAS_ALFA_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
+				return new String[] {OSDiDataProperties.HAS_ALFA_PARAMETER.getValue(instanceId, "0"), OSDiDataProperties.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
 			}
 		},
 		EXPONENTIAL("ExponentialVariate") {
 			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
-				return new String[] {OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
+				return new String[] {OSDiDataProperties.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
 			}
 		},
 		POISSON("PoissonVariate") {
 			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
-				return new String[] {OSDiWrapper.DataProperty.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
+				return new String[] {OSDiDataProperties.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
 			}
 		};
 		private final String variateName;
@@ -48,7 +52,7 @@ public class ExpressionWrapper implements ExpressableWrapper {
 		}
 		
 		public String[] getParameters(OSDiWrapper wrap, String instanceId) {
-			return new String[] {OSDiWrapper.DataProperty.HAS_AVERAGE_PARAMETER.getValue(instanceId, "0"), OSDiWrapper.DataProperty.HAS_STANDARD_DEVIATION_PARAMETER.getValue(instanceId, "0")};
+			return new String[] {OSDiDataProperties.HAS_AVERAGE_PARAMETER.getValue(instanceId, "0"), OSDiDataProperties.HAS_STANDARD_DEVIATION_PARAMETER.getValue(instanceId, "0")};
 		}
 		
 		/**
@@ -69,30 +73,30 @@ public class ExpressionWrapper implements ExpressableWrapper {
 		RandomVariate rnd = null;
 		String exprToEvaluate = null;
 		this.instanceIRI = instanceIRI; 
-		if (superclasses.contains(OSDiWrapper.Clazz.AD_HOC_EXPRESSION.getShortName())) {
-			exprToEvaluate = OSDiWrapper.DataProperty.HAS_EXPRESSION_VALUE.getValue(instanceIRI, "");
-			final Set<String> referencedAttributes = OSDiWrapper.ObjectProperty.DEPENDS_ON_ATTRIBUTE.getValues(instanceIRI, true);
-			final Set<String> referencedParameters = OSDiWrapper.ObjectProperty.DEPENDS_ON_PARAMETER.getValues(instanceIRI, true);
+		if (superclasses.contains(OSDiClasses.AD_HOC_EXPRESSION.getShortName())) {
+			exprToEvaluate = OSDiDataProperties.HAS_EXPRESSION_VALUE.getValue(instanceIRI, "");
+			final Set<String> referencedAttributes = OSDiObjectProperties.DEPENDS_ON_ATTRIBUTE.getValues(instanceIRI, true);
+			final Set<String> referencedParameters = OSDiObjectProperties.DEPENDS_ON_PARAMETER.getValues(instanceIRI, true);
 			// TODO: Process dependences with Attributes and Parameters
 		}
-		else if (superclasses.contains(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION.getShortName())) {
+		else if (superclasses.contains(OSDiClasses.PROBABILITY_DISTRIBUTION_EXPRESSION.getShortName())) {
 			SupportedProbabilityDistributions dist = null;
-			if (superclasses.contains(OSDiWrapper.Clazz.NORMAL_DISTRIBUTION_EXPRESSION.getShortName())) {
+			if (superclasses.contains(OSDiClasses.NORMAL_DISTRIBUTION_EXPRESSION.getShortName())) {
 				dist = SupportedProbabilityDistributions.NORMAL;
 			}
-			else if (superclasses.contains(OSDiWrapper.Clazz.UNIFORM_DISTRIBUTION_EXPRESSION.getShortName())) {
+			else if (superclasses.contains(OSDiClasses.UNIFORM_DISTRIBUTION_EXPRESSION.getShortName())) {
 				dist = SupportedProbabilityDistributions.UNIFORM;				
 			}
-			else if (superclasses.contains(OSDiWrapper.Clazz.BETA_DISTRIBUTION_EXPRESSION.getShortName())) {
+			else if (superclasses.contains(OSDiClasses.BETA_DISTRIBUTION_EXPRESSION.getShortName())) {
 				dist = SupportedProbabilityDistributions.BETA;
 			}
-			else if (superclasses.contains(OSDiWrapper.Clazz.GAMMA_DISTRIBUTION_EXPRESSION.getShortName())) {
+			else if (superclasses.contains(OSDiClasses.GAMMA_DISTRIBUTION_EXPRESSION.getShortName())) {
 				dist = SupportedProbabilityDistributions.GAMMA;
 			}
-			else if (superclasses.contains(OSDiWrapper.Clazz.EXPONENTIAL_DISTRIBUTION_EXPRESSION.getShortName())) {
+			else if (superclasses.contains(OSDiClasses.EXPONENTIAL_DISTRIBUTION_EXPRESSION.getShortName())) {
 				dist = SupportedProbabilityDistributions.EXPONENTIAL;
 			}
-			else if (superclasses.contains(OSDiWrapper.Clazz.POISSON_DISTRIBUTION_EXPRESSION.getShortName())) {
+			else if (superclasses.contains(OSDiClasses.POISSON_DISTRIBUTION_EXPRESSION.getShortName())) {
 				dist = SupportedProbabilityDistributions.POISSON;
 			}
 			if (dist == null) {
@@ -101,19 +105,19 @@ public class ExpressionWrapper implements ExpressableWrapper {
 			
 			rnd = buildDistributionVariate(dist.getVariateName(), dist.getParameters(wrap, instanceIRI)); 
 
-			String strOffset = OSDiWrapper.DataProperty.HAS_OFFSET_PARAMETER.getValue(instanceIRI, "0.0");
+			String strOffset = OSDiDataProperties.HAS_OFFSET_PARAMETER.getValue(instanceIRI, "0.0");
 			double offset = 0.0;
 			try {
 				offset = Double.parseDouble(strOffset);
 			} catch(NumberFormatException ex) {
-				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceIRI, OSDiWrapper.DataProperty.HAS_OFFSET_PARAMETER, "Invalid offset parameter for probabilistic expression. Found " + strOffset);
+				throw new MalformedOSDiModelException(OSDiClasses.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceIRI, OSDiDataProperties.HAS_OFFSET_PARAMETER, "Invalid offset parameter for probabilistic expression. Found " + strOffset);
 			}
-			String strScale = OSDiWrapper.DataProperty.HAS_SCALE_PARAMETER.getValue(instanceIRI, "1.0");
+			String strScale = OSDiDataProperties.HAS_SCALE_PARAMETER.getValue(instanceIRI, "1.0");
 			double scale = 1.0;
 			try {
 				scale = Double.parseDouble(strScale);
 			} catch(NumberFormatException ex) {
-				throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceIRI, OSDiWrapper.DataProperty.HAS_SCALE_PARAMETER, "Invalid scale parameter for probabilistic expression. Found " + strScale);
+				throw new MalformedOSDiModelException(OSDiClasses.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceIRI, OSDiDataProperties.HAS_SCALE_PARAMETER, "Invalid scale parameter for probabilistic expression. Found " + strScale);
 			}
 			if (scale != 1.0 || offset != 0.0) {
 				rnd = RandomVariateFactory.getInstance("ScaledVariate", rnd, scale, offset);

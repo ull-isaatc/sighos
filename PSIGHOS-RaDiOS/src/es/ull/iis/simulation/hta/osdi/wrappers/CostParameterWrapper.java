@@ -4,6 +4,8 @@
 package es.ull.iis.simulation.hta.osdi.wrappers;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
 
 /**
  * TODO Process currency
@@ -11,7 +13,8 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
  *
  */
 public class CostParameterWrapper extends ParameterWrapper {
-	private final OSDiWrapper.TemporalBehavior temporalBehavior;
+	/** The temporal behavior of the parameter: if true, applies one time; otherwise applies annually */
+	private final boolean appliesOneTime;
 	/**
 	 * @param wrap
 	 * @param paramId
@@ -21,14 +24,15 @@ public class CostParameterWrapper extends ParameterWrapper {
 	public CostParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription)
 			throws MalformedOSDiModelException {
 		super(wrap, paramId, defaultDescription);
-		temporalBehavior = OSDiWrapper.TemporalBehavior.valueOf(OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(paramId, OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.getShortName()));
+		appliesOneTime = (OSDiDataProperties.APPLIES_ONE_TIME.getValue(paramId, "false") == "true");
 	}
 	
 	/**
-	 * @return the temporalBehavior
+	 * Returns the temporal behavior of the parameter: if true, applies one time; otherwise applies annually
+	 * @return the temporal behavior of the parameter: if true, applies one time; otherwise applies annually
 	 */
-	public OSDiWrapper.TemporalBehavior getTemporalBehavior() {
-		return temporalBehavior;
+	public boolean appliesOneTime() {
+		return appliesOneTime;
 	}
 
 }

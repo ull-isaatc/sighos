@@ -4,8 +4,9 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper.DataItemType;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -15,15 +16,14 @@ import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
 
 public interface TimeToEventCalculatorBuilder {
     public enum SupportedCombinations {
-        PROBABILITY(new DataItemType[] { DataItemType.DI_PROBABILITY}),
-        PROPORTION(new DataItemType[] { DataItemType.DI_PROPORTION}),
+        PROBABILITY(new OSDiDataItemTypes[] { OSDiDataItemTypes.DI_PROBABILITY}),
+        PROPORTION(new OSDiDataItemTypes[] { OSDiDataItemTypes.DI_PROPORTION}),
         // TIME_TO_EVENT(new DataItemType[] { DataItemType.DI_TIME_TO_EVENT}),
-        PROBABILITY_RR(new DataItemType[] { DataItemType.DI_PROBABILITY, DataItemType.DI_RELATIVE_RISK}),
-        PROPORTION_RR(new DataItemType[] { DataItemType.DI_PROPORTION, DataItemType.DI_RELATIVE_RISK});
+        PROBABILITY_RR(new OSDiDataItemTypes[] { OSDiDataItemTypes.DI_PROBABILITY, OSDiDataItemTypes.DI_RELATIVE_RISK});
         private final int n;
-        private final DataItemType[] dataItems;
+        private final OSDiDataItemTypes[] dataItems;
 
-        private SupportedCombinations(DataItemType[] dataItems) {
+        private SupportedCombinations(OSDiDataItemTypes[] dataItems) {
             this.dataItems = dataItems;
             this.n = dataItems.length;
         }
@@ -31,7 +31,7 @@ public interface TimeToEventCalculatorBuilder {
 
 	/**
 	 * Creates the calculator for the time to event associated to this pathway. Currently only allows the time to be expressed as an annual risk and, consequently, uses 
-	 * a {@link AnnualRiskBasedTimeToEventParameter}. 
+	 * a {@link AnnualRiskBasedTimeToEventCalculator}. 
 	 * @param model Repository
 	 * @param progression The destination progression for this pathway
 	 * @return
@@ -40,23 +40,16 @@ public interface TimeToEventCalculatorBuilder {
 	public static TimeToEventCalculator getTimeToEventCalculator(OSDiGenericModel model, DiseaseProgression progression, ArrayList<ParameterWrapper> riskWrappers) throws MalformedOSDiModelException {
         final SupportedCombinations comb = foundValidCombination(riskWrappers);
         if (comb == null) {
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MANIFESTATION_PATHWAY, progression.name(), OSDiWrapper.ObjectProperty.HAS_RISK_CHARACTERIZATION, "Unsupported combination of parameters for risk characterization.");
+			throw new MalformedOSDiModelException(OSDiClasses.DISEASE_PROGRESSION_PATHWAY, progression.name(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, "Unsupported combination of parameters for risk characterization.");
         }
-        // TODO: See how to include RRs
         switch(comb) {
             case PROPORTION:
                 return new ProportionBasedTimeToEventCalculator(progression, StandardParameter.PROPORTION.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
             case PROBABILITY_RR:
-                if (riskWrappers.get(0).getDataItemTypes().contains(DataItemType.DI_RELATIVE_RISK)) {
-                    return new AnnualRiskBasedTimeToEventCalculator(progression, StandardParameter.PROBABILITY.createName(riskWrappers.get(1).getOriginalIndividualIRI()));
+                if (riskWrappers.get(0).getDataItemTypes().contains(OSDiDataItemTypes.DI_RELATIVE_RISK)) {
+                    return new AnnualRiskBasedTimeToEventCalculator(progression, StandardParameter.PROBABILITY.createName(riskWrappers.get(1).getOriginalIndividualIRI()), StandardParameter.RELATIVE_RISK.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
                 } else {
                     return new AnnualRiskBasedTimeToEventCalculator(progression, StandardParameter.PROBABILITY.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
-                }
-            case PROPORTION_RR:
-                if (riskWrappers.get(0).getDataItemTypes().contains(DataItemType.DI_RELATIVE_RISK)) {
-                    return new ProportionBasedTimeToEventCalculator(progression, StandardParameter.PROPORTION.createName(riskWrappers.get(1).getOriginalIndividualIRI()));
-                } else {
-                    return new ProportionBasedTimeToEventCalculator(progression, StandardParameter.PROPORTION.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
                 }
             case PROBABILITY:
             default:

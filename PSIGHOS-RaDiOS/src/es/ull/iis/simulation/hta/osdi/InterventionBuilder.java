@@ -10,7 +10,10 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterModifierWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.Discount;
@@ -27,7 +30,7 @@ public interface InterventionBuilder {
 		final OSDiWrapper wrap = model.getOwlWrapper();
 		if (DO_NOTHING.equals(interventionName))
 			return new DoNothingIntervention(model);
-		final String description = OSDiWrapper.DataProperty.HAS_DESCRIPTION.getValue(interventionName, "");
+		final String description = OSDiDataProperties.HAS_DESCRIPTION.getValue(interventionName, "");
 		final Set<String> superclasses = wrap.getClassesForIndividual(interventionName);
 		// TODO: Populate different methods for different interventions
 		if (superclasses.contains(OSDiWrapper.InterventionType.SCREENING.getClazz().getShortName())) {
@@ -40,7 +43,7 @@ public interface InterventionBuilder {
 		final OSDiWrapper wrap = model.getOwlWrapper();
 		final ArrayList<ParameterModifierWrapper> list = new ArrayList<>();
 		// Collects the modifications associated to the specified intervention
-		final Set<String> modifications = OSDiWrapper.ObjectProperty.INVOLVES_MODIFICATION.getValues(intervention.name(), true);
+		final Set<String> modifications = OSDiObjectProperties.INVOLVES_MODIFICATION.getValues(intervention.name(), true);
 		for (String modificationName : modifications) {		
 			list.add(new ParameterModifierWrapper(wrap, modificationName, intervention));
 		}
@@ -106,35 +109,35 @@ public interface InterventionBuilder {
 			super(model, name, description);
 			final OSDiWrapper wrap = model.getOwlWrapper();
 			// Sensitivity
-			final Set<String> strSensitivities = OSDiWrapper.ObjectProperty.HAS_SENSITIVITY.getValues(name, true);
+			final Set<String> strSensitivities = OSDiObjectProperties.HAS_SENSITIVITY.getValues(name, true);
 			if (strSensitivities.size() == 0) {
-				wrap.printWarning(name, OSDiWrapper.ObjectProperty.HAS_SENSITIVITY, "Sensitivity not defined for a screening intervention. Using 1.0");
+				wrap.printWarning(name, OSDiObjectProperties.HAS_SENSITIVITY, "Sensitivity not defined for a screening intervention. Using 1.0");
 				sensitivityWrapper = null;
 			}
 			else {
 				final String sensitivityParamName = (String) strSensitivities.toArray()[0];
 				if (strSensitivities.size() > 1) {
-					wrap.printWarning(name, OSDiWrapper.ObjectProperty.HAS_SENSITIVITY, "Found more than one sensitivity for a screening intervention. Using " + sensitivityParamName);			
+					wrap.printWarning(name, OSDiObjectProperties.HAS_SENSITIVITY, "Found more than one sensitivity for a screening intervention. Using " + sensitivityParamName);			
 				}
 				sensitivityWrapper = new ParameterWrapper(wrap, sensitivityParamName, "Sensitivity for " + name); 
-				if (!sensitivityWrapper.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_SENSITIVITY)) {
-					wrap.printWarning(sensitivityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiWrapper.DataItemType.DI_SENSITIVITY.getInstanceName());			
+				if (!sensitivityWrapper.getDataItemTypes().contains(OSDiDataItemTypes.DI_SENSITIVITY)) {
+					wrap.printWarning(sensitivityParamName, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiDataItemTypes.DI_SENSITIVITY.getInstanceName());			
 				}
 			}
 			// Specificity
-			final Set<String> strSpecificities = OSDiWrapper.ObjectProperty.HAS_SPECIFICITY.getValues(name, true);
+			final Set<String> strSpecificities = OSDiObjectProperties.HAS_SPECIFICITY.getValues(name, true);
 			if (strSpecificities.size() == 0) {
-				wrap.printWarning(name, OSDiWrapper.ObjectProperty.HAS_SPECIFICITY, "Specificity not defined for a screening intervention. Using 1.0");						
+				wrap.printWarning(name, OSDiObjectProperties.HAS_SPECIFICITY, "Specificity not defined for a screening intervention. Using 1.0");						
 				specificityWrapper = null;
 			}
 			else {
 				final String specificityParamName = (String) strSpecificities.toArray()[0];
 				if (strSpecificities.size() > 1) {
-					wrap.printWarning(name, OSDiWrapper.ObjectProperty.HAS_SPECIFICITY, "Found more than one specificity for a screening intervention. Using " + specificityParamName);			
+					wrap.printWarning(name, OSDiObjectProperties.HAS_SPECIFICITY, "Found more than one specificity for a screening intervention. Using " + specificityParamName);			
 				}
 				specificityWrapper = new ParameterWrapper(wrap, specificityParamName, "Specificity for " + name); 
-				if (!specificityWrapper.getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_SPECIFICITY)) {
-					wrap.printWarning(specificityParamName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiWrapper.DataItemType.DI_SPECIFICITY.getInstanceName());			
+				if (!specificityWrapper.getDataItemTypes().contains(OSDiDataItemTypes.DI_SPECIFICITY)) {
+					wrap.printWarning(specificityParamName, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiDataItemTypes.DI_SPECIFICITY.getInstanceName());			
 				}
 			}
 			this.modifiers = InterventionBuilder.createModificationParams(model, this);

@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -28,7 +29,7 @@ public class TestManifestationStage1 extends DiseaseProgression {
 	@Override
 	public void createParameters() {
 		addUsedParameter(StandardParameter.INCREASED_MORTALITY_RATE, "", "Test", 1.5, RandomVariateFactory.getInstance("UniformVariate", 1.3, 1.7));
-		addUsedParameter(StandardParameter.ANNUAL_COST, "", "Test", HTAModel.getStudyYear(), ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
+		addUsedParameter(StandardParameter.ANNUAL_COST, "", "Test", HTAModel.getStudyYear(), ANNUAL_COST, Parameter.getRandomVariateForCost(ANNUAL_COST));
 		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "", "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
 	}
 

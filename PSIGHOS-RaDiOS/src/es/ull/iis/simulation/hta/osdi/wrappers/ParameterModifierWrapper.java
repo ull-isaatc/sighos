@@ -8,6 +8,10 @@ import java.util.Set;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.SecondOrderNatureParameter;
 import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
@@ -34,15 +38,15 @@ public class ParameterModifierWrapper extends ParameterWrapper {
 	 */
 	public ParameterModifierWrapper(OSDiWrapper wrap, String modifierName, Intervention intervention) throws MalformedOSDiModelException {
 		super(wrap, modifierName, "Modification produced by intervention " + intervention.name());
-		modifiedItems = OSDiWrapper.ObjectProperty.MODIFIES.getValues(modifierName, true);
-		if (getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_CONTINUOUS_VARIABLE))
+		modifiedItems = OSDiObjectProperties.MODIFIES.getValues(modifierName, true);
+		if (getDataItemTypes().contains(OSDiDataItemTypes.DI_CONTINUOUS_VARIABLE))
 			type = Type.SET;
-		else if (getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_FACTOR) || getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_RELATIVE_RISK))
+		else if (getDataItemTypes().contains(OSDiDataItemTypes.DI_FACTOR) || getDataItemTypes().contains(OSDiDataItemTypes.DI_RELATIVE_RISK))
 			type = Type.FACTOR;
-		else if (getDataItemTypes().contains(OSDiWrapper.DataItemType.DI_MEAN_DIFFERENCE))
+		else if (getDataItemTypes().contains(OSDiDataItemTypes.DI_MEAN_DIFFERENCE))
 			type = Type.DIFF;
 		else {
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.PARAMETER, modifierName, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "None of the data item types defined for the modification are currently supported");
+			throw new MalformedOSDiModelException(OSDiClasses.PARAMETER, modifierName, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "None of the data item types defined for the modification are currently supported");
 		}
 		this.intervention = intervention;		
 	}

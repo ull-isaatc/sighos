@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.pbdmodel;
 
 import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -30,7 +31,7 @@ public class SeizuresManifestation extends DiseaseProgression {
 	public void createParameters() {
 		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE, "", "", 0.0);
 		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_END_AGE, "", "", 1.0);
-		addUsedParameter(StandardParameter.ONSET_COST, "", "Test", COST_YEAR, COST, StandardParameter.getRandomVariateForCost(COST));
+		addUsedParameter(StandardParameter.ONSET_COST, "", "Test", COST_YEAR, COST, Parameter.getRandomVariateForCost(COST));
 		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, "", "Assumption", 1.0);
 		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "", "Test", DU, RandomVariateFactory.getInstance("UniformVariate", DU*0.8, DU*1.2));
 	}

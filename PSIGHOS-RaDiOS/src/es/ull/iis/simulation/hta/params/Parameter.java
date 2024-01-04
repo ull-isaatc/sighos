@@ -7,6 +7,8 @@ import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.NamedAndDescribed;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PrettyPrintable;
+import simkit.random.RandomVariate;
+import simkit.random.RandomVariateFactory;
 
 /**
  * A parameter that defines a value for each patient. It may define a fixed value (constant parameter), a different value per simulation (second-order uncertainty), 
@@ -186,6 +188,35 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 	}
 	
 	/**
+     * Creates a uniform distribution to add uncertainty to a deterministic probability. Uses the {@link BasicConfigParams#DEF_SECOND_ORDER_VARIATION} 
+     * parameters to adjust the uncertainty
+     * @param detProb Deterministic probability
+     * @return a uniform distribution that represents the uncertainty around a probability parameter
+     */
+    public static RandomVariate getRandomVariateForProbability(double detProb) {
+    	if (detProb == 0.0) {
+    		return RandomVariateFactory.getInstance("ConstantVariate", detProb);
+    	}
+    	final double instRate = -Math.log(1 - detProb);
+    	return RandomVariateFactory.getInstance("UniformVariate", 1 - Math.exp(-instRate * (1 - BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY)), 1 - Math.exp(-instRate * (1 + BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY)));
+    }
+
+    /**
+     * Creates a Gamma distribution to add uncertainty to a deterministic cost. Uses the {@link BasicConfigParams#DEF_SECOND_ORDER_VARIATION} 
+     * parameters to adjust the uncertainty
+     * @param detCost Deterministic cost
+     * @return a Gamma random distribution that represents the uncertainty around a cost
+     */
+    public static RandomVariate getRandomVariateForCost(double detCost) {
+    	if (detCost == 0.0) {
+    		return RandomVariateFactory.getInstance("ConstantVariate", detCost);
+    	}
+    	final double costVariance2 = BasicConfigParams.DEF_SECOND_ORDER_VARIATION.COST * BasicConfigParams.DEF_SECOND_ORDER_VARIATION.COST;
+    	final double invCostVariance2 = 1 / costVariance2;
+    	return RandomVariateFactory.getInstance("GammaVariate", invCostVariance2, costVariance2 * detCost);
+    }
+
+    /**
 	 * Creates a string that contains a tab separated list of the parameter names defined in this repository
 	 * @return a string that contains a tab separated list of the parameter names defined in this repository
 	 */

@@ -31,7 +31,7 @@ public class JavaluatorPatient implements AbstractVariableSet<Double> {
 			return pat.isDiagnosed() ? 1.0 : 0.0;
 		if ("INTERVENTION".equals(variableName))
 			return (double) pat.getnIntervention();
-		double paramValue = pat.getSimulation().getRepository().getParameterValue(variableName, pat);
+		double paramValue = pat.getSimulation().getModel().getParameterValue(variableName, pat);
 		if (!Double.isNaN(paramValue))
 			return paramValue;
 		return Double.NaN;

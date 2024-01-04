@@ -36,7 +36,7 @@ public class ExpressionLanguagePatient implements JexlContext {
 	public Object get(String name) {
 		if (has(name))
 			return fixedValues.get(name);
-		double paramValue = pat.getSimulation().getRepository().getParameterValue(name, pat);
+		double paramValue = pat.getSimulation().getModel().getParameterValue(name, pat);
 		if (!Double.isNaN(paramValue))
 			return paramValue;
 		return Double.NaN;
@@ -49,7 +49,7 @@ public class ExpressionLanguagePatient implements JexlContext {
 
 	@Override
 	public boolean has(String name) {
-		return fixedValues.containsKey(name);
+		return fixedValues.containsKey(name) || pat.getSimulation().getModel().getParameters().containsKey(name);
 	}
 
 }

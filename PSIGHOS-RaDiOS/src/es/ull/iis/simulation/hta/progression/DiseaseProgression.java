@@ -65,6 +65,7 @@ public class DiseaseProgression extends HTAModelComponent implements Comparable<
 		if (!model.register(this))
 			throw new IllegalArgumentException("Disease progression " + name + " already registered");		
 		disease.addDiseaseProgression(this);
+		// TODO: Not every parameter is used by every manifestation
 		registerUsedParameter(StandardParameter.ANNUAL_COST);
 		registerUsedParameter(StandardParameter.ONSET_COST);
 		registerUsedParameter(StandardParameter.TREATMENT_COST);
@@ -73,6 +74,8 @@ public class DiseaseProgression extends HTAModelComponent implements Comparable<
 		registerUsedParameter(StandardParameter.ONSET_DISUTILITY);
 		registerUsedParameter(StandardParameter.ANNUAL_UTILITY);
 		registerUsedParameter(StandardParameter.ONSET_UTILITY);
+		// TODO: Currently not processing duration properly
+		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_DURATION);
 		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_END_AGE);
 		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_ONSET_AGE);
 		registerUsedParameter(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION);

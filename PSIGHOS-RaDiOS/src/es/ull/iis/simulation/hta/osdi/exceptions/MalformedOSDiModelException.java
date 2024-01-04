@@ -1,7 +1,9 @@
 package es.ull.iis.simulation.hta.osdi.exceptions;
 
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
-import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
 
 public class MalformedOSDiModelException extends MalformedSimulationModelException {
 	/**
@@ -13,19 +15,19 @@ public class MalformedOSDiModelException extends MalformedSimulationModelExcepti
 		super(message, cause);
 	}
 
-	public MalformedOSDiModelException(OSDiWrapper.Clazz involvedClass, String instanceName, OSDiWrapper.DataProperty involvedProperty, String content) {
+	public MalformedOSDiModelException(OSDiClasses involvedClass, String instanceName, OSDiDataProperties involvedProperty, String content) {
 		super("(" + involvedClass.getShortName() + ") " + instanceName + ":" + involvedProperty.getShortName() + "\tError parsing\"" + content + "\"");
 	}
 
-	public MalformedOSDiModelException(OSDiWrapper.Clazz involvedClass, String instanceName, OSDiWrapper.DataProperty involvedProperty, String content, Throwable cause) {
+	public MalformedOSDiModelException(OSDiClasses involvedClass, String instanceName, OSDiDataProperties involvedProperty, String content, Throwable cause) {
 		super("(" + involvedClass.getShortName() + ") " + instanceName + ":" + involvedProperty.getShortName() + "\tError parsing\"" + content + "\"", cause);
 	}
 
-	public MalformedOSDiModelException(OSDiWrapper.Clazz involvedClass, String instanceName, OSDiWrapper.ObjectProperty involvedProperty, String content) {
+	public MalformedOSDiModelException(OSDiClasses involvedClass, String instanceName, OSDiObjectProperties involvedProperty, String content) {
 		super("(" + involvedClass.getShortName() + ") " + instanceName + ":" + involvedProperty.getShortName() + "\tError parsing\"" + content + "\"");
 	}
 
-	public MalformedOSDiModelException(OSDiWrapper.Clazz involvedClass, String instanceName, OSDiWrapper.ObjectProperty involvedProperty, String content, Throwable cause) {
+	public MalformedOSDiModelException(OSDiClasses involvedClass, String instanceName, OSDiObjectProperties involvedProperty, String content, Throwable cause) {
 		super("(" + involvedClass.getShortName() + ") " + instanceName + ":" + involvedProperty.getShortName() + "\tError parsing\"" + content + "\"", cause);
 	}
 

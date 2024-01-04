@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.simpletest;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
@@ -33,7 +34,7 @@ public class TestRareDisease2 extends TemplateTestRareDisease {
 
 	@Override
 	public void createParameters() {
-		StandardParameter.PROBABILITY.addToModel(model, acuteManif1, "Test", P_MANIF1, StandardParameter.getRandomVariateForProbability(P_MANIF1));
+		StandardParameter.PROBABILITY.addToModel(model, acuteManif1, "Test", P_MANIF1, Parameter.getRandomVariateForProbability(P_MANIF1));
 	}
 
 	@Override

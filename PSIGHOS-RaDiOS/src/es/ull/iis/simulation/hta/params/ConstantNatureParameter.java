@@ -20,5 +20,8 @@ public class ConstantNatureParameter extends Parameter {
 	public double getValue(Patient pat) {
 		return value;
 	}
-    
+ 
+    public double getValue() {
+        return value;
+    }
 }

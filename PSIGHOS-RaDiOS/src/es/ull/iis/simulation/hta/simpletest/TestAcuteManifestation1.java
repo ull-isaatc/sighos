@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.simpletest;
 
 import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -34,9 +35,9 @@ public class TestAcuteManifestation1 extends DiseaseProgression {
 	@Override
 	public void createParameters() {
 		addUsedParameter(StandardParameter.ONSET_DISUTILITY, "", "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
-		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH, "", "Test", P_DEAD, StandardParameter.getRandomVariateForProbability(P_DEAD));
-		addUsedParameter(StandardParameter.ONSET_COST, "", "Test", PUNCTUAL_COST, StandardParameter.getRandomVariateForCost(PUNCTUAL_COST));
-		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, "", "Test", P_DIAG, StandardParameter.getRandomVariateForProbability(P_DIAG));
+		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH, "", "Test", P_DEAD, Parameter.getRandomVariateForProbability(P_DEAD));
+		addUsedParameter(StandardParameter.ONSET_COST, "", "Test", PUNCTUAL_COST, Parameter.getRandomVariateForCost(PUNCTUAL_COST));
+		addUsedParameter(StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS, "", "Test", P_DIAG, Parameter.getRandomVariateForProbability(P_DIAG));
 	}
 
 }

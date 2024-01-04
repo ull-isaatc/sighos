@@ -6,6 +6,11 @@ package es.ull.iis.simulation.hta.osdi.wrappers;
 import java.util.Set;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 
 /**
  * 
@@ -13,14 +18,10 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
  *
  */
 public class UtilityParameterWrapper extends ParameterWrapper {
-	/**
-	 * The temporal behavior for this utility
-	 */
-	private final OSDiWrapper.TemporalBehavior temporalBehavior;
-	/**
-	 * The type (UTILITY, DISUTILITY) of this utility
-	 */
-	private final OSDiWrapper.UtilityType type;
+	/** The temporal behavior of the parameter: if true, applies one time; otherwise applies annually */
+	private final boolean appliesOneTime;
+	/** Whether this is a disutility */
+	private final boolean disutility;
 	
 	/**
 	 * Creates a wrapper for a utility defined in the ontology.
@@ -30,35 +31,35 @@ public class UtilityParameterWrapper extends ParameterWrapper {
 	 */
 	public UtilityParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription) throws MalformedOSDiModelException {
 		super(wrap, paramId, defaultDescription);
-		temporalBehavior = OSDiWrapper.TemporalBehavior.valueOf(OSDiWrapper.DataProperty.HAS_TEMPORAL_BEHAVIOR.getValue(paramId, OSDiWrapper.TemporalBehavior.NOT_SPECIFIED.getShortName()));
+		appliesOneTime = (OSDiDataProperties.APPLIES_ONE_TIME.getValue(paramId, "false") == "true");
 
-		final Set<OSDiWrapper.DataItemType> dataItems = getDataItemTypes();
+		final Set<OSDiDataItemTypes> dataItems = getDataItemTypes();
 		
-		if (dataItems.contains(OSDiWrapper.DataItemType.DI_DISUTILITY)) {
-			type = OSDiWrapper.UtilityType.DISUTILITY;			
+		if (dataItems.contains(OSDiDataItemTypes.DI_DISUTILITY)) {
+			disutility = true;			
 		}
-		else if (dataItems.contains(OSDiWrapper.DataItemType.DI_UTILITY)) {
-			type = OSDiWrapper.UtilityType.UTILITY;			
+		else if (dataItems.contains(OSDiDataItemTypes.DI_UTILITY)) {
+			disutility = false;			
 		}
 		else {
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.UTILITY, paramId, OSDiWrapper.ObjectProperty.HAS_DATA_ITEM_TYPE, "Data item type for utility does not include utility or disutility");			
+			throw new MalformedOSDiModelException(OSDiClasses.UTILITY, paramId, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "Data item type for utility does not include utility or disutility");			
 		}
 	}
 	
 	/**
-	 * Returns the temporal behavior for this utility. By default, it is set to NOT_SPECIFIED if it was not specified by the ontology 
-	 * @return the temporal behavior for this utility.
+	 * Returns the temporal behavior of the parameter: if true, applies one time; otherwise applies annually
+	 * @return the temporal behavior of the parameter: if true, applies one time; otherwise applies annually
 	 */
-	public OSDiWrapper.TemporalBehavior getTemporalBehavior() {
-		return temporalBehavior;
+	public boolean appliesOneTime() {
+		return appliesOneTime;
 	}
 	
 	/**
-	 * Returns the type (UTILITY, DISUTILITY) of this utility
-	 * @return the type (UTILITY, DISUTILITY) of this utility
+	 * Returns true it this is a disutility; false if it is a utility
+	 * @return true it this is a disutility; false if it is a utility
 	 */
-	public OSDiWrapper.UtilityType getType() {
-		return type;
+	public boolean isDisutility() {
+		return disutility;
 	}
 
 }

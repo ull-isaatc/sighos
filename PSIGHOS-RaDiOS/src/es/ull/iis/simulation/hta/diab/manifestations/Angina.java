@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.diab.manifestations;
 
 import es.ull.iis.simulation.hta.HTAModel;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -31,8 +32,8 @@ public class Angina extends DiseaseProgression {
 
 	@Override
 	public void createParameters() {
-		addUsedParameter(StandardParameter.ANNUAL_COST, "year 2+ of " + getDescription(), "https://doi.org/10.1016/j.endinu.2018.03.008", COSTYEAR, ANNUAL_COST, StandardParameter.getRandomVariateForCost(ANNUAL_COST));
-		addUsedParameter(StandardParameter.ONE_TIME_COST, "episode of " + getDescription(), "https://doi.org/10.1016/j.endinu.2018.03.008", COSTYEAR, TRANS_COST, StandardParameter.getRandomVariateForCost(TRANS_COST));
+		addUsedParameter(StandardParameter.ANNUAL_COST, "year 2+ of " + getDescription(), "https://doi.org/10.1016/j.endinu.2018.03.008", COSTYEAR, ANNUAL_COST, Parameter.getRandomVariateForCost(ANNUAL_COST));
+		addUsedParameter(StandardParameter.ONE_TIME_COST, "episode of " + getDescription(), "https://doi.org/10.1016/j.endinu.2018.03.008", COSTYEAR, TRANS_COST, Parameter.getRandomVariateForCost(TRANS_COST));
 		final double[] paramsDu = Statistics.betaParametersFromNormal(DU[0], DU[1]);
 		addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "Disutility of " + getDescription(), "Bagust and Beale", DU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDu[0], paramsDu[1]));
 		addUsedParameter(StandardParameter.INCREASED_MORTALITY_RATE, "macrovascular disease", "https://doi.org/10.2337/diacare.28.3.617", 

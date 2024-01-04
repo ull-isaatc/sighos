@@ -23,7 +23,10 @@ import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.builders.DiseaseBuilder;
 import es.ull.iis.simulation.hta.osdi.builders.PopulationBuilder;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -57,29 +60,29 @@ public class OSDiGenericModel extends HTAModel {
 		wrap = new OSDiWrapper(path, modelId, instancePrefix);
 		setStudyYear(wrap.parseHasYearProperty(wrap.getWorkingModelInstance()));
 		
-		final ArrayList<String> methods = OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD.getValues(wrap.getWorkingModelInstance());
+		final ArrayList<String> methods = OSDiDataProperties.HAS_DISUTILITY_COMBINATION_METHOD.getValues(wrap.getWorkingModelInstance());
 		// Assuming that exactly one method was defined
 		if (methods.size() != 1)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, wrap.getWorkingModelInstance(), OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD, "Exactly one disutility combination method must be specified for the model. Instead, " + methods.size() + " defined.");
+			throw new MalformedOSDiModelException(OSDiClasses.MODEL, wrap.getWorkingModelInstance(), OSDiDataProperties.HAS_DISUTILITY_COMBINATION_METHOD, "Exactly one disutility combination method must be specified for the model. Instead, " + methods.size() + " defined.");
 		try {
 			experiment.setDisutilityCombinationMethod(DisutilityCombinationMethod.valueOf(methods.get(0)));
 		}
 		catch(IllegalArgumentException ex) {
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, wrap.getWorkingModelInstance(), OSDiWrapper.DataProperty.HAS_DISUTILITY_COMBINATION_METHOD, "Disutility combination method not valid. \"" + methods.get(0) + "\" not found.");			
+			throw new MalformedOSDiModelException(OSDiClasses.MODEL, wrap.getWorkingModelInstance(), OSDiDataProperties.HAS_DISUTILITY_COMBINATION_METHOD, "Disutility combination method not valid. \"" + methods.get(0) + "\" not found.");			
 		}
 
 		// Find the diseases that belong to the model
-		final Set<String> diseaseNames = OSDiWrapper.Clazz.DISEASE.getIndividuals(true); 
+		final Set<String> diseaseNames = OSDiClasses.DISEASE.getIndividuals(true); 
 		if (diseaseNames.size() == 0)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, wrap.getWorkingModelInstance(), OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM, "The model does not include any disease.");
+			throw new MalformedOSDiModelException(OSDiClasses.MODEL, wrap.getWorkingModelInstance(), OSDiObjectProperties.INCLUDES_MODEL_ITEM, "The model does not include any disease.");
 		final String diseaseName = (String)diseaseNames.toArray()[0];
 		if (diseaseNames.size() > 1)
 			wrap.printWarning("Found " + diseaseNames.size() + " diseases included in the model. Only " + diseaseName + " will be used");
 		
 		// Find the populations that belong to the model
-		final Set<String> populationNames = OSDiWrapper.Clazz.POPULATION.getIndividuals(true); 
+		final Set<String> populationNames = OSDiClasses.POPULATION.getIndividuals(true); 
 		if (populationNames.size() == 0)
-			throw new MalformedOSDiModelException(OSDiWrapper.Clazz.MODEL, wrap.getWorkingModelInstance(), OSDiWrapper.ObjectProperty.INCLUDES_MODEL_ITEM, "The model does not include any population.");
+			throw new MalformedOSDiModelException(OSDiClasses.MODEL, wrap.getWorkingModelInstance(), OSDiObjectProperties.INCLUDES_MODEL_ITEM, "The model does not include any population.");
 		final String populationName = (String)populationNames.toArray()[0];
 		if (populationNames.size() > 1)
 			wrap.printWarning("Found " + populationNames.size() + " populations included in the model. Only " + populationName + " will be used");

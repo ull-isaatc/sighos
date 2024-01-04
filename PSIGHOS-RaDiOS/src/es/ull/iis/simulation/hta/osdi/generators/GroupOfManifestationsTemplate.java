@@ -4,7 +4,8 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.osdi.wrappers.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.ModifiableOSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
 
 public enum GroupOfManifestationsTemplate {
 	NEU(EnumSet.of(DiseaseProgressionTemplate.NEU, DiseaseProgressionTemplate.LEA)),
@@ -30,7 +31,7 @@ public enum GroupOfManifestationsTemplate {
 		return components;
 	}
 
-	public void generate(OSDiWrapper wrap) {
+	public void generate(ModifiableOSDiWrapper wrap) {
 		wrap.createGroupOfManifestations(OSDiWrapper.InstanceIRI.MANIFESTATION_GROUP.getIRI(name()), components);
 	}
 	
