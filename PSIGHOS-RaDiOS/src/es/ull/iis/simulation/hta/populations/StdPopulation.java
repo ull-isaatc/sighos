@@ -6,7 +6,6 @@ package es.ull.iis.simulation.hta.populations;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.progression.Disease;
 import simkit.random.DiscreteRandomVariate;
 import simkit.random.RandomVariate;

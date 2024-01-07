@@ -16,9 +16,6 @@ import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import es.ull.iis.ontology.OWLOntologyWrapper;
-import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
-import es.ull.iis.simulation.hta.params.ParameterTemplate;
 
 /**
  * A wrapper for the OSDi ontology. It provides some useful methods to access the ontology.
@@ -104,12 +101,13 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		}
 	}
 
-	public enum ParameterUncertaintyType {
+	public enum ParameterNature {
 		DETERMINISTIC(OSDiClasses.DETERMINISTIC_PARAMETER),
+		CALCULATED(OSDiClasses.CALCULATED_PARAMETER),
 		FIRST_ORDER(OSDiClasses.FIRST_ORDER_UNCERTAINTY_PARAMETER),
 		SECOND_ORDER(OSDiClasses.SECOND_ORDER_UNCERTAINTY_PARAMETER);
 		private final OSDiClasses clazz;
-		private ParameterUncertaintyType(OSDiClasses clazz) {
+		private ParameterNature(OSDiClasses clazz) {
 			this.clazz = clazz;
 		}
 		/**
@@ -154,6 +152,23 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		}
 	}
 	
+	public enum ExpressionLanguage {
+		JAVALUATOR("Exp_Javaluator"),
+		JEXL("Exp_JEXL"),
+		JAVA("Exp_Java"),
+		EXCEL("Exp_Excel");
+		private final String instanceName;
+		private ExpressionLanguage(String instanceName) {
+			this.instanceName = instanceName;
+		}
+		/**
+		 * @return the instanceName
+		 */
+		public String getInstanceName() {
+			return instanceName;
+		}
+	}
+
 	private final static String STR_MODIFICATION_SUFFIX = STR_SEP + "Modification";
 	private final static TreeMap<OSDiClasses, ModelType> reverseModelType = new TreeMap<>(); 
 	private final static TreeMap<OSDiClasses, InterventionType> reverseInterventionType = new TreeMap<>(); 
@@ -282,26 +297,6 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		if (restrictToWorkingModel)
 			return getIndividualsSubclassOf(modelItems, classIRI);
 		return super.getIndividuals(classIRI);
-	}
-	
-
-	/**
-	 * Creates the costs associated to a specific model item by extracting the information from the ontology
-	 * @param costProperty A specific cost property among those that can be used for a model item
-	 * @param paramDescription The type of simulation parameter that should be used for that property 
-	 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
-	 */
-	public CostParameterWrapper createCostParam(String modelItemIRI, OSDiObjectProperties costProperty, ParameterTemplate paramDescription) throws MalformedOSDiModelException {
-		Set<String> costs = costProperty.getValues(modelItemIRI, true);
-		CostParameterWrapper costParam = null;
-		if (costs.size() > 0) {
-			if (costs.size() > 1)
-				printWarning(modelItemIRI, costProperty, "Found more than one cost for a property. Using only " + costs.toArray()[0]);
-			// TODO: Make a smarter use of the excess of costs and use only those which meets the conditions, i.e. select one annual cost from all the defined ones
-			
-			costParam = new CostParameterWrapper(this, (String)costs.toArray()[0], paramDescription.getDefaultDescription());
-		}
-		return costParam;
 	}
 
 	public static void printEverythingAsEnum(String path) {

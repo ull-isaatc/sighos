@@ -59,6 +59,10 @@ public abstract class Intervention extends HTAModelComponent implements Comparab
 		registerUsedParameter(StandardParameter.ONSET_DISUTILITY);
 		registerUsedParameter(StandardParameter.ANNUAL_UTILITY);
 		registerUsedParameter(StandardParameter.ONSET_UTILITY);
+		registerUsedParameter(StandardParameter.ANNUAL_COST);
+		registerUsedParameter(StandardParameter.ONSET_COST);
+		registerUsedParameter(StandardParameter.TREATMENT_COST);
+		registerUsedParameter(StandardParameter.FOLLOW_UP_COST);
 	}
 
 	/**
@@ -94,29 +98,30 @@ public abstract class Intervention extends HTAModelComponent implements Comparab
 	}
 
 	@Override
-	public double getCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-		return 0;
+	public double getCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
+		return discountRate.applyDiscount(getUsedParameterValue(StandardParameter.ANNUAL_COST, pat), initYear, endYear);
 	}
 
 	@Override
 	public double getStartingCost(Patient pat, double time, Discount discountRate) {
-		return 0;
+		return discountRate.applyPunctualDiscount(getUsedParameterValue(StandardParameter.ONSET_COST, pat), time);
 	}
 
 	@Override
-	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initT, double endT, Discount discountRate) {
-		return discountRate.applyAnnualDiscount(0.0, initT, endT);
+	public double[] getAnnualizedCostWithinPeriod(Patient pat, double initYear, double endYear, Discount discountRate) {
+		return discountRate.applyAnnualDiscount(getUsedParameterValue(StandardParameter.ANNUAL_COST, pat), initYear, endYear);
 	}
 
 	@Override
-	public double getTreatmentAndFollowUpCosts(Patient pat, double initT, double endT, Discount discountRate) {
-		return 0;
+	public double getTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
+		final double annualCost = getUsedParameterValue(StandardParameter.TREATMENT_COST, pat) + getUsedParameterValue(StandardParameter.FOLLOW_UP_COST, pat);
+		return discountRate.applyDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override
-	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initT, double endT,
-			Discount discountRate) {
-		return discountRate.applyAnnualDiscount(0.0, initT, endT);
+	public double[] getAnnualizedTreatmentAndFollowUpCosts(Patient pat, double initYear, double endYear, Discount discountRate) {
+		final double annualCost = getUsedParameterValue(StandardParameter.TREATMENT_COST, pat) + getUsedParameterValue(StandardParameter.FOLLOW_UP_COST, pat);
+		return discountRate.applyAnnualDiscount(annualCost, initYear, endYear);
 	}
 
 	@Override

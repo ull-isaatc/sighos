@@ -9,9 +9,9 @@ import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
@@ -138,8 +138,8 @@ public class EmpiricalSpainDeathSubmodel implements TimeToEventCalculator {
 		final double reference = INV_SURVIVAL[sex][100 - (int)age];
 		final double index = rnd * reference / imr;
 		final int ageToDeath = 101 - Math.abs(Arrays.binarySearch(INV_SURVIVAL[sex], index));
-		final double time = Math.min((ageToDeath > age) ? ageToDeath - age + rnd : rnd, BasicConfigParams.DEF_MAX_AGE - age);
+		final double time = Math.min((ageToDeath > age) ? ageToDeath - age + rnd : rnd, Population.DEF_MAX_AGE - age);
 		// TODO: Check that this works properly
-		return Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, time - ler), BasicConfigParams.DEF_MAX_AGE - age));
+		return Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, time - ler), Population.DEF_MAX_AGE - age));
 	}
 }

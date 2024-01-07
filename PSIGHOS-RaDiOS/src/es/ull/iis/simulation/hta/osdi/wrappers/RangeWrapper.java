@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -72,7 +72,7 @@ public class RangeWrapper {
 					rangeLimits[1] = rangeLimit2TimeStamp(range2, unit2);
 				}
 				else {
-					rangeLimits[1] = new TimeStamp(TimeUnit.YEAR, BasicConfigParams.DEF_MAX_AGE);
+					rangeLimits[1] = new TimeStamp(TimeUnit.YEAR, Population.DEF_MAX_AGE);
 				}
 			}
 		}

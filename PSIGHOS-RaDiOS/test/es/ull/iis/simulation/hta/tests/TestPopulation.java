@@ -6,8 +6,8 @@ package es.ull.iis.simulation.hta.tests;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.StandardParameter;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.calculator.ConstantDeathSubmodel;
@@ -28,7 +28,7 @@ public class TestPopulation extends StdPopulation {
 	 */
 	public TestPopulation(HTAModel model, Disease disease) throws MalformedSimulationModelException {
 		super(model, "TEST_POP", "Test population", disease);
-		death = new ConstantDeathSubmodel(BasicConfigParams.DEF_MAX_AGE - BasicConfigParams.DEF_MIN_AGE);
+		death = new ConstantDeathSubmodel(Population.DEF_MAX_AGE - Population.DEF_MIN_AGE);
 	}
 
 	@Override
@@ -48,17 +48,17 @@ public class TestPopulation extends StdPopulation {
 
 	@Override
 	protected RandomVariate getBaselineAgeVariate(Patient pat) {
-		return RandomVariateFactory.getInstance("ConstantVariate", BasicConfigParams.DEF_MIN_AGE);
+		return RandomVariateFactory.getInstance("ConstantVariate", Population.DEF_MIN_AGE);
 	}
 
 	@Override
 	public void createParameters() {
-		addUsedParameter(StandardParameter.POPULATION_BASE_UTILITY, "", "Assumption", BasicConfigParams.DEF_U_GENERAL_POP);
+		addUsedParameter(StandardParameter.POPULATION_BASE_UTILITY, "", "Assumption", Population.DEF_U_GENERAL_POP);
 	}
 
 	@Override
 	public int getMinAge() {
-		return BasicConfigParams.DEF_MIN_AGE;
+		return Population.DEF_MIN_AGE;
 	}
 
 	@Override

@@ -47,14 +47,39 @@ public interface DiseaseProgressionBuilder {
 		final private Map<ParameterTemplate, ParameterWrapper> paramMapping;
 		final private OSDiWrapper wrap;
 		
-		public OSDiDiseaseProgression(OSDiGenericModel secParams, String name, String description,
+		public OSDiDiseaseProgression(OSDiGenericModel model, String name, String description,
 				Disease disease, DiseaseProgression.Type type, String populationIRI) throws MalformedOSDiModelException {
-			super(secParams, name, description, disease, type);
+			super(model, name, description, disease, type);
 			paramMapping = new TreeMap<>();
-			wrap = secParams.getOwlWrapper();
+			wrap = model.getOwlWrapper();
 
-			createCostParams();
-			createUtilityParams();
+			addCostIfDefined(OSDiObjectProperties.HAS_FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST, false);
+			addCostIfDefined(OSDiObjectProperties.HAS_TREATMENT_COST, StandardParameter.TREATMENT_COST, false);
+
+			final CostParameterWrapper[] onsetAndAnnualCostParameterWrappers = model.createOnsetAndAnnualCostParams(name());
+			final UtilityParameterWrapper[] onsetAndAnnualUtilityParameterWrappers = model.createOnsetAndAnnualUtilityParams(name());
+			// Checking coherence of number of costs and the type of manifestation		
+			if (DiseaseProgression.Type.ACUTE_MANIFESTATION.equals(getType())) {
+				if (onsetAndAnnualCostParameterWrappers[0] != null)
+					paramMapping.put(StandardParameter.ONSET_COST, onsetAndAnnualCostParameterWrappers[0]);
+				else if (onsetAndAnnualCostParameterWrappers[1] != null)
+					throw new MalformedOSDiModelException(OSDiClasses.ACUTE_MANIFESTATION, name(), OSDiObjectProperties.HAS_COST, "Expected one-time cost and obtained annual cost in " + onsetAndAnnualCostParameterWrappers[1].getOriginalIndividualIRI());
+				if (onsetAndAnnualUtilityParameterWrappers[0] != null)
+					paramMapping.put(onsetAndAnnualUtilityParameterWrappers[0].isDisutility() ? StandardParameter.ONSET_DISUTILITY : StandardParameter.ONSET_UTILITY, onsetAndAnnualUtilityParameterWrappers[0]);
+				else if (onsetAndAnnualUtilityParameterWrappers[1] != null)
+					throw new MalformedOSDiModelException(OSDiClasses.ACUTE_MANIFESTATION, name(), OSDiObjectProperties.HAS_UTILITY, "Expected one-time (dis)utility and obtained annual (dis)utility in " + onsetAndAnnualUtilityParameterWrappers[1].getOriginalIndividualIRI());
+			}
+			else {
+				if (onsetAndAnnualCostParameterWrappers[0] != null)
+					paramMapping.put(StandardParameter.ONSET_COST, onsetAndAnnualCostParameterWrappers[0]);
+				if (onsetAndAnnualCostParameterWrappers[1] != null)
+					paramMapping.put(StandardParameter.ANNUAL_COST, onsetAndAnnualCostParameterWrappers[1]);
+				if (onsetAndAnnualUtilityParameterWrappers[0] != null)
+					paramMapping.put(onsetAndAnnualUtilityParameterWrappers[0].isDisutility() ? StandardParameter.ONSET_DISUTILITY : StandardParameter.ONSET_UTILITY, onsetAndAnnualUtilityParameterWrappers[0]);
+				if (onsetAndAnnualUtilityParameterWrappers[1] != null)
+					paramMapping.put(onsetAndAnnualUtilityParameterWrappers[1].isDisutility() ? StandardParameter.ANNUAL_DISUTILITY : StandardParameter.ANNUAL_UTILITY, onsetAndAnnualUtilityParameterWrappers[1]);
+			}
+
 			createUsedParameter(OSDiObjectProperties.HAS_PROBABILITY_OF_DIAGNOSIS, StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS);
 			// Chronic manifestations may have increased mortality rates, reductions of life expectancy
 			// FIXME: Currently, we are accepting even a probability of death. Conceptually this could only happen when the chronic manifestation is preceded by an acute manifestation 
@@ -64,156 +89,26 @@ public interface DiseaseProgressionBuilder {
 			createUsedParameter(OSDiObjectProperties.HAS_END_AGE, StandardParameter.DISEASE_PROGRESSION_END_AGE);
 
 			// Acute manifestations are assumed not to involve further mortality parameters
-			if (DiseaseProgression.Type.CHRONIC_MANIFESTATION.equals(getType())) {
+			if (!DiseaseProgression.Type.ACUTE_MANIFESTATION.equals(getType())) {
 				createUsedParameter(OSDiObjectProperties.HAS_INCREASED_MORTALITY_RATE, StandardParameter.INCREASED_MORTALITY_RATE);
 				createUsedParameter(OSDiObjectProperties.HAS_LIFE_EXPECTANCY_REDUCTION, StandardParameter.LIFE_EXPECTANCY_REDUCTION);
-			}
-			else {
 				createInitialProportionParam(populationIRI);
 			}
 		}
 
 		/**
-		 * Creates the costs associated to a specific disease by extracting the information from the ontology
-		 * @param costProperty A specific cost property among those that can be used for a disease
-		 * @param paramDescription The type of simulation parameter that should be used for that property 
+		 * Creates and adds a cost parameter if the cost property is defined for the disease progression in the ontolgoy
+		 * @param costProperty The property that defines the cost in the ontology
+		 * @param paramDescription The type of simulation parameter that should be used for that property
+		 * @param expectedOneTime If true, the cost should be one-time; otherwise, it should be annual
 		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 		 */
-		private void createCostParam(OSDiObjectProperties costProperty, ParameterTemplate paramDescription, boolean expectedOneTime) throws MalformedOSDiModelException {
-			final CostParameterWrapper costParam = wrap.createCostParam(name(), costProperty, paramDescription);
-			if (costParam != null) {
-				// Checking coherence between type of cost parameter and its temporal behavior. 
-				if (costParam.appliesOneTime() != expectedOneTime)
-					throw new MalformedOSDiModelException(OSDiClasses.DISEASE, name(), costProperty, "The cost was expected to be " + (expectedOneTime ? "one-time" : "annual") + "instead, " + (expectedOneTime ? "annual" :"one-time")+ " found");
+		private void addCostIfDefined(OSDiObjectProperties costProperty, ParameterTemplate paramDescription, boolean expectedOneTime) throws MalformedOSDiModelException {
+			final CostParameterWrapper costParam = ((OSDiGenericModel)model).createCostParam(name(), OSDiClasses.DISEASE, costProperty, paramDescription, expectedOneTime);
+			if (costParam != null)
 				paramMapping.put(paramDescription, costParam);
-			}
 		}
 		
-		/**
-		 * Creates the costs associated to a specific manifestation by extracting the information from the ontology. If the manifestation is acute, only one cost should be defined; otherwise, up to two costs 
-		 * (one-time and annual) may be defined.
-		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
-		 */
-		public void createCostParams() throws MalformedOSDiModelException {
-			
-			createCostParam(OSDiObjectProperties.HAS_FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST, false);
-			createCostParam(OSDiObjectProperties.HAS_TREATMENT_COST, StandardParameter.TREATMENT_COST, false);
-
-			final Set<String> costs = OSDiObjectProperties.HAS_COST.getValues(name(), true);
-			String[] costsArray = new String[costs.size()];
-			costsArray = costs.toArray(costsArray);
-			if (costs.size() == 0) {
-				wrap.printWarning(name(), OSDiObjectProperties.HAS_COST, "No cost defined for a disease progression. Using 0 as a default value");				
-			}
-			else {
-				// Checking coherence of number of costs and the type of manifestation		
-				if (DiseaseProgression.Type.ACUTE_MANIFESTATION.equals(getType())) {
-					CostParameterWrapper costParam = null;
-					if (costsArray.length == 1) {
-						costParam = new CostParameterWrapper(wrap, costsArray[0], "Cost for " + name());
-						if (!costParam.appliesOneTime())
-							throw new MalformedOSDiModelException(OSDiClasses.ACUTE_MANIFESTATION, name(), OSDiObjectProperties.HAS_COST, "Expected one-time cost and obtained annual cost in " + costsArray[0]);
-					}
-					else {
-						for (int i = 0; i < costsArray.length && costParam == null; i++) {
-							costParam = new CostParameterWrapper(wrap, costsArray[i], "Cost for " + name());
-							if (!costParam.appliesOneTime()) {
-								costParam = null;
-							}
-						}
-						if (costParam != null)
-							wrap.printWarning(name(), OSDiObjectProperties.HAS_COST, "Found more than one cost for an acute manifestation. Using " + costParam.getOriginalIndividualIRI());
-					}
-					if (costParam != null)
-						paramMapping.put(StandardParameter.ONSET_COST, costParam);
-				}
-				else {
-					CostParameterWrapper onsetCostParam = null;
-					CostParameterWrapper annualCostParam = null;
-					for (int i = 0; i < costsArray.length && (onsetCostParam == null || annualCostParam == null); i++) {
-						CostParameterWrapper costParam = new CostParameterWrapper(wrap, costsArray[i], "Cost for " + name());
-						if (costParam.appliesOneTime()) {
-							if (onsetCostParam != null)
-								wrap.printWarning(name(), OSDiObjectProperties.HAS_COST, "Found more than one one-time cost for a chronic manifestation. Using " + onsetCostParam.getOriginalIndividualIRI());
-							else
-								onsetCostParam = costParam;
-						}
-						else {
-							if (annualCostParam != null)
-								wrap.printWarning(name(), OSDiObjectProperties.HAS_COST, "Found more than one annual cost for a chronic manifestation. Using " + annualCostParam.getOriginalIndividualIRI());
-							else
-								annualCostParam = costParam;
-						}
-					}
-					if (onsetCostParam != null)
-						paramMapping.put(StandardParameter.ONSET_COST, onsetCostParam);
-					if (annualCostParam != null)
-						paramMapping.put(StandardParameter.ANNUAL_COST, annualCostParam);
-				}
-			}
-		}
-
-		/**
-		 * Creates the utilities associated to a specific manifestation by extracting the information from the ontology. If the manifestation is acute, only one utility should be defined; otherwise, 
-		 * up to two utilities (one-time and annual) may be defined.
-		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
-		 */
-		public void createUtilityParams() throws MalformedOSDiModelException {
-			final Set<String> utilities = OSDiObjectProperties.HAS_UTILITY.getValues(name(), true);
-			String[] utilitiesArray = new String[utilities.size()];
-			utilitiesArray = utilities.toArray(utilitiesArray);
-			if (utilities.size() == 0) {
-				wrap.printWarning(name(), OSDiObjectProperties.HAS_UTILITY, "No utility defined for a manifestation. Creating a 0 disutility as a default value");				
-			}
-			else {
-				// Checking coherence of number of utilities and the type of manifestation		
-				if (DiseaseProgression.Type.ACUTE_MANIFESTATION.equals(getType())) {
-					UtilityParameterWrapper utilityParam = null;
-					if (utilitiesArray.length == 1) {
-						utilityParam = new UtilityParameterWrapper(wrap, utilitiesArray[0], "(Dis)utility for " + name());
-						if (!utilityParam.appliesOneTime())
-							throw new MalformedOSDiModelException(OSDiClasses.ACUTE_MANIFESTATION, name(), OSDiObjectProperties.HAS_UTILITY, "Expected one-time (dis)utility and obtained annual (dis)utility in " + utilitiesArray[0]);
-					}
-					else {
-						for (int i = 0; i < utilitiesArray.length && utilityParam == null; i++) {
-							utilityParam = new UtilityParameterWrapper(wrap, utilitiesArray[i], "(Dis)utility for " + name());
-							if (!utilityParam.appliesOneTime()) {
-								utilityParam = null;
-							}
-						}
-						if (utilityParam != null)
-							wrap.printWarning(name(), OSDiObjectProperties.HAS_UTILITY, "Found more than one (dis)utility for an acute manifestation. Using " + utilityParam.getOriginalIndividualIRI());
-					}
-					if (utilityParam != null)
-						paramMapping.put(utilityParam.isDisutility() ? StandardParameter.ONSET_DISUTILITY : StandardParameter.ONSET_UTILITY, utilityParam);
-				}
-				else {
-					UtilityParameterWrapper onsetUtilityParam = null;
-					UtilityParameterWrapper annualUtilityParam = null;
-					for (int i = 0; i < utilitiesArray.length && (onsetUtilityParam == null || annualUtilityParam == null); i++) {
-						UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilitiesArray[i], "(Dis)utility for " + name());
-						if (utilityParam.appliesOneTime()) {
-							if (onsetUtilityParam != null)
-								wrap.printWarning(name(), OSDiObjectProperties.HAS_UTILITY, "Found more than one one-time (dis)utility for a chronic manifestation. Using " + onsetUtilityParam.getOriginalIndividualIRI());
-							else
-								onsetUtilityParam = utilityParam;
-						}
-						else {
-							if (annualUtilityParam != null)
-								wrap.printWarning(name(), OSDiObjectProperties.HAS_UTILITY, "Found more than one annual (dis)utility for a chronic manifestation. Using " + annualUtilityParam.getOriginalIndividualIRI());
-							else
-								annualUtilityParam = utilityParam;
-						}
-					}
-					if (onsetUtilityParam != null)
-						paramMapping.put(onsetUtilityParam.isDisutility() ? StandardParameter.ONSET_DISUTILITY : StandardParameter.ONSET_UTILITY, onsetUtilityParam);
-					if (annualUtilityParam != null)
-						paramMapping.put(annualUtilityParam.isDisutility() ? StandardParameter.ANNUAL_DISUTILITY : StandardParameter.ANNUAL_UTILITY, annualUtilityParam);
-				}
-			}
-		}
-		
-
 		private void createUsedParameter(OSDiObjectProperties objProperty, ParameterTemplate paramDescription) throws MalformedOSDiModelException {
 			final String paramName = objProperty.getValue(name(), true);
 			if (paramName != null)

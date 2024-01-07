@@ -8,7 +8,6 @@ import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
-import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
@@ -61,56 +60,33 @@ public interface DiseaseBuilder {
 
 	static class OSDiDisease extends Disease {
 		final private Map<ParameterTemplate, ParameterWrapper> paramMapping;
-		final OSDiWrapper wrap;
 
-		public OSDiDisease(OSDiGenericModel secParams, String name, String description) throws MalformedOSDiModelException {
-			super(secParams, name, description);
-			wrap = secParams.getOwlWrapper();
+		public OSDiDisease(OSDiGenericModel model, String name, String description) throws MalformedOSDiModelException {
+			super(model, name, description);
 			paramMapping = new TreeMap<>();
 
-			createCostParam(OSDiObjectProperties.HAS_COST, StandardParameter.ANNUAL_COST);
-			createCostParam(OSDiObjectProperties.HAS_FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST);
-			createCostParam(OSDiObjectProperties.HAS_TREATMENT_COST, StandardParameter.TREATMENT_COST);
-			createCostParam(OSDiObjectProperties.HAS_DIAGNOSIS_COST, StandardParameter.DISEASE_DIAGNOSIS_COST);
-			createUtilityParam();
+			// Create parameters
+			addCostIfDefined(OSDiObjectProperties.HAS_COST, StandardParameter.ANNUAL_COST, false);
+			addCostIfDefined(OSDiObjectProperties.HAS_FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST, false);
+			addCostIfDefined(OSDiObjectProperties.HAS_TREATMENT_COST, StandardParameter.TREATMENT_COST, false);
+			addCostIfDefined(OSDiObjectProperties.HAS_DIAGNOSIS_COST, StandardParameter.DISEASE_DIAGNOSIS_COST, true);
+			
+			final UtilityParameterWrapper utilityParam = model.createUtilityParam(name(), OSDiClasses.DISEASE, OSDiObjectProperties.HAS_UTILITY, false);
+			if (utilityParam != null)
+				paramMapping.put(utilityParam.isDisutility() ? StandardParameter.ANNUAL_DISUTILITY : StandardParameter.ANNUAL_UTILITY, utilityParam);
 		}
 
 		/**
-		 * Creates the costs associated to a specific disease by extracting the information from the ontology
-		 * @param costProperty A specific cost property among those that can be used for a disease
-		 * @param paramDescription The type of simulation parameter that should be used for that property 
+		 * Creates and adds a cost parameter if the cost property is defined for the disease in the ontolgoy
+		 * @param costProperty The property that defines the cost in the ontology
+		 * @param paramDescription The type of simulation parameter that should be used for that property
+		 * @param expectedOneTime If true, the cost should be one-time; otherwise, it should be annual
 		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 		 */
-		private void createCostParam(OSDiObjectProperties costProperty, ParameterTemplate paramDescription) throws MalformedOSDiModelException {
-			final CostParameterWrapper costParam = wrap.createCostParam(name(), costProperty, paramDescription);
-			if (costParam != null) {
-				// Checking coherence between type of cost parameter and its temporal behavior. Assumed to be ok if temporal behavior not specified 
-				if (StandardParameter.DISEASE_DIAGNOSIS_COST.equals(paramDescription) && !costParam.appliesOneTime()) {
-					throw new MalformedOSDiModelException(OSDiClasses.DISEASE, name(), costProperty, "Diagnosis costs directly associated to a disease should be ONE_TIME. Instead, annual found");
-				}
-				else if (costParam.appliesOneTime()) {
-					throw new MalformedOSDiModelException(OSDiClasses.DISEASE, name(), costProperty, "Follow-up, treatment and non specific costs directly associated to a disease should be ANNUAL. Instead, one-time found");
-				}
+		private void addCostIfDefined(OSDiObjectProperties costProperty, ParameterTemplate paramDescription, boolean expectedOneTime) throws MalformedOSDiModelException {
+			final CostParameterWrapper costParam = ((OSDiGenericModel)model).createCostParam(name(), OSDiClasses.DISEASE, costProperty, paramDescription, expectedOneTime);
+			if (costParam != null)
 				paramMapping.put(paramDescription, costParam);
-			}
-		}
-		
-		/**
-		 * Creates the utilities associated to a specific disease by extracting the information from the ontology. Only one annual (dis)utility should be defined.
-		 * @param disease A disease
-		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
-		 */
-		private void createUtilityParam() throws MalformedOSDiModelException {
-			final Set<String> utilities = OSDiObjectProperties.HAS_UTILITY.getValues(name(), true);
-			if (utilities.size() > 1)
-				wrap.printWarning(name(), OSDiObjectProperties.HAS_UTILITY, "A maximum of one annual (dis)utility should be associated to a disease. Using only " + utilities.toArray()[0]);
-			else if (utilities.size() == 1) {
-				final String utilityName = (String) utilities.toArray()[0];
-				UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilityName, "Utility for disease " + name()); 
-				if (utilityParam.appliesOneTime())
-					throw new MalformedOSDiModelException(OSDiClasses.DISEASE, name(), OSDiObjectProperties.HAS_UTILITY, "Only annual (dis)utilities should be associated to a disease. Instead, one-time found");
-				paramMapping.put(utilityParam.isDisutility() ? StandardParameter.ANNUAL_DISUTILITY : StandardParameter.ANNUAL_UTILITY, utilityParam);
-			}
 		}
 		
 		@Override

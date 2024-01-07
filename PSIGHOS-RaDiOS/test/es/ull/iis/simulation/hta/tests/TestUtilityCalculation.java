@@ -18,8 +18,8 @@ import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.StandardParameter;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
@@ -144,7 +144,7 @@ public class TestUtilityCalculation {
         @Override
         public void createParameters() {
             if (((BasicDiseaseModel)model).getExample().equals(TESTS.UTILITY))
-                addUsedParameter(StandardParameter.ANNUAL_UTILITY, "", "Test", BasicConfigParams.DEF_U_GENERAL_POP - DISUTILITY);
+                addUsedParameter(StandardParameter.ANNUAL_UTILITY, "", "Test", Population.DEF_U_GENERAL_POP - DISUTILITY);
             else
                 addUsedParameter(StandardParameter.ANNUAL_DISUTILITY, "", "Test", DISUTILITY);
         }

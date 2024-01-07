@@ -34,17 +34,76 @@ public class ModifiableOSDiWrapper extends OSDiWrapper {
         super(path, workingModelName, instancePrefix);
     }
 
+	/**
+	 * Adds a deterministic value to a parameter
+	 * @param paramIRI The IRI of the parameter
+	 * @param value The deterministic value
+	 */
+	public void addDeterministicNature(String paramIRI, double value) {
+		ParameterNature.DETERMINISTIC.getClazz().add(paramIRI);
+		OSDiDataProperties.HAS_EXPECTED_VALUE.add(paramIRI, Double.toString(value));
+	}
 
 	/**
-	 * Common part of creating a parameter, independently of whether it is created by defining an expected value or an expression
-	 * @param paramIRI Name of the parameter in the ontology
-	 * @param clazz Specific class of the parameter in the ontology
-	 * @param description Description of the parameter
-	 * @param source Source of the value or expression
-	 * @param year Year of the parameter
-	 * @param dataType Data type of the parameter
+	 * Adds a first order uncertainty characterization to a parameter
+	 * @param paramIRI The IRI of the parameter
+	 * @param expressionIRI The IRI of the expression that characterizes the first order uncertainty on the parameter
 	 */
-	private void createCommonPartOfParameter(String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType) {
+	public void addFirstOrderNature(String paramIRI, String expressionIRI) {
+		ParameterNature.FIRST_ORDER.getClazz().add(paramIRI);
+		OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.add(paramIRI, expressionIRI);
+	}
+
+	/**
+	 * Adds a second order uncertainty characterization to a parameter
+	 * @param paramIRI The IRI of the parameter
+	 * @param value The expected value of the parameter
+	 * @param expressionIRI The IRI of the expression that characterizes the second order uncertainty on the parameter
+	 */
+	public void addSecondOrderNature(String paramIRI, double value, String expressionIRI) {
+		ParameterNature.SECOND_ORDER.getClazz().add(paramIRI);
+		OSDiDataProperties.HAS_EXPECTED_VALUE.add(paramIRI, Double.toString(value));
+		OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.add(paramIRI, expressionIRI);
+	}
+
+	/**
+	 * Adds a second order uncertainty characterization to a parameter based on an average and confidence interval values
+	 * @param paramIRI The IRI of the parameter
+	 * @param values An array of three values: the average, the lower 95% confidence interval and the upper 95% confidence interval
+	 * @param clazz The corresponding ontology class for the parameter
+	 * @param description The description of the parameter
+	 * @param source The source of the parameter
+	 * @param year The year of the parameter
+	 */
+	public void addSecondOrderNature(String paramIRI, double[] values, OSDiClasses clazz, String description, String source, int year) {
+		ParameterNature.SECOND_ORDER.getClazz().add(paramIRI);
+		OSDiDataProperties.HAS_EXPECTED_VALUE.add(paramIRI, Double.toString(values[0]));
+		addCIParameters(paramIRI, clazz, description, source, new double[] {values[1], values[2]}, year);
+	}
+
+	public void addCalculatedNature(String paramIRI, String expression, ExpressionLanguage expLanguage, Set<String> dependentAttributes, Set<String> dependentParameters) {
+		ParameterNature.CALCULATED.getClazz().add(paramIRI);
+		OSDiDataProperties.HAS_EXPRESSION_VALUE.add(paramIRI, expression);
+		for (String attributeName : dependentAttributes) {
+			OSDiObjectProperties.DEPENDS_ON_ATTRIBUTE.add(paramIRI, InstanceIRI.ATTRIBUTE.getIRI(attributeName, false));
+		}
+		for (String parameterName : dependentParameters) {
+			OSDiObjectProperties.DEPENDS_ON_PARAMETER.add(paramIRI, InstanceIRI.PARAMETER.getIRI(parameterName));
+		}
+		OSDiObjectProperties.HAS_EXPRESSION_LANGUAGE.add(paramIRI, expLanguage.getInstanceName());
+	}
+
+    /**
+     * Creates a parameter
+     * @param paramIRI The IRI of the parameter
+     * @param clazz The corresponding ontology class for the parameter
+     * @param description The description of the parameter
+     * @param source The source of the parameter
+     * @param year The year of the parameter
+     * @param dataType The data type of the parameter
+     * @param value The expected value of the parameter
+     */
+	public void createParameter(String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType) {
 		clazz.add(paramIRI);
 		OSDiObjectProperties.HAS_DATA_ITEM_TYPE.add(paramIRI, dataType.getInstanceName());
 		OSDiDataProperties.HAS_SOURCE.add(paramIRI, source);
@@ -54,76 +113,7 @@ public class ModifiableOSDiWrapper extends OSDiWrapper {
 	}
 
     /**
-     * Creates a deterministic parameter with an expected value
-     * @param paramIRI The IRI of the parameter
-     * @param clazz The corresponding ontology class for the parameter
-     * @param description The description of the parameter
-     * @param source The source of the parameter
-     * @param year The year of the parameter
-     * @param dataType The data type of the parameter
-     * @param value The expected value of the parameter
-     */
-	public void createParameter(String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, double value) {
-		createCommonPartOfParameter(paramIRI, clazz, description, source, year, dataType);
-		ParameterUncertaintyType.DETERMINISTIC.getClazz().add(paramIRI);
-		OSDiDataProperties.HAS_EXPECTED_VALUE.add(paramIRI, Double.toString(value));
-	}
-
-    /**
-     * Creates a first-order parameter characterized by an expression. If the expression IRI is null, the parameter is still created, but its values should 
-     * be initialized later.
-     * @param paramIRI The IRI of the parameter
-     * @param clazz The corresponding ontology class for the parameter
-     * @param description The description of the parameter
-     * @param source The source of the parameter
-     * @param year The year of the parameter
-     * @param dataType The data type of the parameter
-     * @param expressionIRI The IRI of the expression that characterizes the parameter (or null if the values will be defined later)
-     */
-	public void createParameter(String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, String expressionIRI) {
-		createCommonPartOfParameter(paramIRI, clazz, description, source, year, dataType);
-		ParameterUncertaintyType.FIRST_ORDER.getClazz().add(paramIRI);
-		if (expressionIRI != null)
-			OSDiObjectProperties.HAS_EXPRESSION.add(paramIRI, expressionIRI);
-	}
-	
-    /**
-     * Creates a second-order parameter characterized by an expected value and an expression. If the expression IRI is null, the parameter is still created, but its values should 
-     * be initialized later.
-     * @param paramIRI The IRI of the parameter
-     * @param clazz The corresponding ontology class for the parameter
-     * @param description The description of the parameter
-     * @param source The source of the parameter
-     * @param year The year of the parameter
-     * @param dataType The data type of the parameter
-     * @param value The expected value of the parameter
-     * @param expressionIRI The IRI of the expression that characterizes the parameter (or null if the values will be defined later)
-     */
-	public void createParameter(String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, double value, String expressionIRI) {
-		createCommonPartOfParameter(paramIRI, clazz, description, source, year, dataType);
-		ParameterUncertaintyType.SECOND_ORDER.getClazz().add(paramIRI);
-		OSDiDataProperties.HAS_EXPECTED_VALUE.add(paramIRI, Double.toString(value));
-		if (expressionIRI != null)
-			OSDiObjectProperties.HAS_EXPRESSION.add(paramIRI, expressionIRI);
-	}
-
-	/**
-	 * Creates a second-order parameter characterized as an average and confidence interval values
-	 * @param paramIRI The IRI of the parameter
-	 * @param clazz The corresponding ontology class for the parameter
-	 * @param description The description of the parameter
-	 * @param source The source of the parameter
-	 * @param year The year of the parameter
-	 * @param dataType The data type of the parameter
-	 * @param values An array of three values: the average, the lower 95% confidence interval and the upper 95% confidence interval
-	 */
-	public void createParameter(String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, double[] values) {
-		createParameter(paramIRI, clazz, description, source, year, dataType, values[0], null);
-		addCIParameters(paramIRI, clazz, description, source, new double[] {values[1], values[2]}, year);
-	}
-
-    /**
-     * Creates and adds a deterministic parameter to the ontology, and relates it to an instance by using a property
+     * Creates and adds a parameter to the ontology, and relates it to an instance by using a property
      * @param instanceIRI The IRI of the instance to which the parameter is added
      * @param property The property that relates the instance to the parameter
      * @param paramIRI The IRI of the parameter
@@ -134,165 +124,37 @@ public class ModifiableOSDiWrapper extends OSDiWrapper {
      * @param dataType The data type of the parameter
      * @param value The expected value of the parameter
      */
-	public void addParameter(String instanceIRI, OSDiObjectProperties property, String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, double value) {
-		createParameter(paramIRI, clazz, description, source, year, dataType, value);
+	public void addParameter(String instanceIRI, OSDiObjectProperties property, String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType) {
+		createParameter(paramIRI, clazz, description, source, year, dataType);
 		property.add(instanceIRI, paramIRI);
 	}
 
-    /**
-     * Creates and adds a first-order parameter to the ontology, and relates it to an instance by using a property. If the expression IRI is null, the parameter is still created, 
-     * but its values should be initialized later.
-     * @param instanceIRI The IRI of the instance to which the parameter is added
-     * @param property The property that relates the instance to the parameter
-     * @param paramIRI The IRI of the parameter
-     * @param clazz The corresponding ontology class for the parameter
-     * @param description The description of the parameter
-     * @param source The source of the parameter
-     * @param year The year of the parameter
-     * @param dataType The data type of the parameter
-     * @param expressionIRI The IRI of the expression that characterizes the parameter (or null if the values will be defined later)
-     */
-	public void addParameter(String instanceIRI, OSDiObjectProperties property, String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, String expressionIRI) {
-		createParameter(paramIRI, clazz, description, source, year, dataType, expressionIRI);
-		property.add(instanceIRI, paramIRI);
-	}
-
-    /**
-     * Creates and adds a second-order parameter to the ontology, and relates it to an instance by using a property. If the expression IRI is null, the parameter is still created,
-     * but its values should be initialized later.
-     * @param instanceIRI The IRI of the instance to which the parameter is added
-     * @param property The property that relates the instance to the parameter
-     * @param paramIRI The IRI of the parameter
-     * @param clazz The corresponding ontology class for the parameter
-     * @param description The description of the parameter
-     * @param source The source of the parameter
-     * @param year The year of the parameter
-     * @param dataType The data type of the parameter
-     * @param value The expected value of the parameter
-     * @param expressionIRI The IRI of the expression that characterizes the parameter (or null if the values will be defined later)
-     */
-	public void addParameter(String instanceIRI, OSDiObjectProperties property, String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, double value, String expressionIRI) {
-		createParameter(paramIRI, clazz, description, source, year, dataType, value, expressionIRI);
-		property.add(instanceIRI, paramIRI);
-	}
-
-	/**
-	 * Adds an utility parameter to the ontology characterized as an average and confidence interval values
-	 * @param instanceIRI The IRI of the instance to which the parameter is added
-	 * @param property The property that relates the instance to the parameter
-	 * @param paramIRI The IRI of the parameter
-	 * @param clazz The corresponding ontology class for the parameter
-	 * @param description The description of the parameter
-	 * @param source The source of the parameter
-	 * @param year The year of the parameter
-	 * @param dataType The data type of the parameter
-	 * @param values An array of three values: the average, the lower 95% confidence interval and the upper 95% confidence interval
-	 */
-	public void addParameter(String instanceIRI, OSDiObjectProperties property, String paramIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, double[] values) {
-		createParameter(paramIRI, clazz, description, source, year, dataType, values);
-		property.add(instanceIRI, paramIRI);
-	}
-
-	public void addAttributeValue(String instanceIRI, OSDiObjectProperties property, String attributeValueIRI, OSDiClasses clazz, String attributeIRI, String source, int year, OSDiDataItemTypes dataType, double value) {
-		addParameter(instanceIRI, property, attributeValueIRI, clazz, "Value of " + attributeIRI, source, year, dataType, value);
-		OSDiObjectProperties.IS_VALUE_OF_ATTRIBUTE.add(attributeValueIRI, attributeIRI);
-		OSDiObjectProperties.HAS_VALUE.add(attributeIRI, attributeValueIRI);
-	}
-
-	public void addAttributeValue(String instanceIRI, OSDiObjectProperties property, String attributeValueIRI, OSDiClasses clazz, String attributeIRI, String source, int year, OSDiDataItemTypes dataType, String expressionIRI) {
-		addParameter(instanceIRI, property, attributeValueIRI, clazz, "Value of " + attributeIRI, source, year, dataType, expressionIRI);
-		OSDiObjectProperties.IS_VALUE_OF_ATTRIBUTE.add(attributeValueIRI, attributeIRI);
-		OSDiObjectProperties.HAS_VALUE.add(attributeIRI, attributeValueIRI);
-	}
-
-	public void addAttributeValue(String instanceIRI, OSDiObjectProperties property, String attributeValueIRI, OSDiClasses clazz, String attributeIRI, String source, int year, OSDiDataItemTypes dataType, double value, String expressionIRI) {
-		addParameter(instanceIRI, property, attributeValueIRI, clazz, "Value of " + attributeIRI, source, year, dataType, value, expressionIRI);
+	public void addAttributeValue(String instanceIRI, OSDiObjectProperties property, String attributeValueIRI, OSDiClasses clazz, String attributeIRI, String source, int year, OSDiDataItemTypes dataType) {
+		addParameter(instanceIRI, property, attributeValueIRI, clazz, "Value of " + attributeIRI, source, year, dataType);
 		OSDiObjectProperties.IS_VALUE_OF_ATTRIBUTE.add(attributeValueIRI, attributeIRI);
 		OSDiObjectProperties.HAS_VALUE.add(attributeIRI, attributeValueIRI);
 	}
 	
-	private void createCommonPartOfModification(String modificationIRI, String interventionIRI, String modifiedInstanceIRI) {
-		OSDiObjectProperties.MODIFIES.add(modificationIRI, modifiedInstanceIRI);
-		OSDiObjectProperties.IS_MODIFIED_BY.add(modifiedInstanceIRI, modificationIRI);
-	}
-	
-	public void addAttributeValueModification(String modificationIRI, String interventionIRI, String modifiedAttributeValueIRI, OSDiClasses clazz, String attributeIRI, String source, int year, OSDiDataItemTypes dataType, double value) {
-		addAttributeValue(interventionIRI, OSDiObjectProperties.INVOLVES_MODIFICATION, modificationIRI, clazz, attributeIRI, source, year, dataType, value);
-		createCommonPartOfModification(modificationIRI, interventionIRI, modifiedAttributeValueIRI);
+	public void addAttributeValueModification(String modificationIRI, String interventionIRI, String modifiedAttributeValueIRI, OSDiClasses clazz, String attributeIRI, String source, int year, OSDiDataItemTypes dataType) {
+		addAttributeValue(interventionIRI, OSDiObjectProperties.INVOLVES_MODIFICATION, modificationIRI, clazz, attributeIRI, source, year, dataType);
+		OSDiObjectProperties.MODIFIES.add(modificationIRI, modifiedAttributeValueIRI);
+		OSDiObjectProperties.IS_MODIFIED_BY.add(modifiedAttributeValueIRI, modificationIRI);
 	}
 
-	public void addAttributeValueModification(String modificationIRI, String interventionIRI, String modifiedAttributeValueIRI, OSDiClasses clazz, String attributeIRI, String source, int year, OSDiDataItemTypes dataType, String expressionIRI) {
-		addAttributeValue(interventionIRI, OSDiObjectProperties.INVOLVES_MODIFICATION, modificationIRI, clazz, attributeIRI, source, year, dataType, expressionIRI);
-		createCommonPartOfModification(modificationIRI, interventionIRI, modifiedAttributeValueIRI);
-	}
-	
-	public void addAttributeValueModification(String modificationIRI, String interventionIRI, String modifiedAttributeValueIRI, OSDiClasses clazz, String attributeIRI, String source, int year, OSDiDataItemTypes dataType, double value, String expressionIRI) {
-		addAttributeValue(interventionIRI, OSDiObjectProperties.INVOLVES_MODIFICATION, modificationIRI, clazz, attributeIRI, source, year, dataType, value, expressionIRI);
-		createCommonPartOfModification(modificationIRI, interventionIRI, modifiedAttributeValueIRI);
-	}
-	
-	public void addParameterModification(String modificationIRI, String interventionIRI, String modifiedParameterIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, double value) {
-		addParameter(interventionIRI, OSDiObjectProperties.INVOLVES_MODIFICATION, modificationIRI, clazz, description, source, year, dataType, value);
-		createCommonPartOfModification(modificationIRI, interventionIRI, modifiedParameterIRI);
+	public void addParameterModification(String modificationIRI, String interventionIRI, String modifiedParameterIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType) {
+		addParameter(interventionIRI, OSDiObjectProperties.INVOLVES_MODIFICATION, modificationIRI, clazz, description, source, year, dataType);
+		OSDiObjectProperties.MODIFIES.add(modificationIRI, modifiedParameterIRI);
+		OSDiObjectProperties.IS_MODIFIED_BY.add(modifiedParameterIRI, modificationIRI);
 	}
 
-	public void addParameterModification(String modificationIRI, String interventionIRI, String modifiedParameterIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, String expressionIRI) {
-		addParameter(interventionIRI, OSDiObjectProperties.INVOLVES_MODIFICATION, modificationIRI, clazz, description, source, year, dataType, expressionIRI);
-		createCommonPartOfModification(modificationIRI, interventionIRI, modifiedParameterIRI);
-	}
-	
-	public void addParameterModification(String modificationIRI, String interventionIRI, String modifiedParameterIRI, OSDiClasses clazz, String description, String source, int year, OSDiDataItemTypes dataType, double value, String expressionIRI) {
-		addParameter(interventionIRI, OSDiObjectProperties.INVOLVES_MODIFICATION, modificationIRI, clazz, description, source, year, dataType, value, expressionIRI);
-		createCommonPartOfModification(modificationIRI, interventionIRI, modifiedParameterIRI);
-	}
-
-	public void addCost(String instanceIRI, OSDiObjectProperties property, String paramIRI, String description, String source, int year, boolean appliesOneTime, OSDiDataItemTypes currency, double value) {
-		addParameter(instanceIRI, property, paramIRI, OSDiClasses.COST, description, source, year, currency, value);
-		OSDiDataProperties.APPLIES_ONE_TIME.add(paramIRI, appliesOneTime ? "true" : "false");
-	}
-	
-	public void addCost(String instanceIRI, OSDiObjectProperties property, String paramIRI, String description, String source, int year, boolean appliesOneTime, OSDiDataItemTypes currency, String expressionIRI) {
-		addParameter(instanceIRI, property, paramIRI, OSDiClasses.COST, description, source, year, currency, expressionIRI);
-		OSDiDataProperties.APPLIES_ONE_TIME.add(paramIRI, appliesOneTime ? "true" : "false");
-	}
-	
-	public void addCost(String instanceIRI, OSDiObjectProperties property, String paramIRI, String description, String source, int year, boolean appliesOneTime, OSDiDataItemTypes currency, double value, String expressionIRI) {
-		addParameter(instanceIRI, property, paramIRI, OSDiClasses.COST, description, source, year, currency, value, expressionIRI);
+	public void addCost(String instanceIRI, OSDiObjectProperties property, String paramIRI, String description, String source, int year, boolean appliesOneTime, OSDiDataItemTypes currency) {
+		addParameter(instanceIRI, property, paramIRI, OSDiClasses.COST, description, source, year, currency);
 		OSDiDataProperties.APPLIES_ONE_TIME.add(paramIRI, appliesOneTime ? "true" : "false");
 	}
 
-	public void addUtility(String instanceIRI, OSDiObjectProperties property, String utilityParamIRI, String description, String source, int year, boolean appliesOneTime, boolean isDisutility, double value) {
-		addParameter(instanceIRI, property, utilityParamIRI, OSDiClasses.UTILITY, description, source, year, isDisutility ? OSDiDataItemTypes.DI_DISUTILITY : OSDiDataItemTypes.DI_UTILITY, value);
+	public void addUtility(String instanceIRI, OSDiObjectProperties property, String utilityParamIRI, String description, String source, int year, boolean appliesOneTime, boolean isDisutility) {
+		addParameter(instanceIRI, property, utilityParamIRI, OSDiClasses.UTILITY, description, source, year, isDisutility ? OSDiDataItemTypes.DI_DISUTILITY : OSDiDataItemTypes.DI_UTILITY);
 		OSDiDataProperties.APPLIES_ONE_TIME.add(utilityParamIRI, appliesOneTime ? "true" : "false");
-	}
-
-	public void addUtility(String instanceIRI, OSDiObjectProperties property, String utilityParamIRI, String description, String source, int year, boolean appliesOneTime, boolean isDisutility, String expressionIRI) {
-		addParameter(instanceIRI, property, utilityParamIRI, OSDiClasses.UTILITY, description, source, year, isDisutility ? OSDiDataItemTypes.DI_DISUTILITY : OSDiDataItemTypes.DI_UTILITY, expressionIRI);
-		OSDiDataProperties.APPLIES_ONE_TIME.add(utilityParamIRI, appliesOneTime ? "true" : "false");
-	}
-
-	public void addUtility(String instanceIRI, OSDiObjectProperties property, String utilityParamIRI, String description, String source, int year, boolean appliesOneTime, boolean isDisutility, double value, String expressionIRI) {
-		addParameter(instanceIRI, property, utilityParamIRI, OSDiClasses.UTILITY, description, source, year, isDisutility ? OSDiDataItemTypes.DI_DISUTILITY : OSDiDataItemTypes.DI_UTILITY, value, expressionIRI);
-		OSDiDataProperties.APPLIES_ONE_TIME.add(utilityParamIRI, appliesOneTime ? "true" : "false");
-	}
-
-	/**
-	 * Adds an utility parameter to the ontology characterized as an average and confidence interval values
-	 * @param instanceIRI The IRI of the instance to which the parameter is added
-	 * @param property The property that relates the instance to the parameter
-	 * @param utilityParamIRI The IRI of the parameter
-	 * @param description The description of the parameter
-	 * @param source The source of the parameter
-	 * @param year The year of the parameter
-	 * @param tmpBehavior The temporal behavior of the utility
-	 * @param utilityType The type of utility (utility or disutility)
-	 * @param values An array of three values: the average, the lower 95% confidence interval and the upper 95% confidence interval
-	 */
-	public void addUtility(String instanceIRI, OSDiObjectProperties property, String utilityParamIRI, String description, String source, int year, boolean appliesOneTime, boolean isDisutility, double[] values) {
-		addUtility(instanceIRI, property, utilityParamIRI, description, source, year, appliesOneTime, isDisutility, values[0], null);
-		final String[] params = addCIParameters(utilityParamIRI, OSDiClasses.UTILITY, description, source, new double[] {values[1], values[2]}, year);
-		OSDiDataProperties.APPLIES_ONE_TIME.add(params[0], appliesOneTime ? "true" : "false");
-		OSDiDataProperties.APPLIES_ONE_TIME.add(params[1], appliesOneTime ? "true" : "false");
 	}
 	
 	/**
@@ -309,26 +171,15 @@ public class ModifiableOSDiWrapper extends OSDiWrapper {
 		String []params = new String[2];
 		String paramUncertaintyIRI = InstanceIRI.UNCERTAINTY_L95CI.getIRI(mainParamIRI, false);
 		addParameter(mainParamIRI, OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION, paramUncertaintyIRI, clazz, "Lower 95% confidence interval for " + description, 
-				source, year, OSDiDataItemTypes.DI_LOWER_95_CONFIDENCE_LIMIT, values[0]);
+				source, year, OSDiDataItemTypes.DI_LOWER_95_CONFIDENCE_LIMIT);
+		addDeterministicNature(paramUncertaintyIRI, values[0]);
 		params[0] = paramUncertaintyIRI;
 		paramUncertaintyIRI = InstanceIRI.UNCERTAINTY_U95CI.getIRI(mainParamIRI, false);
 		addParameter(mainParamIRI, OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION, paramUncertaintyIRI, clazz, "Upper 95% confidence interval for " + description, 
-				source, year, OSDiDataItemTypes.DI_UPPER_95_CONFIDENCE_LIMIT, values[1]);
+				source, year, OSDiDataItemTypes.DI_UPPER_95_CONFIDENCE_LIMIT);
+		addDeterministicNature(paramUncertaintyIRI, values[1]);
 		params[1] = paramUncertaintyIRI;
 		return params;
-	}
-
-	public void createAdHocExpression(String expressionIRI, String expression, Set<String> dependentAttributes, Set<String> dependentParameters) {
-		// final String expInstanceName = InstanceIRI.EXPRESSION.getIRI(paramIRI, false); 
-		OSDiClasses.AD_HOC_EXPRESSION.add(expressionIRI);
-		OSDiDataProperties.HAS_EXPRESSION_VALUE.add(expressionIRI, expression);
-		for (String attributeName : dependentAttributes) {
-			OSDiObjectProperties.DEPENDS_ON_ATTRIBUTE.add(expressionIRI, InstanceIRI.ATTRIBUTE.getIRI(attributeName, false));
-		}
-		for (String parameterName : dependentParameters) {
-			OSDiObjectProperties.DEPENDS_ON_PARAMETER.add(expressionIRI, InstanceIRI.PARAMETER.getIRI(parameterName));
-		}
-		includeInModel(expressionIRI);			
 	}
 
 	public void createProbabilityDistributionExpression(String expressionIRI, OSDiProbabilityDistributionExpressions type, double[] parameters) {
@@ -395,14 +246,30 @@ public class ModifiableOSDiWrapper extends OSDiWrapper {
 		includeInModel(instanceName);
 	}
 	
-	public void createManifestation(String instanceName, DiseaseProgressionType type, String description, Set<String> exclusions, String diseaseInstanceName) {
+	public void createDiseaseProgression(String instanceName, DiseaseProgressionType type, String description, Set<String> exclusions, String diseaseInstanceName) {
 		type.getClazz().add(instanceName);		
 		OSDiDataProperties.HAS_DESCRIPTION.add(instanceName, description);
-		OSDiObjectProperties.HAS_MANIFESTATION.add(diseaseInstanceName, instanceName);
+		switch(type) {
+			case STAGE:
+				OSDiObjectProperties.HAS_STAGE.add(diseaseInstanceName, instanceName);
+				break;
+			case ACUTE_MANIFESTATION:
+			case CHRONIC_MANIFESTATION:
+			default:
+				OSDiObjectProperties.HAS_MANIFESTATION.add(diseaseInstanceName, instanceName);
+				break;
+		}
 		includeInModel(instanceName);
 		for (String excludedManif : exclusions) {
 			OSDiObjectProperties.EXCLUDES_MANIFESTATION.add(instanceName, InstanceIRI.MANIFESTATION.getIRI(excludedManif));
 		}
+	}
+	
+	public void createDiseaseProgressionPathway(String instanceName, String description, String diseaseProgressionInstanceName) {
+		OSDiClasses.DISEASE_PROGRESSION_PATHWAY.add(instanceName);		
+		OSDiDataProperties.HAS_DESCRIPTION.add(instanceName, description);
+		OSDiObjectProperties.HAS_RISK_CHARACTERIZATION.add(diseaseProgressionInstanceName, instanceName);
+		includeInModel(instanceName);
 	}
 	
 	public void createGroupOfManifestations(String instanceName, Set<String> manifestationNames) {

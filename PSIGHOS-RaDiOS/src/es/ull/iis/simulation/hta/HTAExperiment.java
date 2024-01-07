@@ -30,9 +30,9 @@ import es.ull.iis.simulation.hta.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.interventions.ScreeningIntervention;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 
@@ -41,9 +41,17 @@ import es.ull.iis.simulation.inforeceiver.InfoReceiver;
  *
  */
 public abstract class HTAExperiment {
-	private final static String SEPARATOR = "################################################################################################################";
+	public final static String STR_SEP = "----------------------------------------------------------------------------------------------------------------";
+    /** Default number of patients that will be created during a simulation */
+    public final static int DEF_N_PATIENTS = 5000;
+    /** Default number of runs for each simulation experiment */
+    public final static int N_RUNS = 100;
 	/** How many replications have to be run to show a new progression percentage message */
 	private static final int N_PROGRESS = 20;
+    /** Years for budget impact (in case it is enabled) */
+    public final static int DEF_BI_YEARS = 10;
+    /** Default discount rate (3% according to Spanish guidelines) */
+    public final static double DEF_DISCOUNT_RATE = 0.03;
 	
 	private final PrintProgress progress;
 	/** Enables parallel execution of simulations */
@@ -90,7 +98,7 @@ public abstract class HTAExperiment {
 		final Discount[] discounts = configureDiscounts (arguments.discount);
 		this.discountCost = discounts[0];
 		this.discountEffect = discounts[1];
-		this.timeHorizon = (arguments.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - model.getPopulation().getMinAge() + 1 : arguments.timeHorizon;
+		this.timeHorizon = (arguments.timeHorizon == -1) ? Population.DEF_MAX_AGE - model.getPopulation().getMinAge() + 1 : arguments.timeHorizon;
 		this.parallel = arguments.parallel;
 		this.quiet = arguments.quiet;
 		this.patientListener = (arguments.singlePatientOutput != -1) ? new PatientInfoView(arguments.singlePatientOutput) : null;
@@ -102,8 +110,8 @@ public abstract class HTAExperiment {
 			baseCaseExpListeners.add(new AnnualCostView(1, model, discountCost));
 		}
 		if (printOutputs.contains(Outputs.BI)) {
-			expListeners.add(new BudgetImpactView(nRuns, model, BasicConfigParams.DEF_BI_YEARS));
-			baseCaseExpListeners.add(new BudgetImpactView(1, model, BasicConfigParams.DEF_BI_YEARS));
+			expListeners.add(new BudgetImpactView(nRuns, model, HTAExperiment.DEF_BI_YEARS));
+			baseCaseExpListeners.add(new BudgetImpactView(1, model, HTAExperiment.DEF_BI_YEARS));
 		}
 		final ArrayList<EpidemiologicOutputFormat> toPrint = configureOutputFormats(arguments.epidem);
 		final PrintWriter[] outputPrintWriters = configureOutputPrintWriters(arguments.outputFileName, simResult, printOutputs.size(), toPrint.size());
@@ -218,8 +226,8 @@ public abstract class HTAExperiment {
 		if (discounts != null) {
 			if (discounts.size() == 0) {
 				// Use default discount
-				result[0] = new Discount(BasicConfigParams.DEF_DISCOUNT_RATE);
-				result[1] = new Discount(BasicConfigParams.DEF_DISCOUNT_RATE);
+				result[0] = new Discount(HTAExperiment.DEF_DISCOUNT_RATE);
+				result[1] = new Discount(HTAExperiment.DEF_DISCOUNT_RATE);
 			} else if (discounts.size() == 1) {
 				final double value = discounts.get(0);
 				result[0] = (value == 0.0) ? Discount.ZERO_DISCOUNT : new Discount(value);
@@ -261,15 +269,12 @@ public abstract class HTAExperiment {
 	 */
 	public void run() {
 		long t = System.currentTimeMillis();
-		if (!quiet)
-			out.println(BasicConfigParams.printOptions());
 		out.println(getStrHeader());
 		simulateInterventions(0, true);
 		if (baseCaseExpListeners.size() > 0) {
-			outListeners.println(SEPARATOR);
-			outListeners.println(BasicConfigParams.STR_SEP);
+			outListeners.println(HTAExperiment.STR_SEP);
 			outListeners.println("Base case");
-			outListeners.println(BasicConfigParams.STR_SEP);
+			outListeners.println(HTAExperiment.STR_SEP);
 			for (ExperimentListener listener : baseCaseExpListeners) {
 				listener.notifyEndExperiments();
 				outListeners.println(listener);
@@ -296,10 +301,9 @@ public abstract class HTAExperiment {
 				new ProblemExecutor(out, 1, 1).run();
 			}
 			if (expListeners.size() > 0) {
-				outListeners.println(SEPARATOR);
-				outListeners.println(BasicConfigParams.STR_SEP);
+				outListeners.println(HTAExperiment.STR_SEP);
 				outListeners.println("PSA");
-				outListeners.println(BasicConfigParams.STR_SEP);
+				outListeners.println(HTAExperiment.STR_SEP);
 				for (ExperimentListener listener : expListeners) {
 					listener.notifyEndExperiments();
 					outListeners.println(listener);

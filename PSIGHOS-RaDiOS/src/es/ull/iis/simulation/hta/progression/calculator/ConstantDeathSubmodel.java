@@ -1,9 +1,9 @@
 package es.ull.iis.simulation.hta.progression.calculator;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -50,7 +50,7 @@ public class ConstantDeathSubmodel implements TimeToEventCalculator {
 		// Taking into account modification of death due to the intervention
 		final ParameterModifier imrModif = pat.getIntervention().getMortalityRiskModification();
 		imr = imrModif.getModifiedValue(pat, imr);
-		return Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, yearsToDie / imr) - ler, BasicConfigParams.DEF_MAX_AGE - age));			
+		return Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, yearsToDie / imr) - ler, Population.DEF_MAX_AGE - age));			
 	}
     
 }

@@ -13,7 +13,7 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.info.SimulationInfo;
@@ -85,7 +85,7 @@ public abstract class EpidemiologicView implements ExperimentListener {
 		this.nPatients = model.getExperiment().getNPatients();
 		this.minAge = model.getPopulation().getMinAge();
 		this.length = length;
-		this.nIntervals = ((BasicConfigParams.DEF_MAX_AGE - minAge) / length) + 1;
+		this.nIntervals = ((Population.DEF_MAX_AGE - minAge) / length) + 1;
 		this.interventions = model.getRegisteredInterventions();
 		final int nInterventions = interventions.length;
 		nDeaths = new double[nInterventions][nIntervals];
@@ -346,7 +346,7 @@ public abstract class EpidemiologicView implements ExperimentListener {
 			ageIntervals[i][1] = minAge + gap * (i + 1);
 		}
 		if (fillToLifetime)
-			ageIntervals[nGroups - 1][1] = BasicConfigParams.DEF_MAX_AGE;
+			ageIntervals[nGroups - 1][1] = Population.DEF_MAX_AGE;
 		return ageIntervals;
 	}
 	// For testing

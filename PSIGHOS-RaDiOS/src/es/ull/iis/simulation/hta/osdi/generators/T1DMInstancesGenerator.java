@@ -57,7 +57,8 @@ public class T1DMInstancesGenerator {
 		final String diseaseCostIRI = ModifiableOSDiWrapper.InstanceIRI.PARAM_ANNUAL_COST.getIRI(STR_DISEASE_NAME);
 		wrap.addCost(diseaseIRI, OSDiObjectProperties.HAS_FOLLOW_UP_COST, diseaseCostIRI, 
 				"Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population", 
-				"Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007", 2012, false, OSDiDataItemTypes.CURRENCY_EURO, 1116.733023);
+				"Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007", 2012, false, OSDiDataItemTypes.CURRENCY_EURO);
+		wrap.addDeterministicNature(diseaseCostIRI, 1116.733023);
 	}
 
 	private void generateInterventions() {
@@ -71,7 +72,8 @@ public class T1DMInstancesGenerator {
 
 		// Create uncertainty for the modification
 		wrap.createProbabilityDistributionExpression(ModifiableOSDiWrapper.InstanceIRI.UNCERTAINTY_STOCHASTIC.getIRI(modificationIRI, false), OSDiProbabilityDistributionExpressions.NORMAL, new double[] {1.5, 1.1});
-		wrap.addAttributeValueModification(modificationIRI, interventionIRI, attributeValueIRI, OSDiClasses.PARAMETER, attributeIRI, "DCCT", 2013, OSDiDataItemTypes.DI_MEAN_DIFFERENCE, ModifiableOSDiWrapper.InstanceIRI.UNCERTAINTY_STOCHASTIC.getIRI(modificationIRI, false));
+		wrap.addAttributeValueModification(modificationIRI, interventionIRI, attributeValueIRI, OSDiClasses.PARAMETER, attributeIRI, "DCCT", 2013, OSDiDataItemTypes.DI_MEAN_DIFFERENCE);
+		wrap.addFirstOrderNature(modificationIRI, ModifiableOSDiWrapper.InstanceIRI.UNCERTAINTY_STOCHASTIC.getIRI(modificationIRI, false));
 		
 		OSDiObjectProperties.HAS_INTERVENTION.add(ModifiableOSDiWrapper.InstanceIRI.DISEASE.getIRI(STR_DISEASE_NAME), interventionIRI);		
 	}
@@ -84,28 +86,34 @@ public class T1DMInstancesGenerator {
 
 		final String diseaseUtilityIRI = ModifiableOSDiWrapper.InstanceIRI.PARAM_UTILITY.getIRI(STR_POPULATION_NAME + "_ComplicationsFree");
 		wrap.addUtility(populationIRI, OSDiObjectProperties.HAS_UTILITY, diseaseUtilityIRI, "Utility of DM1 without complications", "TODO: Buscar", 
-				2015, false, false, new double[] {0.785, 0.889, 0.681});
+				2015, false, false);
+		wrap.addSecondOrderNature(diseaseUtilityIRI, new double[] {0.785, 0.889, 0.681}, OSDiClasses.UTILITY, "Utility of DM1 without complications", "TODO: Buscar", 
+				2015);
 		
 		// Define population age (fixed)
 		String valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "Age");
-		wrap.addAttributeValue(populationIRI, OSDiObjectProperties.HAS_AGE, valueIRI, OSDiClasses.PARAMETER, ModifiableOSDiWrapper.InstanceIRI.ATTRIBUTE.getIRI("Age", false), "DCCT", 2013, OSDiDataItemTypes.DI_OTHER, 26.47933884);
+		wrap.addAttributeValue(populationIRI, OSDiObjectProperties.HAS_AGE, valueIRI, OSDiClasses.PARAMETER, ModifiableOSDiWrapper.InstanceIRI.ATTRIBUTE.getIRI("Age", false), "DCCT", 2013, OSDiDataItemTypes.DI_OTHER);
+		wrap.addDeterministicNature(valueIRI, 26.47933884);
 		
 		// Define sex proportion within the population. The default value is 0 (male) because there are more men than women.
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "Sex");
 		wrap.createProbabilityDistributionExpression(ModifiableOSDiWrapper.InstanceIRI.UNCERTAINTY_STOCHASTIC.getIRI(valueIRI, false), OSDiProbabilityDistributionExpressions.BERNOULLI, new double[] {0.483966942});
-		wrap.addAttributeValue(populationIRI, OSDiObjectProperties.HAS_SEX, valueIRI, OSDiClasses.PARAMETER, ModifiableOSDiWrapper.InstanceIRI.ATTRIBUTE.getIRI("Sex", false), "Proportion of female population in DCCT", 2013, OSDiDataItemTypes.DI_PROPORTION, ModifiableOSDiWrapper.InstanceIRI.UNCERTAINTY_STOCHASTIC.getIRI(valueIRI, false));
+		wrap.addAttributeValue(populationIRI, OSDiObjectProperties.HAS_SEX, valueIRI, OSDiClasses.PARAMETER, ModifiableOSDiWrapper.InstanceIRI.ATTRIBUTE.getIRI("Sex", false), "Proportion of female population in DCCT", 2013, OSDiDataItemTypes.DI_PROPORTION);
+		wrap.addFirstOrderNature(valueIRI, ModifiableOSDiWrapper.InstanceIRI.UNCERTAINTY_STOCHASTIC.getIRI(valueIRI, false));
 		// Define stochastic uncertainty for sex based on the proportion of female population
 		
 		// Define duration of diabetes for the population
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "DurationOfDiabetes");
 		// Define stochastic uncertainty for Duration of diabetes
 		wrap.createProbabilityDistributionExpression(ModifiableOSDiWrapper.InstanceIRI.UNCERTAINTY_STOCHASTIC.getIRI(valueIRI, false), OSDiProbabilityDistributionExpressions.NORMAL, new double[] {2.6, 1.4});
-		wrap.addAttributeValue(populationIRI, OSDiObjectProperties.HAS_ATTRIBUTE_VALUE, valueIRI, OSDiClasses.PARAMETER, ModifiableOSDiWrapper.InstanceIRI.ATTRIBUTE.getIRI("DurationOfDiabetes", false), "DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", 2013, OSDiDataItemTypes.DI_TIME_TO_EVENT, ModifiableOSDiWrapper.InstanceIRI.UNCERTAINTY_STOCHASTIC.getIRI(valueIRI, false));
+		wrap.addAttributeValue(populationIRI, OSDiObjectProperties.HAS_ATTRIBUTE_VALUE, valueIRI, OSDiClasses.PARAMETER, ModifiableOSDiWrapper.InstanceIRI.ATTRIBUTE.getIRI("DurationOfDiabetes", false), "DCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", 2013, OSDiDataItemTypes.DI_TIME_TO_EVENT);
+		wrap.addFirstOrderNature(valueIRI, ModifiableOSDiWrapper.InstanceIRI.UNCERTAINTY_STOCHASTIC.getIRI(valueIRI, false));
 		
 		// Define HbAc level for the population (fixed)
 		valueIRI = wrap.getPopulationAttributeValueInstanceName(STR_POPULATION_NAME, "HbA1c");
 		wrap.addAttributeValue(populationIRI, OSDiObjectProperties.HAS_ATTRIBUTE_VALUE, valueIRI, OSDiClasses.PARAMETER, ModifiableOSDiWrapper.InstanceIRI.ATTRIBUTE.getIRI("HbA1c", false), 
-				"Own calculation from: Design of DCCT (http://diabetes.diabetesjournals.org/content/35/5/530) and DCCT (https://www.nejm.org/doi/10.1056/NEJM199309303291401)", 2013, OSDiDataItemTypes.DI_OTHER, 8.8);
+				"Own calculation from: Design of DCCT (http://diabetes.diabetesjournals.org/content/35/5/530) and DCCT (https://www.nejm.org/doi/10.1056/NEJM199309303291401)", 2013, OSDiDataItemTypes.DI_OTHER);
+		wrap.addDeterministicNature(valueIRI, 8.8);
 	}
 	
 	/**

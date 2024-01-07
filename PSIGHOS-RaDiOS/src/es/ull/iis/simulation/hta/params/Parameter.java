@@ -62,7 +62,14 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
 			return true;
 		}
 	}
-	/** Short name and identifier of the parameter */
+	/** Default second order variation for different parameter types */
+    public static class DEF_SECOND_ORDER_VARIATION {
+    	public final static double COST = 0.2;
+    	public final static double UTILITY = 0.2;
+    	public final static double PROBABILITY = 0.5;
+    }
+
+    /** Short name and identifier of the parameter */
 	private final String name;
 	/** The type of the parameter */
 	private final ParameterType type;
@@ -198,7 +205,7 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
     		return RandomVariateFactory.getInstance("ConstantVariate", detProb);
     	}
     	final double instRate = -Math.log(1 - detProb);
-    	return RandomVariateFactory.getInstance("UniformVariate", 1 - Math.exp(-instRate * (1 - BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY)), 1 - Math.exp(-instRate * (1 + BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY)));
+    	return RandomVariateFactory.getInstance("UniformVariate", 1 - Math.exp(-instRate * (1 - Parameter.DEF_SECOND_ORDER_VARIATION.PROBABILITY)), 1 - Math.exp(-instRate * (1 + Parameter.DEF_SECOND_ORDER_VARIATION.PROBABILITY)));
     }
 
     /**
@@ -211,7 +218,7 @@ public abstract class Parameter implements NamedAndDescribed, PrettyPrintable, C
     	if (detCost == 0.0) {
     		return RandomVariateFactory.getInstance("ConstantVariate", detCost);
     	}
-    	final double costVariance2 = BasicConfigParams.DEF_SECOND_ORDER_VARIATION.COST * BasicConfigParams.DEF_SECOND_ORDER_VARIATION.COST;
+    	final double costVariance2 = Parameter.DEF_SECOND_ORDER_VARIATION.COST * Parameter.DEF_SECOND_ORDER_VARIATION.COST;
     	final double invCostVariance2 = 1 / costVariance2;
     	return RandomVariateFactory.getInstance("GammaVariate", invCostVariance2, costVariance2 * detCost);
     }

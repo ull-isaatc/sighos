@@ -11,8 +11,8 @@ import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
@@ -49,7 +49,7 @@ public class AnnualCostView implements ExperimentListener {
 		this.discount = discount;
 		this.nPatients = model.getExperiment().getNPatients();
 		this.minAge = model.getPopulation().getMinAge();
-		this.maxAge = BasicConfigParams.DEF_MAX_AGE;
+		this.maxAge = Population.DEF_MAX_AGE;
 		diseaseCost = new double[nInterventions][model.getRegisteredDiseases().length][maxAge-minAge+1];
 		interventionCost = new double[nInterventions][maxAge-minAge+1];
 		managementCost = new double[nInterventions][maxAge-minAge+1];

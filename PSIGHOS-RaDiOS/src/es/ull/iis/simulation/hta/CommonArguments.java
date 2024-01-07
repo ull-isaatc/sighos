@@ -9,8 +9,6 @@ import java.util.List;
 
 import com.beust.jcommander.Parameter;
 
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
-
 /**
  * Commonly used input arguments for creating a Health Technology Assessment application. These arguments can be used from any main to parse the input parameters.
  * If the user wants more specific arguments, this class may be extended or another similar class may be implemented. An example of the latter,, if the new class is called "ArgsExtra", 
@@ -29,14 +27,14 @@ public class CommonArguments {
 	@Parameter(names = { "--output", "-o" }, description = "Name of the output file name", order = 1)
 	public String outputFileName = null;
 	@Parameter(names = { "--patients", "-n" }, description = "Number of patients to simulate", order = 2)
-	public int nPatients = BasicConfigParams.DEF_N_PATIENTS;
+	public int nPatients = HTAExperiment.DEF_N_PATIENTS;
 	@Parameter(names = { "--runs", "-r" }, description = "Number of probabilistic runs", order = 3)
-	public int nRuns = BasicConfigParams.N_RUNS;
+	public int nRuns = HTAExperiment.N_RUNS;
 	@Parameter(names = { "--horizon", "-h" }, description = "Time horizon for the simulation (years)", order = 3)
 	public int timeHorizon = -1;
 	@Parameter(names = { "--discount",
 			"-dr" }, variableArity = true, description = "The discount rate to be applied. If more than one value is provided, the first one is used for costs, and the second for effects. Default value is "
-					+ BasicConfigParams.DEF_DISCOUNT_RATE, order = 7)
+					+ HTAExperiment.DEF_DISCOUNT_RATE, order = 7)
 	public List<Double> discount = new ArrayList<>();
 	@Parameter(names = { "--single_patient_output", "-ps" }, description = "Enables printing the specified patient's output", order = 4)
 	public int singlePatientOutput = -1;

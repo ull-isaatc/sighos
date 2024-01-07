@@ -6,7 +6,6 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
-import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -19,6 +18,11 @@ public class ExpressionWrapper implements ExpressableWrapper {
 
 	// TODO: Process parameters when expressed in different ways. E.g. gamma parameters may be average and standard deviation
 	public enum SupportedProbabilityDistributions {
+		BERNOULLI("BernoulliVariate") {
+			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
+				return new String[] {OSDiDataProperties.HAS_PROBABILITY_PARAMETER.getValue(instanceId, "0")};				
+			}
+		},
 		NORMAL("NormalVariate"),
 		UNIFORM("UniformVariate") {
 			public String[] getParameters(OSDiWrapper wrap, String instanceId) {
@@ -63,67 +67,58 @@ public class ExpressionWrapper implements ExpressableWrapper {
 		}
 		
 	}
-	private static final String DISTRIBUTION_NAME_SUFFIX = "Variate";
 	private final RandomVariate rnd;
-	private final String exprToEvaluate;
 	private final String instanceIRI;
 
 	public ExpressionWrapper(OSDiWrapper wrap, String instanceIRI) throws MalformedOSDiModelException {
 		final Set<String> superclasses = wrap.getClassesForIndividual(instanceIRI);
 		RandomVariate rnd = null;
-		String exprToEvaluate = null;
 		this.instanceIRI = instanceIRI; 
-		if (superclasses.contains(OSDiClasses.AD_HOC_EXPRESSION.getShortName())) {
-			exprToEvaluate = OSDiDataProperties.HAS_EXPRESSION_VALUE.getValue(instanceIRI, "");
-			final Set<String> referencedAttributes = OSDiObjectProperties.DEPENDS_ON_ATTRIBUTE.getValues(instanceIRI, true);
-			final Set<String> referencedParameters = OSDiObjectProperties.DEPENDS_ON_PARAMETER.getValues(instanceIRI, true);
-			// TODO: Process dependences with Attributes and Parameters
+		SupportedProbabilityDistributions dist = null;
+		if (superclasses.contains(OSDiClasses.NORMAL_DISTRIBUTION_EXPRESSION.getShortName())) {
+			dist = SupportedProbabilityDistributions.NORMAL;
 		}
-		else if (superclasses.contains(OSDiClasses.PROBABILITY_DISTRIBUTION_EXPRESSION.getShortName())) {
-			SupportedProbabilityDistributions dist = null;
-			if (superclasses.contains(OSDiClasses.NORMAL_DISTRIBUTION_EXPRESSION.getShortName())) {
-				dist = SupportedProbabilityDistributions.NORMAL;
-			}
-			else if (superclasses.contains(OSDiClasses.UNIFORM_DISTRIBUTION_EXPRESSION.getShortName())) {
-				dist = SupportedProbabilityDistributions.UNIFORM;				
-			}
-			else if (superclasses.contains(OSDiClasses.BETA_DISTRIBUTION_EXPRESSION.getShortName())) {
-				dist = SupportedProbabilityDistributions.BETA;
-			}
-			else if (superclasses.contains(OSDiClasses.GAMMA_DISTRIBUTION_EXPRESSION.getShortName())) {
-				dist = SupportedProbabilityDistributions.GAMMA;
-			}
-			else if (superclasses.contains(OSDiClasses.EXPONENTIAL_DISTRIBUTION_EXPRESSION.getShortName())) {
-				dist = SupportedProbabilityDistributions.EXPONENTIAL;
-			}
-			else if (superclasses.contains(OSDiClasses.POISSON_DISTRIBUTION_EXPRESSION.getShortName())) {
-				dist = SupportedProbabilityDistributions.POISSON;
-			}
-			if (dist == null) {
-				throw new MalformedOSDiModelException("Unsupported probability distribution " + instanceIRI);
-			}
-			
-			rnd = buildDistributionVariate(dist.getVariateName(), dist.getParameters(wrap, instanceIRI)); 
+		else if (superclasses.contains(OSDiClasses.UNIFORM_DISTRIBUTION_EXPRESSION.getShortName())) {
+			dist = SupportedProbabilityDistributions.UNIFORM;				
+		}
+		else if (superclasses.contains(OSDiClasses.BETA_DISTRIBUTION_EXPRESSION.getShortName())) {
+			dist = SupportedProbabilityDistributions.BETA;
+		}
+		else if (superclasses.contains(OSDiClasses.GAMMA_DISTRIBUTION_EXPRESSION.getShortName())) {
+			dist = SupportedProbabilityDistributions.GAMMA;
+		}
+		else if (superclasses.contains(OSDiClasses.EXPONENTIAL_DISTRIBUTION_EXPRESSION.getShortName())) {
+			dist = SupportedProbabilityDistributions.EXPONENTIAL;
+		}
+		else if (superclasses.contains(OSDiClasses.POISSON_DISTRIBUTION_EXPRESSION.getShortName())) {
+			dist = SupportedProbabilityDistributions.POISSON;
+		}
+		else if (superclasses.contains(OSDiClasses.BERNOULLI_DISTRIBUTION_EXPRESSION.getShortName())) {
+			dist = SupportedProbabilityDistributions.BERNOULLI;
+		}
+		if (dist == null) {
+			throw new MalformedOSDiModelException("Unsupported probability distribution " + instanceIRI);
+		}
+		
+		rnd = buildDistributionVariate(dist.getVariateName(), dist.getParameters(wrap, instanceIRI)); 
 
-			String strOffset = OSDiDataProperties.HAS_OFFSET_PARAMETER.getValue(instanceIRI, "0.0");
-			double offset = 0.0;
-			try {
-				offset = Double.parseDouble(strOffset);
-			} catch(NumberFormatException ex) {
-				throw new MalformedOSDiModelException(OSDiClasses.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceIRI, OSDiDataProperties.HAS_OFFSET_PARAMETER, "Invalid offset parameter for probabilistic expression. Found " + strOffset);
-			}
-			String strScale = OSDiDataProperties.HAS_SCALE_PARAMETER.getValue(instanceIRI, "1.0");
-			double scale = 1.0;
-			try {
-				scale = Double.parseDouble(strScale);
-			} catch(NumberFormatException ex) {
-				throw new MalformedOSDiModelException(OSDiClasses.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceIRI, OSDiDataProperties.HAS_SCALE_PARAMETER, "Invalid scale parameter for probabilistic expression. Found " + strScale);
-			}
-			if (scale != 1.0 || offset != 0.0) {
-				rnd = RandomVariateFactory.getInstance("ScaledVariate", rnd, scale, offset);
-			}
+		String strOffset = OSDiDataProperties.HAS_OFFSET_PARAMETER.getValue(instanceIRI, "0.0");
+		double offset = 0.0;
+		try {
+			offset = Double.parseDouble(strOffset);
+		} catch(NumberFormatException ex) {
+			throw new MalformedOSDiModelException(OSDiClasses.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceIRI, OSDiDataProperties.HAS_OFFSET_PARAMETER, "Invalid offset parameter for probabilistic expression. Found " + strOffset);
 		}
-		this.exprToEvaluate = exprToEvaluate;
+		String strScale = OSDiDataProperties.HAS_SCALE_PARAMETER.getValue(instanceIRI, "1.0");
+		double scale = 1.0;
+		try {
+			scale = Double.parseDouble(strScale);
+		} catch(NumberFormatException ex) {
+			throw new MalformedOSDiModelException(OSDiClasses.PROBABILITY_DISTRIBUTION_EXPRESSION, instanceIRI, OSDiDataProperties.HAS_SCALE_PARAMETER, "Invalid scale parameter for probabilistic expression. Found " + strScale);
+		}
+		if (scale != 1.0 || offset != 0.0) {
+			rnd = RandomVariateFactory.getInstance("ScaledVariate", rnd, scale, offset);
+		}
 		this.rnd = rnd;
 	}
 
@@ -139,32 +134,22 @@ public class ExpressionWrapper implements ExpressableWrapper {
 	}
 
 	/**
-	 * @return the exprToEvaluate
-	 */
-	public String getExprToEvaluate() {
-		return exprToEvaluate;
-	}
-
-	/**
 	 * 
 	 * @param distributionName
 	 * @param parameters
 	 * @return
 	 */
 	private static RandomVariate buildDistributionVariate(String distributionName, String[] parameters) {
-		int validParams = 3;
-		while ((validParams > 0) && parameters[validParams] == null)
-			validParams--;
-		double []numParams = new double[validParams + 1];
-		for (int i = 0; i <= validParams; i++)
+		double []numParams = new double[parameters.length];
+		for (int i = 0; i < numParams.length; i++)
 			numParams[i] = Double.parseDouble(parameters[i]);
-		if (validParams == 3)
-			return RandomVariateFactory.getInstance(distributionName + DISTRIBUTION_NAME_SUFFIX, numParams[0], numParams[1], numParams[2], numParams[3]);
-		if (validParams == 2)
-			return RandomVariateFactory.getInstance(distributionName + DISTRIBUTION_NAME_SUFFIX, numParams[0], numParams[1], numParams[2]);
-		if (validParams == 1)
-			return RandomVariateFactory.getInstance(distributionName + DISTRIBUTION_NAME_SUFFIX, numParams[0], numParams[1]);
-		return RandomVariateFactory.getInstance(distributionName + DISTRIBUTION_NAME_SUFFIX, numParams[0]);
+		if (numParams.length == 4)
+			return RandomVariateFactory.getInstance(distributionName, numParams[0], numParams[1], numParams[2], numParams[3]);
+		if (numParams.length == 3)
+			return RandomVariateFactory.getInstance(distributionName, numParams[0], numParams[1], numParams[2]);
+		if (numParams.length == 2)
+			return RandomVariateFactory.getInstance(distributionName, numParams[0], numParams[1]);
+		return RandomVariateFactory.getInstance(distributionName, numParams[0]);
 	}
 
 }

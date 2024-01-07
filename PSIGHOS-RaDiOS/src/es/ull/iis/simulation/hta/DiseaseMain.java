@@ -60,41 +60,6 @@ public class DiseaseMain extends HTAExperiment {
 	public HTAModel createModel(CommonArguments arguments) throws MalformedSimulationModelException {
 		HTAModel model = null;
 		if (((Arguments)arguments).type == 1) {
-//			String path = "";
-//			switch(disease) {
-//			case TEST_SCD:
-//				System.out.println("No OSDi test available for SCD\n\n");
-////				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease SCD \n\n"));
-////				path = "resources/radios_SCD.json";
-//				break;
-//			case TEST_RARE_DISEASE1:
-//			case TEST_RARE_DISEASE2:
-//			case TEST_RARE_DISEASE3:
-//			case TEST_RARE_DISEASE4:
-//				System.out.println("No OSDi test available for test diseases\n\n");
-////				System.out.println(String.format("\n\nExecuting the RaDiOS test for the rare disease [%d] \n\n", disease));
-////				interventionsToCompare.add(Constants.CONSTANT_DO_NOTHING);
-////				interventionsToCompare.add("#RD1_Intervention_Effective");
-////				path = "resources/radios-test_disease" + disease + ".json";
-//				break;
-//			case TEST_T1DM:
-//				System.out.println(String.format("\n\nExecuting the OSDi test for the T1DM \n\n"));
-//				interventionsToCompare.add(InterventionBuilder.DO_NOTHING);
-//				interventionsToCompare.add("#T1DM_InterventionDCCTIntensive");
-//				strDisease = "#T1DM_Disease";
-//				strPopulation = "#T1DM_PopulationDCCT1";
-//				path = System.getProperty("user.dir") + "\\resources\\OSDi.owl";
-//				break;
-//			case TEST_PBD:
-//			default:
-//				System.out.println(String.format("\n\nExecuting the OSDi test for the rare disease PBD \n\n"));
-//				interventionsToCompare.add("#PBD_InterventionNoScreening");
-//				interventionsToCompare.add("#PBD_InterventionScreening");
-//				strDisease = "#PBD_ProfoundBiotinidaseDeficiency";
-//				strPopulation = "#PBD_FakePopulation";
-//				path = System.getProperty("user.dir") + "\\resources\\OSDi.owl";
-//				break;				
-//			}
 			// TODO: Add arguments validation for OSDi
 			try {
 				model = new OSDiGenericModel(this, System.getProperty("user.dir") + "\\resources\\OSDi.owl", ((Arguments)arguments).model, ((Arguments)arguments).prefix);

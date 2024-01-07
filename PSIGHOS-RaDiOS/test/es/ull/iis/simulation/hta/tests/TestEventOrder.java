@@ -19,8 +19,8 @@ import es.ull.iis.simulation.hta.HTAExperiment;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.DoNothingIntervention;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.StandardParameter;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
@@ -120,12 +120,12 @@ public class TestEventOrder {
         }
         else if (example == TESTS.ACUTE) {
             int year = BasicDisease.YEARS_AMONG_ACUTE_MANIFESTATIONS;
-            while (year < BasicConfigParams.DEF_MAX_AGE - BasicConfigParams.DEF_MIN_AGE) {
+            while (year < Population.DEF_MAX_AGE - Population.DEF_MIN_AGE) {
                 expectedEvents.add(new PatientEvent(0, TimeUnit.DAY.convert(year, TimeUnit.YEAR), PatientInfo.Type.START_MANIF));
                 year += BasicDisease.YEARS_AMONG_ACUTE_MANIFESTATIONS;
             }
         }
-        expectedEvents.add(new PatientEvent(0, TimeUnit.DAY.convert(BasicConfigParams.DEF_MAX_AGE - BasicConfigParams.DEF_MIN_AGE, TimeUnit.YEAR), PatientInfo.Type.DEATH));
+        expectedEvents.add(new PatientEvent(0, TimeUnit.DAY.convert(Population.DEF_MAX_AGE - Population.DEF_MIN_AGE, TimeUnit.YEAR), PatientInfo.Type.DEATH));
         return expectedEvents;
     }
 

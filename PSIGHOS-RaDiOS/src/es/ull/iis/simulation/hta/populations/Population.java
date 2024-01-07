@@ -8,7 +8,6 @@ import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.HTAModelComponent;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.calculator.TimeToEventCalculator;
@@ -20,12 +19,35 @@ import simkit.random.RandomNumber;
  *
  */
 public abstract class Population extends HTAModelComponent {
+    /** Identifier code for women */
+    public final static int WOMAN = 1;
+    /** Identifier code for men */
+    public final static int MAN = 0;
+    /** Maximum age reachable by patients */
+    public final static int DEF_MAX_AGE = 100;
+    /** Default minimum age of patients */
+    public final static int DEF_MIN_AGE = 18;
 	/** Random number generator */
 	private final RandomNumber rng;
+	/** Minimum age of the patients of this population */
+	private int minAge;
+	/** Maximum age of the patients of this population */
+	private int maxAge;
+	/** Default utility for general population: From adult Spanish population but those with DM */ 
+	public static double DEF_U_GENERAL_POP = 0.911400915;
 
+	/**
+	 * Creates a population
+	 * @param model The model this population belongs to
+	 * @param name The name of the population
+	 * @param description A description of the population
+	 * @throws MalformedSimulationModelException if the population is already defined in the model
+	 */
 	public Population(HTAModel model, String name, String description) throws MalformedSimulationModelException {
 		super(model, name, description);
-		rng = PatientCommonRandomNumbers.getRNG();
+		this.rng = PatientCommonRandomNumbers.getRNG();
+		this.minAge = Population.DEF_MIN_AGE;
+		this.maxAge = Population.DEF_MAX_AGE;
 		if (!model.register(this))
 			throw new MalformedSimulationModelException("Population already defined");
 		registerUsedParameter(StandardParameter.POPULATION_BASE_UTILITY);
@@ -46,16 +68,33 @@ public abstract class Population extends HTAModelComponent {
 	 * @return the minimum age for the patients
 	 */
 	public int getMinAge() {
-		return BasicConfigParams.DEF_MIN_AGE;		
+		return minAge;		
 	}
+
+	/**
+	 * Sets the minimum age for the patients
+	 * @param minAge the minimum age for the patients
+	 */
+	public void setMinAge(int minAge) {
+		this.minAge = minAge;
+	}
+
 	/**
 	 * Returns the maximum age for the patients
 	 * @return the maximum age for the patients
 	 */
 	public int getMaxAge() {
-		return BasicConfigParams.DEF_MAX_AGE;
+		return maxAge;
 	}
 	
+	/**
+	 * Sets the maximum age for the patients
+	 * @param maxAge the maximum age for the patients
+	 */
+	public void setMaxAge(int maxAge) {
+		this.maxAge = maxAge;
+	}
+
 	/**
 	 * Returns the sex assigned to the patient (0: male; 1: female)
 	 * @param pat A patient

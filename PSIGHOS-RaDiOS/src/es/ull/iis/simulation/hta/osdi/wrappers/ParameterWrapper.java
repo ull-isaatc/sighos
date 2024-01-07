@@ -12,6 +12,7 @@ import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper.ParameterNature;
 import es.ull.iis.simulation.hta.params.ConstantNatureParameter;
 import es.ull.iis.simulation.hta.params.FirstOrderNatureParameter;
 import es.ull.iis.simulation.hta.params.Parameter;
@@ -27,21 +28,16 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class ParameterWrapper implements ExpressableWrapper {
-	public enum Nature {
-		DETERMINISTIC,
-		FIRST_ORDER,
-		SECOND_ORDER
-	}
 	protected final OSDiWrapper wrap;
 	protected final String paramIRI;
 	private final String source;
 	private final String description;
 	private final int year;
 	private final Set<OSDiDataItemTypes> dataItemTypes;
-	private final ExpressionWrapper expression;
+	private final String expression;
 	private final double deterministicValue;
 	private final RandomVariate probabilisticValue;
-	private final Nature nature;
+	private final ParameterNature nature;
 
 	/**
 	 * @throws MalformedOSDiModelException 
@@ -80,40 +76,51 @@ public class ParameterWrapper implements ExpressableWrapper {
 			deterministicValue = Double.parseDouble(detValue);
 			expression = null;
 			probabilisticValue = null;
-			nature = Nature.DETERMINISTIC;
+			nature = ParameterNature.DETERMINISTIC;
 		}
 		else if (wrap.isInstanceOf(paramIRI, OSDiClasses.FIRST_ORDER_UNCERTAINTY_PARAMETER.getShortName())) {
-			final String strExpression = OSDiObjectProperties.HAS_EXPRESSION.getValue(paramIRI, true);
-			// FIXME: Process also CIs in first-order?
+			final String strExpression = OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getValue(paramIRI, true);
 			if (strExpression == null) {
-				throw new MalformedOSDiModelException("First order parameter " + paramIRI + " requires a value for the " + OSDiObjectProperties.HAS_EXPRESSION.getShortName() + " property");
-			}
-			expression = new ExpressionWrapper(wrap, strExpression); 
-			probabilisticValue = expression.getRnd();
+				throw new MalformedOSDiModelException("First order parameter " + paramIRI + " requires a value for the " + OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getShortName() + " property");
+			}			
+			probabilisticValue = new ExpressionWrapper(wrap, strExpression).getRnd();
 			deterministicValue = Double.NaN;
-			nature = Nature.FIRST_ORDER;
+			expression = null;
+			nature = ParameterNature.FIRST_ORDER;
 		}
 		else if (wrap.isInstanceOf(paramIRI, OSDiClasses.SECOND_ORDER_UNCERTAINTY_PARAMETER.getShortName())) {
 			final String detValue = OSDiDataProperties.HAS_EXPECTED_VALUE.getValue(paramIRI);
 			if (detValue == null)
 				throw new MalformedOSDiModelException("Second order parameter " + paramIRI + " requires a value for the " + OSDiDataProperties.HAS_EXPECTED_VALUE.getShortName() + " property");
 			deterministicValue = Double.parseDouble(detValue);
-			final String strExpression = OSDiObjectProperties.HAS_EXPRESSION.getValue(paramIRI, true);
-			if (strExpression == null) {
-				expression = null;
-				final Set<String> uncertaintyParams = OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getValues(paramIRI, true);
-				if (uncertaintyParams.size() == 0)
-					throw new MalformedOSDiModelException("Second order parameter " + paramIRI + " requires a value for the " + OSDiObjectProperties.HAS_EXPRESSION.getShortName() + " property or for the " + OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getShortName() + " property");
-				probabilisticValue = initProbabilisticValue(uncertaintyParams);
+			expression = null;
+			final Set<String> uncertaintyParams = OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getValues(paramIRI, true);
+			if (uncertaintyParams.size() == 0)
+				throw new MalformedOSDiModelException("Second order parameter " + paramIRI + " requires a value for the " + OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getShortName() + " property");
+			else if (uncertaintyParams.size() == 1) {
+				if (wrap.getClassesForIndividual((String)uncertaintyParams.toArray()[0]).contains(OSDiClasses.PROBABILITY_DISTRIBUTION_EXPRESSION.getShortName())) {
+					probabilisticValue = new ExpressionWrapper(wrap, (String)uncertaintyParams.toArray()[0]).getRnd();
+				}
+				else {
+					probabilisticValue = initProbabilisticValue(uncertaintyParams);
+				}
 			}
 			else {
-				expression = new ExpressionWrapper(wrap, strExpression);
-				probabilisticValue = expression.getRnd();
+				probabilisticValue = initProbabilisticValue(uncertaintyParams);	
 			}
-			nature = Nature.SECOND_ORDER;
+			nature = ParameterNature.SECOND_ORDER;
+		}
+		else if (wrap.isInstanceOf(paramIRI, OSDiClasses.CALCULATED_PARAMETER.getShortName())) {
+			expression = OSDiDataProperties.HAS_EXPRESSION_VALUE.getValue(paramIRI, "");
+			if (expression.equals("")) {			
+				throw new MalformedOSDiModelException("Calculated parameter " + paramIRI + " requires a value for the " + OSDiDataProperties.HAS_EXPRESSION_VALUE.getShortName() + " property");
+			}
+			probabilisticValue = null;
+			deterministicValue = Double.NaN;
+			nature = ParameterNature.CALCULATED;
 		}
 		else {
-			throw new MalformedOSDiModelException("Parameter " + paramIRI + " is not a valid parameter. It should be an instance of " + OSDiClasses.DETERMINISTIC_PARAMETER + ", " + OSDiClasses.FIRST_ORDER_UNCERTAINTY_PARAMETER + " or " + OSDiClasses.SECOND_ORDER_UNCERTAINTY_PARAMETER);
+			throw new MalformedOSDiModelException("Parameter " + paramIRI + " is not a valid parameter. It should be an instance of " + OSDiClasses.DETERMINISTIC_PARAMETER + ", " + OSDiClasses.FIRST_ORDER_UNCERTAINTY_PARAMETER + ", " + OSDiClasses.CALCULATED_PARAMETER + " or " + OSDiClasses.SECOND_ORDER_UNCERTAINTY_PARAMETER);
 		}
 	}
 	
@@ -121,7 +128,7 @@ public class ParameterWrapper implements ExpressableWrapper {
 	 * Returns the nature of the parameter, i.e., deterministic, first or second order uncertainty.
 	 * @return the nature of the parameter, i.e., deterministic, first or second order uncertainty.
 	 */
-	public Nature getNature() {
+	public ParameterNature getNature() {
 		return nature;
 	}
 
@@ -164,7 +171,7 @@ public class ParameterWrapper implements ExpressableWrapper {
 	/**
 	 * @return the expression
 	 */
-	public ExpressionWrapper getExpression() {
+	public String getExpression() {
 		return expression;
 	}
 
@@ -177,7 +184,10 @@ public class ParameterWrapper implements ExpressableWrapper {
 		return OSDiDataProperties.HAS_SOURCE.getValue(individualIRI, "Unknown");
 	}
 	
-	private static RandomVariate getRandomVariateFromAvgAndCIs(double avg, double[] ci) {
+	private RandomVariate getRandomVariateFromAvgAndCIs(double avg, double[] ci) {
+		if (dataItemTypes.contains(OSDiDataItemTypes.DI_RELATIVE_RISK)) {
+			return RandomVariateFactory.getInstance("RRFromLnCIVariate", avg, ci[0], ci[1], 1);
+		}
 		final double sd = Statistics.sdFrom95CI(ci);
 		final double []paramsBeta = Statistics.betaParametersFromNormal(avg, sd);
 		return RandomVariateFactory.getInstance("BetaVariate", paramsBeta[0], paramsBeta[1]);
@@ -201,7 +211,6 @@ public class ParameterWrapper implements ExpressableWrapper {
 	
 	/**
 	 * Creates a parameter from this wrapper
-	 * TODO: Process expressions
 	 * @param model The model where the parameter will be created
 	 * @param type The type of parameter to be created
 	 * @return The created parameter
@@ -214,6 +223,8 @@ public class ParameterWrapper implements ExpressableWrapper {
 			return new FirstOrderNatureParameter(model, paramIRI, description, source, year, type, probabilisticValue);
 		case SECOND_ORDER:
 			return new SecondOrderNatureParameter(model, paramIRI, description, source, year, type, deterministicValue, probabilisticValue);
+		case CALCULATED:
+			return new ExpressionLanguageParameter(model, paramIRI, description, source, year, type, expression);
 		default:
 			return null;
 		}

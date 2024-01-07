@@ -7,9 +7,9 @@ import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
-import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.modifiers.ParameterModifier;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.GompertzVariate;
@@ -78,8 +78,8 @@ public class StandardSpainDeathSubmodel implements TimeToEventCalculator {
 		final ParameterModifier imrModif = pat.getIntervention().getMortalityRiskModification();
 		imr = imrModif.getModifiedValue(pat, imr);
 		
-		final double time = Math.min(GompertzVariate.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), rnd[simulId][pat.getIdentifier()] / imr), BasicConfigParams.DEF_MAX_AGE - age);
+		final double time = Math.min(GompertzVariate.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), rnd[simulId][pat.getIdentifier()] / imr), Population.DEF_MAX_AGE - age);
 		// TODO: Check that this works properly
-		return Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, time) - ler, BasicConfigParams.DEF_MAX_AGE - age));			
+		return Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, time) - ler, Population.DEF_MAX_AGE - age));			
 	}
 }

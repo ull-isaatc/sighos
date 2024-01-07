@@ -24,7 +24,7 @@ public class CostParameterWrapper extends ParameterWrapper {
 	public CostParameterWrapper(OSDiWrapper wrap, String paramId, String defaultDescription)
 			throws MalformedOSDiModelException {
 		super(wrap, paramId, defaultDescription);
-		appliesOneTime = (OSDiDataProperties.APPLIES_ONE_TIME.getValue(paramId, "false") == "true");
+		appliesOneTime = (OSDiDataProperties.APPLIES_ONE_TIME.getValue(paramId, "false").equals("true"));
 	}
 	
 	/**

@@ -63,14 +63,14 @@
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#dependsOnAttribute
 :dependsOnAttribute rdf:type owl:ObjectProperty ;
-                    rdfs:domain :AdHocExpression ;
+                    rdfs:domain :CalculatedParameter ;
                     rdfs:range :Attribute ;
                     rdfs:comment "Defines a relationship between a Valuable instance and an Attribute, where the \"hasExpression\" of the domain instance makes reference to the range instance. Hence, the hasExpression property should include a reference to that attribute, so that the final value of this Valuable is a function of the value of this attribute."@en .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#dependsOnParameter
 :dependsOnParameter rdf:type owl:ObjectProperty ;
-                    rdfs:domain :AdHocExpression ;
+                    rdfs:domain :CalculatedParameter ;
                     rdfs:range :Parameter ;
                     rdfs:comment "Defines a relationship between a Valuable instance and a Parameter, where the \"hasExpression\" of the domain instance makes reference to the range instance. Hence, the hasExpression property should include a reference to that parameter, so that the final value of this Valuable is a function of the value of this parameter."@en .
 
@@ -216,19 +216,9 @@
                              rdfs:range :EpidemiologicalParameter .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasExpression
-:hasExpression rdf:type owl:ObjectProperty ;
-               rdfs:domain [ rdf:type owl:Class ;
-                             owl:unionOf ( :FirstOrderUncertaintyParameter
-                                           :SecondOrderUncertaintyParameter
-                                         )
-                           ] ;
-               rdfs:range :Expression .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasExpressionLanguage
 :hasExpressionLanguage rdf:type owl:ObjectProperty ;
-                       rdfs:domain :AdHocExpression ;
+                       rdfs:domain :CalculatedParameter ;
                        rdfs:range :ExpressionLanguage .
 
 
@@ -522,7 +512,11 @@ By default = 1, for the Manifestations."""@en .
                                                             :SecondOrderUncertaintyParameter
                                                           )
                                             ] ;
-                                rdfs:range :Parameter .
+                                rdfs:range [ rdf:type owl:Class ;
+                                             owl:unionOf ( :Parameter
+                                                           :ProbabilityDistributionExpression
+                                                         )
+                                           ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUtility
@@ -741,7 +735,7 @@ By default = 1, for the Manifestations.""" .
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasExpressionValue
 :hasExpressionValue rdf:type owl:DatatypeProperty ;
-                    rdfs:domain :AdHocExpression ;
+                    rdfs:domain :CalculatedParameter ;
                     rdfs:range xsd:string .
 
 
@@ -932,29 +926,6 @@ Examples:
                                                                                ] .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#AdHocExpression
-:AdHocExpression rdf:type owl:Class ;
-                 rdfs:subClassOf :Expression ,
-                                 [ rdf:type owl:Restriction ;
-                                   owl:onProperty :dependsOnAttribute ;
-                                   owl:someValuesFrom :Attribute
-                                 ] ,
-                                 [ rdf:type owl:Restriction ;
-                                   owl:onProperty :dependsOnParameter ;
-                                   owl:someValuesFrom :Parameter
-                                 ] ,
-                                 [ rdf:type owl:Restriction ;
-                                   owl:onProperty :hasExpressionLanguage ;
-                                   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                   owl:onClass :ExpressionLanguage
-                                 ] ,
-                                 [ rdf:type owl:Restriction ;
-                                   owl:onProperty :hasExpressionValue ;
-                                   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                   owl:onDataRange xsd:string
-                                 ] .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#AgentBasedModel
 :AgentBasedModel rdf:type owl:Class ;
                  rdfs:subClassOf :Model .
@@ -1018,6 +989,29 @@ Examples:
                  rdfs:subClassOf :EpidemiologicalParameter .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#CalculatedParameter
+:CalculatedParameter rdf:type owl:Class ;
+                     rdfs:subClassOf :ParameterNature ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :dependsOnAttribute ;
+                                       owl:someValuesFrom :Attribute
+                                     ] ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :dependsOnParameter ;
+                                       owl:someValuesFrom :Parameter
+                                     ] ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :hasExpressionLanguage ;
+                                       owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                       owl:onClass :ExpressionLanguage
+                                     ] ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :hasExpressionValue ;
+                                       owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                       owl:onDataRange xsd:string
+                                     ] .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ChronicManifestation
 :ChronicManifestation rdf:type owl:Class ;
                       rdfs:subClassOf :Manifestation ,
@@ -1033,7 +1027,7 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ConditionExpression
 :ConditionExpression rdf:type owl:Class ;
-                     rdfs:subClassOf :Expression ,
+                     rdfs:subClassOf :ModelItem ,
                                      [ rdf:type owl:Restriction ;
                                        owl:onProperty :dependsOnAttribute ;
                                        owl:someValuesFrom :Attribute
@@ -1149,7 +1143,7 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DeterministicParameter
 :DeterministicParameter rdf:type owl:Class ;
-                        rdfs:subClassOf :ParameterUncertainty ,
+                        rdfs:subClassOf :ParameterNature ,
                                         [ rdf:type owl:Restriction ;
                                           owl:onProperty :hasExpectedValue ;
                                           owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
@@ -1431,11 +1425,6 @@ Examples:
                                                    ] .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Expression
-:Expression rdf:type owl:Class ;
-            rdfs:subClassOf :ModelItem .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ExpressionLanguage
 :ExpressionLanguage rdf:type owl:Class ;
                     owl:equivalentClass [ rdf:type owl:Class ;
@@ -1449,15 +1438,14 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#FirstOrderUncertaintyParameter
 :FirstOrderUncertaintyParameter rdf:type owl:Class ;
-                                rdfs:subClassOf :ParameterUncertainty ,
+                                rdfs:subClassOf :ParameterNature ,
                                                 [ rdf:type owl:Restriction ;
                                                   owl:onProperty :hasUncertaintyCharacterization ;
-                                                  owl:someValuesFrom :Parameter
-                                                ] ,
-                                                [ rdf:type owl:Restriction ;
-                                                  owl:onProperty :hasExpression ;
-                                                  owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                                  owl:onClass :Expression
+                                                  owl:someValuesFrom [ rdf:type owl:Class ;
+                                                                       owl:unionOf ( :Parameter
+                                                                                     :ProbabilityDistributionExpression
+                                                                                   )
+                                                                     ]
                                                 ] .
 
 
@@ -1791,9 +1779,10 @@ Examples:
            rdfs:comment "Parameters used for computing outcomes or characterize certain class. They have a source, a geographical context, year, description and value." .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ParameterUncertainty
-:ParameterUncertainty rdf:type owl:Class ;
-                      rdfs:comment "The nature of the values of a parameter, i.e., whether it is a constant, or characterizes uncertainty somehow"@en .
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ParameterNature
+:ParameterNature rdf:type owl:Class ;
+                 rdfs:subClassOf :ModelItem ;
+                 rdfs:comment "The nature of the values of a parameter, i.e., whether it is a constant, calculated, or characterizes uncertainty somehow"@en .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Pathway
@@ -1921,7 +1910,7 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ProbabilityDistributionExpression
 :ProbabilityDistributionExpression rdf:type owl:Class ;
-                                   rdfs:subClassOf :Expression ,
+                                   rdfs:subClassOf :ModelItem ,
                                                    [ rdf:type owl:Restriction ;
                                                      owl:onProperty :hasAverageParameter ;
                                                      owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
@@ -2004,15 +1993,14 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#SecondOrderUncertaintyParameter
 :SecondOrderUncertaintyParameter rdf:type owl:Class ;
-                                 rdfs:subClassOf :ParameterUncertainty ,
+                                 rdfs:subClassOf :ParameterNature ,
                                                  [ rdf:type owl:Restriction ;
                                                    owl:onProperty :hasUncertaintyCharacterization ;
-                                                   owl:someValuesFrom :Parameter
-                                                 ] ,
-                                                 [ rdf:type owl:Restriction ;
-                                                   owl:onProperty :hasExpression ;
-                                                   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                                   owl:onClass :Expression
+                                                   owl:someValuesFrom [ rdf:type owl:Class ;
+                                                                        owl:unionOf ( :Parameter
+                                                                                      :ProbabilityDistributionExpression
+                                                                                    )
+                                                                      ]
                                                  ] ,
                                                  [ rdf:type owl:Restriction ;
                                                    owl:onProperty :hasExpectedValue ;
@@ -2400,6 +2388,12 @@ Examples:
                                  :Guideline ;
                         :REMOVEhasFrequency "1y" ;
                         :hasRange "0y-*" .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#InterventionDoNothing
+:InterventionDoNothing rdf:type owl:NamedIndividual ,
+                                :Intervention ;
+                       :hasDescription "A null intervention that has no effect on the patient" .
 
 
 [ <http://ontologydesignpatterns.org/opla-sd#entityPositionX> "80.67230303494442"^^xsd:double ;

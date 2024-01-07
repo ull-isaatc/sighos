@@ -272,6 +272,22 @@ public class HTAModel {
 		return registeredPopulation;
 	}
 
+	public Disease getDisease(String name) {
+		return registeredDiseases.get(name);
+	}
+
+	public Development getDevelopment(String name) {
+		return registeredDevelopments.get(name);
+	}
+
+	public Intervention getIntervention(String name) {
+		return registeredInterventions.get(name);
+	}
+
+	public DiseaseProgression getDiseaseProgression(String name) {
+		return registeredProgressions.get(name);
+	}
+
     /**
      * Returns the collection of parameters created for a model component
      * @return the collection of parameters created for a model component
