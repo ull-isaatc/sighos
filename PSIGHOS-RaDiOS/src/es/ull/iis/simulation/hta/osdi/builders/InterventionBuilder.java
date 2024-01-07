@@ -23,6 +23,7 @@ import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.ParameterTemplate;
 import es.ull.iis.simulation.hta.params.StandardParameter;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 
 /**
  * @author Iván Castilla
@@ -95,7 +96,7 @@ public interface InterventionBuilder {
 		@Override
 		public void createParameters() {
 			for (ParameterModifierWrapper mod : modifiers) {
-				mod.registerParameter(model);
+				model.addParameter(mod.createParameter(model, ParameterType.OTHER));
 			}
 			for (ParameterTemplate paramDesc : paramMapping.keySet()) {
 				final ParameterWrapper param = paramMapping.get(paramDesc);
@@ -161,7 +162,7 @@ public interface InterventionBuilder {
 				addUsedParameter(StandardParameter.SPECIFICITY, specificityWrapper.getDescription(), specificityWrapper.getSource(),
 						specificityWrapper.getDeterministicValue(), specificityWrapper.getProbabilisticValue());
 			for (ParameterModifierWrapper mod : modifiers) {
-				mod.registerParameter(model);
+				model.addParameter(mod.createParameter(model, ParameterType.OTHER));
 			}			
 		}
 		

@@ -139,8 +139,73 @@ public enum DiseaseProgressionTemplate {
 	// PRET("Proliferative Retinopathy", DiseaseProgressionType.CHRONIC_MANIFESTATION),
 	// ME("Macular Edema", DiseaseProgressionType.CHRONIC_MANIFESTATION),
 	// BLI("Blindness", DiseaseProgressionType.CHRONIC_MANIFESTATION),
-	// NEU("Neuropathy", DiseaseProgressionType.CHRONIC_MANIFESTATION),
-	// LEA("Lower Extremity Amputation", DiseaseProgressionType.CHRONIC_MANIFESTATION),
+	NEU("Neuropathy", DiseaseProgressionType.CHRONIC_MANIFESTATION) {
+		@Override
+		protected void createParameters(ModifiableOSDiWrapper wrap) {
+			final String instanceIRI = getInstanceIRI();
+
+			String costIRI = OSDiWrapper.InstanceIRI.PARAM_ANNUAL_COST.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
+			wrap.addCost(instanceIRI, OSDiObjectProperties.HAS_COST, costIRI, "Annual cost of neuropathy", "Ray (2015)", 2015, false, OSDiDataItemTypes.CURRENCY_EURO);
+			wrap.addDeterministicNature(costIRI, 3108.86);
+
+			String utilityIRI = OSDiWrapper.InstanceIRI.PARAM_UTILITY.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
+			wrap.addUtility(instanceIRI, OSDiObjectProperties.HAS_UTILITY, utilityIRI, "Annual disutility of neuropathy", "Bagust and Beale (10.1002/hec.910)", 
+					2005, false, true);
+			wrap.addSecondOrderNature(utilityIRI, new double[] {0.084, 0.057, 0.111}, OSDiClasses.UTILITY, "Annual disutility of neuropathy", "Bagust and Beale (10.1002/hec.910)", 2005);
+
+			String imrIRI = OSDiWrapper.InstanceIRI.PARAM_INCREASED_MORTALITY_RATE.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null); 
+			wrap.addParameter(instanceIRI, OSDiObjectProperties.HAS_INCREASED_MORTALITY_RATE, imrIRI, OSDiClasses.PARAMETER, "Increased mortality rate due to peripheral neuropathy (vibratory sense diminished)", 
+					"https://doi.org/10.2337/diacare.28.3.617", 2005, OSDiDataItemTypes.DI_RELATIVE_RISK);
+			wrap.addSecondOrderNature(imrIRI, new double[] {1.51, 1.00, 2.28}, OSDiClasses.PARAMETER, "Increased mortality rate due to peripheral neuropathy (vibratory sense diminished)", 
+					"https://doi.org/10.2337/diacare.28.3.617", 2005);
+
+			addSheffieldParameters(wrap, 5.3, new double[] {0.0354, 0.020, 0.055});
+		}
+	},
+	LEA("Lower Extremity Amputation", DiseaseProgressionType.CHRONIC_MANIFESTATION) {
+		@Override
+		protected void createParameters(ModifiableOSDiWrapper wrap) {
+			final String instanceIRI = getInstanceIRI();
+
+			String costIRI = OSDiWrapper.InstanceIRI.PARAM_ANNUAL_COST.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
+			wrap.addCost(instanceIRI, OSDiObjectProperties.HAS_COST, costIRI, "Annual cost after low extremity amputation", "del Pino et al", 2017, false, OSDiDataItemTypes.CURRENCY_EURO);
+			wrap.addDeterministicNature(costIRI, 918.01);
+
+			costIRI = OSDiWrapper.InstanceIRI.PARAM_ONE_TIME_COST.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
+			wrap.addCost(instanceIRI, OSDiObjectProperties.HAS_COST, costIRI, "Cost of low extremity amputation", "Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", 2017, false, OSDiDataItemTypes.CURRENCY_EURO);
+			String costSDIRI = OSDiWrapper.InstanceIRI.UNCERTAINTY_PARAM.getIRI(costIRI, false);
+			wrap.createParameter(costSDIRI, OSDiClasses.COST, "Standard deviation for the cost of low extremity amputation", "Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", 2017, OSDiDataItemTypes.DI_STANDARD_DEVIATION);
+			wrap.addDeterministicNature(costSDIRI, 1674.37);
+			wrap.addSecondOrderNature(costIRI, 11333.04, costSDIRI);
+
+			String utilityIRI = OSDiWrapper.InstanceIRI.PARAM_UTILITY.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
+			wrap.addUtility(instanceIRI, OSDiObjectProperties.HAS_UTILITY, utilityIRI, "Annual disutility after low extremity amputation", "Bagust and Beale (10.1002/hec.910)", 
+					2005, false, true);
+			wrap.addSecondOrderNature(utilityIRI, new double[] {0.28, 0.17, 0.389}, OSDiClasses.UTILITY, "Annual disutility after low extremity amputation", "Bagust and Beale (10.1002/hec.910)", 2005);
+
+			String imrIRI = OSDiWrapper.InstanceIRI.PARAM_INCREASED_MORTALITY_RATE.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null); 
+			wrap.addParameter(instanceIRI, OSDiObjectProperties.HAS_INCREASED_MORTALITY_RATE, imrIRI, OSDiClasses.PARAMETER, "Increased mortality rate due to peripheral neuropathy (amputation)", 
+					"https://doi.org/10.2337/diacare.28.3.617", 2005, OSDiDataItemTypes.DI_RELATIVE_RISK);
+			wrap.addSecondOrderNature(imrIRI, new double[] {3.98, 1.84, 8.59}, OSDiClasses.PARAMETER, "Increased mortality rate due to peripheral neuropathy (amputation)", 
+					"https://doi.org/10.2337/diacare.28.3.617", 2005);
+
+			String incidenceIRI = OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
+			wrap.addParameter(getInstanceIRI(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, incidenceIRI, OSDiClasses.INCIDENCE, "Incidence of " + getDescription(), 
+				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 1995, OSDiDataItemTypes.DI_PROBABILITY);
+			wrap.createProbabilityDistributionExpression(OSDiWrapper.InstanceIRI.UNCERTAINTY_PARAM.getIRI(incidenceIRI, false), OSDiProbabilityDistributionExpressions.UNIFORM, new double[] {0.0, 0.0006});
+			wrap.addSecondOrderNature(incidenceIRI, 0.0003, OSDiWrapper.InstanceIRI.UNCERTAINTY_PARAM.getIRI(incidenceIRI, false));
+
+			incidenceIRI = OSDiWrapper.InstanceIRI.MANIFESTATION_PATHWAY.getIRI(NEU.name() + "_" + this.name());
+			wrap.createDiseaseProgressionPathway(incidenceIRI, "Path from " + NEU.getDescription() + " to " + getDescription(), instanceIRI);
+			wrap.addParameter(incidenceIRI, OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(incidenceIRI, false), OSDiClasses.INCIDENCE, 
+				"Incidence of the pathway from " + NEU.getDescription() + " to " + getDescription(), 
+				"Klein et al. 2004 (also Sheffield)", 1995, OSDiDataItemTypes.DI_PROBABILITY);
+			wrap.addSecondOrderNature(OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(incidenceIRI, false), new double[]{0.0154, 0.01232, 0.01848}, OSDiClasses.INCIDENCE, 
+				"Incidence of the pathway from " + NEU.getDescription() + " to " + getDescription(),
+				"Klein et al. 2004 (also Sheffield)", 1995);
+			OSDiObjectProperties.REQUIRES.add(incidenceIRI, NEU.getInstanceIRI());
+		}
+	},
 	// ALB1("Microalbuminuria", DiseaseProgressionType.CHRONIC_MANIFESTATION),
 	// ALB2("Macroalbuminuria", DiseaseProgressionType.CHRONIC_MANIFESTATION),
 	// ESRD("End-Stage Renal Disease", DiseaseProgressionType.CHRONIC_MANIFESTATION),
@@ -192,7 +257,7 @@ public enum DiseaseProgressionTemplate {
 		DiseaseProgressionTemplate.MI.addExclusions(Set.of(DiseaseProgressionTemplate.HF, DiseaseProgressionTemplate.STROKE, DiseaseProgressionTemplate.ANGINA));
 		// DiseaseProgressionTemplate.PRET.addExclusions(Set.of(DiseaseProgressionTemplate.BGRET));
 		// DiseaseProgressionTemplate.BLI.addExclusions(Set.of(DiseaseProgressionTemplate.BGRET, DiseaseProgressionTemplate.PRET, DiseaseProgressionTemplate.ME));
-		// DiseaseProgressionTemplate.LEA.addExclusions(Set.of(DiseaseProgressionTemplate.NEU));
+		DiseaseProgressionTemplate.LEA.addExclusions(Set.of(DiseaseProgressionTemplate.NEU));
 		// DiseaseProgressionTemplate.ALB2.addExclusions(Set.of(DiseaseProgressionTemplate.ALB1));
 		// DiseaseProgressionTemplate.ESRD.addExclusions(Set.of(DiseaseProgressionTemplate.ALB1, DiseaseProgressionTemplate.ALB2));
 	}
@@ -246,6 +311,31 @@ public enum DiseaseProgressionTemplate {
 	}
 	
 	protected void createParameters(ModifiableOSDiWrapper wrap) {		
+	}
+
+	protected void addSheffieldParameters(ModifiableOSDiWrapper wrap, double beta, double[] incidence) {
+		addSheffieldBeta(wrap, beta);
+		addSheffieldIncidence(wrap, incidence);
+	}
+
+	protected void addSheffieldBeta(ModifiableOSDiWrapper wrap, double beta) {
+		String betaIRI = wrap.getInstancePrefix() + "BETA" + OSDiWrapper.InstanceIRI.MANIFESTATION.getIRI(this.name(), false);
+		wrap.createParameter(betaIRI, OSDiClasses.PARAMETER, "Beta parameter for " + getDescription(), "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", 1996, OSDiDataItemTypes.DI_RELATIVE_RISK);
+		wrap.addDeterministicNature(betaIRI, beta);
+		String rrIRI = OSDiWrapper.InstanceIRI.PARAM_RELATIVE_RISK.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
+		final TreeSet<String> dependentAttributes = new TreeSet<>();
+		dependentAttributes.add("HbA1c");
+		final TreeSet<String> dependentParameters = new TreeSet<>();
+		dependentParameters.add("BETA" + OSDiWrapper.InstanceIRI.MANIFESTATION.getIRI(this.name(), false));
+		wrap.addCalculatedNature(rrIRI, "("+ OSDiWrapper.InstanceIRI.ATTRIBUTE.getIRI("HbA1c", false) + " / 10) ^" + betaIRI, ExpressionLanguage.JEXL, dependentAttributes, dependentParameters);
+	}
+
+	protected void addSheffieldIncidence(ModifiableOSDiWrapper wrap, double[] incidence) {
+		String incidenceIRI = OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
+		wrap.addParameter(getInstanceIRI(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, incidenceIRI, OSDiClasses.INCIDENCE, "Base incidence of " + getDescription() + " when HbA1c is 10", 
+			"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 1995, OSDiDataItemTypes.DI_PROBABILITY);
+		wrap.addSecondOrderNature(incidenceIRI, incidence, OSDiClasses.INCIDENCE, "Base incidence of " + getDescription() + " when HbA1c is 10", 
+			"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 1995);
 	}
 	
 }

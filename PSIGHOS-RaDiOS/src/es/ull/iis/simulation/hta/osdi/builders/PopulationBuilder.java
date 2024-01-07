@@ -79,12 +79,7 @@ public interface PopulationBuilder {
 			ageVariate = ageWrapper.getProbabilisticValue();
 			// Process population sex
 			final String sexAttribute = OSDiObjectProperties.HAS_SEX.getValue(populationName, true);
-			final AttributeValueWrapper sexWrapper = new AttributeValueWrapper(wrap, sexAttribute) {
-				@Override
-				public RandomVariate getDefaultProbabilisticValue() {
-					return RandomVariateFactory.getInstance("DiscreteConstantVariate", getDeterministicValue());
-				}
-			};
+			final AttributeValueWrapper sexWrapper = new AttributeValueWrapper(wrap, sexAttribute);
 			sexVariate = (DiscreteRandomVariate) sexWrapper.getProbabilisticValue();
 			
 			this.utilityParam = createUtilityParam();

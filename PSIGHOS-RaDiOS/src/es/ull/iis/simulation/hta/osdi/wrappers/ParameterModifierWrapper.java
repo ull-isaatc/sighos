@@ -13,7 +13,6 @@ import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.params.Parameter;
-import es.ull.iis.simulation.hta.params.SecondOrderNatureParameter;
 import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.params.modifiers.DiffParameterModifier;
 import es.ull.iis.simulation.hta.params.modifiers.FactorParameterModifier;
@@ -51,12 +50,11 @@ public class ParameterModifierWrapper extends ParameterWrapper {
 		this.intervention = intervention;		
 	}
 
-	public void registerParameter(HTAModel model) {
-		// TODO: Create the parameter according to its definition
-		final Parameter param = new SecondOrderNatureParameter(model, getOriginalIndividualIRI(), getDescription(), getSource(), getYear(), ParameterType.OTHER, getDeterministicValue(), getProbabilisticValue());
-		model.addParameter(param);
+	@Override
+	public Parameter createParameter(HTAModel model, ParameterType type) {
+		final Parameter param = super.createParameter(model, type);
 		ParameterModifier mod = null;
-		switch(type) {
+		switch(this.type) {
 		case DIFF:
 			mod = new DiffParameterModifier(param.name());
 			break;
@@ -73,5 +71,6 @@ public class ParameterModifierWrapper extends ParameterWrapper {
 		for (String modifiedParam : modifiedItems) {
 			model.addParameterModifier(modifiedParam, intervention, mod);
 		}
+		return param;
 	}
 }

@@ -183,35 +183,7 @@ public class ModifiableOSDiWrapper extends OSDiWrapper {
 	}
 
 	public void createProbabilityDistributionExpression(String expressionIRI, OSDiProbabilityDistributionExpressions type, double[] parameters) {
-		if (parameters.length != type.getnParameters())
-			throw new IllegalArgumentException("Creating a " + type.name() + " probability distribution requires " + type.getnParameters() + " parameters. Passed " + parameters.length);
-		type.getClazz().add(expressionIRI);
-		switch(type) {
-		case BERNOULLI:
-			OSDiDataProperties.HAS_PROBABILITY_PARAMETER.add(expressionIRI, "" + parameters[0]);		
-			break;			
-		case BETA:
-			OSDiDataProperties.HAS_ALFA_PARAMETER.add(expressionIRI, "" + parameters[0]);
-			OSDiDataProperties.HAS_BETA_PARAMETER.add(expressionIRI, "" + parameters[1]);		
-			break;
-		case POISSON:
-		case EXPONENTIAL:
-			OSDiDataProperties.HAS_LAMBDA_PARAMETER.add(expressionIRI, "" + parameters[0]);		
-			break;
-		case GAMMA:
-			OSDiDataProperties.HAS_ALFA_PARAMETER.add(expressionIRI, "" + parameters[0]);
-			OSDiDataProperties.HAS_LAMBDA_PARAMETER.add(expressionIRI, "" + parameters[1]);		
-			break;
-		case UNIFORM:
-			OSDiDataProperties.HAS_LOWER_LIMIT_PARAMETER.add(expressionIRI, "" + parameters[0]);
-			OSDiDataProperties.HAS_UPPER_LIMIT_PARAMETER.add(expressionIRI, "" + parameters[1]);		
-			break;
-		case NORMAL:
-		default:
-			OSDiDataProperties.HAS_AVERAGE_PARAMETER.add(expressionIRI, "" + parameters[0]);
-			OSDiDataProperties.HAS_STANDARD_DEVIATION_PARAMETER.add(expressionIRI, "" + parameters[1]);		
-			break;		
-		}
+		type.add(expressionIRI, parameters);
 		includeInModel(expressionIRI);			
 	}
 

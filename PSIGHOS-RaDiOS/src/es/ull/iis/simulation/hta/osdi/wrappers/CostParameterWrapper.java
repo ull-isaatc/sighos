@@ -6,6 +6,8 @@ package es.ull.iis.simulation.hta.osdi.wrappers;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.util.Statistics;
+import simkit.random.RandomVariate;
 
 /**
  * TODO Process currency
@@ -35,4 +37,10 @@ public class CostParameterWrapper extends ParameterWrapper {
 		return appliesOneTime;
 	}
 
+	@Override
+	protected RandomVariate getRandomVariateFromAvgAndSD(double avg, double sd) {
+		final double[] gammaParams = Statistics.gammaParametersFromNormal(avg, sd);
+		// By default, uncertainty in costs is modeled as a gamma distribution
+		return super.getRandomVariateFromAvgAndSD(gammaParams[0], gammaParams[1]);
+	}
 }

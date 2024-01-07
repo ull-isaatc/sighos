@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.hta.tests;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -42,9 +43,11 @@ public class TestLoadOntology {
     @DisplayName("Test if the model can load basic properties of the diseases")
     public void testDisease() {        
         final Disease[] diseases = model.getRegisteredDiseases();
-        assertTrue(diseases.length == 2, "There should be exactly two diseases");
-        assertTrue(diseases[0].name().equals("HEALTHY"), "First disease should be HEALTHY. Found " + diseases[0].name() + " instead");
-        assertTrue(diseases[1].name().equals("T1DM_Disease"), "Second disease should be T1DM_Disease. Found " + diseases[1].name() + " instead");
+        assertAll("Disease: ",
+            () -> assertTrue(diseases.length == 2, "There should be exactly two diseases"),
+            () -> assertTrue(diseases[0].name().equals("HEALTHY"), "First disease should be HEALTHY. Found " + diseases[0].name() + " instead"),
+            () -> assertTrue(diseases[1].name().equals("T1DM_Disease"), "Second disease should be T1DM_Disease. Found " + diseases[1].name() + " instead")
+        );
     }
 
     @Test

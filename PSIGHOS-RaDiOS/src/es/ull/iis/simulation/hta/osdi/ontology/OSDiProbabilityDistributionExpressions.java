@@ -5,51 +5,29 @@ package es.ull.iis.simulation.hta.osdi.ontology;
  * TODO: Process parameters when expressed in different ways. E.g. gamma parameters may be average and standard deviation
  */
 public enum OSDiProbabilityDistributionExpressions {
-	NORMAL(OSDiClasses.NORMAL_DISTRIBUTION_EXPRESSION, "NormalVariate", 2),
-	UNIFORM(OSDiClasses.UNIFORM_DISTRIBUTION_EXPRESSION, "UniformVariate", 2) {
-		public String[] getParameters(String instanceId) {
-			return new String[] {OSDiDataProperties.HAS_LOWER_LIMIT_PARAMETER.getValue(instanceId, "0"), OSDiDataProperties.HAS_UPPER_LIMIT_PARAMETER.getValue(instanceId, "0")};				
-		}
-	},
-	BETA(OSDiClasses.BETA_DISTRIBUTION_EXPRESSION, "BetaVariate", 2) {
-		public String[] getParameters(String instanceId) {
-			return new String[] {OSDiDataProperties.HAS_ALFA_PARAMETER.getValue(instanceId, "0"), OSDiDataProperties.HAS_BETA_PARAMETER.getValue(instanceId, "0")};				
-		}
-	},
-	GAMMA(OSDiClasses.GAMMA_DISTRIBUTION_EXPRESSION, "GammaVariate", 2) {
-		public String[] getParameters(String instanceId) {
-			return new String[] {OSDiDataProperties.HAS_ALFA_PARAMETER.getValue(instanceId, "0"), OSDiDataProperties.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
-		}
-	},
-	EXPONENTIAL(OSDiClasses.EXPONENTIAL_DISTRIBUTION_EXPRESSION, "ExponentialVariate", 1) {
-		public String[] getParameters(String instanceId) {
-			return new String[] {OSDiDataProperties.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
-		}
-	},
-	POISSON(OSDiClasses.POISSON_DISTRIBUTION_EXPRESSION, "PoissonVariate", 1) {
-		public String[] getParameters(String instanceId) {
-			return new String[] {OSDiDataProperties.HAS_LAMBDA_PARAMETER.getValue(instanceId, "0")};				
-		}
-	},
-	BERNOULLI(OSDiClasses.BERNOULLI_DISTRIBUTION_EXPRESSION, "BernoulliVariate", 1) {
-		public String[] getParameters(String instanceId) {
-			return new String[] {OSDiDataProperties.HAS_PROBABILITY_PARAMETER.getValue(instanceId, "0")};				
-		}			
-	};
+	NORMAL(OSDiClasses.NORMAL_DISTRIBUTION_EXPRESSION, "NormalVariate", new OSDiDataProperties[] {OSDiDataProperties.HAS_AVERAGE_PARAMETER, OSDiDataProperties.HAS_STANDARD_DEVIATION_PARAMETER}),
+	UNIFORM(OSDiClasses.UNIFORM_DISTRIBUTION_EXPRESSION, "UniformVariate", new OSDiDataProperties[] {OSDiDataProperties.HAS_LOWER_LIMIT_PARAMETER, OSDiDataProperties.HAS_UPPER_LIMIT_PARAMETER}),
+	BETA(OSDiClasses.BETA_DISTRIBUTION_EXPRESSION, "BetaVariate", new OSDiDataProperties[] {OSDiDataProperties.HAS_ALFA_PARAMETER, OSDiDataProperties.HAS_BETA_PARAMETER}),
+	GAMMA(OSDiClasses.GAMMA_DISTRIBUTION_EXPRESSION, "GammaVariate", new OSDiDataProperties[] {OSDiDataProperties.HAS_ALFA_PARAMETER, OSDiDataProperties.HAS_LAMBDA_PARAMETER}),
+	EXPONENTIAL(OSDiClasses.EXPONENTIAL_DISTRIBUTION_EXPRESSION, "ExponentialVariate", new OSDiDataProperties[] {OSDiDataProperties.HAS_LAMBDA_PARAMETER}),
+	POISSON(OSDiClasses.POISSON_DISTRIBUTION_EXPRESSION, "PoissonVariate", new OSDiDataProperties[] {OSDiDataProperties.HAS_LAMBDA_PARAMETER}),
+	BERNOULLI(OSDiClasses.BERNOULLI_DISTRIBUTION_EXPRESSION, "BernoulliVariate", new OSDiDataProperties[] {OSDiDataProperties.HAS_PROBABILITY_PARAMETER});
 	private final OSDiClasses clazz;
 	private final String variateName;
-	private final int nParameters;
+	private final OSDiDataProperties[] parameters;
 	
-	private OSDiProbabilityDistributionExpressions(OSDiClasses clazz, String variateName, int nParameters) {
+	private OSDiProbabilityDistributionExpressions(OSDiClasses clazz, String variateName, OSDiDataProperties[] parameters) {
 		this.clazz = clazz;
 		this.variateName = variateName;
-		this.nParameters = nParameters;
+		this.parameters = parameters;
 	}
 	
 	public String[] getParameters(String instanceId) {
-		return new String[] {OSDiDataProperties.HAS_AVERAGE_PARAMETER.getValue(instanceId, "0"), OSDiDataProperties.HAS_STANDARD_DEVIATION_PARAMETER.getValue(instanceId, "0")};
-	}
-	
+		String [] result = new String[parameters.length];
+		for (int i = 0; i < parameters.length; i++)
+			result[i] = parameters[i].getValue(instanceId, "0");
+		return result;
+	}	
 	
 	/**
 	 * @return the variateName
@@ -69,8 +47,17 @@ public enum OSDiProbabilityDistributionExpressions {
 	 * @return the nParameters
 	 */
 	public int getnParameters() {
-		return nParameters;
+		return parameters.length;
 	}
 	
+	public void add(String instanceId, double[] parameterValues) {
+		if (parameters.length != parameterValues.length)
+			throw new IllegalArgumentException("Creating a " + name() + " probability distribution requires " + parameters.length + " parameters. Passed " + parameterValues.length);
+
+		clazz.add(instanceId);
+		for (int i = 0; i < parameterValues.length; i++) {
+			this.parameters[i].add(instanceId, Double.toString(parameterValues[i]));
+		}
+	}
 
 }

@@ -184,7 +184,13 @@ public class ParameterWrapper implements ExpressableWrapper {
 		return OSDiDataProperties.HAS_SOURCE.getValue(individualIRI, "Unknown");
 	}
 	
-	private RandomVariate getRandomVariateFromAvgAndCIs(double avg, double[] ci) {
+	/**
+	 * Returns the random variate that characterizes the uncertainty of a parameter when it is defined by its average and confidence intervals
+	 * @param avg The average value of the parameter
+	 * @param ci The confidence intervals of the parameter
+	 * @return the random variate that characterizes the uncertainty of a parameter when it is defined by its average and confidence intervals
+	 */
+	protected RandomVariate getRandomVariateFromAvgAndCIs(double avg, double[] ci) {
 		if (dataItemTypes.contains(OSDiDataItemTypes.DI_RELATIVE_RISK)) {
 			return RandomVariateFactory.getInstance("RRFromLnCIVariate", avg, ci[0], ci[1], 1);
 		}
@@ -193,16 +199,18 @@ public class ParameterWrapper implements ExpressableWrapper {
 		return RandomVariateFactory.getInstance("BetaVariate", paramsBeta[0], paramsBeta[1]);
 	}
 
+	/**
+	 * Returns the random variate that characterizes the uncertainty of a parameter when it is defined by its average and standard deviation
+	 * @param avg The average value of the parameter
+	 * @param sd The standard deviation of the parameter
+	 * @return the random variate that characterizes the uncertainty of a parameter when it is defined by its average and standard deviation
+	 */
+	protected RandomVariate getRandomVariateFromAvgAndSD(double avg, double sd) {
+		return RandomVariateFactory.getInstance("NormalVariate", avg, sd);
+	}
+
 	public RandomVariate getProbabilisticValue()  {
 		return probabilisticValue;
-	}
-	
-	/**
-	 * Returns a default probabilistic value to be used for this wrapper in case it is not defined 
-	 * @return a default probabilistic value to be used for this wrapper in case it is not defined
-	 */
-	public RandomVariate getDefaultProbabilisticValue() {
-		return RandomVariateFactory.getInstance("ConstantVariate", getDeterministicValue());
 	}
 	
 	public double getDeterministicValue() {
@@ -237,7 +245,7 @@ public class ParameterWrapper implements ExpressableWrapper {
 			final ParameterWrapper paramWrap = new ParameterWrapper(wrap, uncertainParamId);
 			// If the uncertainty is characterized by a standard deviation, then we use a normal distribution
 			if (paramWrap.getDataItemTypes().contains(OSDiDataItemTypes.DI_STANDARD_DEVIATION)) {
-				return RandomVariateFactory.getInstance("NormalVariate", getDeterministicValue(), paramWrap.getDeterministicValue());
+				return getRandomVariateFromAvgAndSD(getDeterministicValue(), paramWrap.getDeterministicValue());
 			}
 			else {
 				throw new MalformedOSDiModelException(OSDiClasses.PARAMETER, uncertainParamId, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "Data item type not supported for characterizing uncertainty.");
