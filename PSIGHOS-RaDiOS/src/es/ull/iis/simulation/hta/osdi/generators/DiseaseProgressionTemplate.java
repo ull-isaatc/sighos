@@ -319,14 +319,14 @@ public enum DiseaseProgressionTemplate {
 	}
 
 	protected void addSheffieldBeta(ModifiableOSDiWrapper wrap, double beta) {
-		String betaIRI = wrap.getInstancePrefix() + "BETA" + OSDiWrapper.InstanceIRI.MANIFESTATION.getIRI(this.name(), false);
+		String betaIRI = wrap.getInstancePrefix() + "BETA_" + OSDiWrapper.InstanceIRI.MANIFESTATION.getIRI(this.name(), false);
 		wrap.createParameter(betaIRI, OSDiClasses.PARAMETER, "Beta parameter for " + getDescription(), "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", 1996, OSDiDataItemTypes.DI_RELATIVE_RISK);
 		wrap.addDeterministicNature(betaIRI, beta);
 		String rrIRI = OSDiWrapper.InstanceIRI.PARAM_RELATIVE_RISK.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
 		final TreeSet<String> dependentAttributes = new TreeSet<>();
 		dependentAttributes.add("HbA1c");
 		final TreeSet<String> dependentParameters = new TreeSet<>();
-		dependentParameters.add("BETA" + OSDiWrapper.InstanceIRI.MANIFESTATION.getIRI(this.name(), false));
+		dependentParameters.add("BETA_" + OSDiWrapper.InstanceIRI.MANIFESTATION.getIRI(this.name(), false));
 		wrap.addCalculatedNature(rrIRI, "("+ OSDiWrapper.InstanceIRI.ATTRIBUTE.getIRI("HbA1c", false) + " / 10) ^" + betaIRI, ExpressionLanguage.JEXL, dependentAttributes, dependentParameters);
 	}
 

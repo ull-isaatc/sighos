@@ -63,14 +63,14 @@
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#dependsOnAttribute
 :dependsOnAttribute rdf:type owl:ObjectProperty ;
-                    rdfs:domain :AdHocExpression ;
+                    rdfs:domain :CalculatedParameter ;
                     rdfs:range :Attribute ;
                     rdfs:comment "Defines a relationship between a Valuable instance and an Attribute, where the \"hasExpression\" of the domain instance makes reference to the range instance. Hence, the hasExpression property should include a reference to that attribute, so that the final value of this Valuable is a function of the value of this attribute."@en .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#dependsOnParameter
 :dependsOnParameter rdf:type owl:ObjectProperty ;
-                    rdfs:domain :AdHocExpression ;
+                    rdfs:domain :CalculatedParameter ;
                     rdfs:range :Parameter ;
                     rdfs:comment "Defines a relationship between a Valuable instance and a Parameter, where the \"hasExpression\" of the domain instance makes reference to the range instance. Hence, the hasExpression property should include a reference to that parameter, so that the final value of this Valuable is a function of the value of this parameter."@en .
 
@@ -105,13 +105,26 @@
                                                :Population
                                              )
                                ] ;
-                   rdfs:range :AttributeValue .
+                   rdfs:range :Parameter .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasComponent
 :hasComponent rdf:type owl:ObjectProperty ;
               rdfs:domain :Group ;
               rdfs:range :GroupableModelItem .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasConditionExpression
+:hasConditionExpression rdf:type owl:ObjectProperty ;
+                        rdfs:domain [ rdf:type owl:Class ;
+                                      owl:unionOf ( :Development
+                                                    :Guideline
+                                                    :Pathway
+                                                    :Strategy
+                                                  )
+                                    ] ;
+                        rdfs:range :ConditionExpression ;
+                        rdfs:comment "It allows expressing conditions based on parameters that we will find in the model. For example, we can find that certain drugs will be administered depending on the weight or age of the patient."@en .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasCost
@@ -132,7 +145,7 @@
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasDataItemType
 :hasDataItemType rdf:type owl:ObjectProperty ;
-                 rdfs:domain :Valuable ;
+                 rdfs:domain :Parameter ;
                  rdfs:range :DataItemType .
 
 
@@ -173,10 +186,19 @@
                                  ] .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasDose
+:hasDose rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf :hasParameter ;
+         rdfs:domain :Guideline ;
+         rdfs:range :Parameter ;
+         rdfs:comment "Dosage of the indicated drug"@en .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasDuration
 :hasDuration rdf:type owl:ObjectProperty ;
-             rdfs:domain :Manifestation ;
-             rdfs:range :DataItemType .
+             rdfs:subPropertyOf :hasParameter ;
+             rdfs:domain :DiseaseProgression ;
+             rdfs:range :Parameter .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasEndAge
@@ -194,21 +216,10 @@
                              rdfs:range :EpidemiologicalParameter .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasExpression
-:hasExpression rdf:type owl:ObjectProperty ;
-               rdfs:domain :Valuable ;
-               rdfs:range :Expression .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasFirstOrderUncertainty
-:hasFirstOrderUncertainty rdf:type owl:ObjectProperty ;
-                          rdfs:subPropertyOf :hasUncertainty ;
-                          rdfs:domain :Valuable ;
-                          rdfs:range [ rdf:type owl:Class ;
-                                       owl:unionOf ( :Expression
-                                                     :Valuable
-                                                   )
-                                     ] .
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasExpressionLanguage
+:hasExpressionLanguage rdf:type owl:ObjectProperty ;
+                       rdfs:domain :CalculatedParameter ;
+                       rdfs:range :ExpressionLanguage .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasFollowUpCost
@@ -243,6 +254,20 @@
                                                 ]
                                               )
                                 ] .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasFrequency
+:hasFrequency rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf :hasParameter ;
+              rdfs:domain [ rdf:type owl:Class ;
+                            owl:unionOf ( :AcuteManifestation
+                                          :Guideline
+                                        )
+                          ] ;
+              rdfs:range :Parameter ;
+              rdfs:comment """Indicates the time cycle of how often the treatment, the follow-up test or their respective strategies have to be applied. In the case of a manifestation of the disease, it will indicate how many times a year the symptom manifests itself. 
+
+By default = 1, for the Manifestations."""@en .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasGuideline
@@ -287,13 +312,14 @@
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasLifeExpectancy
 :hasLifeExpectancy rdf:type owl:ObjectProperty ;
+                   rdfs:subPropertyOf :hasParameter ;
                    rdfs:domain [ rdf:type owl:Class ;
                                  owl:unionOf ( :Development
                                                :Disease
                                                :Population
                                              )
                                ] ;
-                   rdfs:range :AttributeValue .
+                   rdfs:range :Parameter .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasLifeExpectancyReduction
@@ -369,6 +395,7 @@
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasProportionWithinGroup
 :hasProportionWithinGroup rdf:type owl:ObjectProperty ;
+                          rdfs:subPropertyOf :hasParameter ;
                           rdfs:domain :GroupableModelItem ;
                           rdfs:range :Parameter .
 
@@ -402,17 +429,6 @@
                                                  ]
                                                )
                                  ] .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasSecondOrderUncertainty
-:hasSecondOrderUncertainty rdf:type owl:ObjectProperty ;
-                           rdfs:subPropertyOf :hasUncertainty ;
-                           rdfs:domain :Valuable ;
-                           rdfs:range [ rdf:type owl:Class ;
-                                        owl:unionOf ( :Expression
-                                                      :Valuable
-                                                    )
-                                      ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasSensitivity
@@ -473,6 +489,7 @@
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasTemporaryThreshold
 :hasTemporaryThreshold rdf:type owl:ObjectProperty ;
+                       rdfs:subPropertyOf :hasParameter ;
                        rdfs:comment "Time limit in which the sample must be made. For example on the third day of birth. This value must be expressed in number of days." .
 
 
@@ -488,14 +505,18 @@
                   rdfs:range :Cost .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUncertainty
-:hasUncertainty rdf:type owl:ObjectProperty ;
-                rdfs:domain :Valuable ;
-                rdfs:range [ rdf:type owl:Class ;
-                             owl:unionOf ( :Expression
-                                           :Valuable
-                                         )
-                           ] .
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUncertaintyCharacterization
+:hasUncertaintyCharacterization rdf:type owl:ObjectProperty ;
+                                rdfs:domain [ rdf:type owl:Class ;
+                                              owl:unionOf ( :FirstOrderUncertaintyParameter
+                                                            :SecondOrderUncertaintyParameter
+                                                          )
+                                            ] ;
+                                rdfs:range [ rdf:type owl:Class ;
+                                             owl:unionOf ( :Parameter
+                                                           :ProbabilityDistributionExpression
+                                                         )
+                                           ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUtility
@@ -518,7 +539,7 @@
 :hasValue rdf:type owl:ObjectProperty ;
           owl:inverseOf :isValueOfAttribute ;
           rdfs:domain :Attribute ;
-          rdfs:range :AttributeValue .
+          rdfs:range :Parameter .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#includedByModel
@@ -537,14 +558,14 @@
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#involvesModification
 :involvesModification rdf:type owl:ObjectProperty ;
                       rdfs:domain :Intervention ;
-                      rdfs:range :Valuable .
+                      rdfs:range :Parameter .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#isModifiedBy
 :isModifiedBy rdf:type owl:ObjectProperty ;
               owl:inverseOf :modifies ;
-              rdfs:domain :Valuable ;
-              rdfs:range :Valuable .
+              rdfs:domain :Parameter ;
+              rdfs:range :Parameter .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#isParameterOf
@@ -578,19 +599,19 @@
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#isValueOfAttribute
 :isValueOfAttribute rdf:type owl:ObjectProperty ;
-                    rdfs:domain :AttributeValue ;
+                    rdfs:domain :Parameter ;
                     rdfs:range :Attribute .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#modifies
 :modifies rdf:type owl:ObjectProperty ;
-          rdfs:domain :Valuable ;
-          rdfs:range :Valuable .
+          rdfs:domain :Parameter ;
+          rdfs:range :Parameter .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#requires
 :requires rdf:type owl:ObjectProperty ;
-          rdfs:domain :ManifestationPathway ;
+          rdfs:domain :DiseaseProgressionPathway ;
           rdfs:range [ rdf:type owl:Class ;
                        owl:unionOf ( :Development
                                      :Intervention
@@ -636,6 +657,24 @@
 #    Data properties
 #################################################################
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#REMOVEhasFrequency
+:REMOVEhasFrequency rdf:type owl:DatatypeProperty ;
+                    rdfs:comment """Indicates the time cycle of how often the treatment, the follow-up test or their respective strategies have to be applied. In the case of a manifestation of the disease, it will indicate how many times a year the symptom manifests itself. 
+
+By default = 1, for the Manifestations.""" .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#appliesOneTime
+:appliesOneTime rdf:type owl:DatatypeProperty ;
+                rdfs:domain [ rdf:type owl:Class ;
+                              owl:unionOf ( :Cost
+                                            :Utility
+                                          )
+                            ] ;
+                rdfs:range xsd:boolean ;
+                rdfs:comment "Defines the temporal behavior of a parameter (generally a cost or utility): if true, applies upon onset of some model item (disease, disease progression...); otherwise, it is assumed to apply annually."@en .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#failsIf
 :failsIf rdf:type owl:DatatypeProperty .
 
@@ -670,11 +709,6 @@
                       rdfs:range xsd:string .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasCondition
-:hasCondition rdf:type owl:DatatypeProperty ;
-              rdfs:comment "It allows expressing conditions based on parameters that we will find in the model. For example, we can find that certain drugs will be administered depending on the weight or age of the patient. The language in which the conditions are expressed is in EL format (Expression Language: JSR-341)." .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasDescription
 :hasDescription rdf:type owl:DatatypeProperty ;
                 rdfs:comment "Description of the cost" .
@@ -694,11 +728,6 @@
                                            ] .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasDose
-:hasDose rdf:type owl:DatatypeProperty ;
-         rdfs:comment "Dosage of the indicated drug" .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasExpectedValue
 :hasExpectedValue rdf:type owl:DatatypeProperty ;
                   rdfs:subPropertyOf owl:topDataProperty .
@@ -706,23 +735,16 @@
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasExpressionValue
 :hasExpressionValue rdf:type owl:DatatypeProperty ;
-                    rdfs:domain :AdHocExpression ;
+                    rdfs:domain :CalculatedParameter ;
                     rdfs:range xsd:string .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasFrequency
-:hasFrequency rdf:type owl:DatatypeProperty ;
-              rdfs:comment """Indicates the time cycle of how often the treatment, the follow-up test or their respective strategies have to be applied. In the case of a manifestation of the disease, it will indicate how many times a year the symptom manifests itself. 
-
-By default = 1, for the Manifestations.""" .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasGeographicalContext
 :hasGeographicalContext rdf:type owl:DatatypeProperty ;
                         rdfs:domain [ rdf:type owl:Class ;
                                       owl:unionOf ( :Model
+                                                    :Parameter
                                                     :Population
-                                                    :Valuable
                                                   )
                                     ] ;
                         rdfs:range xsd:string .
@@ -855,7 +877,7 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasSource
 :hasSource rdf:type owl:DatatypeProperty ;
-           rdfs:domain :Valuable ;
+           rdfs:domain :Parameter ;
            rdfs:range xsd:string .
 
 
@@ -863,21 +885,6 @@ Examples:
 :hasStandardDeviationParameter rdf:type owl:DatatypeProperty ;
                                rdfs:subPropertyOf :hasProbabilityDistributionParameter ;
                                rdfs:domain :ProbabilityDistributionExpression .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasTemporalBehavior
-:hasTemporalBehavior rdf:type owl:DatatypeProperty ;
-                     rdfs:range [ rdf:type rdfs:Datatype ;
-                                  owl:oneOf [ rdf:type rdf:List ;
-                                              rdf:first "ANNUAL" ;
-                                              rdf:rest [ rdf:type rdf:List ;
-                                                         rdf:first "ONETIME" ;
-                                                         rdf:rest rdf:nil
-                                                       ]
-                                            ]
-                                ] ;
-                     rdfs:comment """ONETIME: the cost/utility applies only once at the time of the event.
-ANNUAL: the cost/utility indicates that the indicated value affects annually throughout the patient's life.""" .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#hasUnit
@@ -908,29 +915,15 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#AcuteManifestation
 :AcuteManifestation rdf:type owl:Class ;
-                    rdfs:subClassOf :Manifestation ;
+                    rdfs:subClassOf :Manifestation ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasFrequency ;
+                                      owl:someValuesFrom :Parameter
+                                    ] ;
                     <http://ontologydesignpatterns.org/opla-sd#entityPosition> [ <http://ontologydesignpatterns.org/opla-sd#entityPositionX> "137.71094492073297"^^xsd:double ;
                                                                                  <http://ontologydesignpatterns.org/opla-sd#entityPositionY> "111.01194217726372"^^xsd:double ;
                                                                                  rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en
                                                                                ] .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#AdHocExpression
-:AdHocExpression rdf:type owl:Class ;
-                 rdfs:subClassOf :Expression ,
-                                 [ rdf:type owl:Restriction ;
-                                   owl:onProperty :dependsOnAttribute ;
-                                   owl:someValuesFrom :Attribute
-                                 ] ,
-                                 [ rdf:type owl:Restriction ;
-                                   owl:onProperty :dependsOnParameter ;
-                                   owl:someValuesFrom :Parameter
-                                 ] ,
-                                 [ rdf:type owl:Restriction ;
-                                   owl:onProperty :hasExpressionValue ;
-                                   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                   owl:onDataRange xsd:string
-                                 ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#AgentBasedModel
@@ -941,6 +934,10 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Attribute
 :Attribute rdf:type owl:Class ;
            rdfs:subClassOf :ModelItem ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :hasAttributeValue ;
+                             owl:someValuesFrom :Parameter
+                           ] ,
                            [ rdf:type owl:Restriction ;
                              owl:onProperty :hasRefToSNOMED ;
                              owl:someValuesFrom xsd:string
@@ -960,21 +957,6 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                                                         rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en
                                                                       ] ;
            rdfs:comment "Clinical parameters that define the state of a patient and whose value may modify the evolution of the Disease and/or specific manifestations" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#AttributeValue
-:AttributeValue rdf:type owl:Class ;
-                rdfs:subClassOf :Valuable ,
-                                [ rdf:type owl:Restriction ;
-                                  owl:onProperty :isValueOfAttribute ;
-                                  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                  owl:onClass :Attribute
-                                ] ;
-                <http://ontologydesignpatterns.org/opla-sd#entityPosition> [ <http://ontologydesignpatterns.org/opla-sd#entityPositionX> "80.67230303494442"^^xsd:double ;
-                                                                             <http://ontologydesignpatterns.org/opla-sd#entityPositionY> "257.2295616088946"^^xsd:double ;
-                                                                             rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en
-                                                                           ] ;
-                rdfs:comment "The value of an individual parameter for a specific class, such as a Disease, Development or Population" .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#BernoulliDistributionExpression
@@ -1007,6 +989,29 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                  rdfs:subClassOf :EpidemiologicalParameter .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#CalculatedParameter
+:CalculatedParameter rdf:type owl:Class ;
+                     rdfs:subClassOf :ParameterNature ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :dependsOnAttribute ;
+                                       owl:someValuesFrom :Attribute
+                                     ] ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :dependsOnParameter ;
+                                       owl:someValuesFrom :Parameter
+                                     ] ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :hasExpressionLanguage ;
+                                       owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                       owl:onClass :ExpressionLanguage
+                                     ] ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :hasExpressionValue ;
+                                       owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                       owl:onDataRange xsd:string
+                                     ] .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ChronicManifestation
 :ChronicManifestation rdf:type owl:Class ;
                       rdfs:subClassOf :Manifestation ,
@@ -1020,6 +1025,29 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                                                                  ] .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ConditionExpression
+:ConditionExpression rdf:type owl:Class ;
+                     rdfs:subClassOf :ModelItem ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :dependsOnAttribute ;
+                                       owl:someValuesFrom :Attribute
+                                     ] ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :dependsOnParameter ;
+                                       owl:someValuesFrom :Parameter
+                                     ] ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :hasExpressionLanguage ;
+                                       owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                       owl:onClass :ExpressionLanguage
+                                     ] ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty :hasExpressionValue ;
+                                       owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                       owl:onDataRange xsd:string
+                                     ] .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Cost
 :Cost rdf:type owl:Class ;
       rdfs:subClassOf :Parameter ,
@@ -1029,17 +1057,9 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                         owl:onClass :Currency
                       ] ,
                       [ rdf:type owl:Restriction ;
-                        owl:onProperty :hasTemporalBehavior ;
+                        owl:onProperty :appliesOneTime ;
                         owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                        owl:onDataRange [ rdf:type rdfs:Datatype ;
-                                          owl:oneOf [ rdf:type rdf:List ;
-                                                      rdf:first "ANNUAL" ;
-                                                      rdf:rest [ rdf:type rdf:List ;
-                                                                 rdf:first "ONETIME" ;
-                                                                 rdf:rest rdf:nil
-                                                               ]
-                                                    ]
-                                        ]
+                        owl:onDataRange xsd:boolean
                       ] ;
       rdfs:comment "Cost related to any class" .
 
@@ -1121,16 +1141,30 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                    ] .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DeterministicParameter
+:DeterministicParameter rdf:type owl:Class ;
+                        rdfs:subClassOf :ParameterNature ,
+                                        [ rdf:type owl:Restriction ;
+                                          owl:onProperty :hasExpectedValue ;
+                                          owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                          owl:onDataRange xsd:double
+                                        ] .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Development
 :Development rdf:type owl:Class ;
              rdfs:subClassOf :ModelItem ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty :hasConditionExpression ;
+                               owl:someValuesFrom :ConditionExpression
+                             ] ,
                              [ rdf:type owl:Restriction ;
                                owl:onProperty :hasCost ;
                                owl:someValuesFrom :Cost
                              ] ,
                              [ rdf:type owl:Restriction ;
                                owl:onProperty :hasLifeExpectancy ;
-                               owl:someValuesFrom :AttributeValue
+                               owl:someValuesFrom :Parameter
                              ] ,
                              [ rdf:type owl:Restriction ;
                                owl:onProperty :hasManifestation ;
@@ -1143,10 +1177,6 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                              [ rdf:type owl:Restriction ;
                                owl:onProperty :hasUtility ;
                                owl:someValuesFrom :Utility
-                             ] ,
-                             [ rdf:type owl:Restriction ;
-                               owl:onProperty :hasCondition ;
-                               owl:someValuesFrom xsd:string
                              ] ,
                              [ rdf:type owl:Restriction ;
                                owl:onProperty :hasDescription ;
@@ -1195,7 +1225,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
          rdfs:subClassOf :ModelItem ,
                          [ rdf:type owl:Restriction ;
                            owl:onProperty :hasAttributeValue ;
-                           owl:someValuesFrom :AttributeValue
+                           owl:someValuesFrom :Parameter
                          ] ,
                          [ rdf:type owl:Restriction ;
                            owl:onProperty :hasCost ;
@@ -1231,7 +1261,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                          ] ,
                          [ rdf:type owl:Restriction ;
                            owl:onProperty :hasLifeExpectancy ;
-                           owl:someValuesFrom :AttributeValue
+                           owl:someValuesFrom :Parameter
                          ] ,
                          [ rdf:type owl:Restriction ;
                            owl:onProperty :hasLineOfTherapy ;
@@ -1297,6 +1327,10 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                       owl:someValuesFrom :Cost
                                     ] ,
                                     [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasDuration ;
+                                      owl:someValuesFrom :Parameter
+                                    ] ,
+                                    [ rdf:type owl:Restriction ;
                                       owl:onProperty :hasEndAge ;
                                       owl:someValuesFrom :Parameter
                                     ] ,
@@ -1343,6 +1377,24 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                     ] .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DiseaseProgressionPathway
+:DiseaseProgressionPathway rdf:type owl:Class ;
+                           rdfs:subClassOf :Pathway ,
+                                           [ rdf:type owl:Restriction ;
+                                             owl:onProperty :requires ;
+                                             owl:someValuesFrom :Development
+                                           ] ,
+                                           [ rdf:type owl:Restriction ;
+                                             owl:onProperty :requires ;
+                                             owl:someValuesFrom :DiseaseProgression
+                                           ] ,
+                                           [ rdf:type owl:Restriction ;
+                                             owl:onProperty :requires ;
+                                             owl:someValuesFrom :Intervention
+                                           ] ;
+                           rdfs:comment "The way a manifestation appears. It may be a probability, time to event, a proportion of people affected..., and it may change depending on the Development of the Disease or a specific Intervention" .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Drug
 :Drug rdf:type owl:Class ;
       rdfs:subClassOf :HealthTechnology ,
@@ -1373,9 +1425,28 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                                    ] .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Expression
-:Expression rdf:type owl:Class ;
-            rdfs:subClassOf :ModelItem .
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ExpressionLanguage
+:ExpressionLanguage rdf:type owl:Class ;
+                    owl:equivalentClass [ rdf:type owl:Class ;
+                                          owl:oneOf ( :Exp_Excel
+                                                      :Exp_JEXL
+                                                      :Exp_Java
+                                                      :Exp_Javaluator
+                                                    )
+                                        ] .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#FirstOrderUncertaintyParameter
+:FirstOrderUncertaintyParameter rdf:type owl:Class ;
+                                rdfs:subClassOf :ParameterNature ,
+                                                [ rdf:type owl:Restriction ;
+                                                  owl:onProperty :hasUncertaintyCharacterization ;
+                                                  owl:someValuesFrom [ rdf:type owl:Class ;
+                                                                       owl:unionOf ( :Parameter
+                                                                                     :ProbabilityDistributionExpression
+                                                                                   )
+                                                                     ]
+                                                ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#FollowUpStrategy
@@ -1450,12 +1521,22 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 :Guideline rdf:type owl:Class ;
            rdfs:subClassOf :ModelItem ,
                            [ rdf:type owl:Restriction ;
+                             owl:onProperty :hasConditionExpression ;
+                             owl:someValuesFrom :ConditionExpression
+                           ] ,
+                           [ rdf:type owl:Restriction ;
                              owl:onProperty :hasGuideline ;
                              owl:someValuesFrom :Guideline
                            ] ,
                            [ rdf:type owl:Restriction ;
-                             owl:onProperty :hasCondition ;
-                             owl:someValuesFrom xsd:string
+                             owl:onProperty :hasDose ;
+                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onClass :Parameter
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :hasFrequency ;
+                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onClass :Parameter
                            ] ,
                            [ rdf:type owl:Restriction ;
                              owl:onProperty :hasRange ;
@@ -1464,16 +1545,6 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                            ] ,
                            [ rdf:type owl:Restriction ;
                              owl:onProperty :hasDescription ;
-                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                             owl:onDataRange xsd:string
-                           ] ,
-                           [ rdf:type owl:Restriction ;
-                             owl:onProperty :hasDose ;
-                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                             owl:onDataRange xsd:string
-                           ] ,
-                           [ rdf:type owl:Restriction ;
-                             owl:onProperty :hasFrequency ;
                              owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                              owl:onDataRange xsd:string
                            ] ,
@@ -1526,7 +1597,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                 owl:someValuesFrom [ rdf:type owl:Restriction ;
                                                      owl:onProperty :modifies ;
                                                      owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                                     owl:onClass :Valuable
+                                                     owl:onClass :Parameter
                                                    ]
                               ] ,
                               [ rdf:type owl:Restriction ;
@@ -1579,37 +1650,8 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                [ rdf:type owl:Restriction ;
                                  owl:onProperty :excludesManifestation ;
                                  owl:someValuesFrom :Manifestation
-                               ] ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasFrequency ;
-                                 owl:someValuesFrom xsd:double
                                ] ;
                rdfs:comment "Symptoms and signs of a Disease. They may be chronic or acute" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ManifestationPathway
-:ManifestationPathway rdf:type owl:Class ;
-                      rdfs:subClassOf :Pathway ,
-                                      [ rdf:type owl:Restriction ;
-                                        owl:onProperty :requires ;
-                                        owl:someValuesFrom :Development
-                                      ] ,
-                                      [ rdf:type owl:Restriction ;
-                                        owl:onProperty :requires ;
-                                        owl:someValuesFrom :DiseaseProgression
-                                      ] ,
-                                      [ rdf:type owl:Restriction ;
-                                        owl:onProperty :requires ;
-                                        owl:someValuesFrom :Intervention
-                                      ] ,
-                                      [ rdf:type owl:Restriction ;
-                                        owl:onProperty :requires ;
-                                        owl:someValuesFrom [ rdf:type owl:Restriction ;
-                                                             owl:onProperty :hasComponent ;
-                                                             owl:allValuesFrom :Manifestation
-                                                           ]
-                                      ] ;
-                      rdfs:comment "The way a manifestation appears. It may be a probability, time to event, a proportion of people affected..., and it may change depending on the Development of the Disease or a specific Intervention" .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#MarkovModel
@@ -1684,7 +1726,11 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Parameter
 :Parameter rdf:type owl:Class ;
-           rdfs:subClassOf :Valuable ,
+           rdfs:subClassOf :ModelItem ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :isModifiedBy ;
+                             owl:someValuesFrom :Parameter
+                           ] ,
                            [ rdf:type owl:Restriction ;
                              owl:onProperty :isParameterOfDisease ;
                              owl:someValuesFrom :Disease
@@ -1696,13 +1742,56 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                            [ rdf:type owl:Restriction ;
                              owl:onProperty :isParameterOfPopulation ;
                              owl:someValuesFrom :Population
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :modifies ;
+                             owl:someValuesFrom :Parameter
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :hasDataItemType ;
+                             owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onClass :DataItemType
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :isValueOfAttribute ;
+                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onClass :Attribute
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :hasGeographicalContext ;
+                             owl:someValuesFrom xsd:string
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :hasDescription ;
+                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onDataRange xsd:string
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :hasSource ;
+                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onDataRange xsd:string
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :hasYear ;
+                             owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onDataRange xsd:short
                            ] ;
            rdfs:comment "Parameters used for computing outcomes or characterize certain class. They have a source, a geographical context, year, description and value." .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ParameterNature
+:ParameterNature rdf:type owl:Class ;
+                 rdfs:subClassOf :ModelItem ;
+                 rdfs:comment "The nature of the values of a parameter, i.e., whether it is a constant, calculated, or characterizes uncertainty somehow"@en .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Pathway
 :Pathway rdf:type owl:Class ;
          rdfs:subClassOf :ModelItem ,
+                         [ rdf:type owl:Restriction ;
+                           owl:onProperty :hasConditionExpression ;
+                           owl:someValuesFrom :ConditionExpression
+                         ] ,
                          [ rdf:type owl:Restriction ;
                            owl:onProperty :hasCost ;
                            owl:someValuesFrom :Cost
@@ -1714,10 +1803,6 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                          [ rdf:type owl:Restriction ;
                            owl:onProperty :hasUtility ;
                            owl:someValuesFrom :Utility
-                         ] ,
-                         [ rdf:type owl:Restriction ;
-                           owl:onProperty :hasCondition ;
-                           owl:someValuesFrom xsd:string
                          ] ;
          rdfs:comment "The way a disease, development, manifestation or stage appears, i.e., the conditions that must be met to lead to any of these."@en .
 
@@ -1737,7 +1822,11 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
             rdfs:subClassOf :ModelItem ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty :hasAttributeValue ;
-                              owl:someValuesFrom :AttributeValue
+                              owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                   owl:onProperty :isValueOfAttribute ;
+                                                   owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                   owl:onClass :Attribute
+                                                 ]
                             ] ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty :hasEpidemiologicalParameter ;
@@ -1749,7 +1838,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                             ] ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty :hasLifeExpectancy ;
-                              owl:someValuesFrom :AttributeValue
+                              owl:someValuesFrom :Parameter
                             ] ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty :hasParameter ;
@@ -1821,7 +1910,7 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ProbabilityDistributionExpression
 :ProbabilityDistributionExpression rdf:type owl:Class ;
-                                   rdfs:subClassOf :Expression ,
+                                   rdfs:subClassOf :ModelItem ,
                                                    [ rdf:type owl:Restriction ;
                                                      owl:onProperty :hasAverageParameter ;
                                                      owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
@@ -1902,6 +1991,24 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                    rdfs:comment "A test used to identify persons potentially suffering a disease among a population" .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#SecondOrderUncertaintyParameter
+:SecondOrderUncertaintyParameter rdf:type owl:Class ;
+                                 rdfs:subClassOf :ParameterNature ,
+                                                 [ rdf:type owl:Restriction ;
+                                                   owl:onProperty :hasUncertaintyCharacterization ;
+                                                   owl:someValuesFrom [ rdf:type owl:Class ;
+                                                                        owl:unionOf ( :Parameter
+                                                                                      :ProbabilityDistributionExpression
+                                                                                    )
+                                                                      ]
+                                                 ] ,
+                                                 [ rdf:type owl:Restriction ;
+                                                   owl:onProperty :hasExpectedValue ;
+                                                   owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                   owl:onDataRange xsd:double
+                                                 ] .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Stage
 :Stage rdf:type owl:Class ;
        rdfs:subClassOf :DiseaseProgression ,
@@ -1918,23 +2025,6 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                                                     rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en
                                                                   ] ;
        rdfs:comment "A phase or step in the progression of a disease" .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#StagePathway
-:StagePathway rdf:type owl:Class ;
-              rdfs:subClassOf :Pathway ,
-                              [ rdf:type owl:Restriction ;
-                                owl:onProperty :requires ;
-                                owl:someValuesFrom :Development
-                              ] ,
-                              [ rdf:type owl:Restriction ;
-                                owl:onProperty :requires ;
-                                owl:someValuesFrom :DiseaseProgression
-                              ] ,
-                              [ rdf:type owl:Restriction ;
-                                owl:onProperty :requires ;
-                                owl:someValuesFrom :Intervention
-                              ] .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Strategy
@@ -1960,6 +2050,10 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                                                ]
                           ] ,
                           [ rdf:type owl:Restriction ;
+                            owl:onProperty :hasConditionExpression ;
+                            owl:someValuesFrom :ConditionExpression
+                          ] ,
+                          [ rdf:type owl:Restriction ;
                             owl:onProperty :hasCost ;
                             owl:someValuesFrom :Cost
                           ] ,
@@ -1970,10 +2064,6 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
                           [ rdf:type owl:Restriction ;
                             owl:onProperty :hasUtility ;
                             owl:someValuesFrom :Utility
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasCondition ;
-                            owl:someValuesFrom xsd:string
                           ] ,
                           [ rdf:type owl:Restriction ;
                             owl:onProperty :hasDescription ;
@@ -2026,86 +2116,15 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
 :Utility rdf:type owl:Class ;
          rdfs:subClassOf :Parameter ,
                          [ rdf:type owl:Restriction ;
-                           owl:onProperty :hasTemporalBehavior ;
+                           owl:onProperty :appliesOneTime ;
                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                           owl:onDataRange [ rdf:type rdfs:Datatype ;
-                                             owl:oneOf [ rdf:type rdf:List ;
-                                                         rdf:first "ANNUAL" ;
-                                                         rdf:rest [ rdf:type rdf:List ;
-                                                                    rdf:first "ONETIME" ;
-                                                                    rdf:rest rdf:nil
-                                                                  ]
-                                                       ]
-                                           ]
+                           owl:onDataRange xsd:boolean
                          ] ,
                          [ rdf:type owl:Restriction ;
                            owl:onProperty :hasCalculationMethod ;
                            owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                            owl:onDataRange xsd:string
                          ] .
-
-
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Valuable
-:Valuable rdf:type owl:Class ;
-          rdfs:subClassOf :ModelItem ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasFirstOrderUncertainty ;
-                            owl:someValuesFrom [ rdf:type owl:Class ;
-                                                 owl:unionOf ( :Expression
-                                                               :Valuable
-                                                             )
-                                               ]
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasSecondOrderUncertainty ;
-                            owl:someValuesFrom [ rdf:type owl:Class ;
-                                                 owl:unionOf ( :Expression
-                                                               :Valuable
-                                                             )
-                                               ]
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :isModifiedBy ;
-                            owl:someValuesFrom :Valuable
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :modifies ;
-                            owl:someValuesFrom :Valuable
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasDataItemType ;
-                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                            owl:onClass :DataItemType
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasExpression ;
-                            owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                            owl:onClass :Expression
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasGeographicalContext ;
-                            owl:someValuesFrom xsd:string
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasDescription ;
-                            owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                            owl:onDataRange xsd:string
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasExpectedValue ;
-                            owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                            owl:onDataRange xsd:string
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasSource ;
-                            owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                            owl:onDataRange xsd:string
-                          ] ,
-                          [ rdf:type owl:Restriction ;
-                            owl:onProperty :hasYear ;
-                            owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                            owl:onDataRange xsd:short
-                          ] .
 
 
 #################################################################
@@ -2344,11 +2363,42 @@ ANNUAL: the cost/utility indicates that the indicated value affects annually thr
             :hasName "Utility" .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Exp_Excel
+:Exp_Excel rdf:type owl:NamedIndividual ,
+                    :ExpressionLanguage .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Exp_JEXL
+:Exp_JEXL rdf:type owl:NamedIndividual ,
+                   :ExpressionLanguage .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Exp_Java
+:Exp_Java rdf:type owl:NamedIndividual ,
+                   :ExpressionLanguage .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Exp_Javaluator
+:Exp_Javaluator rdf:type owl:NamedIndividual ,
+                         :ExpressionLanguage .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#GuidelineLifetimeAnual
 :GuidelineLifetimeAnual rdf:type owl:NamedIndividual ,
                                  :Guideline ;
-                        :hasFrequency "1y" ;
+                        :REMOVEhasFrequency "1y" ;
                         :hasRange "0y-*" .
 
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#InterventionDoNothing
+:InterventionDoNothing rdf:type owl:NamedIndividual ,
+                                :Intervention ;
+                       :hasDescription "A null intervention that has no effect on the patient" .
+
+
+[ <http://ontologydesignpatterns.org/opla-sd#entityPositionX> "80.67230303494442"^^xsd:double ;
+  <http://ontologydesignpatterns.org/opla-sd#entityPositionY> "257.2295616088946"^^xsd:double ;
+  rdfs:comment "This is an entity positioning annotation generated by CoModIDE (https://comodide.com/). Removing this annotation will break rendering the CoModIDE schema diagram view."@en
+] .
 
 ###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi

@@ -54,7 +54,7 @@
 	<dependency>
 		<groupId>com.beust</groupId>
 		<artifactId>jcommander</artifactId>
-		<version>1.69</version>
+		<version>1.82</version>
 	</dependency>
 <!-- Currently loading local compiled version -->
 	<dependency>
@@ -65,12 +65,12 @@
 	<dependency>
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-lang3</artifactId>
-	    <version>3.12.0</version>
+	    <version>3.14.0</version>
 	</dependency>
 	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-text</artifactId>
-	    <version>1.9</version>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-text</artifactId>
+		<version>1.11.0</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.commons</groupId>
@@ -93,11 +93,11 @@
 		<version>2.0.0</version>
 	</dependency>
 
-  	<dependency>
+<!--  	<dependency>
   		<groupId>javax.xml.bind</groupId>
   		<artifactId>jaxb-api</artifactId>
   		<version>2.3.1</version>
-  	</dependency>
+  	</dependency>-->
 	<dependency>
 		<groupId>org.glassfish.jaxb</groupId>
 		<artifactId>jaxb-runtime</artifactId>
