@@ -195,15 +195,7 @@ public enum DiseaseProgressionTemplate {
 			wrap.createProbabilityDistributionExpression(OSDiWrapper.InstanceIRI.UNCERTAINTY_PARAM.getIRI(incidenceIRI, false), OSDiProbabilityDistributionExpressions.UNIFORM, new double[] {0.0, 0.0006});
 			wrap.addSecondOrderNature(incidenceIRI, 0.0003, OSDiWrapper.InstanceIRI.UNCERTAINTY_PARAM.getIRI(incidenceIRI, false));
 
-			incidenceIRI = OSDiWrapper.InstanceIRI.MANIFESTATION_PATHWAY.getIRI(NEU.name() + "_" + this.name());
-			wrap.createDiseaseProgressionPathway(incidenceIRI, "Path from " + NEU.getDescription() + " to " + getDescription(), instanceIRI);
-			wrap.addParameter(incidenceIRI, OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(incidenceIRI, false), OSDiClasses.INCIDENCE, 
-				"Incidence of the pathway from " + NEU.getDescription() + " to " + getDescription(), 
-				"Klein et al. 2004 (also Sheffield)", 1995, OSDiDataItemTypes.DI_PROBABILITY);
-			wrap.addSecondOrderNature(OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(incidenceIRI, false), new double[]{0.0154, 0.01232, 0.01848}, OSDiClasses.INCIDENCE, 
-				"Incidence of the pathway from " + NEU.getDescription() + " to " + getDescription(),
-				"Klein et al. 2004 (also Sheffield)", 1995);
-			OSDiObjectProperties.REQUIRES.add(incidenceIRI, NEU.getInstanceIRI());
+			addPathway(wrap, NEU, "Klein et al. 2004 (also Sheffield)", 1995, new double[]{0.0154, 0.01232, 0.01848});
 		}
 	},
 	// ALB1("Microalbuminuria", DiseaseProgressionType.CHRONIC_MANIFESTATION),
@@ -338,4 +330,15 @@ public enum DiseaseProgressionTemplate {
 			"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 1995);
 	}
 	
+	protected void addPathway(ModifiableOSDiWrapper wrap, DiseaseProgressionTemplate pathwayFrom, String source, int year, double[] incidence) {
+		String incidenceIRI = OSDiWrapper.InstanceIRI.MANIFESTATION_PATHWAY.getIRI(pathwayFrom.name() + "_" + this.name());
+		wrap.createDiseaseProgressionPathway(incidenceIRI, "Path from " + pathwayFrom.getDescription() + " to " + getDescription(), getInstanceIRI());
+		wrap.addParameter(incidenceIRI, OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(incidenceIRI, false), OSDiClasses.INCIDENCE, 
+			"Incidence of the pathway from " + pathwayFrom.getDescription() + " to " + getDescription(), 
+			source, year, OSDiDataItemTypes.DI_PROBABILITY);
+		wrap.addSecondOrderNature(OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(incidenceIRI, false), incidence, OSDiClasses.INCIDENCE, 
+			"Incidence of the pathway from " + pathwayFrom.getDescription() + " to " + getDescription(),
+			source, year);
+		OSDiObjectProperties.REQUIRES.add(incidenceIRI, pathwayFrom.getInstanceIRI());
+	}
 }
