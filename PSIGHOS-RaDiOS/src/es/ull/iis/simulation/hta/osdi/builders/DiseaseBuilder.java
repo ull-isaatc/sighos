@@ -48,7 +48,7 @@ public interface DiseaseBuilder {
 		// Build progression pathways after creating all the manifestations
 		for (String progressionIRI: progressions) {
 			final DiseaseProgression progression = disease.getDiseaseProgression(progressionIRI);
-			DiseaseProgressionRiskBuilder.getPathwayInstance(secParams, progression);
+			DiseaseProgressionRiskBuilder.getPathwayInstances(secParams, progression);
 			// Also include exclusions among progressions
 			final Set<String> exclusions = OSDiObjectProperties.EXCLUDES_MANIFESTATION.getValues(progressionIRI);
 			for (String excludedManif : exclusions) {

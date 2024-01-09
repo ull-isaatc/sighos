@@ -14,7 +14,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ExpressionWrapper implements ExpressableWrapper {
+public class ExpressionWrapper {
 
 	// TODO: Process parameters when expressed in different ways. E.g. gamma parameters may be average and standard deviation
 	public enum SupportedProbabilityDistributions {
@@ -122,7 +122,6 @@ public class ExpressionWrapper implements ExpressableWrapper {
 		this.rnd = rnd;
 	}
 
-	@Override
 	public String getOriginalIndividualIRI() {
 		return instanceIRI;
 	}

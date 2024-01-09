@@ -1,9 +1,12 @@
 package es.ull.iis.simulation.hta.tests;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -51,6 +54,7 @@ public class TestLoadOntology {
     }
 
     @Test
+    @DisplayName("Test if the model can load basic properties of the disease progressions")
     public void testDiseaseProgressions() {
         for (DiseaseProgressionTemplate prog : DiseaseProgressionTemplate.values()) {
             final DiseaseProgression progression = model.getDiseaseProgression(prog.getInstanceIRI());
@@ -71,6 +75,18 @@ public class TestLoadOntology {
         }
     }
 
+    @Test
+    @DisplayName("Test if the model can load basic properties of some parameters")
+    public void testParameters() {
+        Map<String, es.ull.iis.simulation.hta.params.Parameter> parameters = model.getParameters();
+        assertAll("Parameters: ",
+            () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "BETA_Manif_NEU")),
+            () -> assertEquals(parameters.get(arguments.owlPrefix + "BETA_Manif_NEU").getType(), es.ull.iis.simulation.hta.params.Parameter.ParameterType.RISK),
+            () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "DCCT1_ComplicationsFree_U")),
+            () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "Manif_HF_AC"))
+        );
+    }
+    
     private class BasicTestExperiment extends HTAExperiment {
         public BasicTestExperiment(TestArguments arguments, ByteArrayOutputStream byteArrayOutputStream) throws MalformedSimulationModelException {
             super(arguments, byteArrayOutputStream);

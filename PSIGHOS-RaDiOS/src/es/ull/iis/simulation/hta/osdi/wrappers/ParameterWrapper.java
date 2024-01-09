@@ -27,7 +27,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ParameterWrapper implements ExpressableWrapper {
+public class ParameterWrapper {
 	protected final OSDiWrapper wrap;
 	protected final String paramIRI;
 	private final String source;
@@ -135,7 +135,6 @@ public class ParameterWrapper implements ExpressableWrapper {
 	/**
 	 * @return the paramId
 	 */
-	@Override
 	public String getOriginalIndividualIRI() {
 		return paramIRI;
 	}

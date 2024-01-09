@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test;
 
 public class JexlTest {
 
-	// @Test
+	@Test
+	@SuppressWarnings("unused")
 	public void objectTest() {
 		System.out.println("Starting test objectTest ...");
 
@@ -43,6 +44,7 @@ public class JexlTest {
 	}
 
 	@Test
+	@SuppressWarnings("unused")
 	public void standaloneValueTest() {
 		System.out.println("Starting test standaloneValueTest ...");
 
