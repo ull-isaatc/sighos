@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-    <uri id="Imports Wizard Entry" name="http://www.w3.org/2006/time#2016" uri="file:/C:/Users/Iván%20Castilla/Downloads/time.ttl"/>
-    <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
-        <uri id="Automatically generated entry, Timestamp=1685102988565" name="http://www.ull.es/iis/simulation/ontologies/disease-simulation" uri="OSDi.owl"/>
-    </group>
-</catalog>

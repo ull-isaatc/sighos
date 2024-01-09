@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.osdi.wrappers;
 
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
@@ -38,6 +39,8 @@ public class ParameterWrapper {
 	private final double deterministicValue;
 	private final RandomVariate probabilisticValue;
 	private final ParameterNature nature;
+	private final Set<ParameterWrapper> dependantParameters;
+	private final Set<AttributeValueWrapper> dependantAttributes;
 
 	/**
 	 * @throws MalformedOSDiModelException 
@@ -77,6 +80,8 @@ public class ParameterWrapper {
 			expression = null;
 			probabilisticValue = null;
 			nature = ParameterNature.DETERMINISTIC;
+			dependantAttributes = null;
+			dependantParameters = null;
 		}
 		else if (wrap.isInstanceOf(paramIRI, OSDiClasses.FIRST_ORDER_UNCERTAINTY_PARAMETER.getShortName())) {
 			final String strExpression = OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getValue(paramIRI, true);
@@ -87,6 +92,8 @@ public class ParameterWrapper {
 			deterministicValue = Double.NaN;
 			expression = null;
 			nature = ParameterNature.FIRST_ORDER;
+			dependantAttributes = null;
+			dependantParameters = null;
 		}
 		else if (wrap.isInstanceOf(paramIRI, OSDiClasses.SECOND_ORDER_UNCERTAINTY_PARAMETER.getShortName())) {
 			final String detValue = OSDiDataProperties.HAS_EXPECTED_VALUE.getValue(paramIRI);
@@ -109,11 +116,24 @@ public class ParameterWrapper {
 				probabilisticValue = initProbabilisticValue(uncertaintyParams);	
 			}
 			nature = ParameterNature.SECOND_ORDER;
+			dependantAttributes = null;
+			dependantParameters = null;
 		}
 		else if (wrap.isInstanceOf(paramIRI, OSDiClasses.CALCULATED_PARAMETER.getShortName())) {
 			expression = OSDiDataProperties.HAS_EXPRESSION_VALUE.getValue(paramIRI, "");
 			if (expression.equals("")) {			
 				throw new MalformedOSDiModelException("Calculated parameter " + paramIRI + " requires a value for the " + OSDiDataProperties.HAS_EXPRESSION_VALUE.getShortName() + " property");
+			}
+			final Set<String> dependantParameterNames = OSDiObjectProperties.DEPENDS_ON_PARAMETER.getValues(paramIRI, true);
+			dependantParameters = new TreeSet<>();
+			for (String dependantParameterName : dependantParameterNames) {
+				dependantParameters.add(wrap.getParameterWrapper(dependantParameterName, ""));
+			}
+			final Set<String> dependantAttributeNames = OSDiObjectProperties.DEPENDS_ON_ATTRIBUTE.getValues(paramIRI, true);
+			// TODO: Check whether this is the tight way to do so
+			dependantAttributes = new TreeSet<>();
+			for (String dependantAttributeName : dependantAttributeNames) {
+				dependantAttributes.add(wrap.getAttributeValueWrapper(dependantAttributeName, ""));
 			}
 			probabilisticValue = null;
 			deterministicValue = Double.NaN;

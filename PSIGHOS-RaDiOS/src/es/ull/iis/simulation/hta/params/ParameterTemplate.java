@@ -218,8 +218,8 @@ public interface ParameterTemplate {
     public default boolean addToModel(HTAModel model, Parameter param) {
         if (param.getType() != getType())
             return false;
-        if (!param.name().startsWith(getPrefix()))
-            return false;
+        // if (!param.name().startsWith(getPrefix()))
+        //     return false;
 		return model.addParameter(param);
     }
 }

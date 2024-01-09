@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.osdi.ontology;
 import java.io.File;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -16,6 +17,10 @@ import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import es.ull.iis.ontology.OWLOntologyWrapper;
+import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
+import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
+import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 
 /**
  * A wrapper for the OSDi ontology. It provides some useful methods to access the ontology.
@@ -29,6 +34,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	private String workingModelInstance;
 	private final Set<String> modelItems;
 	private final String instancePrefix;
+	private final Map<String, ParameterWrapper> parameterWrappers;
 	
 	private final static String STR_SEP = "_";
 	public enum InstanceIRI {
@@ -198,6 +204,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		this.instancePrefix = instancePrefix;
 		this.modelItems = new TreeSet<>();
 		OSDiWrapper.setCurrentWrapper(this, workingModelName);
+		this.parameterWrappers = new TreeMap<>();
 	}
 
 	/**
@@ -210,6 +217,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		this.instancePrefix = instancePrefix;
 		this.modelItems = new TreeSet<>();
 		OSDiWrapper.setCurrentWrapper(this, workingModelName);
+		this.parameterWrappers = new TreeMap<>();
 	}
 
 	/**
@@ -247,6 +255,40 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		return modelItems;
 	}
 	
+	/**
+	 * @return the parameterWrappers
+	 */
+	public ParameterWrapper getParameterWrapper(String parameterIRI, String defaultDescription) throws MalformedOSDiModelException {
+		if (parameterWrappers.containsKey(parameterIRI))
+			return parameterWrappers.get(parameterIRI);
+		OSDiDataItemTypes type = OSDiWrapper.getDataItemType(OSDiObjectProperties.HAS_DATA_ITEM_TYPE.getValue(parameterIRI, true));
+		if (OSDiObjectProperties.HAS_DATA_ITEM_TYPE.getValues(parameterIRI).size() > 1) {
+			printWarning(parameterIRI, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "Parameter has more than one data item type. Using the first one");
+		}
+		ParameterWrapper wrapper = null;
+		switch (type) {
+			case DI_DISUTILITY:
+			case DI_UTILITY:
+				wrapper = new UtilityParameterWrapper(this, parameterIRI, defaultDescription);
+			case CURRENCY_DOLLAR:
+			case CURRENCY_EURO:
+			case CURRENCY_POUND:
+				wrapper = new CostParameterWrapper(this, parameterIRI, defaultDescription);
+			default:
+				wrapper = new ParameterWrapper(this, parameterIRI, defaultDescription);
+		}
+		addParameterWrapper(wrapper);
+		return wrapper;
+	}
+
+	/**
+	 * Adds a parameter wrapper to the collection of known parameter wrappers
+	 * @param wrapper the parameter wrapper to add
+	 */
+	public void addParameterWrapper(ParameterWrapper wrapper) {
+		parameterWrappers.put(wrapper.getOriginalIndividualIRI(), wrapper);
+	}
+
 	public static OSDiDataItemTypes getDataItemType(String individualIRI) {
 		try {
 			return reverseDataItemType.get(individualIRI);

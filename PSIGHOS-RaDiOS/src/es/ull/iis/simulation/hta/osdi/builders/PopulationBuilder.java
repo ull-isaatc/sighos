@@ -12,6 +12,7 @@ import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
@@ -83,19 +84,18 @@ public interface PopulationBuilder {
 			sexVariate = (DiscreteRandomVariate) sexWrapper.getProbabilisticValue();
 			
 			this.utilityParam = createUtilityParam();
+			if (utilityParam != null)
+				setUsedParameterName(StandardParameter.POPULATION_BASE_UTILITY, utilityParam.getOriginalIndividualIRI());
 			
-			// Gets all the epidemiological parameters related to the working model
-			final Set<String> epidemParams = OSDiClasses.EPIDEMIOLOGICAL_PARAMETER.getIndividuals(true);
 			// Gets the population parameters that are epidemiological parameters
-			final Set<String> populationParams = OSDiObjectProperties.HAS_PARAMETER.getValues(name());
-			populationParams.retainAll(epidemParams);
+			final Set<String> populationParams = OSDiObjectProperties.HAS_EPIDEMIOLOGICAL_PARAMETER.getValues(name());
 			// Processes and register the epidemiological parameters related to the population
 			for (String paramName : populationParams) {
 				// Ignores parameters that are both parameters of the disease and a manifestation, since they are supposed to be processed in the corresponding manifestation
 				if (OSDiObjectProperties.IS_PARAMETER_OF_MANIFESTATION.getValues(paramName, true).size() == 0) {
 					final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, "Epidemiological parameter for population " + this.name());
 					// If the parameter is a prevalence
-					if (OSDiClasses.PREVALENCE.containsIntance(paramName)) {
+					if (paramWrapper.getDataItemTypes().contains(OSDiDataItemTypes.DI_PREVALENCE)) {
 						if (prevalenceParam != null)
 							wrap.printWarning(name(), OSDiObjectProperties.HAS_PARAMETER, "A population can define just one prevalence. Ignoring " + paramName);														
 						else if (birthPrevalenceParam != null)
@@ -105,7 +105,7 @@ public interface PopulationBuilder {
 							prevalenceParam = paramWrapper;
 						}
 					}
-					else if (OSDiClasses.BIRTH_PREVALENCE.containsIntance(paramName)) {
+					else if (paramWrapper.getDataItemTypes().contains(OSDiDataItemTypes.DI_BIRTH_PREVALENCE)) {
 						if (birthPrevalenceParam != null)
 							wrap.printWarning(name(), OSDiObjectProperties.HAS_PARAMETER, "A population can define just one birth prevalence. Ignoring " + paramName);														
 						else if (prevalenceParam != null)

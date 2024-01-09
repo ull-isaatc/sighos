@@ -190,7 +190,7 @@ public enum DiseaseProgressionTemplate {
 					"https://doi.org/10.2337/diacare.28.3.617", 2005);
 
 			String incidenceIRI = OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
-			wrap.addParameter(getInstanceIRI(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, incidenceIRI, OSDiClasses.INCIDENCE, "Incidence of " + getDescription(), 
+			wrap.addParameter(getInstanceIRI(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, incidenceIRI, OSDiClasses.EPIDEMIOLOGICAL_PARAMETER, "Incidence of " + getDescription(), 
 				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 1995, OSDiDataItemTypes.DI_PROBABILITY);
 			wrap.createProbabilityDistributionExpression(OSDiWrapper.InstanceIRI.UNCERTAINTY_PARAM.getIRI(incidenceIRI, false), OSDiProbabilityDistributionExpressions.UNIFORM, new double[] {0.0, 0.0006});
 			wrap.addSecondOrderNature(incidenceIRI, 0.0003, OSDiWrapper.InstanceIRI.UNCERTAINTY_PARAM.getIRI(incidenceIRI, false));
@@ -213,7 +213,7 @@ public enum DiseaseProgressionTemplate {
 					"https://doi.org/10.2337/diacare.28.3.617", 2005);
 
 			String incidenceIRI = OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(this.name(), OSDiWrapper.InstanceIRI.STAGE, null);
-			wrap.addParameter(instanceIRI, OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, incidenceIRI, OSDiClasses.INCIDENCE, "Base incidence of any manifestation related to CHD when HbA1c is 9.1", 
+			wrap.addParameter(instanceIRI, OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, incidenceIRI, OSDiClasses.EPIDEMIOLOGICAL_PARAMETER, "Base incidence of any manifestation related to CHD when HbA1c is 9.1", 
 					"Hoerger 2004", 2004, OSDiDataItemTypes.DI_PROBABILITY);
 			wrap.addSecondOrderNature(incidenceIRI, new double[] {0.0045, 0.001, 0.0084}, OSDiClasses.PARAMETER, "Base incidence of any manifestation related to CHD when HbA1c is 9.1", 
 					"Hoerger 2004", 2004);
@@ -324,19 +324,19 @@ public enum DiseaseProgressionTemplate {
 
 	protected void addSheffieldIncidence(ModifiableOSDiWrapper wrap, double[] incidence) {
 		String incidenceIRI = OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
-		wrap.addParameter(getInstanceIRI(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, incidenceIRI, OSDiClasses.INCIDENCE, "Base incidence of " + getDescription() + " when HbA1c is 10", 
+		wrap.addParameter(getInstanceIRI(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, incidenceIRI, OSDiClasses.EPIDEMIOLOGICAL_PARAMETER, "Base incidence of " + getDescription() + " when HbA1c is 10", 
 			"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 1995, OSDiDataItemTypes.DI_PROBABILITY);
-		wrap.addSecondOrderNature(incidenceIRI, incidence, OSDiClasses.INCIDENCE, "Base incidence of " + getDescription() + " when HbA1c is 10", 
+		wrap.addSecondOrderNature(incidenceIRI, incidence, OSDiClasses.EPIDEMIOLOGICAL_PARAMETER, "Base incidence of " + getDescription() + " when HbA1c is 10", 
 			"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 1995);
 	}
 	
 	protected void addPathway(ModifiableOSDiWrapper wrap, DiseaseProgressionTemplate pathwayFrom, String source, int year, double[] incidence) {
 		String incidenceIRI = OSDiWrapper.InstanceIRI.MANIFESTATION_PATHWAY.getIRI(pathwayFrom.name() + "_" + this.name());
 		wrap.createDiseaseProgressionPathway(incidenceIRI, "Path from " + pathwayFrom.getDescription() + " to " + getDescription(), getInstanceIRI());
-		wrap.addParameter(incidenceIRI, OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(incidenceIRI, false), OSDiClasses.INCIDENCE, 
+		wrap.addParameter(incidenceIRI, OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(incidenceIRI, false), OSDiClasses.EPIDEMIOLOGICAL_PARAMETER, 
 			"Incidence of the pathway from " + pathwayFrom.getDescription() + " to " + getDescription(), 
 			source, year, OSDiDataItemTypes.DI_PROBABILITY);
-		wrap.addSecondOrderNature(OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(incidenceIRI, false), incidence, OSDiClasses.INCIDENCE, 
+		wrap.addSecondOrderNature(OSDiWrapper.InstanceIRI.PARAM_INCIDENCE.getIRI(incidenceIRI, false), incidence, OSDiClasses.EPIDEMIOLOGICAL_PARAMETER, 
 			"Incidence of the pathway from " + pathwayFrom.getDescription() + " to " + getDescription(),
 			source, year);
 		OSDiObjectProperties.REQUIRES.add(incidenceIRI, pathwayFrom.getInstanceIRI());
