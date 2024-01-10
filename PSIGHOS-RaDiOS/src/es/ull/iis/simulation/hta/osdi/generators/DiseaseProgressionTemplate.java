@@ -172,7 +172,7 @@ public enum DiseaseProgressionTemplate {
 			wrap.addDeterministicNature(costIRI, 918.01);
 
 			costIRI = OSDiWrapper.InstanceIRI.PARAM_ONE_TIME_COST.getIRI(this.name(), OSDiWrapper.InstanceIRI.MANIFESTATION, null);
-			wrap.addCost(instanceIRI, OSDiObjectProperties.HAS_COST, costIRI, "Cost of low extremity amputation", "Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", 2017, false, OSDiDataItemTypes.CURRENCY_EURO);
+			wrap.addCost(instanceIRI, OSDiObjectProperties.HAS_COST, costIRI, "Cost of low extremity amputation", "Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", 2017, true, OSDiDataItemTypes.CURRENCY_EURO);
 			String costSDIRI = OSDiWrapper.InstanceIRI.UNCERTAINTY_PARAM.getIRI(costIRI, false);
 			wrap.createParameter(costSDIRI, OSDiClasses.COST, "Standard deviation for the cost of low extremity amputation", "Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", 2017, OSDiDataItemTypes.DI_STANDARD_DEVIATION);
 			wrap.addDeterministicNature(costSDIRI, 1674.37);

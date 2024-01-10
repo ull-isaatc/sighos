@@ -25,7 +25,9 @@ import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.params.Parameter;
 import es.ull.iis.simulation.hta.params.ParameterTemplate;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.progression.Disease;
 
 /**
@@ -244,4 +246,47 @@ public class OSDiGenericModel extends HTAModel {
 		return utilityParams;
 	}
 	
+	@Override
+	public void createParameters() {
+		System.out.println("Creating parameters");
+		for (ParameterWrapper param : wrap.getParameterWrappers()) {
+			System.out.println("Parameter: " + param.getOriginalIndividualIRI());
+		}
+
+		super.createParameters();
+		System.out.println("Parameters created");
+		for (Parameter param : getParameters().values()) {
+			System.out.println("Parameter: " + param.name());
+		}
+		// Create all of those parameters not directly created from a disease, disease progression, etc.
+		for (ParameterWrapper param : wrap.getParameterWrappers()) {
+			if (!getParameters().containsKey(param.getOriginalIndividualIRI())) {
+				ParameterType type = ParameterType.OTHER;
+				switch (param.getDataItemType()) {
+					case CURRENCY_DOLLAR:
+					case CURRENCY_EURO:
+					case CURRENCY_POUND:
+						type = ParameterType.COST;
+						break;
+					case DI_DISUTILITY:
+						type = ParameterType.DISUTILITY;
+						break;
+					case DI_UTILITY:
+						type = ParameterType.UTILITY;
+						break;
+					case DI_PREVALENCE:
+					case DI_BIRTH_PREVALENCE:
+					case DI_INCIDENCE:
+					case DI_RELATIVE_RISK:
+					case DI_PROBABILITY:
+					case DI_PROPORTION:
+						type = ParameterType.RISK;
+						break;
+					default:
+						break;
+				}		
+				param.createParameter(this, type);
+			}
+		}
+	}
 }

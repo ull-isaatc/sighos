@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.osdi.ontology;
 import java.io.File;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -287,6 +288,10 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 		return wrapper;
 	}
 
+	public Collection<ParameterWrapper> getParameterWrappers() {
+		return parameterWrappers.values();
+	}
+	
 	public static OSDiDataItemTypes getDataItemType(String individualIRI) {
 		try {
 			return reverseDataItemType.get(individualIRI);

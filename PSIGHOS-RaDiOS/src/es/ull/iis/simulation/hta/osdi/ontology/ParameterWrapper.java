@@ -65,7 +65,7 @@ public class ParameterWrapper {
 		else
 			dataItemType = OSDiWrapper.getDataItemType(dataItemTypeIRI);
 		
-		appliesOneTime = (OSDiDataProperties.APPLIES_ONE_TIME.getValue(paramIRI, "false") == "true");
+		appliesOneTime = (OSDiDataProperties.APPLIES_ONE_TIME.getValue(paramIRI, "false").equals("true"));
 
 		if (wrap.isInstanceOf(paramIRI, OSDiClasses.DETERMINISTIC_PARAMETER.getShortName())) {
 			final String detValue = OSDiDataProperties.HAS_EXPECTED_VALUE.getValue(paramIRI);
