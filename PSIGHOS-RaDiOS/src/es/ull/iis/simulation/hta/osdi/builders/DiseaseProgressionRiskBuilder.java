@@ -17,9 +17,9 @@ import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
-import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -56,7 +56,7 @@ public interface DiseaseProgressionRiskBuilder {
 		for (String riskIRI : riskIRIs) {
 			final Set<String> superclazzes = wrap.getClassesForIndividual(riskIRI);
 			if (superclazzes.contains(OSDiClasses.PARAMETER.getShortName())) {
-				riskWrappers.add(new ParameterWrapper(wrap, riskIRI, "Developing " + progression.name()));
+				riskWrappers.add(wrap.getParameterWrapper(riskIRI, "Developing " + progression.name()));
 			}
 			else if (superclazzes.contains(OSDiClasses.PATHWAY.getShortName())) {
 				pathwayInstances.add(getPathwayInstance(model, progression, riskIRI));
@@ -82,7 +82,7 @@ public interface DiseaseProgressionRiskBuilder {
 		for (String riskIRI : riskIRIs) {
 			final Set<String> superclazzes = wrap.getClassesForIndividual(riskIRI);
 			if (superclazzes.contains(OSDiClasses.PARAMETER.getShortName())) {
-				riskWrappers.add(new ParameterWrapper(wrap, riskIRI, "Developing " + progression.name() + " with " + pathwayIRI));
+				riskWrappers.add(wrap.getParameterWrapper(riskIRI, "Developing " + progression.name() + " with " + pathwayIRI));
 			}
 			else 
 				throw new MalformedOSDiModelException(OSDiClasses.DISEASE_PROGRESSION, pathwayIRI, OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, "Unsupported risk characterizations for a disease progression: " + riskIRI);
@@ -165,14 +165,14 @@ public interface DiseaseProgressionRiskBuilder {
 		@Override
 		public void createParameters() {
 			for (ParameterWrapper riskWrapper : riskWrappers) {
-				final Set<OSDiDataItemTypes> dataItems = riskWrapper.getDataItemTypes();
-				if (dataItems.contains(OSDiDataItemTypes.DI_PROBABILITY)) {
+				final OSDiDataItemTypes dataItems = riskWrapper.getDataItemType();
+				if (dataItems.equals(OSDiDataItemTypes.DI_PROBABILITY)) {
 					StandardParameter.PROBABILITY.addToModel(model, riskWrapper.createParameter(model, ParameterType.RISK));
 				}
-				else if (dataItems.contains(OSDiDataItemTypes.DI_PROPORTION)) {
+				else if (dataItems.equals(OSDiDataItemTypes.DI_PROPORTION)) {
 					StandardParameter.PROPORTION.addToModel(model, riskWrapper.createParameter(model, ParameterType.RISK));
 				}
-				else if (dataItems.contains(OSDiDataItemTypes.DI_RELATIVE_RISK)) {
+				else if (dataItems.equals(OSDiDataItemTypes.DI_RELATIVE_RISK)) {
 					StandardParameter.RELATIVE_RISK.addToModel(model, riskWrapper.createParameter(model, ParameterType.RISK));
 				}
 

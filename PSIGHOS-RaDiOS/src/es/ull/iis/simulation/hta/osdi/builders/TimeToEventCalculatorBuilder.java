@@ -7,7 +7,7 @@ import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
-import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.calculator.AnnualRiskBasedTimeToEventCalculator;
@@ -46,7 +46,7 @@ public interface TimeToEventCalculatorBuilder {
             case PROPORTION:
                 return new ProportionBasedTimeToEventCalculator(progression, StandardParameter.PROPORTION.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
             case PROBABILITY_RR:
-                if (riskWrappers.get(0).getDataItemTypes().contains(OSDiDataItemTypes.DI_RELATIVE_RISK)) {
+                if (riskWrappers.get(0).getDataItemType().equals(OSDiDataItemTypes.DI_RELATIVE_RISK)) {
                     return new AnnualRiskBasedTimeToEventCalculator(progression, StandardParameter.PROBABILITY.createName(riskWrappers.get(1).getOriginalIndividualIRI()), StandardParameter.RELATIVE_RISK.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
                 } else {
                     return new AnnualRiskBasedTimeToEventCalculator(progression, StandardParameter.PROBABILITY.createName(riskWrappers.get(0).getOriginalIndividualIRI()));
@@ -69,7 +69,7 @@ public interface TimeToEventCalculatorBuilder {
                     valid = false;
                     // One of the remaining wrappers must contain the data item
                     for (int j = 0; j < temp.size() && !valid; j++) {
-                        if (temp.get(j).getDataItemTypes().contains(comb.dataItems[i])) {
+                        if (temp.get(j).getDataItemType().equals(comb.dataItems[i])) {
                             valid = true;
                             temp.remove(j);
                         }

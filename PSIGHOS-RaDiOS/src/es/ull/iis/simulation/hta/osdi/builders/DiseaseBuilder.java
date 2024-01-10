@@ -8,10 +8,9 @@ import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
-import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.ParameterWrapper;
 import es.ull.iis.simulation.hta.params.ParameterTemplate;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -71,9 +70,14 @@ public interface DiseaseBuilder {
 			addCostIfDefined(OSDiObjectProperties.HAS_TREATMENT_COST, StandardParameter.TREATMENT_COST, false);
 			addCostIfDefined(OSDiObjectProperties.HAS_DIAGNOSIS_COST, StandardParameter.DISEASE_DIAGNOSIS_COST, true);
 			
-			final UtilityParameterWrapper utilityParam = model.createUtilityParam(name(), OSDiClasses.DISEASE, OSDiObjectProperties.HAS_UTILITY, false);
-			if (utilityParam != null)
-				paramMapping.put(utilityParam.isDisutility() ? StandardParameter.ANNUAL_DISUTILITY : StandardParameter.ANNUAL_UTILITY, utilityParam);
+			final ParameterWrapper utilityParam = model.createUtilityParam(name(), OSDiClasses.DISEASE, OSDiObjectProperties.HAS_UTILITY, false);
+			if (utilityParam != null) {
+				if (OSDiDataItemTypes.DI_DISUTILITY.equals(utilityParam.getDataItemType())) {
+					paramMapping.put(StandardParameter.ANNUAL_DISUTILITY, utilityParam);
+				} else {
+					paramMapping.put(StandardParameter.ANNUAL_UTILITY, utilityParam);
+				}
+			}
 		}
 
 		/**
@@ -84,7 +88,7 @@ public interface DiseaseBuilder {
 		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 		 */
 		private void addCostIfDefined(OSDiObjectProperties costProperty, ParameterTemplate paramDescription, boolean expectedOneTime) throws MalformedOSDiModelException {
-			final CostParameterWrapper costParam = ((OSDiGenericModel)model).createCostParam(name(), OSDiClasses.DISEASE, costProperty, paramDescription, expectedOneTime);
+			final ParameterWrapper costParam = ((OSDiGenericModel)model).createCostParam(name(), OSDiClasses.DISEASE, costProperty, paramDescription, expectedOneTime);
 			if (costParam != null)
 				paramMapping.put(paramDescription, costParam);
 		}

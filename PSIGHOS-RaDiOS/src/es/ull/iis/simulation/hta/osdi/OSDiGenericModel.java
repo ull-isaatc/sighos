@@ -20,9 +20,9 @@ import es.ull.iis.simulation.hta.osdi.builders.PopulationBuilder;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
 import es.ull.iis.simulation.hta.outcomes.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.ParameterTemplate;
@@ -111,15 +111,15 @@ public class OSDiGenericModel extends HTAModel {
 	 * @param expectedOneTime If true, the cost should be one-time; otherwise, it should be annual
 	 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 	 */
-	public CostParameterWrapper createCostParam(String modelItemIRI, OSDiClasses modelItemClazz, OSDiObjectProperties costProperty, ParameterTemplate paramDescription, boolean expectedOneTime) throws MalformedOSDiModelException {
+	public ParameterWrapper createCostParam(String modelItemIRI, OSDiClasses modelItemClazz, OSDiObjectProperties costProperty, ParameterTemplate paramDescription, boolean expectedOneTime) throws MalformedOSDiModelException {
 		Set<String> costs = costProperty.getValues(modelItemIRI, true);
-		CostParameterWrapper costParam = null;
+		ParameterWrapper costParam = null;
 		if (costs.size() > 0) {
 			String[] costsArray = new String[costs.size()];
 			costsArray = costs.toArray(costsArray);
 			// Looks for the first cost that fulfills the expected temporal behavior
 			for (int i = 0; i < costsArray.length && costParam == null; i++) {
-				costParam = new CostParameterWrapper(wrap, costsArray[i], paramDescription.getDefaultDescription());
+				costParam = wrap.getParameterWrapper(costsArray[i], paramDescription.getDefaultDescription());
 				if (costParam.appliesOneTime() != expectedOneTime) {
 					costParam = null;
 				}
@@ -141,8 +141,8 @@ public class OSDiGenericModel extends HTAModel {
 	 * @return An array with two elements. The first one is the onset cost and the second one is the annual cost. If one of them is not defined, the corresponding element is null.	
 	 * @throws MalformedOSDiModelException
 	 */
-	public CostParameterWrapper[] createOnsetAndAnnualCostParams(String modelItemIRI) throws MalformedOSDiModelException {
-		final CostParameterWrapper[] costParams = new CostParameterWrapper[2];
+	public ParameterWrapper[] createOnsetAndAnnualCostParams(String modelItemIRI) throws MalformedOSDiModelException {
+		final ParameterWrapper[] costParams = new ParameterWrapper[2];
 		costParams[0] = null;
 		costParams[1] = null;
 		final Set<String> costs = OSDiObjectProperties.HAS_COST.getValues(modelItemIRI, true);
@@ -154,7 +154,7 @@ public class OSDiGenericModel extends HTAModel {
 			costsArray = costs.toArray(costsArray);
 
 			for (int i = 0; i < costsArray.length && (costParams[0] == null || costParams[1] == null); i++) {
-				CostParameterWrapper costParam = new CostParameterWrapper(wrap, costsArray[i], "Cost for " + modelItemIRI);
+				ParameterWrapper costParam = wrap.getParameterWrapper(costsArray[i], "Cost for " + modelItemIRI);
 				if (costParam.appliesOneTime()) {
 					if (costParams[0] != null)
 						wrap.printWarning(modelItemIRI, OSDiObjectProperties.HAS_COST, "Found more than one one-time cost for a model item. Using " + costParams[0].getOriginalIndividualIRI());
@@ -180,15 +180,15 @@ public class OSDiGenericModel extends HTAModel {
 	 * @param expectedOneTime If true, the (dis)utility should be one-time; otherwise, it should be annual
 	 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 	 */
-	public UtilityParameterWrapper createUtilityParam(String modelItemIRI, OSDiClasses modelItemClazz, OSDiObjectProperties utilityProperty, boolean expectedOneTime) throws MalformedOSDiModelException {
+	public ParameterWrapper createUtilityParam(String modelItemIRI, OSDiClasses modelItemClazz, OSDiObjectProperties utilityProperty, boolean expectedOneTime) throws MalformedOSDiModelException {
 		final Set<String> utilities = utilityProperty.getValues(modelItemIRI, true);
-		UtilityParameterWrapper utilityParam = null;
+		ParameterWrapper utilityParam = null;
 		if (utilities.size() > 0) {
 			String[] utilitiesArray = new String[utilities.size()];
 			utilitiesArray = utilities.toArray(utilitiesArray);
 			// Looks for the first utility that fulfills the expected temporal behavior
 			for (int i = 0; i < utilitiesArray.length && utilityParam == null; i++) {
-				utilityParam = new UtilityParameterWrapper(wrap, utilitiesArray[i], "Utility for disease " + modelItemIRI);
+				utilityParam = wrap.getParameterWrapper(utilitiesArray[i], "Utility for disease " + modelItemIRI);
 				if (utilityParam.appliesOneTime() != expectedOneTime) {
 					utilityParam = null;
 				}
@@ -199,6 +199,9 @@ public class OSDiGenericModel extends HTAModel {
 			}
 			else if (utilities.size() > 1)
 				wrap.printWarning(modelItemIRI, utilityProperty, "Found more than one valid (dis)utility for a property. Using only " + utilityParam.getOriginalIndividualIRI());
+			if (!OSDiDataItemTypes.DI_DISUTILITY.equals(utilityParam.getDataItemType()) && !OSDiDataItemTypes.DI_UTILITY.equals(utilityParam.getDataItemType()))
+				throw new MalformedOSDiModelException(OSDiClasses.UTILITY, modelItemIRI, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "Data item type for a utility must be " + OSDiDataItemTypes.DI_UTILITY.getInstanceName() +
+				" or " + OSDiDataItemTypes.DI_DISUTILITY + ". Found " + utilityParam.getDataItemType().getInstanceName() + " instead.");
 		}
 		return utilityParam;
 	}
@@ -210,8 +213,8 @@ public class OSDiGenericModel extends HTAModel {
 	 * @return An array with two elements. The first one is the onset utility and the second one is the annual utility. If one of them is not defined, the corresponding element is null.	
 	 * @throws MalformedOSDiModelException
 	 */
-	public UtilityParameterWrapper[] createOnsetAndAnnualUtilityParams(String modelItemIRI) throws MalformedOSDiModelException {
-		final UtilityParameterWrapper[] utilityParams = new UtilityParameterWrapper[2];
+	public ParameterWrapper[] createOnsetAndAnnualUtilityParams(String modelItemIRI) throws MalformedOSDiModelException {
+		final ParameterWrapper[] utilityParams = new ParameterWrapper[2];
 		utilityParams[0] = null;
 		utilityParams[1] = null;
 		final Set<String> utilities = OSDiObjectProperties.HAS_UTILITY.getValues(modelItemIRI, true);
@@ -223,7 +226,7 @@ public class OSDiGenericModel extends HTAModel {
 			utilitiesArray = utilities.toArray(utilitiesArray);
 
 			for (int i = 0; i < utilitiesArray.length && (utilityParams[0] == null || utilityParams[1] == null); i++) {
-				UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, utilitiesArray[i], "(Dis)utility for " + modelItemIRI);
+				ParameterWrapper utilityParam = wrap.getParameterWrapper(utilitiesArray[i], "(Dis)utility for " + modelItemIRI);
 				if (utilityParam.appliesOneTime()) {
 					if (utilityParams[0] != null)
 						wrap.printWarning(modelItemIRI, OSDiObjectProperties.HAS_UTILITY, "Found more than one one-time (dis)utility for a model item. Using " + utilityParams[0].getOriginalIndividualIRI());

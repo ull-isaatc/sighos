@@ -11,11 +11,10 @@ import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
-import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.ParameterTemplate;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -56,8 +55,8 @@ public interface DiseaseProgressionBuilder {
 			addCostIfDefined(OSDiObjectProperties.HAS_FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST, false);
 			addCostIfDefined(OSDiObjectProperties.HAS_TREATMENT_COST, StandardParameter.TREATMENT_COST, false);
 
-			final CostParameterWrapper[] onsetAndAnnualCostParameterWrappers = model.createOnsetAndAnnualCostParams(name());
-			final UtilityParameterWrapper[] onsetAndAnnualUtilityParameterWrappers = model.createOnsetAndAnnualUtilityParams(name());
+			final ParameterWrapper[] onsetAndAnnualCostParameterWrappers = model.createOnsetAndAnnualCostParams(name());
+			final ParameterWrapper[] onsetAndAnnualUtilityParameterWrappers = model.createOnsetAndAnnualUtilityParams(name());
 			// Checking coherence of number of costs and the type of manifestation		
 			if (DiseaseProgression.Type.ACUTE_MANIFESTATION.equals(getType())) {
 				if (onsetAndAnnualCostParameterWrappers[0] != null)
@@ -65,7 +64,7 @@ public interface DiseaseProgressionBuilder {
 				else if (onsetAndAnnualCostParameterWrappers[1] != null)
 					throw new MalformedOSDiModelException(OSDiClasses.ACUTE_MANIFESTATION, name(), OSDiObjectProperties.HAS_COST, "Expected one-time cost and obtained annual cost in " + onsetAndAnnualCostParameterWrappers[1].getOriginalIndividualIRI());
 				if (onsetAndAnnualUtilityParameterWrappers[0] != null)
-					paramMapping.put(onsetAndAnnualUtilityParameterWrappers[0].isDisutility() ? StandardParameter.ONSET_DISUTILITY : StandardParameter.ONSET_UTILITY, onsetAndAnnualUtilityParameterWrappers[0]);
+					paramMapping.put(OSDiDataItemTypes.DI_DISUTILITY.equals(onsetAndAnnualUtilityParameterWrappers[0].getDataItemType()) ? StandardParameter.ONSET_DISUTILITY : StandardParameter.ONSET_UTILITY, onsetAndAnnualUtilityParameterWrappers[0]);
 				else if (onsetAndAnnualUtilityParameterWrappers[1] != null)
 					throw new MalformedOSDiModelException(OSDiClasses.ACUTE_MANIFESTATION, name(), OSDiObjectProperties.HAS_UTILITY, "Expected one-time (dis)utility and obtained annual (dis)utility in " + onsetAndAnnualUtilityParameterWrappers[1].getOriginalIndividualIRI());
 			}
@@ -75,9 +74,9 @@ public interface DiseaseProgressionBuilder {
 				if (onsetAndAnnualCostParameterWrappers[1] != null)
 					paramMapping.put(StandardParameter.ANNUAL_COST, onsetAndAnnualCostParameterWrappers[1]);
 				if (onsetAndAnnualUtilityParameterWrappers[0] != null)
-					paramMapping.put(onsetAndAnnualUtilityParameterWrappers[0].isDisutility() ? StandardParameter.ONSET_DISUTILITY : StandardParameter.ONSET_UTILITY, onsetAndAnnualUtilityParameterWrappers[0]);
+					paramMapping.put(OSDiDataItemTypes.DI_DISUTILITY.equals(onsetAndAnnualUtilityParameterWrappers[0].getDataItemType()) ? StandardParameter.ONSET_DISUTILITY : StandardParameter.ONSET_UTILITY, onsetAndAnnualUtilityParameterWrappers[0]);
 				if (onsetAndAnnualUtilityParameterWrappers[1] != null)
-					paramMapping.put(onsetAndAnnualUtilityParameterWrappers[1].isDisutility() ? StandardParameter.ANNUAL_DISUTILITY : StandardParameter.ANNUAL_UTILITY, onsetAndAnnualUtilityParameterWrappers[1]);
+					paramMapping.put(OSDiDataItemTypes.DI_DISUTILITY.equals(onsetAndAnnualUtilityParameterWrappers[1].getDataItemType()) ? StandardParameter.ANNUAL_DISUTILITY : StandardParameter.ANNUAL_UTILITY, onsetAndAnnualUtilityParameterWrappers[1]);
 			}
 
 			createUsedParameter(OSDiObjectProperties.HAS_PROBABILITY_OF_DIAGNOSIS, StandardParameter.DISEASE_PROGRESSION_PROBABILITY_OF_DIAGNOSIS);
@@ -104,7 +103,7 @@ public interface DiseaseProgressionBuilder {
 		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 		 */
 		private void addCostIfDefined(OSDiObjectProperties costProperty, ParameterTemplate paramDescription, boolean expectedOneTime) throws MalformedOSDiModelException {
-			final CostParameterWrapper costParam = ((OSDiGenericModel)model).createCostParam(name(), OSDiClasses.DISEASE, costProperty, paramDescription, expectedOneTime);
+			final ParameterWrapper costParam = ((OSDiGenericModel)model).createCostParam(name(), OSDiClasses.DISEASE, costProperty, paramDescription, expectedOneTime);
 			if (costParam != null)
 				paramMapping.put(paramDescription, costParam);
 		}
@@ -112,7 +111,7 @@ public interface DiseaseProgressionBuilder {
 		private void createUsedParameter(OSDiObjectProperties objProperty, ParameterTemplate paramDescription) throws MalformedOSDiModelException {
 			final String paramName = objProperty.getValue(name(), true);
 			if (paramName != null)
-				paramMapping.put(paramDescription, new ParameterWrapper(wrap, paramName, ""));			
+				paramMapping.put(paramDescription, wrap.getParameterWrapper(paramName, ""));			
 		}
 		
 		private void createInitialProportionParam(String populationName) throws MalformedOSDiModelException {
@@ -125,7 +124,7 @@ public interface DiseaseProgressionBuilder {
 				if (!OSDiObjectProperties.IS_PARAMETER_OF_POPULATION.getValues(manifParam, true).contains(populationName))
 					throw new MalformedOSDiModelException(OSDiClasses.PARAMETER, manifParam, OSDiObjectProperties.IS_PARAMETER_OF_POPULATION, 
 							"Parameters characterizing initial proportions must be related to the population: " + populationName);
-				paramMapping.put(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, new ParameterWrapper(wrap, manifParam, "Initial proportion of " + name()));
+				paramMapping.put(StandardParameter.DISEASE_PROGRESSION_INITIAL_PROPORTION, wrap.getParameterWrapper(manifParam, "Initial proportion of " + name()));
 			}
 		}
 		

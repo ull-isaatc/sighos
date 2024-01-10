@@ -16,11 +16,9 @@ import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.ParameterModifierWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
-import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.ParameterModifierWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.ParameterTemplate;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
@@ -51,7 +49,7 @@ public interface InterventionBuilder {
 		// Collects the modifications associated to the specified intervention
 		final Set<String> modifications = OSDiObjectProperties.INVOLVES_MODIFICATION.getValues(intervention.name(), true);
 		for (String modificationName : modifications) {		
-			list.add(new ParameterModifierWrapper(wrap, modificationName, intervention));
+			list.add(wrap.getParameterModifierWrapper(modificationName, intervention));
 		}
 		return list;
 	}
@@ -68,16 +66,16 @@ public interface InterventionBuilder {
 			addCostIfDefined(OSDiObjectProperties.HAS_FOLLOW_UP_COST, StandardParameter.FOLLOW_UP_COST, false);
 			addCostIfDefined(OSDiObjectProperties.HAS_TREATMENT_COST, StandardParameter.TREATMENT_COST, false);
 
-			final CostParameterWrapper[] onsetAndAnnualCostParameterWrappers = model.createOnsetAndAnnualCostParams(name());
-			final UtilityParameterWrapper[] onsetAndAnnualUtilityParameterWrappers = model.createOnsetAndAnnualUtilityParams(name());
+			final ParameterWrapper[] onsetAndAnnualCostParameterWrappers = model.createOnsetAndAnnualCostParams(name());
+			final ParameterWrapper[] onsetAndAnnualUtilityParameterWrappers = model.createOnsetAndAnnualUtilityParams(name());
 			if (onsetAndAnnualCostParameterWrappers[0] != null)
 				paramMapping.put(StandardParameter.ONSET_COST, onsetAndAnnualCostParameterWrappers[0]);
 			if (onsetAndAnnualCostParameterWrappers[1] != null)
 				paramMapping.put(StandardParameter.ANNUAL_COST, onsetAndAnnualCostParameterWrappers[1]);
 			if (onsetAndAnnualUtilityParameterWrappers[0] != null)
-				paramMapping.put(onsetAndAnnualUtilityParameterWrappers[0].isDisutility() ? StandardParameter.ONSET_DISUTILITY : StandardParameter.ONSET_UTILITY, onsetAndAnnualUtilityParameterWrappers[0]);
+				paramMapping.put(OSDiDataItemTypes.DI_DISUTILITY.equals(onsetAndAnnualUtilityParameterWrappers[0].getDataItemType()) ? StandardParameter.ONSET_DISUTILITY : StandardParameter.ONSET_UTILITY, onsetAndAnnualUtilityParameterWrappers[0]);
 			if (onsetAndAnnualUtilityParameterWrappers[1] != null)
-				paramMapping.put(onsetAndAnnualUtilityParameterWrappers[1].isDisutility() ? StandardParameter.ANNUAL_DISUTILITY : StandardParameter.ANNUAL_UTILITY, onsetAndAnnualUtilityParameterWrappers[1]);
+				paramMapping.put(OSDiDataItemTypes.DI_DISUTILITY.equals(onsetAndAnnualUtilityParameterWrappers[1].getDataItemType()) ? StandardParameter.ANNUAL_DISUTILITY : StandardParameter.ANNUAL_UTILITY, onsetAndAnnualUtilityParameterWrappers[1]);
 		}
 
 		/**
@@ -88,7 +86,7 @@ public interface InterventionBuilder {
 		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 		 */
 		private void addCostIfDefined(OSDiObjectProperties costProperty, ParameterTemplate paramDescription, boolean expectedOneTime) throws MalformedOSDiModelException {
-			CostParameterWrapper costParam = ((OSDiGenericModel)model).createCostParam(name(), OSDiClasses.DISEASE, costProperty, paramDescription, expectedOneTime);
+			ParameterWrapper costParam = ((OSDiGenericModel)model).createCostParam(name(), OSDiClasses.DISEASE, costProperty, paramDescription, expectedOneTime);
 			if (costParam != null)
 				paramMapping.put(paramDescription, costParam);
 		}
@@ -125,8 +123,8 @@ public interface InterventionBuilder {
 				if (strSensitivities.size() > 1) {
 					wrap.printWarning(name, OSDiObjectProperties.HAS_SENSITIVITY, "Found more than one sensitivity for a screening intervention. Using " + sensitivityParamName);			
 				}
-				sensitivityWrapper = new ParameterWrapper(wrap, sensitivityParamName, "Sensitivity for " + name); 
-				if (!sensitivityWrapper.getDataItemTypes().contains(OSDiDataItemTypes.DI_SENSITIVITY)) {
+				sensitivityWrapper = wrap.getParameterWrapper(sensitivityParamName, "Sensitivity for " + name); 
+				if (!sensitivityWrapper.getDataItemType().equals(OSDiDataItemTypes.DI_SENSITIVITY)) {
 					wrap.printWarning(sensitivityParamName, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiDataItemTypes.DI_SENSITIVITY.getInstanceName());			
 				}
 			}
@@ -141,8 +139,8 @@ public interface InterventionBuilder {
 				if (strSpecificities.size() > 1) {
 					wrap.printWarning(name, OSDiObjectProperties.HAS_SPECIFICITY, "Found more than one specificity for a screening intervention. Using " + specificityParamName);			
 				}
-				specificityWrapper = new ParameterWrapper(wrap, specificityParamName, "Specificity for " + name); 
-				if (!specificityWrapper.getDataItemTypes().contains(OSDiDataItemTypes.DI_SPECIFICITY)) {
+				specificityWrapper = wrap.getParameterWrapper(specificityParamName, "Specificity for " + name); 
+				if (!specificityWrapper.getDataItemType().equals(OSDiDataItemTypes.DI_SPECIFICITY)) {
 					wrap.printWarning(specificityParamName, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "Data item types defined for sensitivity do not include " + OSDiDataItemTypes.DI_SPECIFICITY.getInstanceName());			
 				}
 			}

@@ -17,10 +17,8 @@ import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import es.ull.iis.ontology.OWLOntologyWrapper;
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
-import es.ull.iis.simulation.hta.osdi.wrappers.CostParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 
 /**
  * A wrapper for the OSDi ontology. It provides some useful methods to access the ontology.
@@ -221,6 +219,7 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	}
 
 	/**
+	 * Gets the current static wrapper, which is unique in the application
 	 * @return the currentWrapper
 	 */
 	public static OSDiWrapper getCurrentWrapper() {
@@ -228,7 +227,9 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	}
 
 	/**
+	 * Sets the current static wrapper, which will be unique in the application
 	 * @param currentWrapper the currentWrapper to set
+	 * @param workingModelName The name of the working model
 	 */
 	public static void setCurrentWrapper(OSDiWrapper currentWrapper, String workingModelName) {
 		OSDiWrapper.currentWrapper = currentWrapper;
@@ -236,12 +237,17 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	}
 
 	/**
-	 * @return the workingModelId
+	 * Gets the instance of the working model
+	 * @return the instance of the working model
 	 */
 	public String getWorkingModelInstance() {
 		return workingModelInstance;
 	}
 	
+	/**
+	 * Sets the instance of the working model
+	 * @param workingModelName The name of the working model
+	 */
 	public void setWorkingModelInstance(String workingModelName) {
 		this.workingModelInstance = instancePrefix + workingModelName;
 		modelItems.clear();
@@ -249,7 +255,8 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	}
 	
 	/**
-	 * @return the modelItems
+	 * Returns the items belonging to the working model
+	 * @return the items belonging to the working model
 	 */
 	public Set<String> getModelItems() {
 		return modelItems;
@@ -261,32 +268,23 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public ParameterWrapper getParameterWrapper(String parameterIRI, String defaultDescription) throws MalformedOSDiModelException {
 		if (parameterWrappers.containsKey(parameterIRI))
 			return parameterWrappers.get(parameterIRI);
-		OSDiDataItemTypes type = OSDiWrapper.getDataItemType(OSDiObjectProperties.HAS_DATA_ITEM_TYPE.getValue(parameterIRI, true));
 		if (OSDiObjectProperties.HAS_DATA_ITEM_TYPE.getValues(parameterIRI).size() > 1) {
 			printWarning(parameterIRI, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "Parameter has more than one data item type. Using the first one");
 		}
-		ParameterWrapper wrapper = null;
-		switch (type) {
-			case DI_DISUTILITY:
-			case DI_UTILITY:
-				wrapper = new UtilityParameterWrapper(this, parameterIRI, defaultDescription);
-			case CURRENCY_DOLLAR:
-			case CURRENCY_EURO:
-			case CURRENCY_POUND:
-				wrapper = new CostParameterWrapper(this, parameterIRI, defaultDescription);
-			default:
-				wrapper = new ParameterWrapper(this, parameterIRI, defaultDescription);
-		}
-		addParameterWrapper(wrapper);
+		ParameterWrapper wrapper = new ParameterWrapper(this, parameterIRI, defaultDescription);
+		parameterWrappers.put(wrapper.getOriginalIndividualIRI(), wrapper);
 		return wrapper;
 	}
 
-	/**
-	 * Adds a parameter wrapper to the collection of known parameter wrappers
-	 * @param wrapper the parameter wrapper to add
-	 */
-	public void addParameterWrapper(ParameterWrapper wrapper) {
+	public ParameterModifierWrapper getParameterModifierWrapper(String parameterIRI, Intervention intervention) throws MalformedOSDiModelException {
+		if (parameterWrappers.containsKey(parameterIRI))
+			return (ParameterModifierWrapper) parameterWrappers.get(parameterIRI);
+		if (OSDiObjectProperties.HAS_DATA_ITEM_TYPE.getValues(parameterIRI).size() > 1) {
+			printWarning(parameterIRI, OSDiObjectProperties.HAS_DATA_ITEM_TYPE, "Parameter has more than one data item type. Using the first one");
+		}
+		ParameterModifierWrapper wrapper = new ParameterModifierWrapper(this, parameterIRI, intervention);
 		parameterWrappers.put(wrapper.getOriginalIndividualIRI(), wrapper);
+		return wrapper;
 	}
 
 	public static OSDiDataItemTypes getDataItemType(String individualIRI) {

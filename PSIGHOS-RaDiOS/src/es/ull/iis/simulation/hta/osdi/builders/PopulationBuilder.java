@@ -14,10 +14,8 @@ import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiClasses;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataItemTypes;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.ParameterWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
-import es.ull.iis.simulation.hta.osdi.wrappers.AttributeValueWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.ParameterWrapper;
-import es.ull.iis.simulation.hta.osdi.wrappers.UtilityParameterWrapper;
 import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
@@ -54,8 +52,8 @@ public interface PopulationBuilder {
 		private ParameterWrapper birthPrevalenceParam;
 		private final int minAge; 
 		private final int maxAge; 
-		private final UtilityParameterWrapper utilityParam;
-		private final ArrayList<AttributeValueWrapper> attributeValues;
+		private final ParameterWrapper utilityParam;
+		private final ArrayList<ParameterWrapper> attributeValues;
 		private final OSDiWrapper wrap;
 		
 		public OSDiPopulation(OSDiGenericModel model, String populationName, String populationDescription, Disease disease) throws MalformedSimulationModelException {
@@ -76,11 +74,11 @@ public interface PopulationBuilder {
 			 // TODO: Currently we are only defining initially assigned attributes, i.e., attributes whose value does not change during the simulation 
 			// Process population age
 			final String ageAttribute = OSDiObjectProperties.HAS_AGE.getValue(populationName, true);
-			final AttributeValueWrapper ageWrapper = new AttributeValueWrapper(wrap, ageAttribute);
+			final ParameterWrapper ageWrapper = wrap.getParameterWrapper(ageAttribute, "Age for population " + this.name());
 			ageVariate = ageWrapper.getProbabilisticValue();
 			// Process population sex
 			final String sexAttribute = OSDiObjectProperties.HAS_SEX.getValue(populationName, true);
-			final AttributeValueWrapper sexWrapper = new AttributeValueWrapper(wrap, sexAttribute);
+			final ParameterWrapper sexWrapper = wrap.getParameterWrapper(sexAttribute, "Sex for population " + this.name());
 			sexVariate = (DiscreteRandomVariate) sexWrapper.getProbabilisticValue();
 			
 			this.utilityParam = createUtilityParam();
@@ -93,9 +91,9 @@ public interface PopulationBuilder {
 			for (String paramName : populationParams) {
 				// Ignores parameters that are both parameters of the disease and a manifestation, since they are supposed to be processed in the corresponding manifestation
 				if (OSDiObjectProperties.IS_PARAMETER_OF_MANIFESTATION.getValues(paramName, true).size() == 0) {
-					final ParameterWrapper paramWrapper = new ParameterWrapper(wrap, paramName, "Epidemiological parameter for population " + this.name());
+					final ParameterWrapper paramWrapper = wrap.getParameterWrapper(paramName, "Epidemiological parameter for population " + this.name());
 					// If the parameter is a prevalence
-					if (paramWrapper.getDataItemTypes().contains(OSDiDataItemTypes.DI_PREVALENCE)) {
+					if (paramWrapper.getDataItemType().equals(OSDiDataItemTypes.DI_PREVALENCE)) {
 						if (prevalenceParam != null)
 							wrap.printWarning(name(), OSDiObjectProperties.HAS_PARAMETER, "A population can define just one prevalence. Ignoring " + paramName);														
 						else if (birthPrevalenceParam != null)
@@ -105,7 +103,7 @@ public interface PopulationBuilder {
 							prevalenceParam = paramWrapper;
 						}
 					}
-					else if (paramWrapper.getDataItemTypes().contains(OSDiDataItemTypes.DI_BIRTH_PREVALENCE)) {
+					else if (paramWrapper.getDataItemType().equals(OSDiDataItemTypes.DI_BIRTH_PREVALENCE)) {
 						if (birthPrevalenceParam != null)
 							wrap.printWarning(name(), OSDiObjectProperties.HAS_PARAMETER, "A population can define just one birth prevalence. Ignoring " + paramName);														
 						else if (prevalenceParam != null)
@@ -122,13 +120,13 @@ public interface PopulationBuilder {
 			attributeValues = new ArrayList<>();
 			final Set<String> attributeValueNames = OSDiObjectProperties.HAS_ATTRIBUTE_VALUE.getValues(populationName, true);
 			for (String attrValueName : attributeValueNames) {
-				attributeValues.add(new AttributeValueWrapper(wrap, attrValueName)); 
+				attributeValues.add(wrap.getParameterWrapper(attrValueName, "Attribute value for population " + this.name())); 
 			}
 		}
 		
 		@Override
 		public void createParameters() {
-			for (AttributeValueWrapper attrWrapper : attributeValues) {
+			for (ParameterWrapper attrWrapper : attributeValues) {
 				model.addParameter(attrWrapper.createParameter(model, ParameterType.ATTRIBUTE));
 			}
 			if (prevalenceParam != null)
@@ -159,17 +157,17 @@ public interface PopulationBuilder {
 		 * Registers the base utility associated to the population by extracting the information from the ontology. 
 		 * @throws MalformedOSDiModelException When there was a problem parsing the ontology
 		 */
-		private UtilityParameterWrapper createUtilityParam() throws MalformedOSDiModelException {
+		private ParameterWrapper createUtilityParam() throws MalformedOSDiModelException {
 			final Set<String> utilities = OSDiObjectProperties.HAS_UTILITY.getValues(name(), true);
 			if (utilities.size() == 0)
 				return null;
 			if (utilities.size() > 1)
 				wrap.printWarning(name(), OSDiObjectProperties.HAS_UTILITY, "Found more than one utility for a population. Using only " + utilities.toArray()[0]);
 
-			final UtilityParameterWrapper utilityParam = new UtilityParameterWrapper(wrap, (String)utilities.toArray()[0], "Utility for population " + this.name()); 
+			final ParameterWrapper utilityParam = wrap.getParameterWrapper((String)utilities.toArray()[0], "Utility for population " + this.name()); 
 			if (utilityParam.appliesOneTime())
 				throw new MalformedOSDiModelException(OSDiClasses.POPULATION, name(), OSDiObjectProperties.HAS_UTILITY, "Only annual utilities should be associated to a population. Instead, one-time found");
-			if (utilityParam.isDisutility())
+			if (OSDiDataItemTypes.DI_DISUTILITY.equals(utilityParam.getDataItemType()))
 				throw new MalformedOSDiModelException(OSDiClasses.POPULATION, name(), OSDiObjectProperties.HAS_UTILITY, "Only utilities should be associated to a population. Instead, disutility found");
 			return utilityParam;
 		}
