@@ -83,6 +83,7 @@ public class TestLoadOntology {
             () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "BETA_Manif_NEU")),
             () -> assertEquals(parameters.get(arguments.owlPrefix + "BETA_Manif_NEU").getType(), es.ull.iis.simulation.hta.params.Parameter.ParameterType.RISK),
             () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "DCCT1_ComplicationsFree_U")),
+            () -> assertTrue(!parameters.containsKey(arguments.owlPrefix + "Stage_CHD_IncidenceBase_RR_U95CI")),
             () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "Manif_HF_AC"))
         );
     }

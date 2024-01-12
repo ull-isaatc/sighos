@@ -2839,7 +2839,7 @@ Examples:
                    :hasDataItemType :Currency_Euro ;
                    :hasUncertaintyCharacterization :T1DM_Manif_LEA_TC_ParamUncertainty ;
                    :includedByModel :T1DM_StdModelDES ;
-                   :appliesOneTime "true"^^xsd:boolean ;
+                   :appliesOneTime "true" ;
                    :hasDescription "Cost of low extremity amputation" ;
                    :hasExpectedValue "11333.04" ;
                    :hasSource "Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco" ;
@@ -3017,7 +3017,8 @@ Examples:
                          :ChronicManifestation ;
                 :hasCost :T1DM_Manif_NEU_AC ;
                 :hasIncreasedMortalityRate :T1DM_Manif_NEU_IMR ;
-                :hasRiskCharacterization :T1DM_Manif_NEU_Incidence ;
+                :hasRiskCharacterization :T1DM_Manif_NEU_Incidence ,
+                                         :T1DM_Manif_NEU_RR ;
                 :hasUtility :T1DM_Manif_NEU_U ;
                 :includedByModel :T1DM_StdModelDES ;
                 :hasDescription "Neuropathy" .
@@ -3114,11 +3115,17 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_NEU_RR
 :T1DM_Manif_NEU_RR rdf:type owl:NamedIndividual ,
-                            :CalculatedParameter ;
+                            :CalculatedParameter ,
+                            :EpidemiologicalParameter ;
                    :dependsOnAttribute :Attribute_HbA1c ;
                    :dependsOnParameter :T1DM_BETA_Manif_NEU ;
+                   :hasDataItemType :DI_RelativeRisk ;
                    :hasExpressionLanguage :Exp_JEXL ;
-                   :hasExpressionValue "(Attribute_HbA1c / 10) ^T1DM_BETA_Manif_NEU" .
+                   :includedByModel :T1DM_StdModelDES ;
+                   :hasDescription "Relative risk expression for Neuropathy" ;
+                   :hasExpressionValue "(Attribute_HbA1c / 10) ^T1DM_BETA_Manif_NEU" ;
+                   :hasSource "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield" ;
+                   :hasYear "1996" .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_NEU_U
@@ -3640,6 +3647,7 @@ Examples:
                                      :T1DM_Manif_NEU_Incidence ,
                                      :T1DM_Manif_NEU_Incidence_L95CI ,
                                      :T1DM_Manif_NEU_Incidence_U95CI ,
+                                     :T1DM_Manif_NEU_RR ,
                                      :T1DM_Manif_NEU_U ,
                                      :T1DM_Manif_NEU_U_L95CI ,
                                      :T1DM_Manif_NEU_U_U95CI ,

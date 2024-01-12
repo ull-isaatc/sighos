@@ -285,7 +285,7 @@ public class OSDiGenericModel extends HTAModel {
 					default:
 						break;
 				}		
-				param.createParameter(this, type);
+				this.addParameter(param.createParameter(this, type));
 			}
 		}
 	}

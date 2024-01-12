@@ -320,6 +320,8 @@ public enum DiseaseProgressionTemplate {
 		final TreeSet<String> dependentParameters = new TreeSet<>();
 		dependentParameters.add("BETA_" + OSDiWrapper.InstanceIRI.MANIFESTATION.getIRI(this.name(), false));
 		wrap.addCalculatedNature(rrIRI, "("+ OSDiWrapper.InstanceIRI.ATTRIBUTE.getIRI("HbA1c", false) + " / 10) ^" + betaIRI, ExpressionLanguage.JEXL, dependentAttributes, dependentParameters);
+		wrap.addParameter(getInstanceIRI(), OSDiObjectProperties.HAS_RISK_CHARACTERIZATION, rrIRI, OSDiClasses.EPIDEMIOLOGICAL_PARAMETER, "Relative risk expression for " + getDescription(), 
+			"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", 1996, OSDiDataItemTypes.DI_RELATIVE_RISK);
 	}
 
 	protected void addSheffieldIncidence(ModifiableOSDiWrapper wrap, double[] incidence) {
