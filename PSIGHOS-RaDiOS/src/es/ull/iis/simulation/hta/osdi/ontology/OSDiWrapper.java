@@ -323,17 +323,19 @@ public class OSDiWrapper extends OWLOntologyWrapper {
 	public String getParameterInstanceModificationName(String interventionName, String paramName) {
 		return OSDiWrapper.InstanceIRI.INTERVENTION.getIRI(interventionName) + STR_SEP + paramName + STR_MODIFICATION_SUFFIX;
 	}
+	
 	public ArrayList<String> getEnglishCommentForClass(IRI iri) {
 		final ArrayList<String> list = new ArrayList<>();
-//		final OWLClass owlClass = getClass(clazz.getShortName());
-		for(OWLAnnotationAssertionAxiom a : ontology.getAnnotationAssertionAxioms(iri)) {
-		    if(a.getProperty().isComment()) {
-		        if(a.getValue() instanceof OWLLiteral) {
-		            OWLLiteral val = (OWLLiteral) a.getValue();
-		            if (val.hasLang("en"))
-		            	list.add(val.getLiteral());
-		        }
-		    }
+		if (iri != null) {
+			for(OWLAnnotationAssertionAxiom a : ontology.getAnnotationAssertionAxioms(iri)) {
+			    if(a.getProperty().isComment()) {
+			        if(a.getValue() instanceof OWLLiteral) {
+			            OWLLiteral val = (OWLLiteral) a.getValue();
+			            if (val.hasLang("en"))
+			            	list.add(val.getLiteral());
+			        }
+			    }
+			}
 		}
 		return list;
 	}

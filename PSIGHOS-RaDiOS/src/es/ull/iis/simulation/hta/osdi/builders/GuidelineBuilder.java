@@ -12,10 +12,10 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.hta.osdi.OSDiGenericModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.TranspilerException;
+import es.ull.iis.simulation.hta.osdi.expressionEvaluators.ExpressionLanguageCondition;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiDataProperties;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiObjectProperties;
-import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageCondition;
-import es.ull.iis.simulation.hta.osdi.wrappers.RangeWrapper;
+import es.ull.iis.simulation.hta.osdi.ontology.RangeWrapper;
 import es.ull.iis.simulation.hta.outcomes.Guideline;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPathway;
 

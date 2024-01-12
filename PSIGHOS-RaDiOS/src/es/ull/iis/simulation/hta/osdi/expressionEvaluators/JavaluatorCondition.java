@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.hta.osdi.wrappers;
+package es.ull.iis.simulation.hta.osdi.expressionEvaluators;
 
 import com.fathzer.soft.javaluator.DoubleEvaluator;
 
@@ -17,7 +17,7 @@ public class JavaluatorCondition extends Condition<DiseaseProgressionPathway.Con
     
     @Override
     public boolean check(DiseaseProgressionPathway.ConditionInformation info) {
-        final JavaluatorContext jc = new JavaluatorContext(info.getPatient());
+        final JavaluatorPatient jc = new JavaluatorPatient(info.getPatient());
         return (evaluator.evaluate(expression, jc) != 0.0);
     }
 }

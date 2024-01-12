@@ -80,11 +80,13 @@ public class TestLoadOntology {
     public void testParameters() {
         Map<String, es.ull.iis.simulation.hta.params.Parameter> parameters = model.getParameters();
         assertAll("Parameters: ",
-            () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "BETA_Manif_NEU")),
+            () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "BETA_Manif_NEU"), "This parameter should be created even since it is used by a Calculated Parameter"),
             () -> assertEquals(parameters.get(arguments.owlPrefix + "BETA_Manif_NEU").getType(), es.ull.iis.simulation.hta.params.Parameter.ParameterType.RISK),
             () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "DCCT1_ComplicationsFree_U")),
-            () -> assertTrue(!parameters.containsKey(arguments.owlPrefix + "Stage_CHD_IncidenceBase_RR_U95CI")),
-            () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "Manif_HF_AC"))
+            () -> assertEquals(parameters.get(arguments.owlPrefix + "DCCT1_ComplicationsFree_U").getType(), es.ull.iis.simulation.hta.params.Parameter.ParameterType.UTILITY),
+            () -> assertTrue(!parameters.containsKey(arguments.owlPrefix + "Stage_CHD_IncidenceBase_RR_U95CI"), "This parameter exists in the ontology but should not be created as an independent parameter"),
+            () -> assertTrue(parameters.containsKey(arguments.owlPrefix + "Manif_HF_AC")),
+            () -> assertEquals(parameters.get(arguments.owlPrefix + "Manif_HF_AC").getType(), es.ull.iis.simulation.hta.params.Parameter.ParameterType.COST)
         );
     }
     

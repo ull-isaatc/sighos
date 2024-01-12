@@ -5,11 +5,13 @@ package es.ull.iis.simulation.hta.osdi.ontology;
 
 import java.util.ArrayList;
 import java.util.Set;
+
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.osdi.exceptions.MalformedOSDiModelException;
+import es.ull.iis.simulation.hta.osdi.expressionEvaluators.ExpressionLanguageParameter;
+import es.ull.iis.simulation.hta.osdi.expressionEvaluators.JavaluatorParameter;
+import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper.ExpressionLanguage;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper.ParameterNature;
-import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionLanguageParameter;
-import es.ull.iis.simulation.hta.osdi.wrappers.ExpressionWrapper;
 import es.ull.iis.simulation.hta.params.ConstantNatureParameter;
 import es.ull.iis.simulation.hta.params.FirstOrderNatureParameter;
 import es.ull.iis.simulation.hta.params.Parameter;
@@ -38,6 +40,7 @@ public class ParameterWrapper {
 	private final ArrayList<ParameterWrapper> dependantAttributes;
 	private final String attributeIRI;
 	private final boolean appliesOneTime;
+	private final ExpressionLanguage expressionLanguage;
 
 	/**
 	 * @throws MalformedOSDiModelException 
@@ -70,38 +73,40 @@ public class ParameterWrapper {
 		if (wrap.isInstanceOf(paramIRI, OSDiClasses.DETERMINISTIC_PARAMETER.getShortName())) {
 			final String detValue = OSDiDataProperties.HAS_EXPECTED_VALUE.getValue(paramIRI);
 			if (detValue == null)
-				throw new MalformedOSDiModelException("Deterministic parameter " + paramIRI + " requires a value for the " + OSDiDataProperties.HAS_EXPECTED_VALUE.getShortName() + " property");
+				throw new MalformedOSDiModelException(OSDiClasses.DETERMINISTIC_PARAMETER, paramIRI, OSDiDataProperties.HAS_EXPECTED_VALUE, "Deterministic parameter requires an expected value");
 			deterministicValue = Double.parseDouble(detValue);
 			expression = null;
 			probabilisticValue = null;
 			nature = ParameterNature.DETERMINISTIC;
 			dependantAttributes = null;
 			dependantParameters = null;
+			expressionLanguage = null;
 		}
 		else if (wrap.isInstanceOf(paramIRI, OSDiClasses.FIRST_ORDER_UNCERTAINTY_PARAMETER.getShortName())) {
 			final String strExpression = OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getValue(paramIRI, true);
 			if (strExpression == null) {
-				throw new MalformedOSDiModelException("First order parameter " + paramIRI + " requires a value for the " + OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getShortName() + " property");
+				throw new MalformedOSDiModelException(OSDiClasses.FIRST_ORDER_UNCERTAINTY_PARAMETER, paramIRI, OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION, "First order parameter requires an uncertainty characterization");
 			}			
-			probabilisticValue = new ExpressionWrapper(wrap, strExpression).getRnd();
+			probabilisticValue = new ProbabilisticExpressionWrapper(wrap, strExpression).getRnd();
 			deterministicValue = Double.NaN;
 			expression = null;
 			nature = ParameterNature.FIRST_ORDER;
 			dependantAttributes = null;
 			dependantParameters = null;
+			expressionLanguage = null;
 		}
 		else if (wrap.isInstanceOf(paramIRI, OSDiClasses.SECOND_ORDER_UNCERTAINTY_PARAMETER.getShortName())) {
 			final String detValue = OSDiDataProperties.HAS_EXPECTED_VALUE.getValue(paramIRI);
 			if (detValue == null)
-				throw new MalformedOSDiModelException("Second order parameter " + paramIRI + " requires a value for the " + OSDiDataProperties.HAS_EXPECTED_VALUE.getShortName() + " property");
+				throw new MalformedOSDiModelException(OSDiClasses.SECOND_ORDER_UNCERTAINTY_PARAMETER, paramIRI, OSDiDataProperties.HAS_EXPECTED_VALUE, "Second order parameter requires an expected value");
 			deterministicValue = Double.parseDouble(detValue);
 			expression = null;
 			final Set<String> uncertaintyParams = OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getValues(paramIRI, true);
 			if (uncertaintyParams.size() == 0)
-				throw new MalformedOSDiModelException("Second order parameter " + paramIRI + " requires a value for the " + OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION.getShortName() + " property");
+				throw new MalformedOSDiModelException(OSDiClasses.SECOND_ORDER_UNCERTAINTY_PARAMETER, paramIRI, OSDiObjectProperties.HAS_UNCERTAINTY_CHARACTERIZATION, "Second order parameter requires an uncertainty characterization");
 			else if (uncertaintyParams.size() == 1) {
 				if (wrap.getClassesForIndividual((String)uncertaintyParams.toArray()[0]).contains(OSDiClasses.PROBABILITY_DISTRIBUTION_EXPRESSION.getShortName())) {
-					probabilisticValue = new ExpressionWrapper(wrap, (String)uncertaintyParams.toArray()[0]).getRnd();
+					probabilisticValue = new ProbabilisticExpressionWrapper(wrap, (String)uncertaintyParams.toArray()[0]).getRnd();
 				}
 				else {
 					probabilisticValue = initProbabilisticValue(uncertaintyParams);
@@ -113,11 +118,12 @@ public class ParameterWrapper {
 			nature = ParameterNature.SECOND_ORDER;
 			dependantAttributes = null;
 			dependantParameters = null;
+			expressionLanguage = null;
 		}
 		else if (wrap.isInstanceOf(paramIRI, OSDiClasses.CALCULATED_PARAMETER.getShortName())) {
 			expression = OSDiDataProperties.HAS_EXPRESSION_VALUE.getValue(paramIRI, "");
 			if (expression.equals("")) {			
-				throw new MalformedOSDiModelException("Calculated parameter " + paramIRI + " requires a value for the " + OSDiDataProperties.HAS_EXPRESSION_VALUE.getShortName() + " property");
+				throw new MalformedOSDiModelException(OSDiClasses.CALCULATED_PARAMETER, paramIRI, OSDiDataProperties.HAS_EXPRESSION_VALUE, "Calculated parameter requires an expression value");
 			}
 			final Set<String> dependantParameterNames = OSDiObjectProperties.DEPENDS_ON_PARAMETER.getValues(paramIRI, true);
 			dependantParameters = new ArrayList<>();
@@ -131,6 +137,18 @@ public class ParameterWrapper {
 			}
 			probabilisticValue = null;
 			deterministicValue = Double.NaN;
+			final String strExpressionLanguage = OSDiObjectProperties.HAS_EXPRESSION_LANGUAGE.getValue(paramIRI, true);
+			if (strExpressionLanguage == null) {
+				throw new MalformedOSDiModelException(OSDiClasses.CALCULATED_PARAMETER, paramIRI, OSDiObjectProperties.HAS_EXPRESSION_LANGUAGE, "Expression language not specified for calculated parameter");
+			}
+			expressionLanguage = ExpressionLanguage.valueOf(strExpressionLanguage);
+			switch (expressionLanguage) {
+				case JAVALUATOR:
+				case JEXL:
+					break;
+				default:
+					throw new MalformedOSDiModelException(OSDiClasses.CALCULATED_PARAMETER, paramIRI, OSDiObjectProperties.HAS_EXPRESSION_LANGUAGE, "Expression language " + expressionLanguage + " not yet supported");
+			}
 			nature = ParameterNature.CALCULATED;
 		}
 		else {
@@ -278,6 +296,9 @@ public class ParameterWrapper {
 		case SECOND_ORDER:
 			return new SecondOrderNatureParameter(model, paramIRI, description, source, year, type, deterministicValue, probabilisticValue);
 		case CALCULATED:
+			if (ExpressionLanguage.JAVALUATOR.equals(expressionLanguage))
+				return new JavaluatorParameter(model, attributeIRI, description, source, year, type, expression);
+			// Since valid expression languages were checked in the constructor, the only possibility is JEXL
 			return new ExpressionLanguageParameter(model, paramIRI, description, source, year, type, expression);
 		default:
 			return null;

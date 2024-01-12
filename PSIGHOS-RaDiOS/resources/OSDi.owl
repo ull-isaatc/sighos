@@ -2156,21 +2156,26 @@ Examples:
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Incidence1
-:Constant_Incidence1 rdf:type owl:NamedIndividual ;
-                     :hasDataItemType :DI_Ratio ;
+:Constant_Incidence1 rdf:type owl:NamedIndividual ,
+                              :DeterministicParameter ,
+                              :EpidemiologicalParameter ;
+                     :hasDataItemType :DI_Incidence ;
                      :hasExpectedValue "1.0"^^xsd:double ;
                      :isTrueEpidemiologicalParameterEstimate "true"^^xsd:boolean .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Prevalence1
-:Constant_Prevalence1 rdf:type owl:NamedIndividual ;
-                      :hasDataItemType :DI_Ratio ;
+:Constant_Prevalence1 rdf:type owl:NamedIndividual ,
+                               :DeterministicParameter ,
+                               :EpidemiologicalParameter ;
+                      :hasDataItemType :DI_Prevalence ;
                       :hasExpectedValue "1.0"^^xsd:double ;
                       :isTrueEpidemiologicalParameterEstimate "true"^^xsd:boolean .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Probability0
 :Constant_Probability0 rdf:type owl:NamedIndividual ,
+                                :DeterministicParameter ,
                                 :Parameter ;
                        :hasDataItemType :DI_Probability ;
                        :hasExpectedValue "0.0"^^xsd:double .
@@ -2178,6 +2183,7 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Probability1
 :Constant_Probability1 rdf:type owl:NamedIndividual ,
+                                :DeterministicParameter ,
                                 :Parameter ;
                        :hasDataItemType :DI_Probability ;
                        :hasExpectedValue "1.0"^^xsd:double .
@@ -2185,6 +2191,7 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Sensitivity1
 :Constant_Sensitivity1 rdf:type owl:NamedIndividual ,
+                                :DeterministicParameter ,
                                 :Parameter ;
                        :hasDataItemType :DI_Sensitivity ;
                        :hasExpectedValue "1.0"^^xsd:double .
@@ -2192,6 +2199,7 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Specificity1
 :Constant_Specificity1 rdf:type owl:NamedIndividual ,
+                                :DeterministicParameter ,
                                 :Parameter ;
                        :hasDataItemType :DI_Specificity ;
                        :hasExpectedValue "1.0"^^xsd:double .
