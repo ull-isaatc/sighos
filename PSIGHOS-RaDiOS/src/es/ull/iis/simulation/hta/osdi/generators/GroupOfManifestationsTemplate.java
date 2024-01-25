@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.osdi.ontology.ModifiableOSDiWrapper;
 import es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper;
 
 public enum GroupOfManifestationsTemplate {
-	// NEU(EnumSet.of(DiseaseProgressionTemplate.NEU, DiseaseProgressionTemplate.LEA)),
+	NEU(EnumSet.of(DiseaseProgressionTemplate.NEU, DiseaseProgressionTemplate.LEA)),
 	// NPH(EnumSet.of(DiseaseProgressionTemplate.ALB1, DiseaseProgressionTemplate.ALB2, DiseaseProgressionTemplate.ESRD)),
 	// RET(EnumSet.of(DiseaseProgressionTemplate.BGRET, DiseaseProgressionTemplate.PRET, DiseaseProgressionTemplate.ME, DiseaseProgressionTemplate.BLI)),
 	// HYPO(EnumSet.of(DiseaseProgressionTemplate.SHE)),

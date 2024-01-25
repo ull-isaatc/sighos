@@ -81,6 +81,16 @@ public class ModifiableOSDiWrapper extends OSDiWrapper {
 		addCIParameters(paramIRI, clazz, description, source, new double[] {values[1], values[2]}, year);
 	}
 
+	/**
+	 * Adds a second order uncertainty characterization to a parameter based on an average and confidence interval values
+	 * @param paramIRI The IRI of the parameter
+	 * @param values An array of three values: the average, the lower 95% confidence interval and the upper 95% confidence interval
+	 * @param clazz The corresponding ontology class for the parameter
+	 */
+	public void addSecondOrderNature(String paramIRI, double[] values, OSDiClasses clazz) {
+		addSecondOrderNature(paramIRI, values, clazz, OSDiDataProperties.HAS_DESCRIPTION.getValue(paramIRI), OSDiDataProperties.HAS_SOURCE.getValue(paramIRI), Integer.parseInt(OSDiDataProperties.HAS_YEAR.getValue(paramIRI)));
+	}
+
 	public void addCalculatedNature(String paramIRI, String expression, ExpressionLanguage expLanguage, Set<String> dependentAttributes, Set<String> dependentParameters) {
 		ParameterNature.CALCULATED.getClazz().add(paramIRI);
 		OSDiDataProperties.HAS_EXPRESSION_VALUE.add(paramIRI, expression);

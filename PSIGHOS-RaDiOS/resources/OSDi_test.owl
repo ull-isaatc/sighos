@@ -1765,11 +1765,13 @@ _:genid189 owl:someValuesFrom :DiagnosisStrategy;
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#InterventionDoNothing
 # 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_BETA_Manif_ALB1
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_BETA_Manif_ALB2
+# 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_BETA_Manif_NEU
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_DCCT1_ComplicationsFree_U
-# 
-# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_DCCT1_ComplicationsFree_U_L95CI
 
 _:genid189 a owl:Restriction .
 
@@ -2643,25 +2645,17 @@ _:genid358 a owl:Restriction;
   :hasName "AGE";
   :hasRefToSNOMED "snomed:397669002" .
 
-:T1DM_Population_DCCT1_Age a owl:NamedIndividual .
-
 :Attribute_DurationOfDiabetes a owl:NamedIndividual, :Attribute;
   :hasValue :T1DM_Population_DCCT1_DurationOfDiabetes;
   :hasDescription "Time (in years) from diagnosis of diabetes";
   :hasName "DURATION";
   :hasRefToSNOMED "snomed:762636008" .
 
-:T1DM_Population_DCCT1_DurationOfDiabetes a owl:NamedIndividual .
-
 :Attribute_HbA1c a owl:NamedIndividual, :Attribute;
   :hasValue :T1DM_Intervention_DCCTIntensive_HbA1c_Modification, :T1DM_Population_DCCT1_HbA1c;
   :hasDescription "HbA1c measurement";
   :hasName "HBA1C";
   :hasRefToSNOMED "snomed:313835008" .
-
-:T1DM_Intervention_DCCTIntensive_HbA1c_Modification a owl:NamedIndividual .
-
-:T1DM_Population_DCCT1_HbA1c a owl:NamedIndividual .
 
 :Attribute_LifeExpectancy a owl:NamedIndividual, :Attribute;
   :hasDescription "Maximum life expectacy of an individual";
@@ -2672,8 +2666,6 @@ _:genid358 a owl:Restriction;
   :hasDescription "Sex (0 for male; 1 for female)";
   :hasName "SEX";
   :hasRefToSNOMED "snomed:734000001" .
-
-:T1DM_Population_DCCT1_Sex a owl:NamedIndividual .
 
 :Constant_Incidence1 a owl:NamedIndividual, :DeterministicParameter, :EpidemiologicalParameter;
   :hasDataItemType :DI_Incidence;
@@ -2686,10 +2678,6 @@ _:genid358 a owl:Restriction;
   :isParameterOfPopulation :T1DM_Population_DCCT1;
   :hasExpectedValue 1.0E0;
   :isTrueEpidemiologicalParameterEstimate true .
-
-:T1DM_Disease a owl:NamedIndividual .
-
-:T1DM_Population_DCCT1 a owl:NamedIndividual .
 
 :Constant_Probability0 a owl:NamedIndividual, :DeterministicParameter, :Parameter;
   :hasDataItemType :DI_Probability;
@@ -2825,6 +2813,22 @@ _:genid358 a owl:Restriction;
 :InterventionDoNothing a owl:NamedIndividual, :Intervention;
   :hasDescription "A null intervention that has no effect on the patient" .
 
+:T1DM_BETA_Manif_ALB1 a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Beta parameter for Microalbuminuria";
+  :hasExpectedValue "3.25";
+  :hasSource "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield";
+  :hasYear "1996" .
+
+:T1DM_BETA_Manif_ALB2 a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Beta parameter for Macroalbuminuria";
+  :hasExpectedValue "7.95";
+  :hasSource "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield";
+  :hasYear "1996" .
+
 :T1DM_BETA_Manif_NEU a owl:NamedIndividual, :DeterministicParameter, :Parameter;
   :hasDataItemType :DI_RelativeRisk;
   :includedByModel :T1DM_StdModelDES;
@@ -2832,8 +2836,6 @@ _:genid358 a owl:Restriction;
   :hasExpectedValue "5.3";
   :hasSource "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield";
   :hasYear "1996" .
-
-:T1DM_StdModelDES a owl:NamedIndividual .
 
 :T1DM_DCCT1_ComplicationsFree_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter,
     :Utility;
@@ -2843,18 +2845,9 @@ _:genid358 a owl:Restriction;
   :appliesOneTime "false";
   :hasDescription "Utility of DM1 without complications";
   :hasExpectedValue "0.785";
-  :hasSource "TODO: Buscar";
-  :hasYear "2015" .
-
-:T1DM_DCCT1_ComplicationsFree_U_L95CI a owl:NamedIndividual, :DeterministicParameter,
-    :Utility;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Utility of DM1 without complications";
-  :hasExpectedValue "0.889";
   :hasSource "TODO: Buscar" .
-
-:T1DM_DCCT1_ComplicationsFree_U_U95CI a owl:NamedIndividual .
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_DCCT1_ComplicationsFree_U_L95CI
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_DCCT1_ComplicationsFree_U_U95CI
 # 
@@ -2864,11 +2857,51 @@ _:genid358 a owl:Restriction;
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_CHD
 # 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Group_Manif_NEU
+# 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Intervention_DCCTIntensive
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Intervention_DCCTIntensive_HbA1c_Modification
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Intervention_DCCTIntensive_HbA1c_Modification_StochasticUncertainty
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB1
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB1_AC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB1_Incidence
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB1_Incidence_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB1_Incidence_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB1_RR
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB1_U
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_AC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_IMR
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_IMR_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_IMR_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_Incidence
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_Incidence_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_Incidence_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_RR
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_U
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_U_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ALB2_U_U95CI
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA
 # 
@@ -2885,6 +2918,24 @@ _:genid358 a owl:Restriction;
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_U_L95CI
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ANGINA_U_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD_AC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD_IMR
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD_IMR_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD_IMR_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD_TC
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD_U
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD_U_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_ESRD_U_U95CI
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_HF
 # 
@@ -2968,6 +3019,30 @@ _:genid358 a owl:Restriction;
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_NEU_U_U95CI
 # 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB1_ALB2
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB1_ALB2_Incidence
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB1_ALB2_Incidence_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB1_ALB2_Incidence_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB1_ESRD
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB1_ESRD_Incidence
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB1_ESRD_Incidence_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB1_ESRD_Incidence_U95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB2_ESRD
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB2_ESRD_Incidence
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB2_ESRD_Incidence_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ALB2_ESRD_Incidence_U95CI
+# 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_ANGINA
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_HF
@@ -2981,6 +3056,894 @@ _:genid358 a owl:Restriction;
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_NEU_LEA_Incidence_L95CI
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_NEU_LEA_Incidence_U95CI
+
+:T1DM_DCCT1_ComplicationsFree_U :hasYear "2015" .
+
+:T1DM_DCCT1_ComplicationsFree_U_L95CI a owl:NamedIndividual, :DeterministicParameter,
+    :Utility;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Utility of DM1 without complications";
+  :hasExpectedValue "0.889";
+  :hasSource "TODO: Buscar";
+  :hasYear "2015" .
+
+:T1DM_DCCT1_ComplicationsFree_U_U95CI a owl:NamedIndividual, :DeterministicParameter,
+    :Utility;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Utility of DM1 without complications";
+  :hasExpectedValue "0.681";
+  :hasSource "TODO: Buscar";
+  :hasYear "2015" .
+
+:T1DM_Disease a owl:NamedIndividual, :Disease;
+  :hasEpidemiologicalParameter :Constant_Prevalence1;
+  :hasFollowUpCost :T1DM_Disease_AC;
+  :hasIntervention :T1DM_Intervention_DCCTIntensive;
+  :hasManifestation :T1DM_Manif_ALB1, :T1DM_Manif_ALB2, :T1DM_Manif_ANGINA, :T1DM_Manif_ESRD,
+    :T1DM_Manif_HF, :T1DM_Manif_LEA, :T1DM_Manif_MI, :T1DM_Manif_NEU, :T1DM_Manif_STROKE;
+  :hasStage :T1DM_Stage_CHD;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Type I Diabetes Mellitus";
+  :hasRefToDO "do:9744";
+  :hasRefToICD "icd:E10";
+  :hasRefToOMIM "omim:222100";
+  :hasRefToSNOMED "snomed:46635009" .
+
+:T1DM_Disease_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population";
+  :hasExpectedValue "1116.733023";
+  :hasSource "Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007";
+  :hasYear "2012" .
+
+:T1DM_Group_Manif_CHD a owl:NamedIndividual, :Group;
+  :hasComponent :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
+  :includedByModel :T1DM_StdModelDES .
+
+:T1DM_Group_Manif_NEU a owl:NamedIndividual, :Group;
+  :hasComponent :T1DM_Manif_LEA, :T1DM_Manif_NEU;
+  :includedByModel :T1DM_StdModelDES .
+
+:T1DM_Intervention_DCCTIntensive a owl:NamedIndividual, :TherapeuticIntervention;
+  :includedByModel :T1DM_StdModelDES;
+  :involvesModification :T1DM_Intervention_DCCTIntensive_HbA1c_Modification;
+  :hasDescription "DCCT intensive arm" .
+
+:T1DM_Intervention_DCCTIntensive_HbA1c_Modification a owl:NamedIndividual, :FirstOrderUncertaintyParameter,
+    :Parameter;
+  :hasDataItemType :DI_MeanDifference;
+  :hasUncertaintyCharacterization :T1DM_Intervention_DCCTIntensive_HbA1c_Modification_StochasticUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :isValueOfAttribute :Attribute_HbA1c;
+  :modifies :T1DM_Population_DCCT1_HbA1c;
+  :hasDescription "Value of Attribute_HbA1c";
+  :hasSource "DCCT";
+  :hasYear "2013" .
+
+:T1DM_Intervention_DCCTIntensive_HbA1c_Modification_StochasticUncertainty a owl:NamedIndividual,
+    :NormalDistributionExpression;
+  :includedByModel :T1DM_StdModelDES;
+  :hasAverageParameter "1.5";
+  :hasStandardDeviationParameter "1.1" .
+
+:T1DM_Manif_ALB1 a owl:NamedIndividual, :ChronicManifestation;
+  :hasCost :T1DM_Manif_ALB1_AC;
+  :hasRiskCharacterization :T1DM_Manif_ALB1_Incidence, :T1DM_Manif_ALB1_RR;
+  :hasUtility :T1DM_Manif_ALB1_U;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Microalbuminuria" .
+
+:T1DM_Manif_ALB1_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual cost of microalbuminuria";
+  :hasExpectedValue "0.0";
+  :hasSource "Assumption";
+  :hasYear "2024" .
+
+:T1DM_Manif_ALB1_Incidence a owl:NamedIndividual, :EpidemiologicalParameter, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_Probability;
+  :hasUncertaintyCharacterization :T1DM_Manif_ALB1_Incidence_L95CI, :T1DM_Manif_ALB1_Incidence_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Base incidence of Microalbuminuria when HbA1c is 10";
+  :hasExpectedValue "0.0436";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Manif_ALB1_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter, :EpidemiologicalParameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Base incidence of Microalbuminuria when HbA1c is 10";
+  :hasExpectedValue "0.0136";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Manif_ALB1_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter, :EpidemiologicalParameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Base incidence of Microalbuminuria when HbA1c is 10";
+  :hasExpectedValue "0.0736";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Manif_ALB1_RR a owl:NamedIndividual, :CalculatedParameter, :EpidemiologicalParameter;
+  :dependsOnAttribute :Attribute_HbA1c;
+  :dependsOnParameter :T1DM_BETA_Manif_ALB1;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasExpressionLanguage :Exp_JEXL;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Relative risk expression for Microalbuminuria";
+  :hasExpressionValue "(Attribute_HbA1c / 10) ^T1DM_BETA_Manif_ALB1";
+  :hasSource "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield";
+  :hasYear "1996" .
+
+:T1DM_Manif_ALB1_U a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual disutility of microalbuminuria";
+  :hasExpectedValue "0.0";
+  :hasSource "Assumption";
+  :hasYear "2024" .
+
+:T1DM_Manif_ALB2 a owl:NamedIndividual, :ChronicManifestation;
+  :excludesManifestation :T1DM_Manif_ALB1;
+  :hasCost :T1DM_Manif_ALB2_AC;
+  :hasIncreasedMortalityRate :T1DM_Manif_ALB2_IMR;
+  :hasRiskCharacterization :T1DM_Manif_ALB2_Incidence, :T1DM_Manif_ALB2_RR, :T1DM_Manif_Pathway_ALB1_ALB2;
+  :hasUtility :T1DM_Manif_ALB2_U;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Macroalbuminuria" .
+
+:T1DM_Manif_ALB2_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual cost of macroalbuminuria";
+  :hasExpectedValue "0.0";
+  :hasSource "Assumption";
+  :hasYear "2024" .
+
+:T1DM_Manif_ALB2_IMR a owl:NamedIndividual, :Parameter, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasUncertaintyCharacterization :T1DM_Manif_ALB2_IMR_L95CI, :T1DM_Manif_ALB2_IMR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Increased mortality rate due to severe proteinuria";
+  :hasExpectedValue "2.23";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_ALB2_IMR_L95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Increased mortality rate due to severe proteinuria";
+  :hasExpectedValue "1.11";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_ALB2_IMR_U95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Increased mortality rate due to severe proteinuria";
+  :hasExpectedValue "4.49";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_ALB2_Incidence a owl:NamedIndividual, :EpidemiologicalParameter, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_Probability;
+  :hasUncertaintyCharacterization :T1DM_Manif_ALB2_Incidence_L95CI, :T1DM_Manif_ALB2_Incidence_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Base incidence of Macroalbuminuria when HbA1c is 10";
+  :hasExpectedValue "0.0037";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Manif_ALB2_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter, :EpidemiologicalParameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Base incidence of Macroalbuminuria when HbA1c is 10";
+  :hasExpectedValue "0.0027";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Manif_ALB2_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter, :EpidemiologicalParameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Base incidence of Macroalbuminuria when HbA1c is 10";
+  :hasExpectedValue "0.0047";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Manif_ALB2_RR a owl:NamedIndividual, :CalculatedParameter, :EpidemiologicalParameter;
+  :dependsOnAttribute :Attribute_HbA1c;
+  :dependsOnParameter :T1DM_BETA_Manif_ALB2;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasExpressionLanguage :Exp_JEXL;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Relative risk expression for Macroalbuminuria";
+  :hasExpressionValue "(Attribute_HbA1c / 10) ^T1DM_BETA_Manif_ALB2";
+  :hasSource "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield";
+  :hasYear "1996" .
+
+:T1DM_Manif_ALB2_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :hasUncertaintyCharacterization :T1DM_Manif_ALB2_U_L95CI, :T1DM_Manif_ALB2_U_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual disutility of macroalbuminuria";
+  :hasExpectedValue "0.048";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_ALB2_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Annual disutility of macroalbuminuria";
+  :hasExpectedValue "0.005";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_ALB2_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Annual disutility of macroalbuminuria";
+  :hasExpectedValue "0.091";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_ANGINA a owl:NamedIndividual, :ChronicManifestation;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :excludesManifestation :T1DM_Manif_HF, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
+  :hasCost :T1DM_Manif_ANGINA_AC, :T1DM_Manif_ANGINA_TC;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_ANGINA;
+  :hasUtility :T1DM_Manif_ANGINA_U;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Angina" .
+
+:T1DM_Manif_ANGINA_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Year 2+ of Angina";
+  :hasExpectedValue "532.01";
+  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
+  :hasYear "2016" .
+
+:T1DM_Manif_ANGINA_Proportion a owl:NamedIndividual, :ProportionWithinGroup, :SecondOrderUncertaintyParameter;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :hasDataItemType :DI_Proportion;
+  :hasUncertaintyCharacterization :T1DM_Manif_ANGINA_Proportion_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Proportion of angina within CHD complications";
+  :hasExpectedValue "0.28";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "2005" .
+
+:T1DM_Manif_ANGINA_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
+  :includedByModel :T1DM_StdModelDES;
+  :hasAlfaParameter "1.0";
+  :hasLambdaParameter "0.28" .
+
+:T1DM_Manif_ANGINA_TC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "true";
+  :hasDescription "Episode of Angina";
+  :hasExpectedValue "1985.96";
+  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
+  :hasYear "2016" .
+
+:T1DM_Manif_ANGINA_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :hasUncertaintyCharacterization :T1DM_Manif_ANGINA_U_L95CI, :T1DM_Manif_ANGINA_U_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual disutility of Angina";
+  :hasExpectedValue "0.09";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_ANGINA_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Annual disutility of Angina";
+  :hasExpectedValue "0.054";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_ANGINA_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Annual disutility of Angina";
+  :hasExpectedValue "0.126";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_ESRD a owl:NamedIndividual, :ChronicManifestation;
+  :excludesManifestation :T1DM_Manif_ALB1, :T1DM_Manif_ALB2;
+  :hasCost :T1DM_Manif_ESRD_AC, :T1DM_Manif_ESRD_TC;
+  :hasIncreasedMortalityRate :T1DM_Manif_ESRD_IMR;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_ALB1_ESRD, :T1DM_Manif_Pathway_ALB2_ESRD,
+    :T1DM_Stage_ESRD_Incidence;
+  :hasUtility :T1DM_Manif_ESRD_U;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "End-Stage Renal Disease" .
+
+:T1DM_Manif_ESRD_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual cost of end-stage renal disease";
+  :hasExpectedValue "34259.48";
+  :hasSource "Ray (2005)";
+  :hasYear "2015" .
+
+:T1DM_Manif_ESRD_IMR a owl:NamedIndividual, :Parameter, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasUncertaintyCharacterization :T1DM_Manif_ESRD_IMR_L95CI, :T1DM_Manif_ESRD_IMR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Increased mortality rate due to end-stage renal disease";
+  :hasExpectedValue "4.53";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_ESRD_IMR_L95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Increased mortality rate due to end-stage renal disease";
+  :hasExpectedValue "2.64";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_ESRD_IMR_U95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Increased mortality rate due to end-stage renal disease";
+  :hasExpectedValue "7.77";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_ESRD_TC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Cost of onset of end-stage renal disease";
+  :hasExpectedValue "3250.73";
+  :hasSource "Ray (2005)";
+  :hasYear "2015" .
+
+:T1DM_Manif_ESRD_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :hasUncertaintyCharacterization :T1DM_Manif_ESRD_U_L95CI, :T1DM_Manif_ESRD_U_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual disutility of end-stage renal disease";
+  :hasExpectedValue "0.204";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_ESRD_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Annual disutility of end-stage renal disease";
+  :hasExpectedValue "0.066";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_ESRD_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Annual disutility of end-stage renal disease";
+  :hasExpectedValue "0.342";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_HF a owl:NamedIndividual, :ChronicManifestation;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
+  :hasCost :T1DM_Manif_HF_AC, :T1DM_Manif_HF_TC;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_HF;
+  :hasUtility :T1DM_Manif_HF_U;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Heart Failure" .
+
+:T1DM_Manif_HF_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Year 2+ of heart failure";
+  :hasExpectedValue "1054.42";
+  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
+  :hasYear "2016" .
+
+:T1DM_Manif_HF_Proportion a owl:NamedIndividual, :ProportionWithinGroup, :SecondOrderUncertaintyParameter;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :hasDataItemType :DI_Proportion;
+  :hasUncertaintyCharacterization :T1DM_Manif_HF_Proportion_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Proportion of heart failure within CHD complications";
+  :hasExpectedValue "0.12";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "2005" .
+
+:T1DM_Manif_HF_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
+  :includedByModel :T1DM_StdModelDES;
+  :hasAlfaParameter "1.0";
+  :hasLambdaParameter "0.12" .
+
+:T1DM_Manif_HF_TC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "true";
+  :hasDescription "Episode of heart failure";
+  :hasExpectedValue "4503.24";
+  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
+  :hasYear "2016" .
+
+:T1DM_Manif_HF_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :hasUncertaintyCharacterization :T1DM_Manif_HF_U_L95CI, :T1DM_Manif_HF_U_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual disutility of heart failure";
+  :hasExpectedValue "0.108";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_HF_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Annual disutility of heart failure";
+  :hasExpectedValue "0.048";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_HF_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Annual disutility of heart failure";
+  :hasExpectedValue "0.169";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_LEA a owl:NamedIndividual, :ChronicManifestation;
+  :belongsToGroup :T1DM_Group_Manif_NEU;
+  :excludesManifestation :T1DM_Manif_NEU;
+  :hasCost :T1DM_Manif_LEA_AC, :T1DM_Manif_LEA_TC;
+  :hasIncreasedMortalityRate :T1DM_Manif_LEA_IMR;
+  :hasRiskCharacterization :T1DM_Manif_LEA_Incidence, :T1DM_Manif_Pathway_NEU_LEA;
+  :hasUtility :T1DM_Manif_LEA_U;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower Extremity Amputation" .
+
+:T1DM_Manif_LEA_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual cost after low extremity amputation";
+  :hasExpectedValue "918.01";
+  :hasSource "del Pino et al";
+  :hasYear "2017" .
+
+:T1DM_Manif_LEA_IMR a owl:NamedIndividual, :Parameter, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasUncertaintyCharacterization :T1DM_Manif_LEA_IMR_L95CI, :T1DM_Manif_LEA_IMR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Increased mortality rate due to peripheral neuropathy (amputation)";
+  :hasExpectedValue "3.98";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_LEA_IMR_L95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Increased mortality rate due to peripheral neuropathy (amputation)";
+  :hasExpectedValue "1.84";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_LEA_IMR_U95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Increased mortality rate due to peripheral neuropathy (amputation)";
+  :hasExpectedValue "8.59";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_LEA_Incidence a owl:NamedIndividual, :EpidemiologicalParameter, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_Probability;
+  :hasUncertaintyCharacterization :T1DM_Manif_LEA_Incidence_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Incidence of Lower Extremity Amputation";
+  :hasExpectedValue "3.0E-4";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Manif_LEA_Incidence_ParamUncertainty a owl:NamedIndividual, :UniformDistributionExpression;
+  :includedByModel :T1DM_StdModelDES;
+  :hasLowerLimitParameter "0.0";
+  :hasUpperLimitParameter "6.0E-4" .
+
+:T1DM_Manif_LEA_TC a owl:NamedIndividual, :Cost, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :Currency_Euro;
+  :hasUncertaintyCharacterization :T1DM_Manif_LEA_TC_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "true";
+  :hasDescription "Cost of low extremity amputation";
+  :hasExpectedValue "11333.04";
+  :hasSource "Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco";
+  :hasYear "2017" .
+
+:T1DM_Manif_LEA_TC_ParamUncertainty a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :DI_StandardDeviation;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Standard deviation for the cost of low extremity amputation";
+  :hasExpectedValue "1674.37";
+  :hasSource "Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco";
+  :hasYear "2017" .
+
+:T1DM_Manif_LEA_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :hasUncertaintyCharacterization :T1DM_Manif_LEA_U_L95CI, :T1DM_Manif_LEA_U_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual disutility after low extremity amputation";
+  :hasExpectedValue "0.28";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_LEA_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Annual disutility after low extremity amputation";
+  :hasExpectedValue "0.17";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_LEA_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Annual disutility after low extremity amputation";
+  :hasExpectedValue "0.389";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_MI a owl:NamedIndividual, :ChronicManifestation;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_STROKE;
+  :hasCost :T1DM_Manif_MI_AC, :T1DM_Manif_MI_TC;
+  :hasProbabilityOfDeath :T1DM_Manif_MI_ProbDeath;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_MI;
+  :hasUtility :T1DM_Manif_MI_U;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Myocardial Infarction" .
+
+:T1DM_Manif_MI_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Year 2+ of myocardial infarction";
+  :hasExpectedValue "948.0";
+  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
+  :hasYear "2016" .
+
+:T1DM_Manif_MI_ProbDeath a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Probability;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Probability of sudden death after MI (average men-women)";
+  :hasExpectedValue "0.3785";
+  :hasSource "As in CORE Model";
+  :hasYear "2005" .
+
+:T1DM_Manif_MI_Proportion a owl:NamedIndividual, :ProportionWithinGroup, :SecondOrderUncertaintyParameter;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :hasDataItemType :DI_Proportion;
+  :hasUncertaintyCharacterization :T1DM_Manif_MI_Proportion_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Proportion of myocardial infarction within CHD complications";
+  :hasExpectedValue "0.53";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "2005" .
+
+:T1DM_Manif_MI_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
+  :includedByModel :T1DM_StdModelDES;
+  :hasAlfaParameter "1.0";
+  :hasLambdaParameter "0.53" .
+
+:T1DM_Manif_MI_TC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "true";
+  :hasDescription "Episode of myocardial infarction";
+  :hasExpectedValue "22588.0";
+  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
+  :hasYear "2016" .
+
+:T1DM_Manif_MI_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :hasUncertaintyCharacterization :T1DM_Manif_MI_U_L95CI, :T1DM_Manif_MI_U_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual disutility of stroke";
+  :hasExpectedValue "0.164";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_MI_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Annual disutility of myocardial infarction",
+    "Lower 95% confidence interval for Annual disutility of stroke";
+  :hasExpectedValue "0.105";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_MI_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Annual disutility of myocardial infarction",
+    "Upper 95% confidence interval for Annual disutility of stroke";
+  :hasExpectedValue "0.222";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_NEU a owl:NamedIndividual, :ChronicManifestation;
+  :belongsToGroup :T1DM_Group_Manif_NEU;
+  :hasCost :T1DM_Manif_NEU_AC;
+  :hasIncreasedMortalityRate :T1DM_Manif_NEU_IMR;
+  :hasRiskCharacterization :T1DM_Manif_NEU_Incidence, :T1DM_Manif_NEU_RR;
+  :hasUtility :T1DM_Manif_NEU_U;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Neuropathy" .
+
+:T1DM_Manif_NEU_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual cost of neuropathy";
+  :hasExpectedValue "3108.86";
+  :hasSource "Ray (2015)";
+  :hasYear "2015" .
+
+:T1DM_Manif_NEU_IMR a owl:NamedIndividual, :Parameter, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasUncertaintyCharacterization :T1DM_Manif_NEU_IMR_L95CI, :T1DM_Manif_NEU_IMR_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Increased mortality rate due to peripheral neuropathy (vibratory sense diminished)";
+  :hasExpectedValue "1.51";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_NEU_IMR_L95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Increased mortality rate due to peripheral neuropathy (vibratory sense diminished)";
+  :hasExpectedValue "1.0";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_NEU_IMR_U95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Increased mortality rate due to peripheral neuropathy (vibratory sense diminished)";
+  :hasExpectedValue "2.28";
+  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
+  :hasYear "2005" .
+
+:T1DM_Manif_NEU_Incidence a owl:NamedIndividual, :EpidemiologicalParameter, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_Probability;
+  :hasUncertaintyCharacterization :T1DM_Manif_NEU_Incidence_L95CI, :T1DM_Manif_NEU_Incidence_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Base incidence of Neuropathy when HbA1c is 10";
+  :hasExpectedValue "0.0354";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Manif_NEU_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter, :EpidemiologicalParameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Base incidence of Neuropathy when HbA1c is 10";
+  :hasExpectedValue "0.02";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Manif_NEU_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter, :EpidemiologicalParameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Base incidence of Neuropathy when HbA1c is 10";
+  :hasExpectedValue "0.055";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Manif_NEU_RR a owl:NamedIndividual, :CalculatedParameter, :EpidemiologicalParameter;
+  :dependsOnAttribute :Attribute_HbA1c;
+  :dependsOnParameter :T1DM_BETA_Manif_NEU;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasExpressionLanguage :Exp_JEXL;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Relative risk expression for Neuropathy";
+  :hasExpressionValue "(Attribute_HbA1c / 10) ^T1DM_BETA_Manif_NEU";
+  :hasSource "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield";
+  :hasYear "1996" .
+
+:T1DM_Manif_NEU_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
+  :hasDataItemType :DI_Disutility;
+  :hasUncertaintyCharacterization :T1DM_Manif_NEU_U_L95CI, :T1DM_Manif_NEU_U_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "false";
+  :hasDescription "Annual disutility of neuropathy";
+  :hasExpectedValue "0.084";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_NEU_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Annual disutility of neuropathy";
+  :hasExpectedValue "0.057";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_NEU_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Annual disutility of neuropathy";
+  :hasExpectedValue "0.111";
+  :hasSource "Bagust and Beale (10.1002/hec.910)";
+  :hasYear "2005" .
+
+:T1DM_Manif_Pathway_ALB1_ALB2 a owl:NamedIndividual, :DiseaseProgressionPathway;
+  :hasRiskCharacterization :T1DM_Manif_ALB2_RR, :T1DM_Manif_Pathway_ALB1_ALB2_Incidence;
+  :includedByModel :T1DM_StdModelDES;
+  :requires :T1DM_Manif_ALB1;
+  :hasDescription "Path from Microalbuminuria to Macroalbuminuria" .
+
+:T1DM_Manif_Pathway_ALB1_ALB2_Incidence a owl:NamedIndividual, :EpidemiologicalParameter,
+    :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_Probability;
+  :hasUncertaintyCharacterization :T1DM_Manif_Pathway_ALB1_ALB2_Incidence_L95CI, :T1DM_Manif_Pathway_ALB1_ALB2_Incidence_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Base incidence of the pathway from Microalbuminuria to Macroalbuminuria when HbA1c is 10";
+  :hasExpectedValue "0.1565";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_ALB1_ALB2_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter,
+    :EpidemiologicalParameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Base incidence of the pathway from Microalbuminuria to Macroalbuminuria when HbA1c is 10";
+  :hasExpectedValue "0.1465";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_ALB1_ALB2_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter,
+    :EpidemiologicalParameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Base incidence of the pathway from Microalbuminuria to Macroalbuminuria when HbA1c is 10";
+  :hasExpectedValue "0.1665";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_ALB1_ESRD a owl:NamedIndividual, :DiseaseProgressionPathway;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_ALB1_ESRD_Incidence;
+  :includedByModel :T1DM_StdModelDES;
+  :requires :T1DM_Manif_ALB1;
+  :hasDescription "Path from Microalbuminuria to End-Stage Renal Disease" .
+
+:T1DM_Manif_Pathway_ALB1_ESRD_Incidence a owl:NamedIndividual, :EpidemiologicalParameter,
+    :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_Probability;
+  :hasUncertaintyCharacterization :T1DM_Manif_Pathway_ALB1_ESRD_Incidence_L95CI, :T1DM_Manif_Pathway_ALB1_ESRD_Incidence_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Incidence of the pathway from Microalbuminuria to End-Stage Renal Disease";
+  :hasExpectedValue "0.0133";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_ALB1_ESRD_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter,
+    :EpidemiologicalParameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Incidence of the pathway from Microalbuminuria to End-Stage Renal Disease";
+  :hasExpectedValue "0.01064";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_ALB1_ESRD_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter,
+    :EpidemiologicalParameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Incidence of the pathway from Microalbuminuria to End-Stage Renal Disease";
+  :hasExpectedValue "0.01596";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_ALB2_ESRD a owl:NamedIndividual, :DiseaseProgressionPathway;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_ALB2_ESRD_Incidence;
+  :includedByModel :T1DM_StdModelDES;
+  :requires :T1DM_Manif_ALB2;
+  :hasDescription "Path from Macroalbuminuria to End-Stage Renal Disease" .
+
+:T1DM_Manif_Pathway_ALB2_ESRD_Incidence a owl:NamedIndividual, :EpidemiologicalParameter,
+    :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_Probability;
+  :hasUncertaintyCharacterization :T1DM_Manif_Pathway_ALB2_ESRD_Incidence_L95CI, :T1DM_Manif_Pathway_ALB2_ESRD_Incidence_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Incidence of the pathway from Macroalbuminuria to End-Stage Renal Disease";
+  :hasExpectedValue "0.1579";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_ALB2_ESRD_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter,
+    :EpidemiologicalParameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Incidence of the pathway from Macroalbuminuria to End-Stage Renal Disease";
+  :hasExpectedValue "0.1479";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_ALB2_ESRD_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter,
+    :EpidemiologicalParameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Incidence of the pathway from Macroalbuminuria to End-Stage Renal Disease";
+  :hasExpectedValue "0.1679";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_ANGINA a owl:NamedIndividual, :DiseaseProgressionPathway;
+  :hasRiskCharacterization :T1DM_Manif_ANGINA_Proportion;
+  :includedByModel :T1DM_StdModelDES;
+  :requires :T1DM_Stage_CHD;
+  :hasDescription "Path to Angina" .
+
+:T1DM_Manif_Pathway_HF a owl:NamedIndividual, :DiseaseProgressionPathway;
+  :hasRiskCharacterization :T1DM_Manif_HF_Proportion;
+  :includedByModel :T1DM_StdModelDES;
+  :requires :T1DM_Stage_CHD;
+  :hasDescription "Path to Heart Failure" .
+
+:T1DM_Manif_Pathway_MI a owl:NamedIndividual, :DiseaseProgressionPathway;
+  :hasRiskCharacterization :T1DM_Manif_MI_Proportion;
+  :includedByModel :T1DM_StdModelDES;
+  :requires :T1DM_Stage_CHD;
+  :hasDescription "Path to Myocardial Infarction" .
+
+:T1DM_Manif_Pathway_NEU_LEA a owl:NamedIndividual, :DiseaseProgressionPathway;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_NEU_LEA_Incidence;
+  :includedByModel :T1DM_StdModelDES;
+  :requires :T1DM_Manif_NEU;
+  :hasDescription "Path from Neuropathy to Lower Extremity Amputation" .
+
+:T1DM_Manif_Pathway_NEU_LEA_Incidence a owl:NamedIndividual, :EpidemiologicalParameter,
+    :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_Probability;
+  :hasUncertaintyCharacterization :T1DM_Manif_Pathway_NEU_LEA_Incidence_L95CI, :T1DM_Manif_Pathway_NEU_LEA_Incidence_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Incidence of the pathway from Neuropathy to Lower Extremity Amputation";
+  :hasExpectedValue "0.0154";
+  :hasSource "Klein et al. 2004 (also Sheffield)";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_NEU_LEA_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter,
+    :EpidemiologicalParameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Incidence of the pathway from Neuropathy to Lower Extremity Amputation";
+  :hasExpectedValue "0.01232";
+  :hasSource "Klein et al. 2004 (also Sheffield)";
+  :hasYear "1995" .
+
+:T1DM_Manif_Pathway_NEU_LEA_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter,
+    :EpidemiologicalParameter .
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Manif_Pathway_STROKE
 # 
@@ -3038,549 +4001,17 @@ _:genid358 a owl:Restriction;
 # 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_CHD_Incidence_U95CI
 # 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_ESRD_Incidence
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_ESRD_Incidence_L95CI
+# 
+# http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_Stage_ESRD_Incidence_U95CI
+# 
 # http://www.ull.es/iis/simulation/ontologies/disease-simulation#T1DM_StdModelDES
 # 
 # Generated by the OWL API (version 5.5.0.2023-01-14T12:41:38Z) https://github.com/owlcs/owlapi/
 
-:T1DM_DCCT1_ComplicationsFree_U_L95CI :hasYear "2015" .
-
-:T1DM_DCCT1_ComplicationsFree_U_U95CI a :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Utility of DM1 without complications";
-  :hasExpectedValue "0.681";
-  :hasSource "TODO: Buscar";
-  :hasYear "2015" .
-
-:T1DM_Disease a :Disease;
-  :hasEpidemiologicalParameter :Constant_Prevalence1;
-  :hasFollowUpCost :T1DM_Disease_AC;
-  :hasIntervention :T1DM_Intervention_DCCTIntensive;
-  :hasManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_LEA, :T1DM_Manif_MI,
-    :T1DM_Manif_NEU, :T1DM_Manif_STROKE;
-  :hasStage :T1DM_Stage_CHD;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Type I Diabetes Mellitus";
-  :hasRefToDO "do:9744";
-  :hasRefToICD "icd:E10";
-  :hasRefToOMIM "omim:222100";
-  :hasRefToSNOMED "snomed:46635009" .
-
-:T1DM_Disease_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Value computed by substracting the burden of complications from the global burden of DM1 in Spain; finally divided by the prevalent DM1 population";
-  :hasExpectedValue "1116.733023";
-  :hasSource "Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007";
-  :hasYear "2012" .
-
-:T1DM_Intervention_DCCTIntensive a owl:NamedIndividual, :TherapeuticIntervention;
-  :includedByModel :T1DM_StdModelDES;
-  :involvesModification :T1DM_Intervention_DCCTIntensive_HbA1c_Modification;
-  :hasDescription "DCCT intensive arm" .
-
-:T1DM_Manif_ANGINA a owl:NamedIndividual, :ChronicManifestation;
-  :belongsToGroup :T1DM_Group_Manif_CHD;
-  :excludesManifestation :T1DM_Manif_HF, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
-  :hasCost :T1DM_Manif_ANGINA_AC, :T1DM_Manif_ANGINA_TC;
-  :hasRiskCharacterization :T1DM_Manif_Pathway_ANGINA;
-  :hasUtility :T1DM_Manif_ANGINA_U;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Angina" .
-
-:T1DM_Manif_HF a owl:NamedIndividual, :ChronicManifestation;
-  :belongsToGroup :T1DM_Group_Manif_CHD;
-  :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
-  :hasCost :T1DM_Manif_HF_AC, :T1DM_Manif_HF_TC;
-  :hasRiskCharacterization :T1DM_Manif_Pathway_HF;
-  :hasUtility :T1DM_Manif_HF_U;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Heart Failure" .
-
-:T1DM_Manif_LEA a owl:NamedIndividual, :ChronicManifestation;
-  :excludesManifestation :T1DM_Manif_NEU;
-  :hasCost :T1DM_Manif_LEA_AC, :T1DM_Manif_LEA_TC;
-  :hasIncreasedMortalityRate :T1DM_Manif_LEA_IMR;
-  :hasRiskCharacterization :T1DM_Manif_LEA_Incidence, :T1DM_Manif_Pathway_NEU_LEA;
-  :hasUtility :T1DM_Manif_LEA_U;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower Extremity Amputation" .
-
-:T1DM_Manif_MI a owl:NamedIndividual, :ChronicManifestation;
-  :belongsToGroup :T1DM_Group_Manif_CHD;
-  :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_STROKE;
-  :hasCost :T1DM_Manif_MI_AC, :T1DM_Manif_MI_TC;
-  :hasProbabilityOfDeath :T1DM_Manif_MI_ProbDeath;
-  :hasRiskCharacterization :T1DM_Manif_Pathway_MI;
-  :hasUtility :T1DM_Manif_MI_U;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Myocardial Infarction" .
-
-:T1DM_Manif_NEU a owl:NamedIndividual, :ChronicManifestation;
-  :hasCost :T1DM_Manif_NEU_AC;
-  :hasIncreasedMortalityRate :T1DM_Manif_NEU_IMR;
-  :hasRiskCharacterization :T1DM_Manif_NEU_Incidence, :T1DM_Manif_NEU_RR;
-  :hasUtility :T1DM_Manif_NEU_U;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Neuropathy" .
-
-:T1DM_Manif_STROKE a owl:NamedIndividual, :ChronicManifestation;
-  :belongsToGroup :T1DM_Group_Manif_CHD;
-  :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_MI;
-  :hasCost :T1DM_Manif_STROKE_AC, :T1DM_Manif_STROKE_TC;
-  :hasProbabilityOfDeath :T1DM_Manif_STROKE_ProbDeath;
-  :hasRiskCharacterization :T1DM_Manif_Pathway_STROKE;
-  :hasUtility :T1DM_Manif_STROKE_U;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Stroke" .
-
-:T1DM_Stage_CHD a owl:NamedIndividual, :Stage;
-  :hasIncreasedMortalityRate :T1DM_Stage_CHD_IMR;
-  :hasRiskCharacterization :T1DM_Stage_CHD_Incidence, :T1DM_Stage_CHD_Incidence_RR;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Coronary Heart Disease" .
-
-:T1DM_Group_Manif_CHD a owl:NamedIndividual, :Group;
-  :hasComponent :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_MI, :T1DM_Manif_STROKE;
-  :includedByModel :T1DM_StdModelDES .
-
-:T1DM_Intervention_DCCTIntensive_HbA1c_Modification a :FirstOrderUncertaintyParameter,
-    :Parameter;
-  :hasDataItemType :DI_MeanDifference;
-  :hasUncertaintyCharacterization :T1DM_Intervention_DCCTIntensive_HbA1c_Modification_StochasticUncertainty;
-  :includedByModel :T1DM_StdModelDES;
-  :isValueOfAttribute :Attribute_HbA1c;
-  :modifies :T1DM_Population_DCCT1_HbA1c;
-  :hasDescription "Value of Attribute_HbA1c";
-  :hasSource "DCCT";
-  :hasYear "2013" .
-
-:T1DM_Intervention_DCCTIntensive_HbA1c_Modification_StochasticUncertainty a owl:NamedIndividual,
-    :NormalDistributionExpression;
-  :includedByModel :T1DM_StdModelDES;
-  :hasAverageParameter "1.5";
-  :hasStandardDeviationParameter "1.1" .
-
-:T1DM_Manif_ANGINA_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Year 2+ of Angina";
-  :hasExpectedValue "532.01";
-  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
-  :hasYear "2016" .
-
-:T1DM_Manif_ANGINA_TC a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "true";
-  :hasDescription "Episode of Angina";
-  :hasExpectedValue "1985.96";
-  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
-  :hasYear "2016" .
-
-:T1DM_Manif_Pathway_ANGINA a owl:NamedIndividual, :DiseaseProgressionPathway;
-  :hasRiskCharacterization :T1DM_Manif_ANGINA_Proportion;
-  :includedByModel :T1DM_StdModelDES;
-  :requires :T1DM_Stage_CHD;
-  :hasDescription "Path to Angina" .
-
-:T1DM_Manif_ANGINA_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
-  :hasDataItemType :DI_Disutility;
-  :hasUncertaintyCharacterization :T1DM_Manif_ANGINA_U_L95CI, :T1DM_Manif_ANGINA_U_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Annual disutility of Angina";
-  :hasExpectedValue "0.09";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_ANGINA_Proportion a owl:NamedIndividual, :ProportionWithinGroup, :SecondOrderUncertaintyParameter;
-  :belongsToGroup :T1DM_Group_Manif_CHD;
-  :hasDataItemType :DI_Proportion;
-  :hasUncertaintyCharacterization :T1DM_Manif_ANGINA_Proportion_ParamUncertainty;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Proportion of angina within CHD complications";
-  :hasExpectedValue "0.28";
-  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
-  :hasYear "2005" .
-
-:T1DM_Manif_ANGINA_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
-  :includedByModel :T1DM_StdModelDES;
-  :hasAlfaParameter "1.0";
-  :hasLambdaParameter "0.28" .
-
-:T1DM_Manif_ANGINA_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Annual disutility of Angina";
-  :hasExpectedValue "0.054";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_ANGINA_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Annual disutility of Angina";
-  :hasExpectedValue "0.126";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_HF_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Year 2+ of heart failure";
-  :hasExpectedValue "1054.42";
-  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
-  :hasYear "2016" .
-
-:T1DM_Manif_HF_TC a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "true";
-  :hasDescription "Episode of heart failure";
-  :hasExpectedValue "4503.24";
-  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
-  :hasYear "2016" .
-
-:T1DM_Manif_Pathway_HF a owl:NamedIndividual, :DiseaseProgressionPathway;
-  :hasRiskCharacterization :T1DM_Manif_HF_Proportion;
-  :includedByModel :T1DM_StdModelDES;
-  :requires :T1DM_Stage_CHD;
-  :hasDescription "Path to Heart Failure" .
-
-:T1DM_Manif_HF_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
-  :hasDataItemType :DI_Disutility;
-  :hasUncertaintyCharacterization :T1DM_Manif_HF_U_L95CI, :T1DM_Manif_HF_U_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Annual disutility of heart failure";
-  :hasExpectedValue "0.108";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_HF_Proportion a owl:NamedIndividual, :ProportionWithinGroup, :SecondOrderUncertaintyParameter;
-  :belongsToGroup :T1DM_Group_Manif_CHD;
-  :hasDataItemType :DI_Proportion;
-  :hasUncertaintyCharacterization :T1DM_Manif_HF_Proportion_ParamUncertainty;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Proportion of heart failure within CHD complications";
-  :hasExpectedValue "0.12";
-  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
-  :hasYear "2005" .
-
-:T1DM_Manif_HF_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
-  :includedByModel :T1DM_StdModelDES;
-  :hasAlfaParameter "1.0";
-  :hasLambdaParameter "0.12" .
-
-:T1DM_Manif_HF_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Annual disutility of heart failure";
-  :hasExpectedValue "0.048";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_HF_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Annual disutility of heart failure";
-  :hasExpectedValue "0.169";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_LEA_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Annual cost after low extremity amputation";
-  :hasExpectedValue "918.01";
-  :hasSource "del Pino et al";
-  :hasYear "2017" .
-
-:T1DM_Manif_LEA_TC a owl:NamedIndividual, :Cost, :SecondOrderUncertaintyParameter;
-  :hasDataItemType :Currency_Euro;
-  :hasUncertaintyCharacterization :T1DM_Manif_LEA_TC_ParamUncertainty;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "true";
-  :hasDescription "Cost of low extremity amputation";
-  :hasExpectedValue "11333.04";
-  :hasSource "Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco";
-  :hasYear "2017" .
-
-:T1DM_Manif_LEA_IMR a owl:NamedIndividual, :Parameter, :SecondOrderUncertaintyParameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasUncertaintyCharacterization :T1DM_Manif_LEA_IMR_L95CI, :T1DM_Manif_LEA_IMR_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Increased mortality rate due to peripheral neuropathy (amputation)";
-  :hasExpectedValue "3.98";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_LEA_Incidence a owl:NamedIndividual, :EpidemiologicalParameter, :SecondOrderUncertaintyParameter;
-  :hasDataItemType :DI_Probability;
-  :hasUncertaintyCharacterization :T1DM_Manif_LEA_Incidence_ParamUncertainty;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Incidence of Lower Extremity Amputation";
-  :hasExpectedValue "3.0E-4";
-  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
-  :hasYear "1995" .
-
-:T1DM_Manif_Pathway_NEU_LEA a owl:NamedIndividual, :DiseaseProgressionPathway;
-  :hasRiskCharacterization :T1DM_Manif_Pathway_NEU_LEA_Incidence;
-  :includedByModel :T1DM_StdModelDES;
-  :requires :T1DM_Manif_NEU;
-  :hasDescription "Path from Neuropathy to Lower Extremity Amputation" .
-
-:T1DM_Manif_LEA_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
-  :hasDataItemType :DI_Disutility;
-  :hasUncertaintyCharacterization :T1DM_Manif_LEA_U_L95CI, :T1DM_Manif_LEA_U_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Annual disutility after low extremity amputation";
-  :hasExpectedValue "0.28";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_LEA_IMR_L95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Increased mortality rate due to peripheral neuropathy (amputation)";
-  :hasExpectedValue "1.84";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_LEA_IMR_U95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Increased mortality rate due to peripheral neuropathy (amputation)";
-  :hasExpectedValue "8.59";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_LEA_Incidence_ParamUncertainty a owl:NamedIndividual, :UniformDistributionExpression;
-  :includedByModel :T1DM_StdModelDES;
-  :hasLowerLimitParameter "0.0";
-  :hasUpperLimitParameter "6.0E-4" .
-
-:T1DM_Manif_LEA_TC_ParamUncertainty a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :DI_StandardDeviation;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Standard deviation for the cost of low extremity amputation";
-  :hasExpectedValue "1674.37";
-  :hasSource "Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco";
-  :hasYear "2017" .
-
-:T1DM_Manif_LEA_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Annual disutility after low extremity amputation";
-  :hasExpectedValue "0.17";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_LEA_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Annual disutility after low extremity amputation";
-  :hasExpectedValue "0.389";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_MI_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Year 2+ of myocardial infarction";
-  :hasExpectedValue "948.0";
-  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
-  :hasYear "2016" .
-
-:T1DM_Manif_MI_TC a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "true";
-  :hasDescription "Episode of myocardial infarction";
-  :hasExpectedValue "22588.0";
-  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
-  :hasYear "2016" .
-
-:T1DM_Manif_MI_ProbDeath a owl:NamedIndividual, :DeterministicParameter, :Parameter;
-  :hasDataItemType :DI_Probability;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Probability of sudden death after MI (average men-women)";
-  :hasExpectedValue "0.3785";
-  :hasSource "As in CORE Model";
-  :hasYear "2005" .
-
-:T1DM_Manif_Pathway_MI a owl:NamedIndividual, :DiseaseProgressionPathway;
-  :hasRiskCharacterization :T1DM_Manif_MI_Proportion;
-  :includedByModel :T1DM_StdModelDES;
-  :requires :T1DM_Stage_CHD;
-  :hasDescription "Path to Myocardial Infarction" .
-
-:T1DM_Manif_MI_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
-  :hasDataItemType :DI_Disutility;
-  :hasUncertaintyCharacterization :T1DM_Manif_MI_U_L95CI, :T1DM_Manif_MI_U_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Annual disutility of stroke";
-  :hasExpectedValue "0.164";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_MI_Proportion a owl:NamedIndividual, :ProportionWithinGroup, :SecondOrderUncertaintyParameter;
-  :belongsToGroup :T1DM_Group_Manif_CHD;
-  :hasDataItemType :DI_Proportion;
-  :hasUncertaintyCharacterization :T1DM_Manif_MI_Proportion_ParamUncertainty;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Proportion of myocardial infarction within CHD complications";
-  :hasExpectedValue "0.53";
-  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
-  :hasYear "2005" .
-
-:T1DM_Manif_MI_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
-  :includedByModel :T1DM_StdModelDES;
-  :hasAlfaParameter "1.0";
-  :hasLambdaParameter "0.53" .
-
-:T1DM_Manif_MI_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Annual disutility of myocardial infarction";
-  :hasExpectedValue "0.105";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_MI_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Annual disutility of myocardial infarction";
-  :hasExpectedValue "0.222";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_NEU_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Annual cost of neuropathy";
-  :hasExpectedValue "3108.86";
-  :hasSource "Ray (2015)";
-  :hasYear "2015" .
-
-:T1DM_Manif_NEU_IMR a owl:NamedIndividual, :Parameter, :SecondOrderUncertaintyParameter;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasUncertaintyCharacterization :T1DM_Manif_NEU_IMR_L95CI, :T1DM_Manif_NEU_IMR_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Increased mortality rate due to peripheral neuropathy (vibratory sense diminished)";
-  :hasExpectedValue "1.51";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_NEU_Incidence a owl:NamedIndividual, :EpidemiologicalParameter, :SecondOrderUncertaintyParameter;
-  :hasDataItemType :DI_Probability;
-  :hasUncertaintyCharacterization :T1DM_Manif_NEU_Incidence_L95CI, :T1DM_Manif_NEU_Incidence_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Base incidence of Neuropathy when HbA1c is 10";
-  :hasExpectedValue "0.0354";
-  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
-  :hasYear "1995" .
-
-:T1DM_Manif_NEU_RR a owl:NamedIndividual, :CalculatedParameter, :EpidemiologicalParameter;
-  :dependsOnAttribute :Attribute_HbA1c;
-  :dependsOnParameter :T1DM_BETA_Manif_NEU;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasExpressionLanguage :Exp_JEXL;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Relative risk expression for Neuropathy";
-  :hasExpressionValue "(Attribute_HbA1c / 10) ^T1DM_BETA_Manif_NEU";
-  :hasSource "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield";
-  :hasYear "1996" .
-
-:T1DM_Manif_NEU_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
-  :hasDataItemType :DI_Disutility;
-  :hasUncertaintyCharacterization :T1DM_Manif_NEU_U_L95CI, :T1DM_Manif_NEU_U_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "false";
-  :hasDescription "Annual disutility of neuropathy";
-  :hasExpectedValue "0.084";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_NEU_IMR_L95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Increased mortality rate due to peripheral neuropathy (vibratory sense diminished)";
-  :hasExpectedValue "1.0";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_NEU_IMR_U95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Increased mortality rate due to peripheral neuropathy (vibratory sense diminished)";
-  :hasExpectedValue "2.28";
-  :hasSource "https://doi.org/10.2337/diacare.28.3.617";
-  :hasYear "2005" .
-
-:T1DM_Manif_NEU_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter, :EpidemiologicalParameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Base incidence of Neuropathy when HbA1c is 10";
-  :hasExpectedValue "0.02";
-  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
-  :hasYear "1995" .
-
-:T1DM_Manif_NEU_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter, :EpidemiologicalParameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Base incidence of Neuropathy when HbA1c is 10";
-  :hasExpectedValue "0.055";
-  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
-  :hasYear "1995" .
-
-:T1DM_Manif_NEU_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Annual disutility of neuropathy";
-  :hasExpectedValue "0.057";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_NEU_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Annual disutility of neuropathy";
-  :hasExpectedValue "0.111";
-  :hasSource "Bagust and Beale (10.1002/hec.910)";
-  :hasYear "2005" .
-
-:T1DM_Manif_Pathway_NEU_LEA_Incidence a owl:NamedIndividual, :EpidemiologicalParameter,
-    :SecondOrderUncertaintyParameter;
-  :hasDataItemType :DI_Probability;
-  :hasUncertaintyCharacterization :T1DM_Manif_Pathway_NEU_LEA_Incidence_L95CI, :T1DM_Manif_Pathway_NEU_LEA_Incidence_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Incidence of the pathway from Neuropathy to Lower Extremity Amputation";
-  :hasExpectedValue "0.0154";
-  :hasSource "Klein et al. 2004 (also Sheffield)";
-  :hasYear "1995" .
-
-:T1DM_Manif_Pathway_NEU_LEA_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter,
-    :EpidemiologicalParameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Incidence of the pathway from Neuropathy to Lower Extremity Amputation";
-  :hasExpectedValue "0.01232";
-  :hasSource "Klein et al. 2004 (also Sheffield)";
-  :hasYear "1995" .
-
-:T1DM_Manif_Pathway_NEU_LEA_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter,
-    :EpidemiologicalParameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
+:T1DM_Manif_Pathway_NEU_LEA_Incidence_U95CI :hasDataItemType :DI_Upper95ConfidenceLimit;
   :includedByModel :T1DM_StdModelDES;
   :hasDescription "Upper 95% confidence interval for Incidence of the pathway from Neuropathy to Lower Extremity Amputation";
   :hasExpectedValue "0.01848";
@@ -3593,15 +4024,15 @@ _:genid358 a owl:Restriction;
   :requires :T1DM_Stage_CHD;
   :hasDescription "Path to Stroke" .
 
-:T1DM_Manif_STROKE_Proportion a owl:NamedIndividual, :ProportionWithinGroup, :SecondOrderUncertaintyParameter;
+:T1DM_Manif_STROKE a owl:NamedIndividual, :ChronicManifestation;
   :belongsToGroup :T1DM_Group_Manif_CHD;
-  :hasDataItemType :DI_Proportion;
-  :hasUncertaintyCharacterization :T1DM_Manif_STROKE_Proportion_ParamUncertainty;
+  :excludesManifestation :T1DM_Manif_ANGINA, :T1DM_Manif_HF, :T1DM_Manif_MI;
+  :hasCost :T1DM_Manif_STROKE_AC, :T1DM_Manif_STROKE_TC;
+  :hasProbabilityOfDeath :T1DM_Manif_STROKE_ProbDeath;
+  :hasRiskCharacterization :T1DM_Manif_Pathway_STROKE;
+  :hasUtility :T1DM_Manif_STROKE_U;
   :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Proportion of stroke within CHD complications";
-  :hasExpectedValue "0.07";
-  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
-  :hasYear "2005" .
+  :hasDescription "Stroke" .
 
 :T1DM_Manif_STROKE_AC a owl:NamedIndividual, :Cost, :DeterministicParameter;
   :hasDataItemType :Currency_Euro;
@@ -3609,15 +4040,6 @@ _:genid358 a owl:Restriction;
   :appliesOneTime "false";
   :hasDescription "Year 2+ of stroke";
   :hasExpectedValue "2485.66";
-  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
-  :hasYear "2016" .
-
-:T1DM_Manif_STROKE_TC a owl:NamedIndividual, :Cost, :DeterministicParameter;
-  :hasDataItemType :Currency_Euro;
-  :includedByModel :T1DM_StdModelDES;
-  :appliesOneTime "true";
-  :hasDescription "Episode of stroke";
-  :hasExpectedValue "3634.66";
   :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
   :hasYear "2016" .
 
@@ -3629,6 +4051,30 @@ _:genid358 a owl:Restriction;
   :hasSource "As in CORE Model";
   :hasYear "2005" .
 
+:T1DM_Manif_STROKE_Proportion a owl:NamedIndividual, :ProportionWithinGroup, :SecondOrderUncertaintyParameter;
+  :belongsToGroup :T1DM_Group_Manif_CHD;
+  :hasDataItemType :DI_Proportion;
+  :hasUncertaintyCharacterization :T1DM_Manif_STROKE_Proportion_ParamUncertainty;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Proportion of stroke within CHD complications";
+  :hasExpectedValue "0.07";
+  :hasSource "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf";
+  :hasYear "2005" .
+
+:T1DM_Manif_STROKE_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
+  :includedByModel :T1DM_StdModelDES;
+  :hasAlfaParameter "1.0";
+  :hasLambdaParameter "0.07" .
+
+:T1DM_Manif_STROKE_TC a owl:NamedIndividual, :Cost, :DeterministicParameter;
+  :hasDataItemType :Currency_Euro;
+  :includedByModel :T1DM_StdModelDES;
+  :appliesOneTime "true";
+  :hasDescription "Episode of stroke";
+  :hasExpectedValue "3634.66";
+  :hasSource "https://doi.org/10.1016/j.endinu.2018.03.008";
+  :hasYear "2016" .
+
 :T1DM_Manif_STROKE_U a owl:NamedIndividual, :SecondOrderUncertaintyParameter, :Utility;
   :hasDataItemType :DI_Disutility;
   :hasUncertaintyCharacterization :T1DM_Manif_STROKE_U_L95CI, :T1DM_Manif_STROKE_U_U95CI;
@@ -3639,15 +4085,11 @@ _:genid358 a owl:Restriction;
   :hasSource "Bagust and Beale (10.1002/hec.910)";
   :hasYear "2005" .
 
-:T1DM_Manif_STROKE_Proportion_ParamUncertainty a owl:NamedIndividual, :GammaDistributionExpression;
-  :includedByModel :T1DM_StdModelDES;
-  :hasAlfaParameter "1.0";
-  :hasLambdaParameter "0.07" .
-
 :T1DM_Manif_STROKE_U_L95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
   :hasDataItemType :DI_Lower95ConfidenceLimit;
   :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Annual disutility of stroke";
+  :hasDescription "Lower 95% confidence interval for Annual disutility of myocardial infarction",
+    "Lower 95% confidence interval for Annual disutility of stroke";
   :hasExpectedValue "0.042";
   :hasSource "Bagust and Beale (10.1002/hec.910)";
   :hasYear "2005" .
@@ -3655,12 +4097,13 @@ _:genid358 a owl:Restriction;
 :T1DM_Manif_STROKE_U_U95CI a owl:NamedIndividual, :DeterministicParameter, :Utility;
   :hasDataItemType :DI_Upper95ConfidenceLimit;
   :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Annual disutility of stroke";
+  :hasDescription "Upper 95% confidence interval for Annual disutility of myocardial infarction",
+    "Upper 95% confidence interval for Annual disutility of stroke";
   :hasExpectedValue "0.067";
   :hasSource "Bagust and Beale (10.1002/hec.910)";
   :hasYear "2005" .
 
-:T1DM_Population_DCCT1 a :Population;
+:T1DM_Population_DCCT1 a owl:NamedIndividual, :Population;
   :hasAge :T1DM_Population_DCCT1_Age;
   :hasAttributeValue :T1DM_Population_DCCT1_DurationOfDiabetes, :T1DM_Population_DCCT1_HbA1c;
   :hasEpidemiologicalParameter :Constant_Prevalence1;
@@ -3673,7 +4116,7 @@ _:genid358 a owl:Restriction;
   :hasSize "100";
   :hasYear "2010" .
 
-:T1DM_Population_DCCT1_Age a :DeterministicParameter, :Parameter;
+:T1DM_Population_DCCT1_Age a owl:NamedIndividual, :DeterministicParameter, :Parameter;
   :hasDataItemType :DI_Other;
   :includedByModel :T1DM_StdModelDES;
   :isValueOfAttribute :Attribute_Age;
@@ -3682,7 +4125,8 @@ _:genid358 a owl:Restriction;
   :hasSource "DCCT";
   :hasYear "2013" .
 
-:T1DM_Population_DCCT1_DurationOfDiabetes a :FirstOrderUncertaintyParameter, :Parameter;
+:T1DM_Population_DCCT1_DurationOfDiabetes a owl:NamedIndividual, :FirstOrderUncertaintyParameter,
+    :Parameter;
   :hasDataItemType :DI_TimeToEvent;
   :hasUncertaintyCharacterization :T1DM_Population_DCCT1_DurationOfDiabetes_StochasticUncertainty;
   :includedByModel :T1DM_StdModelDES;
@@ -3697,7 +4141,7 @@ _:genid358 a owl:Restriction;
   :hasAverageParameter "2.6";
   :hasStandardDeviationParameter "1.4" .
 
-:T1DM_Population_DCCT1_HbA1c a :DeterministicParameter, :Parameter;
+:T1DM_Population_DCCT1_HbA1c a owl:NamedIndividual, :DeterministicParameter, :Parameter;
   :hasDataItemType :DI_Other;
   :includedByModel :T1DM_StdModelDES;
   :isModifiedBy :T1DM_Intervention_DCCTIntensive_HbA1c_Modification;
@@ -3707,7 +4151,8 @@ _:genid358 a owl:Restriction;
   :hasSource "Own calculation from: Design of DCCT (http://diabetes.diabetesjournals.org/content/35/5/530) and DCCT (https://www.nejm.org/doi/10.1056/NEJM199309303291401)";
   :hasYear "2013" .
 
-:T1DM_Population_DCCT1_Sex a :FirstOrderUncertaintyParameter, :Parameter;
+:T1DM_Population_DCCT1_Sex a owl:NamedIndividual, :FirstOrderUncertaintyParameter,
+    :Parameter;
   :hasDataItemType :DI_Proportion;
   :hasUncertaintyCharacterization :T1DM_Population_DCCT1_Sex_StochasticUncertainty;
   :includedByModel :T1DM_StdModelDES;
@@ -3720,6 +4165,12 @@ _:genid358 a owl:Restriction;
   :includedByModel :T1DM_StdModelDES;
   :hasProbabilityParameter "0.483966942" .
 
+:T1DM_Stage_CHD a owl:NamedIndividual, :Stage;
+  :hasIncreasedMortalityRate :T1DM_Stage_CHD_IMR;
+  :hasRiskCharacterization :T1DM_Stage_CHD_Incidence, :T1DM_Stage_CHD_Incidence_RR;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Coronary Heart Disease" .
+
 :T1DM_Stage_CHD_IMR a owl:NamedIndividual, :Parameter, :SecondOrderUncertaintyParameter;
   :hasDataItemType :DI_RelativeRisk;
   :hasUncertaintyCharacterization :T1DM_Stage_CHD_IMR_L95CI, :T1DM_Stage_CHD_IMR_U95CI;
@@ -3728,26 +4179,6 @@ _:genid358 a owl:Restriction;
   :hasExpectedValue "1.96";
   :hasSource "https://doi.org/10.2337/diacare.28.3.617";
   :hasYear "2005" .
-
-:T1DM_Stage_CHD_Incidence a owl:NamedIndividual, :EpidemiologicalParameter, :SecondOrderUncertaintyParameter;
-  :hasDataItemType :DI_Probability;
-  :hasUncertaintyCharacterization :T1DM_Stage_CHD_Incidence_L95CI, :T1DM_Stage_CHD_Incidence_U95CI;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Base incidence of any manifestation related to CHD when HbA1c is 9.1";
-  :hasExpectedValue "0.0045";
-  :hasSource "Hoerger 2004";
-  :hasYear "2004" .
-
-:T1DM_Stage_CHD_Incidence_RR a owl:NamedIndividual, :CalculatedParameter, :Parameter;
-  :dependsOnAttribute :Attribute_HbA1c;
-  :dependsOnParameter :T1DM_Stage_CHD_IncidenceBase_RR;
-  :hasDataItemType :DI_RelativeRisk;
-  :hasExpressionLanguage :Exp_JEXL;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
-  :hasExpressionValue "T1DM_Stage_CHD_IncidenceBase_RR^(Attribute_HbA1c - 9.1)";
-  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
-  :hasYear "2004" .
 
 :T1DM_Stage_CHD_IMR_L95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
   :hasDataItemType :DI_Lower95ConfidenceLimit;
@@ -3765,19 +4196,12 @@ _:genid358 a owl:Restriction;
   :hasSource "https://doi.org/10.2337/diacare.28.3.617";
   :hasYear "2005" .
 
-:T1DM_Stage_CHD_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
-  :hasDataItemType :DI_Lower95ConfidenceLimit;
+:T1DM_Stage_CHD_Incidence a owl:NamedIndividual, :EpidemiologicalParameter, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_Probability;
+  :hasUncertaintyCharacterization :T1DM_Stage_CHD_Incidence_L95CI, :T1DM_Stage_CHD_Incidence_U95CI;
   :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Lower 95% confidence interval for Base incidence of any manifestation related to CHD when HbA1c is 9.1";
-  :hasExpectedValue "0.001";
-  :hasSource "Hoerger 2004";
-  :hasYear "2004" .
-
-:T1DM_Stage_CHD_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
-  :hasDataItemType :DI_Upper95ConfidenceLimit;
-  :includedByModel :T1DM_StdModelDES;
-  :hasDescription "Upper 95% confidence interval for Base incidence of any manifestation related to CHD when HbA1c is 9.1";
-  :hasExpectedValue "0.0084";
+  :hasDescription "Base incidence of any manifestation related to CHD when HbA1c is 9.1";
+  :hasExpectedValue "0.0045";
   :hasSource "Hoerger 2004";
   :hasYear "2004" .
 
@@ -3808,17 +4232,76 @@ _:genid358 a owl:Restriction;
   :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
   :hasYear "2004" .
 
-:T1DM_StdModelDES a :DiscreteEventSimulationModel;
-  :includesModelItem :T1DM_BETA_Manif_NEU, :T1DM_DCCT1_ComplicationsFree_U, :T1DM_DCCT1_ComplicationsFree_U_L95CI,
-    :T1DM_DCCT1_ComplicationsFree_U_U95CI, :T1DM_Disease, :T1DM_Disease_AC, :T1DM_Group_Manif_CHD,
-    :T1DM_Intervention_DCCTIntensive, :T1DM_Intervention_DCCTIntensive_HbA1c_Modification,
-    :T1DM_Intervention_DCCTIntensive_HbA1c_Modification_StochasticUncertainty, :T1DM_Manif_ANGINA,
-    :T1DM_Manif_ANGINA_AC, :T1DM_Manif_ANGINA_Proportion, :T1DM_Manif_ANGINA_Proportion_ParamUncertainty,
+:T1DM_Stage_CHD_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Base incidence of any manifestation related to CHD when HbA1c is 9.1";
+  :hasExpectedValue "0.001";
+  :hasSource "Hoerger 2004";
+  :hasYear "2004" .
+
+:T1DM_Stage_CHD_Incidence_RR a owl:NamedIndividual, :CalculatedParameter, :Parameter;
+  :dependsOnAttribute :Attribute_HbA1c;
+  :dependsOnParameter :T1DM_Stage_CHD_IncidenceBase_RR;
+  :hasDataItemType :DI_RelativeRisk;
+  :hasExpressionLanguage :Exp_JEXL;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "RR for CHD-related complication, associated to a 1 PP increment of HbA1c with respect to 9.1";
+  :hasExpressionValue "T1DM_Stage_CHD_IncidenceBase_RR^(Attribute_HbA1c - 9.1)";
+  :hasSource "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007";
+  :hasYear "2004" .
+
+:T1DM_Stage_CHD_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Base incidence of any manifestation related to CHD when HbA1c is 9.1";
+  :hasExpectedValue "0.0084";
+  :hasSource "Hoerger 2004";
+  :hasYear "2004" .
+
+:T1DM_Stage_ESRD_Incidence a owl:NamedIndividual, :EpidemiologicalParameter, :SecondOrderUncertaintyParameter;
+  :hasDataItemType :DI_Probability;
+  :hasUncertaintyCharacterization :T1DM_Stage_ESRD_Incidence_L95CI, :T1DM_Stage_ESRD_Incidence_U95CI;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Incidence of end-stage renal disease";
+  :hasExpectedValue "2.0E-4";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Stage_ESRD_Incidence_L95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Lower95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Lower 95% confidence interval for Incidence of end-stage renal disease";
+  :hasExpectedValue "1.0E-4";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_Stage_ESRD_Incidence_U95CI a owl:NamedIndividual, :DeterministicParameter, :Parameter;
+  :hasDataItemType :DI_Upper95ConfidenceLimit;
+  :includedByModel :T1DM_StdModelDES;
+  :hasDescription "Upper 95% confidence interval for Incidence of end-stage renal disease";
+  :hasExpectedValue "3.0E-4";
+  :hasSource "DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001";
+  :hasYear "1995" .
+
+:T1DM_StdModelDES a owl:NamedIndividual, :DiscreteEventSimulationModel;
+  :includesModelItem :T1DM_BETA_Manif_ALB1, :T1DM_BETA_Manif_ALB2, :T1DM_BETA_Manif_NEU,
+    :T1DM_DCCT1_ComplicationsFree_U, :T1DM_DCCT1_ComplicationsFree_U_L95CI, :T1DM_DCCT1_ComplicationsFree_U_U95CI,
+    :T1DM_Disease, :T1DM_Disease_AC, :T1DM_Group_Manif_CHD, :T1DM_Group_Manif_NEU, :T1DM_Intervention_DCCTIntensive,
+    :T1DM_Intervention_DCCTIntensive_HbA1c_Modification, :T1DM_Intervention_DCCTIntensive_HbA1c_Modification_StochasticUncertainty,
+    :T1DM_Manif_ALB1, :T1DM_Manif_ALB1_AC, :T1DM_Manif_ALB1_Incidence, :T1DM_Manif_ALB1_Incidence_L95CI,
+    :T1DM_Manif_ALB1_Incidence_U95CI, :T1DM_Manif_ALB1_RR, :T1DM_Manif_ALB1_U, :T1DM_Manif_ALB2,
+    :T1DM_Manif_ALB2_AC, :T1DM_Manif_ALB2_IMR, :T1DM_Manif_ALB2_IMR_L95CI, :T1DM_Manif_ALB2_IMR_U95CI,
+    :T1DM_Manif_ALB2_Incidence, :T1DM_Manif_ALB2_Incidence_L95CI, :T1DM_Manif_ALB2_Incidence_U95CI,
+    :T1DM_Manif_ALB2_RR, :T1DM_Manif_ALB2_U, :T1DM_Manif_ALB2_U_L95CI, :T1DM_Manif_ALB2_U_U95CI,
+    :T1DM_Manif_ANGINA, :T1DM_Manif_ANGINA_AC, :T1DM_Manif_ANGINA_Proportion, :T1DM_Manif_ANGINA_Proportion_ParamUncertainty,
     :T1DM_Manif_ANGINA_TC, :T1DM_Manif_ANGINA_U, :T1DM_Manif_ANGINA_U_L95CI, :T1DM_Manif_ANGINA_U_U95CI,
-    :T1DM_Manif_HF, :T1DM_Manif_HF_AC, :T1DM_Manif_HF_Proportion, :T1DM_Manif_HF_Proportion_ParamUncertainty,
-    :T1DM_Manif_HF_TC, :T1DM_Manif_HF_U, :T1DM_Manif_HF_U_L95CI, :T1DM_Manif_HF_U_U95CI,
-    :T1DM_Manif_LEA, :T1DM_Manif_LEA_AC, :T1DM_Manif_LEA_IMR, :T1DM_Manif_LEA_IMR_L95CI,
-    :T1DM_Manif_LEA_IMR_U95CI, :T1DM_Manif_LEA_Incidence, :T1DM_Manif_LEA_Incidence_ParamUncertainty,
+    :T1DM_Manif_ESRD, :T1DM_Manif_ESRD_AC, :T1DM_Manif_ESRD_IMR, :T1DM_Manif_ESRD_IMR_L95CI,
+    :T1DM_Manif_ESRD_IMR_U95CI, :T1DM_Manif_ESRD_TC, :T1DM_Manif_ESRD_U, :T1DM_Manif_ESRD_U_L95CI,
+    :T1DM_Manif_ESRD_U_U95CI, :T1DM_Manif_HF, :T1DM_Manif_HF_AC, :T1DM_Manif_HF_Proportion,
+    :T1DM_Manif_HF_Proportion_ParamUncertainty, :T1DM_Manif_HF_TC, :T1DM_Manif_HF_U, :T1DM_Manif_HF_U_L95CI,
+    :T1DM_Manif_HF_U_U95CI, :T1DM_Manif_LEA, :T1DM_Manif_LEA_AC, :T1DM_Manif_LEA_IMR,
+    :T1DM_Manif_LEA_IMR_L95CI, :T1DM_Manif_LEA_IMR_U95CI, :T1DM_Manif_LEA_Incidence, :T1DM_Manif_LEA_Incidence_ParamUncertainty,
     :T1DM_Manif_LEA_TC, :T1DM_Manif_LEA_TC_ParamUncertainty, :T1DM_Manif_LEA_U, :T1DM_Manif_LEA_U_L95CI,
     :T1DM_Manif_LEA_U_U95CI, :T1DM_Manif_MI, :T1DM_Manif_MI_AC, :T1DM_Manif_MI_ProbDeath,
     :T1DM_Manif_MI_Proportion, :T1DM_Manif_MI_Proportion_ParamUncertainty, :T1DM_Manif_MI_TC,
@@ -3826,18 +4309,23 @@ _:genid358 a owl:Restriction;
     :T1DM_Manif_NEU_AC, :T1DM_Manif_NEU_IMR, :T1DM_Manif_NEU_IMR_L95CI, :T1DM_Manif_NEU_IMR_U95CI,
     :T1DM_Manif_NEU_Incidence, :T1DM_Manif_NEU_Incidence_L95CI, :T1DM_Manif_NEU_Incidence_U95CI,
     :T1DM_Manif_NEU_RR, :T1DM_Manif_NEU_U, :T1DM_Manif_NEU_U_L95CI, :T1DM_Manif_NEU_U_U95CI,
-    :T1DM_Manif_Pathway_ANGINA, :T1DM_Manif_Pathway_HF, :T1DM_Manif_Pathway_MI, :T1DM_Manif_Pathway_NEU_LEA,
-    :T1DM_Manif_Pathway_NEU_LEA_Incidence, :T1DM_Manif_Pathway_NEU_LEA_Incidence_L95CI,
-    :T1DM_Manif_Pathway_NEU_LEA_Incidence_U95CI, :T1DM_Manif_Pathway_STROKE, :T1DM_Manif_STROKE,
-    :T1DM_Manif_STROKE_AC, :T1DM_Manif_STROKE_ProbDeath, :T1DM_Manif_STROKE_Proportion,
-    :T1DM_Manif_STROKE_Proportion_ParamUncertainty, :T1DM_Manif_STROKE_TC, :T1DM_Manif_STROKE_U,
-    :T1DM_Manif_STROKE_U_L95CI, :T1DM_Manif_STROKE_U_U95CI, :T1DM_Population_DCCT1, :T1DM_Population_DCCT1_Age,
-    :T1DM_Population_DCCT1_DurationOfDiabetes, :T1DM_Population_DCCT1_DurationOfDiabetes_StochasticUncertainty,
+    :T1DM_Manif_Pathway_ALB1_ALB2, :T1DM_Manif_Pathway_ALB1_ALB2_Incidence, :T1DM_Manif_Pathway_ALB1_ALB2_Incidence_L95CI,
+    :T1DM_Manif_Pathway_ALB1_ALB2_Incidence_U95CI, :T1DM_Manif_Pathway_ALB1_ESRD, :T1DM_Manif_Pathway_ALB1_ESRD_Incidence,
+    :T1DM_Manif_Pathway_ALB1_ESRD_Incidence_L95CI, :T1DM_Manif_Pathway_ALB1_ESRD_Incidence_U95CI,
+    :T1DM_Manif_Pathway_ALB2_ESRD, :T1DM_Manif_Pathway_ALB2_ESRD_Incidence, :T1DM_Manif_Pathway_ALB2_ESRD_Incidence_L95CI,
+    :T1DM_Manif_Pathway_ALB2_ESRD_Incidence_U95CI, :T1DM_Manif_Pathway_ANGINA, :T1DM_Manif_Pathway_HF,
+    :T1DM_Manif_Pathway_MI, :T1DM_Manif_Pathway_NEU_LEA, :T1DM_Manif_Pathway_NEU_LEA_Incidence,
+    :T1DM_Manif_Pathway_NEU_LEA_Incidence_L95CI, :T1DM_Manif_Pathway_NEU_LEA_Incidence_U95CI,
+    :T1DM_Manif_Pathway_STROKE, :T1DM_Manif_STROKE, :T1DM_Manif_STROKE_AC, :T1DM_Manif_STROKE_ProbDeath,
+    :T1DM_Manif_STROKE_Proportion, :T1DM_Manif_STROKE_Proportion_ParamUncertainty, :T1DM_Manif_STROKE_TC,
+    :T1DM_Manif_STROKE_U, :T1DM_Manif_STROKE_U_L95CI, :T1DM_Manif_STROKE_U_U95CI, :T1DM_Population_DCCT1,
+    :T1DM_Population_DCCT1_Age, :T1DM_Population_DCCT1_DurationOfDiabetes, :T1DM_Population_DCCT1_DurationOfDiabetes_StochasticUncertainty,
     :T1DM_Population_DCCT1_HbA1c, :T1DM_Population_DCCT1_Sex, :T1DM_Population_DCCT1_Sex_StochasticUncertainty,
     :T1DM_Stage_CHD, :T1DM_Stage_CHD_IMR, :T1DM_Stage_CHD_IMR_L95CI, :T1DM_Stage_CHD_IMR_U95CI,
     :T1DM_Stage_CHD_Incidence, :T1DM_Stage_CHD_IncidenceBase_RR, :T1DM_Stage_CHD_IncidenceBase_RR_L95CI,
     :T1DM_Stage_CHD_IncidenceBase_RR_U95CI, :T1DM_Stage_CHD_Incidence_L95CI, :T1DM_Stage_CHD_Incidence_RR,
-    :T1DM_Stage_CHD_Incidence_U95CI;
+    :T1DM_Stage_CHD_Incidence_U95CI, :T1DM_Stage_ESRD_Incidence, :T1DM_Stage_ESRD_Incidence_L95CI,
+    :T1DM_Stage_ESRD_Incidence_U95CI;
   :hasAuthor "ICR";
   :hasDescription "First example of T1DM model";
   :hasDisutilityCombinationMethod "ADD";
