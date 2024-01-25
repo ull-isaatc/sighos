@@ -17,12 +17,13 @@ import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.ExclusiveChoiceFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.TimeFunctionDelayFlow;
 import es.ull.iis.simulation.whellChairs.listener.EveryoneOutListener;
 
 /**
- * Ejemplo de implementación de recursos, elementos y actividades. 
- * @author Jonel Alexander Rodríguez Rodríguez 
- * @author Raquel Rodríguez Díaz
+ * Ejemplo de implementaciï¿½n de recursos, elementos y actividades. 
+ * @author Jonel Alexander Rodrï¿½guez Rodrï¿½guez 
+ * @author Raquel Rodrï¿½guez Dï¿½az
 */
 
 public class BasicHUNSCsimulation extends Simulation {
@@ -30,16 +31,16 @@ public class BasicHUNSCsimulation extends Simulation {
 	final public static String STR_REL_CHAIR = "Soltar Silla"; 
 	final public static String STR_REQ_JANITOR = "Pedir bedel";
 	final public static String STR_REL_JANITOR = "Soltar bedel";
-	final public static String STR_AUTO_CHAIR = "Silla Automática"; 
+	final public static String STR_AUTO_CHAIR = "Silla Automï¿½tica"; 
 	final public static String STR_MANUAL_CHAIR = "Silla Manual"; 
-	final public static String STR_SECTION = "Sección"; 
+	final public static String STR_SECTION = "Secciï¿½n"; 
 	final public static String STR_JANITOR = "Bedel"; 
 	final public static String STR_DOCTOR = "Doctor"; 
 	final public static String STR_PATIENT = "Paciente";
 	final public static String STR_M_APPOINTMENT = "Consulta con silla manual";
-	final public static String STR_A_APPOINTMENT = "Consulta con silla automática";
+	final public static String STR_A_APPOINTMENT = "Consulta con silla automï¿½tica";
 	final public static String STR_M_STAND = "Levantarse de una silla manual";
-	final public static String STR_A_STAND = "Levantarse de una silla automática";
+	final public static String STR_A_STAND = "Levantarse de una silla automï¿½tica";
 	public static enum Density {
 		LOW,
 		MEDIUM_LOW,
@@ -100,7 +101,7 @@ public class BasicHUNSCsimulation extends Simulation {
 		final ResourceType rtDoctor = new ResourceType(this, STR_DOCTOR);
 		rtDoctor.addGenericResources(nDoctors);
 		
-		//Definición de los flujos de trabajo
+		//Definiciï¿½n de los flujos de trabajo
 		
 		final WorkGroup wgJanitorMChair = new WorkGroup(this, new ResourceType[] {rtJanitor, rtMChair}, new int[] {1,1});
 		final WorkGroup wgJanitor = new WorkGroup(this, rtJanitor, 1);
@@ -132,10 +133,10 @@ public class BasicHUNSCsimulation extends Simulation {
 		
 		// Creamos los tramos de la ruta que siguen las sillas
 		for (int i = 0; i < N_SECTIONS; i++) {
-			actASections[i] = new DelayFlow(this, STR_SECTION + i, T_SECTIONS[sections[i].ordinal()][i]);
-			actASectionsBack[N_SECTIONS - i - 1] = new DelayFlow(this, STR_SECTION + " (back)" + (N_SECTIONS - i - 1), T_SECTIONS[sections[i].ordinal()][i]);
-			actMSections[i] = new DelayFlow(this, STR_SECTION + i, new ModifiedFunction(T_SECTIONS[sections[i].ordinal()][i], manualFactor, 0.0));
-			actMSectionsBack[N_SECTIONS - i - 1] = new DelayFlow(this, STR_SECTION + " (back)" + (N_SECTIONS - i - 1), new ModifiedFunction(T_SECTIONS[sections[i].ordinal()][i], manualFactor, 0.0));
+			actASections[i] = new TimeFunctionDelayFlow(this, STR_SECTION + i, T_SECTIONS[sections[i].ordinal()][i]);
+			actASectionsBack[N_SECTIONS - i - 1] = new TimeFunctionDelayFlow(this, STR_SECTION + " (back)" + (N_SECTIONS - i - 1), T_SECTIONS[sections[i].ordinal()][i]);
+			actMSections[i] = new TimeFunctionDelayFlow(this, STR_SECTION + i, new ModifiedFunction(T_SECTIONS[sections[i].ordinal()][i], manualFactor, 0.0));
+			actMSectionsBack[N_SECTIONS - i - 1] = new TimeFunctionDelayFlow(this, STR_SECTION + " (back)" + (N_SECTIONS - i - 1), new ModifiedFunction(T_SECTIONS[sections[i].ordinal()][i], manualFactor, 0.0));
 		}
 		
 		// Conectamos los tramos de la ruta que siguen las sillas
@@ -157,9 +158,9 @@ public class BasicHUNSCsimulation extends Simulation {
 		actASections[N_SECTIONS - 1].link(actAAppointment).link(actASectionsBack[0]);
 		
 		// Creamos una actividad para levantarse de cada tipo de silla
-		final DelayFlow delMStand = new DelayFlow(this, STR_M_STAND, T_M_STAND);
+		final DelayFlow delMStand = new TimeFunctionDelayFlow(this, STR_M_STAND, T_M_STAND);
 		final ActivityFlow actAStand = new ActivityFlow(this, STR_A_STAND);
-		// En el caso de las sillas automáticas, requiere un bedel
+		// En el caso de las sillas automï¿½ticas, requiere un bedel
 		actAStand.newWorkGroupAdder(wgJanitor).withDelay(T_A_STAND).add();
 		actMSectionsBack[N_SECTIONS - 1].link(delMStand).link(relChair);
 		actASectionsBack[N_SECTIONS - 1].link(actAStand).link(relChair);
