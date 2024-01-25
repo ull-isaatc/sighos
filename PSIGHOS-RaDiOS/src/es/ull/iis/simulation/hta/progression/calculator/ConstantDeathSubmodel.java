@@ -8,14 +8,13 @@ import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.model.TimeUnit;
 
 public class ConstantDeathSubmodel implements TimeToEventCalculator {
-    final private double yearsToDie;
+    final private double lifeExpectancy;
 	/**
-	 * Creates a death submodel based on the Spanish 2016 Mortality risk
-	 * @param rng A random number generator
-	 * @param nPatients Number of simulated patients
+	 * Creates a death submodel based on a fixed life expectancy.
+	 * @param lifeExpectancy Years of life expectancy
 	 */
-	public ConstantDeathSubmodel(double yearsToDie) {
-        this.yearsToDie = yearsToDie;
+	public ConstantDeathSubmodel(double lifeExpectancy) {
+        this.lifeExpectancy = lifeExpectancy;
 	}
 
 	@Override
@@ -24,8 +23,8 @@ public class ConstantDeathSubmodel implements TimeToEventCalculator {
 	}
 
 	/**
-	 * Returns the simulation time until the death of the patient, according to the Spanish mortality tables and increased according to the 
-	 * state of the patient. 
+	 * Returns the simulation time until the death of the patient. Initially the life expectancy is used, but increased mortality rates and/or
+	 * reduction of life expectancy due to manifestations apply according to the state of the patient. 
 	 * @param pat A patient
 	 * @return Simulation time to death of the patient or to MAX_AGE 
 	 */
@@ -50,7 +49,7 @@ public class ConstantDeathSubmodel implements TimeToEventCalculator {
 		// Taking into account modification of death due to the intervention
 		final ParameterModifier imrModif = pat.getIntervention().getMortalityRiskModification();
 		imr = imrModif.getModifiedValue(pat, imr);
-		return Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, yearsToDie / imr) - ler, Population.DEF_MAX_AGE - age));			
+		return Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, lifeExpectancy / imr) - ler, Population.DEF_MAX_AGE - age));			
 	}
     
 }

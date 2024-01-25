@@ -6,6 +6,8 @@ package es.ull.iis.simulation.hta.tests;
 import es.ull.iis.simulation.hta.HTAExperiment.MalformedSimulationModelException;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.ConstantNatureParameter;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.populations.StdPopulation;
@@ -21,7 +23,14 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class TestPopulation extends StdPopulation {
+	final public static String ATTRIBUTE_LDL = "LDL";
+	final public static String ATTRIBUTE_HDL = "HDL";
 	final private TimeToEventCalculator death;
+	private double ldl = 85.0;
+	private double hdl = 55.0;
+	private int sex = 0;
+	private int age = Population.DEF_MIN_AGE;
+	
 	/**
 	 * 
 	 * @param disease
@@ -33,7 +42,7 @@ public class TestPopulation extends StdPopulation {
 
 	@Override
 	protected DiscreteRandomVariate getSexVariate(Patient pat) {
-		return RandomVariateFactory.getDiscreteRandomVariateInstance("DiscreteConstantVariate", getCommonRandomNumber(), 0);
+		return RandomVariateFactory.getDiscreteRandomVariateInstance("DiscreteConstantVariate", getCommonRandomNumber(), sex);
 	}
 
 	@Override
@@ -48,21 +57,49 @@ public class TestPopulation extends StdPopulation {
 
 	@Override
 	protected RandomVariate getBaselineAgeVariate(Patient pat) {
-		return RandomVariateFactory.getInstance("ConstantVariate", Population.DEF_MIN_AGE);
+		return RandomVariateFactory.getInstance("ConstantVariate", age);
 	}
 
 	@Override
 	public void createParameters() {
+		model.addParameter(new ConstantNatureParameter(getModel(), ATTRIBUTE_HDL, "High Density Lipoprotein", "", ParameterType.ATTRIBUTE, hdl));
+		model.addParameter(new ConstantNatureParameter(getModel(), ATTRIBUTE_LDL, "Low Density Lipoprotein", "", ParameterType.ATTRIBUTE, ldl));
+
 		addUsedParameter(StandardParameter.POPULATION_BASE_UTILITY, "", "Assumption", Population.DEF_U_GENERAL_POP);
 	}
 
 	@Override
 	public int getMinAge() {
-		return Population.DEF_MIN_AGE;
+		return Math.min(age, Population.DEF_MIN_AGE);
 	}
 
 	@Override
 	public TimeToEventCalculator getDeathCharacterization() {
 		return death;
 	}
+
+	public double getLDL() {
+		return ldl;
+	}
+
+	public void setLDL(double ldl) {
+		this.ldl = ldl;
+	}
+
+	public double getHDL() {
+		return hdl;
+	}
+
+	public void setHDL(double hdl) {
+		this.hdl = hdl;
+	}
+
+	public void setSex(int sex) {
+		this.sex = sex;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
 }

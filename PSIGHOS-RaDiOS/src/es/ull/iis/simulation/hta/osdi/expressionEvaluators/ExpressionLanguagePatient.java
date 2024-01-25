@@ -15,7 +15,7 @@ import es.ull.iis.simulation.hta.Patient;
  *
  */
 public class ExpressionLanguagePatient implements JexlContext {
-	private final Map<String, Double> fixedValues;
+	private final Map<String, Object> fixedValues;
 	private final Patient pat;
 	
 	/**
@@ -26,7 +26,6 @@ public class ExpressionLanguagePatient implements JexlContext {
 		fixedValues = new TreeMap<>();
 		set("AGE", pat.getAge());
 		set("SEX", pat.getSex());
-		set("DISEASE", pat.getDisease().name());
 		set("DIAGNOSED", pat.isDiagnosed());
 		set("INTERVENTION", pat.getnIntervention());
 	}
@@ -34,7 +33,7 @@ public class ExpressionLanguagePatient implements JexlContext {
 
 	@Override
 	public Object get(String name) {
-		if (has(name))
+		if (fixedValues.containsKey(name))
 			return fixedValues.get(name);
 		double paramValue = pat.getSimulation().getModel().getParameterValue(name, pat);
 		if (!Double.isNaN(paramValue))
@@ -44,7 +43,7 @@ public class ExpressionLanguagePatient implements JexlContext {
 
 	@Override
 	public void set(String name, Object value) {
-		fixedValues.put(name, (Double) value);
+		fixedValues.put(name, value);
 	}
 
 	@Override
