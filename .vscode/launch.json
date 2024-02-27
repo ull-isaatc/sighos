@@ -1,0 +1,596 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "BigHospital",
+            "request": "launch",
+            "mainClass": "es.ull.isaatc.simulation.hospital.BigHospital",
+            "projectName": "BigHospital"
+        },
+        {
+            "type": "java",
+            "name": "CheckActivityOutput",
+            "request": "launch",
+            "mainClass": "es.ull.isaatc.simulation.hospital.CheckActivityOutput",
+            "projectName": "BigHospital"
+        },
+        {
+            "type": "java",
+            "name": "SpanishCPIUpdate",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.SpanishCPIUpdate",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "SpanishIPCUpdate",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.SpanishIPCUpdate",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "Test",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.Test",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "TestAnnualTimeToEvent",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.TestAnnualTimeToEvent",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "TestGompertz",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.TestGompertz",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "TestSpanishDeath",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.TestSpanishDeath",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "DiabetesMainValidateDCCT",
+            "request": "launch",
+            "args": ["-q", "--runs", "0", "-pop", "11", "-ep", "c"],
+            "mainClass": "es.ull.iis.simulation.hta.diabetes.DiabetesMain",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "T1DMMainTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.diabetes.T1DMMainTest",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "DiabPlusExplorationMain",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.diabetes.diabplus.DiabPlusExplorationMain",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "DiabPlusExplorationSecondOrderRepository",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.diabetes.diabplus.DiabPlusExplorationSecondOrderRepository",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "DiabPlusMain",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.diabetes.diabplus.DiabPlusMain",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "PostProcessor",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.diabetes.diabplus.PostProcessor",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "UnawareMonitoSecondOrderParams",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.diabetes.htaReportCGM.UnawareMonitoSecondOrderParams",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "UncontrolledMonitoSecondOrderParams",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.diabetes.htaReportCGM.UncontrolledMonitoSecondOrderParams",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "T2DMPrositRETSubmodel",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositRETSubmodel",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "T2DMInnerValidation",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.diabetes.validationStudies.T2DMInnerValidation",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "RETALMain",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.retal.RETALMain",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "AntiVEGFCostTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.retal.test.AntiVEGFCostTest",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "ClinicalPresentationARMDParamTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.retal.test.ClinicalPresentationARMDParamTest",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "ClinicalPresentationDRParamTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.retal.test.ClinicalPresentationDRParamTest",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "DiscountTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.retal.test.DiscountTest",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "VAParam",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.retal.test.VAParam",
+            "projectName": "PSIGHOS-HTA"
+        },
+        {
+            "type": "java",
+            "name": "LaundryMain",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.laundry.LaundryMain",
+            "projectName": "PSIGHOS-Laundry"
+        },
+        {
+            "type": "java",
+            "name": "DiseaseMain",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.DiseaseMain",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "T1DMInstancesGenerator",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.osdi.generators.T1DMInstancesGenerator",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "OSDiWrapper",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.osdi.ontology.OSDiWrapper",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "SpanishCPIUpdate(1)",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.params.SpanishCPIUpdate",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "JavaluatorTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.legacy.JavaluatorTest",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "RegexpTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.legacy.RegexpTest",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "TestAnnualTimeToEvent(1)",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.legacy.TestAnnualTimeToEvent",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "TestDiscounts",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.legacy.TestDiscounts",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "TestGompertz(1)",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.legacy.TestGompertz",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "TestSpanishDeath(1)",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.hta.tests.legacy.TestSpanishDeath",
+            "projectName": "PSIGHOS-OSDi"
+        },
+        {
+            "type": "java",
+            "name": "PortMain",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.PortMain",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "PortParkingExperiment",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.parking.PortParkingExperiment",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "DatosEntrada",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.portYardEarth.DatosEntrada",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "TiemposConcluyentes",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.portYardEarth.TiemposConcluyentes",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "AdHocExperiment",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.sea2yard.AdHocExperiment",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "CalculateOptimumSpecificVehiclesExperiment",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.sea2yard.CalculateOptimumSpecificVehiclesExperiment",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "CalculateOptimumVehiclesExperiment",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.sea2yard.CalculateOptimumVehiclesExperiment",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "CalculateRobustnessExperiment",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.sea2yard.CalculateRobustnessExperiment",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "CompleteVehiclesExperiment",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.sea2yard.CompleteVehiclesExperiment",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "QCSP2StowagePlan",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.sea2yard.QCSP2StowagePlan",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "QCSPSolutionWriter",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.sea2yard.QCSPSolutionWriter",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "ResultPreprocessor",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.sea2yard.ResultPreprocessor",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "TestVehicleIterators",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.port.sea2yard.TestVehicleIterators",
+            "projectName": "PSIGHOS-Port"
+        },
+        {
+            "type": "java",
+            "name": "BarrelShipping",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.examples.BarrelShipping",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "BasicHospitalMain",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.examples.hospital.BasicHospitalMain",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "BenchmarkTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.BenchmarkTest",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "EnumVariableTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.EnumVariableTest",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "PercentageConditionExample",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.PercentageConditionExample",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestConditionalResourceGenerator",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestConditionalResourceGenerator",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestConflict",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestConflict",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestDynamicGeneration",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestDynamicGeneration",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestGeneralizedMergeStructures",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestGeneralizedMergeStructures",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestInterruptibleActivities",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestInterruptibleActivities",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestOverlapped",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestOverlapped",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestPerformance",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestPerformance",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestPriorityElement",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestPriorityElement",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestProbabilitySelectionFlow",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestProbabilitySelectionFlow",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestRTStructure",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestRTStructure",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestReleaseWorkGroup",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestReleaseWorkGroup",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestResourcesManagement",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestResourcesManagement",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestWaitForSignalFlow",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.TestWaitForSignalFlow",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "VariableManagerTest1",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.VariableManagerTest1",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "WFPTestMain",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.WFP.WFPTestMain",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestLocation",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.location.TestLocation",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestResourcesLocation",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.location.TestResourcesLocation",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestTransport",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.test.location.TestTransport",
+            "projectName": "PSIGHOS"
+        },
+        {
+            "type": "java",
+            "name": "BasicHUNSCTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.whellChairs.BasicHUNSCTest",
+            "projectName": "WheelChairs"
+        },
+        {
+            "type": "java",
+            "name": "BasicHUNSCmain",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.whellChairs.BasicHUNSCmain",
+            "projectName": "WheelChairs"
+        },
+        {
+            "type": "java",
+            "name": "CompleteExperiment",
+            "request": "launch",
+            "mainClass": "es.ull.iis.simulation.whellChairs.CompleteExperiment",
+            "projectName": "WheelChairs"
+        },
+        {
+            "type": "java",
+            "name": "XMLGHOS",
+            "request": "launch",
+            "mainClass": "es.ull.isaatc.simulation.XMLGHOS",
+            "projectName": "XMLGHOS"
+        },
+        {
+            "type": "java",
+            "name": "TestXMLGHOS",
+            "request": "launch",
+            "mainClass": "es.ull.isaatc.simulation.xml.test.TestXMLGHOS",
+            "projectName": "XMLGHOS"
+        },
+        {
+            "type": "java",
+            "name": "CycleTest",
+            "request": "launch",
+            "mainClass": "es.ull.iis.utils.tests.CycleTest",
+            "projectName": "utils"
+        },
+        {
+            "type": "java",
+            "name": "TestClassCreation",
+            "request": "launch",
+            "mainClass": "es.ull.iis.utils.tests.TestClassCreation",
+            "projectName": "utils"
+        },
+        {
+            "type": "java",
+            "name": "TestEvents",
+            "request": "launch",
+            "mainClass": "es.ull.iis.utils.tests.TestEvents",
+            "projectName": "utils"
+        },
+        {
+            "type": "java",
+            "name": "TestHash",
+            "request": "launch",
+            "mainClass": "es.ull.iis.utils.tests.TestHash",
+            "projectName": "utils"
+        },
+        {
+            "type": "java",
+            "name": "TestLists",
+            "request": "launch",
+            "mainClass": "es.ull.iis.utils.tests.TestLists",
+            "projectName": "utils"
+        },
+        {
+            "type": "java",
+            "name": "TestSimKitRandom",
+            "request": "launch",
+            "mainClass": "es.ull.iis.utils.tests.TestSimKitRandom",
+            "projectName": "utils"
+        },
+        {
+            "type": "java",
+            "name": "TestStupidMethod",
+            "request": "launch",
+            "mainClass": "es.ull.iis.utils.tests.TestStupidMethod",
+            "projectName": "utils"
+        }
+    ]
+}

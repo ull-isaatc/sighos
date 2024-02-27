@@ -20,7 +20,8 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 import es.ull.iis.simulation.hta.diabetes.DCCT.DCCTSecondOrderParams;
-import es.ull.iis.simulation.hta.diabetes.DCCT.DCCTSecondOrderParams1;
+import es.ull.iis.simulation.hta.diabetes.DCCT.DCCTPrimaryConventionalSecondOrderParams;
+import es.ull.iis.simulation.hta.diabetes.DCCT.DCCTPrimaryIntensiveSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.canada.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.htaReportCGM.UnawareMonitoSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.htaReportCGM.UncontrolledMonitoSecondOrderParams;
@@ -55,7 +56,7 @@ import es.ull.iis.simulation.hta.diabetes.validationStudies.SMILESecondOrderPara
 
 /**
  * Main class to launch simulation experiments
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  *
  */
 public class DiabetesMain {
@@ -377,7 +378,7 @@ public class DiabetesMain {
         outListeners.close();
 	}
 
-	// Arguments for cross-validation of diabetes-HTA model and diabetes-RADIOS model: -n 20000 -r 0 -y 2019 -pop 9  -ep ca  -D NEU -D NPH -D CHD -D SHE -o "D:\Mi unidad\Investigación\Proyectos\RaDiOS\check.txt" 
+	// Arguments for cross-validation of diabetes-HTA model and diabetes-RADIOS model: -n 20000 -r 0 -y 2019 -pop 9  -ep ca  -D NEU -D NPH -D CHD -D SHE -o "D:\Mi unidad\Investigaciï¿½n\Proyectos\RaDiOS\check.txt" 
 	public static void main(String[] args) {
 		final Arguments args1 = new Arguments();
 		try {
@@ -427,7 +428,10 @@ public class DiabetesMain {
 	        		secParams = new UnawareMonitoSecondOrderParams(args1.nPatients);
 	        		break;
 	        	case 11:
-	        		secParams = new DCCTSecondOrderParams1(args1.nPatients);
+	        		secParams = new DCCTPrimaryConventionalSecondOrderParams(args1.nPatients);
+	        		break;
+				case 12:
+	        		secParams = new DCCTPrimaryIntensiveSecondOrderParams(args1.nPatients);
 	        		break;
 	        	default:
 	        		secParams = new UnconsciousSecondOrderParams(args1.nPatients);
@@ -597,7 +601,7 @@ public class DiabetesMain {
 
 	/**
 	 * The executor of simulations. Each problem executor launches a set of simulation experiments
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 */
 	private class ProblemExecutor implements Runnable {
 		final private PrintWriter out;
@@ -622,7 +626,7 @@ public class DiabetesMain {
 	
 	/**
 	 * A class to print the progression of the simulations
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 *
 	 */
 	private class PrintProgress {

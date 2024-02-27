@@ -28,7 +28,7 @@ import es.ull.iis.simulation.hta.diabetes.submodels.StandardSpainDeathSubmodel;
 import simkit.random.RandomVariateFactory;
 
 /**
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  *
  */
 public class DCCTSecondOrderParams1 extends SecondOrderParamsRepository {
@@ -41,7 +41,7 @@ public class DCCTSecondOrderParams1 extends SecondOrderParamsRepository {
 	 * @param nPatients Number of patients to create
 	 */
 	public DCCTSecondOrderParams1(int nPatients) {
-		super(nPatients, new DCCTPopulation1());
+		super(nPatients, new DCCTPrimaryIntensivePopulation());
 
 		addProbParam(new SecondOrderParam(getInitProbString(SimpleNEUSubmodel.NEU), "Initial probability of neuropathy", 
 				"DDCCT: https://www.nejm.org/doi/10.1056/NEJM199309303291401", P_INI_NEU_BETA[0] / (P_INI_NEU_BETA[0] + P_INI_NEU_BETA[1]), RandomVariateFactory.getInstance("BetaVariate", P_INI_NEU_BETA[0], P_INI_NEU_BETA[1])));

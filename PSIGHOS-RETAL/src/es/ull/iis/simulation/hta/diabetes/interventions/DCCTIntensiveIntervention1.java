@@ -38,7 +38,7 @@ public class DCCTIntensiveIntervention1 extends SecondOrderDiabetesIntervention 
 		 */
 		public IntensiveTherapy(int id, SecondOrderParamsRepository secParams) {
 			super(id, BasicConfigParams.DEF_MAX_AGE);
-			rnd = RandomVariateFactory.getInstance("ConstantVariate", 1.5);
+			rnd = RandomVariateFactory.getInstance("ConstantVariate", 1.9);
 		}
 
 		@Override

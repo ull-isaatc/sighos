@@ -56,7 +56,7 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicati
  * Main class to launch simulation experiments
  * For example:
  * - to create data based on a JSON-defined patient: -q -n 100 -r 1000 -p
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  *
  */
 public class DiabPlusMain {
@@ -494,25 +494,26 @@ public class DiabPlusMain {
 		try {
 			String str = new String(Files.readAllBytes(Paths.get(jsonFile)));
 			json = new JSONObject(str).getJSONObject("patient");
+			final double hypoRate = json.getDouble("hypoRate");
+			final double hypoRateRR = json.getDouble("hypoRateRR");
+			final double baseHbA1cLevel = json.getDouble("baseHbA1cLevel");
+			final double objHbA1cLevel = json.getDouble("objHbA1cLevel");
+			final double annualCost = json.getDouble("annualCost");
+			final double age = json.getDouble("age");
+			final double durationOfDiabetes = json.getDouble("durationOfDiabetes");
+			final boolean man = json.getBoolean("man");
+			
+			final JSONArray jmanif = json.getJSONArray("manifestations");
+			for (int i = 0; i < jmanif.length(); i++) {
+				final String manif = jmanif.getString(i);
+				BasicConfigParams.INIT_PROP.put(manif, 1.0);
+			}
+			final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man ? Sex.MAN : Sex.WOMAN, baseHbA1cLevel, age, durationOfDiabetes, hypoRate);
+			return new DiabPlusSecondOrderRepository(nPatients, population, objHbA1cLevel, hypoRateRR, annualCost);		
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
-		final double hypoRate = json.getDouble("hypoRate");
-		final double hypoRateRR = json.getDouble("hypoRateRR");
-		final double baseHbA1cLevel = json.getDouble("baseHbA1cLevel");
-		final double objHbA1cLevel = json.getDouble("objHbA1cLevel");
-		final double annualCost = json.getDouble("annualCost");
-		final double age = json.getDouble("age");
-		final double durationOfDiabetes = json.getDouble("durationOfDiabetes");
-		final boolean man = json.getBoolean("man");
-		
-		final JSONArray jmanif = json.getJSONArray("manifestations");
-		for (int i = 0; i < jmanif.length(); i++) {
-			final String manif = jmanif.getString(i);
-			BasicConfigParams.INIT_PROP.put(manif, 1.0);
-		}
-		final DiabPlusStdPopulation population = new DiabPlusStdPopulation(man ? Sex.MAN : Sex.WOMAN, baseHbA1cLevel, age, durationOfDiabetes, hypoRate);
-        return new DiabPlusSecondOrderRepository(nPatients, population, objHbA1cLevel, hypoRateRR, annualCost);		
 	}
 	
 	public static void main(String[] args) {
@@ -693,7 +694,7 @@ public class DiabPlusMain {
 
 	/**
 	 * The executor of simulations. Each problem executor launches a set of simulation experiments
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 */
 	private class ProblemExecutor implements Runnable {
 		final private PrintWriter out;
@@ -718,7 +719,7 @@ public class DiabPlusMain {
 	
 	/**
 	 * A class to print the progression of the simulations
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 *
 	 */
 	private class PrintProgress {
