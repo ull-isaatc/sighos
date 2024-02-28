@@ -145,12 +145,12 @@ public class T1DMDisease extends Disease {
 
 	// Flags for validation and comparison
 	public static final boolean DISABLE_CHD = false;
-	public static final boolean DISABLE_RET = true;
-	public static final boolean DISABLE_NEU = true;
-	public static final boolean DISABLE_NPH = true;
-	public static final boolean DISABLE_SHE = true;
+	public static final boolean DISABLE_RET = false;
+	public static final boolean DISABLE_NEU = false;
+	public static final boolean DISABLE_NPH = false;
+	public static final boolean DISABLE_SHE = false;
 	/** Uses fix values for initial age, HbA1c level and duration of diabetes */
-	public static final boolean FIXED_BASE_VALUES = true;
+	public static final boolean FIXED_BASE_VALUES = false;
 	
 	/**
 	 * @param model
