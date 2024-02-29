@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.progression.calculator;
 
 import java.util.Arrays;
 
-import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.HTAModel;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.PatientCommonRandomNumbers;
@@ -79,8 +78,8 @@ public class EmpiricalSpainDeathSubmodel implements TimeToEventCalculator {
 				10000}
 	};
 	private final RandomNumber rng = PatientCommonRandomNumbers.getRNG();
-	/** A random value [0, 1] for each patient (useful for common numbers techniques) and simulation */
-	// FIXME: To be coherent, the same value should be generated for the same patient in every simulation
+	/** A pair of random values [0, 1] for each patient (useful for common numbers techniques). The first value is used to compute the age at death, 
+	 * and the second one to add some randomness in the exact date of death */
 	private final double[][] rnd;
 
 	/**
@@ -89,11 +88,11 @@ public class EmpiricalSpainDeathSubmodel implements TimeToEventCalculator {
 	 * @param nPatients Number of simulated patients
 	 */
 	public EmpiricalSpainDeathSubmodel(HTAModel model) {
-		rnd = new double[model.getExperiment().getNRuns() + 1][model.getExperiment().getNPatients()];
-		for (int i = 0; i < model.getExperiment().getNRuns() + 1; i++)
-			for (int j = 0; j < model.getExperiment().getNPatients(); j++) {
-				rnd[i][j] = rng.draw();
-			}
+		rnd = new double[model.getExperiment().getNPatients()][2];
+		for (int i = 0; i < model.getExperiment().getNPatients(); i++) {
+			rnd[i][0] = rng.draw();
+			rnd[i][1] = rng.draw();
+		}
 	}
 	
 	@Override
@@ -109,8 +108,6 @@ public class EmpiricalSpainDeathSubmodel implements TimeToEventCalculator {
 	 */
 	@Override
 	public double getTimeToEvent(Patient pat) {
-		final DiseaseProgressionSimulation simul = pat.getSimulation();
-		final int simulId = simul.getIdentifier();
 		final double age = pat.getAge();
 		
 		double imr = 1.0;
@@ -133,12 +130,12 @@ public class EmpiricalSpainDeathSubmodel implements TimeToEventCalculator {
 		imr = imrModif.getModifiedValue(pat, imr);
 		
 		final int sex = pat.getSex();
-		final double rnd = this.rnd[simulId][pat.getIdentifier()];
+		final double patRnd = this.rnd[pat.getIdentifier()][0];
 		
 		final double reference = INV_SURVIVAL[sex][100 - (int)age];
-		final double index = rnd * reference / imr;
+		final double index = patRnd * reference / imr;
 		final int ageToDeath = 101 - Math.abs(Arrays.binarySearch(INV_SURVIVAL[sex], index));
-		final double time = Math.min((ageToDeath > age) ? ageToDeath - age + rnd : rnd, Population.DEF_MAX_AGE - age);
+		final double time = Math.min((ageToDeath > age) ? ageToDeath - age + this.rnd[pat.getIdentifier()][1] : this.rnd[pat.getIdentifier()][1], Population.DEF_MAX_AGE - age);
 		// TODO: Check that this works properly
 		return Math.max(0.0,  Math.min(leModif.getModifiedValue(pat, time - ler), Population.DEF_MAX_AGE - age));
 	}
