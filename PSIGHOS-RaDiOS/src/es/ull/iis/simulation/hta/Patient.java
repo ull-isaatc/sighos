@@ -259,8 +259,20 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	/**
 	 * Sets the patient as dead
 	 */
-	public void setDead() {
+	public void setDead(DiseaseProgression cause) {
+		// Cancel all events that cannot happen now but the one that causes the death
+		for (final DiseaseProgression progression : nextProgressionEvents.keySet()) {
+			if (!progression.equals(cause)) {
+				final DiseaseProgressionEvent event = nextProgressionEvents.get(progression);
+				if (event.getTs() >= getTs()) {
+					event.cancel();
+				}
+			}
+		}
+		nextProgressionEvents.clear();
 		this.dead = true;
+		simul.notifyInfo(new PatientInfo(simul, this, PatientInfo.Type.DEATH, cause, getTs()));
+		notifyEnd();
 	}
 
 	/**
@@ -532,9 +544,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 					}					
 				}				
 				if (deadsByDiseaseProgression(progression)) {
-					deathEvent.cancel();
-					deathEvent = new DeathEvent(ts, progression);
-					simul.addEvent(deathEvent);
+					setDead(progression);
 				}
 				else {
 					// Recompute time to death in case the risk increases
@@ -593,19 +603,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 
 		@Override
 		public void event() {
-			// Cancel all events that cannot happen now but the one that causes the death
-			for (final DiseaseProgression progression : nextProgressionEvents.keySet()) {
-				if (!progression.equals(cause)) {
-					final DiseaseProgressionEvent event = nextProgressionEvents.get(progression);
-					if (event.getTs() >= getTs()) {
-						event.cancel();
-					}
-				}
-			}
-			nextProgressionEvents.clear();
-			setDead();
-			simul.notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DEATH, cause, this.getTs()));
-			notifyEnd();
+			setDead(cause);
 		}
 	
 		@Override
