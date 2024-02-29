@@ -24,7 +24,7 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
  * <code>endTs</code> is reached, it stores its state. This state can be
  * obtained by using the <code>getState</code> method.
  * 
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  */
 public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engine.SimulationEngine {
 
@@ -210,6 +210,10 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 			}
 			// Executes user-specified actions after all the events with the same timestamp have been executed
             simul.afterClockTick();
+			// Updates the clock to the next valid event
+			while (waitQueue.peek().isCancelled()) {
+				waitQueue.poll();
+			}
 			final long newLVT = waitQueue.peek().getTs();
 			// Executes user-specified actions before the clock advances
             simul.beforeClockTick();

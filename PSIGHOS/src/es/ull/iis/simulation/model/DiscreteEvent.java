@@ -47,6 +47,14 @@ public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEven
     }
     
     /**
+     * Checks if this event has been cancelled.
+     * @return True if the event has been cancelled; false otherwise.
+     */
+    public boolean isCancelled() {
+    	return cancelled;
+    }
+
+    /**
      * String representation of the event
      * @return A character string "Ev()[#]".
      */
@@ -80,7 +88,7 @@ public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEven
     /**
      * The last event this element executes. It decrements the total amount of elements of the
      * simulation.
-     * @author Iván Castilla Rodríguez
+     * @author Ivï¿½n Castilla Rodrï¿½guez
      */
     public static class DefaultFinalizeEvent extends DiscreteEvent {
     	final protected EventSource source;
@@ -97,7 +105,7 @@ public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEven
 
     /**
      * The first event this element executes.
-     * @author Iván Castilla Rodríguez
+     * @author Ivï¿½n Castilla Rodrï¿½guez
      *
      */
     public static class DefaultStartEvent extends DiscreteEvent {
