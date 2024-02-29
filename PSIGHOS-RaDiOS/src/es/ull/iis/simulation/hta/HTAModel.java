@@ -238,6 +238,7 @@ public class HTAModel {
 	/**
 	 * Returns the already registered disease progressions of the specified type
 	 * @return The already registered disease progressions of the specified type
+	 * FIXME: Should I order the array?
 	 */
 	public DiseaseProgression[] getRegisteredDiseaseProgressions(DiseaseProgression.Type type) {
 		final ArrayList<DiseaseProgression> arrayTyped = new ArrayList<>();

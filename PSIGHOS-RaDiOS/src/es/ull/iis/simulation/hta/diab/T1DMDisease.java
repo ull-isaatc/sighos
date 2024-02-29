@@ -27,6 +27,8 @@ import es.ull.iis.simulation.hta.diab.manifestations.SevereHypoglycemiaEvent;
 import es.ull.iis.simulation.hta.diab.manifestations.Stroke;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.Parameter;
+import es.ull.iis.simulation.hta.params.Parameter.ParameterType;
+import es.ull.iis.simulation.hta.params.ParameterTemplate;
 import es.ull.iis.simulation.hta.params.StandardParameter;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
@@ -53,6 +55,29 @@ public class T1DMDisease extends Disease {
 		HYPO
 	};
 	
+	private static final ParameterTemplate BETA = new ParameterTemplate() {
+
+		@Override
+		public String getDefaultDescription() {
+			return "Beta parameter as described in Sheffield study";
+		}
+
+		@Override
+		public double getDefaultValue() {
+			return 1.0;
+		}
+
+		@Override
+		public ParameterType getType() {
+			return ParameterType.RISK;
+		}
+
+		@Override
+		public String getPrefix() {
+			return "BETA_";
+		}
+		
+	};
 	public static class DEF_C_DNC {
 		/** Value computed by substracting the burden of complications from the global burden of DM1 in Spain; 
 		 * finally divided by the prevalent DM1 population */
@@ -369,8 +394,10 @@ public class T1DMDisease extends Disease {
 	private void registerNPHParameters(HTAModel model) {
 		if (!DISABLE_NPH) {
 			// Adds parameters to compute HbA1c-dependent progressions for nephropathy-related complications 
-			StandardParameter.RELATIVE_RISK.addToModel(model, alb1, "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", BETA_ALB1); 
-			StandardParameter.RELATIVE_RISK.addToModel(model, alb2, "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", BETA_ALB2);
+			BETA.addToModel(model, alb1, "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", BETA_ALB1);
+			model.addParameter(new SheffieldRRParameter(model, StandardParameter.RELATIVE_RISK.createName(alb1), BETA.createName(alb1)));
+			BETA.addToModel(model, alb2, "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", BETA_ALB2);
+			model.addParameter(new SheffieldRRParameter(model, StandardParameter.RELATIVE_RISK.createName(alb2), BETA.createName(alb2)));
 	
 			// Add transition probabilities for nephropathy-related complications
 			final double[] paramsALB1_ESRD = Statistics.betaParametersFromNormal(P_ALB1_ESRD, Statistics.sdFrom95CI(CI_ALB1_ESRD));
@@ -393,8 +420,8 @@ public class T1DMDisease extends Disease {
 	private void registerNEUParameters(HTAModel model) {
 		if (!DISABLE_NEU) {
 			// Adds parameters to compute HbA1c-dependent progressions for neuropathy-related complications 
-			StandardParameter.RELATIVE_RISK.addToModel(model, neu, 
-					"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", BETA_NEU);
+			BETA.addToModel(model, neu, "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", BETA_NEU);
+			model.addParameter(new SheffieldRRParameter(model, StandardParameter.RELATIVE_RISK.createName(neu), BETA.createName(neu)));
 			
 			// Add transition probabilities for neuropathy-related complications
 			final double[] paramsDNC_NEU = Statistics.betaParametersFromNormal(P_DNC_NEU, Statistics.sdFrom95CI(CI_DNC_NEU));
@@ -419,9 +446,12 @@ public class T1DMDisease extends Disease {
 	private void registerRETParameters(HTAModel model) {
 		if (!DISABLE_RET) {
 			// Adds parameters to compute HbA1c-dependent progressions for retinopathy-related complications 
-			StandardParameter.RELATIVE_RISK.addToModel(model, bgret,	"WESDR XXII, as adapted by Sheffield", BETA_BGRET);
-			StandardParameter.RELATIVE_RISK.addToModel(model, pret,	"WESDR XXII, as adapted by Sheffield", BETA_PRET);
-			StandardParameter.RELATIVE_RISK.addToModel(model, me,	"WESDR XXII, as adapted by Sheffield", BETA_ME);
+			BETA.addToModel(model, bgret, "WESDR XXII, as adapted by Sheffield", BETA_BGRET);
+			model.addParameter(new SheffieldRRParameter(model, StandardParameter.RELATIVE_RISK.createName(bgret), BETA.createName(bgret)));
+			BETA.addToModel(model, pret,	"WESDR XXII, as adapted by Sheffield", BETA_PRET);
+			model.addParameter(new SheffieldRRParameter(model, StandardParameter.RELATIVE_RISK.createName(pret), BETA.createName(pret)));
+			BETA.addToModel(model, me,	"WESDR XXII, as adapted by Sheffield", BETA_ME);
+			model.addParameter(new SheffieldRRParameter(model, StandardParameter.RELATIVE_RISK.createName(me), BETA.createName(me)));
 
 			// Add transition probabilities for retinopathy-related complications
 			StandardParameter.PROBABILITY.addToModel(model, bgret,
@@ -498,8 +528,8 @@ public class T1DMDisease extends Disease {
 	 */
 	public static class SheffieldRRParameter extends Parameter {
 		private final String betaParamName;
-		public SheffieldRRParameter(HTAModel model, String betaParamName) {
-			super(model, "SH_" + betaParamName, "Sheffield-based method to compute RR from a beta and HbA1c level", "Sheffield report", Parameter.ParameterType.RISK);
+		public SheffieldRRParameter(HTAModel model, String rrParamName, String betaParamName) {
+			super(model, rrParamName, "Sheffield-based method to compute RR from a beta and HbA1c level", "Sheffield report", Parameter.ParameterType.RISK);
 			this.betaParamName = betaParamName;
 		}
 		@Override
