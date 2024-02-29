@@ -101,7 +101,7 @@ public class DCCT_PrimaryConventionalPopulation extends FirstOrderOnlyPopulation
 	}
 
 	@Override
-	public TimeToEventCalculator getDeathCharacterization() {
+	public TimeToEventCalculator initializeDeathCharacterization() {
 		return new EmpiricalSpainDeathSubmodel(getModel());
 	}
 

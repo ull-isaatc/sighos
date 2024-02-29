@@ -25,7 +25,6 @@ import simkit.random.RandomVariateFactory;
 public class TestPopulation extends StdPopulation {
 	final public static String ATTRIBUTE_LDL = "LDL";
 	final public static String ATTRIBUTE_HDL = "HDL";
-	final private TimeToEventCalculator death;
 	private double ldl = 85.0;
 	private double hdl = 55.0;
 	private int sex = 0;
@@ -37,7 +36,6 @@ public class TestPopulation extends StdPopulation {
 	 */
 	public TestPopulation(HTAModel model, Disease disease) throws MalformedSimulationModelException {
 		super(model, "TEST_POP", "Test population", disease);
-		death = new ConstantDeathSubmodel(Population.DEF_MAX_AGE - Population.DEF_MIN_AGE);
 	}
 
 	@Override
@@ -74,8 +72,8 @@ public class TestPopulation extends StdPopulation {
 	}
 
 	@Override
-	public TimeToEventCalculator getDeathCharacterization() {
-		return death;
+	public TimeToEventCalculator initializeDeathCharacterization() {
+		return new ConstantDeathSubmodel(Population.DEF_MAX_AGE - Population.DEF_MIN_AGE);
 	}
 
 	public double getLDL() {

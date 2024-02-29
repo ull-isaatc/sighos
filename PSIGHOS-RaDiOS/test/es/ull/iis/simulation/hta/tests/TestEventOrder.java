@@ -40,7 +40,8 @@ public class TestEventOrder {
         ONE_CHRONIC,
         TWO_CHRONIC,
         TWO_CHRONIC_EXCLUSIVE,
-        ACUTE
+        ACUTE,
+        ACUTE_DEATH
     }
     private final TestArguments arguments = new TestArguments();
 	private final ByteArrayOutputStream baos = new ByteArrayOutputStream ();
@@ -56,6 +57,19 @@ public class TestEventOrder {
     @DisplayName("Test the event order for a disease with an acute manifestations that appears every ten years")
     public void testEventOrderAcuteManifestations() {
         arguments.example = TESTS.ACUTE;
+        try {
+            final HTAExperiment exp = new BasicDiseaseExperiment(arguments, baos);
+            exp.run();
+            System.out.println(baos.toString());
+        } catch (MalformedSimulationModelException e) {
+            e.printStackTrace();
+        }
+    }   
+
+    @Test
+    @DisplayName("Test the event order for a disease with an acute manifestations that appears every ten years, but causes death upon the first event")
+    public void testEventOrderAcuteDeathManifestations() {
+        arguments.example = TESTS.ACUTE_DEATH;
         try {
             final HTAExperiment exp = new BasicDiseaseExperiment(arguments, baos);
             exp.run();
@@ -125,7 +139,14 @@ public class TestEventOrder {
                 year += BasicDisease.YEARS_AMONG_ACUTE_MANIFESTATIONS;
             }
         }
-        expectedEvents.add(new PatientEvent(0, TimeUnit.DAY.convert(Population.DEF_MAX_AGE - Population.DEF_MIN_AGE, TimeUnit.YEAR), PatientInfo.Type.DEATH));
+        else if (example == TESTS.ACUTE_DEATH) {
+            expectedEvents.add(new PatientEvent(0, TimeUnit.DAY.convert(BasicDisease.YEARS_AMONG_ACUTE_MANIFESTATIONS, TimeUnit.YEAR), PatientInfo.Type.START_MANIF));
+            expectedEvents.add(new PatientEvent(0, TimeUnit.DAY.convert(BasicDisease.YEARS_AMONG_ACUTE_MANIFESTATIONS, TimeUnit.YEAR), PatientInfo.Type.DEATH));
+        }
+        // Every test but the one with death after acute event ends with a death at the maximum age of the patient
+        if (example != TESTS.ACUTE_DEATH) {
+            expectedEvents.add(new PatientEvent(0, TimeUnit.DAY.convert(Population.DEF_MAX_AGE - Population.DEF_MIN_AGE, TimeUnit.YEAR), PatientInfo.Type.DEATH));
+        }
         return expectedEvents;
     }
 
@@ -183,26 +204,30 @@ public class TestEventOrder {
         public static final int YEARS_AMONG_ACUTE_MANIFESTATIONS = 10;
         public static final int YEARS_TO_MANIFESTATION1 = 1;
         public static final int YEARS_TO_MANIFESTATION2 = 1;
+        private DiseaseProgression acuteManif1 = null;
+        private DiseaseProgression manif1 = null;
+        private DiseaseProgression manif2 = null;
+
         /**
          * @param model Repository with common information about the disease 
          */
         public BasicDisease(BasicDiseaseModel model) {
             super(model, "D0", "Test disease 0");
-            if (model.getExample() == TESTS.ACUTE) {
-                final DiseaseProgression acuteManif1 = new TestAcuteManifestation(model, this, "ACUTE_MANIF1", 1000, 0.2);
-		        new DiseaseProgressionPathway(model, "PATH_ACUTE1", "Pathway to acute manifestation 1", acuteManif1,
-			        new ConstantTimeToEventCalculator(YEARS_AMONG_ACUTE_MANIFESTATIONS));
+            if (TESTS.ACUTE.equals(model.getExample()) || TESTS.ACUTE_DEATH.equals(model.getExample())) {
+                acuteManif1 = new TestAcuteManifestation(model, this, "ACUTE_MANIF1", 1000, 0.2, TESTS.ACUTE_DEATH.equals(model.getExample()));
+                new DiseaseProgressionPathway(model, "PATH_ACUTE1", "Pathway to acute manifestation 1", acuteManif1,
+                    new ConstantTimeToEventCalculator(YEARS_AMONG_ACUTE_MANIFESTATIONS));
             }
             else {
-                final DiseaseProgression manif1 = new TestChronicManifestation(model, this, "MANIF1", 100, 0.2);
+                manif1 = new TestChronicManifestation(model, this, "MANIF1", 100, 0.2);
                 new DiseaseProgressionPathway(model, "PATHWAY1",  "Pathway to chronic manifestation 1", manif1,
                     new ConstantTimeToEventCalculator(YEARS_TO_MANIFESTATION1));
-                if (model.getExample() != TESTS.ONE_CHRONIC) {
-                    final DiseaseProgression manif2 = new TestChronicManifestation(model, this, "MANIF2", 1000, 0.5);
+                if (!TESTS.ONE_CHRONIC.equals(model.getExample())) {
+                    manif2 = new TestChronicManifestation(model, this, "MANIF2", 1000, 0.5);
                     final Condition<DiseaseProgressionPathway.ConditionInformation> cond = new PreviousDiseaseProgressionCondition(manif1);
                     new DiseaseProgressionPathway(model, "PATHWAY1_2", "Pathway from chronic manifestaion 1 to chronic manifestation 2", manif2, 
                         new ConstantTimeToEventCalculator(YEARS_TO_MANIFESTATION2), cond); 
-                    if (model.getExample() == TESTS.TWO_CHRONIC_EXCLUSIVE) {
+                    if (TESTS.TWO_CHRONIC_EXCLUSIVE.equals(model.getExample())) {
                         addExclusion(manif2, manif1);
                     }
                 }                
@@ -239,21 +264,27 @@ public class TestEventOrder {
     public static class TestAcuteManifestation extends DiseaseProgression {
         private final double onsetCost;
         private final double onsetDisutility;
+        private final boolean leadsToDeath;
 
         /**
          * @param model
          * @param disease
          */
-        public TestAcuteManifestation(BasicDiseaseModel model, Disease disease, String name, double onsetCost, double onsetDisutility) {
-            super(model, name, "Chronic manifestation of test disease", disease, Type.ACUTE_MANIFESTATION);
+        public TestAcuteManifestation(BasicDiseaseModel model, Disease disease, String name, double onsetCost, double onsetDisutility, boolean leadsToDeath) {
+            super(model, name, "Acute manifestation of test disease", disease, Type.ACUTE_MANIFESTATION);
             this.onsetCost = onsetCost;
             this.onsetDisutility = onsetDisutility;
+            this.leadsToDeath = leadsToDeath;
         }
 
         @Override
         public void createParameters() {
             addUsedParameter(StandardParameter.ONSET_COST, "", "Test", HTAModel.getStudyYear(), onsetCost);
             addUsedParameter(StandardParameter.ONSET_DISUTILITY, "", "Test", onsetDisutility);
+            if (leadsToDeath) {
+                addUsedParameter(StandardParameter.DISEASE_PROGRESSION_RISK_OF_DEATH, "Death by acute manifestation", 
+                    "Test", 1.0);
+            }
         }
 
     }

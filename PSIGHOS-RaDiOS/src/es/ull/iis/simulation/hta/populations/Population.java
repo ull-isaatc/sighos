@@ -35,6 +35,8 @@ public abstract class Population extends HTAModelComponent {
 	private int maxAge;
 	/** Default utility for general population: From adult Spanish population but those with DM */ 
 	public static double DEF_U_GENERAL_POP = 0.911400915;
+	/** The time to event calculator that characterizes the death of patients */
+	private final TimeToEventCalculator deathCharacterization;
 
 	/**
 	 * Creates a population
@@ -50,6 +52,7 @@ public abstract class Population extends HTAModelComponent {
 		this.maxAge = Population.DEF_MAX_AGE;
 		if (!model.register(this))
 			throw new MalformedSimulationModelException("Population already defined");
+		deathCharacterization = initializeDeathCharacterization();
 		registerUsedParameter(StandardParameter.POPULATION_BASE_UTILITY);
 		registerUsedParameter(StandardParameter.PREVALENCE);
 		registerUsedParameter(StandardParameter.BIRTH_PREVALENCE);
@@ -127,7 +130,15 @@ public abstract class Population extends HTAModelComponent {
 	 * Returns the characterization of the time to death for patients belonging to this population
 	 * @return the characterization of the time to death for patients belonging to this population
 	 */
-	public abstract TimeToEventCalculator getDeathCharacterization();
+	public TimeToEventCalculator getDeathCharacterization() {
+		return deathCharacterization;
+	}
+
+	/**
+	 * Creates and returns the time to event calculator used to characterize the death of patients
+	 * @return the time to event calculator used to characterize the death of patients
+	 */
+	public abstract TimeToEventCalculator initializeDeathCharacterization();
 
 	/**
 	 * Returns the base utility for the specified patient 

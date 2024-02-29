@@ -74,7 +74,7 @@ public class T1DMSimpleTestPopulation extends StdPopulation {
 	}
 
 	@Override
-	public TimeToEventCalculator getDeathCharacterization() {
+	public TimeToEventCalculator initializeDeathCharacterization() {
 		return new EmpiricalSpainDeathSubmodel(getModel());
 	}
 	

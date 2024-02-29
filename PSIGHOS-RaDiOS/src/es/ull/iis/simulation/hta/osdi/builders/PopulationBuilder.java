@@ -208,7 +208,7 @@ public interface PopulationBuilder {
 		}
 
 		@Override
-		public TimeToEventCalculator getDeathCharacterization() {
+		public TimeToEventCalculator initializeDeathCharacterization() {
 			// TODO: Death submodel should be context specific, depending on the population
 			return new EmpiricalSpainDeathSubmodel(getModel());
 		}
