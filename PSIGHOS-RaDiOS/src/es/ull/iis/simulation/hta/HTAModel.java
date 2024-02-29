@@ -2,6 +2,7 @@ package es.ull.iis.simulation.hta;
 
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -230,7 +231,8 @@ public class HTAModel {
 	 */
 	public DiseaseProgression[] getRegisteredDiseaseProgressions() {
 		final DiseaseProgression[] array = new DiseaseProgression[registeredProgressions.size()];
-		return (DiseaseProgression[]) registeredProgressions.values().toArray(array);
+		Arrays.sort((DiseaseProgression[]) registeredProgressions.values().toArray(array));
+		return array;
 	}
 
 	/**
