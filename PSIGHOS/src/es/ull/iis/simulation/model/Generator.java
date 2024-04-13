@@ -7,14 +7,13 @@ import java.util.ArrayList;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.function.TimeFunctionParams;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  */
-public abstract class Generator<INF extends Generator.GenerationInfo> extends SimulationObject implements TimeFunctionParams {
+public abstract class Generator<INF extends Generator.GenerationInfo> extends SimulationObject {
 	/** Number of objects created each time this creator is invoked. */
 	protected final TimeFunction nElem;
 	/** Each flow that will be generated */
@@ -138,7 +137,7 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
 
 	/**
 	 * Description of a set of elements a generator can create.
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 */
     public static class GenerationInfo {
 		/** Proportion of elements corresponding to this flow. */

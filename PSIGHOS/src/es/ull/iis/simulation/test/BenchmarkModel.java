@@ -26,7 +26,7 @@ import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.function.TimeFunctionFactory;
 
 /**
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  *
  */
 public class BenchmarkModel {
@@ -42,7 +42,7 @@ public class BenchmarkModel {
 	 * - TOTALCONFLICT: Again the same model, but this time, the resources have multiple timetable 
 	 *   entries and can be used by any activity.
 	 * - PARALLEL: Each resource simultaneously requests ALL the activities. 
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 */
 	enum ModelType {NORESOURCES, RESOURCES, CONFLICT, MIXCONFLICT, TOTALCONFLICT, PARALLEL}
 	/**
@@ -50,7 +50,7 @@ public class BenchmarkModel {
 	 * - SAMETIME: All the elements request the activities at the same time
 	 * - CONSECUTIVE: Only one element requests an activity at a time
 	 * - MIXED: Something in the middle of the former ones.
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 */
 	enum OverlappingType {SAMETIME, CONSECUTIVE, MIXED};
 	final private String head;
@@ -183,10 +183,10 @@ public class BenchmarkModel {
 			case CONFLICT: sim = getTestConflict(); break;
 			case MIXCONFLICT: sim = getTestMixConflict(); break;
 			case TOTALCONFLICT: sim = getTestTotalConflict(); break;
-			case PARALLEL: sim = getTestParallelSimResources(); break;
-		}
-		if (SimulationType.PARALLEL.equals(simType)) {
+			case PARALLEL: 
+			sim = getTestParallelSimResources(); 
 			sim.setSimulationEngine(new ParallelSimulationEngine(sim.getIdentifier(), sim, nThread));
+			break;
 		}
 		return sim;
 	}

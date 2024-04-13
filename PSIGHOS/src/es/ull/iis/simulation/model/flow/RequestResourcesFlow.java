@@ -12,10 +12,8 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.ActivityManager;
-import es.ull.iis.simulation.model.Describable;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
-import es.ull.iis.simulation.model.Identifiable;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -35,7 +33,7 @@ import es.ull.iis.util.PrioritizedTable;
  * The flow is potentially feasible if there is no proof that none of the workgroups are available. The flow is feasible if it's potentially feasible 
  * and there is at least one workgroup with enough available resources.<p>
  * An element requesting a request flow which is not feasible is added to a queue until new resources are available.
- * @author Iván Castilla
+ * @author Ivï¿½n Castilla
  *
  */
 public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlow, ResourceHandlerFlow, Prioritizable {
@@ -313,7 +311,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	/**
 	 * A builder for adding workgroups. By default, workgroups have the highest priority, unconditionally available and have not delay.
 	 * The priority, condition and delay can be modified by using the "with..." methods.
-	 * @author Iván Castilla
+	 * @author Ivï¿½n Castilla
 	 *
 	 */
 	public final class WorkGroupAdder {
@@ -369,9 +367,9 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
 	 * set of (resource type, #needed resources) pairs, a condition which determines if the 
 	 * workgroup can be used or not, and the priority of the workgroup inside the basicStep.
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 */
-	public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Identifiable, Describable {
+	public class ActivityWorkGroup extends WorkGroup implements Prioritizable {
 		/** Priority of the workgroup */
 	    final private int priority;
 	    /** Availability condition */
