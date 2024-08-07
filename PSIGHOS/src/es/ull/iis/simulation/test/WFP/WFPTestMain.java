@@ -10,10 +10,9 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 
 /**
- * @author Iván Castilla Rodríguez
+ * @author Ivï¿½n Castilla Rodrï¿½guez
  *
  */
 public class WFPTestMain extends Experiment {
@@ -70,9 +69,6 @@ public class WFPTestMain extends Experiment {
 		}
 		else {
 			simul = class2Model(WFPTestMain.simulations.pollFirstEntry().getValue(), ind);
-		}
-		if (nThreads > 1) {
-			simul.setSimulationEngine(new ParallelSimulationEngine(ind, simul, nThreads));
 		}
 		return simul;
 	}

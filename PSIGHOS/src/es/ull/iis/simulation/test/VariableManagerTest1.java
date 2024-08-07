@@ -6,7 +6,6 @@ import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 import es.ull.iis.simulation.variable.EnumType;
 import es.ull.iis.simulation.variable.EnumVariable;
 import es.ull.iis.simulation.variable.IntVariable;
@@ -49,9 +48,6 @@ class ExperimentTest1 extends Experiment {
     	System.out.println("Valor del enumerado: " + sim.getVar("tipoCoche").toString());
 
 		sim.addInfoReceiver(new StdInfoView());
-		if (NTHREADS > 1) {
-			sim.setSimulationEngine(new ParallelSimulationEngine(ind, sim, NTHREADS));
-		}
 		return sim;
 	}
 	

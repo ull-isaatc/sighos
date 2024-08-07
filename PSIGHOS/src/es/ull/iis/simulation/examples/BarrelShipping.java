@@ -21,7 +21,6 @@ import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.MultiChoiceFlow;
-import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 import es.ull.iis.util.cycle.WeeklyPeriodicCycle;
 
 class BarrelShippingExperiment extends Experiment {
@@ -107,8 +106,6 @@ class BarrelShippingExperiment extends Experiment {
 		factory.getTimeDrivenElementGeneratorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 1.0), etShipping, actFilling, cGen);
 
 		simul.addInfoReceiver(new StdInfoView());
-		if (NTHREADS > 1)
-			simul.setSimulationEngine(new ParallelSimulationEngine(ind, simul, NTHREADS));
 		
     	return simul;
 	}
