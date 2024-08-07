@@ -984,11 +984,6 @@ Examples:
                                             ] .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#BirthPrevalence
-:BirthPrevalence rdf:type owl:Class ;
-                 rdfs:subClassOf :EpidemiologicalParameter .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#CalculatedParameter
 :CalculatedParameter rdf:type owl:Class ;
                      rdfs:subClassOf :ParameterNature ,
@@ -1576,11 +1571,6 @@ Examples:
                   rdfs:comment "Any treatment, drug, test... that may be applied to a patient" .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Incidence
-:Incidence rdf:type owl:Class ;
-           rdfs:subClassOf :EpidemiologicalParameter .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Intervention
 :Intervention rdf:type owl:Class ;
               rdfs:subClassOf :ModelItem ,
@@ -1903,11 +1893,6 @@ Examples:
                             ] .
 
 
-###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Prevalence
-:Prevalence rdf:type owl:Class ;
-            rdfs:subClassOf :EpidemiologicalParameter .
-
-
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#ProbabilityDistributionExpression
 :ProbabilityDistributionExpression rdf:type owl:Class ;
                                    rdfs:subClassOf :ModelItem ,
@@ -2172,22 +2157,25 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Incidence1
 :Constant_Incidence1 rdf:type owl:NamedIndividual ,
-                              :Incidence ;
-                     :hasDataItemType :DI_Ratio ;
+                              :DeterministicParameter ,
+                              :EpidemiologicalParameter ;
+                     :hasDataItemType :DI_Incidence ;
                      :hasExpectedValue "1.0"^^xsd:double ;
                      :isTrueEpidemiologicalParameterEstimate "true"^^xsd:boolean .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Prevalence1
 :Constant_Prevalence1 rdf:type owl:NamedIndividual ,
-                               :Prevalence ;
-                      :hasDataItemType :DI_Ratio ;
+                               :DeterministicParameter ,
+                               :EpidemiologicalParameter ;
+                      :hasDataItemType :DI_Prevalence ;
                       :hasExpectedValue "1.0"^^xsd:double ;
                       :isTrueEpidemiologicalParameterEstimate "true"^^xsd:boolean .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Probability0
 :Constant_Probability0 rdf:type owl:NamedIndividual ,
+                                :DeterministicParameter ,
                                 :Parameter ;
                        :hasDataItemType :DI_Probability ;
                        :hasExpectedValue "0.0"^^xsd:double .
@@ -2195,6 +2183,7 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Probability1
 :Constant_Probability1 rdf:type owl:NamedIndividual ,
+                                :DeterministicParameter ,
                                 :Parameter ;
                        :hasDataItemType :DI_Probability ;
                        :hasExpectedValue "1.0"^^xsd:double .
@@ -2202,6 +2191,7 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Sensitivity1
 :Constant_Sensitivity1 rdf:type owl:NamedIndividual ,
+                                :DeterministicParameter ,
                                 :Parameter ;
                        :hasDataItemType :DI_Sensitivity ;
                        :hasExpectedValue "1.0"^^xsd:double .
@@ -2209,6 +2199,7 @@ Examples:
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#Constant_Specificity1
 :Constant_Specificity1 rdf:type owl:NamedIndividual ,
+                                :DeterministicParameter ,
                                 :Parameter ;
                        :hasDataItemType :DI_Specificity ;
                        :hasExpectedValue "1.0"^^xsd:double .
@@ -2241,6 +2232,13 @@ Examples:
                 :hasUnit "\\u00a3" .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_BirthPrevalence
+:DI_BirthPrevalence rdf:type owl:NamedIndividual ,
+                             :DataItemType ;
+                    :hasDescription "The proportion of a birth year cohort that has certain condition" ;
+                    :hasName "Birth prevalence" .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_Continuous_Variable
 :DI_Continuous_Variable rdf:type owl:NamedIndividual ,
                                  :DataItemType ;
@@ -2269,6 +2267,14 @@ Examples:
                     :DataItemType .
 
 
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_Incidence
+:DI_Incidence rdf:type owl:NamedIndividual ,
+                       :DataItemType ;
+              :hasDescription "The ratio of the number of new cases of a disease/manifestation/stage divided by the number of persons at risk for the disease/manifestation/stage" ;
+              :hasName "Incidence" ;
+              :hasRefToSTATO "stato:0000413" .
+
+
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_Lower95ConfidenceLimit
 :DI_Lower95ConfidenceLimit rdf:type owl:NamedIndividual ,
                                     :DataItemType ;
@@ -2286,6 +2292,14 @@ Examples:
 :DI_Other rdf:type owl:NamedIndividual ,
                    :DataItemType ;
           :hasDescription "A data item type not explicitly defined in the ontology" .
+
+
+###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_Prevalence
+:DI_Prevalence rdf:type owl:NamedIndividual ,
+                        :DataItemType ;
+               :hasDescription "The rratio formed by the number of subjects diagnosed with a disease or presenting certain disease progression divided by the total population size." ;
+               :hasName "Prevalence" ;
+               :hasRefToSTATO "stato:0000412" .
 
 
 ###  http://www.ull.es/iis/simulation/ontologies/disease-simulation#DI_Probability
