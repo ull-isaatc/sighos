@@ -13,9 +13,10 @@ import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.simulation.inforeceiver.SimulationInfoHandler;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.BasicFlow;
+import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.sequential.SequentialSimulationEngine;
 import es.ull.iis.simulation.variable.BooleanVariable;
 import es.ull.iis.simulation.variable.ByteVariable;
 import es.ull.iis.simulation.variable.CharacterVariable;
@@ -29,8 +30,40 @@ import es.ull.iis.simulation.variable.Variable;
 import es.ull.iis.util.Output;
 
 /**
- * The main simulation class. Defines all the components of the model and the logical structures required to simulate them.
- * 
+ * The main simulation class, identified by means of an identifier and a description. 
+* A simulation executes a model defined by means of different structures: 
+ * <ul>
+ * <li>{@link ResourceTypeEngine}</li>
+ * <li>{@link ResourceEngine}</li>
+ * <li>{@link WorkGroup}</li>
+ * <li>{@link ActivityFlow}</li>
+ * <li>{@link ElementType}</li>
+ * <li>{@link Flow}</li>
+ * <li>{@link TimeDrivenElementGenerator}</li>
+ * </ul>
+ * A simulation has an associated clock which starts in <tt>startTs</tt> and advances according 
+ * to the events produced by the {@link Element}s, {@link ResourceEngine}s and {@link TimeDrivenElementGenerator}s. 
+ * A "next-event" technique is used to determine the next timestamp to advance. A minimum 
+ * {@link TimeUnit} determines the accuracy of the simulation's clock. The simulation ends when the 
+ * simulation clock reaches the <tt>endTs</tt> timestamp or no more events are available.<br>
+ * Depending on the specific implementation, a simulation can use one or more "worker" threads to 
+ * execute the event's actions.
+ * <p>
+ * A user can interact with this Simulation by filling in some user methods that are activated in different
+ * instants:
+ * <ul>
+ * <li>Just before the simulation starts {@link #init()}</li>
+ * <li>Just after the simulation ends {@link #end()}</li>
+ * <li>Just before the simulation clock advances {@link #beforeClockTick()}</li> 
+ * <li>Just After the simulation clock advances {@link #afterClockTick()}</li> 
+ * </ul> 
+ * <p>
+ * A simulation uses {@link InfoReceiver}s to show results. Those "listeners" can
+ * be added by invoking the {@link #addInfoReceiver(InfoReceiver)} method. 
+ * <p>
+ * For debugging purposes, an {@link Output} can be associated to this simulation, thus
+ * defining the destination for error and debug messages.
+  * 
  * @author Ivan Castilla Rodriguez
  *
  */
@@ -299,9 +332,8 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 		debugPrintActManager();					
 		// Sets default simulation engine
 		if (simulationEngine == null) {
-			setSimulationEngine(new SequentialSimulationEngine(id, this));
+			setSimulationEngine(new SimulationEngine(id, this));
 		}
-		simulationEngine.initializeEngine();
 		init();
 
 		infoHandler.notifyInfo(new SimulationStartStopInfo(this, SimulationStartStopInfo.Type.START, startTs));
@@ -677,7 +709,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	/**
 	 * A basic event which facilitates the control of the end of the simulation. Scheduling this event
 	 * ensures that there's always at least one event in the simulation. 
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivï¿½n Castilla Rodrï¿½guez
 	 */
     class SimulationEndEvent extends DiscreteEvent {
     	/**
